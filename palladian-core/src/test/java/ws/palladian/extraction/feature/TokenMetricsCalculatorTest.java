@@ -12,7 +12,6 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
-import ws.palladian.processing.features.FeatureVector;
 
 public class TokenMetricsCalculatorTest {
 
@@ -30,14 +29,13 @@ public class TokenMetricsCalculatorTest {
 
         Annotation<String> token = tokens.get(1);
         assertEquals("Reh", token.getValue());
-        FeatureVector featureVector = token.getFeatureVector();
-        assertEquals(1. / 18, (double)featureVector.get(TokenMetricsCalculator.FIRST).getValue(), 0);
-        assertEquals(6. / 18., (double)featureVector.get(TokenMetricsCalculator.LAST).getValue(), 0);
-        assertEquals(2, (double)featureVector.get(TokenMetricsCalculator.COUNT).getValue(), 0);
-        assertEquals(1, (double)featureVector.get(TokenMetricsCalculator.FREQUENCY).getValue(), 0);
-        assertEquals(5. / 18., (double)featureVector.get(TokenMetricsCalculator.SPREAD).getValue(), 0);
-        assertEquals(3, (double)featureVector.get(TokenMetricsCalculator.CHAR_LENGTH).getValue(), 0);
-        assertEquals(1., (double)featureVector.get(TokenMetricsCalculator.WORD_LENGTH).getValue(), 0);
+        assertEquals(1. / 18, (double)token.getFeature(TokenMetricsCalculator.FIRST).getValue(), 0);
+        assertEquals(6. / 18., (double)token.getFeature(TokenMetricsCalculator.LAST).getValue(), 0);
+        assertEquals(2, (double)token.getFeature(TokenMetricsCalculator.COUNT).getValue(), 0);
+        assertEquals(1, (double)token.getFeature(TokenMetricsCalculator.FREQUENCY).getValue(), 0);
+        assertEquals(5. / 18., (double)token.getFeature(TokenMetricsCalculator.SPREAD).getValue(), 0);
+        assertEquals(3, (double)token.getFeature(TokenMetricsCalculator.CHAR_LENGTH).getValue(), 0);
+        assertEquals(1., (double)token.getFeature(TokenMetricsCalculator.WORD_LENGTH).getValue(), 0);
     }
 
 }

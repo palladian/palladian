@@ -202,10 +202,10 @@ public class SequentialPatternAnnotatorTest {
 
         processingPipeline.process(document);
 
-        for (Annotation annotation : document.getFeatureVector()
+        for (Annotation<String> annotation : document.getFeatureVector()
                 .get(AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR).getValue()) {
-            SequentialPattern lsp = annotation.getFeatureVector()
-                    .get(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue().get(0);
+            SequentialPattern lsp = annotation.getFeature(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR)
+                    .getValue().get(0);
             Assert.assertThat(lsp, Matchers.isIn(expectedPatterns));
         }
     }
@@ -224,9 +224,9 @@ public class SequentialPatternAnnotatorTest {
         processingPipeline.process(document);
 
         List<SequentialPattern> extractedPatterns = new LinkedList<SequentialPattern>();
-        for (Annotation annotation : document.getFeatureVector()
+        for (Annotation<String> annotation : document.getFeatureVector()
                 .get(AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR).getValue()) {
-            SequentialPatternsFeature patternsFeature = annotation.getFeatureVector().get(
+            SequentialPatternsFeature patternsFeature = annotation.getFeature(
                     SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
             for (SequentialPattern pattern : patternsFeature.getValue()) {
                 extractedPatterns.add(pattern);

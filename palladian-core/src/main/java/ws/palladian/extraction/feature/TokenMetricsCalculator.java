@@ -14,7 +14,6 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
@@ -101,14 +100,13 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
             double spread = last - first;
             double charLength = value.length();
             double wordLength = value.split(" ").length;
-            FeatureVector featureVector = annotation.getFeatureVector();
-            featureVector.add(new NumericFeature(FIRST, first));
-            featureVector.add(new NumericFeature(LAST, last));
-            featureVector.add(new NumericFeature(COUNT, count));
-            featureVector.add(new NumericFeature(FREQUENCY, frequency));
-            featureVector.add(new NumericFeature(SPREAD, spread));
-            featureVector.add(new NumericFeature(CHAR_LENGTH, charLength));
-            featureVector.add(new NumericFeature(WORD_LENGTH, wordLength));
+            annotation.addFeature(new NumericFeature(FIRST, first));
+            annotation.addFeature(new NumericFeature(LAST, last));
+            annotation.addFeature(new NumericFeature(COUNT, count));
+            annotation.addFeature(new NumericFeature(FREQUENCY, frequency));
+            annotation.addFeature(new NumericFeature(SPREAD, spread));
+            annotation.addFeature(new NumericFeature(CHAR_LENGTH, charLength));
+            annotation.addFeature(new NumericFeature(WORD_LENGTH, wordLength));
         }
     }
 

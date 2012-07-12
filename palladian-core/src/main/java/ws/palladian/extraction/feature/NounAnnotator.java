@@ -17,7 +17,6 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
@@ -68,9 +67,7 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
             List<Annotation<String>> tokens = tokenFeature.getAnnotations(sentence.getStartPosition(),
                     sentence.getEndPosition());
             for (Annotation<String> token : tokens) {
-            	//NominalFeature posTag = token.getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
-            	FeatureVector tokenFeatureVector = token.getFeatureVector();
-            	NominalFeature posTag = tokenFeatureVector.get(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
+            	NominalFeature posTag = token.getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
                 if (nounTagList.contains(posTag.getValue())) {
                     ret.add(new PositionAnnotation(document, token.getStartPosition(), token.getEndPosition()));
                 }

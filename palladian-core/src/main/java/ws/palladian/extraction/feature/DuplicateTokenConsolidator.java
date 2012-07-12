@@ -16,7 +16,6 @@ import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
@@ -51,10 +50,10 @@ public final class DuplicateTokenConsolidator extends StringDocumentPipelineProc
             String tokenValue = currentAnnotation.getValue().toLowerCase();
             if (valueMap.containsKey(tokenValue)) {
                 Annotation<String> existingAnnotation = valueMap.get(tokenValue);
-                TextAnnotationFeature duplicateAnnotationFeature = existingAnnotation.getFeatureVector().get(DUPLICATES);
+                TextAnnotationFeature duplicateAnnotationFeature = existingAnnotation.getFeature(DUPLICATES);
                 if (duplicateAnnotationFeature == null) {
                     duplicateAnnotationFeature = new TextAnnotationFeature(DUPLICATES);
-                    existingAnnotation.getFeatureVector().add(duplicateAnnotationFeature);
+                    existingAnnotation.addFeature(duplicateAnnotationFeature);
                 }
                 duplicateAnnotationFeature.add(currentAnnotation);
             } else {
@@ -77,8 +76,7 @@ public final class DuplicateTokenConsolidator extends StringDocumentPipelineProc
      */
     public static List<Annotation<String>> getDuplicateAnnotations(Annotation<String> annotation) {
         Validate.notNull(annotation, "annotation must not be null.");
-        FeatureVector featureVector = annotation.getFeatureVector();
-        TextAnnotationFeature duplicateFeature = featureVector.get(DUPLICATES);
+        TextAnnotationFeature duplicateFeature = annotation.getFeature(DUPLICATES);
         List<Annotation<String>> ret = Collections.emptyList();
         if (duplicateFeature != null) {
             ret = duplicateFeature.getValue();

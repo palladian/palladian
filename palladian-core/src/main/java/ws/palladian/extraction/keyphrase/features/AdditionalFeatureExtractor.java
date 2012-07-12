@@ -19,7 +19,6 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.TextAnnotationFeature;
@@ -78,7 +77,7 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
         List<Annotation<String>> annotations = annotationFeature.getValue();
         for (int i = 0; i < annotations.size(); i++) {
             Annotation<String> annotation = annotations.get(i);
-            String unstemValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
+            String unstemValue = annotation.getFeature(StemmerAnnotator.UNSTEM).getValue();
             if (unstemValue == null) {
                 throw new DocumentUnprocessableException("The necessary feature \"" + StemmerAnnotator.UNSTEM
                         + "\" is missing for Annotation \"" + annotation.getValue() + "\"");
@@ -92,14 +91,13 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
             double punctuationPercentage = getPunctuationPercentage(unstemValue);
             double uniqueCharacterPercentage = getUniqueCharacterPercentage(unstemValue);
 
-            FeatureVector featureVector = annotation.getFeatureVector();
-            featureVector.add(new NumericFeature(STARTS_UPPERCASE_PERCENTAGE, startsUppercase));
-            featureVector.add(new NumericFeature(COMPLETE_UPPERCASE, completeUppercase));
-            featureVector.add(new NumericFeature(NUMBER_PERCENTAGE, numberCount));
-            featureVector.add(new NominalFeature(IS_NUMBER, isNumber));
-            featureVector.add(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, punctuationPercentage));
-            featureVector.add(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, uniqueCharacterPercentage));
-            featureVector.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
+            annotation.addFeature(new NumericFeature(STARTS_UPPERCASE_PERCENTAGE, startsUppercase));
+            annotation.addFeature(new NumericFeature(COMPLETE_UPPERCASE, completeUppercase));
+            annotation.addFeature(new NumericFeature(NUMBER_PERCENTAGE, numberCount));
+            annotation.addFeature(new NominalFeature(IS_NUMBER, isNumber));
+            annotation.addFeature(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, punctuationPercentage));
+            annotation.addFeature(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, uniqueCharacterPercentage));
+            annotation.addFeature(new NominalFeature(CASE_SIGNATURE, caseSignature));
         }
     }
 
@@ -148,7 +146,7 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
 
         double completeUppercaseCount = 0;
         for (Annotation<String> current : allAnnotations) {
-            if (StringUtils.isAllUpperCase(current.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue())) {
+            if (StringUtils.isAllUpperCase(current.getFeature(StemmerAnnotator.UNSTEM).getValue())) {
                 completeUppercaseCount++;
             }
         }
@@ -163,8 +161,8 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
 
         Bag<String> signatures = new HashBag<String>();
         for (Annotation<String> current : allAnnotations) {
-            String caseSignature = StringHelper.getCaseSignature(current.getFeatureVector()
-                    .get(StemmerAnnotator.UNSTEM).getValue());
+            String caseSignature = StringHelper.getCaseSignature(current
+                    .getFeature(StemmerAnnotator.UNSTEM).getValue());
             signatures.add(caseSignature);
         }
         return BagHelper.getHighest(signatures);
@@ -177,7 +175,7 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
 
         double uppercaseCount = 0;
         for (Annotation<String> current : allAnnotations) {
-            if (StringHelper.startsUppercase(current.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue())) {
+            if (StringHelper.startsUppercase(current.getFeature(StemmerAnnotator.UNSTEM).getValue())) {
                 uppercaseCount++;
             }
         }

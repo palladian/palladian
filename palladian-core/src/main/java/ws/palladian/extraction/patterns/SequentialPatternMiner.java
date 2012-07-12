@@ -96,8 +96,8 @@ public class SequentialPatternMiner extends ProcessingPipeline {
             List<Annotation<String>> sentenceAnnotations = sentencesFeature.getValue();
 
             for (Annotation<String> annotation : sentenceAnnotations) {
-                SequentialPatternsFeature lspFeature = annotation.getFeatureVector().get(
-                        SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
+                SequentialPatternsFeature lspFeature = annotation
+                        .getFeature(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
                 if (lspFeature != null) {
                     ret.add(lspFeature);
                 }

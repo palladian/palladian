@@ -14,7 +14,9 @@ import ws.palladian.processing.PipelineProcessor;
  * {@link PipelineProcessor}s which attach a certain feature to a {@link FeatureVector} should provide a static field
  * named e.g. <code>PROVIDED_FEATURE_DESCRIPTOR</code>. This constant can then be used for invoking
  * {@link FeatureVector#get(FeatureDescriptor)}. {@link FeatureDescriptor}s can be created using
- * {@link FeatureDescriptorBuilder#build(String, Class)}.
+ * {@link FeatureDescriptorBuilder#build(String, Class)}. {@link PipelineProcessor}s which need to supply
+ * {@link FeatureDescriptor}s dynamically (for example a dictionary based annotator which can be configured with
+ * different dictionaries for each instance) implement the interface {@link FeatureProvider}.
  * </p>
  * 
  * @author Philipp Katz
