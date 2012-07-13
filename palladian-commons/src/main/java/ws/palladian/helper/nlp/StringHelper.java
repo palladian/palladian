@@ -16,6 +16,7 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
@@ -498,7 +499,8 @@ public final class StringHelper {
             leftBorder = true;
         } else {
             char prevChar = searchString.charAt(index - 1);
-            // leftBorder = isPunctuation(prevChar) || Character.isSpaceChar(prevChar) || prevChar == '-' || prevChar == '(';
+            // leftBorder = isPunctuation(prevChar) || Character.isSpaceChar(prevChar) || prevChar == '-' || prevChar ==
+            // '(';
             leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
         }
         boolean rightBorder;
@@ -506,7 +508,8 @@ public final class StringHelper {
             rightBorder = true;
         } else {
             char nextChar = searchString.charAt(index + word.length());
-            // rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-' || nextChar == ')';
+            // rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-' || nextChar
+            // == ')';
             rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
         }
         return leftBorder && rightBorder;
@@ -716,7 +719,6 @@ public final class StringHelper {
             if (Character.getType(ch) != Character.DECIMAL_DIGIT_NUMBER && ch != '.') {
                 isNumber = false;
             }
-            // System.out.println(Character.getType(ch)+" "+Character.DECIMAL_DIGIT_NUMBER);
         }
 
         if (string.startsWith(".") || string.endsWith(".")) {
@@ -822,7 +824,6 @@ public final class StringHelper {
                     && Character.getType(ch) != Character.FINAL_QUOTE_PUNCTUATION && ch != ' ') {
                 isCompletelyUppercase = false;
             }
-            // System.out.println(Character.getType(ch)+" "+Character.DECIMAL_DIGIT_NUMBER);
         }
         return isCompletelyUppercase;
     }
@@ -916,7 +917,7 @@ public final class StringHelper {
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
                 "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"}; // whitespace is also
-                                                                                            // unwanted but
+        // unwanted but
         // trim() handles
         // that, " "
         // here is
@@ -1005,20 +1006,6 @@ public final class StringHelper {
         return string;
     }
 
-    // /**
-    // * Trim.
-    // *
-    // * @param strings the strings
-    // * @return the hash set
-    // */
-    // public static HashSet<String> trim(HashSet<String> strings) {
-    // HashSet<String> trimmedStrings = new HashSet<String>();
-    // for (String s : strings) {
-    // trimmedStrings.add(trim(s));
-    // }
-    // return trimmedStrings;
-    // }
-
     /**
      * <p>
      * This is a shortcut method for frequent text cleaning needs.
@@ -1051,16 +1038,6 @@ public final class StringHelper {
 
         return text;
     }
-
-    // /**
-    // * Remove tabs, line breaks and double spaces.
-    // *
-    // * @param text The text to be cleaned.
-    // * @return The cleaned text.
-    // */
-    // public static String makeContinuousText(String text) {
-    // return text.replaceAll("(\\s){1,}", " ");
-    // }
 
     /**
      * Put article in front.
@@ -1145,8 +1122,7 @@ public final class StringHelper {
      * @return The number of words in the string.
      */
     public static int countWords(String string) {
-        String[] words = string.replaceAll("\\s{2,}", "\\s").split(" ");
-        return words.length;
+        return string.replaceAll("\\s{2,}", "\\s").split(" ").length;
     }
 
     /**
@@ -1351,25 +1327,48 @@ public final class StringHelper {
     }
 
     /**
-     * Get the substring between the given sequences.
+     * <p>
+     * Get the all substrings in the supplied string between the given sequences.
+     * </p>
      * 
-     * @param string The string where the substring belongs to.
-     * @param leftBorder The left border.
-     * @param rightBorder The right border.
-     * @return The substring between the two given strings or an empty string in case of an error.
+     * @param string The string from which to extract the substring, not <code>null</code>.
+     * @param leftBorder The left border, not <code>null</code> or empty.
+     * @param rightBorder The right border, not <code>null</code> or empty.
+     * @return {@link List} of substrings between the two given strings, or an empty List if not matches were found.
+     */
+    public static List<String> getSubstringsBetween(String string, String leftBorder, String rightBorder) {
+        Validate.notNull(string, "string must not be null");
+        Validate.notEmpty(leftBorder, "leftBorder must not be empty");
+        Validate.notEmpty(rightBorder, "rightBorder must not be empty");
+
+        List<String> substrings = new ArrayList<String>();
+
+        int rightIndex = 0;
+        for (;;) {
+            int leftIndex = string.indexOf(leftBorder, rightIndex);
+            rightIndex = string.indexOf(rightBorder, leftIndex + leftBorder.length());
+            if (rightIndex > leftIndex && leftIndex > -1) {
+                substrings.add(string.substring(leftIndex + leftBorder.length(), rightIndex));
+            } else {
+                break;
+            }
+        }
+        return substrings;
+    }
+
+    /**
+     * <p>
+     * Get the first substring in the supplied string between the given sequences.
+     * </p>
+     * 
+     * @param string The string from which to extract the substring, not <code>null</code>.
+     * @param leftBorder The left border, not <code>null</code> or empty.
+     * @param rightBorder The right border, not <code>null</code> or empty.
+     * @return The substring between the two given strings or an empty string if no match was found.
      */
     public static String getSubstringBetween(String string, String leftBorder, String rightBorder) {
-
-        String substring = "";
-
-        int index1 = string.indexOf(leftBorder);
-        int index2 = string.indexOf(rightBorder, index1 + leftBorder.length());
-
-        if (index2 > index1 && index1 > -1) {
-            substring = string.substring(index1 + leftBorder.length(), index2);
-        }
-
-        return substring;
+        List<String> substrings = getSubstringsBetween(string, leftBorder, rightBorder);
+        return substrings.size() > 0 ? substrings.get(0) : "";
     }
 
     /**
@@ -1530,23 +1529,6 @@ public final class StringHelper {
         return similarity;
     }
 
-    // /**
-    // * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
-    // * similarity which is computationally expensive.
-    // *
-    // * @param s1
-    // * @param s2
-    // * @return similarity between 0 and 1 (inclusive).
-    // */
-    // public static float getLengthSim(String s1, String s2) {
-    // int length1 = s1.length();
-    // int length2 = s2.length();
-    // if (length1 == 0 && length2 == 0) {
-    // return 1;
-    // }
-    // return (float) Math.min(length1, length2) / Math.max(length1, length2);
-    // }
-
     /**
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
      * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
@@ -1678,7 +1660,7 @@ public final class StringHelper {
     public static String recoverStringFromCsv(String csvText) {
         return csvText.replaceAll(DOUBLE_QUOTES_REPLACEMENT, "\"").replaceAll(SEMICOLON_REPLACEMENT, ";");
     }
-    
+
     /**
      * <p>
      * Get the longest of the supplied strings.
@@ -1699,11 +1681,11 @@ public final class StringHelper {
         }
         return ret;
     }
-    
+
     /**
      * <p>
-     * Remove line breaks from the supplied string and replace them by spaces. The method considers UNIX (<code>LF</code>), Windows
-     * (<code>CR+LF</code>) and Classical Mac OS (<code>CR</code>) line breaks.
+     * Remove line breaks from the supplied string and replace them by spaces. The method considers UNIX (
+     * <code>LF</code>), Windows (<code>CR+LF</code>) and Classical Mac OS (<code>CR</code>) line breaks.
      * </p>
      * 
      * @param string The string from which to remove line breaks.
@@ -1718,7 +1700,7 @@ public final class StringHelper {
         }
         return string;
     }
-    
+
     /**
      * <p>
      * Remove those characters from the supplied string which are encoded as four bytes in UTF-8. Useful when data needs
