@@ -44,8 +44,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
     public static final String INPUT_PORT_ONE_IDENTIFIER = "input1";
     public static final String INPUT_PORT_TWO_IDENTIFIER = "input2";
 
-    private final FeatureDescriptor<AnnotationFeature<?>> input1FeatureDescriptor;
-    private final FeatureDescriptor<AnnotationFeature<?>> input2FeatureDescriptor;
+    private final FeatureDescriptor<? extends AnnotationFeature<?>> input1FeatureDescriptor;
+    private final FeatureDescriptor<? extends AnnotationFeature<?>> input2FeatureDescriptor;
 
     /**
      * <p>
@@ -62,8 +62,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
      * @param input2FeatureDescriptor The descriptor for the second input {@code Feature}.
      */
     public TokenOverlapCalculator(final FeatureDescriptor<NumericFeature> featureDescriptor,
-            final FeatureDescriptor<AnnotationFeature<?>> input1FeatureDescriptor,
-            final FeatureDescriptor<AnnotationFeature<?>> input2FeatureDescriptor) {
+            final FeatureDescriptor<? extends AnnotationFeature<?>> input1FeatureDescriptor,
+            final FeatureDescriptor<? extends AnnotationFeature<?>> input2FeatureDescriptor) {
         // Ports parameterized with Objects since it does not matter which type they have, because the Calculator only
         // uses the feature vector.
         super(Arrays.asList(new Port[] {new Port<Object>(INPUT_PORT_ONE_IDENTIFIER),
