@@ -1,11 +1,14 @@
 package ws.palladian.extraction.feature;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.collections15.Bag;
@@ -142,25 +145,31 @@ public final class TermCorpus {
     }
 
     public void load(String fileName) throws IOException {
-        FileHelper.performActionOnEveryLine(fileName, new LineAction() {
-            @Override
-            public void performAction(String text, int number) {
-                if (number % 100000 == 0) {
-                    System.out.println(number);
-                }
-                if (number > 1) {
-                    String[] split = text.split(SEPARATOR);
-                    if (split.length != 2) {
-                        // System.err.println(text);
-                        return;
+        InputStream inputStream = null;
+        try {
+            inputStream = new GZIPInputStream(new FileInputStream(new File(fileName)));
+            FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
+                @Override
+                public void performAction(String text, int number) {
+                    if (number % 100000 == 0) {
+                        System.out.println(number);
                     }
-                    setDf(split[0], Integer.parseInt(split[1]));
-                } else if (text.startsWith("numDocs" + SEPARATOR)) {
-                    String[] split = text.split(SEPARATOR);
-                    numDocs = Integer.parseInt(split[1]);
+                    if (number > 1) {
+                        String[] split = text.split(SEPARATOR);
+                        if (split.length != 2) {
+                            // System.err.println(text);
+                            return;
+                        }
+                        setDf(split[0], Integer.parseInt(split[1]));
+                    } else if (text.startsWith("numDocs" + SEPARATOR)) {
+                        String[] split = text.split(SEPARATOR);
+                        numDocs = Integer.parseInt(split[1]);
+                    }
                 }
-            }
-        });
+            });
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
     public void save(File file) throws IOException {

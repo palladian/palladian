@@ -54,14 +54,14 @@ public final class CollectionHelper {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
 
-        Comparator<Map.Entry<K, V>> comparator = new Comparator<Map.Entry<K, V>>() {
-            @Override
-            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-                int ret = o1.getValue().compareTo(o2.getValue());
-                return ascending ? ret : -ret;
-            }
-        };
-        Collections.sort(list, comparator);
+//        Comparator<Map.Entry<K, V>> comparator = new Comparator<Map.Entry<K, V>>() {
+//            @Override
+//            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+//                int ret = o1.getValue().compareTo(o2.getValue());
+//                return ascending ? ret : -ret;
+//            }
+//        };
+        Collections.sort(list, new EntryValueComparator<K, V>(ascending));
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
