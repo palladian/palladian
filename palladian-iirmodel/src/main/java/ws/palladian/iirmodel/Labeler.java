@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * <p>
@@ -41,6 +42,7 @@ public final class Labeler implements Comparable<Labeler> {
      * password should not be stored in plain text of course.
      * </p>
      */
+    @Transient
     private final String password;
     /**
      * <p>

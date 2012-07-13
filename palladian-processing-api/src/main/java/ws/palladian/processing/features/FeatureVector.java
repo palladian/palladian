@@ -123,7 +123,11 @@ public class FeatureVector implements Iterable<Feature<?>> {
      */
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
         Feature<?> feature = features.get(descriptor.getIdentifier());
+        if(feature==null) {
+        	return null;
+        } else {
         return descriptor.getType().cast(feature);
+        }
     }
 
     @Override
