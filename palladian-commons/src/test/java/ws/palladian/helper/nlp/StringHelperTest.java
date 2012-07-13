@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -211,6 +212,9 @@ public class StringHelperTest {
     public void testGetSubstringBetween() {
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
+        assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", " in ohio", "all "));
+        assertEquals(2, StringHelper.getSubstringsBetween("all the lilacs in ohio all the lilacs in ohio all the lilacs", "the ", " in").size());
+        assertEquals(Arrays.asList("1", "2", "3", "4", "5"), StringHelper.getSubstringsBetween("(1) (2) (3) (4) (5) (6", "(", ")"));
     }
 
     @Test
