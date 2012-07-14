@@ -9,8 +9,10 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 /**
- * <p>A feed source providing feeds from a static collection. The collection is provided to an object of this class upon
- * its creation. Can be used as mock class for testing purposes when no database is available.</p>
+ * <p>
+ * A feed source providing feeds from an in-memory collection. The collection is provided to an object of this class
+ * upon its creation. Can be used as mock class for testing purposes when no database is available.
+ * </p>
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
@@ -44,6 +46,10 @@ public class CollectionFeedSource implements FeedStore {
 
     @Override
     public boolean addFeed(Feed feed) {
+        // mimic database behavior
+        if (feed.getId() == -1) {
+            feed.setId(feed.getFeedUrl().hashCode());
+        }
         return feeds.add(feed);
     }
 
@@ -54,21 +60,29 @@ public class CollectionFeedSource implements FeedStore {
 
     @Override
     public List<Feed> getFeeds() {
-        List<Feed> ret = new ArrayList<Feed>(feeds.size());
-        ret.addAll(feeds);
-        return ret;
+        return new ArrayList<Feed>(feeds);
     }
 
     @Override
     public Feed getFeedByUrl(String feedUrl) {
-        // TODO Auto-generated method stub
-        return null;
+        Feed ret = null;
+        for (Feed feed : feeds) {
+            if (feed.getFeedUrl().equals(feedUrl)) {
+                ret = feed;
+            }
+        }
+        return ret;
     }
 
     @Override
     public Feed getFeedById(int feedID) {
-        // TODO Auto-generated method stub
-        return null;
+        Feed ret = null;
+        for (Feed feed : feeds) {
+            if (feed.getId() == feedID) {
+                ret = feed;
+            }
+        }
+        return ret;
     }
 
     @Override

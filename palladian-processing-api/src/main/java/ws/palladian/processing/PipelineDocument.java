@@ -60,15 +60,13 @@ public class PipelineDocument<T> {
 
     /**
      * <p>
-     * Resets this documents {@code FeatureVector} overwriting all features previously extracted.
+     * Resets this document's {@code FeatureVector} overwriting all features previously extracted.
      * </p>
      * 
      * @param featureVector The new {@code FeatureVector} of this document.
      */
-    public void setFeatureVector(FeatureVector featureVector) {
-        Validate.notNull(featureVector);
-
-        this.featureVector.addAll(featureVector);
+    public final void setFeatureVector(FeatureVector featureVector) {
+        this.featureVector = featureVector;
     }
 
     /**
@@ -98,7 +96,6 @@ public class PipelineDocument<T> {
 
     public void addFeature(final Feature<?> feature) {
         Validate.notNull(feature);
-
         featureVector.add(feature);
     }
 

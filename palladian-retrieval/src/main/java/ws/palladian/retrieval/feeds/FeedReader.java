@@ -268,10 +268,8 @@ public final class FeedReader {
      * reset the learned data.
      * 
      * @param updateStrategy The updating strategy for the feed reader.
-     * @param resetLearnedValues If true, learned and calculated values such as check intervals etc. are reset and are
-     *            retrained using the new check approach.
      */
-    public void setUpdateStrategy(UpdateStrategy updateStrategy, boolean resetLearnedValues) {
+    public void setUpdateStrategy(UpdateStrategy updateStrategy) {
         this.updateStrategy = updateStrategy;
     }
 
@@ -432,7 +430,7 @@ public final class FeedReader {
         FeedStore feedStore = new CollectionFeedSource();
         feedStore.addFeed(new Feed("http://lifehacker.com/excerpts.xml"));
         FeedReader feedReader = new FeedReader(feedStore);
-        feedReader.setUpdateStrategy(new MAVSynchronizationUpdateStrategy(), false);
+        feedReader.setUpdateStrategy(new MAVSynchronizationUpdateStrategy());
         feedReader.startContinuousReading();
         System.exit(0);
 
@@ -442,12 +440,12 @@ public final class FeedReader {
         System.exit(0);
 
         FeedReader fchecker = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
-        fchecker.setUpdateStrategy(new FixLearnedUpdateStrategy(), true);
+        fchecker.setUpdateStrategy(new FixLearnedUpdateStrategy());
         fchecker.startContinuousReading();
         System.exit(0);
 
         FeedReader fch = new FeedReader(new CollectionFeedSource());
-        fch.setUpdateStrategy(new FixLearnedUpdateStrategy(), true);
+        fch.setUpdateStrategy(new FixLearnedUpdateStrategy());
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
         feed.setActivityPattern(FeedActivityPattern.CLASS_SLICED);
 
@@ -535,7 +533,7 @@ public final class FeedReader {
                 return false;
             }
         };
-        fc.setUpdateStrategy(updateStrategy, true);
+        fc.setUpdateStrategy(updateStrategy);
         fc.setFeedProcessingAction(fpa);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
     }

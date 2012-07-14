@@ -198,7 +198,7 @@ public class FeedReaderEvaluator {
                     setBenchmarkMode(mode);
 
                     FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
-                    fc.setUpdateStrategy(strategy, false);
+                    fc.setUpdateStrategy(strategy);
 
                     LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy "
                             + policy + ", and mode " + mode);
@@ -231,7 +231,7 @@ public class FeedReaderEvaluator {
 
         FeedReader feedReader = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder
                 .getInstance().getConfig()));
-        feedReader.setUpdateStrategy(updateStrategy, true);
+        feedReader.setUpdateStrategy(updateStrategy);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);

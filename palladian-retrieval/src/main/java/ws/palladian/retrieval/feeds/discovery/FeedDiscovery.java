@@ -33,7 +33,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
@@ -62,11 +61,10 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author Philipp Katz
  * @author David Urbansky
  * 
- * @see http://tools.ietf.org/id/draft-snell-atompub-autodiscovery-00.txt
- * @see http://diveintomark.org/archives/2003/12/19/atom-autodiscovery
- * 
+ * @see <a href="http://tools.ietf.org/id/draft-snell-atompub-autodiscovery-00.txt">Atom Feed Autodiscovery</a>
+ * @see <a href="http://web.archive.org/web/20110608053313/http://diveintomark.org/archives/2003/12/19/atom-autodiscovery">Notes on Atom autodiscovery</a>
  */
-public class FeedDiscovery {
+public final class FeedDiscovery {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedDiscovery.class);
@@ -132,7 +130,7 @@ public class FeedDiscovery {
      * @return
      */
     private Set<String> searchSites(String query, int totalResults) {
-        
+
         if (webSearcher == null) {
             throw new IllegalStateException("No WebSearcher defined.");
         }
@@ -146,7 +144,6 @@ public class FeedDiscovery {
         } catch (SearcherException e) {
             LOGGER.error("Searcher Exception: " + e.getMessage());
         }
-
 
         return sites;
     }
@@ -212,7 +209,7 @@ public class FeedDiscovery {
      * @param document
      * @return list of discovered feed URLs or empty list.
      */
-    public List<DiscoveredFeed> discoverFeeds(Document document) {
+    public static List<DiscoveredFeed> discoverFeeds(Document document) {
 
         List<DiscoveredFeed> result = new LinkedList<DiscoveredFeed>();
 
@@ -322,7 +319,7 @@ public class FeedDiscovery {
                     urlQueue.addAll(foundSites);
 
                     currentQuery++;
-                    float percentage = (float) 100 * currentQuery / totalQueries;
+                    float percentage = (float)100 * currentQuery / totalQueries;
                     float querySpeed = TimeUnit.MINUTES.toMillis(currentQuery / stopWatch.getElapsedTime());
                     LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: "
                             + foundSites.size() + "; progress: " + percentage + "%" + "; query speed: " + querySpeed
@@ -379,7 +376,7 @@ public class FeedDiscovery {
 
                             // log the current status each 1000 checked pages
                             if (pageCounter.incrementAndGet() % 1000 == 0) {
-                                float elapsedMinutes = (float) stopWatch.getElapsedTime() / DateHelper.MINUTE_MS;
+                                float elapsedMinutes = (float)stopWatch.getElapsedTime() / TimeUnit.MINUTES.toMillis(1);
                                 float pageThroughput = pageCounter.get() / elapsedMinutes;
                                 float feedThroughput = feedCounter.get() / elapsedMinutes;
                                 LOGGER.info("# checked pages: " + pageCounter.intValue() + "; # discovered feeds: "
@@ -502,7 +499,7 @@ public class FeedDiscovery {
         LOGGER.trace("using " + webSearcher.getName());
         this.webSearcher = webSearcher;
     }
-    
+
     public void setSearchEngine(String webSearcherName) {
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
@@ -626,10 +623,10 @@ public class FeedDiscovery {
             CommandLine cmd = parser.parse(options, args);
 
             if (cmd.hasOption("numResults")) {
-                discovery.setNumResults(((Number) cmd.getParsedOptionValue("numResults")).intValue());
+                discovery.setNumResults(((Number)cmd.getParsedOptionValue("numResults")).intValue());
             }
             if (cmd.hasOption("threads")) {
-                discovery.setNumThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
+                discovery.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
             }
             if (cmd.hasOption("outputFile")) {
                 discovery.setResultFilePath(cmd.getOptionValue("outputFile"));
@@ -644,7 +641,7 @@ public class FeedDiscovery {
                 discovery.addQueries(cmd.getOptionValue("queryFile"));
             }
             if (cmd.hasOption("combineQueries")) {
-                int targetCount = ((Number) cmd.getParsedOptionValue("combineQueries")).intValue();
+                int targetCount = ((Number)cmd.getParsedOptionValue("combineQueries")).intValue();
                 discovery.combineQueries(targetCount);
             }
             if (cmd.hasOption("searchEngine")) {

@@ -115,8 +115,7 @@ public final class RegExTokenizer extends BaseTokenizer {
             Annotation<String> annotation = new PositionAnnotation(document, startPosition, endPosition, index++);
             annotationFeature.add(annotation);
         }
-        FeatureVector featureVector = document.getFeatureVector();
-        featureVector.add(annotationFeature);
+        document.addFeature(annotationFeature);
     }
 
     /**
