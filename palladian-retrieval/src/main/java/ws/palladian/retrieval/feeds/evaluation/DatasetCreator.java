@@ -295,7 +295,7 @@ public class DatasetCreator {
 
         updateStrategy.setHighestUpdateInterval(360); // 6hrs
         updateStrategy.setLowestUpdateInterval(0);
-        feedChecker.setUpdateStrategy(updateStrategy, true);
+        feedChecker.setUpdateStrategy(updateStrategy);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
         // Collection<Integer> updateClasses = new HashSet<Integer>();

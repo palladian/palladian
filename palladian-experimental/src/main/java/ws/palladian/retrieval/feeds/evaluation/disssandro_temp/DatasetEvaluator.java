@@ -118,7 +118,7 @@ public class DatasetEvaluator {
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
-        feedReader.setUpdateStrategy(updateStrategy, true);
+        feedReader.setUpdateStrategy(updateStrategy);
         feedReader.setWakeUpInterval(wakeUpInterval);
 
         String timestamp = DateHelper.getCurrentDatetime();
