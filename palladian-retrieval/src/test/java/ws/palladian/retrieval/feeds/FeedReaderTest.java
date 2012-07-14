@@ -5,12 +5,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
@@ -36,7 +36,7 @@ public class FeedReaderTest {
         fixture.add(new Feed("http://www.tagesschau.de/xml/rss2"));
         objectOfClassUnderTest = new FeedReader(new CollectionFeedSource(fixture));
         objectOfClassUnderTest.setFeedProcessingAction(new DefaultFeedProcessingAction());
-        objectOfClassUnderTest.setUpdateStrategy(new FixUpdateStrategy(1), false);
+        objectOfClassUnderTest.setUpdateStrategy(new FixUpdateStrategy(1));
     }
 
     /**
@@ -46,7 +46,7 @@ public class FeedReaderTest {
     @Ignore
     public void testContinuousReading() {
         // objectOfClassUnderTest.startContinuousReading(10 * DateHelper.SECOND_MS);
-        objectOfClassUnderTest.startContinuousReading(180 * DateHelper.SECOND_MS);
+        objectOfClassUnderTest.startContinuousReading(TimeUnit.SECONDS.toMillis(180));
         objectOfClassUnderTest.stopContinuousReading();
     }
 
