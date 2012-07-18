@@ -263,9 +263,10 @@ public final class FeedReader {
     // TODO add multiple feed actions
 
     /**
+     * <p>
      * Set the approach for checking feeds for news. Once an approach is chosen it cannot be changed (meta information
-     * is saved in the feed store) unless you
-     * reset the learned data.
+     * is saved in the feed store) unless you reset the learned data.
+     * </p>
      * 
      * @param updateStrategy The updating strategy for the feed reader.
      */

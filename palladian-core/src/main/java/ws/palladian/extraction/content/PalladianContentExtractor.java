@@ -152,7 +152,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         sentences = Tokenizer.getSentences(content, true);
 
-        mainContentHTML = HtmlHelper.documentToHtmlString(resultNode);
+        mainContentHTML = HtmlHelper.xmlToString(resultNode, true);
+        ;
 
         // mainContentHTML = mainContentHTML.replaceAll("\n{2,}","");
         mainContentText = HtmlHelper.documentToReadableText(resultNode);
