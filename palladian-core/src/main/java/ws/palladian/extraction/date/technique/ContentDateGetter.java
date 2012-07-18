@@ -420,7 +420,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     private String findNodeKeyword(Node node) {
         String returnValue = null;
         Node tempNode = node.cloneNode(false);
-        String nodeText = HtmlHelper.getXmlDump(tempNode);
+        String nodeText = HtmlHelper.xmlToString(tempNode, false);
         String[] keywords = KeyWords.BODY_CONTENT_KEYWORDS_ALL;
         for (int i = 0; i < keywords.length; i++) {
             String keyword = keywords[i];

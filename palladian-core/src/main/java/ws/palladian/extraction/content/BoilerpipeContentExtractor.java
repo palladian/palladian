@@ -60,7 +60,7 @@ public class BoilerpipeContentExtractor extends WebPageContentExtractor {
 
     @Override
     public BoilerpipeContentExtractor setDocument(Document document) throws PageContentExtractorException {
-        StringReader stringReader = new StringReader(HtmlHelper.getXmlDump(document));
+        StringReader stringReader = new StringReader(HtmlHelper.xmlToString(document, false));
         InputSource inputSource = new InputSource(stringReader);
         setDocument(inputSource);
         return this;

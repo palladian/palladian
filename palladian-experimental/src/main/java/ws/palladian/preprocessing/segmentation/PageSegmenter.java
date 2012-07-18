@@ -385,7 +385,7 @@ public class PageSegmenter {
      */
     public Bag<String> createFingerprint(Document doc, int number, int length) {
 
-        String dText = HtmlHelper.documentToString(doc);
+        String dText = HtmlHelper.xmlToString(doc, false);
 
         StringBuilder tagList = new StringBuilder();
         for (String tag : PageSegmenterHelper.listTags(dText)) {

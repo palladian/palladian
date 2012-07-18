@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.math.MathHelper;
@@ -139,8 +138,6 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
     public ContentType classify(URL url) {
         DocumentRetriever c = new DocumentRetriever();
         Document document = c.getWebDocument(url.toString());
-
-        System.out.println(HtmlHelper.documentToHtmlString(document));
 
         return classify(document);
     }

@@ -389,7 +389,7 @@ public class DatasetCreator {
 
         String webPageText = "";
         try {
-            webPageContent = HtmlHelper.documentToString(webPage);
+            webPageContent = HtmlHelper.xmlToString(webPage, false);
             // webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
             webPageText = new ReadabilityContentExtractor().setDocument(webPage).getResultText();
 
