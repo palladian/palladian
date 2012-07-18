@@ -77,66 +77,80 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private void parseDocument() throws PageContentExtractorException {
 
-        String content = HtmlHelper.documentToText(document);
-        sentences = Tokenizer.getSentences(content, true);
+        String content = "";
 
-        PageAnalyzer pa = new PageAnalyzer();
-        pa.setDocument(getDocument());
-        XPathSet xpathset = new XPathSet();
+        // try to find the article using html 5 article tag
+        Node articleNode = XPathHelper.getXhtmlNode(document, "//article");
+        if (articleNode != null) {
+            content = HtmlHelper.documentToText(articleNode);
 
-        Set<String> uniqueSentences = new HashSet<String>(sentences);
-        for (String sentence : uniqueSentences) {
-            Set<String> xPaths = pa.constructAllXPaths(sentence);
-            for (String xPath : xPaths) {
-                xPath = PageAnalyzer.removeXPathIndicesFromLastCountNode(xPath);
-                xpathset.add(xPath);
-            }
-        }
+            resultNode = articleNode;
 
-        // take the shortest xPath that has a count of at least 50% of the xPath with the highest count
-        LinkedHashMap<String, Integer> xpmap = xpathset.getXPathMap();
-        String highestCountXPath = xpathset.getHighestCountXPath();
-        int highestCount = xpathset.getCountOfXPath(highestCountXPath);
-
-        String shortestMatchingXPath = highestCountXPath;
-        for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
-            if (mapEntry.getKey().length() < shortestMatchingXPath.length()
-                    && mapEntry.getValue() / (double) highestCount >= 0.5) {
-                shortestMatchingXPath = mapEntry.getKey();
-            }
-        }
-
-        // String highestCountXPath = xpathset.getHighestCountXPath();
-
-        // in case we did not find anything, we take the body content
-        if (shortestMatchingXPath.isEmpty()) {
-            shortestMatchingXPath = "//body";
         } else {
-            shortestMatchingXPath = XPathHelper.getParentXPath(shortestMatchingXPath);
-        }
-        shortestMatchingXPath = shortestMatchingXPath.replace("html/body", "");
-        shortestMatchingXPath = shortestMatchingXPath.replace("xhtml:html/xhtml:body", "");
+            content = HtmlHelper.documentToText(document);
 
-        // in case we did not find anything, we take the body content
-        if (shortestMatchingXPath.isEmpty()) {
-            shortestMatchingXPath = "//body";
+            // try to find the main content in absence of HTML5 article node
+            PageAnalyzer pa = new PageAnalyzer();
+            pa.setDocument(getDocument());
+            XPathSet xpathset = new XPathSet();
+
+            Set<String> uniqueSentences = new HashSet<String>(sentences);
+            for (String sentence : uniqueSentences) {
+                Set<String> xPaths = pa.constructAllXPaths(sentence);
+                for (String xPath : xPaths) {
+                    xPath = PageAnalyzer.removeXPathIndicesFromLastCountNode(xPath);
+                    xpathset.add(xPath);
+                }
+            }
+
+            // take the shortest xPath that has a count of at least 50% of the xPath with the highest count
+            LinkedHashMap<String, Integer> xpmap = xpathset.getXPathMap();
+            String highestCountXPath = xpathset.getHighestCountXPath();
+            int highestCount = xpathset.getCountOfXPath(highestCountXPath);
+
+            String shortestMatchingXPath = highestCountXPath;
+            for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
+                if (mapEntry.getKey().length() < shortestMatchingXPath.length()
+                        && mapEntry.getValue() / (double)highestCount >= 0.5) {
+                    shortestMatchingXPath = mapEntry.getKey();
+                }
+            }
+
+            // String highestCountXPath = xpathset.getHighestCountXPath();
+
+            // in case we did not find anything, we take the body content
+            if (shortestMatchingXPath.isEmpty()) {
+                shortestMatchingXPath = "//body";
+            } else {
+                shortestMatchingXPath = XPathHelper.getParentXPath(shortestMatchingXPath);
+            }
+            shortestMatchingXPath = shortestMatchingXPath.replace("html/body", "");
+            shortestMatchingXPath = shortestMatchingXPath.replace("xhtml:html/xhtml:body", "");
+
+            // in case we did not find anything, we take the body content
+            if (shortestMatchingXPath.isEmpty()) {
+                shortestMatchingXPath = "//body";
+            }
+
+            // /xhtml:HTML/xhtml:BODY/xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT
+            // shortestMatchingXPath =
+            // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
+            // resultNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
+            // shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]/xhtml:tr[1]/xhtml:td[2]/xhtml:blockquote[2]";
+            // shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]//tr//xhtml:td[2]//xhtml:blockquote[2]";
+            // shortestMatchingXPath = "//xhtml:tr";
+            // HtmlHelper.printDom(document);
+            // System.out.println(HtmlHelper.documentToString(document));
+            resultNode = XPathHelper.getXhtmlNode(getDocument(), shortestMatchingXPath);
+            if (resultNode == null) {
+                // System.out.println(content);
+                throw new PageContentExtractorException("could not get main content node for URL: "
+                        + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
+            }
+
         }
 
-        // /xhtml:HTML/xhtml:BODY/xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT
-        // shortestMatchingXPath =
-        // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
-        //resultNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
-//        shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]/xhtml:tr[1]/xhtml:td[2]/xhtml:blockquote[2]";
-//        shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]//tr//xhtml:td[2]//xhtml:blockquote[2]";
-        //shortestMatchingXPath = "//xhtml:tr";
-//        HtmlHelper.printDom(document);
-//        System.out.println(HtmlHelper.documentToString(document));
-        resultNode = XPathHelper.getXhtmlNode(getDocument(), shortestMatchingXPath);
-        if (resultNode == null) {
-            //System.out.println(content);
-            throw new PageContentExtractorException("could not get main content node for URL: "
-                    + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
-        }
+        sentences = Tokenizer.getSentences(content, true);
 
         mainContentHTML = HtmlHelper.documentToHtmlString(resultNode);
 
@@ -302,13 +316,23 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultTitle() {
-        Node titleNode = XPathHelper.getXhtmlNode(getDocument(), "//title");
+        // try to get it from the biggest headline
+        Node h1Node = XPathHelper.getXhtmlNode(getDocument(), "//h1");
 
         String resultTitle = "";
-        if (titleNode != null) {
-            resultTitle = titleNode.getTextContent();
+        if (h1Node != null) {
+            resultTitle = h1Node.getTextContent();
         } else {
-            resultTitle = StringHelper.getFirstWords(mainContentText, 20);
+            Node titleNode = XPathHelper.getXhtmlNode(getDocument(), "//title");
+
+            if (titleNode != null) {
+                resultTitle = titleNode.getTextContent();
+
+                // remove everything after | sign
+                resultTitle = resultTitle.replaceAll("\\|.*", "").trim();
+            } else {
+                resultTitle = StringHelper.getFirstWords(mainContentText, 20);
+            }
         }
 
         return resultTitle;
