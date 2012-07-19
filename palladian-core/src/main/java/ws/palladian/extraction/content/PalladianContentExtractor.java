@@ -45,9 +45,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private Document document;
     private Node resultNode;
 
-    private List<String> sentences = new ArrayList<String>();
-    private String mainContentHTML = "";
-    private String mainContentText = "";
+    private List<String> sentences = null;
+    private String mainContentHtml = null;
+    private String mainContentText = null;
 
     /**
      * Extracted images will have a width and height. If the webmaster decides to specify these values in percentages we
@@ -72,22 +72,25 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public List<String> getSentences() {
+        if (sentences == null) {
+            sentences = Tokenizer.getSentences(getResultText(), true);
+        }
         return sentences;
     }
 
     private void parseDocument() throws PageContentExtractorException {
 
-        String content = "";
+        // String content = "";
 
         // try to find the article using html 5 article tag
         Node articleNode = XPathHelper.getXhtmlNode(document, "//article");
         if (articleNode != null) {
-            content = HtmlHelper.documentToText(articleNode);
+            // content = HtmlHelper.documentToText(articleNode);
 
             resultNode = articleNode;
 
         } else {
-            content = HtmlHelper.documentToText(document);
+            // content = HtmlHelper.documentToText(document);
 
             // try to find the main content in absence of HTML5 article node
             PageAnalyzer pa = new PageAnalyzer();
@@ -150,18 +153,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         }
 
-        sentences = Tokenizer.getSentences(content, true);
-
-        mainContentHTML = HtmlHelper.xmlToString(resultNode, true);
-        ;
-
-        // mainContentHTML = mainContentHTML.replaceAll("\n{2,}","");
-        mainContentText = HtmlHelper.documentToReadableText(resultNode);
-
-        // System.out.println(mainContentHTML);
-        // System.out.println(mainContentText);
     }
-
 
     public List<WebImage> getImages(String fileType) {
 
@@ -272,12 +264,19 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public String getMainContentHtml() {
-        return mainContentHTML;
+        if (mainContentHtml == null) {
+            mainContentHtml = HtmlHelper.xmlToString(getResultNode(), true);
+        }
+
+        return mainContentHtml;
     }
 
 
     @Override
     public String getResultText(){
+        if (mainContentText == null) {
+            mainContentText = HtmlHelper.documentToReadableText(getResultNode());
+        }
         return mainContentText;
     }
 
