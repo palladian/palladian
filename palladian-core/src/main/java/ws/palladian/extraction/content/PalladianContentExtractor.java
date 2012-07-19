@@ -45,9 +45,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private Document document;
     private Node resultNode;
 
-    private List<String> sentences = null;
-    private String mainContentHtml = null;
-    private String mainContentText = null;
+    private List<String> sentences = new ArrayList<String>();
+    private String mainContentHTML = "";
+    private String mainContentText = "";
 
     /**
      * Extracted images will have a width and height. If the webmaster decides to specify these values in percentages we
@@ -72,32 +72,31 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public List<String> getSentences() {
-        if (sentences == null) {
-            sentences = Tokenizer.getSentences(getResultText(), true);
-        }
         return sentences;
     }
 
     private void parseDocument() throws PageContentExtractorException {
 
-        // String content = "";
+        String content = "";
 
         // try to find the article using html 5 article tag
         Node articleNode = XPathHelper.getXhtmlNode(document, "//article");
         if (articleNode != null) {
-            // content = HtmlHelper.documentToText(articleNode);
+            content = HtmlHelper.documentToText(articleNode);
+            sentences = Tokenizer.getSentences(content, true);
 
             resultNode = articleNode;
 
         } else {
-            // content = HtmlHelper.documentToText(document);
+            content = HtmlHelper.documentToText(document);
+            sentences = Tokenizer.getSentences(content, true);
 
             // try to find the main content in absence of HTML5 article node
             PageAnalyzer pa = new PageAnalyzer();
             pa.setDocument(getDocument());
             XPathSet xpathset = new XPathSet();
 
-            Set<String> uniqueSentences = new HashSet<String>();
+            Set<String> uniqueSentences = new HashSet<String>(sentences);
             for (String sentence : uniqueSentences) {
                 Set<String> xPaths = pa.constructAllXPaths(sentence);
                 for (String xPath : xPaths) {
@@ -153,7 +152,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         }
 
+        mainContentHTML = HtmlHelper.xmlToString(resultNode, true);
+
+        mainContentText = HtmlHelper.documentToReadableText(resultNode);
     }
+
 
     public List<WebImage> getImages(String fileType) {
 
@@ -202,13 +205,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 String imageUrl = nnm.getNamedItem("src").getTextContent();
 
                 if (!imageUrl.startsWith("http")) {
-
                     imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
-                    // if (imageURL.startsWith("/")) {
-                    // imageURL = UrlHelper.getDomain(getDocument().getDocumentURI()) + imageURL;
-                    // } else {
-                    // imageURL = getDocument().getDocumentURI() + imageURL;
-                    // }
                 }
 
                 webImage.setUrl(imageUrl);
@@ -264,19 +261,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public String getMainContentHtml() {
-        if (mainContentHtml == null) {
-            mainContentHtml = HtmlHelper.xmlToString(getResultNode(), true);
-        }
-
-        return mainContentHtml;
+        return mainContentHTML;
     }
 
 
     @Override
     public String getResultText(){
-        if (mainContentText == null) {
-            mainContentText = HtmlHelper.documentToReadableText(getResultNode());
-        }
         return mainContentText;
     }
 
@@ -290,8 +280,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         return text.toString();
     }
-
-
 
     @Override
     public String getResultTitle() {
