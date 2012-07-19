@@ -97,7 +97,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             pa.setDocument(getDocument());
             XPathSet xpathset = new XPathSet();
 
-            Set<String> uniqueSentences = new HashSet<String>(sentences);
+            Set<String> uniqueSentences = new HashSet<String>();
             for (String sentence : uniqueSentences) {
                 Set<String> xPaths = pa.constructAllXPaths(sentence);
                 for (String xPath : xPaths) {
@@ -278,27 +278,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             mainContentText = HtmlHelper.documentToReadableText(getResultNode());
         }
         return mainContentText;
-    }
-
-    @Deprecated
-    public static String getText(String url) {
-
-        StringBuilder text = new StringBuilder();
-
-        try {
-            PalladianContentExtractor pse = new PalladianContentExtractor();
-            pse.setDocument(url);
-
-            List<String> sentences = pse.getSentences();
-
-            for (String string : sentences) {
-                text.append(string).append(" ");
-            }
-        } catch (PageContentExtractorException e) {
-            LOGGER.error(e);
-        }
-
-        return text.toString();
     }
 
     public String getSentencesString() {
