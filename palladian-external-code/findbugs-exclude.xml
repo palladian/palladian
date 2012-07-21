@@ -2,7 +2,7 @@
      <!-- Ignore everything in this project -->
      <Match>
       <Not>
-          <Package name="*" />
+          <Package name=".*" />
       </Not>
      </Match>
 
