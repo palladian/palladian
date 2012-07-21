@@ -1,5 +1,6 @@
 package ws.palladian.classification.page.evaluation;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -13,7 +14,14 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * 
  */
-public class Dataset {
+public class Dataset implements Serializable {
+
+    /**
+     * <p>
+     * Used for serializing objects of this class. Should only change if the interface of this class changes.
+     * </p>
+     */
+    private static final long serialVersionUID = 2279776667597421134L;
 
     /** The name of the dataset to identify it. */
     private String name = "NONAME";
