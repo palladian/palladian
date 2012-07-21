@@ -124,7 +124,7 @@ public class Category implements Serializable {
      *            The count of total documents on this corpus.
      */
     public void calculatePrior(int totalDocuments) {
-        setPrior((double) frequency / (double) totalDocuments);
+        setPrior((double)frequency / (double)totalDocuments);
     }
 
     public boolean isMainCategory() {
@@ -143,6 +143,14 @@ public class Category implements Serializable {
         this.classType = classType;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
     /**
      * Equality is checked by category name.
      */
@@ -151,7 +159,7 @@ public class Category implements Serializable {
         if (obj == null) {
             return false;
         }
-        return ((String) obj).equals(getName());
+        return obj.equals(getName());
     }
 
     /*
