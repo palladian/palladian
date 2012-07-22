@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -53,14 +54,6 @@ public final class CollectionHelper {
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-
-//        Comparator<Map.Entry<K, V>> comparator = new Comparator<Map.Entry<K, V>>() {
-//            @Override
-//            public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-//                int ret = o1.getValue().compareTo(o2.getValue());
-//                return ascending ? ret : -ret;
-//            }
-//        };
         Collections.sort(list, new EntryValueComparator<K, V>(ascending));
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
@@ -262,6 +255,19 @@ public final class CollectionHelper {
      */
     public static <E> HashSet<E> newHashSet() {
         return new HashSet<E>();
+    }
+
+    /**
+     * <p>
+     * Remove all <code>null</code> elements in the supplied {@link Collection}.
+     * </p>
+     * 
+     * @param collection The collection from which to remove <code>null</code> elements.
+     * @return <code>true</code> if any elements were removed, else <code>false</code>.
+     */
+    public static boolean removeNulls(Collection<?> collection) {
+        Validate.notNull(collection, "collection must not be null");
+        return collection.removeAll(Collections.singletonList(null));
     }
 
 }

@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,11 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
-import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.io.FileHelper;
@@ -26,7 +25,11 @@ import ws.palladian.helper.io.LineAction;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class MathHelper {
+public final class MathHelper {
+    
+    private MathHelper() {
+        // no instances.
+    }
 
     /**
      * <p>
@@ -127,6 +130,7 @@ public class MathHelper {
         return Math.round(numberFactor * number) / numberFactor;
     }
 
+    @Deprecated
     public static int getPower(String numberString) {
         int power = -99999;
         try {
@@ -209,80 +213,131 @@ public class MathHelper {
         return faculty;
     }
 
-    public static double getMedian(Collection<? extends Number> valueList) {
-        Median median = new Median();
-        List<Double> nonNullValues = new ArrayList<Double>();
-        for (Number entry : valueList) {
-            if (entry == null) {
-                continue;
-            }
-            nonNullValues.add(entry.doubleValue());
+    /**
+     * <p>
+     * Calculate the <a href="http://en.wikipedia.org/wiki/Median">median</a> for a list of double values. The values do
+     * not have to be in sorted order in advance.
+     * </p>
+     * 
+     * @param values The values for which to get the median.
+     * @return The median.
+     */
+    public static double getMedian(double[] values) {
+        int numValues = values.length;
+        Arrays.sort(values);
+        if (numValues % 2 == 0) {
+            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
+        } else {
+            return values[numValues / 2];
         }
-
-        double[] doubles = new double[nonNullValues.size()];
-        int i = 0;
-        for (double entry : nonNullValues) {
-            doubles[i++] = entry;
+    }
+    
+    public static double getMedian(long[] values) {
+        int numValues = values.length;
+        Arrays.sort(values);
+        if (numValues % 2 == 0) {
+            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
+        } else {
+            return values[numValues / 2];
         }
-
-        return median.evaluate(doubles);
     }
 
-    public static double getAverage(Collection<? extends Number> values) {
+    public static double getAverage(double[] values) {
         double sum = 0;
-        double count = 0;
-
-        for (Number value : values) {
-            if (value != null) {
-                sum += value.doubleValue();
-                count++;
-            }
+        for (double value : values) {
+            sum += value;
         }
-
-        return sum / count;
+        return sum / values.length;
+    }
+    
+    public static double getAverage(long[] values) {
+        double sum = 0;
+        for (long value : values) {
+            sum += value;
+        }
+        return sum / values.length;
     }
 
-    public static long getMedianDifference(TreeSet<Long> valueSet) {
-        Median median = new Median();
-        double[] doubles = new double[valueSet.size() - 1];
-        int i = 0;
-        long lastValue = -1;
-        for (Long entry : valueSet) {
-            if (lastValue == -1) {
-                lastValue = entry;
-                continue;
-            }
-            doubles[i++] = entry - lastValue;
-            lastValue = entry;
-        }
-        return (long)median.evaluate(doubles);
+    /**
+     * @deprecated Use {@link #getDistances(Collection)}, then {@link #getMedian(Collection)} instead.
+     */
+    @Deprecated
+    public static long getMedianDifference(long[] sortedList) {
+        long[] distances = getDistances(sortedList);
+        return (long) getMedian(distances);
     }
 
-    public static long getMedianDifference(List<Long> sortedList) {
-        Collections.sort(sortedList);
-        Median median = new Median();
-        double[] doubles = new double[sortedList.size() - 1];
-        int i = 0;
-        long lastValue = -1;
-        for (Long entry : sortedList) {
-            if (lastValue == -1) {
-                lastValue = entry;
-                continue;
-            }
-            doubles[i++] = entry - lastValue;
-            lastValue = entry;
+    /**
+     * <p>
+     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+     * </p>
+     * 
+     * @param values The values for which to get the standard deviation.
+     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
+     *            <code>false</code> the <i>standard deviation of the sample</i>.
+     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     */
+    public static double getStandardDeviation(double[] values, boolean biasCorrection) {
+        if (values.length == 0) {
+            return Double.NaN;
         }
-        return (long)median.evaluate(doubles);
+        if (values.length == 1) {
+            return 0;
+        }
+        double mean = getAverage(values);
+        double deviationSum = 0;
+        for (double value : values) {
+            deviationSum += Math.pow(value - mean, 2);
+        }
+        if (biasCorrection) {
+            return Math.sqrt(deviationSum / (values.length - 1));
+        } else {
+            return Math.sqrt(deviationSum / values.length);
+        }
+    }
+    
+    /**
+     * <p>
+     * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+     * 
+     * @param values The values for which to get the standard deviation.
+     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     */
+    public static double getStandardDeviation(double[] values) {
+        return getStandardDeviation(values, true);
     }
 
-    public static long getStandardDeviation(Collection<? extends Number> values) {
-        StandardDeviation standardDeviation = new StandardDeviation();
-        double[] valueArray = new double[values.size()];
-        int i = 0;
-        for (Number value : values) {
-            valueArray[i++] = value.doubleValue();
+    /**
+     * <p>
+     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+     * </p>
+     * 
+     * @param values The values for which to get the standard deviation.
+     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
+     *            <code>false</code> the <i>standard deviation of the sample</i>.
+     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     */
+    public static double getStandardDeviation(long[] values, boolean biasCorrection) {
+        if (values.length == 0) {
+            return Double.NaN;
         }
-        return (long)standardDeviation.evaluate(valueArray);
+        if (values.length == 1) {
+            return 0;
+        }
+        double mean = getAverage(values);
+        double deviationSum = 0;
+        for (Long value : values) {
+            deviationSum += Math.pow(value - mean, 2);
+        }
+        if (biasCorrection) {
+            return Math.sqrt(deviationSum / values.length - 1);
+        } else {
+            return Math.sqrt(deviationSum / values.length);
+        }
+    }
+    
+    public static double getStandardDeviation(long[] values) {
+        return getStandardDeviation(values, true);
     }
 
     /**
@@ -295,11 +350,11 @@ public class MathHelper {
      * @return The largest distance between subsequent Numbers, or -1 when an empty collection or a collection of size 1
      *         was supplied.
      */
-    public static long getLongestGap(Collection<? extends Number> values) {
+    public static long getLongestGap(long[] values) {
         long longestGap = -1;
-        if (values.size() > 1) {
-            List<Long> distances = getDistances(values);
-            longestGap = Collections.max(distances);
+        if (values.length > 1) {
+            long[] distances = getDistances(values);
+            longestGap = Collections.max(Arrays.asList(ArrayUtils.toObject(distances)));
         }
         return longestGap;
     }
@@ -367,8 +422,6 @@ public class MathHelper {
      */
     public static ListSimilarity computeListSimilarity(List<String> list1, List<String> list2) {
 
-        ListSimilarity ls = new ListSimilarity();
-
         double similarity = 0;
 
         // get maximum possible distance
@@ -409,12 +462,9 @@ public class MathHelper {
 
         similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
         double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
-
-        ls.setShiftSimilartiy(similarity);
-        ls.setSquaredShiftSimilartiy(squaredShiftSimilarity);
-        ls.setRmse(computeRootMeanSquareError(positionValues));
-
-        return ls;
+        double rootMeanSquareError = computeRootMeanSquareError(positionValues);
+        
+        return new ListSimilarity(similarity, squaredShiftSimilarity, rootMeanSquareError);
     }
 
     public static ListSimilarity computeListSimilarity(String listFile, String separator) {
@@ -649,26 +699,24 @@ public class MathHelper {
 
     /**
      * <p>
-     * Compute distances between subsequent {@link Number}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
+     * Compute distances between subsequent {@link Longs}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
      * a result of [1,4,3] is returned.
      * </p>
      * 
      * @param values The Collection of Numbers, not <code>null</code>.
-     * @return The distances between the subsequent Numbers in the Collection, or empty List for empty Collections or
-     *         Collections of size 1.
+     * @return The distances between the subsequent Numbers in the Collection, or empty array for empty input array or
+     *         arrays of size 1.
      */
-    public static List<Long> getDistances(Collection<? extends Number> values) {
+    public static long[] getDistances(long[] values) {
         Validate.notNull(values, "values must not be null");
+        
+        if (values.length < 1) {
+            return new long[0];
+        }
 
-        List<Long> ret = new ArrayList<Long>();
-        Long lastPosition = null;
-        for (Number value : values) {
-            if (lastPosition == null) {
-                lastPosition = value.longValue();
-                continue;
-            }
-            ret.add(value.longValue() - lastPosition.longValue());
-            lastPosition = value.longValue();
+        long[] ret = new long[values.length - 1];
+        for (int i = 1; i < values.length; i++) {
+            ret[i - 1] = values[i] - values[i - 1];
         }
         return ret;
     }

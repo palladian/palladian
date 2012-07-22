@@ -1,9 +1,11 @@
 package ws.palladian.extraction.feature;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
+import org.apache.commons.lang3.ArrayUtils;
 
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
 import ws.palladian.extraction.token.BaseTokenizer;
@@ -65,12 +67,12 @@ public final class TokenDistributionStatisticsCalculator extends StringDocumentP
 
         List<Annotation<String>> tokens = tokenAnnotations.getValue();
 
-        MultiMap<String, Number> tokenPositions = new MultiHashMap<String, Number>();
+        MultiMap<String, Long> tokenPositions = new MultiHashMap<String, Long>();
         final int numTokens = tokens.size();
 
         // collect all positions for specific tokens in text
         for (Annotation<String> token : tokens) {
-            tokenPositions.put(token.getValue(), token.getStartPosition());
+            tokenPositions.put(token.getValue(), token.getStartPosition().longValue());
         }
 
         // calculate level statistics for all token values
@@ -90,7 +92,8 @@ public final class TokenDistributionStatisticsCalculator extends StringDocumentP
                 continue;
             }
 
-            List<Long> distances = MathHelper.getDistances(tokenPositions.get(token.getValue()));
+            long[] tokenPosArray = ArrayUtils.toPrimitive(new ArrayList<Long>(tokenPositions.get(token.getValue())).toArray(new Long[0]));
+            long[] distances = MathHelper.getDistances(tokenPosArray);
             double stdDev = MathHelper.getStandardDeviation(distances);
             double avg = MathHelper.getAverage(distances);
             double sigma = stdDev / avg;
