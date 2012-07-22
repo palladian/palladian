@@ -16,10 +16,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -224,8 +226,10 @@ public class FeedStatisticCreator {
         }
 
         Collections.sort(valueList);
+        CollectionHelper.removeNulls(valueList);
 
-        return MathHelper.getMedian(valueList);
+        long[] valueArray = ArrayUtils.toPrimitive(valueList.toArray(new Long[0]));
+        return MathHelper.getMedian(valueArray);
     }
 
     /**

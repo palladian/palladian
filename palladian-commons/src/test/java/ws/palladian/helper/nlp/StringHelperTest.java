@@ -131,6 +131,7 @@ public class StringHelperTest {
         assertEquals(false, StringHelper.containsNumber("A-1 GB"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testRemoveStopWords() {
         assertEquals("...neighborhoodthe ofrocking.",
