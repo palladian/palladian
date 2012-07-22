@@ -15,13 +15,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
@@ -156,48 +149,48 @@ public class SendMail {
         return send(sender, Arrays.asList(recipient), subject, text);
     }
 
-    /**
-     * <p>
-     * main method with command line interface.
-     * </p>
-     * 
-     * @param args
-     */
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) {
-
-        CommandLineParser parser = new BasicParser();
-
-        Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("smtpHost").hasArg().withType(String.class).isRequired().create());
-        options.addOption(OptionBuilder.withLongOpt("smtpPort").hasArg().withType(Number.class).isRequired().create());
-        options.addOption(OptionBuilder.withLongOpt("smtpUser").hasArg().withType(String.class).isRequired().create());
-        options.addOption(OptionBuilder.withLongOpt("smtpPass").hasArg().withType(String.class).isRequired().create());
-
-        options.addOption(OptionBuilder.withLongOpt("from").hasArg().withType(String.class).isRequired().create());
-        options.addOption(OptionBuilder.withLongOpt("to").hasArg().withType(String.class).isRequired().create());
-        options.addOption(OptionBuilder.withLongOpt("subject").hasArg().withType(String.class).isRequired().create());
-        options.addOption(OptionBuilder.withLongOpt("text").hasArg().withType(String.class).isRequired().create());
-
-        try {
-            CommandLine commandLine = parser.parse(options, args);
-
-            String smtpHost = commandLine.getOptionValue("smtpHost");
-            int smtpPort = ((Number) commandLine.getParsedOptionValue("smtpPort")).intValue();
-            String smtpUser = commandLine.getOptionValue("smtpUser");
-            String smtpPass = commandLine.getOptionValue("smtpPass");
-
-            String from = commandLine.getOptionValue("from");
-            String to = commandLine.getOptionValue("to");
-            String subject = commandLine.getOptionValue("subject");
-            String text = commandLine.getOptionValue("text");
-
-            SendMail sendMail = new SendMail(smtpHost, smtpPort, smtpUser, smtpPass);
-            sendMail.send(from, to, subject, text);
-        } catch (ParseException e) {
-            new HelpFormatter().printHelp(SendMail.class.getName(), options);
-        }
-
-    }
+//    /**
+//     * <p>
+//     * main method with command line interface.
+//     * </p>
+//     * 
+//     * @param args
+//     */
+//    @SuppressWarnings("static-access")
+//    public static void main(String[] args) {
+//
+//        CommandLineParser parser = new BasicParser();
+//
+//        Options options = new Options();
+//        options.addOption(OptionBuilder.withLongOpt("smtpHost").hasArg().withType(String.class).isRequired().create());
+//        options.addOption(OptionBuilder.withLongOpt("smtpPort").hasArg().withType(Number.class).isRequired().create());
+//        options.addOption(OptionBuilder.withLongOpt("smtpUser").hasArg().withType(String.class).isRequired().create());
+//        options.addOption(OptionBuilder.withLongOpt("smtpPass").hasArg().withType(String.class).isRequired().create());
+//
+//        options.addOption(OptionBuilder.withLongOpt("from").hasArg().withType(String.class).isRequired().create());
+//        options.addOption(OptionBuilder.withLongOpt("to").hasArg().withType(String.class).isRequired().create());
+//        options.addOption(OptionBuilder.withLongOpt("subject").hasArg().withType(String.class).isRequired().create());
+//        options.addOption(OptionBuilder.withLongOpt("text").hasArg().withType(String.class).isRequired().create());
+//
+//        try {
+//            CommandLine commandLine = parser.parse(options, args);
+//
+//            String smtpHost = commandLine.getOptionValue("smtpHost");
+//            int smtpPort = ((Number) commandLine.getParsedOptionValue("smtpPort")).intValue();
+//            String smtpUser = commandLine.getOptionValue("smtpUser");
+//            String smtpPass = commandLine.getOptionValue("smtpPass");
+//
+//            String from = commandLine.getOptionValue("from");
+//            String to = commandLine.getOptionValue("to");
+//            String subject = commandLine.getOptionValue("subject");
+//            String text = commandLine.getOptionValue("text");
+//
+//            SendMail sendMail = new SendMail(smtpHost, smtpPort, smtpUser, smtpPass);
+//            sendMail.send(from, to, subject, text);
+//        } catch (ParseException e) {
+//            new HelpFormatter().printHelp(SendMail.class.getName(), options);
+//        }
+//
+//    }
 
 }

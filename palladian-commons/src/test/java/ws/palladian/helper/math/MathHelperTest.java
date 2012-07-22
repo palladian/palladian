@@ -1,5 +1,6 @@
 package ws.palladian.helper.math;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -10,7 +11,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.junit.Test;
 
@@ -21,143 +21,70 @@ public class MathHelperTest {
     @Test
     public void testRandomSample() {
 
-        Set<Integer> collection = new HashSet<Integer>();
-        collection.add(321);
-        collection.add(98);
-        collection.add(123);
-        collection.add(965);
-        collection.add(143);
-        collection.add(328);
-        collection.add(497);
-        collection.add(73);
-        collection.add(65);
+        Collection<Integer> collection = Arrays.asList(321,98,123,965,143,328,497,73,65);
 
-        collection = (Set<Integer>) MathHelper.randomSample(collection, 5);
-        // CollectionHelper.print(collection);
+        collection = MathHelper.randomSample(collection, 5);
         assertEquals(5, collection.size());
 
-        collection = (Set<Integer>) MathHelper.randomSample(collection, 1);
+        collection = MathHelper.randomSample(collection, 1);
         assertEquals(1, collection.size());
 
     }
 
     @Test
     public void testComputeCosineSimilarity() {
-
         Double[] vector1 = { 10.0, 50.0 };
         Double[] vector2 = { 8.0, 66.0 };
-
-        // System.out.println(MathHelper.computeCosineSimilarity(vector1, vector2));
-
         assertEquals(0.997, MathHelper.round(MathHelper.computeCosineSimilarity(vector1, vector2), 3), 0);
     }
 
     @Test
     public void testStandardDeviation() {
-        // see Wikipedia: http://en.wikipedia.org/wiki/Standard_deviation
-        TreeSet<Long> values = new TreeSet<Long>();
-        values.add(2l);
-        values.add(4l);
-        values.add(4l);
-        values.add(4l);
-        values.add(5l);
-        values.add(5l);
-        values.add(7l);
-        values.add(9l);
-        assertEquals(2l, MathHelper.getStandardDeviation(values));
+        assertEquals(2.14, MathHelper.getStandardDeviation(new double[] {2., 4., 4., 4., 5., 5., 7., 9.}, true), 0.01);
+        assertEquals(2.24, MathHelper.getStandardDeviation(new double[] {4, 2, 5, 8, 6}, true), 0.01);
+        assertEquals(2, MathHelper.getStandardDeviation(new double[] {2., 4., 4., 4., 5., 5., 7., 9.}, false), 0);
+        assertEquals(0, MathHelper.getStandardDeviation(new double[] {1}), 0);
+        assertTrue(Double.isNaN(MathHelper.getStandardDeviation(new double[] {})));
     }
 
     @Test
     public void testMedian() {
-
-        // see Wikipedia: http://en.wikipedia.org/wiki/Median
-        List<Double> values = new ArrayList<Double>();
-        values.add(1.0);
-        values.add(1.0);
-        values.add(2.0);
-        values.add(3.0);
-        values.add(1035.0);
-        values.add(89898.86);
-        assertEquals(2.5, MathHelper.getMedian(values), 0.00001);
-
-        TreeSet<Long> values2 = new TreeSet<Long>();
-        values2.add(1l);
-        values2.add(2l);
-        values2.add(4l);
-        values2.add(9l);
-        values2.add(16l);
-        values2.add(24l);
-        assertEquals(5l, MathHelper.getMedianDifference(values2));
+        assertEquals(2.5, MathHelper.getMedian(new double[] {1., 1., 2., 3., 1035., 89898.68}), 0);
+        assertEquals(2., MathHelper.getMedian(new double[] {0., 1., 2., 3., 4.}), 0);
+        assertEquals(2.5, MathHelper.getMedian(new double[] {0., 1., 2., 3., 4., 5.}), 0);
+        assertEquals(7., MathHelper.getMedian(new double[] {9., 7., 2.}), 0.00001);
+        assertEquals(0., MathHelper.getMedian(new double[] {0., 0., 0., 1.}), 0);
+        assertEquals(3948348538l, MathHelper.getMedian(new long[] {1l, 2l, 3948348538l, 3948348539l, 3948348540l}), 0);
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetMedianDifference() {
+        assertEquals(5l, MathHelper.getMedianDifference(new long[] {1l, 2l, 4l, 9l, 16l, 24l}));
     }
 
     @Test
     public void testAverage() {
-
-        List<Double> values = new ArrayList<Double>();
-        values.add(1.0);
-        values.add(1.0);
-        values.add(2.0);
-        values.add(3.0);
-        values.add(1035.0);
-        values.add(89898.86);
-        assertEquals(15156.81, MathHelper.getAverage(values), 0.00001);
-
+        assertEquals(15156.81, MathHelper.getAverage(new double[] {1., 1., 2., 3., 1035., 89898.86}), 0.00001);
+        assertEquals(3948348539l, MathHelper.getAverage(new double[] {3948348538l, 3948348539l, 3948348540l}), 0.00001);
     }
 
     @Test
     public void testCalculateJaccardSimilarity() {
 
-        Set<String> setA = new HashSet<String>();
-        Set<String> setB = new HashSet<String>();
-
-        setA.add("1");
-        setA.add("2");
-        setA.add("3");
-        setA.add("4");
-        setB.add("1");
-        setB.add("2");
-        setB.add("3");
-        setB.add("6");
-        assertEquals(0.6, MathHelper.computeJaccardSimilarity(setA, setB), 0);
-
-        setA.clear();
-        setB.clear();
-        setA.add("1");
-        setA.add("2");
-        setA.add("3");
-        setA.add("4");
-        setB.add("1");
-        setB.add("2");
-        setB.add("3");
-        setB.add("4");
-        assertEquals(1.0, MathHelper.computeJaccardSimilarity(setA, setB), 0);
-
-        setA.clear();
-        setB.clear();
-        setA.add("1");
-        setA.add("2");
-        setA.add("3");
-        setA.add("4");
-        setB.add("5");
-        setB.add("6");
-        setB.add("7");
-        setB.add("8");
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(setA, setB), 0);
-
+        Set<String> set1 = new HashSet<String>(Arrays.asList("1","2","3","4"));
+        Set<String> set2 = new HashSet<String>(Arrays.asList("1","2","3","6"));
+        Set<String >set3 = new HashSet<String>(Arrays.asList("1","2","3","4"));
+        Set<String> set4 = new HashSet<String>(Arrays.asList("5","6","7","8"));
+        
+        assertEquals(0.6, MathHelper.computeJaccardSimilarity(set1, set2), 0);
+        assertEquals(1.0, MathHelper.computeJaccardSimilarity(set1, set3), 0);
+        assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, set4), 0);
     }
 
     @Test
     public void testLongestGap() {
-        Collection<Long> values = new TreeSet<Long>();
-        values.add(1l);
-        values.add(2l);
-        values.add(4l);
-        values.add(9l);
-        values.add(16l);
-        values.add(24l);
-        assertEquals(8l, MathHelper.getLongestGap(values));
-        
-        
+        assertEquals(8l, MathHelper.getLongestGap(new long[] {1l, 2l, 4l, 9l, 16l, 24l}));
     }
 
     @Test
@@ -175,50 +102,21 @@ public class MathHelperTest {
     @Test
     public void testCalculateListSimilarity() throws FileNotFoundException {
 
-//        System.out.println(MathHelper.round(
-//                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
-//                        .getShiftSimilartiy(), 2));
-//        System.out.println(MathHelper.round(
-//                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
-//                        .getSquaredShiftSimilartiy(), 2));
-//        System.out.println(MathHelper.round(
-//                MathHelper.calculateListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 2));
+        List<String> list1 = Arrays.asList("a","b","c");
+        List<String> list2 = Arrays.asList("c","b","a");
+        List<String> list3 = Arrays.asList("a","b","c");
+        
+        assertEquals(0.0, MathHelper.computeListSimilarity(list1, list2).getShiftSimilarity(), 0);
+        assertEquals(1.0, MathHelper.computeListSimilarity(list1, list3).getShiftSimilarity(), 0);
 
-        List<String> list1 = new ArrayList<String>();
-        List<String> list2 = new ArrayList<String>();
-        list1.add("a");
-        list1.add("b");
-        list1.add("c");
-        list2.add("c");
-        list2.add("b");
-        list2.add("a");
-        assertEquals(0.0, MathHelper.computeListSimilarity(list1, list2).getShiftSimilartiy(), 0);
-
-        list1 = new ArrayList<String>();
-        list2 = new ArrayList<String>();
-        list1.add("a");
-        list1.add("b");
-        list1.add("c");
-        list2.add("a");
-        list2.add("b");
-        list2.add("c");
-        assertEquals(1.0, MathHelper.computeListSimilarity(list1, list2).getShiftSimilartiy(), 0);
-
-        assertEquals(0.37, MathHelper.round(
-                MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
-                        .getShiftSimilartiy(), 2), 0);
-
-        assertEquals(0.57, MathHelper.round(
-                MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#")
-                        .getSquaredShiftSimilartiy(), 2), 0);
-
-        assertEquals(4.16, MathHelper.round(
-                MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 2), 0);
+        assertEquals(0.37, MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getShiftSimilarity(), 0.01);
+        assertEquals(0.57, MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getSquaredShiftSimilarity(), 0.01);
+        assertEquals(4.16, MathHelper.computeListSimilarity(ResourceHelper.getResourcePath("/list.csv"), "#").getRmse(), 0.01);
 
     }
 
     @Test
-    public void testCalculateRMSE() throws FileNotFoundException {
+    public void testComputeRootMeanSquareError() throws FileNotFoundException {
 
         List<double[]> values = new ArrayList<double[]>();
 
@@ -235,7 +133,7 @@ public class MathHelperTest {
     }
 
     @Test
-    public void testCalculateAP() {
+    public void testComputeAveragePrecision() {
 
         List<Boolean> rankedList = Arrays.asList(true, false, true, true, true, true, false);
 
@@ -248,15 +146,15 @@ public class MathHelperTest {
         double apAtK = ap[k][1];
 
         assertEquals(5. / 7, prAtK, 0);
-        assertEquals((1+2./3+3./4+4./5+5./6)/(double) totalNumberRelevantForQuery, apAtK, 0);
+        assertEquals((1+2./3+3./4+4./5+5./6)/totalNumberRelevantForQuery, apAtK, 0);
 
     }
     
     @Test
     public void testGetDistances() {
-        assertTrue(MathHelper.getDistances(new ArrayList<Number>()).isEmpty());
-        assertTrue(MathHelper.getDistances(Arrays.asList(2)).isEmpty());
-        assertTrue(Arrays.asList(1l,4l,3l).equals(MathHelper.getDistances(Arrays.asList(2, 3, 7, 10))));
+        assertEquals(0, MathHelper.getDistances(new long[0]).length);
+        assertEquals(0, MathHelper.getDistances(new long[]{2l}).length);
+        assertArrayEquals(new long[]{1l,4l,3l}, MathHelper.getDistances(new long[]{2l, 3l, 7l, 10l}));
     }
 
 }

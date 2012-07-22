@@ -1,15 +1,18 @@
 package ws.palladian.retrieval.feeds;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
@@ -133,13 +136,16 @@ public class FeedPostStatistics {
 //        }
 
         // fill list with interval
-        intervals = new ArrayList<Long>();
+//        intervals = new ArrayList<Long>();
         Collections.sort(timeList);
 //        Collections.sort(timeList2);
+        CollectionHelper.removeNulls(timeList);
 
-        for (int i = 0; i < timeList.size() - 1; i++) {
-            intervals.add(timeList.get(i + 1) - timeList.get(i));
-        }
+//        for (int i = 0; i < timeList.size() - 1; i++) {
+//            intervals.add(timeList.get(i + 1) - timeList.get(i));
+//        }
+        long[] timeArray = ArrayUtils.toPrimitive(timeList.toArray(new Long[0]));
+        intervals = Arrays.asList(ArrayUtils.toObject(MathHelper.getDistances(timeArray)));
 
         // FIXME: do we really need to set these fake values? In case the feed has an empty window, we set two fake
         // timestamps and calculate some statistics that are not valid. I think this code is very old. In the past, we
@@ -181,11 +187,12 @@ public class FeedPostStatistics {
             setTimeOldestPost(timeOldestEntry);
 
             if (timeList.size() > 1) {
-                setMedianPostGap(MathHelper.getMedianDifference(timeList));
+                setMedianPostGap(MathHelper.getMedianDifference(timeArray));
 //                setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
                 setAveragePostGap(getTimeRange() / ((double)feedPubdates.size() - 1));
-                setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
-                setLongestPostGap(MathHelper.getLongestGap(new TreeSet<Long>(timeList)));
+                setPostGapStandardDeviation((long)MathHelper.getStandardDeviation(timeArray));
+//                setLongestPostGap(MathHelper.getLongestGap(new TreeSet<Long>(timeList)));
+                setLongestPostGap(MathHelper.getLongestGap(timeArray));
                 setValidStatistics(true);
             }
         }
