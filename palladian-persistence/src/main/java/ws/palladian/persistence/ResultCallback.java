@@ -40,7 +40,7 @@ public abstract class ResultCallback<T> {
      * Determine, if the loop should continue.
      * </p>
      * 
-     * @return
+     * @return Indicate, whether to continue processing results. <code>false</code> if loop should be ended.
      */
     public boolean isLooping() {
         return looping;

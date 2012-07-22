@@ -32,7 +32,7 @@ public final class ReflectionRowConverter<T> implements RowConverter<T> {
      * </p>
      * 
      * @param clazz The type for which to create the {@link ReflectionRowConverter}.
-     * @return
+     * @return A new {@link ReflectionRowConverter} instance for the specified type.
      */
     public static <T> ReflectionRowConverter<T> create(Class<T> clazz) {
         return new ReflectionRowConverter<T>(clazz);

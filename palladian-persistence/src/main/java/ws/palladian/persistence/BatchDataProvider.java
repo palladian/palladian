@@ -38,7 +38,7 @@ public interface BatchDataProvider {
      * {@link #getData(int)}. This method is invoked once, before the the data is retrieved.
      * </p>
      * 
-     * @return
+     * @return The number of items in the batch.
      */
     int getCount();
 

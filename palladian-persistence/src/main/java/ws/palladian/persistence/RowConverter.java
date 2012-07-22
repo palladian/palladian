@@ -6,8 +6,7 @@ import java.sql.SQLException;
 /**
  * <p>
  * A {@link RowConverter} is responsible for transforming {@link ResultSet}s to specific types. Implementations perform
- * the conversion by implementing {@link #convert(ResultSet)}. A simple converter is available as
- * {@link SimpleRowConverter}, but feel free to create your own, more sophisticated mapping implementations.
+ * the conversion by implementing {@link #convert(ResultSet)}.
  * </p>
  * 
  * @param <T> Type of the objects to be processed.
@@ -21,8 +20,8 @@ public interface RowConverter<T> {
      * use methods like {@link ResultSet#next()}, or {@link ResultSet#close()}.
      * </p>
      * 
-     * @param resultSet
-     * @return
+     * @param resultSet The {@link ResultSet} to process.
+     * @return The mapped object.
      * @throws SQLException
      */
     T convert(ResultSet resultSet) throws SQLException;
