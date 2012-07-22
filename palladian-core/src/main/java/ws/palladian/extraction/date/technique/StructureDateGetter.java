@@ -1,6 +1,7 @@
 package ws.palladian.extraction.date.technique;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -28,8 +29,8 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
     // private HashMap<Node, String> keyAttrMap = new HashMap<Node, String>();
 
     @Override
-    public ArrayList<StructureDate> getDates() {
-        ArrayList<StructureDate> result = new ArrayList<StructureDate>();
+    public List<StructureDate> getDates() {
+        List<StructureDate> result = new ArrayList<StructureDate>();
         if (document != null) {
             result = getStructureDate(document);
         }
@@ -42,7 +43,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param document Document to be searched.
      * @return List of dates.
      */
-    private ArrayList<StructureDate> getStructureDate(Document document) {
+    public List<StructureDate> getStructureDate(Document document) {
 
         ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
 
