@@ -4,7 +4,6 @@
    <rule ref="rulesets/typeresolution.xml/LooseCoupling"/>
    <rule ref="rulesets/typeresolution.xml/CloneMethodMustImplementCloneable"/>
    <rule ref="rulesets/typeresolution.xml/UnusedImports"/>
-   <rule ref="rulesets/typeresolution.xml/SignatureDeclareThrowsException"/>
    <rule ref="rulesets/braces.xml/IfStmtsMustUseBraces"/>
    <rule ref="rulesets/braces.xml/WhileLoopsMustUseBraces"/>
    <rule ref="rulesets/braces.xml/IfElseStmtsMustUseBraces"/>
@@ -58,7 +57,6 @@
    <rule ref="rulesets/design.xml/AbstractClassWithoutAnyMethod"/>
    <rule ref="rulesets/design.xml/TooFewBranchesForASwitchStatement"/>
    <rule ref="rulesets/strictexception.xml/AvoidCatchingThrowable"/>
-   <rule ref="rulesets/strictexception.xml/SignatureDeclareThrowsException"/>
    <rule ref="rulesets/strictexception.xml/ExceptionAsFlowControl"/>
    <rule ref="rulesets/strictexception.xml/AvoidCatchingNPE"/>
    <rule ref="rulesets/strictexception.xml/AvoidThrowingNullPointerException"/>
@@ -174,7 +172,6 @@
    <rule ref="rulesets/junit.xml/UseAssertNullInsteadOfAssertTrue"/>
    <rule ref="rulesets/junit.xml/SimplifyBooleanAssertion"/>
    <rule ref="rulesets/controversial.xml/UnnecessaryConstructor"/>
-   <rule ref="rulesets/controversial.xml/NullAssignment"/>
    <rule ref="rulesets/controversial.xml/UnusedModifier"/>
    <rule ref="rulesets/controversial.xml/AssignmentInOperand"/>
    <rule ref="rulesets/controversial.xml/AtLeastOneConstructor"/>
@@ -189,7 +186,11 @@
    <rule ref="rulesets/controversial.xml/AvoidUsingNativeCode"/>
    <rule ref="rulesets/controversial.xml/AvoidAccessibilityAlteration"/>
    <rule ref="rulesets/naming.xml/ShortVariable"/>
-   <rule ref="rulesets/naming.xml/LongVariable"/>
+   <rule ref="rulesets/naming.xml/LongVariable">
+   <properties>
+        <property name="minimum" value="40"/>
+    </properties>
+   </rule>
    <rule ref="rulesets/naming.xml/ShortMethodName"/>
    <rule ref="rulesets/naming.xml/VariableNamingConventions"/>
    <rule ref="rulesets/naming.xml/MethodNamingConventions"/>
@@ -225,7 +226,6 @@
    <rule ref="rulesets/finalizers.xml/AvoidCallingFinalize"/>
    <rule ref="rulesets/logging-jakarta-commons.xml/UseCorrectExceptionLogging"/>
    <rule ref="rulesets/logging-jakarta-commons.xml/ProperLogger"/>
-   <rule ref="rulesets/javabeans.xml/BeanMembersShouldSerialize"/>
    <rule ref="rulesets/javabeans.xml/MissingSerialVersionUID"/>
    <rule ref="rulesets/clone.xml/ProperCloneImplementation"/>
    <rule ref="rulesets/clone.xml/CloneThrowsCloneNotSupportedException"/>
