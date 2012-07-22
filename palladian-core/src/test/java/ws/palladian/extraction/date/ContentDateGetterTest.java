@@ -16,16 +16,6 @@ import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public class ContentDateGetterTest {
-
-//	@Test
-//	public void testSplit(){
-//		String text = "a d";
-//		String[] parts = text.split("\\s");
-//		System.out.println(parts.length);
-//		for(int i=0; i< parts.length; i++){
-//			System.out.println("->" + parts[i] + "<-");
-//		}
-//	}
 	
 	@Test
 	public void testGetDateTime(){

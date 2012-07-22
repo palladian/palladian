@@ -18,9 +18,6 @@ import ws.palladian.helper.Cache;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
- * FIXME {@link #testGetAllBestRatedDate()} and {@link #testGetAllDates()} fail, after Document parser has been changed
- * to produce lower case tag names.
- * 
  * @author Martin Gregor
  * @author Klemens Muthmann
  */
