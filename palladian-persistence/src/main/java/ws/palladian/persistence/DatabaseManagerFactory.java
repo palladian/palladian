@@ -33,7 +33,7 @@ import org.apache.commons.lang3.Validate;
  */
 public final class DatabaseManagerFactory {
     
-    private static final String DB_CONFIG_FILE = "database.xml";
+    public static final String DB_CONFIG_FILE = "database.xml";
 
     private final static Map<String, DataSource> dataSourceRegistry = new ConcurrentHashMap<String, DataSource>();
     
@@ -184,8 +184,8 @@ public final class DatabaseManagerFactory {
      * @throws IllegalStateException In case the initialization fails.
      */
     public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
-            String jdbcConnectionURL, String username) {
-        return create(managerClass, jdbcDriverClassName, jdbcConnectionURL, username, "");
+            String jdbcConnectionUrl, String username) {
+        return create(managerClass, jdbcDriverClassName, jdbcConnectionUrl, username, "");
     }
 
     /**
