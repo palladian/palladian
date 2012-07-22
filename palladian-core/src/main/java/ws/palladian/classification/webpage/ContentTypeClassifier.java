@@ -26,8 +26,8 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ContentTypeClassifier.class);
 
-    private static final String[] SEARCH_TRIGGERS = { "suchergebnis", "suchergebnisse", "search result",
-            "search results" };
+    private static final String[] SEARCH_TRIGGERS = {"suchergebnis", "suchergebnisse", "search result",
+            "search results"};
 
     public ContentType classify(Document document) {
         extractFeatures(document);
@@ -39,7 +39,7 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
         // check whether many ingoing links contain "mehr >>" or similar phrases
         final int moreThresholdCount = 7;
         int moreCount = 0;
-        final String[] readMore = { "mehr", "weiterlesen", "artikel lesen", "[...]" };
+        final String[] readMore = {"mehr", "weiterlesen", "artikel lesen", "[...]"};
 
         java.util.List<WebLink> allLinks = new ArrayList<WebLink>();
         allLinks.addAll(getIngoingLinks());
@@ -244,12 +244,12 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
             }
         }
 
-        LOGGER.info("correctly classified: " + MathHelper.round(100 * correctlyClassified / (double) classes.size(), 2)
+        LOGGER.info("correctly classified: " + MathHelper.round(100 * correctlyClassified / (double)classes.size(), 2)
                 + "%");
         LOGGER.info("correctly classified just useful: "
-                + MathHelper.round(100 * justUsefulCorrectlyClassified / (double) classes.size(), 2) + "%");
-        LOGGER.info("false negative rate: " + MathHelper.round(100 * falseNegatives / (double) classes.size(), 2) + "%");
-        LOGGER.info("true negative rate: " + MathHelper.round(100 * trueNegatives / (double) classes.size(), 2) + "%");
+                + MathHelper.round(100 * justUsefulCorrectlyClassified / (double)classes.size(), 2) + "%");
+        LOGGER.info("false negative rate: " + MathHelper.round(100 * falseNegatives / (double)classes.size(), 2) + "%");
+        LOGGER.info("true negative rate: " + MathHelper.round(100 * trueNegatives / (double)classes.size(), 2) + "%");
 
         LOGGER.info("classification took " + sw.getElapsedTimeString() + " on " + classes.size() + " documents");
     }

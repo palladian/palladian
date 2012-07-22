@@ -9,15 +9,12 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 
 import ws.palladian.classification.Term;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 
 /**
@@ -65,9 +62,10 @@ public final class Preprocessor implements Serializable {
     public Preprocessor(TextClassifier classifier) {
         this.classifier = classifier;
     }
-    
+
     /**
      * Copy constructor
+     * 
      * @param classifier
      * @param preprocessor
      */
@@ -209,17 +207,22 @@ public final class Preprocessor implements Serializable {
 
         }
 
-        // build the map
-        for (String ngram : ngrams) {
+        if (ngrams == null) {
+            throw new IllegalArgumentException(
+                    "Incorrect feature setting. Please set classifier to either use char ngrams or word ngrams.");
+        } else {
+            // build the map
+            for (String ngram : ngrams) {
 
-            // TODO, change that => do not add ngrams with some special chars or
-            // if it is only numbers
-            if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
-                    || StringHelper.isNumber(ngram)) {
-                continue;
+                // TODO, change that => do not add ngrams with some special chars or
+                // if it is only numbers
+                if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
+                        || StringHelper.isNumber(ngram)) {
+                    continue;
+                }
+
+                addToTermMap(ngram, 1.0);
             }
-
-            addToTermMap(ngram, 1.0);
         }
 
         classificationDocument.getWeightedTerms().putAll(map);
