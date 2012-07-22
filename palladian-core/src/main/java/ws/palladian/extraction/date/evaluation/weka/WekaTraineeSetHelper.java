@@ -79,7 +79,9 @@ public class WekaTraineeSetHelper {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println(tempBuffer.toString());
+            if (tempBuffer != null) {
+                System.out.println(tempBuffer.toString());
+            }
             e.printStackTrace();
         }
 

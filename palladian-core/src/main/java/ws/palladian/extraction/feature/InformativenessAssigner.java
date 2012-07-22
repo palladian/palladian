@@ -30,7 +30,7 @@ public class InformativenessAssigner {
     private Map<String, Double> normalizedTokenFrequencies = new HashMap<String, Double>();
 
     private InformativenessAssigner() {
-        //loadFrequencyMap();
+        // loadFrequencyMap();
     }
 
     static class SingletonHolder {
@@ -91,14 +91,14 @@ public class InformativenessAssigner {
             }
 
             for (Entry<Object, Integer> entry : tokenFrequencyMap.entrySet()) {
-                tokenFrequencies.put(entry.getKey().toString(), entry.getValue() / (double) totalTokens);
+                tokenFrequencies.put(entry.getKey().toString(), entry.getValue() / (double)totalTokens);
             }
 
             LOGGER.debug("added another set of " + texts.size() + " texts, number of tokens now "
                     + tokenFrequencies.keySet().size());
 
-            if ((i+1) % 10 == 0) {
-                LOGGER.debug("saving frequency map (i = "+i+"...");
+            if ((i + 1) % 10 == 0) {
+                LOGGER.debug("saving frequency map (i = " + i + "...");
                 saveFrequencyMap();
             }
 
@@ -116,7 +116,7 @@ public class InformativenessAssigner {
 
         // WebSearcher<WebResult> sr = new BingSearcher();
         // List<String> urls = sr.searchUrls("and with many in of", 20);
-        
+
         List<String> urls = new ArrayList<String>();
         for (int i = 0; i < 2; i++) {
             urls.add("http://en.wikipedia.org/wiki/Special:Random?a=" + Math.random());
@@ -124,9 +124,8 @@ public class InformativenessAssigner {
             urls.add("http://www.randomwebsite.com/cgi-bin/random.pl?a=" + Math.random());
         }
 
-        
         RetrieverCallback<Document> callback = new RetrieverCallback<Document>() {
-            
+
             @Override
             public void onFinishRetrieval(Document document) {
                 PalladianContentExtractor pse = new PalladianContentExtractor();
@@ -174,7 +173,7 @@ public class InformativenessAssigner {
 
         Map<String, Double> informativenessMap = new HashMap<String, Double>();
         for (Entry<Object, Integer> entry : cm.entrySet()) {
-            informativenessMap.put(entry.getKey().toString(), entry.getValue() / (double) highestFrequency);
+            informativenessMap.put(entry.getKey().toString(), entry.getValue() / (double)highestFrequency);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -204,20 +203,19 @@ public class InformativenessAssigner {
 
         return informativeness;
     }
-    
-    public String removeWordsWithLowInformativeness(String text, double informativenessLimit) {
-    	String filteredString = "";
-    	String[] tokens = text.split("\\s");
-    	
-    	for (String string : tokens) {
-			double informativeness = getInformativeness(string);
-			if (informativeness > informativenessLimit) {
-				filteredString += string + " ";
-			}
-		}
 
-    	
-    	return filteredString.trim();
+    public String removeWordsWithLowInformativeness(String text, double informativenessLimit) {
+        String filteredString = "";
+        String[] tokens = text.split("\\s");
+
+        for (String string : tokens) {
+            double informativeness = getInformativeness(string);
+            if (informativeness > informativenessLimit) {
+                filteredString += string + " ";
+            }
+        }
+
+        return filteredString.trim();
     }
 
     public void saveAsHTML(String text, String path) {
@@ -246,9 +244,9 @@ public class InformativenessAssigner {
         Logger.getRootLogger().setLevel(Level.INFO);
         InformativenessAssigner ia = new InformativenessAssigner();
         ia.initTokenFrequencyMap();
-        
+
         System.exit(0);
-        
+
         // ia.initTokenFrequencyMap();
         ia.loadFrequencyMap();
 

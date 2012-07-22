@@ -46,21 +46,19 @@ public class WordCorrelation implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        WordCorrelation other = (WordCorrelation) obj;
-        boolean word1Equality = !(word1.equals(other.word1) || word1.equals(other.word2));
-        boolean word2Equality = !(word2.equals(other.word2) || word2.equals(other.word1));
+        WordCorrelation other = (WordCorrelation)obj;
         if (word1 == null) {
             if (other.word1 != null) {
                 return false;
             }
-        } else if (word1Equality) {
+        } else if (!(word1.equals(other.word1) || word1.equals(other.word2))) {
             return false;
         }
         if (word2 == null) {
             if (other.word2 != null) {
                 return false;
             }
-        } else if (word2Equality) {
+        } else if (!(word2.equals(other.word2) || word2.equals(other.word1))) {
             return false;
         }
         return true;
@@ -96,6 +94,7 @@ public class WordCorrelation implements Serializable {
 
     @Override
     public String toString() {
-        return "WordCorrelation [abs. correlation=" + absoluteCorrelation + ", rel. correlation=" + relativeCorrelation + ", word1=" + word1 + ", word2=" + word2 + "]";
+        return "WordCorrelation [abs. correlation=" + absoluteCorrelation + ", rel. correlation=" + relativeCorrelation
+                + ", word1=" + word1 + ", word2=" + word2 + "]";
     }
 }

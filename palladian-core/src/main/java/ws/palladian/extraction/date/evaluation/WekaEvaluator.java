@@ -30,7 +30,7 @@ public class WekaEvaluator {
     public static void main(String[] args) {
 
         // 0 - load Url and Serializer
-            work0();
+        work0();
     }
 
     private static void work0() {
@@ -39,7 +39,7 @@ public class WekaEvaluator {
         try {
             ObjectInputStream ois = new ObjectInputStream(
                     new BufferedInputStream(new FileInputStream(classifierString)));
-            classifier = (Classifier) ois.readObject();
+            classifier = (Classifier)ois.readObject();
 
             WekaClassifierEval wce = new WekaClassifierEval();
             PageDateType classIndex = PageDateType.publish;
@@ -84,9 +84,8 @@ public class WekaEvaluator {
         }
         File file = new File("d:/wekaout/datesets/pubtest.arff");
         BufferedReader reader;
-        Instances instances = null;
-        ArrayList<Integer> idList = new ArrayList<Integer>();
         try {
+            ArrayList<Integer> idList = new ArrayList<Integer>();
             reader = new BufferedReader(new FileReader(file));
             file = new File("d:/wekaout/datesets/pubTestTemp.arff");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
@@ -103,29 +102,29 @@ public class WekaEvaluator {
             writer.close();
             reader.close();
             reader = new BufferedReader(new FileReader(file));
-            instances = new Instances(reader);
+            Instances instances = new Instances(reader);
+            instances.setClassIndex(1);
+            Enumeration<Instance> instanceEnum = instances.enumerateInstances();
+            HashMap<Integer, Double> resultMap = new HashMap<Integer, Double>();
+            int j = 0;
+            while (instanceEnum.hasMoreElements()) {
+                Instance instance = instanceEnum.nextElement();
+                int id = Integer.valueOf(instance.toString(0));
+                // instance.setMissing(0);
+                instance.setClassMissing();
+                try {
+                    double[] dbl = classifier.distributionForInstance(instance);
+                    resultMap.put(idList.get(j), dbl[1]);
+                } catch (Exception e) {
+                    System.out.println(classifier == null);
+                    e.printStackTrace();
+                }
+                j++;
+            }
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        instances.setClassIndex(1);
-        Enumeration<Instance> instanceEnum = instances.enumerateInstances();
-        HashMap<Integer, Double> resultMap = new HashMap<Integer, Double>();
-        int i = 0;
-        while (instanceEnum.hasMoreElements()) {
-            Instance instance = instanceEnum.nextElement();
-            int id = Integer.valueOf(instance.toString(0));
-            // instance.setMissing(0);
-            instance.setClassMissing();
-            try {
-                double[] dbl = classifier.distributionForInstance(instance);
-                resultMap.put(idList.get(i), dbl[1]);
-            } catch (Exception e) {
-                System.out.println(classifier == null);
-                e.printStackTrace();
-            }
-            i++;
         }
     }
 

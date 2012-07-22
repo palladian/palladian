@@ -165,7 +165,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         StopWatch stopWatch = new StopWatch();
 
         // create a classifier mananger object
-        ClassifierManager classifierManager = new ClassifierManager();
+        // ClassifierManager classifierManager = new ClassifierManager();
 
         // create a text classifier by giving a name and a path where it should be saved to
         TextClassifier classifier = new DictionaryClassifier(classifierName, classifierPath + classifierName + "/");
