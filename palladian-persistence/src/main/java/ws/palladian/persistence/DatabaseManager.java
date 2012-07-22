@@ -61,7 +61,7 @@ public class DatabaseManager {
      * using one of the various close methods offered by this class.
      * </p>
      * 
-     * @return
+     * @return A connection to the database obtained from the {@link DataSource}.
      * @throws SQLException
      */
     protected final Connection getConnection() throws SQLException {
