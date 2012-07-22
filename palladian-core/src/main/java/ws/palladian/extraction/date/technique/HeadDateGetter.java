@@ -1,6 +1,7 @@
 package ws.palladian.extraction.date.technique;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -20,13 +21,13 @@ import ws.palladian.helper.date.dates.MetaDate;
  * 
  * @author Martin Gregor
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @Override
-    public ArrayList<MetaDate> getDates() {
-        ArrayList<MetaDate> result = new ArrayList<MetaDate>();
+    public List<MetaDate> getDates() {
+        List<MetaDate> result = new ArrayList<MetaDate>();
         if (document != null) {
             result = getHeadDates(document);
         }
@@ -40,7 +41,7 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
      * @param document
      * @return a array-list with dates.
      */
-    private static ArrayList<MetaDate> getHeadDates(final Document document) {
+    private static List<MetaDate> getHeadDates(final Document document) {
         ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
         NodeList headNodeList = document.getElementsByTagName("head");
         Node head = null;

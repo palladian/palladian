@@ -20,12 +20,10 @@ import ws.palladian.extraction.date.technique.UrlDateGetter;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.ExtractedDateHelper;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.helper.date.dates.StructureDate;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.parser.DocumentParser;
@@ -35,69 +33,51 @@ import ws.palladian.retrieval.parser.ParserFactory;
 public class DateGetterHelperTest {
 
     @Test
-    public void testGetURLDate() throws Exception {
-        final String url1 = "http://www.example.com/2010-06-30/example.html";
-        final String url2 = "http://www.zeit.de/sport/2010-06/example";
-        final String url3 = "http://www.nytimes.com2010_06_30/business/economy/30leonhardt.html?hp";
-        final String url4 = "http://www.example.com/2010/06/example.html";
-        final String url5 = "http://www.example.com/2010_06_30/example.html";
-        final String url6 = "http://www.example.com/2010_06/example.html";
-        final String url7 = "http://www.example.com/2010.06.30/example.html";
-        final String url8 = "http://www.example.com/2010.06/example.html";
-        final String url9 = "http://www.example.com/text/2010.06.30.html";
-        final String url10 = "http://www.example.com/text/2010/othertext/06_30/example.html";
-        final String url11 = "http://www.example.com/text/2010/othertext/06/30/example.html";
-        final String url12 = "http://www.example.com/text/2010/othertext/06/30example.html";
-        final String url13 = "http://www.example.com/text/2010/other/text/06_30example.html";
-        final String url14 = "http://www.example.com/text/othertext/20100630example.html";
-        final String url15 = "http://www.guardian.co.uk/world/2002/sep/06/iraq.johnhooper";
-        final String url16 = "http://www.gazettextra.com/news/2010/sep/23/abortion-issue-senate-races/";
-        final String url17 = "http://www.tmcnet.com/news/2010/06/30/1517705.htm";
-
+    public void testGetUrlDate() {
         // Cases with given day
         String time = "2010-06-30";
         UrlDateGetter udg = new UrlDateGetter();
-        udg.setUrl(url1);
-        assertEquals(url1, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url3);
-        assertEquals(url3, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url5);
-        assertEquals(url5, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url7);
-        assertEquals(url7, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url9);
-        assertEquals(url9, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url10);
-        assertEquals(url10, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url11);
-        assertEquals(url11, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url12);
-        assertEquals(url12, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url13);
-        assertEquals(url13, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url14);
-        assertEquals(url14, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url15);
-        assertEquals(url15, "2002-09-06", udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url16);
-        assertEquals(url16, "2010-09-23", udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url17);
-        assertEquals(url17, time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/2010-06-30/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.nytimes.com2010_06_30/business/economy/30leonhardt.html?hp");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/2010_06_30/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/2010.06.30/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/text/2010.06.30.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/text/2010/othertext/06_30/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/text/2010/othertext/06/30/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/text/2010/othertext/06/30example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/text/2010/other/text/06_30example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/text/othertext/20100630example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.guardian.co.uk/world/2002/sep/06/iraq.johnhooper");
+        assertEquals("2002-09-06", udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.gazettextra.com/news/2010/sep/23/abortion-issue-senate-races/");
+        assertEquals("2010-09-23", udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.tmcnet.com/news/2010/06/30/1517705.htm");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
 
         // Cases without given day, so day will be set to 1st
         time = "2010-06";
-        udg.setUrl(url2);
-        assertEquals(url2, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url4);
-        assertEquals(url4, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url6);
-        assertEquals(url6, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url8);
-        assertEquals(url8, time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.zeit.de/sport/2010-06/example");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/2010/06/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/2010_06/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
+        udg.setUrl("http://www.example.com/2010.06/example.html");
+        assertEquals(time, udg.getFirstDate().getNormalizedDateString());
     }
 
     @Test
-    public void testGetDateFromString() throws Exception {
+    public void testGetDateFromString() {
 
         ExtractedDate date;
         String text;
@@ -423,24 +403,18 @@ public class DateGetterHelperTest {
 
     @Test
     public void testGetSeparator() {
-        final String date1 = "2010-05-06";
-        final String date2 = "2010_05_06";
-        final String date3 = "2010.05.06";
-        final String date4 = "2010/05/06";
-
-        assertEquals("-", ExtractedDateHelper.getSeparator(date1));
-        assertEquals("_", ExtractedDateHelper.getSeparator(date2));
-        assertEquals("\\.", ExtractedDateHelper.getSeparator(date3));
-        assertEquals("/", ExtractedDateHelper.getSeparator(date4));
-
+        assertEquals("-", ExtractedDateHelper.getSeparator("2010-05-06"));
+        assertEquals("_", ExtractedDateHelper.getSeparator("2010_05_06"));
+        assertEquals("\\.", ExtractedDateHelper.getSeparator("2010.05.06"));
+        assertEquals("/", ExtractedDateHelper.getSeparator("2010/05/06"));
     }
 
     @Test
-    public void testGetHTTPHeaderDate() throws FileNotFoundException {
+    public void testGetHttpHeaderDate() throws FileNotFoundException {
         HttpResult httpResult = HttpRetriever.loadSerializedHttpResult(ResourceHelper.getResourceFile("/httpResults/testPage01.httpResult"));
         
-        HttpDateGetter hdg = new HttpDateGetter();
-        List<MetaDate> dates = hdg.getHttpHeaderDate(httpResult);
+        HttpDateGetter httpDateGetter = new HttpDateGetter();
+        List<MetaDate> dates = httpDateGetter.getHttpHeaderDate(httpResult);
         
         assertEquals("2012-07-22 14:35:38", dates.get(0).getNormalizedDateString());
         assertEquals("2012-07-22 13:59:10", dates.get(1).getNormalizedDateString());
@@ -456,8 +430,8 @@ public class DateGetterHelperTest {
         DocumentParser htmlParser = ParserFactory.createHtmlParser();
         Document document = htmlParser.parse(testPage);
 
-        StructureDateGetter dateGetter = new StructureDateGetter();
-        List<StructureDate> dates = dateGetter.getStructureDate(document);
+        StructureDateGetter structureDateGetter = new StructureDateGetter();
+        List<StructureDate> dates = structureDateGetter.getStructureDate(document);
 
         assertEquals(7, dates.size());
         assertEquals("2010-07-08T08:02:04-05:00", dates.get(0).getDateString());
@@ -467,25 +441,15 @@ public class DateGetterHelperTest {
         assertEquals("2010-07-20", dates.get(4).getDateString());
         assertEquals("2010-07-16", dates.get(5).getDateString());
         assertEquals("2010-07-07", dates.get(6).getDateString());
+        
+        testPage = ResourceHelper.getResourceFile("/webPages/website103.html");
+        document = htmlParser.parse(testPage);
+        dates = structureDateGetter.getStructureDate(document);
+        
+        // assertEquals(1, dates.size());
+        assertEquals("2002-08-06T03:08", dates.get(0).getDateString());
     }
 
-    @Test
-    public void testGetStructureDate2() {
-
-        if (AllTests.ALL_TESTS) {
-            // String url = "http://www.aftonbladet.se/wendela/ledig/article3476060.ab";
-            String url = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
-
-            if (!AllTests.ALL_TESTS) {
-                ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-                StructureDateGetter dateGetter = new StructureDateGetter();
-                dateGetter.setUrl(url);
-                List<StructureDate> dates = dateGetter.getDates();
-                date.addAll(dates);
-                DateArrayHelper.printDateArray(date);
-            }
-        }
-    }
 
     @Test
     public void testGetContentDates() {
@@ -517,7 +481,7 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Ignore
+    // @Ignore
     @Test
     public void testGetContentDates2() throws FileNotFoundException {
         final String url = ResourceHelper.getResourcePath("/webpages/dateExtraction/Bangkok.htm");
@@ -531,7 +495,7 @@ public class DateGetterHelperTest {
             dateGetter.setTechHTMLContent(true);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            DateArrayHelper.printDateArray(date);
+            // DateArrayHelper.printDateArray(date);
     }
 
     // @Ignore
@@ -545,7 +509,7 @@ public class DateGetterHelperTest {
             DateGetter dateGetter = new DateGetter(url);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            DateArrayHelper.printDateArray(date, DateType.ContentDate);
+            // DateArrayHelper.printDateArray(date, DateType.ContentDate);
         }
     }
 
@@ -559,52 +523,41 @@ public class DateGetterHelperTest {
             dateGetter.setTechHTMLContent(true);
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            DateArrayHelper.printDateArray(date);
+            // DateArrayHelper.printDateArray(date);
 
         }
     }
 
 
     @Test
-    public void testGetHeadDates2() {
-        if (AllTests.ALL_TESTS) {
-            String url = "http://abclocal.go.com/wabc/story?section=news/local&id=6606410";
-
-            DocumentRetriever c = new DocumentRetriever();
-            Document document = c.getWebDocument(url);
-
-            HeadDateGetter hdg = new HeadDateGetter();
-            hdg.setDocument(document);
-
-            ArrayList<MetaDate> headDates = hdg.getDates();
-            DateArrayHelper.printDateArray(headDates);
-        }
-
+    public void testGetHeadDates2() throws FileNotFoundException, ParserException {
+        DocumentParser htmlParser = ParserFactory.createHtmlParser();
+        Document document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/website104.html"));
+        HeadDateGetter headDateGetter = new HeadDateGetter();
+        headDateGetter.setDocument(document);
+        List<MetaDate> headDates = headDateGetter.getDates();
+        
+        assertEquals(3, headDates.size());
+        assertEquals("2009-01-15", headDates.get(0).getNormalizedDateString());
+        assertEquals("2009-01-15 20:39", headDates.get(1).getNormalizedDateString());
+        assertEquals("2009-01-16", headDates.get(2).getNormalizedDateString());
     }
 
     @Test
-    public void testGetHeadDates() {
-        if (AllTests.ALL_TESTS) {
-            String url = "src/test/resources/webpages/dateExtraction/zeit2.htm";
-            ArrayList<MetaDate> compareDates = new ArrayList<MetaDate>();
-            compareDates.add(new MetaDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new MetaDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new MetaDate("2010-09-03T09:44:12.597203+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new MetaDate("2010-09-03T09:41:54.059727+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new MetaDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-            compareDates.add(new MetaDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+    public void testGetHeadDates() throws FileNotFoundException, ParserException {
+        DocumentParser htmlParser = ParserFactory.createHtmlParser();
+        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webpages/dateExtraction/zeit2.htm"));
+        HeadDateGetter headDateGetter = new HeadDateGetter();
 
-            DocumentRetriever c = new DocumentRetriever();
-            Document document = c.getWebDocument(url);
-            HeadDateGetter hdg = new HeadDateGetter();
-            hdg.setDocument(document);
-            ArrayList<MetaDate> headDates = hdg.getDates();
-            assertEquals(6, headDates.size());
-            for (int i = 0; i < headDates.size(); i++) {
-                assertEquals(compareDates.get(i).getDateString(), headDates.get(i).getDateString());
-            }
-        }
-
+        headDateGetter.setDocument(document);
+        List<MetaDate> dates = headDateGetter.getDates();
+        assertEquals(6, dates.size());
+        assertEquals("2010-09-03 09:43:13", dates.get(0).getNormalizedDateString());
+        assertEquals("2010-09-02 06:00:00", dates.get(1).getNormalizedDateString());
+        assertEquals("2010-09-03 09:44:12", dates.get(2).getNormalizedDateString());
+        assertEquals("2010-09-03 09:41:54", dates.get(3).getNormalizedDateString());
+        assertEquals("2010-09-03 09:43:13", dates.get(4).getNormalizedDateString());
+        assertEquals("2010-09-02 06:00:00", dates.get(5).getNormalizedDateString());
     }
 
 

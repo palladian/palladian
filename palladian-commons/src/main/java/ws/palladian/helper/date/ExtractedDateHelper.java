@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * This class contains methods, that help ExtractedDate to define the correct date values.
@@ -254,8 +255,7 @@ public class ExtractedDateHelper {
      */
     public static String[] removeTimezone(String dateString) {
         String timezoneRegRex = RegExp.getTimezones();
-//        System.out.println(" - " + ws.palladian.helper.nlp.StringHelper.removeFirstStringpart(dateString, timezoneRegRex)[0]); 
-        return ws.palladian.helper.nlp.StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
+        return StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
     }
 
     /**
