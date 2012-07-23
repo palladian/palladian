@@ -40,7 +40,7 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
      * @return a array-list with dates.
      */
     private static List<MetaDate> getHeadDates(final Document document) {
-        ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
+        List<MetaDate> dates = new ArrayList<MetaDate>();
         NodeList headNodeList = document.getElementsByTagName("head");
         Node head = null;
         if (headNodeList != null) {
@@ -76,9 +76,9 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
                         continue;
                     }
                     //MetaDate headDate = DateConverter.convert(temp, DateType.MetaDate);
-                    MetaDate headDate = new MetaDate(temp);
-                    headDate.setKeyword(keyword);
-                    headDate.setTag(nameAttr.getNodeName());
+                    MetaDate headDate = new MetaDate(temp, keyword, nameAttr.getNodeName());
+                    //headDate.setKeyword(keyword);
+                    //headDate.setTag(nameAttr.getNodeName());
                     dates.add(headDate);
                 }
             }

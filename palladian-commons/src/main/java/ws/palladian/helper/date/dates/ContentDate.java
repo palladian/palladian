@@ -68,20 +68,6 @@ public final class ContentDate extends AbstractBodyDate {
     private boolean hasStrucutreDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
-    
-    /**
-     * 
-     */
-    public ContentDate() {
-    }
-
-    /**
-     * @param dateString
-     */
-    public ContentDate(String dateString) {
-        super(dateString);
-        setType(DateType.ContentDate);
-    }
 
     /**
      * @param dateString
