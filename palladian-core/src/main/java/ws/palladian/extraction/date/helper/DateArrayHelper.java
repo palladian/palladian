@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.helper.date.dates.AbstractDate;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -41,56 +42,49 @@ public class DateArrayHelper {
      * @param filter
      * @return
      */
-    public static <T> List<T> filter(List<T> dates, int filter) {
-        ArrayList<T> temp = new ArrayList<T>();
-        T date;
-        Iterator<T> iterator = dates.iterator();
+    public static <T extends ExtractedDate> List<T> filter(List<T> dates, int filter) {
+        List<T> ret = new ArrayList<T>();
         int tempFilter = filter;
-        while (iterator.hasNext()) {
-            date = iterator.next();
+        for (T date : dates) {
             switch (filter) {
                 case FILTER_IS_IN_RANGE:
-                    if (DateRaterHelper.isDateInRange((ExtractedDate) date)) {
-                        temp.add(date);
+                    if (DateRaterHelper.isDateInRange(date)) {
+                        ret.add(date);
                     }
                     break;
                 case FILTER_FULL_DATE:
-                    if (((ExtractedDate) date).get(ExtractedDate.YEAR) != -1
-                            && ((ExtractedDate) date).get(ExtractedDate.MONTH) != -1
-                            && ((ExtractedDate) date).get(ExtractedDate.DAY) != -1) {
+                    if ((date).get(AbstractDate.YEAR) != -1
+                            && (date).get(AbstractDate.MONTH) != -1
+                            && (date).get(AbstractDate.DAY) != -1) {
 
-                        temp.add(date);
+                        ret.add(date);
                     }
                     break;
                 case FILTER_KEYLOC_NO:
                     tempFilter = -1;
                 case FILTER_KEYLOC_CONT:
                 case FILTER_KEYLOC_ATTR:
-                    if (((ExtractedDate) date).getType().equals(DateType.ContentDate)) {
+                    if ((date).getType().equals(DateType.ContentDate)) {
                         int keyloc = ((ContentDate) date).get(ContentDate.KEYWORDLOCATION);
                         if (keyloc == tempFilter) {
-                            temp.add(date);
+                            ret.add(date);
                         }
                     }
                     break;
             }
 
         }
-        return temp;
-
+        return ret;
     }
 
-    public static <T> List<T> filter(List<T> dates, DateType filter) {
-        ArrayList<T> temp = new ArrayList<T>();
-        T date;
-        Iterator<T> iterator = dates.iterator();
-        while (iterator.hasNext()) {
-            date = iterator.next();
-            if (((ExtractedDate) date).getType().equals(filter)) {
-                temp.add(date);
+    public static <T extends ExtractedDate> List<T> filter(List<T> dates, DateType filter) {
+        List<T> ret = new ArrayList<T>();
+        for (T date : dates) {
+            if ((date).getType().equals(filter)) {
+                ret.add(date);
             }
         }
-        return temp;
+        return ret;
     }
 
 //    /**
@@ -363,16 +357,13 @@ public class DateArrayHelper {
      * @param filterTechnique
      * @param format
      */
-    public static <T> void printDateArray(List<T> dates, DateType filterTechnique, String format) {
+    public static <T extends ExtractedDate> void printDateArray(List<T> dates, DateType filterTechnique, String format) {
         List<T> temp = dates;
         if (filterTechnique != null) {
             temp = filter(dates, filterTechnique);
         }
 
-        Iterator<T> dateIterator = temp.iterator();
-        while (dateIterator.hasNext()) {
-
-            T date = dateIterator.next();
+        for (T date : temp) {
             if (format == null || format.equals(((ExtractedDate) date).getFormat())) {
                 System.out.println(date.toString());
                 System.out
@@ -392,7 +383,7 @@ public class DateArrayHelper {
      * @param filterTechnique
      * @param format
      */
-    public static <T> void printDateArray(List<T> dates, int filterTechnique, String format) {
+    public static <T extends ExtractedDate> void printDateArray(List<T> dates, int filterTechnique, String format) {
         List<T> temp = dates;
         if (filterTechnique > 0) {
             temp = filter(dates, filterTechnique);
@@ -417,7 +408,7 @@ public class DateArrayHelper {
      * 
      * @param dates
      */
-    public static <T> void printDateArray(List<T> dates) {
+    public static void printDateArray(List<? extends ExtractedDate> dates) {
         printDateArray(dates, 0);
     }
 
@@ -430,7 +421,7 @@ public class DateArrayHelper {
      * @param dates
      * @param filterTechnique
      */
-    public static <T> void printDateArray(List<T> dates, int filterTechnique) {
+    public static void printDateArray(List<? extends ExtractedDate> dates, int filterTechnique) {
         printDateArray(dates, filterTechnique, null);
     }
 
@@ -443,7 +434,7 @@ public class DateArrayHelper {
      * @param dates
      * @param filterTechnique
      */
-    public static <T> void printDateArray(List<T> dates, DateType filterTechnique) {
+    public static void printDateArray(List<? extends ExtractedDate> dates, DateType filterTechnique) {
         printDateArray(dates, filterTechnique, null);
     }
 

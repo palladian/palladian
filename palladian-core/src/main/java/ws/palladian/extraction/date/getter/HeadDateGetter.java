@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import ws.palladian.extraction.date.KeyWords;
@@ -47,11 +48,12 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
 
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(document, "//head/meta");
         for (Node metaNode : metaNodes) {
-            Node nameAttribute = metaNode.getAttributes().getNamedItem("name");
+            NamedNodeMap nodeAttributes = metaNode.getAttributes();
+            Node nameAttribute = nodeAttributes.getNamedItem("name");
             if (nameAttribute == null) {
-                nameAttribute = metaNode.getAttributes().getNamedItem("http-equiv");
+                nameAttribute = nodeAttributes.getNamedItem("http-equiv");
             }
-            Node contentAttribute = metaNode.getAttributes().getNamedItem("content");
+            Node contentAttribute = nodeAttributes.getNamedItem("content");
             if (nameAttribute == null || contentAttribute == null) {
                 continue;
             }
