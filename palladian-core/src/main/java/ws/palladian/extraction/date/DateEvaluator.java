@@ -9,6 +9,7 @@ import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.ContentDateRater;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
+import ws.palladian.helper.date.dates.ExtractedDate;
 
 /**
  * This class is responsible for rating dates. <br>
@@ -69,7 +70,7 @@ public class DateEvaluator {
      * @return HashMap of dates, with rate as value.
      */
     @SuppressWarnings("unchecked")
-    public <T> Map<T, Double> rate(List<T> extractedDates) {
+    public <T extends ExtractedDate> Map<T, Double> rate(List<T> extractedDates) {
         HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
         List<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
         HashMap<T, Double> contResult = new HashMap<T, Double>();
