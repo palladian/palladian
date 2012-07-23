@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.ContentDateRater;
-import ws.palladian.extraction.date.technique.PageDateType;
+import ws.palladian.extraction.date.rater.ContentDateRater;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
 

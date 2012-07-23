@@ -857,7 +857,7 @@ public class ExtractedDate implements AbstractDate {
     @Override
     public String toString() {
         return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDateString() + " Format: " + this.format
-                + " Technique: " + ExtractedDateHelper.getTypString(getType());
+                + " Technique: " + getType();
     }
 
     /**

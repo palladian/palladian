@@ -84,7 +84,7 @@ public class RegExp {
     private static final String HOUR12_1 = "((1[0-2])|([0-9]))";
     private static final String MIN = "((0[0-9])|([1-5][0-9]))";
     private static final String SEC = MIN;
-    private static final String TIMEZONE = "((\\s)((\\sUTC)|(UTC)|(MEZ)|(GMT)|(Z)|(AEST)|(BST)|(EST)))";
+    public static final String TIMEZONE = "((\\s)((\\sUTC)|(UTC)|(MEZ)|(GMT)|(Z)|(AEST)|(BST)|(EST)))";
     private static final String TIME_SEC = HOUR + ":" + MIN + ":" + SEC;
     private static final String FLOAT_SEC_OPT = "(((\\.)(\\d)*)?)";
     private static final String AM_PM = "(" + "(\\s)" + "((AM)|(PM)))";
@@ -517,8 +517,8 @@ public class RegExp {
     	return regExp;
     }
     
-    public static String getTimezones() {
-        return TIMEZONE;
-    }
+//    public static String getTimezones() {
+//        return TIMEZONE;
+//    }
 
 }

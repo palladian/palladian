@@ -1,4 +1,4 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.DateEvaluator;
 import ws.palladian.extraction.date.DateGetter;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.DateConverter;

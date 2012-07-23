@@ -10,7 +10,7 @@ import java.io.StringReader;
 import weka.core.Instance;
 import weka.core.Instances;
 import ws.palladian.extraction.date.KeyWords;
-import ws.palladian.extraction.date.technique.PageDateType;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.io.FileHelper;

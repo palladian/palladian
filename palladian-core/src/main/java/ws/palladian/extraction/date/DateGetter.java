@@ -6,7 +6,7 @@ import java.util.Collections;
 
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.date.technique.ContentDateGetter;
+import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**

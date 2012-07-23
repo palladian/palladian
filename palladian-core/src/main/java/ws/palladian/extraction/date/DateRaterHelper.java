@@ -29,7 +29,7 @@ public class DateRaterHelper {
      */
     public static boolean isDateInRange(ExtractedDate date) {
         ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
-        ExtractedDate end = ExtractedDateHelper.createActualDate();
+        ExtractedDate end = ExtractedDateHelper.getCurrentDate();
         DateComparator comp = new DateComparator();
         int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
         boolean gt = comp.compare(begin, date, stopFlag) > -1;
@@ -157,7 +157,7 @@ public class DateRaterHelper {
      * @param map
      */
     public static <T> void setRateToZero(List<T> datesToBeSetZero, Map<T, Double> map) {
-        setRat(datesToBeSetZero, map, 0.0);
+        setRate(datesToBeSetZero, map, 0.0);
 
     }
 
@@ -168,7 +168,7 @@ public class DateRaterHelper {
      * @param datesToBeSetZero
      * @param map
      */
-    public static <T> void setRat(List<T> datesToBeSetZero, Map<T, Double> map, double rate) {
+    public static <T> void setRate(List<T> datesToBeSetZero, Map<T, Double> map, double rate) {
         for (int i = 0; i < datesToBeSetZero.size(); i++) {
             map.put(datesToBeSetZero.get(i), 0.0);
         }

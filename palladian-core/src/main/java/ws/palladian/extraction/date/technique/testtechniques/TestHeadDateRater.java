@@ -7,10 +7,10 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.HeadDateRater;
-import ws.palladian.extraction.date.technique.PageDateType;
+import ws.palladian.extraction.date.rater.HeadDateRater;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
@@ -77,7 +77,7 @@ public class TestHeadDateRater extends HeadDateRater {
      * @return Hashmap with dates and rateings.
      */
 	protected HashMap<MetaDate, Double> evaluateHeadDate(ArrayList<MetaDate> headDates) {
-		ExtractedDate actualDate = ExtractedDateHelper.createActualDate();
+		ExtractedDate actualDate = ExtractedDateHelper.getCurrentDate();
 		return evaluateHeadDate(headDates, actualDate);
 	}
 	
@@ -112,7 +112,7 @@ public class TestHeadDateRater extends HeadDateRater {
             DateRaterHelper.setRateToZero(lowRatedDates, result);
 
         } else if (middleRatedDates.size() > 0) {
-            DateRaterHelper.setRat(middleRatedDates, result, 1.0);
+            DateRaterHelper.setRate(middleRatedDates, result, 1.0);
             DateRaterHelper.setRateToZero(lowRatedDates, result);
 
         } else {
