@@ -9,22 +9,10 @@ package ws.palladian.helper.date.dates;
 public final class UrlDate extends ExtractedDate {
 
     public UrlDate() {
-    }
-
-    public UrlDate(String dateString) {
-        super(dateString);
-    }
-
-    public UrlDate(String dateString, String format) {
-        super(dateString, format);
+        setType(DateType.UrlDate);
     }
 
     public UrlDate(ExtractedDate date) {
         super(date, DateType.UrlDate);
     }
-
-//    @Override
-//    public String toString() {
-//        return super.toString();// + " url: " + getUrl() + "<<";
-//    }
 }

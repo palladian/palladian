@@ -100,8 +100,8 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
                 if (date != null) {
                 	//MetaDate httpDate = DateConverter.convert(date, DateType.MetaDate);
                     // HTTPDate httpDate = DateConverter.convertToHTTPDate(date);
-                    MetaDate httpDate = new MetaDate(date);
-                    httpDate.setKeyword(keyword);
+                    MetaDate httpDate = new MetaDate(date, keyword);
+                    // httpDate.setKeyword(keyword);
                     result.add(httpDate);
                 }
             }

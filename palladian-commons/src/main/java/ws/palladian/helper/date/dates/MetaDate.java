@@ -1,39 +1,30 @@
 package ws.palladian.helper.date.dates;
 
-public class MetaDate extends KeywordDate {
-	
-	private String tag = null;
-	
-	public MetaDate() {
-	}
+public final class MetaDate extends KeywordDate {
 
-	public MetaDate(String dateString) {
-		super(dateString);
-	}
+    /** Name of the tag, where this {@link MetaDate} was found. */
+    private final String tag;
 
-	public MetaDate(String dateString, String format) {
-		super(dateString, format);
-	}
-	
-	public MetaDate(ExtractedDate date) {
-	    super(date, DateType.MetaDate);
-	}
-	
-	 /**
-     * Should be name of tag, where this date was found.
-     * 
-     * @return
-     */
-    public String getTag() {
-        return this.tag;
+    public MetaDate(ExtractedDate date, String keyword, String tag) {
+        super(date, keyword, DateType.MetaDate);
+        this.tag = tag;
+    }
+
+    public MetaDate(ExtractedDate date, String keyword) {
+        this(date, keyword, null);
+    }
+
+    public MetaDate(ExtractedDate date) {
+        this(date, null);
     }
 
     /**
+     * Get the name of the tag, where this {@link MetaDate} was found.
      * 
-     * @param tag
+     * @return Name of the tag, where this {@link MetaDate} was found.
      */
-    public void setTag(String tag) {
-        this.tag = tag;
+    public String getTag() {
+        return tag;
     }
-	
+
 }

@@ -38,6 +38,11 @@ public abstract class KeywordDate extends ExtractedDate {
         super(date, dateType);
     }
 
+    public KeywordDate(ExtractedDate date, String keyword, DateType dateType) {
+        super(date, dateType);
+        this.keyword = keyword;
+    }
+
     @Override
     public String toString() {
         return super.toString() + "\n" + "Keyword: " + keyword;

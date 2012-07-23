@@ -29,7 +29,7 @@ public class RatedDateComparator<T extends ExtractedDate> implements Comparator<
             if (date1.getType().equals(DateType.ContentDate) && date2.getType().equals(DateType.ContentDate)) {
                 result = comparePosInDoc((ContentDate)date1, (ContentDate)date2);
             } else {
-                result = compareTechniqe(date1, date2);
+                result = compareTechnique(date1, date2);
             }
         }
         if (result == 0) {
@@ -77,7 +77,7 @@ public class RatedDateComparator<T extends ExtractedDate> implements Comparator<
      * @param date2
      * @return
      */
-    private int compareTechniqe(ExtractedDate date1, ExtractedDate date2) {
+    private int compareTechnique(ExtractedDate date1, ExtractedDate date2) {
         int tech1 = date1.getTypeInt();
         int tech2 = date2.getTypeInt();
         if (tech1 == 0) {
