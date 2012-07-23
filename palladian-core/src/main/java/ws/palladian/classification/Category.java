@@ -152,14 +152,22 @@ public class Category implements Serializable {
     }
 
     /**
+     * <p>
      * Equality is checked by category name.
+     * </p>
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (this == obj) {
+            return true;
+        }
+
+        if ((obj == null) || (obj.getClass() != this.getClass())) {
             return false;
         }
-        return obj.equals(getName());
+
+        Category cat = (Category)obj;
+        return cat.getName().equals(getName());
     }
 
     /*

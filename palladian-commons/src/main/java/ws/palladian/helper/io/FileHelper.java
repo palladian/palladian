@@ -508,7 +508,7 @@ public class FileHelper {
             LOGGER.error(e.getMessage());
         } catch (UnsupportedEncodingException e) {
             LOGGER.error(e.getMessage());
-        } 
+        }
 
     }
     
@@ -588,7 +588,7 @@ public class FileHelper {
 
 //    /**
 //     * Perform action on every line of the input file.
-//     * 
+//     *
 //     * @param reader The reader with the file which should be processed line by line.
 //     * @param la The line action that should be triggered on each line.
 //     * @return The number of lines processed.
@@ -621,7 +621,7 @@ public class FileHelper {
 
 //    /**
 //     * Perform action on every line on the input text.
-//     * 
+//     *
 //     * @param text The text which should be processed line by line.
 //     * @param la The line action that should be triggered on each line.
 //     * @return The number of lines processed.
@@ -1288,7 +1288,9 @@ public class FileHelper {
     }
 
     /**
+     * <p>
      * Get the number of lines in an ASCII document.
+     * </p>
      * 
      * @param fileName The name of the file.
      * @return The number of lines.
@@ -1300,6 +1302,18 @@ public class FileHelper {
             }
         };
         return FileHelper.performActionOnEveryLine(fileName, la);
+    }
+
+    /**
+     * <p>
+     * Get the number of lines in an ASCII document.
+     * </p>
+     * 
+     * @param file The file.
+     * @return The number of lines.
+     */
+    public static int getNumberOfLines(File file) {
+        return FileHelper.getNumberOfLines(file.getPath());
     }
 
     /**
