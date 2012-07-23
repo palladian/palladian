@@ -3,11 +3,11 @@ package ws.palladian.extraction.date.comparators;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -373,16 +373,16 @@ public class DateComparator implements Comparator<ExtractedDate> {
 //        return returnDate;
 //    }
 
-    /**
-     * Oder dates, oldest first.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    private <T extends ExtractedDate> List<T> orderDates(List<T> dates) {
-        return orderDates(dates, false);
-    }
+//    /**
+//     * Oder dates, oldest first.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    private <T extends ExtractedDate> List<T> orderDates(List<T> dates) {
+//        return orderDates(dates, false);
+//    }
 
     /**
      * <p>Orders a {@link List} of dates, beginning with oldest date.</p>
@@ -393,26 +393,26 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return A sorted {@link List} of dates.
      */
     <T extends ExtractedDate> List<T> orderDates(Collection<T> dates, boolean reverse) {
-        T[] result = orderDatesArray(dates);
-        ArrayList<T> resultList = new ArrayList<T>();
-        if (reverse) {
-            for (int i = 0; i < result.length; i++) {
-                resultList.add(result[i]);
-            }
-        } else {
-            for (int i = result.length - 1; i >= 0; i--) {
-                resultList.add(result[i]);
-            }
-        }
-
-        return resultList;
-//        List<T> result = new ArrayList<T>(dates);
-//        Comparator<ExtractedDate> comparator = new DateComparator();
+//        T[] result = orderDatesArray(dates);
+//        ArrayList<T> resultList = new ArrayList<T>();
 //        if (reverse) {
-//            comparator = Collections.reverseOrder(comparator);
+//            for (int i = 0; i < result.length; i++) {
+//                resultList.add(result[i]);
+//            }
+//        } else {
+//            for (int i = result.length - 1; i >= 0; i--) {
+//                resultList.add(result[i]);
+//            }
 //        }
-//        Collections.sort(dates, comparator);
-//        return result;
+//
+//        return resultList;
+        List<T> result = new ArrayList<T>(dates);
+        Comparator<ExtractedDate> comparator = new DateComparator();
+        if (!reverse) {
+            comparator = Collections.reverseOrder(comparator);
+        }
+        Collections.sort(result, comparator);
+        return result;
     }
 
     /**
@@ -423,11 +423,12 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return
      */
     public <T extends ExtractedDate> List<T> orderDates(Map<T, Double> dates) {
-        ArrayList<T> temp = new ArrayList<T>();
-        for (Entry<T, Double> e : dates.entrySet()) {
-            temp.add(e.getKey());
-        }
-        return orderDates(temp);
+//        ArrayList<T> temp = new ArrayList<T>();
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            temp.add(e.getKey());
+//        }
+//        return orderDates(temp);
+        return orderDates(dates, false);
     }
 
     /**
@@ -440,63 +441,64 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return
      */
     public <T extends ExtractedDate> List<T> orderDates(Map<T, Double> dates, boolean reverse) {
-        ArrayList<T> temp = new ArrayList<T>();
-        for (Entry<T, Double> e : dates.entrySet()) {
-            temp.add(e.getKey());
-        }
-        return orderDates(temp, reverse);
+//        List<T> temp = new ArrayList<T>();
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            temp.add(e.getKey());
+//        }
+//        return orderDates(temp, reverse);
+        return orderDates(dates.keySet(), reverse);
     }
 
-    /**
-     * Orders a datelist, beginning with oldest date.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends ExtractedDate> T[] orderDatesArray(Collection<T> dates) {
-        T[] dateArray = (T[])dates.toArray(new ExtractedDate[dates.size()]);
-        quicksort(0, dateArray.length - 1, dateArray);
-        return dateArray;
+//    /**
+//     * Orders a datelist, beginning with oldest date.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    @SuppressWarnings("unchecked")
+//    private <T extends ExtractedDate> T[] orderDatesArray(Collection<T> dates) {
+//        T[] dateArray = (T[])dates.toArray(new ExtractedDate[dates.size()]);
+//        quicksort(0, dateArray.length - 1, dateArray);
+//        return dateArray;
+//
+//    }
 
-    }
+//    private <T extends ExtractedDate> void quicksort(int left, int right, T[] dates) {
+//        if (left < right) {
+//            int divide = divide(left, right, dates);
+//            quicksort(left, divide - 1, dates);
+//            quicksort(divide + 1, right, dates);
+//        }
+//    }
 
-    private <T extends ExtractedDate> void quicksort(int left, int right, T[] dates) {
-        if (left < right) {
-            int divide = divide(left, right, dates);
-            quicksort(left, divide - 1, dates);
-            quicksort(divide + 1, right, dates);
-        }
-    }
-
-    private <T extends ExtractedDate> int divide(int left, int right, T[] dates) {
-        int i = left;
-        int j = right - 1;
-        T pivot = dates[right];
-        while (i < j) {
-//            while (compare(dates[i], pivot, true) < 1 && i < right) {
-            while (compare(dates[i], pivot) < 1 && i < right) {
-                i++;
-            }
-//            while (compare(dates[j], pivot, true) > -1 && j > left) {
-            while (compare(dates[j], pivot) > -1 && j > left) {
-                j--;
-            }
-            if (i < j) {
-                T help = dates[i];
-                dates[i] = dates[j];
-                dates[j] = help;
-            }
-        }
-//        if (compare(dates[i], pivot, true) > 0) {
-        if (compare(dates[i], pivot) > 0) {
-            T help = dates[i];
-            dates[i] = dates[right];
-            dates[right] = help;
-        }
-        return i;
-    }
+//    private <T extends ExtractedDate> int divide(int left, int right, T[] dates) {
+//        int i = left;
+//        int j = right - 1;
+//        T pivot = dates[right];
+//        while (i < j) {
+////            while (compare(dates[i], pivot, true) < 1 && i < right) {
+//            while (compare(dates[i], pivot) < 1 && i < right) {
+//                i++;
+//            }
+////            while (compare(dates[j], pivot, true) > -1 && j > left) {
+//            while (compare(dates[j], pivot) > -1 && j > left) {
+//                j--;
+//            }
+//            if (i < j) {
+//                T help = dates[i];
+//                dates[i] = dates[j];
+//                dates[j] = help;
+//            }
+//        }
+////        if (compare(dates[i], pivot, true) > 0) {
+//        if (compare(dates[i], pivot) > 0) {
+//            T help = dates[i];
+//            dates[i] = dates[right];
+//            dates[right] = help;
+//        }
+//        return i;
+//    }
 
 //    /**
 //     * Returns oldest date.
@@ -546,7 +548,6 @@ public class DateComparator implements Comparator<ExtractedDate> {
             date = orderDates.get(0);
         }
         return date;
-
     }
 
     /**
@@ -563,6 +564,5 @@ public class DateComparator implements Comparator<ExtractedDate> {
             date = orderDates.get(0);
         }
         return date;
-
     }
 }
