@@ -101,7 +101,7 @@ public class DateEvaluatorTest {
      * @return HashMap of dates, with rate as value.
      */
     @SuppressWarnings("unchecked")
-    public <T> HashMap<T, Double> rate(ArrayList<T> extractedDates) {
+    public <T extends ExtractedDate> Map<T, Double> rate(ArrayList<T> extractedDates) {
         HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
 
         List<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);

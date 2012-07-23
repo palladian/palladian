@@ -20,27 +20,28 @@ import ws.palladian.helper.date.dates.ExtractedDate;
  * 
  * @param <T>
  */
-public class RatedDateComparator<T> implements Comparator<T> {
-	
+public class RatedDateComparator<T extends ExtractedDate> implements Comparator<T> {
+
     @Override
     public int compare(T date1, T date2) {
-        int result = compareRate((ExtractedDate) date1, (ExtractedDate) date2);
+        int result = compareRate(date1, date2);
         if (result == 0) {
-            if (((ExtractedDate) date1).getType().equals(DateType.ContentDate)
-                    && ((ExtractedDate) date2).getType().equals(DateType.ContentDate)) {
-                result = comparePosInDoc((ContentDate) date1, (ContentDate) date2);
+            if (date1.getType().equals(DateType.ContentDate) && date2.getType().equals(DateType.ContentDate)) {
+                result = comparePosInDoc((ContentDate)date1, (ContentDate)date2);
             } else {
-                result = compareTechniqe((ExtractedDate) date1, (ExtractedDate) date2);
+                result = compareTechniqe(date1, date2);
             }
         }
         if (result == 0) {
-            result = compareAge((ExtractedDate) date1, (ExtractedDate) date2);
+            result = compareAge(date1, date2);
         }
         return result;
     }
 
     /**
+     * <p>
      * Compare by rate.
+     * </p>
      * 
      * @param date1
      * @param date2
@@ -49,12 +50,13 @@ public class RatedDateComparator<T> implements Comparator<T> {
     private int compareRate(ExtractedDate date1, ExtractedDate date2) {
         double rate1 = date1.getRate();
         double rate2 = date2.getRate();
-        return (rate1 < rate2 ? 1 : (rate1 > rate2 ? -1 : 0));
+        return rate1 < rate2 ? 1 : rate1 > rate2 ? -1 : 0;
     }
 
     /**
-     * Compare by positionin document.<br>
-     * Only content dates.
+     * <p>
+     * Compare {@link ContentDate}s by position in document.
+     * </p>
      * 
      * @param date1
      * @param date2
@@ -63,11 +65,13 @@ public class RatedDateComparator<T> implements Comparator<T> {
     private int comparePosInDoc(ContentDate date1, ContentDate date2) {
         int pos1 = date1.get(ContentDate.DATEPOS_IN_DOC);
         int pos2 = date2.get(ContentDate.DATEPOS_IN_DOC);
-        return pos1 > pos2 ? 1 : (pos1 < pos2 ? -1 : 0);
+        return pos1 > pos2 ? 1 : pos1 < pos2 ? -1 : 0;
     }
 
     /**
-     * Compare technique.
+     * <p>
+     * Compare by technique.
+     * </p>
      * 
      * @param date1
      * @param date2
@@ -82,11 +86,13 @@ public class RatedDateComparator<T> implements Comparator<T> {
         if (tech2 == 0) {
             tech2 = 99;
         }
-        return tech1 > tech2 ? 1 : (tech1 < tech2 ? -1 : 0);
+        return tech1 > tech2 ? 1 : tech1 < tech2 ? -1 : 0;
     }
 
     /**
+     * <p>
      * Compare by age.
+     * </p>
      * 
      * @param date1
      * @param date2
