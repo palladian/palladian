@@ -70,7 +70,7 @@ public class ExtractedDateHelper {
      * @return A four digit year.
      */
     public static int normalizeYear(final String year) {
-        return ExtractedDateHelper.get4DigitYear(Integer.parseInt(ExtractedDateHelper.removeNodigits(year)));
+        return ExtractedDateHelper.get4DigitYear(Integer.parseInt(ExtractedDateHelper.removeNoDigits(year)));
     }
 
     /**
@@ -79,7 +79,7 @@ public class ExtractedDateHelper {
      * @param date
      * @return the entered date without the symbols
      */
-    public static String removeNodigits(final String datePart) {
+    public static String removeNoDigits(final String datePart) {
         String cleardString = datePart;
         int index;
 

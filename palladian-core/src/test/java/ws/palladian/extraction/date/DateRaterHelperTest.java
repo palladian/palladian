@@ -14,7 +14,7 @@ import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
-public class DateEvaluatorHelperTest {
+public class DateRaterHelperTest {
 
     @Test
     public void testIsDateInRange() {

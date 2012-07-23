@@ -684,7 +684,7 @@ public class ExtractedDate implements AbstractDate {
 
         }
         if (dayPos != -1) {
-            this.day = Integer.parseInt(ExtractedDateHelper.removeNodigits(dateParts[dayPos]));
+            this.day = Integer.parseInt(ExtractedDateHelper.removeNoDigits(dateParts[dayPos]));
         }
     }
 
