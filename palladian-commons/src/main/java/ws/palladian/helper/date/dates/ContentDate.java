@@ -8,7 +8,7 @@ import ws.palladian.helper.date.dates.StructureDate;
  * @author Martin Gregor
  * 
  */
-public class ContentDate extends AbstractBodyDate {
+public final class ContentDate extends AbstractBodyDate {
 	
     /** Keyword found in attribute of surrounding tag. */
     public static final int KEY_LOC_ATTR = 201;
@@ -80,6 +80,7 @@ public class ContentDate extends AbstractBodyDate {
      */
     public ContentDate(String dateString) {
         super(dateString);
+        setType(DateType.ContentDate);
     }
 
     /**
@@ -88,6 +89,7 @@ public class ContentDate extends AbstractBodyDate {
      */
     public ContentDate(String dateString, String format) {
         super(dateString, format);
+        setType(DateType.ContentDate);
     }
 
    

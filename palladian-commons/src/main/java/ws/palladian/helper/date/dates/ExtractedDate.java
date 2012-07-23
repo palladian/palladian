@@ -77,6 +77,19 @@ public class ExtractedDate implements AbstractDate {
         this.format = format;
         setDateParticles();
     }
+    
+    public ExtractedDate(String dateString, String format, DateType dateType) {
+        super();
+        this.dateString = dateString;
+        this.format = format;
+        this.dateType = dateType;
+    }
+    
+    public ExtractedDate(ExtractedDate date, DateType dateType) {
+        super();
+        setAll(date.getAll());
+        this.dateType = dateType;
+    }
 
     /**
      * Normalizes the date, if a format is given. <br>

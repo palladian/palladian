@@ -6,7 +6,7 @@ package ws.palladian.helper.date.dates;
  * @author Martin Greogr
  * 
  */
-public class UrlDate extends ExtractedDate {
+public final class UrlDate extends ExtractedDate {
 
     public UrlDate() {
     }
@@ -19,8 +19,12 @@ public class UrlDate extends ExtractedDate {
         super(dateString, format);
     }
 
-    @Override
-    public String toString() {
-        return super.toString();// + " url: " + getUrl() + "<<";
+    public UrlDate(ExtractedDate date) {
+        super(date, DateType.UrlDate);
     }
+
+//    @Override
+//    public String toString() {
+//        return super.toString();// + " url: " + getUrl() + "<<";
+//    }
 }

@@ -1,6 +1,5 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
     private Map<ReferenceDate, Double> getRefDates() {
         ReferenceDateGetter rdg = new ReferenceDateGetter();
         rdg.setUrl(url);
-        ArrayList<ReferenceDate> newRefDates = rdg.getDates();
+        List<ReferenceDate> newRefDates = rdg.getDates();
 
         List<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
 

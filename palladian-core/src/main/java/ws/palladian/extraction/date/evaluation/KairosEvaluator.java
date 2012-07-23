@@ -16,10 +16,8 @@ import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.rater.ContentDateRater;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.helper.date.dates.UrlDate;
@@ -141,15 +139,17 @@ public class KairosEvaluator {
 		String headerLastMod = dbExport.get(DBExport.HEADER_LAST);
 
 		ExtractedDate headerExtrDate = DateGetterHelper.findDate(headerDate);
-		MetaDate headerHttpDate = DateConverter.convert(headerExtrDate,
-				DateType.MetaDate);
+		// MetaDate headerHttpDate = DateConverter.convert(headerExtrDate,
+		//		DateType.MetaDate);
+		MetaDate headerHttpDate = new MetaDate(headerExtrDate);
 		if (headerHttpDate != null) {
 			headerHttpDate.setKeyword("date");
 		}
 		ExtractedDate headerExtrLastMod = DateGetterHelper
 				.findDate(headerLastMod);
-		MetaDate headerHttpLastMod = DateConverter.convert(headerExtrLastMod,
-				DateType.MetaDate);
+		//MetaDate headerHttpLastMod = DateConverter.convert(headerExtrLastMod,
+		//		DateType.MetaDate);
+		MetaDate headerHttpLastMod = new MetaDate(headerExtrLastMod);
 		if (headerHttpLastMod != null) {
 			headerHttpLastMod.setKeyword("last-modified");
 		}
