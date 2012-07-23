@@ -10,7 +10,6 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
@@ -35,6 +34,15 @@ public class WebPageDateEvaluator {
 
 	private String url;
 	private Document document;
+	
+	public static final double DEFAULT_THRESHOLD_GROUP_1 = 0.15;
+	public static final double DEFAULT_THRESHOLD_GROUP_2 = 0.24;
+	public static final double DEFAULT_THRESHOLD_GROUP_3 = 0.18;
+	public static final double DEFAULT_THRESHOLD_GROUP_4 = 0.16;
+	public static final double DEFAULT_THRESHOLD_GROUP_5 = 0.14;
+	public static final double DEFAULT_THRESHOLD_GROUP_6 = 0.13;
+	public static final double DEFAULT_THRESHOLD_GROUP_7 = 0.17;
+	public static final double DEFAULT_THRESHOLD_GROUP_8 = 0.26;
 
 	public void setPubMod(PageDateType pub_mod) {
 		this.dr = new DateEvaluator(pub_mod);
@@ -134,21 +142,21 @@ public class WebPageDateEvaluator {
 					PropertiesConfiguration config = configHolder.getConfig();
 					double size = 1 / ((ContentDate) date).getRelSize();
 					if (0 < size && size <= 1) {
-						limit = config.getDouble("threshold.group1");
+						limit = config.getDouble("threshold.group1", DEFAULT_THRESHOLD_GROUP_1);
 					} else if (1 < size && size <= 2) {
-						limit = config.getDouble("threshold.group2");
+						limit = config.getDouble("threshold.group2", DEFAULT_THRESHOLD_GROUP_2);
 					} else if (2 < size && size <= 3) {
-						limit = config.getDouble("threshold.group3");
+						limit = config.getDouble("threshold.group3", DEFAULT_THRESHOLD_GROUP_3);
 					} else if (3 < size && size <= 5) {
-						limit = config.getDouble("threshold.group4");
+						limit = config.getDouble("threshold.group4", DEFAULT_THRESHOLD_GROUP_4);
 					} else if (5 < size && size <= 10) {
-						limit = config.getDouble("threshold.group5");
+						limit = config.getDouble("threshold.group5", DEFAULT_THRESHOLD_GROUP_5);
 					} else if (10 < size && size <= 20) {
-						limit = config.getDouble("threshold.group6");
+						limit = config.getDouble("threshold.group6", DEFAULT_THRESHOLD_GROUP_6);
 					} else if (20 < size && size <= 50) {
-						limit = config.getDouble("threshold.group7");
+						limit = config.getDouble("threshold.group7", DEFAULT_THRESHOLD_GROUP_7);
 					} else if (50 < size) {
-						limit = config.getDouble("threshold.group8");
+						limit = config.getDouble("threshold.group8", DEFAULT_THRESHOLD_GROUP_8);
 					}
 				} else {
 					limit = 0;

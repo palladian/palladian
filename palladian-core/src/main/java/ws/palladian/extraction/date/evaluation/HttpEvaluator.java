@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.getter.HttpDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.HttpDateGetter;
-import ws.palladian.extraction.date.technique.HttpDateRater;
-import ws.palladian.extraction.date.technique.PageDateType;
+import ws.palladian.extraction.date.rater.HttpDateRater;
 import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.DateType;

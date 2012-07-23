@@ -9,8 +9,8 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 
 import weka.core.Instance;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.helper.DateWekaInstanceFactory;
-import ws.palladian.extraction.date.technique.PageDateType;
 import ws.palladian.helper.date.dates.ContentDate;
 
 public class DateWekaInstanceFactoryTest {

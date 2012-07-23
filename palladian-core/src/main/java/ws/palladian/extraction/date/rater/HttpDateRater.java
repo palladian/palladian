@@ -1,9 +1,10 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.rater;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.ExtractedDateHelper;
@@ -41,7 +42,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
     private Map<MetaDate, Double> evaluateHTTPDate(List<MetaDate> httpDates) {
     	ExtractedDate current = actualDate;
     	if(current == null){
-    		current = ExtractedDateHelper.createActualDate();
+    		current = ExtractedDateHelper.getCurrentDate();
     	}
     	return evaluateHTTPDate(httpDates, current);
     }

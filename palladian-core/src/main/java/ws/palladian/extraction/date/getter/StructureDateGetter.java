@@ -1,4 +1,4 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +23,6 @@ import ws.palladian.helper.date.dates.StructureDate;
  * 
  */
 public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
-
-    // private HashMap<Node, StructureDate> structDateMap = new HashMap<Node, StructureDate>();
-    // private HashMap<Node, Boolean> lookedUpNodeMap = new HashMap<Node, Boolean>();
-    // private HashMap<Node, String> keyAttrMap = new HashMap<Node, String>();
 
     @Override
     public List<StructureDate> getDates() {

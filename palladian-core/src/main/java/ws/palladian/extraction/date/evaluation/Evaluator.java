@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.getter.TechniqueDateGetter;
+import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.TechniqueDateGetter;
-import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.UrlDateGetter;
+import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;

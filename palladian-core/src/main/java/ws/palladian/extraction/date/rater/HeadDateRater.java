@@ -1,4 +1,4 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.rater;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Map;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.ExtractedDateHelper;
@@ -81,13 +82,13 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
             DateRaterHelper.setRateToZero(lowRatedDates, result);
 
         } else if (middleRatedDates.size() > 0) {
-            DateRaterHelper.setRat(middleRatedDates, result, 1.0);
+            DateRaterHelper.setRate(middleRatedDates, result, 1.0);
             DateRaterHelper.setRateToZero(lowRatedDates, result);
 
         } else {
 
         	if(actualDate == null){
-        		actualDate = ExtractedDateHelper.createActualDate();
+        		actualDate = ExtractedDateHelper.getCurrentDate();
         	}
             DateComparator dc = new DateComparator();
             for (int i = 0; i < lowRatedDates.size(); i++) {

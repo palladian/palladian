@@ -23,7 +23,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SelectedTag;
 import weka.core.SerializationHelper;
-import ws.palladian.extraction.date.technique.PageDateType;
+import ws.palladian.extraction.date.PageDateType;
 
 public class WekaClassifierEval {
 

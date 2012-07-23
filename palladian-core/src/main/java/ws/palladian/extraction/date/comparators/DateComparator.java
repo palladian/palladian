@@ -38,6 +38,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
     /** Use for methods providing a dynamic stop, depending on exactness of each date. Value = -1. */
     public static final int STOP_DYNAMIC = -1;
 
+    // TODO replace by TimeUnit?
     /** Get date-difference in milliseconds */
     public static final int MEASURE_MILLI_SEC = 1;
     /** Get date-difference in seconds */
@@ -109,7 +110,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param ignoreComparable
      * @return
      */
-    public int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable) {
+    private int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable) {
         int compare = compare(date1, date2, ignoreComparable, STOP_SECOND);
         if (compare == -2) {
             compare = 1;
@@ -128,7 +129,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param ignoreComparable
      * @return
      */
-    public int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable, int compareDepth) {
+    private int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable, int compareDepth) {
         int compare;
         if (ignoreComparable) {
             compare = compare(date1, date2);
@@ -148,7 +149,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param k
      * @return
      */
-    public int compare(int i, int k) {
+    private int compare(int i, int k) {
         // int returnValue = -2;
         // if (i == k) {
         // returnValue = 0;
@@ -264,25 +265,25 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return diff;
     }
 
-    /**
-     * Filters a set of dates out of an array, that have same extraction date like a given date.
-     * 
-     * @param <T> Type of array of dates.
-     * @param <V> Type of given date.
-     * @param date defines the extraction date.
-     * @param dates array to be filtered.
-     * @return Array of dates, that are equal to the date.
-     */
-    public <T, V> List<T> getEqualDate(V date, List<T> dates) {
-        ArrayList<T> returnDate = new ArrayList<T>();
-        for (int i = 0; i < dates.size(); i++) {
-            int compare = compare((ExtractedDate)date, (ExtractedDate)dates.get(i), STOP_DAY);
-            if (compare == 0) {
-                returnDate.add(dates.get(i));
-            }
-        }
-        return returnDate;
-    }
+//    /**
+//     * Filters a set of dates out of an array, that have same extraction date like a given date.
+//     * 
+//     * @param <T> Type of array of dates.
+//     * @param <V> Type of given date.
+//     * @param date defines the extraction date.
+//     * @param dates array to be filtered.
+//     * @return Array of dates, that are equal to the date.
+//     */
+//    public <T, V> List<T> getEqualDate(V date, List<T> dates) {
+//        ArrayList<T> returnDate = new ArrayList<T>();
+//        for (int i = 0; i < dates.size(); i++) {
+//            int compare = compare((ExtractedDate)date, (ExtractedDate)dates.get(i), STOP_DAY);
+//            if (compare == 0) {
+//                returnDate.add(dates.get(i));
+//            }
+//        }
+//        return returnDate;
+//    }
 
     /**
      * Oder dates, oldest first.
@@ -291,7 +292,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T extends ExtractedDate> List<T> orderDates(List<T> dates) {
+    private <T extends ExtractedDate> List<T> orderDates(List<T> dates) {
         return orderDates(dates, false);
     }
 
@@ -304,7 +305,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param reverse True is youngest first. False is oldest first.
      * @return
      */
-    public <T extends ExtractedDate> List<T> orderDates(List<T> dates, boolean reverse) {
+    <T extends ExtractedDate> List<T> orderDates(List<T> dates, boolean reverse) {
         T[] result = orderDatesArray(dates);
         ArrayList<T> resultList = new ArrayList<T>();
         if (reverse) {
@@ -360,7 +361,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T extends ExtractedDate> T[] orderDatesArray(List<T> dates) {
+    private <T extends ExtractedDate> T[] orderDatesArray(List<T> dates) {
         T[] dateArray = (T[])dates.toArray(new ExtractedDate[dates.size()]);
         quicksort(0, dateArray.length - 1, dateArray);
         return dateArray;

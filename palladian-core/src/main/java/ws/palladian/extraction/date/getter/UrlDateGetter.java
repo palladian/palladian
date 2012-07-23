@@ -1,4 +1,4 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
 

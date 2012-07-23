@@ -1,4 +1,4 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.rater;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -12,6 +12,7 @@ import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.SerializationHelper;
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.helper.DateWekaInstanceFactory;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ConfigHolder;

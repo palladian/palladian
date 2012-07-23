@@ -1,4 +1,4 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.getter;
 
 import java.util.List;
 
@@ -35,13 +35,13 @@ public abstract class TechniqueDateGetter<T extends ExtractedDate> {
         this.document = document;
     }
 
-    public String getUrl() {
-        return this.url;
-    }
+//    public String getUrl() {
+//        return this.url;
+//    }
 
-    public Document getDocument() {
-        return this.document;
-    }
+//    public Document getDocument() {
+//        return this.document;
+//    }
 
     public void reset() {
     }

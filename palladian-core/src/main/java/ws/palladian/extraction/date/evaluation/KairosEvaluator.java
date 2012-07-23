@@ -6,15 +6,15 @@ import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.technique.ContentDateGetter;
-import ws.palladian.extraction.date.technique.ContentDateRater;
-import ws.palladian.extraction.date.technique.MetaDateGetter;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.extraction.date.technique.TechniqueDateGetter;
-import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.UrlDateGetter;
+import ws.palladian.extraction.date.getter.ContentDateGetter;
+import ws.palladian.extraction.date.getter.MetaDateGetter;
+import ws.palladian.extraction.date.getter.TechniqueDateGetter;
+import ws.palladian.extraction.date.getter.UrlDateGetter;
+import ws.palladian.extraction.date.rater.ContentDateRater;
+import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;

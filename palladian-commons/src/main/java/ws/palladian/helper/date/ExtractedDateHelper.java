@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -186,26 +185,31 @@ public class ExtractedDateHelper {
     }
 
     /**
-     * Crates a extracted date with actual date and time in UTC timezone. <br>
-     * Thereby format YYYY-MM-DDTHH:MM:SSZ is used.
+     * <p>
+     * Creates an {@link ExtractedDate} with current date and time in UTC time zone. Thereby format
+     * <code>YYYY-MM-DDTHH:MM:SSZ</code> is used.
+     * </p>
      * 
-     * @return Extracted date.
+     * @return An {@link ExtractedDate} initialized to current date and time.
      */
-    public static ExtractedDate createActualDate() {
+    public static ExtractedDate getCurrentDate() {
         return createActualDate(null);
 
     }
 
     /**
-     * Creates an ExtrextedDate with current timestamp as date.
+     * <p>
+     * Creates an {@link ExtractedDate} with current date and time in specified time zone. Thereby format
+     * <code>YYYY-MM-DDTHH:MM:SSZ</code> is used.
+     * </p>
      * 
-     * @param local
-     * @return
+     * @param locale The locale specifying the time zone. <code>null</code> signifies to use UTC time zone.
+     * @return An {@link ExtractedDate} initialized to current date and time in the specified time zone.
      */
-    public static ExtractedDate createActualDate(Locale local) {
+    public static ExtractedDate createActualDate(Locale locale) {
         Calendar cal;
-        if (local != null) {
-            cal = new GregorianCalendar(local);
+        if (locale != null) {
+            cal = new GregorianCalendar(locale);
         } else {
             cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         }
@@ -254,41 +258,40 @@ public class ExtractedDateHelper {
      * @return
      */
     public static String[] removeTimezone(String dateString) {
-        String timezoneRegRex = RegExp.getTimezones();
-        return StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
+        return StringHelper.removeFirstStringpart(dateString, RegExp.TIMEZONE);
     }
 
-    /**
-     * Returns a extracted date type in a human readable string.
-     * 
-     * @param typ
-     * @return
-     */
-    public static String getTypString(DateType type) {
-        String typeString;
-        switch (type) {
-            case ArchiveDate:
-                typeString = "archive";
-                break;
-            case UrlDate:
-                typeString = "URL";
-                break;
-            case MetaDate:
-                typeString = "Meta";
-                break;
-            case StructureDate:
-                typeString = "HTML structure";
-                break;
-            case ContentDate:
-                typeString = "HTML content";
-                break;
-            case ReferenceDate:
-                typeString = "reference";
-                break;
-            default:
-                typeString = "other";
-        }
-        return typeString;
-
-    }
+//    /**
+//     * Returns a extracted date type in a human readable string.
+//     * 
+//     * @param typ
+//     * @return
+//     */
+//    public static String getTypString(DateType type) {
+//        String typeString;
+//        switch (type) {
+//            case ArchiveDate:
+//                typeString = "archive";
+//                break;
+//            case UrlDate:
+//                typeString = "URL";
+//                break;
+//            case MetaDate:
+//                typeString = "Meta";
+//                break;
+//            case StructureDate:
+//                typeString = "HTML structure";
+//                break;
+//            case ContentDate:
+//                typeString = "HTML content";
+//                break;
+//            case ReferenceDate:
+//                typeString = "reference";
+//                break;
+//            default:
+//                typeString = "other";
+//        }
+//        return typeString;
+//
+//    }
 }

@@ -11,13 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.getter.HeadDateGetter;
+import ws.palladian.extraction.date.getter.TechniqueDateGetter;
+import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.HeadDateGetter;
-import ws.palladian.extraction.date.technique.HeadDateRater;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.extraction.date.technique.TechniqueDateGetter;
-import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.UrlDateGetter;
+import ws.palladian.extraction.date.rater.HeadDateRater;
+import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -188,7 +188,7 @@ public class HeaderEvaluator {
 		for(Entry<String, DBExport> e : set.entrySet()){
 			System.out.println(index + ": " + e.getKey());
 			dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
-			ArrayList<MetaDate> dates = dg.getDates();
+			List<MetaDate> dates = dg.getDates();
 			if(dates.size() != 0){
 				headSet.add(e.getValue());
 			}
@@ -229,7 +229,7 @@ public class HeaderEvaluator {
 						String url = line.substring(indexStart + 1, indexEnd);
 						System.out.println(lineindex + ": " + url);
 						dg.setDocument(c.getWebDocument(url));
-						ArrayList<MetaDate> dates = dg.getDates();
+						List<MetaDate> dates = dg.getDates();
 						if(!dates.isEmpty()){
 							System.out.println("+");
 							headSet.add(line);
@@ -282,7 +282,7 @@ public class HeaderEvaluator {
 					
 					dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
 					
-					ArrayList<MetaDate> headDates = dg.getDates();
+					List<MetaDate> headDates = dg.getDates();
 					System.out.println(headDates.size());					
 					if(headDates.size()>0){
 					

@@ -1,8 +1,9 @@
-package ws.palladian.extraction.date.technique;
+package ws.palladian.extraction.date.rater;
 
 import java.util.List;
 import java.util.Map;
 
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 

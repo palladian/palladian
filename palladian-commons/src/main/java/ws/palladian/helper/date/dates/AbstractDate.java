@@ -15,10 +15,9 @@ public interface AbstractDate {
     static final int EXACTENESS = 7;
 
     /**
-     * Returns value representing this type of date.<br>
-     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
+     * <p>Returns value representing this type of date.</p>
      * 
-     * @return Integer of this type.
+     * @return Type of this date.
      */
     DateType getType();
 
