@@ -504,7 +504,7 @@ public class RegExp {
      * 
      * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
      */
-    public static Object[] getHEADRegExp() {
+    public static Object[] getHeadRegExp() {
         final Object[] regExp = { RegExp.DATE_RFC_1123, RegExp.DATE_RFC_1036, RegExp.DATE_ANSI_C_TZ,
                 RegExp.DATE_ANSI_C, RegExp.DATE_ISO8601_YMD_T, DATE_ISO8601_YMD_SEPARATOR_T, RegExp.DATE_ISO8601_YMD,
                 DATE_ISO8601_YMD_SEPARATOR, RegExp.DATE_ISO8601_YWD, RegExp.DATE_ISO8601_YD, RegExp.DATE_ISO8601_YM,
