@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
@@ -30,10 +31,19 @@ public class DateRaterHelper {
     public static boolean isDateInRange(ExtractedDate date) {
         ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
         ExtractedDate end = ExtractedDateHelper.getCurrentDate();
-        DateComparator comp = new DateComparator();
-        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
-        boolean gt = comp.compare(begin, date, stopFlag) > -1;
-        boolean lt = comp.compare(date, end, stopFlag) > -1;
+//        DateComparator comp = new DateComparator();
+//        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
+//        boolean gt = comp.compare(begin, date, stopFlag) > -1;
+//        boolean lt = comp.compare(date, end, stopFlag) > -1;
+//        return gt && lt;
+
+        CompareDepth compareDepth = CompareDepth.DAY;
+        if  (date.getExactness() != 0) {
+            compareDepth = CompareDepth.min(CompareDepth.DAY, CompareDepth.byValue(date.getExactness()));
+        }
+        DateComparator dateComparator = new DateComparator(compareDepth);
+        boolean gt = dateComparator.compare(begin, date) > -1;
+        boolean lt = dateComparator.compare(date, end) > -1;
         return gt && lt;
     }
 
@@ -118,8 +128,8 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, int stopFlag) {
-        List<List<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, stopFlag);
+    public static <T> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, CompareDepth compareDepth) {
+        List<List<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {
                 double newRate = 1.0 * groupedDates.get(k).size() / datesToSet.size();

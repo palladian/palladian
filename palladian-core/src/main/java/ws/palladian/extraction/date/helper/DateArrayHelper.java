@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.helper.date.dates.AbstractDate;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
@@ -165,15 +166,15 @@ public class DateArrayHelper {
      *            Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
-    public static <T> List<List<T>> arrangeByDate(List<T> dates, int stopFlag) {
+    public static <T> List<List<T>> arrangeByDate(List<T> dates, CompareDepth compareDepth) {
         ArrayList<List<T>> result = new ArrayList<List<T>>();
-        DateComparator dc = new DateComparator();
         for (int datesIndex = 0; datesIndex < dates.size(); datesIndex++) {
             boolean sameDatestamp = false;
             T date = dates.get(datesIndex);
             for (int resultIndex = 0; resultIndex < result.size(); resultIndex++) {
                 T firstDate = result.get(resultIndex).get(0);
-                int compare = dc.compare((ExtractedDate) firstDate, (ExtractedDate) date, stopFlag);
+                DateComparator dc = new DateComparator(compareDepth);
+                int compare = dc.compare((ExtractedDate) firstDate, (ExtractedDate) date);
                 if (compare == 0) {
                     result.get(resultIndex).add(date);
                     sameDatestamp = true;
@@ -202,7 +203,7 @@ public class DateArrayHelper {
      * @return A arraylist of groups, that are arraylists too.
      */
     public static <T> List<List<T>> arrangeByDate(List<T> dates) {
-        return arrangeByDate(dates, DateComparator.STOP_DAY);
+        return arrangeByDate(dates, CompareDepth.DAY);
     }
 
 //    /**
@@ -295,7 +296,6 @@ public class DateArrayHelper {
      */
     public static <T, V> int countDates(T date, List<V> dates, int stopFlag) {
         int count = 0;
-        DateComparator dc = new DateComparator();
         for (int i = 0; i < dates.size(); i++) {
             if (!date.equals(dates.get(i))) {
                 int tempStopFlag = stopFlag;
@@ -303,7 +303,8 @@ public class DateArrayHelper {
                     tempStopFlag = Math.min(((ExtractedDate) date).getExactness(),
                             ((ExtractedDate) dates.get(i)).getExactness());
                 }
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i), tempStopFlag) == 0) {
+                DateComparator dc = new DateComparator(CompareDepth.byValue(tempStopFlag));
+                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i)) == 0) {
                     count++;
                 }
             }
@@ -330,7 +331,6 @@ public class DateArrayHelper {
 
     public static <T> int countDates(T date, Map<T, Double> dates, int stopFlag) {
         int count = 0;
-        DateComparator dc = new DateComparator();
         for (Entry<T, Double> e : dates.entrySet()) {
             if (!date.equals(e.getKey())) {
                 int tempStopFlag = stopFlag;
@@ -338,7 +338,8 @@ public class DateArrayHelper {
                     tempStopFlag = Math.min(((ExtractedDate) date).getExactness(),
                             ((ExtractedDate) e.getKey()).getExactness());
                 }
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) e.getKey(), tempStopFlag) == 0) {
+                DateComparator dc = new DateComparator(CompareDepth.byValue(tempStopFlag));
+                if (dc.compare((ExtractedDate) date, (ExtractedDate) e.getKey()) == 0) {
                     count++;
                 }
             }
@@ -699,11 +700,11 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates, int stopFlag) {
-        DateComparator dc = new DateComparator();
+    public static <T> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates, CompareDepth compareDepth) {
+        DateComparator dc = new DateComparator(compareDepth);
         HashMap<T, Double> result = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
-            if (dc.compare(date, (ExtractedDate) e.getKey(), stopFlag) == 0) {
+            if (dc.compare(date, (ExtractedDate) e.getKey()) == 0) {
                 result.put(e.getKey(), e.getValue());
             }
         }

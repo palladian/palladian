@@ -9,6 +9,7 @@ import org.w3c.dom.Document;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.getter.MetaDateGetter;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
@@ -66,7 +67,7 @@ public class KairosEvaluator {
 
 		int cntAll = 0;
 
-		DateComparator dc = new DateComparator();
+		DateComparator dc = new DateComparator(CompareDepth.DAY);
 
 		for (Entry<String, DBExport> e : set.entrySet()) {
 			System.out.println(cntAll++);
@@ -87,13 +88,11 @@ public class KairosEvaluator {
 				for (ExtractedDate metaDate : metaDates) {
 					cntAllMetaDates++;
 					if (pubDate != null
-							&& dc.compare(metaDate, pubDate,
-									DateComparator.STOP_DAY) == 0) {
+							&& dc.compare(metaDate, pubDate) == 0) {
 						cntPubMetaDates++;
 					}
 					if (modDate != null
-							&& dc.compare(metaDate, modDate,
-									DateComparator.STOP_DAY) == 0) {
+							&& dc.compare(metaDate, modDate) == 0) {
 						cntModMetaDates++;
 					}
 				}
@@ -106,20 +105,17 @@ public class KairosEvaluator {
 				cntAllUrlDates++;
 				System.out.println(cntAllUrlDates);
 				if (pubDate != null
-						&& dc.compare(urlDates.get(0), pubDate,
-								DateComparator.STOP_DAY) == 0) {
+						&& dc.compare(urlDates.get(0), pubDate) == 0) {
 					cntPubUrlDates++;
 				}
 				if (pubDate != null
-						&& dc.compare(urlDates.get(0), pubDate,
-								DateComparator.STOP_DAY) != 0) {
+						&& dc.compare(urlDates.get(0), pubDate) != 0) {
 					System.out
 							.println(pubDate.getNormalizedDateString() + " - "
 									+ urlDates.get(0).getNormalizedDateString());
 				}
 				if (modDate != null
-						&& dc.compare(urlDates.get(0), modDate,
-								DateComparator.STOP_DAY) == 0) {
+						&& dc.compare(urlDates.get(0), modDate) == 0) {
 					cntModUrlDates++;
 				}
 			}

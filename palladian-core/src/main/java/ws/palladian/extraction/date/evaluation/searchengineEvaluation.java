@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
@@ -15,7 +16,7 @@ public class searchengineEvaluation {
 	public static void main(String[] args) {
 		String file = "data/evaluation/daterecognition/datasets/finalEvaluation.txt";
 		HashMap<String, DBExport> map = EvaluationHelper.readFile(file);
-		DateComparator dc = new DateComparator();
+		DateComparator dc = new DateComparator(CompareDepth.DAY);
 
 		int googleAFRPub = 0;
 		int googleARDPub = 0;
@@ -80,8 +81,7 @@ public class searchengineEvaluation {
 				if (googleDate == null) {
 					googleANFPub++;
 				} else {
-					int compare = dc.compare(pubDate, googleDate,
-							DateComparator.STOP_DAY);
+					int compare = dc.compare(pubDate, googleDate);
 					if (compare == 0) {
 						googleAFRPub++;
 					} else {
@@ -101,8 +101,7 @@ public class searchengineEvaluation {
 				if (googleDate == null) {
 					googleANFMod++;
 				} else {
-					int compare = dc.compare(modDate, googleDate,
-							DateComparator.STOP_DAY);
+					int compare = dc.compare(modDate, googleDate);
 					if (compare == 0) {
 						googleAFRMod++;
 					} else {
@@ -122,8 +121,7 @@ public class searchengineEvaluation {
 				if (hakiaDate == null) {
 					hakiaANFPub++;
 				} else {
-					int compare = dc.compare(pubDate, hakiaDate,
-							DateComparator.STOP_DAY);
+					int compare = dc.compare(pubDate, hakiaDate);
 					if (compare == 0) {
 						hakiaAFRPub++;
 					} else {
@@ -143,8 +141,7 @@ public class searchengineEvaluation {
 				if (hakiaDate == null) {
 					hakiaANFMod++;
 				} else {
-					int compare = dc.compare(modDate, hakiaDate,
-							DateComparator.STOP_DAY);
+					int compare = dc.compare(modDate, hakiaDate);
 					if (compare == 0) {
 						hakiaAFRMod++;
 					} else {
@@ -164,8 +161,7 @@ public class searchengineEvaluation {
 				if (askDate == null) {
 					askANFPub++;
 				} else {
-					int compare = dc.compare(pubDate, askDate,
-							DateComparator.STOP_DAY);
+					int compare = dc.compare(pubDate, askDate);
 					if (compare == 0) {
 						askAFRPub++;
 					} else {
@@ -185,8 +181,7 @@ public class searchengineEvaluation {
 				if (askDate == null) {
 					askANFMod++;
 				} else {
-					int compare = dc.compare(modDate, askDate,
-							DateComparator.STOP_DAY);
+					int compare = dc.compare(modDate, askDate);
 					if (compare == 0) {
 						askAFRMod++;
 					} else {

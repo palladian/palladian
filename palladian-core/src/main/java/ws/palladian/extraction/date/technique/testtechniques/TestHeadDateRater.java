@@ -132,9 +132,9 @@ public class TestHeadDateRater extends HeadDateRater {
         List<MetaDate> dates = dc.orderDates(result);
         MetaDate tempDate;
         if(old){
-        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
         }else{
-        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result));
+        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result).keySet());
         }
 
         double diff;
