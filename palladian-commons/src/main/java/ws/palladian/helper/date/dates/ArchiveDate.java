@@ -6,6 +6,10 @@ package ws.palladian.helper.date.dates;
  * @author Martin Greogr
  * 
  */
-public class ArchiveDate extends ExtractedDate {
+public final class ArchiveDate extends ExtractedDate {
+
+    public ArchiveDate(ExtractedDate date) {
+        super(date, DateType.ArchiveDate);
+    }
 
 }

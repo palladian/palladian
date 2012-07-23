@@ -1,13 +1,10 @@
-/**
- * 
- */
 package ws.palladian.helper.date.dates;
 
 /**
- * @author salco
+ * @author Martin Gregor
  * 
  */
-public class StructureDate extends AbstractBodyDate {
+public final class StructureDate extends AbstractBodyDate {
 	
     /**
      * 
@@ -28,6 +25,10 @@ public class StructureDate extends AbstractBodyDate {
      */
     public StructureDate(String dateString, String format) {
         super(dateString, format);
+    }
+
+    public StructureDate(ExtractedDate date) {
+        super(date, DateType.StructureDate);
     }
 
 }

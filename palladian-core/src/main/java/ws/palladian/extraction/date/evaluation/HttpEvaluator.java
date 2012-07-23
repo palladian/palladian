@@ -9,9 +9,7 @@ import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.getter.HttpDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.HttpDateRater;
-import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 
@@ -56,12 +54,14 @@ public class HttpEvaluator {
 			
 			List<MetaDate> dates = new ArrayList<MetaDate>();
 			ExtractedDate dateDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_DATE));
-			MetaDate tempDate = DateConverter.convert(dateDate, DateType.MetaDate);
+			// MetaDate tempDate = DateConverter.convert(dateDate, DateType.MetaDate);
+			MetaDate tempDate = new MetaDate(dateDate);
 			if(tempDate != null){
 				dates.add(tempDate);
 			}
 			ExtractedDate lastDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_LAST));
-			tempDate = DateConverter.convert(lastDate, DateType.MetaDate);
+			//tempDate = DateConverter.convert(lastDate, DateType.MetaDate);
+			tempDate = new MetaDate(lastDate);
 			if(tempDate != null){
 				dates.add(tempDate);
 			}

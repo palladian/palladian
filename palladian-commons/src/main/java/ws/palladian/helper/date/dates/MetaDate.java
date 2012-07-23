@@ -15,6 +15,10 @@ public class MetaDate extends KeywordDate {
 		super(dateString, format);
 	}
 	
+	public MetaDate(ExtractedDate date) {
+	    super(date, DateType.MetaDate);
+	}
+	
 	 /**
      * Should be name of tag, where this date was found.
      * 

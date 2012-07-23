@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -133,8 +132,11 @@ public final class DateGetterHelper {
 	            if (!hasPrePostNum) {
 	            	try {
 		            	String dateString = tempText.substring(start, end);
-		            	ContentDate date = (ContentDate) DateConverter.convert(
-		            			new ExtractedDate(dateString,((String[])regExps[i])[1]), DateType.ContentDate);
+//                        ContentDate date = DateConverter.convert(new ExtractedDate(dateString,
+//                                ((String[])regExps[i])[1]), DateType.ContentDate);
+                        
+                        ContentDate date = new ContentDate(dateString, ((String[])regExps[i])[1]);
+                        
 		            	int index = tempText.indexOf(date.getDateString());
 		            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
 		                String xString = getXs(dateString);

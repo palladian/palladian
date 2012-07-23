@@ -6,7 +6,7 @@ package ws.palladian.helper.date.dates;
  * @author Martin Gregor
  * 
  */
-public class ReferenceDate extends ExtractedDate {
+public final class ReferenceDate extends ExtractedDate {
 
     public ReferenceDate() {
     }
@@ -17,6 +17,10 @@ public class ReferenceDate extends ExtractedDate {
 
     public ReferenceDate(String dateString, String format) {
         super(dateString, format);
+    }
+
+    public ReferenceDate(ExtractedDate extractedDate) {
+        super(extractedDate, DateType.ReferenceDate);
     }
 
 }

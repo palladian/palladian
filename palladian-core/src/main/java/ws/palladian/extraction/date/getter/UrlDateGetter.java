@@ -3,9 +3,7 @@ package ws.palladian.extraction.date.getter;
 import java.util.ArrayList;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.UrlDate;
 
@@ -73,7 +71,8 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
             index++;
         }
         if (date != null) {
-            temp = DateConverter.convert(date, DateType.UrlDate);
+            //temp = DateConverter.convert(date, DateType.UrlDate);
+            temp = new UrlDate(date);
             temp.setUrl(url);
         }
         return temp;

@@ -53,6 +53,10 @@ public abstract class AbstractBodyDate extends KeywordDate {
         super(dateString, format);
     }
 
+    public AbstractBodyDate(ExtractedDate date, DateType dateType) {
+        super(date, dateType);
+    }
+
     /**
      * 
      * @param tag

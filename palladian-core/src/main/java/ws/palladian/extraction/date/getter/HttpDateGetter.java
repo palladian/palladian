@@ -7,9 +7,7 @@ import java.util.Map;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.retrieval.HttpException;
@@ -100,8 +98,9 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
                     index++;
                 }
                 if (date != null) {
-                	MetaDate httpDate = DateConverter.convert(date, DateType.MetaDate);
+                	//MetaDate httpDate = DateConverter.convert(date, DateType.MetaDate);
                     // HTTPDate httpDate = DateConverter.convertToHTTPDate(date);
+                    MetaDate httpDate = new MetaDate(date);
                     httpDate.setKeyword(keyword);
                     result.add(httpDate);
                 }

@@ -9,9 +9,7 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 
@@ -77,7 +75,8 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
                     if (temp == null) {
                         continue;
                     }
-                    MetaDate headDate = DateConverter.convert(temp, DateType.MetaDate);
+                    //MetaDate headDate = DateConverter.convert(temp, DateType.MetaDate);
+                    MetaDate headDate = new MetaDate(temp);
                     headDate.setKeyword(keyword);
                     headDate.setTag(nameAttr.getNodeName());
                     dates.add(headDate);

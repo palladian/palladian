@@ -20,10 +20,8 @@ import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.helper.date.dates.StructureDate;
@@ -499,7 +497,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         if (date != null) {
             String keyword = getNodeKeyword(node);
-            structDate = DateConverter.convert(date, DateType.StructureDate);
+            //structDate = DateConverter.convert(date, DateType.StructureDate);
+            structDate = new StructureDate(date);
             structDate.setKeyword(keyword);
             structDate.setNode(node);
         }

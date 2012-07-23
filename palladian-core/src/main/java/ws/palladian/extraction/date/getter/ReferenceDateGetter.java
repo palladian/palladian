@@ -1,9 +1,9 @@
 package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 
@@ -12,8 +12,6 @@ import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.helper.date.DateConverter;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.ReferenceDate;
 import ws.palladian.helper.html.HtmlHelper;
@@ -28,7 +26,7 @@ import ws.palladian.helper.html.HtmlHelper;
 public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
 
     @Override
-    public ArrayList<ReferenceDate> getDates() {
+    public List<ReferenceDate> getDates() {
         return getDates(-1);
     }
 
@@ -39,8 +37,8 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
      * @param maxLinks Number after look up links will stop getting dates.
      * @return
      */
-    public ArrayList<ReferenceDate> getDates(int maxLinks) {
-        ArrayList<ReferenceDate> result = new ArrayList<ReferenceDate>();
+    public List<ReferenceDate> getDates(int maxLinks) {
+        List<ReferenceDate> result = new ArrayList<ReferenceDate>();
         if (document != null) {
             result = getReferenceDates(document, maxLinks);
         }
@@ -56,23 +54,24 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
      * @param maxLinks Number after look up links will stop getting dates.
      * @return
      */
-    private static ArrayList<ReferenceDate> getReferenceDates(Document document, int maxLinks) {
-        ArrayList<ReferenceDate> dates = new ArrayList<ReferenceDate>();
+    private static List<ReferenceDate> getReferenceDates(Document document, int maxLinks) {
+        List<ReferenceDate> dates = new ArrayList<ReferenceDate>();
         if (document != null) {
-            Iterator<String> linksTo = HtmlHelper.getLinks(document, true, true).iterator();
+            Set<String> linksTo = HtmlHelper.getLinks(document, true, true);
             DateGetter dateGetter = new DateGetter();
 
             DateComparator dc = new DateComparator();
             DateEvaluator de = new DateEvaluator(PageDateType.publish);
             int i = 0;
-            while (linksTo.hasNext()) {
-                String link = linksTo.next();
+            
+            for (String link : linksTo) {
                 dateGetter.setURL(link);
                 List<ExtractedDate> referenceDates = dateGetter.getDate();
                 Map<ExtractedDate, Double> evaluatedDates = de.rate(referenceDates);
                 double rate = DateArrayHelper.getHighestRate(evaluatedDates);
                 referenceDates = DateArrayHelper.getRatedDates(evaluatedDates, rate);
-                ReferenceDate refDate = DateConverter.convert(dc.getOldestDate(referenceDates), DateType.ReferenceDate);
+                //ReferenceDate refDate = DateConverter.convert(dc.getOldestDate(referenceDates), DateType.ReferenceDate);
+                ReferenceDate refDate = new ReferenceDate(dc.getOldestDate(referenceDates));
                 refDate.setRate(rate);
                 dates.add(refDate);
                 if (i == maxLinks) {

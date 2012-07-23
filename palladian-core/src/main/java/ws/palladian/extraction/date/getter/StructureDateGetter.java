@@ -9,10 +9,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
-import ws.palladian.helper.date.DateConverter;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.AbstractBodyDate;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.StructureDate;
 
@@ -41,10 +39,10 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      */
     public List<StructureDate> getStructureDate(Document document) {
 
-        ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
+        List<StructureDate> dates = new ArrayList<StructureDate>();
 
         if (document != null) {
-            ArrayList<StructureDate> structureDates = getBodyStructureDates(document);
+            List<StructureDate> structureDates = getBodyStructureDates(document);
             if (structureDates != null) {
                 dates.addAll(structureDates);
             }
@@ -59,9 +57,9 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param document Document to be searched.
      * @return List of dates.
      */
-    private ArrayList<StructureDate> getBodyStructureDates(Document document) {
-        final ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
-        final NodeList bodyNodeList = document.getElementsByTagName("body");
+    private List<StructureDate> getBodyStructureDates(Document document) {
+        List<StructureDate> dates = new ArrayList<StructureDate>();
+        NodeList bodyNodeList = document.getElementsByTagName("body");
         if (bodyNodeList != null) {
             for (int i = 0; i < bodyNodeList.getLength(); i++) {
                 Node node = bodyNodeList.item(i);
@@ -144,8 +142,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
                 String nodeName = attributeNode.getNodeName();
                 if (!nodeName.equalsIgnoreCase("href")) {
                     ExtractedDate t = DateGetterHelper.findDate(attributeNode.getNodeValue());
-                    StructureDate tempDate = DateConverter.convert(t, DateType.StructureDate);
-                    if (tempDate == null) {
+                    if (t == null) {
                         if (keyword == null) {
                             keyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),
                                     KeyWords.DATE_BODY_STRUC);
@@ -158,9 +155,29 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
 
                         }
                     } else {
-                        date = tempDate;
+                        date = new StructureDate(t);
                         dateTagName = nodeName;
                     }
+                    
+                    
+                    //StructureDate tempDate = DateConverter.convert(t, DateType.StructureDate);
+//                    StructureDate tempDate = new StructureDate(t);
+//                    if (tempDate == null) {
+//                        if (keyword == null) {
+//                            keyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),
+//                                    KeyWords.DATE_BODY_STRUC);
+//                        } else {
+//                            tempKeyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),
+//                                    KeyWords.DATE_BODY_STRUC);
+//                            if (KeyWords.getKeywordPriority(keyword) > KeyWords.getKeywordPriority(tempKeyword)) {
+//                                keyword = tempKeyword;
+//                            }
+//
+//                        }
+//                    } else {
+//                        date = tempDate;
+//                        dateTagName = nodeName;
+//                    }
                 }
 
             }
