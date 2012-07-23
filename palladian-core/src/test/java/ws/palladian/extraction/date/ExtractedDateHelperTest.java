@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ws.palladian.extraction.date;
 
 import static org.junit.Assert.assertEquals;
@@ -11,13 +8,9 @@ import ws.palladian.helper.date.ExtractedDateHelper;
 
 /**
  * @author Martin Gregor
- * 
  */
 public class ExtractedDateHelperTest {
 
-    /**
-     * Test method for {@link ws.palladian.helper.date.ExtractedDateHelper#getMonthNumber(java.lang.String)}.
-     */
     @Test
     public void testGetMonthNumber() {
         assertEquals("01", ExtractedDateHelper.getMonthNumber("Januar"));
@@ -74,12 +67,8 @@ public class ExtractedDateHelperTest {
 
     }
 
-    /**
-     * Test method for {@link ws.palladian.helper.date.ExtractedDateHelper#normalizeYear(java.lang.String)}.
-     */
     @Test
     public void testNormalizeYear() {
-
         assertEquals(1999, ExtractedDateHelper.normalizeYear("'99"));
         assertEquals(2003, ExtractedDateHelper.normalizeYear("'03"));
         assertEquals(2010, ExtractedDateHelper.normalizeYear("'10"));
@@ -87,59 +76,40 @@ public class ExtractedDateHelperTest {
         assertEquals(1915, ExtractedDateHelper.normalizeYear("15"));
         assertEquals(1915, ExtractedDateHelper.normalizeYear("1915"));
         assertEquals(2012, ExtractedDateHelper.normalizeYear("2012\n1"));
-
     }
 
-    /**
-     * Test method for {@link ws.palladian.helper.date.ExtractedDateHelper#removeNodigits(java.lang.String)}.
-     */
     @Test
-    public void testRemoveNodigits() {
-        assertEquals("23", ExtractedDateHelper.removeNodigits("23."));
-        assertEquals("23", ExtractedDateHelper.removeNodigits("'23."));
-        assertEquals("23", ExtractedDateHelper.removeNodigits("23,"));
-        assertEquals("21", ExtractedDateHelper.removeNodigits("21st"));
-        assertEquals("22", ExtractedDateHelper.removeNodigits("22nd"));
-        assertEquals("23", ExtractedDateHelper.removeNodigits("23rd"));
-        assertEquals("24", ExtractedDateHelper.removeNodigits("24th"));
+    public void testRemoveNoDigits() {
+        assertEquals("23", ExtractedDateHelper.removeNoDigits("23."));
+        assertEquals("23", ExtractedDateHelper.removeNoDigits("'23."));
+        assertEquals("23", ExtractedDateHelper.removeNoDigits("23,"));
+        assertEquals("21", ExtractedDateHelper.removeNoDigits("21st"));
+        assertEquals("22", ExtractedDateHelper.removeNoDigits("22nd"));
+        assertEquals("23", ExtractedDateHelper.removeNoDigits("23rd"));
+        assertEquals("24", ExtractedDateHelper.removeNoDigits("24th"));
     }
 
-    /**
-     * Test method for {@link ws.palladian.helper.date.ExtractedDateHelper#get4DigitYear(int)}.
-     */
     @Test
     public void testGet4DigitYear() {
         assertEquals(1999, ExtractedDateHelper.get4DigitYear(99));
-
         assertEquals(2010, ExtractedDateHelper.get4DigitYear(10));
     }
 
-    /**
-     * Test method for {@link ws.palladian.helper.date.ExtractedDateHelper#getSeparator(java.lang.String)}.
-     */
     @Test
     public void testGetSeparator() {
         assertEquals("\\.", ExtractedDateHelper.getSeparator("10.10.2010"));
         assertEquals("-", ExtractedDateHelper.getSeparator("10-10-2010"));
         assertEquals("_", ExtractedDateHelper.getSeparator("10_10_2010"));
         assertEquals("/", ExtractedDateHelper.getSeparator("10/10/2010"));
-
     }
 
-    /**
-     * Test method for {@link ws.palladian.helper.date.ExtractedDateHelper#get2Digits(int)}.
-     */
     @Test
     public void testGet2Digits() {
         assertEquals("00", ExtractedDateHelper.get2Digits(0));
         assertEquals("09", ExtractedDateHelper.get2Digits(9));
         assertEquals("10", ExtractedDateHelper.get2Digits(10));
-
     }
 
-    /**
-     * Test method for {@link ws.palladian.helper.date.ExtractedDateHelper#removeTimezone(java.lang.String)}.
-     */
     @Test
     public void testRemoveTimezone() {
         assertEquals("22:10 ", ExtractedDateHelper.removeTimezone("22:10  UTC")[0]);

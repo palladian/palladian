@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.date.dates.DateType;
@@ -20,31 +19,15 @@ public class DateArrayHelperTest {
 
     @Test
     public void testFilter() throws FileNotFoundException {
-        final String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
+        String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
 
-        //
-        // not working (size of list is 6, not 5):
-        //
-//        List<ExtractedDate> date = new ArrayList<ExtractedDate>();
-//        DateGetter dateGetter = new DateGetter(url);
-//        
-//        List<ExtractedDate> dates = dateGetter.getDate();
-//        date.addAll(dates);
-//        List<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
-//        assertEquals(5, filter.size());
-        
-        //
-        // old code was (I do not understand these ALL_TESTS either):
-        //
-        if (!AllTests.ALL_TESTS) {
-            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-            DateGetter dateGetter = new DateGetter(url);
-            
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
-            date.addAll(dates);
-            List<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
-            assertEquals(6, filter.size());
-        }
+        ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+        DateGetter dateGetter = new DateGetter(url);
+
+        ArrayList<ExtractedDate> dates = dateGetter.getDate();
+        date.addAll(dates);
+        List<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
+        assertEquals(6, filter.size());
     }
 
     @Test
@@ -98,7 +81,6 @@ public class DateArrayHelperTest {
     @Test
     public void testArrangeByDate2() throws FileNotFoundException {
         final String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/kullin.htm");
-        if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
 
@@ -109,7 +91,6 @@ public class DateArrayHelperTest {
                 System.out.println("==============================================================================");
                 DateArrayHelper.printDateArray(arrangedArray.get(i));
             }
-        }
     }
 
 }
