@@ -5,17 +5,19 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
+import ws.palladian.helper.html.XPathHelper;
 
 /**
- * This class finds all dates in a HTML-head.<br>
- * Therefore it needs a document.
+ * <p>
+ * This class extracts all dates from an HTML {@link Document}'s <code>meta</code> tags found in the <code>head</code>
+ * section.
+ * </p>
  * 
  * @author Martin Gregor
  * @author David Urbansky
@@ -33,55 +35,36 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
     }
 
     /**
-     * Finds dates in head-part of a webpage.<br>
-     * Look up only in <i>"meta"</i> tags.
+     * <p>
+     * Find dates in <code>meta</code> tags of a web {@link Document}'s <code>head</code> section.
+     * </p>
      * 
-     * @param document
-     * @return a array-list with dates.
+     * @param document The {@link Document} from which to extract head dates, not <code>null</code>.
+     * @return List with extracted {@link MetaDate}s, or empty list if no dates were found, never <code>null</code>.
      */
     private static List<MetaDate> getHeadDates(final Document document) {
         List<MetaDate> dates = new ArrayList<MetaDate>();
-        NodeList headNodeList = document.getElementsByTagName("head");
-        Node head = null;
-        if (headNodeList != null) {
 
-            for (int i = 0; i < headNodeList.getLength(); i++) {
-                head = headNodeList.item(i);
-                if (head.getNodeName().equalsIgnoreCase("head")) {
-                    break;
-                }
+        List<Node> metaNodes = XPathHelper.getXhtmlNodes(document, "//head/meta");
+        for (Node metaNode : metaNodes) {
+            Node nameAttribute = metaNode.getAttributes().getNamedItem("name");
+            if (nameAttribute == null) {
+                nameAttribute = metaNode.getAttributes().getNamedItem("http-equiv");
             }
-            if (head != null) {
-                NodeList headList = head.getChildNodes();
-                for (int i = 0; i < headList.getLength(); i++) {
-                    Node metaNode = headList.item(i);
-                    if (!metaNode.getNodeName().equalsIgnoreCase("meta")) {
-                        continue;
-                    }
-
-                    Node nameAttr = metaNode.getAttributes().getNamedItem("name");
-                    if (nameAttr == null) {
-                        nameAttr = metaNode.getAttributes().getNamedItem("http-equiv");
-                    }
-                    Node contentAttr = metaNode.getAttributes().getNamedItem("content");
-                    if (nameAttr == null || contentAttr == null) {
-                        continue;
-                    }
-                    String keyword = DateGetterHelper.hasKeyword(nameAttr.getNodeValue(), KeyWords.HEAD_KEYWORDS);
-                    if (keyword == null) {
-                        continue;
-                    }
-                    ExtractedDate temp = DateGetterHelper.findDate(contentAttr.getNodeValue(), RegExp.getHEADRegExp());
-                    if (temp == null) {
-                        continue;
-                    }
-                    //MetaDate headDate = DateConverter.convert(temp, DateType.MetaDate);
-                    MetaDate headDate = new MetaDate(temp, keyword, nameAttr.getNodeName());
-                    //headDate.setKeyword(keyword);
-                    //headDate.setTag(nameAttr.getNodeName());
-                    dates.add(headDate);
-                }
+            Node contentAttribute = metaNode.getAttributes().getNamedItem("content");
+            if (nameAttribute == null || contentAttribute == null) {
+                continue;
             }
+            String keyword = DateGetterHelper.hasKeyword(nameAttribute.getNodeValue(), KeyWords.HEAD_KEYWORDS);
+            if (keyword == null) {
+                continue;
+            }
+            ExtractedDate date = DateGetterHelper.findDate(contentAttribute.getNodeValue(), RegExp.getHeadRegExp());
+            if (date == null) {
+                continue;
+            }
+            String tagName = nameAttribute.getNodeName();
+            dates.add(new MetaDate(date, keyword, tagName));
         }
 
         return dates;
