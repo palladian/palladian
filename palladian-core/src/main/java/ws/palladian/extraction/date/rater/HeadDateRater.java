@@ -105,13 +105,13 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
         MetaDate tempDate;
         switch(dateType){
 	        case publish:
-	        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+	        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
 	        	break;
 	        case last_modified:
-	        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result));
+	        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result).keySet());
 	        	break;
         	default:
-        		tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+        		tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
         		break;
         }
 

@@ -77,7 +77,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
 
         DateComparator dc = new DateComparator();
         List<MetaDate> dates = dc.orderDates(result);
-        MetaDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+        MetaDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
 
         double diff;
         double oldRate;

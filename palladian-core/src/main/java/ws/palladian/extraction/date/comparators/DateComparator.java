@@ -2,13 +2,14 @@ package ws.palladian.extraction.date.comparators;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
-import ws.palladian.helper.date.dates.AbstractDate;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 /**
@@ -22,21 +23,80 @@ import ws.palladian.helper.date.dates.ExtractedDate;
  * @author Philipp Katz
  */
 public class DateComparator implements Comparator<ExtractedDate> {
+    
+    // TODO rename to exactness. (also used in ExtractedDate).
+    /**
+     * <p>Constants describing the exactness of the {@link ExtractedDate}s.</p>
+     * @author Philipp Katz
+     */
+    public static enum CompareDepth {
+        /** Compare will stop after year. */
+        YEAR(1), 
+        /** Compare will stop after month. */
+        MONTH(2), 
+        /** Compare will stop after day. */
+        DAY(3), 
+        /** Compare will stop after hour. */
+        HOUR(4), 
+        /** Compare will stop after minute. */
+        MINUTE(5), 
+        /** Compare will not stop (after second there are no more comparable values). */
+        SECOND(6), 
+        /** Use for methods providing a dynamic stop, depending on exactness of each date. */
+        DYNAMIC(-1);
+        
+        private final int value;
 
-    /** Compare will stop after year. Value = 1. */
-    public static final int STOP_YEAR = 1;
-    /** Compare will stop after month. Value = 2. */
-    public static final int STOP_MONTH = 2;
-    /** Compare will stop after day. Value = 3. */
-    public static final int STOP_DAY = 3;
-    /** Compare will stop after hour. Value = 4. */
-    public static final int STOP_HOUR = 4;
-    /** Compare will stop after minute. Value = 5. */
-    public static final int STOP_MINUTE = 5;
-    /** Compare will not stop. (After second there are no more comparable values. Value = 6. */
-    public static final int STOP_SECOND = 6;
-    /** Use for methods providing a dynamic stop, depending on exactness of each date. Value = -1. */
-    public static final int STOP_DYNAMIC = -1;
+        CompareDepth(int value) {
+            this.value = value;
+        }
+        
+        /**
+         * @deprecated Reference by explicit type if possible.
+         * @param value
+         * @return
+         */
+        @Deprecated
+        public static CompareDepth byValue(int value) {
+            for (CompareDepth compareDepth : values()) {
+                if (compareDepth.value == value) {
+                    return compareDepth;
+                }
+            }
+            throw new NoSuchElementException("No CompareDepth with value " + value);
+        }
+        
+        // TODO rename to "getCommonExactness" or "getMutualExactness" or so.
+        public static CompareDepth min(CompareDepth depth1, CompareDepth depth2) {
+            return byValue(Math.min(depth1.value, depth2.value));
+        }
+        
+        /**
+         * @deprecated Reference by explicit type.
+         * @return
+         */
+        @Deprecated
+        public int getValue() {
+            return value;
+        }
+    }
+    
+    private final CompareDepth compareDepth;
+
+//    /** Compare will stop after year. Value = 1. */
+//    public static final int STOP_YEAR = 1;
+//    /** Compare will stop after month. Value = 2. */
+//    public static final int STOP_MONTH = 2;
+//    /** Compare will stop after day. Value = 3. */
+//    public static final int STOP_DAY = 3;
+//    /** Compare will stop after hour. Value = 4. */
+//    public static final int STOP_HOUR = 4;
+//    /** Compare will stop after minute. Value = 5. */
+//    public static final int STOP_MINUTE = 5;
+//    /** Compare will not stop. (After second there are no more comparable values. Value = 6. */
+//    public static final int STOP_SECOND = 6;
+//    /** Use for methods providing a dynamic stop, depending on exactness of each date. Value = -1. */
+//    public static final int STOP_DYNAMIC = -1;
 
     // TODO replace by TimeUnit?
     /** Get date-difference in milliseconds */
@@ -49,6 +109,14 @@ public class DateComparator implements Comparator<ExtractedDate> {
     public static final int MEASURE_HOUR = 3600000;
     /** Get date-difference in days */
     public static final int MEASURE_DAY = 86400000;
+    
+    public DateComparator(CompareDepth compareDepth) {
+        this.compareDepth = compareDepth;
+    }
+    
+    public DateComparator() {
+        this(CompareDepth.SECOND);
+    }
 
     /**
      * Compares two dates.<br>
@@ -65,32 +133,18 @@ public class DateComparator implements Comparator<ExtractedDate> {
      */
     @Override
     public int compare(ExtractedDate date1, ExtractedDate date2) {
-        return compare(date1, date2, STOP_SECOND);
-    }
-
-    /**
-     * Like <b>compare(ExtractedDate date1, ExtractedDate date2)</b>, but compares only until a given depth. <br>
-     * For e.g. usually 12.04.2007 and April 2007 can not be compared. But with stopflag STOP_DAY only year and month
-     * will be compared.<br>
-     * So normal compare would return -2, but this time the result is 0.
-     * 
-     * @param date1
-     * @param date2
-     * @param stopFlag Depth of comparing. Values are given as static constant in this class. (STOP_...)
-     * @return
-     */
-    public int compare(AbstractDate date1, AbstractDate date2, int stopFlag) {
+//        return compare(date1, date2, STOP_SECOND);
         int returnValue;
         returnValue = compare(date1.get(ExtractedDate.YEAR), date2.get(ExtractedDate.YEAR));
-        if (returnValue == 0 && stopFlag > DateComparator.STOP_YEAR) {
+        if (returnValue == 0 && compareDepth.value > CompareDepth.YEAR.value) {
             returnValue = compare(date1.get(ExtractedDate.MONTH), date2.get(ExtractedDate.MONTH));
-            if (returnValue == 0 && stopFlag > DateComparator.STOP_MONTH) {
+            if (returnValue == 0 && compareDepth.value > CompareDepth.MONTH.value) {
                 returnValue = compare(date1.get(ExtractedDate.DAY), date2.get(ExtractedDate.DAY));
-                if (returnValue == 0 && stopFlag > DateComparator.STOP_DAY) {
+                if (returnValue == 0 && compareDepth.value > CompareDepth.DAY.value) {
                     returnValue = compare(date1.get(ExtractedDate.HOUR), date2.get(ExtractedDate.HOUR));
-                    if (returnValue == 0 && stopFlag > DateComparator.STOP_HOUR) {
+                    if (returnValue == 0 && compareDepth.value > CompareDepth.HOUR.value) {
                         returnValue = compare(date1.get(ExtractedDate.MINUTE), date2.get(ExtractedDate.MINUTE));
-                        if (returnValue == 0 && stopFlag > DateComparator.STOP_MINUTE) {
+                        if (returnValue == 0 && compareDepth.value > CompareDepth.MINUTE.value) {
                             returnValue = compare(date1.get(ExtractedDate.SECOND), date2.get(ExtractedDate.SECOND));
                         }
                     }
@@ -101,43 +155,76 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return returnValue;
     }
 
-    /**
-     * Ignores exactness of dates.<br>
-     * 2007-10-01 is before 2007-10-01 12:00
-     * 
-     * @param date1
-     * @param date2
-     * @param ignoreComparable
-     * @return
-     */
-    private int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable) {
-        int compare = compare(date1, date2, ignoreComparable, STOP_SECOND);
-        if (compare == -2) {
-            compare = 1;
-        } else if (compare == -3) {
-            compare = -1;
-        }
-        return compare;
-    }
+//    /**
+//     * Like <b>compare(ExtractedDate date1, ExtractedDate date2)</b>, but compares only until a given depth. <br>
+//     * For e.g. usually 12.04.2007 and April 2007 can not be compared. But with stopflag STOP_DAY only year and month
+//     * will be compared.<br>
+//     * So normal compare would return -2, but this time the result is 0.
+//     * 
+//     * @param date1
+//     * @param date2
+//     * @param stopFlag Depth of comparing. Values are given as static constant in this class. (STOP_...)
+//     * @return
+//     */
+//    public int compare(AbstractDate date1, AbstractDate date2, int stopFlag) {
+//        int returnValue;
+//        returnValue = compare(date1.get(ExtractedDate.YEAR), date2.get(ExtractedDate.YEAR));
+//        if (returnValue == 0 && stopFlag > DateComparator.STOP_YEAR) {
+//            returnValue = compare(date1.get(ExtractedDate.MONTH), date2.get(ExtractedDate.MONTH));
+//            if (returnValue == 0 && stopFlag > DateComparator.STOP_MONTH) {
+//                returnValue = compare(date1.get(ExtractedDate.DAY), date2.get(ExtractedDate.DAY));
+//                if (returnValue == 0 && stopFlag > DateComparator.STOP_DAY) {
+//                    returnValue = compare(date1.get(ExtractedDate.HOUR), date2.get(ExtractedDate.HOUR));
+//                    if (returnValue == 0 && stopFlag > DateComparator.STOP_HOUR) {
+//                        returnValue = compare(date1.get(ExtractedDate.MINUTE), date2.get(ExtractedDate.MINUTE));
+//                        if (returnValue == 0 && stopFlag > DateComparator.STOP_MINUTE) {
+//                            returnValue = compare(date1.get(ExtractedDate.SECOND), date2.get(ExtractedDate.SECOND));
+//                        }
+//                    }
+//                }
+//            }
+//
+//        }
+//        return returnValue;
+//    }
 
-    /**
-     * Ignores exactness of dates. But you can set a maximum exactness until it will be compared.<br>
-     * 2007-10-01 is before 2007-10-01 12:00
-     * 
-     * @param date1
-     * @param date2
-     * @param ignoreComparable
-     * @return
-     */
-    private int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable, int compareDepth) {
-        int compare;
-        if (ignoreComparable) {
-            compare = compare(date1, date2);
-        } else {
-            compare = compare(date1, date2, compareDepth);
-        }
-        return compare;
-    }
+//    /**
+//     * Ignores exactness of dates.<br>
+//     * 2007-10-01 is before 2007-10-01 12:00
+//     * 
+//     * @param date1
+//     * @param date2
+//     * @param ignoreComparable
+//     * @return
+//     */
+//    private int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable) {
+//        int compare = compare(date1, date2, ignoreComparable, CompareDepth.SECOND);
+//        if (compare == -2) {
+//            compare = 1;
+//        } else if (compare == -3) {
+//            compare = -1;
+//        }
+//        return compare;
+//    }
+
+//    /**
+//     * Ignores exactness of dates. But you can set a maximum exactness until it will be compared.<br>
+//     * 2007-10-01 is before 2007-10-01 12:00
+//     * 
+//     * @param date1
+//     * @param date2
+//     * @param ignoreComparable
+//     * @return
+//     */
+//    private int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable, CompareDepth compareDepth) {
+//        int compare;
+//        if (ignoreComparable) {
+//            compare = compare(date1, date2);
+//        } else {
+//            compare = compare(date1, date2, compareDepth);
+//        }
+//        return compare;
+//    }
 
     /**
      * Compares a parameter of two dates. (date1.getYear() and date2.getYear()). <br>
@@ -195,20 +282,21 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param date2
      * @return Integer with the value of stop_property. Look for it in static properties.
      */
-    public int getCompareDepth(ExtractedDate date1, ExtractedDate date2) {
-        int value = -1;
+    // TODO move to CompareDepth
+    public static CompareDepth getCompareDepth(ExtractedDate date1, ExtractedDate date2) {
+        CompareDepth value = CompareDepth.DYNAMIC;
         if (!(date1.get(ExtractedDate.YEAR) == -1 ^ date2.get(ExtractedDate.YEAR) == -1)) {
-            value = STOP_YEAR;
+            value = CompareDepth.YEAR;
             if (!(date1.get(ExtractedDate.MONTH) == -1 ^ date2.get(ExtractedDate.MONTH) == -1)) {
-                value = STOP_MONTH;
+                value = CompareDepth.MONTH;
                 if (!(date1.get(ExtractedDate.DAY) == -1 ^ date2.get(ExtractedDate.DAY) == -1)) {
-                    value = STOP_DAY;
+                    value = CompareDepth.DAY;
                     if (!(date1.get(ExtractedDate.HOUR) == -1 ^ date2.get(ExtractedDate.HOUR) == -1)) {
-                        value = STOP_HOUR;
+                        value = CompareDepth.HOUR;
                         if (!(date1.get(ExtractedDate.MINUTE) == -1 ^ date2.get(ExtractedDate.MINUTE) == -1)) {
-                            value = STOP_MINUTE;
+                            value = CompareDepth.MINUTE;
                             if (!(date1.get(ExtractedDate.SECOND) == -1 ^ date2.get(ExtractedDate.SECOND) == -1)) {
-                                value = STOP_SECOND;
+                                value = CompareDepth.SECOND;
                             }
                         }
                     }
@@ -232,26 +320,26 @@ public class DateComparator implements Comparator<ExtractedDate> {
      */
     public double getDifference(ExtractedDate date1, ExtractedDate date2, int measure) {
         double diff = -1;
-        int depth = getCompareDepth(date1, date2);
+        int depth = getCompareDepth(date1, date2).value;
         Calendar cal1 = new GregorianCalendar();
         Calendar cal2 = new GregorianCalendar();
 
         if (depth > 0) {
             cal1.set(Calendar.YEAR, date1.get(ExtractedDate.YEAR));
             cal2.set(Calendar.YEAR, date2.get(ExtractedDate.YEAR));
-            if (depth > STOP_YEAR) {
+            if (depth > CompareDepth.YEAR.value) {
                 cal1.set(Calendar.MONTH, date1.get(ExtractedDate.MONTH));
                 cal2.set(Calendar.MONTH, date2.get(ExtractedDate.MONTH));
-                if (depth > STOP_MONTH) {
+                if (depth > CompareDepth.MONTH.value) {
                     cal1.set(Calendar.DAY_OF_MONTH, date1.get(ExtractedDate.DAY));
                     cal2.set(Calendar.DAY_OF_MONTH, date2.get(ExtractedDate.DAY));
-                    if (depth > STOP_DAY) {
+                    if (depth > CompareDepth.DAY.value) {
                         cal1.set(Calendar.HOUR_OF_DAY, date1.get(ExtractedDate.HOUR));
                         cal2.set(Calendar.HOUR_OF_DAY, date2.get(ExtractedDate.HOUR));
-                        if (depth > STOP_HOUR) {
+                        if (depth > CompareDepth.HOUR.value) {
                             cal1.set(Calendar.MINUTE, date1.get(ExtractedDate.MINUTE));
                             cal2.set(Calendar.MINUTE, date2.get(ExtractedDate.MINUTE));
-                            if (depth > STOP_MINUTE) {
+                            if (depth > CompareDepth.MINUTE.value) {
                                 cal1.set(Calendar.SECOND, date1.get(ExtractedDate.SECOND));
                                 cal2.set(Calendar.SECOND, date2.get(ExtractedDate.SECOND));
                             }
@@ -297,15 +385,14 @@ public class DateComparator implements Comparator<ExtractedDate> {
     }
 
     /**
-     * * Orders a hashmap of dates into an arraylist, beginning with oldest date.<br>
-     * Flag for reverse:
+     * <p>Orders a {@link List} of dates, beginning with oldest date.</p>
      * 
      * @param <T>
      * @param dates
-     * @param reverse True is youngest first. False is oldest first.
-     * @return
+     * @param reverse <code>true</code> is youngest first. <code>false</code> is oldest first.
+     * @return A sorted {@link List} of dates.
      */
-    <T extends ExtractedDate> List<T> orderDates(List<T> dates, boolean reverse) {
+    <T extends ExtractedDate> List<T> orderDates(Collection<T> dates, boolean reverse) {
         T[] result = orderDatesArray(dates);
         ArrayList<T> resultList = new ArrayList<T>();
         if (reverse) {
@@ -319,6 +406,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
         }
 
         return resultList;
+//        List<T> result = new ArrayList<T>(dates);
+//        Comparator<ExtractedDate> comparator = new DateComparator();
+//        if (reverse) {
+//            comparator = Collections.reverseOrder(comparator);
+//        }
+//        Collections.sort(dates, comparator);
+//        return result;
     }
 
     /**
@@ -361,7 +455,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @return
      */
     @SuppressWarnings("unchecked")
-    private <T extends ExtractedDate> T[] orderDatesArray(List<T> dates) {
+    private <T extends ExtractedDate> T[] orderDatesArray(Collection<T> dates) {
         T[] dateArray = (T[])dates.toArray(new ExtractedDate[dates.size()]);
         quicksort(0, dateArray.length - 1, dateArray);
         return dateArray;
@@ -381,10 +475,12 @@ public class DateComparator implements Comparator<ExtractedDate> {
         int j = right - 1;
         T pivot = dates[right];
         while (i < j) {
-            while (compare(dates[i], pivot, true) < 1 && i < right) {
+//            while (compare(dates[i], pivot, true) < 1 && i < right) {
+            while (compare(dates[i], pivot) < 1 && i < right) {
                 i++;
             }
-            while (compare(dates[j], pivot, true) > -1 && j > left) {
+//            while (compare(dates[j], pivot, true) > -1 && j > left) {
+            while (compare(dates[j], pivot) > -1 && j > left) {
                 j--;
             }
             if (i < j) {
@@ -393,7 +489,8 @@ public class DateComparator implements Comparator<ExtractedDate> {
                 dates[j] = help;
             }
         }
-        if (compare(dates[i], pivot, true) > 0) {
+//        if (compare(dates[i], pivot, true) > 0) {
+        if (compare(dates[i], pivot) > 0) {
             T help = dates[i];
             dates[i] = dates[right];
             dates[right] = help;
@@ -401,6 +498,40 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return i;
     }
 
+//    /**
+//     * Returns oldest date.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    public <T extends ExtractedDate> T getOldestDate(Map<T, Double> dates) {
+//        List<T> orderDates = orderDates(dates, false);
+//        T date = null;
+//        if (orderDates.size() > 0) {
+//            date = orderDates.get(0);
+//        }
+//        return date;
+//
+//    }
+//
+//    /**
+//     * Returns youngest dates.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     * @return
+//     */
+//    public <T extends ExtractedDate> T getYoungestDate(Map<T, Double> dates) {
+//        List<T> orderDates = orderDates(dates, true);
+//        T date = null;
+//        if (orderDates.size() > 0) {
+//            date = orderDates.get(0);
+//        }
+//        return date;
+//
+//    }
+
     /**
      * Returns oldest date.
      * 
@@ -408,7 +539,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T extends ExtractedDate> T getOldestDate(Map<T, Double> dates) {
+    public <T extends ExtractedDate> T getOldestDate(Collection<T> dates) {
         List<T> orderDates = orderDates(dates, false);
         T date = null;
         if (orderDates.size() > 0) {
@@ -425,41 +556,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
-    public <T extends ExtractedDate> T getYoungestDate(Map<T, Double> dates) {
-        List<T> orderDates = orderDates(dates, true);
-        T date = null;
-        if (orderDates.size() > 0) {
-            date = orderDates.get(0);
-        }
-        return date;
-
-    }
-
-    /**
-     * Returns oldest date.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    public <T extends ExtractedDate> T getOldestDate(List<T> dates) {
-        List<T> orderDates = orderDates(dates, false);
-        T date = null;
-        if (orderDates.size() > 0) {
-            date = orderDates.get(0);
-        }
-        return date;
-
-    }
-
-    /**
-     * Returns youngest dates.
-     * 
-     * @param <T>
-     * @param dates
-     * @return
-     */
-    public <T extends ExtractedDate> T getYoungestDate(List<T> dates) {
+    public <T extends ExtractedDate> T getYoungestDate(Collection<T> dates) {
         List<T> orderDates = orderDates(dates, true);
         T date = null;
         if (orderDates.size() > 0) {
