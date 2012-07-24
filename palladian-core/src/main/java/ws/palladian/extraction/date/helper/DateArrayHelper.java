@@ -994,7 +994,7 @@ public class DateArrayHelper {
     }
 
     public static <T> List<T> removeNull(List<T> list) {
-        ArrayList<T> returnList = new ArrayList<T>();
+        List<T> returnList = new ArrayList<T>();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) != null) {
                 returnList.add(list.get(i));

@@ -22,9 +22,9 @@ import ws.palladian.helper.date.dates.MetaDate;
  */
 public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 
-	protected byte hightPriority;
-	protected byte middlePriority;
-	protected byte lowPriority;
+	protected final byte hightPriority;
+	protected final byte middlePriority;
+	protected final byte lowPriority;
 	
 	private ExtractedDate currentDate;
 	
@@ -61,10 +61,9 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
      */
     protected Map<MetaDate, Double> evaluateMetaDates(List<MetaDate> metaDates) {
         Map<MetaDate, Double> result = new HashMap<MetaDate, Double>();
-        double rate;
-        MetaDate date;
         for (int i = 0; i < metaDates.size(); i++) {
-            date = metaDates.get(i);
+            double rate;
+            MetaDate date = metaDates.get(i);
             byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
             if (keywordPriority == hightPriority) {
                 rate = 1;
@@ -87,12 +86,11 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
             DateRaterHelper.setRateToZero(lowRatedDates, result);
 
         } else {
-
         	if(currentDate == null){
         		currentDate = ExtractedDateHelper.getCurrentDate();
         	}
             for (int i = 0; i < lowRatedDates.size(); i++) {
-                rate = 0.75;
+                double rate = 0.75;
                 if (currentDate.getDifference(lowRatedDates.get(i), TimeUnit.HOURS) < 12) {
                     rate = 0.0;
                 }
@@ -115,18 +113,14 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
         		break;
         }
 
-        double diff;
-        double oldRate;
-        double newRate;
-
         for (int i = 0; i < dates.size(); i++) {
-            diff = tempDate.getDifference(dates.get(i), TimeUnit.HOURS);
+            double diff = tempDate.getDifference(dates.get(i), TimeUnit.HOURS);
             if (diff > 24) {
                 diff = 24;
             }
-            date = dates.get(i);
-            oldRate = result.get(date);
-            newRate = oldRate - oldRate * (diff / 24.0);
+            MetaDate date = dates.get(i);
+            double oldRate = result.get(date);
+            double newRate = oldRate - oldRate * (diff / 24.0);
             result.put(date, Math.round(newRate * 10000) / 10000.0);
         }
         

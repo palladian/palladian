@@ -3,12 +3,15 @@ package ws.palladian.extraction.date.rater;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.html.HtmlHelper;
 
 /**
  *This class evaluates content-dates. <br>
@@ -61,7 +64,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
      * @return
      */
     private Map<ContentDate, Double> evaluateContentDate(List<ContentDate> dates) {
-        HashMap<ContentDate, Double> result = new HashMap<ContentDate, Double>();
+        Map<ContentDate, Double> result = new HashMap<ContentDate, Double>();
 
         List<ContentDate> attrDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_ATTR);
         List<ContentDate> contDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_CONT);
@@ -71,14 +74,13 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
         Map<ContentDate, Double> contResult = evaluateKeyLocCont(contDates);
         Map<ContentDate, Double> nokeywordResult = new HashMap<ContentDate, Double>();
 
-        // Run through dates without keyword.
-        double newRate;
         for (int i = 0; i < nokeywordDates.size(); i++) {
             ContentDate date = nokeywordDates.get(i);
             String tag = date.getTag();
             String[] keys = KeyWords.ALL_KEYWORDS;
 
-            newRate = 0;
+            // Run through dates without keyword.
+            double newRate = 0;
             for (int j = 0; j < keys.length; j++) {
                 if (tag.equalsIgnoreCase(keys[j])) {
                     newRate = 1.0 / dates.size();
@@ -89,9 +91,9 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
         }
 
         // increase rate, if tag is a headline tag. (h1..h6)
-        attrResult = DateRaterHelper.evaluateTag(attrResult);
-        contResult = DateRaterHelper.evaluateTag(contResult);
-        nokeywordResult = DateRaterHelper.evaluateTag(nokeywordResult);
+        attrResult = evaluateTag(attrResult);
+        contResult = evaluateTag(contResult);
+        nokeywordResult = evaluateTag(nokeywordResult);
 
         result.putAll(attrResult);
         result.putAll(contResult);
@@ -112,21 +114,19 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
     private Map<ContentDate, Double> evaluateKeyLocCont(List<ContentDate> contDates) {
         HashMap<ContentDate, Double> contResult = new HashMap<ContentDate, Double>();
         double factor_keyword;
-        double factor_content;
         for (int i = 0; i < contDates.size(); i++) {
             ContentDate date = contDates.get(i);
-            factor_content = calcContDateContent(date);
-            contResult.put(date, factor_content);
+            double factorContent = calcContDateContent(date);
+            contResult.put(date, factorContent);
         }
         List<ContentDate> rate1dates = DateArrayHelper.getRatedDates(contResult, 1.0);
 
         List<ContentDate> rateRestDates = DateArrayHelper.getRatedDates(contResult, 1.0, false);
 
-        ContentDate key;
 
         for (int i = 0; i < rate1dates.size(); i++) {
             // anz der dates mit gleichen werten / anz aller dates
-            key = rate1dates.get(i);
+            ContentDate key = rate1dates.get(i);
 
             factor_keyword = calcContDateAttr(key);
             int countSame = DateArrayHelper.countDates(key, rate1dates, -1) + 1;
@@ -135,7 +135,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
         }
 
         for (int i = 0; i < rateRestDates.size(); i++) {
-            key = rateRestDates.get(i);
+            ContentDate key = rateRestDates.get(i);
             factor_keyword = calcContDateAttr(key);
             int countSame = DateArrayHelper.countDates(key, rateRestDates, -1) + 1;
             double newRate = 1.0 * contResult.get(key) * countSame / contDates.size();
@@ -153,11 +153,9 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
      */
     private Map<ContentDate, Double> evaluateKeyLocAttr(List<ContentDate> attrDates) {
         HashMap<ContentDate, Double> attrResult = new HashMap<ContentDate, Double>();
-        ContentDate date;
-        double rate;
         for (int i = 0; i < attrDates.size(); i++) {
-            date = attrDates.get(i);
-            rate = calcContDateAttr(date);
+            ContentDate date = attrDates.get(i);
+            double rate = calcContDateAttr(date);
             attrResult.put(date, rate);
         }
 
@@ -166,16 +164,16 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
         List<ContentDate> lowRatedDates = DateArrayHelper.getRatedDates(attrResult, 0.5);
 
         if (rate1Dates.size() > 0) {
-            attrResult.putAll(DateRaterHelper.setRateWhightedByGroups(rate1Dates, attrDates));
+            attrResult.putAll(setRateWhightedByGroups(rate1Dates, attrDates));
 
             DateRaterHelper.setRateToZero(middleRatedDates, attrResult);
             DateRaterHelper.setRateToZero(lowRatedDates, attrResult);
         } else if (middleRatedDates.size() > 0) {
-            attrResult.putAll(DateRaterHelper.setRateWhightedByGroups(middleRatedDates, attrDates));
+            attrResult.putAll(setRateWhightedByGroups(middleRatedDates, attrDates));
 
             DateRaterHelper.setRateToZero(lowRatedDates, attrResult);
         } else {
-            attrResult.putAll(DateRaterHelper.setRateWhightedByGroups(lowRatedDates, attrDates));
+            attrResult.putAll(setRateWhightedByGroups(lowRatedDates, attrDates));
         }
         return attrResult;
 
@@ -217,4 +215,43 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
         factor = Math.max(0, Math.min(1.0, factor));
         return Math.round(factor * 10000) / 10000.0;
     }
+    
+    /**
+     * Increase the rate by 10 percent, if date surrounding tag is a headline-tag.
+     * 
+     * @param contentDates
+     * @return
+     */
+    public static Map<ContentDate, Double> evaluateTag(Map<ContentDate, Double> contentDates) {
+        Map<ContentDate, Double> result = contentDates;
+        for (Entry<ContentDate, Double> e : contentDates.entrySet()) {
+            if (HtmlHelper.isHeadlineTag(e.getKey().getTag())) {
+                double newRate = (1 - e.getValue()) * 0.1 + e.getValue();
+                result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Calculates the rate for dates.<br>
+     * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
+     * Example: datesToSet.size()=5; 3/5 and 2/5.
+     * 
+     * @param <T>
+     * @param datesToSet
+     * @param dates
+     */
+    public static <T extends ExtractedDate> Map<T, Double> setRateWhightedByGroups(List<T> datesToSet, List<T> dates) {
+        Map<T, Double> resultDates = new HashMap<T, Double>();
+        for (int k = 0; k < datesToSet.size(); k++) {
+            int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, -1) + 1;
+            double newRate = 1.0 * contSame / dates.size();
+
+            resultDates.put(datesToSet.get(k), Math.round(newRate * 10000) / 10000.0);
+
+        }
+        return resultDates;
+    }
+
 }

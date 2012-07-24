@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -372,7 +373,7 @@ public class DateGetterHelperTest {
                 // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
                 DateGetter dateGetter = new DateGetter(url);
                 dateGetter.setTechHTMLContent(true);
-                ArrayList<ExtractedDate> dates = dateGetter.getDate();
+                List<ExtractedDate> dates = dateGetter.getDate();
                 date.addAll(dates);
                 CollectionHelper.print(date);
 
@@ -392,7 +393,7 @@ public class DateGetterHelperTest {
             // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setTechHTMLContent(true);
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            List<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             // DateArrayHelper.printDateArray(date);
     }
@@ -406,7 +407,7 @@ public class DateGetterHelperTest {
         if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            List<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             // DateArrayHelper.printDateArray(date, DateType.ContentDate);
         }
@@ -420,7 +421,7 @@ public class DateGetterHelperTest {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setTechHTMLContent(true);
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            List<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             // DateArrayHelper.printDateArray(date);
 

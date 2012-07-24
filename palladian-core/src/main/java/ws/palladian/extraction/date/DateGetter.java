@@ -1,12 +1,13 @@
 package ws.palladian.extraction.date;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.getter.ContentDateGetter;
+import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -46,26 +47,26 @@ public class DateGetter {
 		this.url = url;
 	}
 
-	/**
-	 * Constructor creates a new DateGetter with a given document.
-	 * 
-	 * @param url
-	 *            URL that will be analyzed
-	 */
-	public DateGetter(final Document document) {
-		this.document = document;
-	}
+//	/**
+//	 * Constructor creates a new DateGetter with a given document.
+//	 * 
+//	 * @param url
+//	 *            URL that will be analyzed
+//	 */
+//	public DateGetter(final Document document) {
+//		this.document = document;
+//	}
 
-	/**
-	 * Constructor creates a new DateGetter with a given URL and document.
-	 * 
-	 * @param url
-	 *            URL that will be analyzed
-	 */
-	public DateGetter(final String url, Document document) {
-		this.url = url;
-		this.document = document;
-	}
+//	/**
+//	 * Constructor creates a new DateGetter with a given URL and document.
+//	 * 
+//	 * @param url
+//	 *            URL that will be analyzed
+//	 */
+//	public DateGetter(final String url, Document document) {
+//		this.url = url;
+//		this.document = document;
+//	}
 
 	/**
 	 * Analyzes a webpage by different techniques to find dates. The techniques
@@ -76,10 +77,9 @@ public class DateGetter {
 	 * 
 	 * @return A array of ExtractedDates.
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> ArrayList<T> getDate() {
+	public List<ExtractedDate> getDate() {
 
-		ArrayList<T> dates = new ArrayList<T>();
+		List<ExtractedDate> dates = new ArrayList<ExtractedDate>();
 		DocumentRetriever crawler = new DocumentRetriever();
 
         if (url != null && techHtmlContent) {
@@ -89,7 +89,7 @@ public class DateGetter {
 			}
 			if (document != null) {
 				cdg.setDocument(document);
-				dates.addAll((Collection<? extends T>) cdg.getDates());
+				dates.addAll(cdg.getDates());
 			}
 		}
         dates.removeAll(Collections.singletonList(null));
@@ -97,14 +97,14 @@ public class DateGetter {
 
 	}
 
-	/**
-	 * Getter for global variable URL.
-	 * 
-	 * @return URL.
-	 */
-	public String getURL() {
-		return this.url;
-	}
+//	/**
+//	 * Getter for global variable URL.
+//	 * 
+//	 * @return URL.
+//	 */
+//	public String getURL() {
+//		return this.url;
+//	}
 
 	/**
 	 * Setter for global variable URL.
@@ -128,8 +128,8 @@ public class DateGetter {
 		this.document = document;
 	}
 
-	public Document getDocument() {
-		return this.document;
-	}
+//	public Document getDocument() {
+//		return this.document;
+//	}
 
 }
