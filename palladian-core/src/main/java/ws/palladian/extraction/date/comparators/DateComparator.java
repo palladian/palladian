@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import ws.palladian.helper.date.dates.ExtractedDate;
 
@@ -24,64 +23,7 @@ import ws.palladian.helper.date.dates.ExtractedDate;
  */
 public class DateComparator implements Comparator<ExtractedDate> {
     
-    // TODO rename to exactness. (also used in ExtractedDate).
-    /**
-     * <p>Constants describing the exactness of the {@link ExtractedDate}s.</p>
-     * @author Philipp Katz
-     */
-    public static enum CompareDepth {
-        /** Compare will stop after year. */
-        YEAR(1), 
-        /** Compare will stop after month. */
-        MONTH(2), 
-        /** Compare will stop after day. */
-        DAY(3), 
-        /** Compare will stop after hour. */
-        HOUR(4), 
-        /** Compare will stop after minute. */
-        MINUTE(5), 
-        /** Compare will not stop (after second there are no more comparable values). */
-        SECOND(6), 
-        /** Use for methods providing a dynamic stop, depending on exactness of each date. */
-        DYNAMIC(-1);
-        
-        private final int value;
-
-        CompareDepth(int value) {
-            this.value = value;
-        }
-        
-        /**
-         * @deprecated Reference by explicit type if possible.
-         * @param value
-         * @return
-         */
-        @Deprecated
-        public static CompareDepth byValue(int value) {
-            for (CompareDepth compareDepth : values()) {
-                if (compareDepth.value == value) {
-                    return compareDepth;
-                }
-            }
-            throw new NoSuchElementException("No CompareDepth with value " + value);
-        }
-        
-        // TODO rename to "getCommonExactness" or "getMutualExactness" or so.
-        public static CompareDepth min(CompareDepth depth1, CompareDepth depth2) {
-            return byValue(Math.min(depth1.value, depth2.value));
-        }
-        
-        /**
-         * @deprecated Reference by explicit type.
-         * @return
-         */
-        @Deprecated
-        public int getValue() {
-            return value;
-        }
-    }
-    
-    private final CompareDepth compareDepth;
+    private final DateExactness compareDepth;
 
 //    /** Compare will stop after year. Value = 1. */
 //    public static final int STOP_YEAR = 1;
@@ -110,12 +52,12 @@ public class DateComparator implements Comparator<ExtractedDate> {
     /** Get date-difference in days */
     public static final int MEASURE_DAY = 86400000;
     
-    public DateComparator(CompareDepth compareDepth) {
+    public DateComparator(DateExactness compareDepth) {
         this.compareDepth = compareDepth;
     }
     
     public DateComparator() {
-        this(CompareDepth.SECOND);
+        this(DateExactness.SECOND);
     }
 
     /**
@@ -136,15 +78,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
 //        return compare(date1, date2, STOP_SECOND);
         int returnValue;
         returnValue = compare(date1.get(ExtractedDate.YEAR), date2.get(ExtractedDate.YEAR));
-        if (returnValue == 0 && compareDepth.value > CompareDepth.YEAR.value) {
+        if (returnValue == 0 && compareDepth.getValue() > DateExactness.YEAR.getValue()) {
             returnValue = compare(date1.get(ExtractedDate.MONTH), date2.get(ExtractedDate.MONTH));
-            if (returnValue == 0 && compareDepth.value > CompareDepth.MONTH.value) {
+            if (returnValue == 0 && compareDepth.getValue() > DateExactness.MONTH.getValue()) {
                 returnValue = compare(date1.get(ExtractedDate.DAY), date2.get(ExtractedDate.DAY));
-                if (returnValue == 0 && compareDepth.value > CompareDepth.DAY.value) {
+                if (returnValue == 0 && compareDepth.getValue() > DateExactness.DAY.getValue()) {
                     returnValue = compare(date1.get(ExtractedDate.HOUR), date2.get(ExtractedDate.HOUR));
-                    if (returnValue == 0 && compareDepth.value > CompareDepth.HOUR.value) {
+                    if (returnValue == 0 && compareDepth.getValue() > DateExactness.HOUR.getValue()) {
                         returnValue = compare(date1.get(ExtractedDate.MINUTE), date2.get(ExtractedDate.MINUTE));
-                        if (returnValue == 0 && compareDepth.value > CompareDepth.MINUTE.value) {
+                        if (returnValue == 0 && compareDepth.getValue() > DateExactness.MINUTE.getValue()) {
                             returnValue = compare(date1.get(ExtractedDate.SECOND), date2.get(ExtractedDate.SECOND));
                         }
                     }
@@ -275,38 +217,6 @@ public class DateComparator implements Comparator<ExtractedDate> {
     }
 
     /**
-     * Finds out, until which depth two dates are comparable. <br>
-     * Order is year, month, day,hour, minute and second.
-     * 
-     * @param date1
-     * @param date2
-     * @return Integer with the value of stop_property. Look for it in static properties.
-     */
-    // TODO move to CompareDepth
-    public static CompareDepth getCompareDepth(ExtractedDate date1, ExtractedDate date2) {
-        CompareDepth value = CompareDepth.DYNAMIC;
-        if (!(date1.get(ExtractedDate.YEAR) == -1 ^ date2.get(ExtractedDate.YEAR) == -1)) {
-            value = CompareDepth.YEAR;
-            if (!(date1.get(ExtractedDate.MONTH) == -1 ^ date2.get(ExtractedDate.MONTH) == -1)) {
-                value = CompareDepth.MONTH;
-                if (!(date1.get(ExtractedDate.DAY) == -1 ^ date2.get(ExtractedDate.DAY) == -1)) {
-                    value = CompareDepth.DAY;
-                    if (!(date1.get(ExtractedDate.HOUR) == -1 ^ date2.get(ExtractedDate.HOUR) == -1)) {
-                        value = CompareDepth.HOUR;
-                        if (!(date1.get(ExtractedDate.MINUTE) == -1 ^ date2.get(ExtractedDate.MINUTE) == -1)) {
-                            value = CompareDepth.MINUTE;
-                            if (!(date1.get(ExtractedDate.SECOND) == -1 ^ date2.get(ExtractedDate.SECOND) == -1)) {
-                                value = CompareDepth.SECOND;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return value;
-    }
-
-    /**
      * Returns the difference between two extracted dates.<br>
      * If dates can not be compared -1 will be returned. <br>
      * Otherwise difference is calculated to maximal possible depth. (year-month-day-hour-minute-second).<br>
@@ -320,26 +230,26 @@ public class DateComparator implements Comparator<ExtractedDate> {
      */
     public double getDifference(ExtractedDate date1, ExtractedDate date2, int measure) {
         double diff = -1;
-        int depth = getCompareDepth(date1, date2).value;
+        int depth = DateExactness.getCommonExactness(date1, date2).getValue();
         Calendar cal1 = new GregorianCalendar();
         Calendar cal2 = new GregorianCalendar();
 
         if (depth > 0) {
             cal1.set(Calendar.YEAR, date1.get(ExtractedDate.YEAR));
             cal2.set(Calendar.YEAR, date2.get(ExtractedDate.YEAR));
-            if (depth > CompareDepth.YEAR.value) {
+            if (depth > DateExactness.YEAR.getValue()) {
                 cal1.set(Calendar.MONTH, date1.get(ExtractedDate.MONTH));
                 cal2.set(Calendar.MONTH, date2.get(ExtractedDate.MONTH));
-                if (depth > CompareDepth.MONTH.value) {
+                if (depth > DateExactness.MONTH.getValue()) {
                     cal1.set(Calendar.DAY_OF_MONTH, date1.get(ExtractedDate.DAY));
                     cal2.set(Calendar.DAY_OF_MONTH, date2.get(ExtractedDate.DAY));
-                    if (depth > CompareDepth.DAY.value) {
+                    if (depth > DateExactness.DAY.getValue()) {
                         cal1.set(Calendar.HOUR_OF_DAY, date1.get(ExtractedDate.HOUR));
                         cal2.set(Calendar.HOUR_OF_DAY, date2.get(ExtractedDate.HOUR));
-                        if (depth > CompareDepth.HOUR.value) {
+                        if (depth > DateExactness.HOUR.getValue()) {
                             cal1.set(Calendar.MINUTE, date1.get(ExtractedDate.MINUTE));
                             cal2.set(Calendar.MINUTE, date2.get(ExtractedDate.MINUTE));
-                            if (depth > CompareDepth.MINUTE.value) {
+                            if (depth > DateExactness.MINUTE.getValue()) {
                                 cal1.set(Calendar.SECOND, date1.get(ExtractedDate.SECOND));
                                 cal2.set(Calendar.SECOND, date2.get(ExtractedDate.SECOND));
                             }
@@ -391,8 +301,10 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @param reverse <code>true</code> is youngest first. <code>false</code> is oldest first.
      * @return A sorted {@link List} of dates.
+     * @deprecated Use {@link Collections#sort(List)} with {@link DateComparator} instead.
      */
-    <T extends ExtractedDate> List<T> orderDates(Collection<T> dates, boolean reverse) {
+    @Deprecated
+    public <T extends ExtractedDate> List<T> orderDates(Collection<T> dates, boolean reverse) {
 //        T[] result = orderDatesArray(dates);
 //        ArrayList<T> resultList = new ArrayList<T>();
 //        if (reverse) {
@@ -422,6 +334,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param dates
      * @return
      */
+    @Deprecated
     public <T extends ExtractedDate> List<T> orderDates(Map<T, Double> dates) {
 //        ArrayList<T> temp = new ArrayList<T>();
 //        for (Entry<T, Double> e : dates.entrySet()) {
@@ -440,6 +353,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * @param reverse True is youngest first. False is oldest first.
      * @return
      */
+    @Deprecated
     public <T extends ExtractedDate> List<T> orderDates(Map<T, Double> dates, boolean reverse) {
 //        List<T> temp = new ArrayList<T>();
 //        for (Entry<T, Double> e : dates.entrySet()) {

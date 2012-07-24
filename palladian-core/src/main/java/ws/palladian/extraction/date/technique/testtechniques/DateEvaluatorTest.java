@@ -9,9 +9,9 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.ArchiveDateRater;
 import ws.palladian.extraction.date.rater.ContentDateRater;
@@ -220,19 +220,19 @@ public class DateEvaluatorTest {
         Entry<T, Double>[] orderedMetaDates = DateArrayHelper.orderHashMap(metaDates, true);
         for (int stopcounter = 0; stopcounter < 3; stopcounter++) {
             // int stopFlag = DateComparator.STOP_MINUTE - stopcounter;
-            int stopFlag = CompareDepth.MINUTE.getValue() - stopcounter;
+            int stopFlag = DateExactness.MINUTE.getValue() - stopcounter;
 
             for (int i = 0; i < orderedMetaDates.length; i++) {
                 T metaDate = orderedMetaDates[i].getKey();
                 // DateComparator.STOP_MINUTE instead of stopFlag, because original dates should be distinguished up to
                 // minute.
-                int countFactor = DateArrayHelper.countDates(metaDate, metaDates, CompareDepth.MINUTE.getValue()) + 1;
+                int countFactor = DateArrayHelper.countDates(metaDate, metaDates, DateExactness.MINUTE.getValue()) + 1;
                 double metaDateFactor = metaDates.get(metaDate);
-                tempContentDates = DateArrayHelper.getSameDatesMap((ExtractedDate) metaDate, temp, CompareDepth.byValue(stopFlag));
+                tempContentDates = DateArrayHelper.getSameDatesMap((ExtractedDate) metaDate, temp, DateExactness.byValue(stopFlag));
                 for (Entry<T, Double> date : tempContentDates.entrySet()) {
                     double weight = 1.0 * countFactor / metaDates.size();
                     double oldRate = date.getValue();
-                    double excatnesFactor = stopFlag / (1.0 * ((ExtractedDate) date.getKey()).getExactness());
+                    double excatnesFactor = stopFlag / (1.0 * ((ExtractedDate) date.getKey()).getExactness().getValue());
                     double newRate = (1 - oldRate) * metaDateFactor * weight * excatnesFactor + oldRate;
                     tempResult.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
                     temp.remove(date.getKey());
@@ -305,8 +305,8 @@ public class DateEvaluatorTest {
         for (Entry<T, Double> url : urlDates.entrySet()) {
             UrlDate urlDate = (UrlDate) url.getKey();
             double urlRate = url.getValue();
-            double urlFactor = Math.min(urlDate.getExactness(), 3) / 3.0;
-            CompareDepth compareDepth = CompareDepth.byValue(urlDate.getExactness());
+            DateExactness compareDepth = urlDate.getExactness();
+            double urlFactor = Math.min(compareDepth.getValue(), 3) / 3.0;
             Map<T, Double> temp = DateArrayHelper.getSameDatesMap(urlDate, dates, compareDepth);
             for (Entry<T, Double> date : temp.entrySet()) {
                 double newRate = (1 - date.getValue()) * (urlRate * urlFactor) + date.getValue();
@@ -426,21 +426,21 @@ public class DateEvaluatorTest {
     private <C> HashMap<C, Double> deployStructureDates(HashMap<C, Double> contentDates,
             HashMap<StructureDate, Double> structDates) {
         DateComparator dc = new DateComparator();
-        List<StructureDate> structureDates = dc.orderDates(structDates, true);
+        List<StructureDate> structureDates = dc.orderDates(structDates.keySet(), true);
         HashMap<C, Double> result = contentDates;
         HashMap<C, Double> temp = contentDates;
         Map<C, Double> tempContentDates = new HashMap<C, Double>();
         HashMap<C, Double> tempResult = new HashMap<C, Double>();
         for (int i = 0; i < structureDates.size(); i++) {
             tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
-                    CompareDepth.MINUTE);
+                    DateExactness.MINUTE);
             if (tempContentDates.size() == 0) {
                 tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
-                        CompareDepth.HOUR);
+                        DateExactness.HOUR);
             }
             if (tempContentDates.size() == 0) {
                 tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
-                        CompareDepth.DAY);
+                        DateExactness.DAY);
             }
             for (Entry<C, Double> cDate : tempContentDates.entrySet()) {
                 String cDateTag = ((ContentDate) cDate.getKey()).getTagNode();

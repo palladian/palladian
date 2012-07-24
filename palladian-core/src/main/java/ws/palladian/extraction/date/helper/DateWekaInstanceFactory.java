@@ -21,7 +21,7 @@ import ws.palladian.helper.io.StringOutputStream;
  * 
  * @author Martin Gregor
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class DateWekaInstanceFactory {
 
@@ -146,7 +146,7 @@ public class DateWekaInstanceFactory {
 
         String keyword = (keywordString.indexOf(" ") > -1) ? "'"
                 + keywordString + "'" : keywordString;
-        String excatness = String.valueOf(date.getExactness());
+        String excatness = String.valueOf(date.getExactness().getValue());
 
         String keyLoc201 = date.getKeyLoc201() + ".0";
         String keyLoc202 = date.getKeyLoc202() + ".0";

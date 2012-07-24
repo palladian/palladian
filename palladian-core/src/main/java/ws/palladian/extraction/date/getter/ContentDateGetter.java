@@ -16,9 +16,9 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
@@ -106,15 +106,15 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             double ordAgePos = Math.round((ageOrder.indexOf(date) + 1.0) / dates.size() * 1000.0) / 1000.0;
             date.setOrdAgePos(ordAgePos);
 
-            if (metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, CompareDepth.DAY.getValue()) > 0) {
+            if (metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateExactness.DAY.getValue()) > 0) {
                 date.setInMetaDates(true);
             }
-            if (urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, CompareDepth.DAY.getValue()) > 0) {
+            if (urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateExactness.DAY.getValue()) > 0) {
                 date.setInUrl(true);
             }
 
             double relCntSame = Math
-                    .round((double) (DateArrayHelper.countDates(date, dates, CompareDepth.DAY.getValue()) + 1)
+                    .round((double) (DateArrayHelper.countDates(date, dates, DateExactness.DAY.getValue()) + 1)
                             / (double) dates.size() * 1000.0) / 1000.0;
             date.setRelCntSame(relCntSame);
 

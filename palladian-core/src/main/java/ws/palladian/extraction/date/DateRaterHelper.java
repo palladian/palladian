@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
@@ -37,9 +37,9 @@ public class DateRaterHelper {
 //        boolean lt = comp.compare(date, end, stopFlag) > -1;
 //        return gt && lt;
 
-        CompareDepth compareDepth = CompareDepth.DAY;
-        if  (date.getExactness() != 0) {
-            compareDepth = CompareDepth.min(CompareDepth.DAY, CompareDepth.byValue(date.getExactness()));
+        DateExactness compareDepth = DateExactness.DAY;
+        if  (date.getExactness().getValue() != 0) {
+            compareDepth = DateExactness.min(DateExactness.DAY, date.getExactness());
         }
         DateComparator dateComparator = new DateComparator(compareDepth);
         boolean gt = dateComparator.compare(begin, date) > -1;
@@ -128,7 +128,7 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, CompareDepth compareDepth) {
+    public static <T> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, DateExactness compareDepth) {
         List<List<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {

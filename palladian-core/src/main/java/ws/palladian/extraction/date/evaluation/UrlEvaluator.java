@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
@@ -73,7 +73,7 @@ public class UrlEvaluator {
 							DBExport.MOD_DATE));
 				}
 				if (foundDate != null) {
-				    CompareDepth compareDepth = DateComparator.getCompareDepth(urlDate, foundDate);
+				    DateExactness compareDepth = DateExactness.getCommonExactness(urlDate, foundDate);
 				    DateComparator dc = new DateComparator(compareDepth);
 					int compare = dc.compare(urlDate, foundDate);
 					if (compare == 0) {
