@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 public class DateParser {
