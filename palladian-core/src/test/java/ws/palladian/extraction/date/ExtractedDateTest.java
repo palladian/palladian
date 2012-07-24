@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -39,7 +38,6 @@ public class ExtractedDateTest {
     @Before
     public void setUp() throws Exception {
         date1 = DateParser.parse("2010-06-12", "yyyy-mm-dd");
-        System.out.println(date1);
         date2 = DateParser.parse("10-06-07", "yyyy-mm-dd");
         date3 = DateParser.parse("07.06.2010", "dd.mm.yyyy");
         date4 = DateParser.parse("07.06.10", "dd.mm.yyyy");
