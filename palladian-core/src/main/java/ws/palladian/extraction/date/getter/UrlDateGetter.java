@@ -75,8 +75,8 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
         }
         if (date != null) {
             // temp = DateConverter.convert(date, DateType.UrlDate);
-            temp = new UrlDate(date);
-            temp.setUrl(url);
+            temp = new UrlDate(date, url);
+            // temp.setUrl(url);
         }
         return temp;
     }
