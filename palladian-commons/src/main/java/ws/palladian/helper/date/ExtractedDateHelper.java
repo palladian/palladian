@@ -63,16 +63,6 @@ public class ExtractedDateHelper {
         return monthNumber;
     }
 
-
-    
-
-
-
-
-
-
-
-
     /**
      * Adds a leading zero for numbers less then ten. <br>
      * E.g.: 3 ->"03"; 12 -> "12"; 386 -> "376" ...
@@ -155,8 +145,5 @@ public class ExtractedDateHelper {
         return DateParser.parse(dateString, format);
 
     }
-
-
-
 
 }

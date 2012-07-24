@@ -25,7 +25,7 @@ public class ExtractedDate implements AbstractDate {
     private final String format;
 
     /** URL */
-    private String url = null;
+//    private String url = null;
 
     // date values
     private int year = -1;
@@ -73,7 +73,7 @@ public class ExtractedDate implements AbstractDate {
         this.minute = date.minute;
         this.second = date.second;
         this.timezone = date.timezone;
-        this.url = date.url;
+//        this.url = date.url;
     }
 
     @Override
@@ -220,22 +220,22 @@ public class ExtractedDate implements AbstractDate {
                                                                                                                         // getType();
     }
 
-    /**
-     * This field gives you the possibility to store the url, the date was found at.
-     * 
-     * @param url
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
+//    /**
+//     * This field gives you the possibility to store the url, the date was found at.
+//     * 
+//     * @param url
+//     */
+//    public void setUrl(String url) {
+//        this.url = url;
+//    }
 
-    /**
-     * 
-     * @return
-     */
-    public String getUrl() {
-        return url;
-    }
+//    /**
+//     * 
+//     * @return
+//     */
+//    public String getUrl() {
+//        return url;
+//    }
 
     /**
      * <p>
