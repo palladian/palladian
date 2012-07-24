@@ -7,9 +7,9 @@ import java.util.Map;
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.StructureDate;
 
 /**

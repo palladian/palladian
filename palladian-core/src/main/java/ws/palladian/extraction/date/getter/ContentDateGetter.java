@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,13 +17,13 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import ws.palladian.extraction.date.KeyWords;
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.helper.date.dates.StructureDate;
@@ -128,14 +129,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                         - date.get(ContentDate.DATEPOS_IN_DOC));
             }
             int dateAgeOrdAbsl = ageOrder.indexOf(date);
-            DateComparator dc = new DateComparator();
             if (dateAgeOrdAbsl > 0) {
-                date.setDistAgeBefore(Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl - 1),
-                        DateComparator.MEASURE_HOUR)));
+                date.setDistAgeBefore(Math.round(date.getDifference(ageOrder.get(dateAgeOrdAbsl - 1),
+                        TimeUnit.HOURS)));
             }
             if (dateAgeOrdAbsl < ageOrder.size() - 1) {
-                date.setDistAgeAfter(Math.round(dc.getDifference(date, ageOrder.get(dateAgeOrdAbsl + 1),
-                        DateComparator.MEASURE_HOUR)));
+                date.setDistAgeAfter(Math.round(date.getDifference(ageOrder.get(dateAgeOrdAbsl + 1),
+                        TimeUnit.HOURS)));
             }
         }
     }

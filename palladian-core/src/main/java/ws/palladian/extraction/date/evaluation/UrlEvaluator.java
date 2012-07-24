@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.extraction.date.rater.UrlDateRater;
 import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.UrlDate;
 

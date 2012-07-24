@@ -18,7 +18,7 @@ public class MetaDateRater extends TechniqueDateRater<MetaDate> {
 	@Override
 	public Map<MetaDate, Double> rate(List<MetaDate> list) {
 		HeadDateRater hdr = new HeadDateRater(dateType);
-		hdr.setActualDate(actualDate);
+		hdr.setCurrentDate(actualDate);
 		return hdr.rate(list);
 	}
 

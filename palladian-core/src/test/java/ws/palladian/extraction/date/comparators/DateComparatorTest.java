@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.AbstractDate;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 public class DateComparatorTest {
@@ -150,7 +151,7 @@ public class DateComparatorTest {
     public void testCompareDepth() {
         DateExactness depth1 = DateExactness.YEAR;
         DateExactness depth2 = DateExactness.HOUR;
-        DateExactness minDepth = DateExactness.min(depth1, depth2);
+        DateExactness minDepth = DateExactness.getCommonExactness(depth1, depth2);
         assertEquals(DateExactness.YEAR, minDepth);
     }
 }

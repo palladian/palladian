@@ -12,7 +12,6 @@ import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 /**
@@ -133,11 +132,12 @@ public class WebPageDateEvaluator {
 		if (list != null && list.size() > 0) {
 			List<ExtractedDate> orderedList = list;
 			Collections.sort(orderedList,
-					new RatedDateComparator<ExtractedDate>());
+					new RatedDateComparator());
 			ExtractedDate date = orderedList.get(0);
 			if (limit < 0) {
-				DateType dateType = date.getType();
-				if (dateType.equals(DateType.ContentDate)) {
+				//DateType dateType = date.getType();
+				//if (dateType.equals(DateType.ContentDate)) {
+			    if (date instanceof ContentDate) {
 					ConfigHolder configHolder = ConfigHolder.getInstance();
 					PropertiesConfiguration config = configHolder.getConfig();
 					double size = 1 / ((ContentDate) date).getRelSize();
@@ -194,7 +194,7 @@ public class WebPageDateEvaluator {
 		}
 		double rate = DateArrayHelper.getHighestRate(dates);
 		dates = DateArrayHelper.getRatedDates(dates, rate);
-		Collections.sort(dates, new RatedDateComparator<ExtractedDate>());
+		Collections.sort(dates, new RatedDateComparator());
 		return dates;
 	}
 
@@ -205,7 +205,7 @@ public class WebPageDateEvaluator {
 	 */
 	public List<ExtractedDate> getAllDates() {
 		List<ExtractedDate> sorted = list;
-		Collections.sort(sorted, new RatedDateComparator<ExtractedDate>());
+		Collections.sort(sorted, new RatedDateComparator());
 		return sorted;
 	}
 }

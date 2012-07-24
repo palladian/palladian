@@ -32,19 +32,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
      */
     private Node node = null;
     
-//    /**
-//     * 
-//     */
-//    public AbstractBodyDate() {
-//    }
-
-//    /**
-//     * @param dateString
-//     */
-//    public AbstractBodyDate(String dateString) {
-//        super(dateString);
-//    }
-
     /**
      * @param dateString
      * @param format
@@ -53,8 +40,8 @@ public abstract class AbstractBodyDate extends KeywordDate {
         super(dateString, format);
     }
 
-    public AbstractBodyDate(ExtractedDate date, DateType dateType) {
-        super(date, dateType);
+    public AbstractBodyDate(ExtractedDate date) {
+        super(date);
     }
 
     /**

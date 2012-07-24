@@ -9,10 +9,9 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.helper.date.dates.AbstractDate;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateType;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 /**
@@ -64,7 +63,8 @@ public class DateArrayHelper {
                     tempFilter = -1;
                 case FILTER_KEYLOC_CONT:
                 case FILTER_KEYLOC_ATTR:
-                    if (date.getType().equals(DateType.ContentDate)) {
+                    //if (date.getType().equals(DateType.ContentDate)) {
+                    if (date instanceof ContentDate) {
                         int keyloc = ((ContentDate)date).get(ContentDate.KEYWORDLOCATION);
                         if (keyloc == tempFilter) {
                             ret.add(date);
@@ -94,9 +94,6 @@ public class DateArrayHelper {
     @SuppressWarnings("unchecked")
     public static <T extends ExtractedDate> List<T> filter(List<? extends ExtractedDate> dates, Class<T> filter) {
         List<T> ret = new ArrayList<T>();
-//        InstanceofPredicate predicate = new InstanceofPredicate(filter);
-//        CollectionUtils.filter(ret, predicate);
-//        return ret;
         for (ExtractedDate date : dates) {
             if (filter.isInstance(date)) {
                 ret.add((T)date);

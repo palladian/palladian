@@ -9,7 +9,7 @@ package ws.palladian.helper.date.dates;
 public final class ArchiveDate extends ExtractedDate {
 
     public ArchiveDate(ExtractedDate date) {
-        super(date, DateType.ArchiveDate);
+        super(date);
     }
 
 }

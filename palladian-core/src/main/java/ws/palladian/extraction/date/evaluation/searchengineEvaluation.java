@@ -3,9 +3,9 @@ package ws.palladian.extraction.date.evaluation;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 public class searchengineEvaluation {
