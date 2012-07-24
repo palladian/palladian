@@ -193,7 +193,7 @@ public class EvaluationHelper {
 	 * @param compareDate Use static field mod_date or pub_date of {@link DBExport}.
 	 * @return -2 false negative; -1 false positive; 0 true negative; 1 true positive
 	 */
-	public static <T> int compareDate(T foundDate, DBExport dbExport, int compareDate){
+	public static int compareDate(ExtractedDate foundDate, DBExport dbExport, int compareDate){
 		int returnValue;
 		ExtractedDate ed = DateGetterHelper.findDate(dbExport.get(compareDate));
 		if(ed == null){
@@ -206,7 +206,7 @@ public class EvaluationHelper {
 			if(foundDate == null){
 				returnValue = EvaluationHelper.ANF;
 			}else{
-			    DateExactness compareDepth = DateExactness.getCommonExactness(ed, (ExtractedDate) foundDate);
+			    DateExactness compareDepth = DateExactness.getCommonExactness(ed.getExactness(), foundDate.getExactness());
 				DateComparator dc = new DateComparator(DateExactness.getCommonExactness(compareDepth, DateExactness.DAY));
 				if (dc.compare(ed, (ExtractedDate) foundDate) == 0){
 					returnValue = EvaluationHelper.AFR;

@@ -10,7 +10,7 @@ public interface AbstractDate {
     static final int HOUR = 4;
     static final int MINUTE = 5;
     static final int SECOND = 6;
-    static final int EXACTENESS = 7;
+    // static final int EXACTENESS = 7;
 
     /**
      * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values

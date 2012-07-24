@@ -168,7 +168,7 @@ public class DateWekaInstanceFactory {
     }
 
     private static boolean isInstance(ContentDate date) {
-        boolean resultExactness = date.get(ExtractedDate.EXACTENESS) >= 3 ? true
+        boolean resultExactness = date.getExactness().getValue() >= 3 ? true
                 : false;
         boolean resultFormat = isNormalFormat(date.getFormat()) ? true
                 : ((changeFormat(date.getFormat()) != null) ? true : false);

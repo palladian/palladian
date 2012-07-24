@@ -73,7 +73,7 @@ public class UrlEvaluator {
 							DBExport.MOD_DATE));
 				}
 				if (foundDate != null) {
-				    DateExactness compareDepth = DateExactness.getCommonExactness(urlDate, foundDate);
+				    DateExactness compareDepth = DateExactness.getCommonExactness(urlDate.getExactness(), foundDate.getExactness());
 				    DateComparator dc = new DateComparator(compareDepth);
 					int compare = dc.compare(urlDate, foundDate);
 					if (compare == 0) {
