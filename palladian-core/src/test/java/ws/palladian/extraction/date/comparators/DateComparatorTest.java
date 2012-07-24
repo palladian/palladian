@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.AbstractDate;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -149,9 +148,9 @@ public class DateComparatorTest {
     
     @Test
     public void testCompareDepth() {
-        CompareDepth depth1 = CompareDepth.YEAR;
-        CompareDepth depth2 = CompareDepth.HOUR;
-        CompareDepth minDepth = CompareDepth.min(depth1, depth2);
-        assertEquals(CompareDepth.YEAR, minDepth);
+        DateExactness depth1 = DateExactness.YEAR;
+        DateExactness depth2 = DateExactness.HOUR;
+        DateExactness minDepth = DateExactness.min(depth1, depth2);
+        assertEquals(DateExactness.YEAR, minDepth);
     }
 }

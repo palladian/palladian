@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JSpinner.DateEditor;
+
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
 
@@ -759,7 +762,7 @@ public class ExtractedDate implements AbstractDate {
                 value = this.second;
                 break;
             case EXACTENESS:
-                value = getExactness();
+                value = getExactness().getValue();
                 break;
         }
         return value;
@@ -940,7 +943,7 @@ public class ExtractedDate implements AbstractDate {
      * 
      * @return Integer between 0 and 6.
      */
-    public int getExactness() {
+    public DateExactness getExactness() {
         int exactness = 0;
         if (this.year != -1) {
             exactness++;
@@ -960,7 +963,8 @@ public class ExtractedDate implements AbstractDate {
                 }
             }
         }
-        return exactness;
+        // return exactness;
+        return DateExactness.byValue(exactness);
     }
 
     /**

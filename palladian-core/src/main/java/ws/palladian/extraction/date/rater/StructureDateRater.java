@@ -7,8 +7,8 @@ import java.util.Map;
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.dates.StructureDate;
 
@@ -79,16 +79,16 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
         List<StructureDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1);
         List<StructureDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2);
         if (highRatedDates.size() > 0) {
-            DateRaterHelper.setRateWhightedByGroups(highRatedDates, result, CompareDepth.MINUTE);
+            DateRaterHelper.setRateWhightedByGroups(highRatedDates, result, DateExactness.MINUTE);
 
             DateRaterHelper.setRateToZero(middleRatedDates, result);
             DateRaterHelper.setRateToZero(lowRatedDates, result);
         } else if (middleRatedDates.size() > 0) {
-            DateRaterHelper.setRateWhightedByGroups(middleRatedDates, result, CompareDepth.MINUTE);
+            DateRaterHelper.setRateWhightedByGroups(middleRatedDates, result, DateExactness.MINUTE);
 
             DateRaterHelper.setRateToZero(lowRatedDates, result);
         } else {
-            DateRaterHelper.setRateWhightedByGroups(lowRatedDates, result, CompareDepth.MINUTE);
+            DateRaterHelper.setRateWhightedByGroups(lowRatedDates, result, DateExactness.MINUTE);
         }
         return result;
     }

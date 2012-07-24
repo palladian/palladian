@@ -13,11 +13,11 @@ public abstract class KeywordDate extends ExtractedDate {
      */
     private String keyword = null;
 
-    /**
-     * 
-     */
-    public KeywordDate() {
-    }
+//    /**
+//     * 
+//     */
+//    public KeywordDate() {
+//    }
 
     /**
      * @param dateString

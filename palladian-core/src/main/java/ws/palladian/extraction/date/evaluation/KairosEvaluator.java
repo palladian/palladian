@@ -8,8 +8,8 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.WebPageDateEvaluator;
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.getter.MetaDateGetter;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
@@ -67,7 +67,7 @@ public class KairosEvaluator {
 
 		int cntAll = 0;
 
-		DateComparator dc = new DateComparator(CompareDepth.DAY);
+		DateComparator dc = new DateComparator(DateExactness.DAY);
 
 		for (Entry<String, DBExport> e : set.entrySet()) {
 			System.out.println(cntAll++);
@@ -101,7 +101,7 @@ public class KairosEvaluator {
 			if (urlDates != null && urlDates.size() > 0
 					&& urlDates.get(0) != null
 					&& (pubDate != null || modDate != null)
-					&& urlDates.get(0).getExactness() >= 3) {
+					&& urlDates.get(0).getExactness().getValue() >= 3) {
 				cntAllUrlDates++;
 				System.out.println(cntAllUrlDates);
 				if (pubDate != null

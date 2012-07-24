@@ -2,7 +2,6 @@ package ws.palladian.extraction.date.comparators;
 
 import java.util.Comparator;
 
-import ws.palladian.extraction.date.comparators.DateComparator.CompareDepth;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -100,8 +99,9 @@ public class RatedDateComparator<T extends ExtractedDate> implements Comparator<
      * @return
      */
     private int compareAge(ExtractedDate date1, ExtractedDate date2) {
-        int stopFlag = Math.min(date1.getExactness(), date2.getExactness());
-        CompareDepth compareDepth = CompareDepth.byValue(stopFlag);
+        // int stopFlag = Math.min(date1.getExactness(), date2.getExactness());
+        // DateExactness compareDepth = DateExactness.byValue(stopFlag);
+        DateExactness compareDepth = DateExactness.min(date1.getExactness(), date2.getExactness());
         DateComparator dc = new DateComparator(compareDepth);
         return dc.compare(date1, date2);
 
