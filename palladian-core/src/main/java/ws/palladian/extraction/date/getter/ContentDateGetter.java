@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
@@ -167,10 +166,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
              */
             Object[] regExps = RegExp.getAllRegExp();
             Pattern[] pattern = new Pattern[regExps.length];
-            Matcher[] matcher = new Matcher[regExps.length];
             for (int i = 0; i < regExps.length; i++) {
                 pattern[i] = Pattern.compile(((String[]) regExps[i])[0]);
-                matcher[i] = pattern[i].matcher("");
             }
 
             setDocKeywords();
@@ -182,7 +179,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                     Node parent = node.getParentNode();
                     if (parent.getNodeType() != Node.COMMENT_NODE && !parent.getNodeName().equalsIgnoreCase("script")
                             && !parent.getNodeName().equalsIgnoreCase("style")) {
-                        dates.addAll(checkTextnode((Text) node, matcher, regExps));
+                        dates.addAll(checkTextnode((Text) node, pattern, regExps));
                     }
                 }
             }
@@ -204,7 +201,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      *            Depth of node in document structure.
      * @return
      */
-    private List<ContentDate> checkTextnode(Text node, Matcher[] matcher, Object[] regExps) {
+    private List<ContentDate> checkTextnode(Text node, Pattern[] pattern, Object[] regExps) {
 
         // String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 
@@ -227,7 +224,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         }
         for (String textPart : textSplitt) {
-            dateList.addAll(DateGetterHelper.findAllDates(textPart, matcher, regExps));
+            dateList.addAll(DateGetterHelper.findAllDates(textPart, pattern, regExps));
         }
         if (dateList.size() > 0) {
             Integer beginIndex = nodeIndexMap.get(text);
@@ -245,10 +242,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         for (ContentDate date : dateList) {
 
-            date.setStructureDate(getStructureDate(tag, matcher, regExps));
+            date.setStructureDate(getStructureDate(tag, pattern, regExps));
 
             if (date.getStructureDate() == null && tag != parent) {
-                date.setStructureDate(getStructureDate(parent, matcher, regExps));
+                date.setStructureDate(getStructureDate(parent, pattern, regExps));
             }
 
             boolean keyword3Class = true;
@@ -453,16 +450,16 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * Stores visited nodes and its dates in maps.
      * 
      * @param node
-     * @param matcher
+     * @param pattern
      * @param regExps
      * @return
      */
-    private StructureDate getStructureDate(Node node, Matcher[] matcher, Object[] regExps) {
+    private StructureDate getStructureDate(Node node, Pattern[] pattern, Object[] regExps) {
         Boolean hasDate = lookedUpNodeMap.get(node);
         StructureDate date;
 
         if (hasDate == null) {
-            date = findStructureDate(node, matcher, regExps);
+            date = findStructureDate(node, pattern, regExps);
             lookedUpNodeMap.put(node, true);
             structDateMap.put(node, date);
         } else {
@@ -476,11 +473,11 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * Find StructureDates in nodes.
      * 
      * @param node
-     * @param matcher
+     * @param pattern
      * @param regExps
      * @return
      */
-    private StructureDate findStructureDate(Node node, Matcher[] matcher, Object[] regExps) {
+    private StructureDate findStructureDate(Node node, Pattern[] pattern, Object[] regExps) {
         StructureDate structDate = null;
         ExtractedDate date = null;
 
@@ -488,7 +485,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attr = attributes.item(i);
             if (!attr.getNodeName().equalsIgnoreCase("href")) {
-                date = DateGetterHelper.findDate(attr.getNodeValue(), matcher, regExps);
+                date = DateGetterHelper.findDate(attr.getNodeValue(), pattern, regExps);
                 if (date != null) {
 
                     break;
