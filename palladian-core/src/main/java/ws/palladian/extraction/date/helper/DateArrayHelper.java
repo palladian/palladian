@@ -180,15 +180,15 @@ public class DateArrayHelper {
      *            Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
-    public static <T> List<List<T>> arrangeByDate(List<T> dates, DateExactness compareDepth) {
-        ArrayList<List<T>> result = new ArrayList<List<T>>();
+    public static <T extends ExtractedDate> List<List<T>> arrangeByDate(List<T> dates, DateExactness compareDepth) {
+        List<List<T>> result = new ArrayList<List<T>>();
         for (int datesIndex = 0; datesIndex < dates.size(); datesIndex++) {
             boolean sameDatestamp = false;
             T date = dates.get(datesIndex);
             for (int resultIndex = 0; resultIndex < result.size(); resultIndex++) {
                 T firstDate = result.get(resultIndex).get(0);
                 DateComparator dc = new DateComparator(compareDepth);
-                int compare = dc.compare((ExtractedDate) firstDate, (ExtractedDate) date);
+                int compare = dc.compare(firstDate, date);
                 if (compare == 0) {
                     result.get(resultIndex).add(date);
                     sameDatestamp = true;
@@ -196,7 +196,7 @@ public class DateArrayHelper {
                 }
             }
             if (!sameDatestamp) {
-                ArrayList<T> newDate = new ArrayList<T>();
+                List<T> newDate = new ArrayList<T>();
                 newDate.add(date);
                 result.add(newDate);
             }
@@ -204,21 +204,21 @@ public class DateArrayHelper {
         return result;
     }
 
-    /**
-     * Group equal dates in array lists. <br>
-     * E.g. d1=May 2010; d2=05.2010; d3=01.05.10; d4=01st May '10 --> (d1&d2) &
-     * (d3&d4). <br>
-     * Every date can be only in one group.<br>
-     * A group is a array list of dates.
-     * 
-     * @param <T>
-     * @param dates
-     *            Arraylist of dates.
-     * @return A arraylist of groups, that are arraylists too.
-     */
-    public static <T> List<List<T>> arrangeByDate(List<T> dates) {
-        return arrangeByDate(dates, DateExactness.DAY);
-    }
+//    /**
+//     * Group equal dates in array lists. <br>
+//     * E.g. d1=May 2010; d2=05.2010; d3=01.05.10; d4=01st May '10 --> (d1&d2) &
+//     * (d3&d4). <br>
+//     * Every date can be only in one group.<br>
+//     * A group is a array list of dates.
+//     * 
+//     * @param <T>
+//     * @param dates
+//     *            Arraylist of dates.
+//     * @return A arraylist of groups, that are arraylists too.
+//     */
+//    public static <T extends ExtractedDate> List<List<T>> arrangeByDate(List<T> dates) {
+//        return arrangeByDate(dates, DateExactness.DAY);
+//    }
 
 //    /**
 //     * Orders a map by dates.
@@ -308,17 +308,17 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T, V> int countDates(T date, List<V> dates, int stopFlag) {
+    public static <T extends ExtractedDate, V extends ExtractedDate> int countDates(T date, List<V> dates, int stopFlag) {
         int count = 0;
         for (int i = 0; i < dates.size(); i++) {
             if (!date.equals(dates.get(i))) {
                 int tempStopFlag = stopFlag;
                 if (tempStopFlag == -1) {
-                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness().getValue(),
-                            ((ExtractedDate) dates.get(i)).getExactness().getValue());
+                    tempStopFlag = Math.min(date.getExactness().getValue(),
+                            dates.get(i).getExactness().getValue());
                 }
                 DateComparator dc = new DateComparator(DateExactness.byValue(tempStopFlag));
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i)) == 0) {
+                if (dc.compare(date, dates.get(i)) == 0) {
                     count++;
                 }
             }
@@ -343,17 +343,17 @@ public class DateArrayHelper {
 //        return countDates(date, dates, DateComparator.STOP_DAY);
 //    }
 
-    public static <T> int countDates(T date, Map<T, Double> dates, int stopFlag) {
+    public static <T extends ExtractedDate> int countDates(T date, Map<T, Double> dates, int stopFlag) {
         int count = 0;
         for (Entry<T, Double> e : dates.entrySet()) {
             if (!date.equals(e.getKey())) {
                 int tempStopFlag = stopFlag;
                 if (tempStopFlag == -1) {
-                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness().getValue(),
-                            ((ExtractedDate) e.getKey()).getExactness().getValue());
+                    tempStopFlag = Math.min(date.getExactness().getValue(),
+                            e.getKey().getExactness().getValue());
                 }
                 DateComparator dc = new DateComparator(DateExactness.byValue(tempStopFlag));
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) e.getKey()) == 0) {
+                if (dc.compare(date, e.getKey()) == 0) {
                     count++;
                 }
             }
@@ -361,97 +361,102 @@ public class DateArrayHelper {
         return count;
     }
 
-    /**
-     * Same as printeDateArray() with filter of techniques. These are found in
-     * ExtracedDate as static properties. <br>
-     * And a format, found as second value of RegExp.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     * @param filterTechnique
-     * @param format
-     */
-    public static <T extends ExtractedDate> void printDateArray(List<T> dates, Class<T> filter, String format) {
-        List<T> temp = dates;
-        if (filter != null) {
-            temp = filter(dates, filter);
-        }
+//    /**
+//     * Same as printeDateArray() with filter of techniques. These are found in
+//     * ExtracedDate as static properties. <br>
+//     * And a format, found as second value of RegExp.
+//     * 
+//     * @param <T>
+//     * 
+//     * @param dates
+//     * @param filterTechnique
+//     * @param format
+//     */
+//    public static <T extends ExtractedDate> void printDateArray(List<T> dates, Class<T> filter, String format) {
+//        List<T> temp = dates;
+//        if (filter != null) {
+//            temp = filter(dates, filter);
+//        }
+//
+//        for (T date : temp) {
+//            if (format == null || format.equals(((ExtractedDate) date).getFormat())) {
+//                System.out.println(date.toString());
+//                System.out
+//                        .println("------------------------------------------------------------------------------------------------");
+//            }
+//        }
+//    }
 
-        for (T date : temp) {
-            if (format == null || format.equals(((ExtractedDate) date).getFormat())) {
-                System.out.println(date.toString());
-                System.out
-                        .println("------------------------------------------------------------------------------------------------");
-            }
-        }
-    }
+//    /**
+//     * Same as printeDateArray() with filter of techniques. These are found in
+//     * ExtracedDate as static properties. <br>
+//     * And a format, found as second value of RegExp.
+//     * 
+//     * @param <T>
+//     * 
+//     * @param dates
+//     * @param filterTechnique
+//     * @param format
+//     */
+//    private static <T extends ExtractedDate> void printDateArray(List<T> dates, int filterTechnique, String format) {
+//        List<T> temp = dates;
+//        if (filterTechnique > 0) {
+//            temp = filter(dates, filterTechnique);
+//        }
+//
+//        Iterator<T> dateIterator = temp.iterator();
+//        while (dateIterator.hasNext()) {
+//
+//            T date = dateIterator.next();
+//            if (format == null || format.equals(((ExtractedDate) date).getFormat())) {
+//                System.out.println(date.toString());
+//                System.out
+//                        .println("------------------------------------------------------------------------------------------------");
+//            }
+//        }
+//    }
 
-    /**
-     * Same as printeDateArray() with filter of techniques. These are found in
-     * ExtracedDate as static properties. <br>
-     * And a format, found as second value of RegExp.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     * @param filterTechnique
-     * @param format
-     */
-    public static <T extends ExtractedDate> void printDateArray(List<T> dates, int filterTechnique, String format) {
-        List<T> temp = dates;
-        if (filterTechnique > 0) {
-            temp = filter(dates, filterTechnique);
-        }
+//    /**
+//     * System.out.println for each date in dates, with some properties.
+//     * 
+//     * @param <T>
+//     * 
+//     * @param dates
+//     */
+//    public static void printDateArray(List<? extends ExtractedDate> dates) {
+////        printDateArray(dates, 0);
+//        for (ExtractedDate extractedDate : dates) {
+//            System.out.println(extractedDate.toString());
+//            System.out
+//                    .println("------------------------------------------------------------------------------------------------");
+//        }
+//    }
 
-        Iterator<T> dateIterator = temp.iterator();
-        while (dateIterator.hasNext()) {
+//    /**
+//     * Same as printeDateArray() with filter of techniques. These are found in
+//     * ExtracedDate as static properties.
+//     * 
+//     * @param <T>
+//     * 
+//     * @param dates
+//     * @param filterTechnique
+//     */
+//    private static void printDateArray(List<? extends ExtractedDate> dates, int filterTechnique) {
+//        printDateArray(dates, filterTechnique, null);
+//    }
 
-            T date = dateIterator.next();
-            if (format == null || format.equals(((ExtractedDate) date).getFormat())) {
-                System.out.println(date.toString());
-                System.out
-                        .println("------------------------------------------------------------------------------------------------");
-            }
-        }
-    }
-
-    /**
-     * System.out.println for each date in dates, with some properties.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     */
-    public static void printDateArray(List<? extends ExtractedDate> dates) {
-        printDateArray(dates, 0);
-    }
-
-    /**
-     * Same as printeDateArray() with filter of techniques. These are found in
-     * ExtracedDate as static properties.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     * @param filterTechnique
-     */
-    public static void printDateArray(List<? extends ExtractedDate> dates, int filterTechnique) {
-        printDateArray(dates, filterTechnique, null);
-    }
-
-    /**
-     * Same as printeDateArray() with filter of techniques. These are found in
-     * ExtracedDate as static properties.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     * @param filterTechnique
-     */
-    public static <T extends ExtractedDate> void printDateArray(List<T> dates, Class<T> filter) {
-        printDateArray(dates, filter, null);
-    }
+//    /**
+//     * Same as printeDateArray() with filter of techniques. These are found in
+//     * ExtracedDate as static properties.
+//     * 
+//     * @param <T>
+//     * 
+//     * @param dates
+//     * @param filterTechnique
+//     */
+//    public static <T extends ExtractedDate> void printDateArray(List<T> dates, Class<T> filter) {
+//        printDateArray(dates, filter, null);
+//    }
 
 //    /**
 //     * Remove dates from the array.
@@ -577,7 +582,7 @@ public class DateArrayHelper {
      * @param rate
      * @return
      */
-    public static <T> List<T> getRatedDates(Map<T, Double> dates, double rate) {
+    public static <T extends ExtractedDate> List<T> getRatedDates(Map<T, Double> dates, double rate) {
         return getRatedDates(dates, rate, true);
     }
 
@@ -593,8 +598,8 @@ public class DateArrayHelper {
      * @param include
      * @return
      */
-    public static <T> List<T> getRatedDates(Map<T, Double> dates, double rate, boolean include) {
-        ArrayList<T> result = new ArrayList<T>();
+    public static <T extends ExtractedDate> List<T> getRatedDates(Map<T, Double> dates, double rate, boolean include) {
+        List<T> result = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
             if (e.getValue() == rate == include) {
                 result.add(e.getKey());
@@ -611,7 +616,7 @@ public class DateArrayHelper {
      * @param rate
      * @return
      */
-    public static <T> List<T> getRatedDates(List<T> dates, double rate) {
+    public static <T extends ExtractedDate> List<T> getRatedDates(List<T> dates, double rate) {
         return getRatedDates(dates, rate, true);
     }
 
@@ -625,11 +630,11 @@ public class DateArrayHelper {
      *            True for dates with rate. False for dates without rate.
      * @return
      */
-    public static <T> List<T> getRatedDates(List<T> dates, double rate, boolean include) {
-        ArrayList<T> result = new ArrayList<T>();
+    public static <T extends ExtractedDate> List<T> getRatedDates(List<T> dates, double rate, boolean include) {
+        List<T> result = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {
             T date = dates.get(i);
-            if (((ExtractedDate) date).getRate() == rate == include) {
+            if (date.getRate() == rate == include) {
                 result.add(date);
             }
         }
@@ -836,15 +841,13 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> boolean isAllZero(Map<T, Double> dates) {
-        boolean isAllZero = true;
-        for (Entry<T, Double> e : dates.entrySet()) {
-            if (e.getValue() > 0) {
-                isAllZero = false;
-                break;
+    public static boolean isAllZero(Map<?, Double> dates) {
+        for (Double value : dates.values()) {
+            if (value > 0) {
+                return false;
             }
         }
-        return isAllZero;
+        return true;
     }
 
 //    /**
@@ -926,11 +929,11 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> Map<T, Double> getExactestMap(Map<T, Double> dates) {
-        HashMap<T, Double> result = new HashMap<T, Double>();
-        HashMap<T, Double> exactedDates = new HashMap<T, Double>();
+    public static <T extends ExtractedDate> Map<T, Double> getExactestMap(Map<T, Double> dates) {
+        Map<T, Double> result = new HashMap<T, Double>();
+        Map<T, Double> exactedDates = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
-            exactedDates.put(e.getKey(), ((ExtractedDate) e.getKey()).getExactness().getValue() * 1.0);
+            exactedDates.put(e.getKey(), e.getKey().getExactness().getValue() * 1.0);
         }
         Entry<T, Double>[] orderedHashMap = orderHashMap(exactedDates, true);
         if (orderedHashMap.length > 0) {
@@ -951,10 +954,10 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> double getHighestRate(Map<T, Double> dates) {
+    public static double getHighestRate(Map<?, Double> dates) {
         double result = 0;
-        for (Entry<T, Double> e : dates.entrySet()) {
-            result = Math.max(result, e.getValue());
+        for (Double value : dates.values()) {
+            result = Math.max(result, value);
         }
         return result;
     }
@@ -966,10 +969,10 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> double getHighestRate(List<T> dates) {
+    public static double getHighestRate(List<? extends ExtractedDate> dates) {
         double result = 0;
-        for (int i = 0; i < dates.size(); i++) {
-            result = Math.max(result, ((ExtractedDate) dates.get(i)).getRate());
+        for (ExtractedDate date : dates) {
+            result = Math.max(result, (date.getRate()));
         }
         return result;
     }

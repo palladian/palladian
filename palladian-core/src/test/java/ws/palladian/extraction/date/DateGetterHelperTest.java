@@ -11,6 +11,7 @@ import org.junit.Test;
 import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.io.ResourceHelper;
@@ -373,7 +374,7 @@ public class DateGetterHelperTest {
                 dateGetter.setTechHTMLContent(true);
                 ArrayList<ExtractedDate> dates = dateGetter.getDate();
                 date.addAll(dates);
-                DateArrayHelper.printDateArray(date);
+                CollectionHelper.print(date);
 
             }
         }

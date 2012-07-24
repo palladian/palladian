@@ -207,12 +207,9 @@ public final class DateGetterHelper {
      */
     public static String hasKeyword(String text, String[] keys) {
         String keyword = null;
-        Pattern pattern;
-        Matcher matcher;
-
         for (int i = 0; i < keys.length; i++) {
-            pattern = Pattern.compile(keys[i].toLowerCase());
-            matcher = pattern.matcher(text.toLowerCase());
+            Pattern pattern = Pattern.compile(keys[i].toLowerCase());
+            Matcher matcher = pattern.matcher(text.toLowerCase());
             if (matcher.find()) {
                 keyword = keys[i];
                 break;
@@ -275,13 +272,10 @@ public final class DateGetterHelper {
 
         ExtractedDate date = null;
         Object[] allRegExp = RegExp.getRelativeDates();
-        Pattern pattern;
-        Matcher matcher;
-
         for (int i = 0; i < allRegExp.length; i++) {
             String[] regExp = (String[])allRegExp[i];
-            pattern = Pattern.compile(regExp[0]);
-            matcher = pattern.matcher(text);
+            Pattern pattern = Pattern.compile(regExp[0]);
+            Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 int start = matcher.start();
                 int end = matcher.end();
