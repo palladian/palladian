@@ -12,7 +12,6 @@ import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.io.ResourceHelper;
 
@@ -344,13 +343,6 @@ public class DateGetterHelperTest {
 
     }
 
-    @Test
-    public void testGetSeparator() {
-        assertEquals("-", ExtractedDateHelper.getSeparator("2010-05-06"));
-        assertEquals("_", ExtractedDateHelper.getSeparator("2010_05_06"));
-        assertEquals("\\.", ExtractedDateHelper.getSeparator("2010.05.06"));
-        assertEquals("/", ExtractedDateHelper.getSeparator("2010/05/06"));
-    }
 
 
 

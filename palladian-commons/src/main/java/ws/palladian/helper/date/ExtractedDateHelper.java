@@ -8,7 +8,6 @@ import java.util.TimeZone;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * This class contains methods, that help ExtractedDate to define the correct date values.
@@ -64,111 +63,15 @@ public class ExtractedDateHelper {
         return monthNumber;
     }
 
-    /**
-     * Normalizes a year. Removes apostrophe (e.g. '99) and makes it four digit.
-     * 
-     * @param year
-     * @return A four digit year.
-     */
-    public static int normalizeYear(final String year) {
-        return get4DigitYear(Integer.parseInt(removeNoDigits(year)));
-    }
 
-    /**
-     * Removes the symbols "'" from Year '99 and "," from Day 03, June.
-     * 
-     * @param date
-     * @return the entered date without the symbols
-     */
-    public static String removeNoDigits(final String datePart) {
-        String cleardString = datePart;
-        int index;
+    
 
-        index = datePart.indexOf('\'');
-        if (index != -1) {
-            cleardString = datePart.substring(index + 1, datePart.length());
-        }
-        index = datePart.indexOf(',');
-        if (index != -1) {
-            cleardString = datePart.substring(0, index);
-        }
 
-        index = cleardString.indexOf(".");
-        if (index != -1) {
-            cleardString = cleardString.substring(0, index);
-        }
 
-        index = cleardString.indexOf("th");
-        if (index == -1) {
-            index = cleardString.indexOf("st");
-            if (index == -1) {
-                index = cleardString.indexOf("nd");
-                if (index == -1) {
-                    index = cleardString.indexOf("rd");
-                }
-            }
-        }
-        if (index != -1) {
-            cleardString = cleardString.substring(0, index);
-        }
-        
-        // remove everything after a break
-        cleardString = cleardString.replaceAll("\n.*","");
 
-        return cleardString;
-    }
 
-    /**
-     * Sets the year in 4 digits format. <br>
-     * E.g.: year = 12; current year = 2010 -> year > 10 -> 1912 <br>
-     * year = 7; current year = 2010 -> year < 10 -> 2007 <br>
-     * year = 10; current year = 2010 -> year > 10 -> 2010 <br>
-     * year = 99; current year = 2010 -> year > 10 -> 1999
-     * 
-     * @param date
-     * @return
-     */
-    public static int get4DigitYear(final int year) {
-        int longYear = year;
-        if (year < 100) {
-            if (year > new GregorianCalendar().get(Calendar.YEAR) - 2000) {
-                longYear = year + 1900;
-            } else {
-                longYear = year + 2000;
-            }
-        }
-        return longYear;
-    }
 
-    /**
-     * 
-     * @param text a date, where year, month and day are separated by . / or _
-     * @return the separating symbol
-     */
-    public static String getSeparator(final String text) {
-        String separator = null;
 
-        int index = text.indexOf('.');
-        if (index == -1) {
-            index = text.indexOf('/');
-            if (index == -1) {
-                index = text.indexOf('_');
-                if (index == -1) {
-                    index = text.indexOf('-');
-                    if (index != -1) {
-                        separator = "-";
-                    }
-                } else {
-                    separator = "_";
-                }
-            } else {
-                separator = "/";
-            }
-        } else {
-            separator = "\\.";
-        }
-        return separator;
-    }
 
     /**
      * Adds a leading zero for numbers less then ten. <br>
@@ -177,7 +80,7 @@ public class ExtractedDateHelper {
      * @param number
      * @return a minimum two digit number
      */
-    public static String get2Digits(final int number) {
+    public static String get2Digits(int number) {
         String numberString = String.valueOf(number);
         if (number < 10) {
             numberString = "0" + number;
@@ -253,47 +156,7 @@ public class ExtractedDateHelper {
 
     }
 
-    /**
-     * Removes timezone acronyms.
-     * 
-     * @param dateString
-     * @return
-     */
-    public static String[] removeTimezone(String dateString) {
-        return StringHelper.removeFirstStringpart(dateString, RegExp.TIMEZONE);
-    }
 
-//    /**
-//     * Returns a extracted date type in a human readable string.
-//     * 
-//     * @param typ
-//     * @return
-//     */
-//    public static String getTypString(DateType type) {
-//        String typeString;
-//        switch (type) {
-//            case ArchiveDate:
-//                typeString = "archive";
-//                break;
-//            case UrlDate:
-//                typeString = "URL";
-//                break;
-//            case MetaDate:
-//                typeString = "Meta";
-//                break;
-//            case StructureDate:
-//                typeString = "HTML structure";
-//                break;
-//            case ContentDate:
-//                typeString = "HTML content";
-//                break;
-//            case ReferenceDate:
-//                typeString = "reference";
-//                break;
-//            default:
-//                typeString = "other";
-//        }
-//        return typeString;
-//
-//    }
+
+
 }
