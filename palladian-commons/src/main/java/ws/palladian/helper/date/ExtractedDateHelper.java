@@ -17,51 +17,7 @@ import ws.palladian.helper.date.dates.ExtractedDate;
  */
 public class ExtractedDateHelper {
 
-    /**
-     * Convert month-name in a number; January is 01..
-     * TODO somewhat duplicate to {@link DateHelper#monthNameToNumber(String)}
-     * 
-     * @param month
-     * @return month-number as string
-     */
-    public static String getMonthNumber(String monthString) {
-        String month = monthString;
-        month = month.replaceAll(",", "");
-        month = month.replaceAll("\\.", "");
-        month = month.replaceAll(" ", "");
-        String monthNumber = null;
-        if (month.equalsIgnoreCase("january") || month.equalsIgnoreCase("januar") || month.equalsIgnoreCase("jan")) {
-            monthNumber = "01";
-        } else if (month.equalsIgnoreCase("february") || month.equalsIgnoreCase("februar")
-                || month.equalsIgnoreCase("feb")) {
-            monthNumber = "02";
-        } else if (month.equalsIgnoreCase("march") || month.equalsIgnoreCase("märz") || month.equalsIgnoreCase("mär")
-                || month.equalsIgnoreCase("mar")) {
-            monthNumber = "03";
-        } else if (month.equalsIgnoreCase("april") || month.equalsIgnoreCase("apr")) {
-            monthNumber = "04";
-        } else if (month.equalsIgnoreCase("may") || month.equalsIgnoreCase("mai") || month.equalsIgnoreCase("may")) {
-            monthNumber = "05";
-        } else if (month.equalsIgnoreCase("june") || month.equalsIgnoreCase("juni") || month.equalsIgnoreCase("jun")) {
-            monthNumber = "06";
-        } else if (month.equalsIgnoreCase("july") || month.equalsIgnoreCase("juli") || month.equalsIgnoreCase("jul")) {
-            monthNumber = "07";
-        } else if (month.equalsIgnoreCase("august") || month.equalsIgnoreCase("aug")) {
-            monthNumber = "08";
-        } else if (month.equalsIgnoreCase("september") || month.equalsIgnoreCase("sep")
-                || month.equalsIgnoreCase("sept")) {
-            monthNumber = "09";
-        } else if (month.equalsIgnoreCase("october") || month.equalsIgnoreCase("oktober")
-                || month.equalsIgnoreCase("oct") || month.equalsIgnoreCase("okt")) {
-            monthNumber = "10";
-        } else if (month.equalsIgnoreCase("november") || month.equalsIgnoreCase("nov")) {
-            monthNumber = "11";
-        } else if (month.equalsIgnoreCase("december") || month.equalsIgnoreCase("dezember")
-                || month.equalsIgnoreCase("dec") || month.equalsIgnoreCase("dez")) {
-            monthNumber = "12";
-        }
-        return monthNumber;
-    }
+
 
     /**
      * Adds a leading zero for numbers less then ten. <br>

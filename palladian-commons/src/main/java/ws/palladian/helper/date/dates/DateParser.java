@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -72,12 +73,10 @@ public class DateParser {
             setDateByWeekOfYear(dateString, true, true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_T[1])) {
             String separator;
-            int index;
-            index = dateString.indexOf("T");
-            if (index == -1) {
-                separator = " ";
-            } else {
+            if (dateString.contains("T")) {
                 separator = "T";
+            } else {
+                separator = " ";
             }
             dateParts = dateString.split(separator);
             setDateByWeekOfYear(dateParts[0], true, true);
@@ -98,8 +97,8 @@ public class DateParser {
                 day = Integer.parseInt(dateParts[dateParts.length - 1]);
                 tempMonth = -1;
             } catch (NumberFormatException exeption) {
-                final String lastField = dateParts[dateParts.length - 1];
-                final String[] tempDateParts = lastField.split(getSeparator(lastField));
+                String lastField = dateParts[dateParts.length - 1];
+                String[] tempDateParts = lastField.split(getSeparator(lastField));
                 month = Integer.parseInt(tempDateParts[0]);
                 day = Integer.parseInt(tempDateParts[1]);
             }
@@ -115,10 +114,10 @@ public class DateParser {
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y[1])) {
             setDateValues(dateString.split(getSeparator(dateString)), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y[1])) {
-            if (dateString.indexOf("\\.") != -1) {
+            if (dateString.contains("\\.")) {
                 dateString = dateString.replaceAll("\\.", "");
             }
-            if (dateString.indexOf("-") != -1) {
+            if (dateString.contains("-")) {
                 dateString = dateString.replaceAll("-", " ");
             }
             dateParts = dateString.split(" ");
@@ -212,14 +211,13 @@ public class DateParser {
             String separator = getSeparator(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 1, 0);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder builder = new StringBuilder();
             for (int i = 1; i < parts.length; i++) {
-                if (parts[i].indexOf("/") == -1) {
-                    sb.append(parts[i]);
+                if (!parts[i].contains("/")) {
+                    builder.append(parts[i]);
                 }
             }
-            setTimeValues(sb.toString());
-
+            setTimeValues(builder.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y_T[1])) {
 
@@ -227,18 +225,18 @@ public class DateParser {
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
             }
-            if (dateString.indexOf("-") != -1) {
+            if (dateString.contains("-")) {
                 dateString = dateString.replaceAll("-", " ");
             }
             String[] parts = dateString.split(" ");
             setDateValues(parts, 2, 1, 0);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
             for (int i = 3; i < parts.length; i++) {
-                if (parts[i].indexOf("/") == -1) {
-                    sb.append(parts[i]);
+                if (!parts[i].contains("/")) {
+                    stringBuilder.append(parts[i]);
                 }
             }
-            setTimeValues(sb.toString());
+            setTimeValues(stringBuilder.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y_T[1])) {
 
@@ -250,13 +248,13 @@ public class DateParser {
             String separator = getSeparator(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 0, 1);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
             for (int i = 1; i < parts.length; i++) {
-                if (parts[i].indexOf("/") == -1) {
-                    sb.append(parts[i]);
+                if (!parts[i].contains("/")) {
+                    stringBuilder.append(parts[i]);
                 }
             }
-            setTimeValues(sb.toString());
+            setTimeValues(stringBuilder.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_T[1])) {
 
@@ -266,13 +264,13 @@ public class DateParser {
             }
             String[] parts = dateString.split(" ");
             setDateValues(parts, 2, 0, 1);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
             for (int i = 3; i < parts.length; i++) {
-                if (parts[i].indexOf("/") == -1) {
-                    sb.append(parts[i]);
+                if (!parts[i].contains("/")) {
+                    stringBuilder.append(parts[i]);
                 }
             }
-            setTimeValues(sb.toString());
+            setTimeValues(stringBuilder.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_CONTEXT_YYYY[1])) {
             year = Integer.valueOf(dateString);
@@ -299,28 +297,41 @@ public class DateParser {
      * @return Am or PM.
      */
     private String hasAmPm(String text) {
-        int index;
-        String meridiem = null;
-        index = text.indexOf("AM");
-        if (index == -1) {
-            index = text.indexOf("am");
-            if (index == -1) {
-                index = text.indexOf("PM");
-                if (index == -1) {
-                    index = text.indexOf("pm");
-                    if (index != -1) {
-                        meridiem = "pm";
-                    }
-                } else {
-                    meridiem = "PM";
-                }
-            } else {
-                meridiem = "am";
-            }
-        } else {
-            meridiem = "AM";
+//        String meridiem = null;
+//        int index = text.indexOf("AM");
+//        if (index == -1) {
+//            index = text.indexOf("am");
+//            if (index == -1) {
+//                index = text.indexOf("PM");
+//                if (index == -1) {
+//                    index = text.indexOf("pm");
+//                    if (index != -1) {
+//                        meridiem = "pm";
+//                    }
+//                } else {
+//                    meridiem = "PM";
+//                }
+//            } else {
+//                meridiem = "am";
+//            }
+//        } else {
+//            meridiem = "AM";
+//        }
+//        return meridiem;
+
+        if (text.contains("am")) {
+            return "am";
         }
-        return meridiem;
+        if (text.contains("AM")) {
+            return "AM";
+        }
+        if (text.contains("pm")) {
+            return "pm";
+        }
+        if (text.contains("PM")) {
+            return "PM";
+        }
+        return null;
     }
 
     /**
@@ -350,7 +361,7 @@ public class DateParser {
      * @param withSeparator Is there a separator in the dateString?
      * 
      */
-    private void setDateByWeekOfYear(final String dateString, final boolean withDay, final boolean withSeparator) {
+    private void setDateByWeekOfYear(String dateString, boolean withDay, boolean withSeparator) {
         String[] dateParts = new String[3];
 
         if (withSeparator) {
@@ -363,7 +374,7 @@ public class DateParser {
             }
         }
 
-        final Calendar calendar = new GregorianCalendar();
+        Calendar calendar = new GregorianCalendar();
 
         calendar.setMinimalDaysInFirstWeek(4);
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
@@ -390,12 +401,12 @@ public class DateParser {
      * 
      * 
      */
-    private void setDateByDayOfYear(final boolean withSeparator) {
-        final Calendar calendar = new GregorianCalendar();
+    private void setDateByDayOfYear(boolean withSeparator) {
+        Calendar calendar = new GregorianCalendar();
         calendar.setMinimalDaysInFirstWeek(4);
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         if (withSeparator) {
-            final String[] dateParts = this.dateString.split("-");
+            String[] dateParts = this.dateString.split("-");
             calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
             calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(dateParts[1]));
 
@@ -419,55 +430,52 @@ public class DateParser {
      * 
      * @param time
      */
-    private void setTimeValues(final String time) {
+    private void setTimeValues(String time) {
         String actualTime = time;
-        String diffToUTC = null;
-        int index;
-        // int milliSec = 0;
-
-        index = actualTime.indexOf('.');
-        if (index != -1) {
+        String diffToUtc = null;
+        // int index = actualTime.indexOf('.');
+        if (actualTime.contains(".")) {
             String regExp = "\\.(\\d)*";
-            Pattern pattern;
-            Matcher matcher;
-            pattern = Pattern.compile(regExp);
-            matcher = pattern.matcher(actualTime);
+            Pattern pattern = Pattern.compile(regExp);
+            Matcher matcher = pattern.matcher(actualTime);
             if (matcher.find()) {
-                /*
-                 * final int start = matcher.start();
-                 * final int end = matcher.end();
-                 * milliSec = Integer.parseInt(actualTime.substring(start + 1, end));
-                 */
                 actualTime = actualTime.replaceAll(regExp, "");
-
             }
         }
 
         String separator = null;
-        index = time.indexOf('Z');
-        if (index == -1) {
-            index = time.indexOf('+');
-            if (index == -1) {
-                index = time.indexOf('-');
-                if (index != -1) {
-                    separator = "-";
-                }
-            } else {
-                separator = "\\+";
-            }
-        } else {
+//        index = time.indexOf('Z');
+//        if (index == -1) {
+//            index = time.indexOf('+');
+//            if (index == -1) {
+//                index = time.indexOf('-');
+//                if (index != -1) {
+//                    separator = "-";
+//                }
+//            } else {
+//                separator = "\\+";
+//            }
+//        } else {
+//            separator = "Z";
+//        }
+        if (time.contains("Z")) {
             separator = "Z";
+        } else if (time.contains("+")) {
+            separator = "\\+";
+        } else if (time.contains("-")) {
+            separator = "-";
         }
+        
         String cleanedTime = actualTime;
         if (separator != null) {
             cleanedTime = actualTime.split(separator)[0];
             if (!separator.equalsIgnoreCase("Z")) {
-                diffToUTC = actualTime.split(separator)[1];
+                diffToUtc = actualTime.split(separator)[1];
             }
         }
         setActualTimeValues(cleanedTime);
-        if (diffToUTC != null) {
-            setTimeDiff(diffToUTC, separator);
+        if (diffToUtc != null) {
+            setTimeDiff(diffToUtc, separator);
         }
     }
 
@@ -483,13 +491,13 @@ public class DateParser {
      * @param time must have format: HH:MM or HH.
      * @param sign must be + or -
      */
-    private void setTimeDiff(final String time, final String sign) {
+    private void setTimeDiff(String time, String sign) {
         if (this.year == -1 || this.month == -1 || this.day == -1 || this.hour == -1) {
             return;
         }
         int hour;
         int minute = 0;
-        if (time.indexOf(':') == -1) {
+        if (!time.contains(":")) {
             if (time.length() == 4) {
                 hour = Integer.parseInt(time.substring(0, 2));
                 minute = Integer.parseInt(time.substring(2, 4));
@@ -507,7 +515,7 @@ public class DateParser {
             actualMinute = this.minute;
 
         }
-        final Calendar calendar = new GregorianCalendar(this.year, this.month - 1, this.day, this.hour, actualMinute);
+        Calendar calendar = new GregorianCalendar(this.year, this.month - 1, this.day, this.hour, actualMinute);
 
         if (sign.equalsIgnoreCase("-")) {
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + hour);
@@ -533,12 +541,12 @@ public class DateParser {
      * 
      * @param time must have one of the following forms: HH:MM:SS or HH:MM or HH.
      */
-    private void setActualTimeValues(final String time) {
-        if (time.indexOf(':') == -1 && !time.isEmpty()) {
+    private void setActualTimeValues(String time) {
+        if (!time.isEmpty() && !time.contains(":")) {
             this.hour = Integer.parseInt(time);
 
         } else {
-            final String[] timeParts = time.trim().split(":");
+            String[] timeParts = time.trim().split(":");
             if (timeParts.length > 0 && !timeParts[0].isEmpty()) {
                 this.hour = Integer.parseInt(timeParts[0]);
                 if (timeParts.length > 1) {
@@ -573,7 +581,7 @@ public class DateParser {
             try {
                 dateParts[monthPos] = String.valueOf(Integer.parseInt(dateParts[monthPos]));
             } catch (NumberFormatException e) {
-                dateParts[monthPos] = ExtractedDateHelper.getMonthNumber(dateParts[monthPos]);
+                dateParts[monthPos] = getMonthNumber(dateParts[monthPos]);
             }
             if (dateParts[monthPos] != null) {
                 this.month = Integer.parseInt(dateParts[monthPos]);
@@ -624,41 +632,39 @@ public class DateParser {
      * @return the entered date without the symbols
      */
     static String removeNoDigits(String datePart) {
-        String cleardString = datePart;
-        int index;
-
-        index = datePart.indexOf('\'');
+        String result = datePart;
+        int index = result.indexOf('\'');
         if (index != -1) {
-            cleardString = datePart.substring(index + 1, datePart.length());
+            result = result.substring(index + 1, datePart.length());
         }
-        index = datePart.indexOf(',');
+        index = result.indexOf(',');
         if (index != -1) {
-            cleardString = datePart.substring(0, index);
+            result = result.substring(0, index);
         }
 
-        index = cleardString.indexOf(".");
+        index = result.indexOf(".");
         if (index != -1) {
-            cleardString = cleardString.substring(0, index);
+            result = result.substring(0, index);
         }
 
-        index = cleardString.indexOf("th");
+        index = result.indexOf("th");
         if (index == -1) {
-            index = cleardString.indexOf("st");
+            index = result.indexOf("st");
             if (index == -1) {
-                index = cleardString.indexOf("nd");
+                index = result.indexOf("nd");
                 if (index == -1) {
-                    index = cleardString.indexOf("rd");
+                    index = result.indexOf("rd");
                 }
             }
         }
         if (index != -1) {
-            cleardString = cleardString.substring(0, index);
+            result = result.substring(0, index);
         }
 
         // remove everything after a break
-        cleardString = cleardString.replaceAll("\n.*", "");
+        result = result.replaceAll("\n.*", "");
 
-        return cleardString;
+        return result;
     }
 
     /**
@@ -677,28 +683,84 @@ public class DateParser {
      * @return the separating symbol
      */
     static String getSeparator(String text) {
-        String separator = null;
-
-        int index = text.indexOf('.');
-        if (index == -1) {
-            index = text.indexOf('/');
-            if (index == -1) {
-                index = text.indexOf('_');
-                if (index == -1) {
-                    index = text.indexOf('-');
-                    if (index != -1) {
-                        separator = "-";
-                    }
-                } else {
-                    separator = "_";
-                }
-            } else {
-                separator = "/";
-            }
-        } else {
-            separator = "\\.";
+        if (text.contains(".")) {
+            return "\\.";
         }
-        return separator;
+        if (text.contains("/")) {
+            return "/";
+        }
+        if (text.contains("_")) {
+            return "_";
+        }
+        if (text.contains("-")) {
+            return "-";
+        }
+        return null;
+        
+//        String separator = null;
+//
+//        int index = text.indexOf('.');
+//        if (index == -1) {
+//            index = text.indexOf('/');
+//            if (index == -1) {
+//                index = text.indexOf('_');
+//                if (index == -1) {
+//                    index = text.indexOf('-');
+//                    if (index != -1) {
+//                        separator = "-";
+//                    }
+//                } else {
+//                    separator = "_";
+//                }
+//            } else {
+//                separator = "/";
+//            }
+//        } else {
+//            separator = "\\.";
+//        }
+//        return separator;
+    }
+    
+    /**
+     * Convert month-name in a number; January is 01..
+     * TODO somewhat duplicate to {@link DateHelper#monthNameToNumber(String)}
+     * 
+     * @param month
+     * @return month-number as string
+     */
+    public static String getMonthNumber(String monthString) {
+        String month = monthString;
+        month = month.replaceAll(",", "");
+        month = month.replaceAll("\\.", "");
+        month = month.replaceAll(" ", "");
+        month = month.toLowerCase();
+        String monthNumber = null;
+        if (month.equals("january") || month.equals("januar") || month.equals("jan")) {
+            monthNumber = "01";
+        } else if (month.equals("february") || month.equals("februar") || month.equals("feb")) {
+            monthNumber = "02";
+        } else if (month.equals("march") || month.equals("märz") || month.equals("mär") || month.equals("mar")) {
+            monthNumber = "03";
+        } else if (month.equals("april") || month.equals("apr")) {
+            monthNumber = "04";
+        } else if (month.equals("may") || month.equals("mai") || month.equals("may")) {
+            monthNumber = "05";
+        } else if (month.equals("june") || month.equals("juni") || month.equals("jun")) {
+            monthNumber = "06";
+        } else if (month.equals("july") || month.equals("juli") || month.equals("jul")) {
+            monthNumber = "07";
+        } else if (month.equals("august") || month.equals("aug")) {
+            monthNumber = "08";
+        } else if (month.equals("september") || month.equals("sep") || month.equals("sept")) {
+            monthNumber = "09";
+        } else if (month.equals("october") || month.equals("oktober") || month.equals("oct") || month.equals("okt")) {
+            monthNumber = "10";
+        } else if (month.equals("november") || month.equals("nov")) {
+            monthNumber = "11";
+        } else if (month.equals("december") || month.equals("dezember") || month.equals("dec") || month.equals("dez")) {
+            monthNumber = "12";
+        }
+        return monthNumber;
     }
 
 }
