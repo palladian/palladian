@@ -13,6 +13,7 @@ import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.dates.KeywordDate;
 import ws.palladian.helper.html.HtmlHelper;
 
 /**
@@ -213,7 +214,7 @@ public class DateRaterHelper {
      * @param date
      * @return
      */
-    public static byte getKeywordPriority(ExtractedDate date) {
+    public static <T extends KeywordDate> byte getKeywordPriority(T date) {
         byte keywordPriority = -1;
         String keyword = date.getKeyword();
         if (keyword != null) {

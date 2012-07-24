@@ -24,9 +24,6 @@ public class ExtractedDate implements AbstractDate {
     /** The format, the dateString is found. */
     private final String format;
 
-    /** URL */
-//    private String url = null;
-
     // date values
     private int year = -1;
     private int month = -1;
@@ -50,7 +47,6 @@ public class ExtractedDate implements AbstractDate {
         super();
         this.dateString = dateString;
         this.format = format;
-        // setDateParticles();
     }
 
     /**
@@ -73,7 +69,6 @@ public class ExtractedDate implements AbstractDate {
         this.minute = date.minute;
         this.second = date.second;
         this.timezone = date.timezone;
-//        this.url = date.url;
     }
 
     @Override
@@ -102,35 +97,36 @@ public class ExtractedDate implements AbstractDate {
 
     @Override
     public String getNormalizedDate(boolean time) {
-        String normalizedDate;
+        StringBuilder normalizedDate = new StringBuilder();
         if (year == -1) {
-            normalizedDate = "0";
+            normalizedDate.append("0");
         } else {
-            normalizedDate = String.valueOf(year);
+            normalizedDate.append(year);
         }
+        normalizedDate.append("-");
         if (month == -1) {
-            normalizedDate += "-0";
+            normalizedDate.append(0);
         } else {
-            normalizedDate += "-" + ExtractedDateHelper.get2Digits(month);
+            normalizedDate.append(ExtractedDateHelper.get2Digits(month));
         }
         if (day != -1) {
-            normalizedDate += "-" + ExtractedDateHelper.get2Digits(day);
+            normalizedDate.append("-").append(ExtractedDateHelper.get2Digits(day));
             if (hour != -1 && time) {
-                normalizedDate += " " + ExtractedDateHelper.get2Digits(hour);
+                normalizedDate.append(" ").append(ExtractedDateHelper.get2Digits(hour));
                 if (minute != -1) {
-                    normalizedDate += ":" + ExtractedDateHelper.get2Digits(minute);
+                    normalizedDate.append(":").append(ExtractedDateHelper.get2Digits(minute));
                     if (second != -1) {
-                        normalizedDate += ":" + ExtractedDateHelper.get2Digits(second);
+                        normalizedDate.append(":").append(ExtractedDateHelper.get2Digits(second));
                     }
                 }
             }
         }
 
-        if (normalizedDate.endsWith("-0")) {
-            normalizedDate = normalizedDate.replace("-0", "");
+        if (normalizedDate.toString().endsWith("-0")) {
+            normalizedDate.delete(normalizedDate.length() - 3, normalizedDate.length() - 1);
         }
 
-        return normalizedDate;
+        return normalizedDate.toString();
 
     }
 
@@ -214,28 +210,14 @@ public class ExtractedDate implements AbstractDate {
      */
     @Override
     public String toString() {
-        return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDateString() + " Format: " + this.format;// +
-                                                                                                                        // " Technique: "
-                                                                                                                        // +
-                                                                                                                        // getType();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getClass().getSimpleName());
+        stringBuilder.append(" [normalizedDate=").append(getNormalizedDateString());
+        stringBuilder.append(", format=").append(format);
+        stringBuilder.append(", rate=").append(rate);
+        stringBuilder.append("]");
+        return stringBuilder.toString();
     }
-
-//    /**
-//     * This field gives you the possibility to store the url, the date was found at.
-//     * 
-//     * @param url
-//     */
-//    public void setUrl(String url) {
-//        this.url = url;
-//    }
-
-//    /**
-//     * 
-//     * @return
-//     */
-//    public String getUrl() {
-//        return url;
-//    }
 
     /**
      * <p>
@@ -267,14 +249,14 @@ public class ExtractedDate implements AbstractDate {
         return exactness;
     }
 
-    /**
-     * Extracted date has no keyword. But is needed for toString.
-     * 
-     * @return
-     */
-    public String getKeyword() {
-        return "";
-    }
+//    /**
+//     * Extracted date has no keyword. But is needed for toString.
+//     * 
+//     * @return
+//     */
+//    public String getKeyword() {
+//        return "";
+//    }
 
     /**
      * Set value of date evaluation.
