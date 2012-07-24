@@ -8,17 +8,6 @@ package ws.palladian.helper.date.dates;
  */
 public final class ReferenceDate extends ExtractedDate {
 
-    public ReferenceDate() {
-    }
-
-    public ReferenceDate(String dateString) {
-        super(dateString);
-    }
-
-    public ReferenceDate(String dateString, String format) {
-        super(dateString, format);
-    }
-
     public ReferenceDate(ExtractedDate extractedDate) {
         super(extractedDate);
     }

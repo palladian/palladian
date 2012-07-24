@@ -8,9 +8,6 @@ package ws.palladian.helper.date.dates;
  */
 public final class UrlDate extends ExtractedDate {
 
-    public UrlDate() {
-    }
-
     public UrlDate(ExtractedDate date) {
         super(date);
     }
