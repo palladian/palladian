@@ -160,7 +160,7 @@ public class KairosEvaluator {
 		return DateGetterHelper.findDate(dbExport.get(DBExport.ACTUAL_DATE));
 	}
 
-	public static <T> void evaluate(PageDateType pub_mod,	TechniqueDateGetter<ContentDate> dg,
+	public static void evaluate(PageDateType pub_mod, TechniqueDateGetter<ContentDate> dg,
 			TechniqueDateRater<ContentDate> dr, String file, boolean writeRate) {
 		int ard = 0;
 		int awd = 0;
@@ -179,7 +179,7 @@ public class KairosEvaluator {
 		for (Entry<String, DBExport> e : set.entrySet()) {
 
 			ExtractedDate date;
-			T bestDate;
+			ExtractedDate bestDate;
 			String dbExportDateString;
 			WebPageDateEvaluator wp = new WebPageDateEvaluator();
 
@@ -189,7 +189,7 @@ public class KairosEvaluator {
 
 			String bestDateString = "";
 			String rate = "-1";
-			String dbDateString;
+			// String dbDateString;
 
 			System.out.println(url);
 
@@ -198,7 +198,7 @@ public class KairosEvaluator {
 			wp.setDocument(document);
 			wp.setPubMod(pub_mod);
 			wp.evaluate();
-			bestDate = (T) wp.getBestRatedDate();
+			bestDate = wp.getBestRatedDate();
 			time += timer.getElapsedTime();
 			System.out.print("get dates... ");
 			if (bestDate != null) {
@@ -212,14 +212,14 @@ public class KairosEvaluator {
 				compare = EvaluationHelper.compareDate(bestDate, e.getValue(),
 						DBExport.PUB_DATE);
 				date = DateGetterHelper.findDate(e.getValue().getPubDate());
-				dbDateString = e.getValue().getPubDate();
+				// dbDateString = e.getValue().getPubDate();
 
 				dbExportDateString = " - pubDate:";
 			} else {
 				compare = EvaluationHelper.compareDate(bestDate, e.getValue(),
 						DBExport.MOD_DATE);
 				date = DateGetterHelper.findDate(e.getValue().getModDate());
-				dbDateString = e.getValue().getModDate();
+				// dbDateString = e.getValue().getModDate();
 				dbExportDateString = " - modDate:";
 			}
 

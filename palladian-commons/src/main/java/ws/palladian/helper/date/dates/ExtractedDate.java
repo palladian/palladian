@@ -1,14 +1,13 @@
 package ws.palladian.helper.date.dates;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.RegExp;
@@ -24,8 +23,6 @@ import ws.palladian.helper.date.ExtractedDateHelper;
 public class ExtractedDate implements AbstractDate {
 
     private static final Logger LOGGER = Logger.getLogger(ExtractedDate.class);
-
-    // private DateType dateType = DateType.ExtractedDate;
 
     /**
      * Found date as string.
@@ -61,7 +58,7 @@ public class ExtractedDate implements AbstractDate {
      * 
      * @param dateString
      */
-    public ExtractedDate(final String dateString) {
+    public ExtractedDate(String dateString) {
         super();
         this.dateString = dateString;
     }
@@ -72,16 +69,34 @@ public class ExtractedDate implements AbstractDate {
      * @param dateString
      * @param format
      */
-    public ExtractedDate(final String dateString, final String format) {
+    public ExtractedDate(String dateString, String format) {
         super();
         this.dateString = dateString;
         this.format = format;
         setDateParticles();
     }
     
+    /**
+     * <p>
+     * Copy constructor, to create a new {@link ExtractedDate} with the same properties of the supplied
+     * {@link ExtractedDate}.
+     * </p>
+     * 
+     * @param date The date with the properties to copy. Not <code>null</code>.
+     */
     public ExtractedDate(ExtractedDate date) {
         super();
-        setAll(date.getAll());
+        Validate.notNull(date, "date must not be null");
+        this.dateString = date.dateString;
+        this.format = date.format;
+        this.year = date.year;
+        this.month = date.month;
+        this.day = date.day;
+        this.hour = date.hour;
+        this.minute = date.minute;
+        this.second = date.second;
+        this.timezone = date.timezone;
+        this.url = date.url;
     }
 
     /**
@@ -119,7 +134,7 @@ public class ExtractedDate implements AbstractDate {
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YM[1])) {
             setDateValues(dateString.split("-"), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD[1])) {
-            setDatebyWeekOfYear(dateString, true, true);
+            setDateByWeekOfYear(dateString, true, true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_T[1])) {
             String separator;
             int index;
@@ -130,10 +145,10 @@ public class ExtractedDate implements AbstractDate {
                 separator = "T";
             }
             dateParts = dateString.split(separator);
-            setDatebyWeekOfYear(dateParts[0], true, true);
+            setDateByWeekOfYear(dateParts[0], true, true);
             setTimeValues(dateParts[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW[1])) {
-            setDatebyWeekOfYear(dateString, false, true);
+            setDateByWeekOfYear(dateString, false, true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD[1])) {
             setDateByDayOfYear(true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
@@ -238,9 +253,9 @@ public class ExtractedDate implements AbstractDate {
             month = Integer.parseInt(dateString.substring(4, 6));
             day = Integer.parseInt(dateString.substring(6, 8));
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_NO[1])) {
-            setDatebyWeekOfYear(dateString, true, false);
+            setDateByWeekOfYear(dateString, true, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW_NO[1])) {
-            setDatebyWeekOfYear(dateString, false, false);
+            setDateByWeekOfYear(dateString, false, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD_NO[1])) {
             setDateByDayOfYear(false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1123_UTC[1])) {
@@ -253,9 +268,9 @@ public class ExtractedDate implements AbstractDate {
             setTimeValues(parts[2] + parts[3]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y_T[1])) {
 
-            String meridiem = hasAMPM(dateString);
+            String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
-                dateString = removeAMPM(dateString, meridiem);
+                dateString = removeAmPm(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
 
@@ -273,9 +288,9 @@ public class ExtractedDate implements AbstractDate {
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y_T[1])) {
 
-            String meridiem = hasAMPM(dateString);
+            String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
-                dateString = removeAMPM(dateString, meridiem);
+                dateString = removeAmPm(dateString, meridiem);
             }
             if (dateString.indexOf("-") != -1) {
                 dateString = dateString.replaceAll("-", " ");
@@ -292,9 +307,9 @@ public class ExtractedDate implements AbstractDate {
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y_T[1])) {
 
-            String meridiem = hasAMPM(dateString);
+            String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
-                dateString = removeAMPM(dateString, meridiem);
+                dateString = removeAmPm(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
             String separator = ExtractedDateHelper.getSeparator(parts[0]);
@@ -310,9 +325,9 @@ public class ExtractedDate implements AbstractDate {
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_T[1])) {
 
-            String meridiem = hasAMPM(dateString);
+            String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
-                dateString = removeAMPM(dateString, meridiem);
+                dateString = removeAmPm(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
             setDateValues(parts, 2, 0, 1);
@@ -337,9 +352,8 @@ public class ExtractedDate implements AbstractDate {
      * @param meridiem AM or PM
      * @return Cleared string.
      */
-    private String removeAMPM(String text, String meridiem) {
-        String newText;
-        newText = text.replaceAll(meridiem, "");
+    private String removeAmPm(String text, String meridiem) {
+        String newText = text.replaceAll(meridiem, "");
         return newText.replaceAll("  ", " ");
     }
 
@@ -349,7 +363,7 @@ public class ExtractedDate implements AbstractDate {
      * @param text String to b checked.
      * @return Am or PM.
      */
-    private String hasAMPM(String text) {
+    private String hasAmPm(String text) {
         int index;
         String meridiem = null;
         index = text.indexOf("AM");
@@ -459,7 +473,7 @@ public class ExtractedDate implements AbstractDate {
      * @param withSeparator Is there a separator in the dateString?
      * 
      */
-    private void setDatebyWeekOfYear(final String dateString, final boolean withDay, final boolean withSeparator) {
+    private void setDateByWeekOfYear(final String dateString, final boolean withDay, final boolean withSeparator) {
         String[] dateParts = new String[3];
 
         if (withSeparator) {
@@ -751,76 +765,8 @@ public class ExtractedDate implements AbstractDate {
             case SECOND:
                 value = this.second;
                 break;
-            case EXACTENESS:
-                value = getExactness().getValue();
-                break;
         }
         return value;
-    }
-
-    /**
-     * Returns all standard date-properties as an array.<br>
-     * From year down to second and timezone.<br>
-     * Also date-string and format
-     * 
-     * @return
-     */
-    public List<Object> getAll() {
-        List<Object> result = new ArrayList<Object>();
-        result.add(this.dateString);
-        result.add(this.format);
-        result.add(this.year);
-        result.add(this.month);
-        result.add(this.day);
-        result.add(this.hour);
-        result.add(this.minute);
-        result.add(this.second);
-        result.add(this.timezone);
-        result.add(this.url);
-        return result;
-    }
-
-    /**
-     * Set al standard date-parts. <br>
-     * It's opposite of getAll() and only returning value of getAll should be entered here.
-     * 
-     * @param values Enter returning array of getAll().
-     */
-    public void setAll(List<Object> values) {
-        for (int i = 0; i < values.size(); i++) {
-            switch (i) {
-                case 0:
-                    this.dateString = (String)values.get(i);
-                    break;
-                case 1:
-                    this.format = (String)values.get(i);
-                    break;
-                case 2:
-                    this.year = (Integer)values.get(i);
-                    break;
-                case 3:
-                    this.month = (Integer)values.get(i);
-                    break;
-                case 4:
-                    this.day = (Integer)values.get(i);
-                    break;
-                case 5:
-                    this.hour = (Integer)values.get(i);
-                    break;
-                case 6:
-                    this.minute = (Integer)values.get(i);
-                    break;
-                case 7:
-                    this.second = (Integer)values.get(i);
-                    break;
-                case 8:
-                    this.timezone = (String)values.get(i);
-                    break;
-                case 9:
-                    this.url = (String)values.get(i);
-                    break;
-            }
-        }
     }
 
     /**
@@ -864,50 +810,6 @@ public class ExtractedDate implements AbstractDate {
         return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDateString() + " Format: " + this.format
                 ;//+ " Technique: " + getType();
     }
-
-//    /**
-//     * Returns value representing this type of date.<br>
-//     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
-//     * 
-//     * @return Integer of this type.
-//     * @deprecated Check via <code>instanceof</code>.
-//     */
-//    @Override
-//    @Deprecated
-//    public DateType getType() {
-//        return this.dateType;
-//    }
-
-//    /**
-//     * Returns int value representing this type of date.<br>
-//     * Returning values are equal to this static TECH_ fields. <br>
-//     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
-//     * 
-//     * @return Integer of this type.
-//     * @deprecated Use {@link #getType()} instead.
-//     */
-//    @Override
-//    public int getTypeInt() {
-//        int result;
-//        switch (getType()) {
-//            case UrlDate:
-//                result = 1;
-//                break;
-//            case ContentDate:
-//                result = 2;
-//                break;
-//            case MetaDate:
-//                result = 3;
-//                break;
-//            case StructureDate:
-//                result = 4;
-//                break;
-//            default:
-//                result = 0;
-//
-//        }
-//        return result;
-//    }
 
     /**
      * This field gives you the possibility to store the url, the date was found at.
@@ -990,41 +892,39 @@ public class ExtractedDate implements AbstractDate {
      * the {@link TimeUnit} parameter.
      * </p>
      * 
-     * @param date The other date for which to calculate the difference from this one.
+     * @param date The other date for which to calculate the difference from this one, not <code>null</code>.
      * @param unit The time unit for the result.
      * @return A positive difference, or <code>-1</code> in case of any error.
      */
     public double getDifference(ExtractedDate date, TimeUnit unit) {
-        double diff = -1;
-        int depth = DateExactness.getCommonExactness(this, date).getValue();
-        Calendar cal1 = new GregorianCalendar();
-        Calendar cal2 = new GregorianCalendar();
+        Validate.notNull(unit, "unit must not be null");
 
-        if (depth > 0) {
-            cal1.set(Calendar.YEAR, this.get(ExtractedDate.YEAR));
-            cal2.set(Calendar.YEAR, date.get(ExtractedDate.YEAR));
-            if (depth > DateExactness.YEAR.getValue()) {
-                cal1.set(Calendar.MONTH, this.get(ExtractedDate.MONTH));
-                cal2.set(Calendar.MONTH, date.get(ExtractedDate.MONTH));
-                if (depth > DateExactness.MONTH.getValue()) {
-                    cal1.set(Calendar.DAY_OF_MONTH, this.get(ExtractedDate.DAY));
-                    cal2.set(Calendar.DAY_OF_MONTH, date.get(ExtractedDate.DAY));
-                    if (depth > DateExactness.DAY.getValue()) {
-                        cal1.set(Calendar.HOUR_OF_DAY, this.get(ExtractedDate.HOUR));
-                        cal2.set(Calendar.HOUR_OF_DAY, date.get(ExtractedDate.HOUR));
-                        if (depth > DateExactness.HOUR.getValue()) {
-                            cal1.set(Calendar.MINUTE, this.get(ExtractedDate.MINUTE));
-                            cal2.set(Calendar.MINUTE, date.get(ExtractedDate.MINUTE));
-                            if (depth > DateExactness.MINUTE.getValue()) {
-                                cal1.set(Calendar.SECOND, this.get(ExtractedDate.SECOND));
-                                cal2.set(Calendar.SECOND, date.get(ExtractedDate.SECOND));
+        DateExactness exactness = DateExactness.getCommonExactness(this.getExactness(), date.getExactness());
+        Calendar cal1 = this.getCalendar(exactness);
+        Calendar cal2 = date.getCalendar(exactness);
+        return Math.round(Math.abs(cal1.getTimeInMillis() - cal2.getTimeInMillis()) * 100.0 / unit.toMillis(1)) / 100.0;
+    }
+    
+    private Calendar getCalendar(DateExactness exactness) {
+        Calendar calendar = new GregorianCalendar();
+        if (DateExactness.YEAR.inRange(exactness)) {
+            calendar.set(Calendar.YEAR, year);
+            if (DateExactness.MONTH.inRange(exactness)) {
+                calendar.set(Calendar.MONTH, month);
+                if (DateExactness.DAY.inRange(exactness)) {
+                    calendar.set(Calendar.DAY_OF_MONTH, day);
+                    if (DateExactness.HOUR.inRange(exactness)) {
+                        calendar.set(Calendar.HOUR_OF_DAY, hour);
+                        if (DateExactness.MINUTE.inRange(exactness)) {
+                            calendar.set(Calendar.MINUTE, minute);
+                            if (DateExactness.SECOND.inRange(exactness)) {
+                                calendar.set(Calendar.SECOND, second);
                             }
                         }
                     }
                 }
             }
-            diff = Math.round(Math.abs(cal1.getTimeInMillis() - cal2.getTimeInMillis()) * 100.0 / unit.toMillis(1)) / 100.0;
         }
-        return diff;
+        return calendar;
     }
 }

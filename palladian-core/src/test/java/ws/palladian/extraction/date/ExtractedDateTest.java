@@ -155,6 +155,7 @@ public class ExtractedDateTest {
         assertEquals(7200, date1.getDifference(date2, TimeUnit.MINUTES), 0);
         assertEquals(120, date1.getDifference(date2, TimeUnit.HOURS), 0);
         assertEquals(5, date1.getDifference(date2, TimeUnit.DAYS), 0);
+        assertEquals(0, date1.getDifference(date1, TimeUnit.SECONDS), 0);
     }
     
 }
