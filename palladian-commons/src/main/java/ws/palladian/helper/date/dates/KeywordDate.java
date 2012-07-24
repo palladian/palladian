@@ -47,7 +47,7 @@ public abstract class KeywordDate extends ExtractedDate {
      * All techniques except extracted-date and url-date have keywords.<br>
      * Should be set direct after founding this date.
      */
-    @Override
+    // @Override
     public String getKeyword() {
         return keyword;
     }
