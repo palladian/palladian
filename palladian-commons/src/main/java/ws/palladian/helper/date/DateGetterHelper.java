@@ -42,7 +42,7 @@ public final class DateGetterHelper {
      * @return The found date, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static ExtractedDate findDate(final String dateString, Object[] regExpArray) {
+    public static ExtractedDate findDate(String dateString, Object[] regExpArray) {
     	ExtractedDate date = null;
     	Object[] regExps = regExpArray;
 
@@ -212,7 +212,7 @@ public final class DateGetterHelper {
      * @param keys a array of keywords.
      * @return the found keyword.
      */
-    public static String hasKeyword(final String text, final String[] keys) {
+    public static String hasKeyword(String text, String[] keys) {
         String keyword = null;
         Pattern pattern;
         Matcher matcher;
@@ -237,9 +237,9 @@ public final class DateGetterHelper {
      *            "abcd" offsetStart=1: "bcd" offsetStart=-1: "abcd"
      * @return found substring or null
      */
-    public static ExtractedDate getDateFromString(final String dateString, final String[] regExp) {
+    public static ExtractedDate getDateFromString(String dateString, String[] regExp) {
     	
-        String text = StringHelper.removeDoubleWhitespaces(DateGetterHelper.replaceHtmlSymbols(dateString));
+        String text = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(dateString));
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
         Pattern pattern = Pattern.compile(regExp[0]);
@@ -281,7 +281,7 @@ public final class DateGetterHelper {
     public static ExtractedDate findRelativeDate(String text){
     	
     	ExtractedDate date = null;
-    	Object[] allRegExp = RegExp.getRealtiveDates();
+    	Object[] allRegExp = RegExp.getRelativeDates();
     	Pattern pattern;
 		Matcher matcher;
 		
@@ -299,7 +299,6 @@ public final class DateGetterHelper {
 			    GregorianCalendar cal = new GregorianCalendar();
 			    long actTime = cal.getTimeInMillis();
 			    long difTime = 0;
-			    long relTime;
 			    if(format.equalsIgnoreCase("min")){
 			    	difTime = number * 60 * 1000;
 			    }else if(format.equalsIgnoreCase("hour")){
@@ -312,7 +311,7 @@ public final class DateGetterHelper {
 			    	difTime = number * 365 * 24 * 60 * 60 * 1000;
 			    }
 			    
-			    relTime = actTime - difTime;
+			    long relTime = actTime - difTime;
 			    date = ExtractedDateHelper.createDate(relTime);
 			    break;
 			}

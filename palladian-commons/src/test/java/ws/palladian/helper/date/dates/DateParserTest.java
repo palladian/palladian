@@ -52,6 +52,62 @@ public class DateParserTest {
         assertEquals("\\.", DateParser.getSeparator("2010.05.06"));
         assertEquals("/", DateParser.getSeparator("2010/05/06"));
     }
+    
+    @Test
+    public void testGetMonthNumber() {
+        assertEquals("01", DateParser.getMonthNumber("Januar"));
+        assertEquals("02", DateParser.getMonthNumber("Februar"));
+        assertEquals("03", DateParser.getMonthNumber("März"));
+        assertEquals("04", DateParser.getMonthNumber("April"));
+        assertEquals("05", DateParser.getMonthNumber("Mai"));
+        assertEquals("06", DateParser.getMonthNumber("Juni"));
+        assertEquals("07", DateParser.getMonthNumber("Juli"));
+        assertEquals("08", DateParser.getMonthNumber("August"));
+        assertEquals("09", DateParser.getMonthNumber("September"));
+        assertEquals("10", DateParser.getMonthNumber("Oktober"));
+        assertEquals("11", DateParser.getMonthNumber("November"));
+        assertEquals("12", DateParser.getMonthNumber("Dezember"));
+
+        assertEquals("01", DateParser.getMonthNumber("January"));
+        assertEquals("02", DateParser.getMonthNumber("February"));
+        assertEquals("03", DateParser.getMonthNumber("March"));
+        assertEquals("04", DateParser.getMonthNumber("April"));
+        assertEquals("05", DateParser.getMonthNumber("May"));
+        assertEquals("06", DateParser.getMonthNumber("June"));
+        assertEquals("07", DateParser.getMonthNumber("July"));
+        assertEquals("08", DateParser.getMonthNumber("August"));
+        assertEquals("09", DateParser.getMonthNumber("September"));
+        assertEquals("10", DateParser.getMonthNumber("October"));
+        assertEquals("11", DateParser.getMonthNumber("November"));
+        assertEquals("12", DateParser.getMonthNumber("December"));
+
+        assertEquals("01", DateParser.getMonthNumber("Jan"));
+        assertEquals("02", DateParser.getMonthNumber("Feb"));
+        assertEquals("03", DateParser.getMonthNumber("Mär"));
+        assertEquals("04", DateParser.getMonthNumber("Apr"));
+        assertEquals("05", DateParser.getMonthNumber("Mai"));
+        assertEquals("06", DateParser.getMonthNumber("Jun"));
+        assertEquals("07", DateParser.getMonthNumber("Jul"));
+        assertEquals("08", DateParser.getMonthNumber("Aug"));
+        assertEquals("09", DateParser.getMonthNumber("Sep"));
+        assertEquals("10", DateParser.getMonthNumber("Okt"));
+        assertEquals("11", DateParser.getMonthNumber("Nov"));
+        assertEquals("12", DateParser.getMonthNumber("Dez"));
+
+        assertEquals("01", DateParser.getMonthNumber("Jan"));
+        assertEquals("02", DateParser.getMonthNumber("Feb"));
+        assertEquals("03", DateParser.getMonthNumber("Mar"));
+        assertEquals("04", DateParser.getMonthNumber("Apr"));
+        assertEquals("05", DateParser.getMonthNumber("May"));
+        assertEquals("06", DateParser.getMonthNumber("Jun"));
+        assertEquals("07", DateParser.getMonthNumber("Jul"));
+        assertEquals("08", DateParser.getMonthNumber("Aug"));
+        assertEquals("09", DateParser.getMonthNumber("Sep"));
+        assertEquals("10", DateParser.getMonthNumber("Oct"));
+        assertEquals("11", DateParser.getMonthNumber("Nov"));
+        assertEquals("12", DateParser.getMonthNumber("Dec"));
+
+    }
 
 
 }

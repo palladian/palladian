@@ -507,9 +507,8 @@ public class RegExp {
         return regExp;
     }
 
-    public static Object[] getRealtiveDates(){
-    	final Object[] regExp = {RELATIVEDATEMIN, RELATIVEDATEHOUR, RELATIVEDATEDAY, RELATIVEDATEMON, RELATIVEDATEYEAR};
-    	return regExp;
+    public static Object[] getRelativeDates(){
+    	return new Object[] {RELATIVEDATEMIN, RELATIVEDATEHOUR, RELATIVEDATEDAY, RELATIVEDATEMON, RELATIVEDATEYEAR};
     }
     
 //    public static String getTimezones() {

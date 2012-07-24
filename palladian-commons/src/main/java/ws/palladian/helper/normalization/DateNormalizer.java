@@ -80,11 +80,17 @@ public class DateNormalizer {
      * 
      * @param dateString The date string.
      * @return The normalized date in UTC standard.
+     * @deprecated Replaced by date recognition techniques.
      */
+    @Deprecated
     public static String normalizeDate(String dateString) {
         return normalizeDate(dateString, false);
     }
 
+    /**
+     * @deprecated Replaced by date recognition techniques.
+     */
+    @Deprecated
     public static String normalizeDate(String dateString, boolean fillTime) {
         String normalizedDate = "";
 
