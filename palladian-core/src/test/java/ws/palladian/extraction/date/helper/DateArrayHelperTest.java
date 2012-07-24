@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.helper.date.dates.DateType;
+import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.io.ResourceHelper;
 
@@ -21,12 +21,10 @@ public class DateArrayHelperTest {
     public void testFilter() throws FileNotFoundException {
         String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit1.htm");
 
-        ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
         DateGetter dateGetter = new DateGetter(url);
 
-        ArrayList<ExtractedDate> dates = dateGetter.getDate();
-        date.addAll(dates);
-        List<ExtractedDate> filter = DateArrayHelper.filter(date, DateType.ContentDate);
+        List<ExtractedDate> dates = dateGetter.getDate();
+        List<ContentDate> filter = DateArrayHelper.filter(dates, ContentDate.class);
         assertEquals(6, filter.size());
     }
 

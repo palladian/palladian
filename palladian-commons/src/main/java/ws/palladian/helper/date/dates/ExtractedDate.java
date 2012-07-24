@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JSpinner.DateEditor;
-
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.date.comparators.DateExactness;
@@ -21,7 +19,7 @@ import ws.palladian.helper.date.ExtractedDateHelper;
  * A object will be created with a date-string and a possible format. <br>
  * It can be asked for year, month, day and time. If some values can not be constructed the value will be -1.
  * 
- * @author Martin Gregor*
+ * @author Martin Gregor
  */
 public class ExtractedDate implements AbstractDate {
 
@@ -887,35 +885,36 @@ public class ExtractedDate implements AbstractDate {
         return this.dateType;
     }
 
-    /**
-     * Returns int value representing this type of date.<br>
-     * Returning values are equal to this static TECH_ fields. <br>
-     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
-     * 
-     * @return Integer of this type.
-     */
-    @Override
-    public int getTypeInt() {
-        int result;
-        switch (getType()) {
-            case UrlDate:
-                result = 1;
-                break;
-            case ContentDate:
-                result = 2;
-                break;
-            case MetaDate:
-                result = 3;
-                break;
-            case StructureDate:
-                result = 4;
-                break;
-            default:
-                result = 0;
-
-        }
-        return result;
-    }
+//    /**
+//     * Returns int value representing this type of date.<br>
+//     * Returning values are equal to this static TECH_ fields. <br>
+//     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
+//     * 
+//     * @return Integer of this type.
+//     * @deprecated Use {@link #getType()} instead.
+//     */
+//    @Override
+//    public int getTypeInt() {
+//        int result;
+//        switch (getType()) {
+//            case UrlDate:
+//                result = 1;
+//                break;
+//            case ContentDate:
+//                result = 2;
+//                break;
+//            case MetaDate:
+//                result = 3;
+//                break;
+//            case StructureDate:
+//                result = 4;
+//                break;
+//            default:
+//                result = 0;
+//
+//        }
+//        return result;
+//    }
 
     /**
      * This field gives you the possibility to store the url, the date was found at.
@@ -935,36 +934,33 @@ public class ExtractedDate implements AbstractDate {
     }
 
     /**
-     * Exactness describes how many of date parts have a value. <br>
-     * Only year returning 0.<br>
-     * Year and month returning 1.<br>
-     * Year, month and day returning 2.<br>
-     * ... year, month, day, hour and second returning 6.<br>
+     * <p>
+     * Get the {@link DateExactness} of this {@link ExtractedDate}.
+     * </p>
      * 
-     * @return Integer between 0 and 6.
+     * @return The {@link DateExactness} for this {@link ExtractedDate}.
      */
     public DateExactness getExactness() {
-        int exactness = 0;
+        DateExactness exactness = DateExactness.UNSET;
         if (this.year != -1) {
-            exactness++;
+            exactness = DateExactness.YEAR;
             if (this.month != -1) {
-                exactness++;
+                exactness = DateExactness.MONTH;
                 if (this.day != -1) {
-                    exactness++;
+                    exactness = DateExactness.DAY;
                     if (this.hour != -1) {
-                        exactness++;
+                        exactness = DateExactness.HOUR;
                         if (this.minute != -1) {
-                            exactness++;
+                            exactness = DateExactness.MINUTE;
                             if (this.second != -1) {
-                                exactness++;
+                                exactness = DateExactness.SECOND;
                             }
                         }
                     }
                 }
             }
         }
-        // return exactness;
-        return DateExactness.byValue(exactness);
+        return exactness;
     }
 
     /**

@@ -70,7 +70,7 @@ public class ExtractedDateHelper {
      * @return A four digit year.
      */
     public static int normalizeYear(final String year) {
-        return ExtractedDateHelper.get4DigitYear(Integer.parseInt(ExtractedDateHelper.removeNoDigits(year)));
+        return get4DigitYear(Integer.parseInt(removeNoDigits(year)));
     }
 
     /**
@@ -193,7 +193,7 @@ public class ExtractedDateHelper {
      * @return An {@link ExtractedDate} initialized to current date and time.
      */
     public static ExtractedDate getCurrentDate() {
-        return createActualDate(null);
+        return createCurrentDate(null);
 
     }
 
@@ -206,7 +206,7 @@ public class ExtractedDateHelper {
      * @param locale The locale specifying the time zone. <code>null</code> signifies to use UTC time zone.
      * @return An {@link ExtractedDate} initialized to current date and time in the specified time zone.
      */
-    public static ExtractedDate createActualDate(Locale locale) {
+    public static ExtractedDate createCurrentDate(Locale locale) {
         Calendar cal;
         if (locale != null) {
             cal = new GregorianCalendar(locale);
@@ -222,8 +222,7 @@ public class ExtractedDateHelper {
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.SECOND)) + "Z";
         String format = RegExp.DATE_ISO8601_YMD_T[1];
 
-        ExtractedDate date = new ExtractedDate(dateString, format);
-        return date;
+        return new ExtractedDate(dateString, format);
 
     }
     
