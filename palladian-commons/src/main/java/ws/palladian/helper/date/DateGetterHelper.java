@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -29,7 +30,6 @@ public final class DateGetterHelper {
      *         If no match is found return <b>null</b>.
      */
     public static ExtractedDate findDate(String dateString) {
-
         return findDate(dateString, null);
     }
 
@@ -53,7 +53,7 @@ public final class DateGetterHelper {
         for (int i = 0; i < regExps.length; i++) {
             // FIXME "Mon, 18 Apr 2011 09:16:00 GMT-0700" fails.
             try {
-            date = getDateFromString(dateString, (String[]) regExps[i]);
+                date = getDateFromString(dateString, (String[]) regExps[i]);
             } catch (Throwable th) {
                 th.printStackTrace();
             }
@@ -98,8 +98,7 @@ public final class DateGetterHelper {
      */
     public static List<ContentDate> findAllDates(String text, Matcher[] matcher, Object[] regExps) {
     	String tempText = text;
-    	ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-    	
+    	List<ContentDate> dates = new ArrayList<ContentDate>();
     	
     	int start;
     	int end;
@@ -114,9 +113,7 @@ public final class DateGetterHelper {
 	                try {
 	                    Integer.parseInt(temp);
 	                    hasPrePostNum = true;
-
 	                } catch (NumberFormatException e) {
-	                	//e.printStackTrace();
 	                }
 	            }
 	            if (end < tempText.length()) {
@@ -124,19 +121,15 @@ public final class DateGetterHelper {
 	                try {
 	                    Integer.parseInt(temp);
 	                    hasPrePostNum = true;
-
 	                } catch (NumberFormatException e) {
-	                	//e.printStackTrace();
 	                }
 	            }
 	            if (!hasPrePostNum) {
 	            	try {
 		            	String dateString = tempText.substring(start, end);
-//                        ContentDate date = DateConverter.convert(new ExtractedDate(dateString,
-//                                ((String[])regExps[i])[1]), DateType.ContentDate);
-                        
-                        ContentDate date = new ContentDate(dateString, ((String[])regExps[i])[1]);
-                        
+                        //ContentDate date = new ContentDate(dateString, ((String[])regExps[i])[1]);
+		            	ExtractedDate temp = DateParser.parse(dateString, ((String[])regExps[i])[1]);
+		            	ContentDate date = new ContentDate(temp);
 		            	int index = tempText.indexOf(date.getDateString());
 		            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
 		                String xString = getXs(dateString);
@@ -187,7 +180,8 @@ public final class DateGetterHelper {
 	            }
 	            if (!hasPrePostNum) {
 	            	String dateString = tempText.substring(start, end);
-	            	date = new ExtractedDate(dateString,((String[])regExps[i])[1]);
+	            	//date = new ExtractedDate(dateString,((String[])regExps[i])[1]);
+	            	date = DateParser.parse(dateString, ((String[])regExps[i])[1]);
 	                break;
 	            }
 	            
@@ -195,21 +189,7 @@ public final class DateGetterHelper {
     	}
     	return date;
     }
-    
-//    /**
-//     * Returns a string of whitespace as long as the parameter string.
-//     * 
-//     * @param text
-//     * @return String of whitespace.
-//     */
-//    public static String getWhitespaces(String text) {
-//        StringBuffer sb = new StringBuffer();
-//        for (int i = 0; i < text.length(); i++) {
-//            sb.append("x");
-//            // sb.append(" ");
-//        }
-//        return sb.toString();
-//    }
+
 
     /**
      * Returns a string of "x"s as long as the parameter string.
@@ -248,16 +228,6 @@ public final class DateGetterHelper {
         return keyword;
     }
 
-//    /**
-//     * Finds out the separating symbol of date-string
-//     * 
-//     * @param date
-//     * @return
-//     */
-//    public static String getSeparator(final ExtractedDate date) {
-//        final String dateString = date.getDateString();
-//        return ExtractedDateHelper.getSeparator(dateString);
-//    }
 
     /**
      * 
@@ -272,12 +242,9 @@ public final class DateGetterHelper {
         String text = StringHelper.removeDoubleWhitespaces(DateGetterHelper.replaceHtmlSymbols(dateString));
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
-        Pattern pattern;
-        Matcher matcher;
+        Pattern pattern = Pattern.compile(regExp[0]);
+        Matcher matcher = pattern.matcher(text);
         
-        pattern = Pattern.compile(regExp[0]);
-        matcher = pattern.matcher(text);
-
         if (matcher.find()) {
             int start = matcher.start();
             int end = matcher.end();
@@ -301,110 +268,14 @@ public final class DateGetterHelper {
             	}
             }
             if (!hasPrePostNum) {
-                date = new ExtractedDate(text.substring(start, end), regExp[1]);
+                //date = new ExtractedDate(text.substring(start, end), regExp[1]);
+                date = DateParser.parse(text.substring(start, end), regExp[1]);
             }
 
         }
-        //System.out.println("getDateFromString: " + (double)(endTime - startTime)/1000.0);
         return date;
     }
 
-    
-    
-//    /**
-//     * In opposition to <b>findeNodeKeyword</b> also keywords as part of longer String will be found. <br>
-//     * But with condition that keyword is no part of a word. <br>
-//     * E.g.: date in timedate will not be found, but there for time-date matches. <br>
-//     * (Underscores won't match, e.g. time_date is wrong.)
-//     * 
-//     * @param node HTML-node to be searched.
-//     * @param keyWords Array of keywords to look for.
-//     * @return
-//     */
-//    public static String findNodeKeywordPart(Node node, String[] keyWords) {
-//        String keyword = null;
-//        //Node tempNode = XPathHelper.removeAllCildren(node);
-//        Node tempNode = node.cloneNode(false);
-//        String nodeDump =  HtmlHelper.getXmlDump(tempNode);
-//        boolean hasKeyword = false;
-//        for (int j = 0; j < keyWords.length; j++) {
-//        	int index = nodeDump.indexOf(keyWords[j]);
-//        	if(index != -1){
-//        		hasKeyword = true;
-//        	}
-//        }
-//        NamedNodeMap attrMap = node.getAttributes();
-//       
-//        if (attrMap != null && hasKeyword) {
-//            for (int j = 0; j < keyWords.length; j++) {
-//                String lookUp = keyWords[j].toLowerCase();
-//                for (int i = 0; i < attrMap.getLength(); i++) {
-//                    Node attr = attrMap.item(i);
-//                    String attrText = attr.getNodeValue().toLowerCase();
-//                    int index = attrText.indexOf(lookUp);
-//                    if (index != -1) {
-//                        boolean letter = false;
-//                        int start = index;
-//                        int end = index + lookUp.length();
-//
-//                        if (start > 0) {
-//                        	String sub = attrText.substring(start - 1, start);
-//                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
-//                        	if(sub.split("\\w").length == 0){
-//                        		letter = true;;
-//                        	}
-//                        }
-//
-//                        if (attrText.length() > end) {
-//                        	String sub = attrText.substring(end, end + 1);
-//                        	// Check, if char after keyword is [a-zA-Z0-9_]. If so, result is 0, else 1.
-//                        	if(sub.split("\\w").length == 0){
-//                        		letter = true;;
-//                        	}
-//                        }
-//                        if (!letter) {
-//                            keyword = lookUp;
-//                        }
-//                        break;
-//                    }
-//                }
-//                if (keyword != null) {
-//                    break;
-//                }
-//            }
-//        }
-//        return keyword;
-//    }
-
-//    /**
-//     * Looks up in a node for keywords. <br>
-//     * Only find keywords if the attribute values are equals to the keyword. <br>
-//     * Date in pubdate will not be found, also in time-date the keyword will not be found.
-//     * 
-//     * @param node HTML-node to be searched.
-//     * @param keyWords Array of keywords to look for.
-//     * @return
-//     */
-//    public static String findNodeKeyword(Node node, String[] keyWords) {
-//        String keyword = null;
-//        NamedNodeMap attrMap = node.getAttributes();
-//        if (attrMap != null) {
-//            for (int j = 0; j < keyWords.length; j++) {
-//                String lookUp = keyWords[j];
-//                for (int i = 0; i < attrMap.getLength(); i++) {
-//                    Node attr = attrMap.item(i);
-//                    if (lookUp.equalsIgnoreCase(attr.getNodeValue())) {
-//                        keyword = lookUp;
-//                        break;
-//                    }
-//                }
-//                if (keyword != null) {
-//                    break;
-//                }
-//            }
-//        }
-//        return keyword;
-//    }
 
     //Monat und Jahr sind nur gerundet.
     public static ExtractedDate findRelativeDate(String text){

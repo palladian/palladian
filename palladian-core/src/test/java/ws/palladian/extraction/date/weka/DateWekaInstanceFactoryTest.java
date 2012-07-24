@@ -12,6 +12,7 @@ import weka.core.Instance;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.helper.DateWekaInstanceFactory;
 import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.date.dates.DateParser;
 
 public class DateWekaInstanceFactoryTest {
 
@@ -60,7 +61,7 @@ public class DateWekaInstanceFactoryTest {
     }
 
     private ContentDate getTestDate() {
-        ContentDate cDate = new ContentDate("April 01, 2011", "MMMM DD, YYYY");
+        ContentDate cDate = new ContentDate(DateParser.parse("April 01, 2011", "MMMM DD, YYYY"));
 
         cDate.setRelDocPos(0.375);
         cDate.setOrdDocPos(0.75);

@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -222,7 +223,8 @@ public class ExtractedDateHelper {
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.SECOND)) + "Z";
         String format = RegExp.DATE_ISO8601_YMD_T[1];
 
-        return new ExtractedDate(dateString, format);
+        // return new ExtractedDate(dateString, format);
+        return DateParser.parse(dateString, format);
 
     }
     
@@ -245,8 +247,9 @@ public class ExtractedDateHelper {
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.SECOND)) + "Z";
         String format = RegExp.DATE_ISO8601_YMD_T[1];
 
-        ExtractedDate date = new ExtractedDate(dateString, format);
-        return date;
+        //ExtractedDate date = new ExtractedDate(dateString, format);
+        //return date;
+        return DateParser.parse(dateString, format);
 
     }
 

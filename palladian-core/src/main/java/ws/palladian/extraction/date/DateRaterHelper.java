@@ -11,6 +11,7 @@ import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateExactness;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 
@@ -29,7 +30,8 @@ public class DateRaterHelper {
      * @return
      */
     public static boolean isDateInRange(ExtractedDate date) {
-        ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
+        //ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
+        ExtractedDate begin = DateParser.parse("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
         ExtractedDate end = ExtractedDateHelper.getCurrentDate();
 //        DateComparator comp = new DateComparator();
 //        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());

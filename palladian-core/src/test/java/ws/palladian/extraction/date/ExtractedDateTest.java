@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.date.dates.DateExactness;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 import com.ibm.icu.util.Calendar;
@@ -37,24 +38,25 @@ public class ExtractedDateTest {
 
     @Before
     public void setUp() throws Exception {
-        date1 = new ExtractedDate("2010-06-12", "yyyy-mm-dd");
-        date2 = new ExtractedDate("10-06-07", "yyyy-mm-dd");
-        date3 = new ExtractedDate("07.06.2010", "dd.mm.yyyy");
-        date4 = new ExtractedDate("07.06.10", "dd.mm.yyyy");
-        date5 = new ExtractedDate("06/07/2010", "mm/dd/yyyy");
-        date6 = new ExtractedDate("06/07/10", "mm/dd/yyyy");
-        date7 = new ExtractedDate("07. June 2010", "dd. mmmm yyyy");
-        date8 = new ExtractedDate("June 07, 2010", "mmmm dd, yyyy");
-        date9 = new ExtractedDate("07. June '10", "dd. mmmm yyyy");
-        date10 = new ExtractedDate("2010_06_07", "yyyy_mm_dd");
-        date11 = new ExtractedDate("2010.06.07", "yyyy_mm_dd");
-        date12 = new ExtractedDate("2010/06/07", "yyyy_mm_dd");
-        date13 = new ExtractedDate("june 10", "MMMM YYYY");
-        date14 = new ExtractedDate("june 2010", "MMMM YYYY");
-        date15 = new ExtractedDate("june '10", "MMMM YYYY");
-        date16 = new ExtractedDate("mon, 07 jun 2010 07:06:05 GMT", "WD, DD MMM YYYY HH:MM:SS TZ");
-        date17 = new ExtractedDate("Mondy, 07-jun-10 07:06:05 GMT", "WWD, DD-MMM-YY HH:MM:SS TZ");
-        date18 = new ExtractedDate("mon jun 7 07:06:05 2010", "WD MMM DD_1 HH:MM:SS YYYY");
+        date1 = DateParser.parse("2010-06-12", "yyyy-mm-dd");
+        System.out.println(date1);
+        date2 = DateParser.parse("10-06-07", "yyyy-mm-dd");
+        date3 = DateParser.parse("07.06.2010", "dd.mm.yyyy");
+        date4 = DateParser.parse("07.06.10", "dd.mm.yyyy");
+        date5 = DateParser.parse("06/07/2010", "mm/dd/yyyy");
+        date6 = DateParser.parse("06/07/10", "mm/dd/yyyy");
+        date7 = DateParser.parse("07. June 2010", "dd. mmmm yyyy");
+        date8 = DateParser.parse("June 07, 2010", "mmmm dd, yyyy");
+        date9 = DateParser.parse("07. June '10", "dd. mmmm yyyy");
+        date10 = DateParser.parse("2010_06_07", "yyyy_mm_dd");
+        date11 = DateParser.parse("2010.06.07", "yyyy_mm_dd");
+        date12 = DateParser.parse("2010/06/07", "yyyy_mm_dd");
+        date13 = DateParser.parse("june 10", "MMMM YYYY");
+        date14 = DateParser.parse("june 2010", "MMMM YYYY");
+        date15 = DateParser.parse("june '10", "MMMM YYYY");
+        date16 = DateParser.parse("mon, 07 jun 2010 07:06:05 GMT", "WD, DD MMM YYYY HH:MM:SS TZ");
+        date17 = DateParser.parse("Mondy, 07-jun-10 07:06:05 GMT", "WWD, DD-MMM-YY HH:MM:SS TZ");
+        date18 = DateParser.parse("mon jun 7 07:06:05 2010", "WD MMM DD_1 HH:MM:SS YYYY");
     }
 
     @Test

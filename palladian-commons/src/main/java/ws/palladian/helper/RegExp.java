@@ -90,10 +90,8 @@ public class RegExp {
     private static final String AM_PM = "(" + "(\\s)" + "((AM)|(PM)))";
     private static final String TIME24 = "(" + HOUR + "(:" + MIN + "(:" + SEC + FLOAT_SEC_OPT + ")?)?)";
     private static final String TIME24_1 = "(" + HOUR_1 + "(:" + MIN + "(:" + SEC + FLOAT_SEC_OPT + ")?)?)";
-    private static final String TIME12 = "((" + HOUR12 + "(:" + MIN + "(:" + SEC + FLOAT_SEC_OPT + ")?)?)" + AM_PM
-    + "?)";
-    private static final String TIME12_1 = "((" + HOUR12_1 + "(:" + MIN + "(:" + SEC + FLOAT_SEC_OPT + ")?)?)" + AM_PM
-    + "?)";
+    private static final String TIME12 = "((" + HOUR12 + "(:" + MIN + "(:" + SEC + FLOAT_SEC_OPT + ")?)?)" + AM_PM + "?)";
+    private static final String TIME12_1 = "((" + HOUR12_1 + "(:" + MIN + "(:" + SEC + FLOAT_SEC_OPT + ")?)?)" + AM_PM + "?)";
     private static final String TIME = "(" + TIME12 + "|" + TIME24 + "|" + TIME12_1 + "|" + TIME24_1 + ")";
     private static final String TIME_SEPARATOR = "((\\s)|(\\s)/(\\s))";
     private static final String GMT_opt = "((\\s)?((GMT)|(UTC)|(Z))?)";
@@ -193,15 +191,12 @@ public class RegExp {
      * Dates in URL. YYYY_MM_DD .<br>
      * "_" can also be "." or "-" or "/"
      */
-    public static final String[] DATE_URL_D = {
-        "((" + DATE_URL_D_1 + ")|(" + DATE_URL_D_2 + ")|(" + DATE_URL_D_3 + ")|(" + DATE_URL_D_4 + "))",
-    "YYYY_MM_DD" };
+    public static final String[] DATE_URL_D = { "((" + DATE_URL_D_1 + ")|(" + DATE_URL_D_2 + ")|(" + DATE_URL_D_3 + ")|(" + DATE_URL_D_4 + "))", "YYYY_MM_DD" };
     /**
      * Dates in URL. YYYY_MM_DD .<br>
      * "_" can also be "." or "-" or "/"
      */
-    public static final String[] DATE_URL_MMMM_D = {
-        YEAR_SHORT_LONG + "(/)" + MONTH_NAME_LONG + "(/)" + DAY_OF_MONTH + "(/)", "YYYY_MMMM_DD_URL" };
+    public static final String[] DATE_URL_MMMM_D = { YEAR_SHORT_LONG + "(/)" + MONTH_NAME_LONG + "(/)" + DAY_OF_MONTH + "(/)", "YYYY_MMMM_DD_URL" };
 
     /**
      * Dates in URL. YYYY_MM .<br>
