@@ -7,9 +7,10 @@ import java.util.regex.Pattern;
 
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 public class DateParser {
-    
+
     private int year = -1;
     private int month = -1;
     private int day = -1;
@@ -19,8 +20,7 @@ public class DateParser {
     private String dateString;
     private String timezone = null;
 
-    
-    public static ExtractedDate parse(String dateString , String format) {
+    public static ExtractedDate parse(String dateString, String format) {
         DateParser dateParser = new DateParser();
         dateParser.setDateParticles(dateString, format);
         ExtractedDate extractedDate = new ExtractedDate(dateString, format);
@@ -32,7 +32,7 @@ public class DateParser {
         extractedDate.set(AbstractDate.SECOND, dateParser.second);
         return extractedDate;
     }
-    
+
     /**
      * Normalizes the date, if a format is given. <br>
      * If no day is given, it will be set to the 1st of month. <br>
@@ -41,14 +41,14 @@ public class DateParser {
      * @return a date in format YYYY-MM-DD
      */
     private void setDateParticles(String dateString, String format) {
-//        if (format == null || this.dateString == null) {
-//            return;
-//        }
-//
-//        String dateString = this.dateString;
+        // if (format == null || this.dateString == null) {
+        // return;
+        // }
+        //
+        // String dateString = this.dateString;
         this.dateString = dateString;
 
-        String[] tempArray = ExtractedDateHelper.removeTimezone(dateString);
+        String[] tempArray = removeTimezone(dateString);
         timezone = tempArray[1];
         if (timezone != null) {
             dateString = tempArray[0];
@@ -62,10 +62,10 @@ public class DateParser {
                 separator = " ";
             }
             String[] temp = dateString.split(separator);
-            setDateValues(temp[0].split(ExtractedDateHelper.getSeparator(temp[0])), 0, 1, 2);
+            setDateValues(temp[0].split(getSeparator(temp[0])), 0, 1, 2);
             setTimeValues(temp[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD[1])) {
-            setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 0, 1, 2);
+            setDateValues(dateString.split(getSeparator(dateString)), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YM[1])) {
             setDateValues(dateString.split("-"), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD[1])) {
@@ -87,19 +87,19 @@ public class DateParser {
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD[1])) {
             setDateByDayOfYear(true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
-            setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 0, 1, 2);
+            setDateValues(dateString.split(getSeparator(dateString)), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D[1])) {
             setDateValues(dateString.split("/"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
             dateParts = dateString.split("/");
             int tempMonth = 0;
             try {
-                year = ExtractedDateHelper.normalizeYear(dateParts[0]);
+                year = normalizeYear(dateParts[0]);
                 day = Integer.parseInt(dateParts[dateParts.length - 1]);
                 tempMonth = -1;
             } catch (NumberFormatException exeption) {
                 final String lastField = dateParts[dateParts.length - 1];
-                final String[] tempDateParts = lastField.split(ExtractedDateHelper.getSeparator(lastField));
+                final String[] tempDateParts = lastField.split(getSeparator(lastField));
                 month = Integer.parseInt(tempDateParts[0]);
                 day = Integer.parseInt(tempDateParts[1]);
             }
@@ -108,12 +108,12 @@ public class DateParser {
             }
 
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL[1])) {
-            setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 0, 1, -1);
+            setDateValues(dateString.split(getSeparator(dateString)), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y[1])) {
-            String separator = ExtractedDateHelper.getSeparator(dateString);
+            String separator = getSeparator(dateString);
             setDateValues(dateString.split(separator), 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y[1])) {
-            setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 2, 0, 1);
+            setDateValues(dateString.split(getSeparator(dateString)), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y[1])) {
             if (dateString.indexOf("\\.") != -1) {
                 dateString = dateString.replaceAll("\\.", "");
@@ -144,10 +144,10 @@ public class DateParser {
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_YYYY_MMM_D[1])) {
             setDateValues(dateString.split("-"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y[1])) {
-            String separator = ExtractedDateHelper.getSeparator(dateString);
+            String separator = getSeparator(dateString);
             setDateValues(dateString.split(separator), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM[1])) {
-            String separator = ExtractedDateHelper.getSeparator(dateString);
+            String separator = getSeparator(dateString);
             setDateValues(dateString.split(separator), -1, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM[1])) {
             /*
@@ -209,7 +209,7 @@ public class DateParser {
             }
             String[] parts = dateString.split(" ");
 
-            String separator = ExtractedDateHelper.getSeparator(parts[0]);
+            String separator = getSeparator(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 1, 0);
             StringBuffer sb = new StringBuffer();
@@ -247,7 +247,7 @@ public class DateParser {
                 dateString = removeAmPm(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
-            String separator = ExtractedDateHelper.getSeparator(parts[0]);
+            String separator = getSeparator(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 0, 1);
             StringBuffer sb = new StringBuffer();
@@ -279,8 +279,7 @@ public class DateParser {
         }
 
     }
-    
-    
+
     /**
      * Removes PM and AM from a string and delete double whitespace.
      * 
@@ -292,7 +291,7 @@ public class DateParser {
         String newText = text.replaceAll(meridiem, "");
         return newText.replaceAll("  ", " ");
     }
-    
+
     /**
      * Checks for AM and PM in a string and returns the found.
      * 
@@ -323,7 +322,7 @@ public class DateParser {
         }
         return meridiem;
     }
-    
+
     /**
      * If this date has a hour and the date-string has AM or PM values, the hour will be changed in 24h system.
      * 
@@ -341,7 +340,7 @@ public class DateParser {
             }
         }
     }
-    
+
     /**
      * If a date is given by week and day, the normal date (day, month and year) will be calculated.
      * If no day is given, the first day of week will be set.
@@ -382,7 +381,7 @@ public class DateParser {
         }
 
     }
-    
+
     /**
      * If a date is given by year and day of year, the date (day, month and year) will be calculated.
      * Using ISO8601 standard ( First week of a year has four or more days; first day of a week is Monday)
@@ -409,7 +408,7 @@ public class DateParser {
         month = calendar.get(Calendar.MONTH) + 1;
         day = calendar.get(Calendar.DAY_OF_MONTH);
     }
-    
+
     /**
      * <b>!!! IMPORTANT: call <u>AFTER</u> setting dateparts like year, month and day !!! </b><br>
      * <br>
@@ -471,7 +470,7 @@ public class DateParser {
             setTimeDiff(diffToUTC, separator);
         }
     }
-    
+
     /**
      * Refreshes the time with given difference to UTC. <br>
      * E.g.: time is 14:00 and difference to UTC is +02:00 -> new time is 12:00. <br>
@@ -526,7 +525,7 @@ public class DateParser {
         }
 
     }
-    
+
     /**
      * Sets hour, minute and second by extracting from time-string. <br>
      * There for the time-string must have one the following forms: HH:MM:SS or HH:MM or HH. <br>
@@ -551,7 +550,7 @@ public class DateParser {
             }
         }
     }
-    
+
     /**
      * Sets the year, month and day of this date by getting a array with this values and the position of each value in
      * the array.
@@ -564,7 +563,7 @@ public class DateParser {
     private void setDateValues(String[] dateParts, int yearPos, int monthPos, int dayPos) {
         if (yearPos != -1) {
             try {
-                this.year = ExtractedDateHelper.normalizeYear(dateParts[yearPos]);
+                this.year = normalizeYear(dateParts[yearPos]);
             } catch (Exception e) {
                 // LOGGER.error(e.getMessage());
             }
@@ -582,36 +581,124 @@ public class DateParser {
 
         }
         if (dayPos != -1) {
-            this.day = Integer.parseInt(ExtractedDateHelper.removeNoDigits(dateParts[dayPos]));
+            this.day = Integer.parseInt(removeNoDigits(dateParts[dayPos]));
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
+    /**
+     * Normalizes a year. Removes apostrophe (e.g. '99) and makes it four digit.
+     * 
+     * @param year
+     * @return A four digit year.
      */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("DateParser [year=");
-        builder.append(year);
-        builder.append(", month=");
-        builder.append(month);
-        builder.append(", day=");
-        builder.append(day);
-        builder.append(", hour=");
-        builder.append(hour);
-        builder.append(", minute=");
-        builder.append(minute);
-        builder.append(", second=");
-        builder.append(second);
-        builder.append(", dateString=");
-        builder.append(dateString);
-        builder.append(", timezone=");
-        builder.append(timezone);
-        builder.append("]");
-        return builder.toString();
+    static int normalizeYear(String year) {
+        return get4DigitYear(Integer.parseInt(removeNoDigits(year)));
     }
-    
-    
- 
+
+    /**
+     * Sets the year in 4 digits format. <br>
+     * E.g.: year = 12; current year = 2010 -> year > 10 -> 1912 <br>
+     * year = 7; current year = 2010 -> year < 10 -> 2007 <br>
+     * year = 10; current year = 2010 -> year > 10 -> 2010 <br>
+     * year = 99; current year = 2010 -> year > 10 -> 1999
+     * 
+     * @param date
+     * @return
+     */
+    static int get4DigitYear(int year) {
+        int longYear = year;
+        if (year < 100) {
+            if (year > new GregorianCalendar().get(Calendar.YEAR) - 2000) {
+                longYear = year + 1900;
+            } else {
+                longYear = year + 2000;
+            }
+        }
+        return longYear;
+    }
+
+    /**
+     * Removes the symbols "'" from Year '99 and "," from Day 03, June.
+     * 
+     * @param date
+     * @return the entered date without the symbols
+     */
+    static String removeNoDigits(String datePart) {
+        String cleardString = datePart;
+        int index;
+
+        index = datePart.indexOf('\'');
+        if (index != -1) {
+            cleardString = datePart.substring(index + 1, datePart.length());
+        }
+        index = datePart.indexOf(',');
+        if (index != -1) {
+            cleardString = datePart.substring(0, index);
+        }
+
+        index = cleardString.indexOf(".");
+        if (index != -1) {
+            cleardString = cleardString.substring(0, index);
+        }
+
+        index = cleardString.indexOf("th");
+        if (index == -1) {
+            index = cleardString.indexOf("st");
+            if (index == -1) {
+                index = cleardString.indexOf("nd");
+                if (index == -1) {
+                    index = cleardString.indexOf("rd");
+                }
+            }
+        }
+        if (index != -1) {
+            cleardString = cleardString.substring(0, index);
+        }
+
+        // remove everything after a break
+        cleardString = cleardString.replaceAll("\n.*", "");
+
+        return cleardString;
+    }
+
+    /**
+     * Removes timezone acronyms.
+     * 
+     * @param dateString
+     * @return
+     */
+    static String[] removeTimezone(String dateString) {
+        return StringHelper.removeFirstStringpart(dateString, RegExp.TIMEZONE);
+    }
+
+    /**
+     * 
+     * @param text a date, where year, month and day are separated by . / or _
+     * @return the separating symbol
+     */
+    static String getSeparator(String text) {
+        String separator = null;
+
+        int index = text.indexOf('.');
+        if (index == -1) {
+            index = text.indexOf('/');
+            if (index == -1) {
+                index = text.indexOf('_');
+                if (index == -1) {
+                    index = text.indexOf('-');
+                    if (index != -1) {
+                        separator = "-";
+                    }
+                } else {
+                    separator = "_";
+                }
+            } else {
+                separator = "/";
+            }
+        } else {
+            separator = "\\.";
+        }
+        return separator;
+    }
+
 }
