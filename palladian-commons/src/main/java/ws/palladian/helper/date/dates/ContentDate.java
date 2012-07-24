@@ -67,15 +67,19 @@ public final class ContentDate extends AbstractBodyDate {
     private boolean inMetaDates = false;
     private boolean inUrl = false;
 
-    /**
-     * @param dateString
-     * @param format
-     */
-    public ContentDate(String dateString, String format) {
-        super(dateString, format);
-    }
+//    /**
+//     * @param dateString
+//     * @param format
+//     */
+//    public ContentDate(String dateString, String format) {
+//        super(dateString, format);
+//    }
 
    
+    public ContentDate(ExtractedDate date) {
+        super(date);
+    }
+
     /**
      * Returns location of found keyword as readable string.<br>
      * Field <b>keywordLocation</b> should be set.

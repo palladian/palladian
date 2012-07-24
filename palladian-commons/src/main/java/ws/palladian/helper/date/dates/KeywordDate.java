@@ -13,13 +13,13 @@ public abstract class KeywordDate extends ExtractedDate {
      */
     private String keyword = null;
 
-    /**
-     * @param dateString
-     * @param format
-     */
-    public KeywordDate(String dateString, String format) {
-        super(dateString, format);
-    }
+//    /**
+//     * @param dateString
+//     * @param format
+//     */
+//    public KeywordDate(String dateString, String format) {
+//        super(dateString, format);
+//    }
 
     public KeywordDate(ExtractedDate date) {
         super(date);
