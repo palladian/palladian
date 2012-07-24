@@ -85,7 +85,7 @@ public class DateArrayHelperTest {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
 
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            List<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             List<List<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(date, DateExactness.DAY);
             for (int i = 0; i < arrangedArray.size(); i++) {

@@ -22,36 +22,37 @@ import ws.palladian.helper.date.dates.ExtractedDate;
  */
 public class DateEvaluator {
 
-    private String url;
+//    private String url;
 
-    private ContentDateRater cdr;
+    private final ContentDateRater contentDateRater;
+
+//    /**
+//     * Standard constructor.
+//     */
+//    public DateEvaluator() {
+//        //setPubMod(PageDateType.publish);
+//        this(PageDateType.publish);
+//    }
 
     /**
      * Standard constructor.
      */
-    public DateEvaluator() {
-        //setPubMod(PageDateType.publish);
-        this(PageDateType.publish);
-    }
-
-    /**
-     * Standard constructor.
-     */
-    public DateEvaluator(PageDateType pub_mod) {
+    public DateEvaluator(PageDateType dateType) {
         //setPubMod(pub_mod);
-        this(null, pub_mod);
+        //this(null, pub_mod);
+        contentDateRater = new ContentDateRater(dateType);
     }
 
-    /**
-     * Constructor setting url.
-     * 
-     * @param url
-     */
-    public DateEvaluator(String url, PageDateType pub_mod) {
-        this.url = url;
-        // setPubMod(pub_mod);
-        cdr = new ContentDateRater(pub_mod);
-    }
+//    /**
+//     * Constructor setting url.
+//     * 
+//     * @param url
+//     */
+//    public DateEvaluator(String url, PageDateType pub_mod) {
+//        this.url = url;
+//        // setPubMod(pub_mod);
+//        cdr = new ContentDateRater(pub_mod);
+//    }
 
 //    /**
 //     * Use this method to decide between publish and modified dates. 
@@ -81,28 +82,28 @@ public class DateEvaluator {
         List<ContentDate> contFullDates = (ArrayList<ContentDate>) DateArrayHelper.filter(contDates,
                 DateArrayHelper.FILTER_FULL_DATE);
 
-        contResult.putAll((Map<? extends T, ? extends Double>) cdr.rate(contFullDates));
+        contResult.putAll((Map<? extends T, ? extends Double>) contentDateRater.rate(contFullDates));
         evaluatedDates.putAll(contResult);
         DateRaterHelper.writeRateInDate(evaluatedDates);
 
         return evaluatedDates;
     }
 
-    /**
-     * Set url.
-     * 
-     * @param url
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
+//    /**
+//     * Set url.
+//     * 
+//     * @param url
+//     */
+//    public void setUrl(String url) {
+//        this.url = url;
+//    }
 
-    /**
-     * Getter for url.
-     * 
-     * @return Url as a String.
-     */
-    public String getUrl() {
-        return url;
-    }
+//    /**
+//     * Getter for url.
+//     * 
+//     * @return Url as a String.
+//     */
+//    public String getUrl() {
+//        return url;
+//    }
 }

@@ -61,32 +61,32 @@ public class WebPageDateEvaluator {
 		this.document = document;
 	}
 
-	/**
-	 * Look up for all dates of webpage and rate them.<br>
-	 * Writes results in list, get it by getter-methods.
-	 * 
-	 * @param url
-	 *            for webpage.
-	 */
-	public void evaluate(String url) {
-		this.url = url;
-		evaluate();
-	}
+//	/**
+//	 * Look up for all dates of webpage and rate them.<br>
+//	 * Writes results in list, get it by getter-methods.
+//	 * 
+//	 * @param url
+//	 *            for webpage.
+//	 */
+//	public void evaluate(String url) {
+//		this.url = url;
+//		evaluate();
+//	}
 
-	/**
-	 * Look up for all dates of webpage and rate them.<br>
-	 * Writes results in list, get it by getter-methods.<br><br>
-	 * Uses url of document. <br>
-	 * If you like to use different urls and documents use setters.
-	 * 
-	 * @param doc
-	 *            for webpage.
-	 */
-	public void evaluate(Document doc) {
-		this.url = doc.getDocumentURI();
-		this.document = doc;
-		evaluate();
-	}
+//	/**
+//	 * Look up for all dates of webpage and rate them.<br>
+//	 * Writes results in list, get it by getter-methods.<br><br>
+//	 * Uses url of document. <br>
+//	 * If you like to use different urls and documents use setters.
+//	 * 
+//	 * @param doc
+//	 *            for webpage.
+//	 */
+//	public void evaluate(Document doc) {
+//		this.url = doc.getDocumentURI();
+//		this.document = doc;
+//		evaluate();
+//	}
 
 	/**
 	 * Look up for all dates of webpage and rate them.<br>
@@ -100,7 +100,7 @@ public class WebPageDateEvaluator {
 				dg.setDocument(document);
 			}
 			dg.setURL(url);
-			ArrayList<ExtractedDate> dates = dg.getDate();
+			List<ExtractedDate> dates = dg.getDate();
 			Map<ExtractedDate, Double> ratedDates = dr.rate(dates);
 			this.list = DateArrayHelper.mapToList(ratedDates);
 		}
@@ -127,13 +127,15 @@ public class WebPageDateEvaluator {
 	 * @return The best rated date. <br>
 	 *  Returns <b>null</b> if there is no date or rate of best date is below the limit.
 	 */
-	public ExtractedDate getBestRatedDate(double limit) {
+	private ExtractedDate getBestRatedDate(double limit) {
 		ExtractedDate result = null;
 		if (list != null && list.size() > 0) {
-			List<ExtractedDate> orderedList = list;
-			Collections.sort(orderedList,
-					new RatedDateComparator());
-			ExtractedDate date = orderedList.get(0);
+			//List<ExtractedDate> orderedList = list;
+//			Collections.sort(orderedList,
+//					new RatedDateComparator());
+//		    ExtractedDate date = orderedList.get(0);
+		    Collections.sort(list, new RatedDateComparator());
+		    ExtractedDate date = list.get(0);
 			if (limit < 0) {
 				//DateType dateType = date.getType();
 				//if (dateType.equals(DateType.ContentDate)) {
@@ -174,7 +176,7 @@ public class WebPageDateEvaluator {
 	 * 
 	 * @return ArraylList of dates.
 	 */
-	public List<ExtractedDate> getAllBestRatedDate() {
+	List<ExtractedDate> getAllBestRatedDate() {
 		return getAllBestRatedDate(false);
 	}
 
@@ -186,7 +188,7 @@ public class WebPageDateEvaluator {
 	 *            False for look at all dates.
 	 * @return ArraylList of dates.
 	 */
-	public List<ExtractedDate> getAllBestRatedDate(boolean onlyFullDates) {
+	private List<ExtractedDate> getAllBestRatedDate(boolean onlyFullDates) {
 		List<ExtractedDate> dates = list;
 		if (onlyFullDates) {
 			dates = DateArrayHelper.filter(dates,
@@ -203,7 +205,7 @@ public class WebPageDateEvaluator {
 	 * 
 	 * @return all dates.
 	 */
-	public List<ExtractedDate> getAllDates() {
+	List<ExtractedDate> getAllDates() {
 		List<ExtractedDate> sorted = list;
 		Collections.sort(sorted, new RatedDateComparator());
 		return sorted;

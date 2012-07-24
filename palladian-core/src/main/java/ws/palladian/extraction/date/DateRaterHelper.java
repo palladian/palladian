@@ -9,12 +9,10 @@ import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
-import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.KeywordDate;
-import ws.palladian.helper.html.HtmlHelper;
 
 /**
  * This class contains methods to help DateRate to rate dates.
@@ -91,43 +89,8 @@ public class DateRaterHelper {
 //        return temp;
 //    }
 
-    /**
-     * Increase the rate by 10 percent, if date surrounding tag is a headline-tag.
-     * 
-     * @param contentDates
-     * @return
-     */
-    public static Map<ContentDate, Double> evaluateTag(Map<ContentDate, Double> contentDates) {
-        Map<ContentDate, Double> result = contentDates;
-        for (Entry<ContentDate, Double> e : contentDates.entrySet()) {
-            if (HtmlHelper.isHeadlineTag(e.getKey().getTag())) {
-                double newRate = (1 - e.getValue()) * 0.1 + e.getValue();
-                result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
-            }
-        }
-        return result;
-    }
 
-    /**
-     * Calculates the rate for dates.<br>
-     * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
-     * Example: datesToSet.size()=5; 3/5 and 2/5.
-     * 
-     * @param <T>
-     * @param datesToSet
-     * @param dates
-     */
-    public static <T extends ExtractedDate> Map<T, Double> setRateWhightedByGroups(List<T> datesToSet, List<T> dates) {
-        HashMap<T, Double> resultDates = new HashMap<T, Double>();
-        for (int k = 0; k < datesToSet.size(); k++) {
-            int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, -1) + 1;
-            double newRate = 1.0 * contSame / dates.size();
 
-            resultDates.put(datesToSet.get(k), Math.round(newRate * 10000) / 10000.0);
-
-        }
-        return resultDates;
-    }
 
     /**
      * Calculates the rate for dates.<br>
@@ -149,7 +112,7 @@ public class DateRaterHelper {
     }
 
     /**
-     * Sets for all dates from arraylist the rate-value to 0.0 in map.
+     * Sets for all dates from {@link List} the rate-value to 0.0 in map.
      * 
      * @param <T>
      * @param datesToBeSetZero
@@ -160,7 +123,7 @@ public class DateRaterHelper {
     }
 
     /**
-     * Sets for all dates from arraylist the rate-value to given value in map.
+     * Sets for all dates from {@link List} the rate-value to given value in map.
      * 
      * @param <T>
      * @param datesToBeSetZero
@@ -170,7 +133,6 @@ public class DateRaterHelper {
         for (int i = 0; i < datesToBeSetZero.size(); i++) {
             map.put(datesToBeSetZero.get(i), 0.0);
         }
-
     }
 
     /**
