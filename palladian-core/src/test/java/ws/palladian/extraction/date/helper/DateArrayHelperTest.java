@@ -11,7 +11,9 @@ import org.junit.Test;
 
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.io.ResourceHelper;
@@ -62,7 +64,7 @@ public class DateArrayHelperTest {
         array.add(date);
         date = DateParser.parse("2010-08-04", "YYYY-MM-DD");
         array.add(date);
-        List<List<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(array);
+        List<List<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(array, DateExactness.DAY);
         DateComparator dc = new DateComparator();
         for (int i = 0; i < 5; i++) {
             // ExtractedDateHelper.printDateArray(arrangedArray.get(i));
@@ -85,10 +87,10 @@ public class DateArrayHelperTest {
 
             ArrayList<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
-            List<List<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(date);
+            List<List<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(date, DateExactness.DAY);
             for (int i = 0; i < arrangedArray.size(); i++) {
                 System.out.println("==============================================================================");
-                DateArrayHelper.printDateArray(arrangedArray.get(i));
+                CollectionHelper.print(arrangedArray.get(i));
             }
     }
 

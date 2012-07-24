@@ -116,7 +116,7 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> Map<T, Double> setRateWhightedByGroups(List<T> datesToSet, List<T> dates) {
+    public static <T extends ExtractedDate> Map<T, Double> setRateWhightedByGroups(List<T> datesToSet, List<T> dates) {
         HashMap<T, Double> resultDates = new HashMap<T, Double>();
         for (int k = 0; k < datesToSet.size(); k++) {
             int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, -1) + 1;
@@ -137,7 +137,7 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, DateExactness compareDepth) {
+    public static <T extends ExtractedDate> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, DateExactness compareDepth) {
         List<List<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {
