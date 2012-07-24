@@ -599,7 +599,12 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
             List<StreamSource> result = query.getResultList();
             return getFirst(result);
         } finally {
-            commitTransaction(openedTransaction);
+            try {
+                commitTransaction(openedTransaction);
+            } catch (javax.persistence.RollbackException e) {
+                System.out.println(e);
+                throw e;
+            }
         }
     }
 
