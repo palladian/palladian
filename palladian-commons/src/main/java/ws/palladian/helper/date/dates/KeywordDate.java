@@ -13,12 +13,6 @@ public abstract class KeywordDate extends ExtractedDate {
      */
     private String keyword = null;
 
-//    /**
-//     * 
-//     */
-//    public KeywordDate() {
-//    }
-
     /**
      * @param dateString
      */
@@ -34,12 +28,12 @@ public abstract class KeywordDate extends ExtractedDate {
         super(dateString, format);
     }
 
-    public KeywordDate(ExtractedDate date, DateType dateType) {
-        super(date, dateType);
+    public KeywordDate(ExtractedDate date) {
+        super(date);
     }
 
-    public KeywordDate(ExtractedDate date, String keyword, DateType dateType) {
-        super(date, dateType);
+    public KeywordDate(ExtractedDate date, String keyword) {
+        super(date);
         this.keyword = keyword;
     }
 

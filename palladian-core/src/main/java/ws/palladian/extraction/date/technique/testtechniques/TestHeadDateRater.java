@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
@@ -32,7 +33,8 @@ public class TestHeadDateRater extends HeadDateRater {
 	
 	private byte hightPriority = KeyWords.PUBLISH_KEYWORD;
 	private byte middlePriority = KeyWords.MODIFIED_KEYWORD;
-	private int diffMeasure = DateComparator.MEASURE_HOUR;
+	//private int diffMeasure = DateComparator.MEASURE_HOUR;
+	private TimeUnit diffUnit = TimeUnit.HOURS;
 	private boolean old = true;
 	
 	public void setParameter(HashMap<Byte, Integer[]> parameter){
@@ -45,7 +47,7 @@ public class TestHeadDateRater extends HeadDateRater {
 				setModParameter();
 				break;
 			case MEASURE_PARAMETER:
-				setDiffMeasure(e.getValue()[0]);
+//				setDiffMeasure(e.getValue()[0]);
 				break;
 			case OLDEST_PARAMETER:
 				old=true;
@@ -65,8 +67,9 @@ public class TestHeadDateRater extends HeadDateRater {
 		hightPriority = KeyWords.MODIFIED_KEYWORD;
 		middlePriority = KeyWords.PUBLISH_KEYWORD;
 	}
-	private void setDiffMeasure(int measure){
-		diffMeasure = measure;
+	private void setDiffMeasure(TimeUnit timeUnit){
+		//diffMeasure = measure;
+	    diffUnit = timeUnit;
 	}
 	
 	/**
@@ -121,7 +124,7 @@ public class TestHeadDateRater extends HeadDateRater {
             DateComparator dc = new DateComparator();
             for (int i = 0; i < lowRatedDates.size(); i++) {
                 rate = 0.75;
-                if (dc.getDifference(actualDate, lowRatedDates.get(i), DateComparator.MEASURE_HOUR) < 12) {
+                if (actualDate.getDifference(lowRatedDates.get(i), TimeUnit.HOURS) < 12) {
                     rate = 0.0;
                 }
                 result.put(lowRatedDates.get(i), rate);
@@ -129,7 +132,7 @@ public class TestHeadDateRater extends HeadDateRater {
         }
 
         DateComparator dc = new DateComparator();
-        List<MetaDate> dates = dc.orderDates(result);
+        List<MetaDate> dates = dc.orderDates(result.keySet(), false);
         MetaDate tempDate;
         if(old){
         	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
@@ -142,7 +145,7 @@ public class TestHeadDateRater extends HeadDateRater {
         double newRate;
 
         for (int i = 0; i < dates.size(); i++) {
-            diff = dc.getDifference(tempDate, dates.get(i), diffMeasure);
+            diff = tempDate.getDifference(dates.get(i), diffUnit);
             if (diff > 24) {
                 diff = 24;
             }

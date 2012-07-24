@@ -7,7 +7,7 @@ package ws.palladian.helper.date.dates;
 public final class StructureDate extends AbstractBodyDate {
 
     public StructureDate(ExtractedDate date) {
-        super(date, DateType.StructureDate);
+        super(date);
     }
 
 }

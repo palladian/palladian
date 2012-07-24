@@ -5,12 +5,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
 
@@ -25,7 +25,7 @@ public class ExtractedDate implements AbstractDate {
 
     private static final Logger LOGGER = Logger.getLogger(ExtractedDate.class);
 
-    private DateType dateType = DateType.ExtractedDate;
+    // private DateType dateType = DateType.ExtractedDate;
 
     /**
      * Found date as string.
@@ -79,17 +79,9 @@ public class ExtractedDate implements AbstractDate {
         setDateParticles();
     }
     
-    public ExtractedDate(String dateString, String format, DateType dateType) {
-        super();
-        this.dateString = dateString;
-        this.format = format;
-        this.dateType = dateType;
-    }
-    
-    public ExtractedDate(ExtractedDate date, DateType dateType) {
+    public ExtractedDate(ExtractedDate date) {
         super();
         setAll(date.getAll());
-        this.dateType = dateType;
     }
 
     /**
@@ -774,7 +766,7 @@ public class ExtractedDate implements AbstractDate {
      * @return
      */
     public List<Object> getAll() {
-        ArrayList<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<Object>();
         result.add(this.dateString);
         result.add(this.format);
         result.add(this.year);
@@ -860,7 +852,6 @@ public class ExtractedDate implements AbstractDate {
             case SECOND:
                 this.second = value;
                 break;
-
         }
     }
 
@@ -871,19 +862,21 @@ public class ExtractedDate implements AbstractDate {
     @Override
     public String toString() {
         return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDateString() + " Format: " + this.format
-                + " Technique: " + getType();
+                ;//+ " Technique: " + getType();
     }
 
-    /**
-     * Returns value representing this type of date.<br>
-     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
-     * 
-     * @return Integer of this type.
-     */
-    @Override
-    public DateType getType() {
-        return this.dateType;
-    }
+//    /**
+//     * Returns value representing this type of date.<br>
+//     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
+//     * 
+//     * @return Integer of this type.
+//     * @deprecated Check via <code>instanceof</code>.
+//     */
+//    @Override
+//    @Deprecated
+//    public DateType getType() {
+//        return this.dateType;
+//    }
 
 //    /**
 //     * Returns int value representing this type of date.<br>
@@ -982,15 +975,56 @@ public class ExtractedDate implements AbstractDate {
     }
 
     /**
-     * Standard is -1. <br>
      * 
      * @return
      */
     public double getRate() {
         return rate;
     }
+    
+    /**
+     * <p>
+     * Returns the difference between this and another {@link ExtractedDate}. If dates cannot be compared, a value of
+     * <code>-1</code> will be returned. Otherwise, the difference is calculated with the maximum possible exactness
+     * (year—month—day—hour—minute—second), and as absolute, positive value. The measure of the result can be set using
+     * the {@link TimeUnit} parameter.
+     * </p>
+     * 
+     * @param date The other date for which to calculate the difference from this one.
+     * @param unit The time unit for the result.
+     * @return A positive difference, or <code>-1</code> in case of any error.
+     */
+    public double getDifference(ExtractedDate date, TimeUnit unit) {
+        double diff = -1;
+        int depth = DateExactness.getCommonExactness(this, date).getValue();
+        Calendar cal1 = new GregorianCalendar();
+        Calendar cal2 = new GregorianCalendar();
 
-    public void setType(DateType dateType) {
-        this.dateType = dateType;
+        if (depth > 0) {
+            cal1.set(Calendar.YEAR, this.get(ExtractedDate.YEAR));
+            cal2.set(Calendar.YEAR, date.get(ExtractedDate.YEAR));
+            if (depth > DateExactness.YEAR.getValue()) {
+                cal1.set(Calendar.MONTH, this.get(ExtractedDate.MONTH));
+                cal2.set(Calendar.MONTH, date.get(ExtractedDate.MONTH));
+                if (depth > DateExactness.MONTH.getValue()) {
+                    cal1.set(Calendar.DAY_OF_MONTH, this.get(ExtractedDate.DAY));
+                    cal2.set(Calendar.DAY_OF_MONTH, date.get(ExtractedDate.DAY));
+                    if (depth > DateExactness.DAY.getValue()) {
+                        cal1.set(Calendar.HOUR_OF_DAY, this.get(ExtractedDate.HOUR));
+                        cal2.set(Calendar.HOUR_OF_DAY, date.get(ExtractedDate.HOUR));
+                        if (depth > DateExactness.HOUR.getValue()) {
+                            cal1.set(Calendar.MINUTE, this.get(ExtractedDate.MINUTE));
+                            cal2.set(Calendar.MINUTE, date.get(ExtractedDate.MINUTE));
+                            if (depth > DateExactness.MINUTE.getValue()) {
+                                cal1.set(Calendar.SECOND, this.get(ExtractedDate.SECOND));
+                                cal2.set(Calendar.SECOND, date.get(ExtractedDate.SECOND));
+                            }
+                        }
+                    }
+                }
+            }
+            diff = Math.round(Math.abs(cal1.getTimeInMillis() - cal2.getTimeInMillis()) * 100.0 / unit.toMillis(1)) / 100.0;
+        }
+        return diff;
     }
 }

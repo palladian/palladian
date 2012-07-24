@@ -9,10 +9,9 @@ package ws.palladian.helper.date.dates;
 public final class UrlDate extends ExtractedDate {
 
     public UrlDate() {
-        setType(DateType.UrlDate);
     }
 
     public UrlDate(ExtractedDate date) {
-        super(date, DateType.UrlDate);
+        super(date);
     }
 }

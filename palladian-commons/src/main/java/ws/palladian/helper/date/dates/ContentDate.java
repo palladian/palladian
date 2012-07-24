@@ -73,7 +73,6 @@ public final class ContentDate extends AbstractBodyDate {
      */
     public ContentDate(String dateString, String format) {
         super(dateString, format);
-        setType(DateType.ContentDate);
     }
 
    

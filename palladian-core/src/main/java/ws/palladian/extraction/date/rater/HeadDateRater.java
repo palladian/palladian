@@ -3,6 +3,7 @@ package ws.palladian.extraction.date.rater;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
@@ -25,7 +26,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 	protected byte middlePriority;
 	protected byte lowPriority;
 	
-	private ExtractedDate actualDate;
+	private ExtractedDate currentDate;
 	
     public HeadDateRater(PageDateType dateType) {
 		super(dateType);
@@ -42,7 +43,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 
 	@Override
     public Map<MetaDate, Double> rate(List<MetaDate> list) {
-        Map<MetaDate, Double> returnDates = evaluateHeadDate(list);
+        Map<MetaDate, Double> returnDates = evaluateMetaDates(list);
         this.ratedDates = returnDates;
         return returnDates;
     }
@@ -55,15 +56,15 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
      * Evaluates the head-dates.<br>
      * Rating by check keywords and age difference between dates.
      * 
-     * @param List of head-dates.
-     * @return Hashmap with dates and rateings.
+     * @param {@link List} of {@link MetaDate}s.
+     * @return {@link Map} with dates and ratings.
      */
-    protected Map<MetaDate, Double> evaluateHeadDate(List<MetaDate> headDates) {
-        HashMap<MetaDate, Double> result = new HashMap<MetaDate, Double>();
+    protected Map<MetaDate, Double> evaluateMetaDates(List<MetaDate> metaDates) {
+        Map<MetaDate, Double> result = new HashMap<MetaDate, Double>();
         double rate;
         MetaDate date;
-        for (int i = 0; i < headDates.size(); i++) {
-            date = headDates.get(i);
+        for (int i = 0; i < metaDates.size(); i++) {
+            date = metaDates.get(i);
             byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
             if (keywordPriority == hightPriority) {
                 rate = 1;
@@ -87,13 +88,12 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 
         } else {
 
-        	if(actualDate == null){
-        		actualDate = ExtractedDateHelper.getCurrentDate();
+        	if(currentDate == null){
+        		currentDate = ExtractedDateHelper.getCurrentDate();
         	}
-            DateComparator dc = new DateComparator();
             for (int i = 0; i < lowRatedDates.size(); i++) {
                 rate = 0.75;
-                if (dc.getDifference(actualDate, lowRatedDates.get(i), DateComparator.MEASURE_HOUR) < 12) {
+                if (currentDate.getDifference(lowRatedDates.get(i), TimeUnit.HOURS) < 12) {
                     rate = 0.0;
                 }
                 result.put(lowRatedDates.get(i), rate);
@@ -101,7 +101,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
         }
 
         DateComparator dc = new DateComparator();
-        List<MetaDate> dates = dc.orderDates(result);
+        List<MetaDate> dates = dc.orderDates(result.keySet(), false);
         MetaDate tempDate;
         switch(dateType){
 	        case publish:
@@ -120,7 +120,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
         double newRate;
 
         for (int i = 0; i < dates.size(); i++) {
-            diff = dc.getDifference(tempDate, dates.get(i), DateComparator.MEASURE_HOUR);
+            diff = tempDate.getDifference(dates.get(i), TimeUnit.HOURS);
             if (diff > 24) {
                 diff = 24;
             }
@@ -133,7 +133,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
         return result;
     }
 
-    public void setActualDate(ExtractedDate actualDate){
-    	this.actualDate = actualDate;
+    public void setCurrentDate(ExtractedDate actualDate){
+    	this.currentDate = actualDate;
     }
 }

@@ -3,6 +3,7 @@ package ws.palladian.extraction.date.rater;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
@@ -62,8 +63,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
         for (int i = 0; i < httpDates.size(); i++) {
             date = httpDates.get(i);
             
-            DateComparator dc = new DateComparator();
-            double timedifference = dc.getDifference(httpDates.get(i), downloadedDate, DateComparator.MEASURE_HOUR);
+            double timedifference = httpDates.get(i).getDifference(downloadedDate, TimeUnit.HOURS);
 
             if (timedifference > 12) {
                 rate = 0.75;// 75% aller Webseiten haben richtigen last modified tag, aber bei dif. von 3h ist dies zu
@@ -76,7 +76,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
         }
 
         DateComparator dc = new DateComparator();
-        List<MetaDate> dates = dc.orderDates(result);
+        List<MetaDate> dates = dc.orderDates(result.keySet(), false);
         MetaDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
 
         double diff;
@@ -84,7 +84,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
         double newRate;
 
         for (int i = 0; i < dates.size(); i++) {
-            diff = dc.getDifference(oldest, dates.get(i), DateComparator.MEASURE_HOUR);
+            diff = oldest.getDifference(dates.get(i), TimeUnit.HOURS);
             if (diff > 24) {
                 diff = 24;
             }

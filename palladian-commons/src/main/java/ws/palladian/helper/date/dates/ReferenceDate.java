@@ -20,7 +20,7 @@ public final class ReferenceDate extends ExtractedDate {
     }
 
     public ReferenceDate(ExtractedDate extractedDate) {
-        super(extractedDate, DateType.ReferenceDate);
+        super(extractedDate);
     }
 
 }

@@ -13,22 +13,6 @@ public interface AbstractDate {
     static final int EXACTENESS = 7;
 
     /**
-     * <p>Returns value representing this type of date.</p>
-     * 
-     * @return Type of this date.
-     */
-    DateType getType();
-
-//    /**
-//     * Returns int value representing this type of date.<br>
-//     * Returning values are equal to this static TECH_ fields. <br>
-//     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
-//     * 
-//     * @return Integer of this type.
-//     */
-//    int getTypeInt();
-
-    /**
      * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
      * 
      * @param time <code>true</code> to include time.

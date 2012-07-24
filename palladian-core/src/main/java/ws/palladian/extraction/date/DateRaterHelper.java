@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 
@@ -39,7 +39,7 @@ public class DateRaterHelper {
 
         DateExactness compareDepth = DateExactness.DAY;
         if  (date.getExactness().getValue() != 0) {
-            compareDepth = DateExactness.min(DateExactness.DAY, date.getExactness());
+            compareDepth = DateExactness.getCommonExactness(DateExactness.DAY, date.getExactness());
         }
         DateComparator dateComparator = new DateComparator(compareDepth);
         boolean gt = dateComparator.compare(begin, date) > -1;

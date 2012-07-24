@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 public class EvaluationHelper {
@@ -207,7 +207,7 @@ public class EvaluationHelper {
 				returnValue = EvaluationHelper.ANF;
 			}else{
 			    DateExactness compareDepth = DateExactness.getCommonExactness(ed, (ExtractedDate) foundDate);
-				DateComparator dc = new DateComparator(DateExactness.min(compareDepth, DateExactness.DAY));
+				DateComparator dc = new DateComparator(DateExactness.getCommonExactness(compareDepth, DateExactness.DAY));
 				if (dc.compare(ed, (ExtractedDate) foundDate) == 0){
 					returnValue = EvaluationHelper.AFR;
 				}else{

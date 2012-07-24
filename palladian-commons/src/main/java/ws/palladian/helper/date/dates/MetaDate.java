@@ -6,7 +6,7 @@ public final class MetaDate extends KeywordDate {
     private final String tag;
 
     public MetaDate(ExtractedDate date, String keyword, String tag) {
-        super(date, keyword, DateType.MetaDate);
+        super(date, keyword);
         this.tag = tag;
     }
 

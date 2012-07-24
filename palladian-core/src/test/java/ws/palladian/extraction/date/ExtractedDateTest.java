@@ -2,10 +2,13 @@ package ws.palladian.extraction.date;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.extraction.date.comparators.DateExactness;
+import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 import com.ibm.icu.util.Calendar;
@@ -144,6 +147,14 @@ public class ExtractedDateTest {
         assertEquals(DateExactness.SECOND, date16.getExactness());
         assertEquals(DateExactness.SECOND, date17.getExactness());
         assertEquals(DateExactness.SECOND, date18.getExactness());
+    }
+    
+    @Test
+    public void testGetDifference() {
+        assertEquals(432000, date1.getDifference(date2, TimeUnit.SECONDS), 0);
+        assertEquals(7200, date1.getDifference(date2, TimeUnit.MINUTES), 0);
+        assertEquals(120, date1.getDifference(date2, TimeUnit.HOURS), 0);
+        assertEquals(5, date1.getDifference(date2, TimeUnit.DAYS), 0);
     }
     
 }
