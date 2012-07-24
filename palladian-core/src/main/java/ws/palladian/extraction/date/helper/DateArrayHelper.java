@@ -77,11 +77,29 @@ public class DateArrayHelper {
         return ret;
     }
 
-    public static <T extends ExtractedDate> List<T> filter(List<T> dates, DateType filter) {
+//    /**
+//     * @deprecated Use {@link #filter(List, Class)} instead.
+//     */
+//    @Deprecated
+//    public static <T extends ExtractedDate> List<T> filter(List<T> dates, DateType filter) {
+//        List<T> ret = new ArrayList<T>();
+//        for (T date : dates) {
+//            if (date.getType().equals(filter)) {
+//                ret.add(date);
+//            }
+//        }
+//        return ret;
+//    }
+    
+    @SuppressWarnings("unchecked")
+    public static <T extends ExtractedDate> List<T> filter(List<? extends ExtractedDate> dates, Class<T> filter) {
         List<T> ret = new ArrayList<T>();
-        for (T date : dates) {
-            if (date.getType().equals(filter)) {
-                ret.add(date);
+//        InstanceofPredicate predicate = new InstanceofPredicate(filter);
+//        CollectionUtils.filter(ret, predicate);
+//        return ret;
+        for (ExtractedDate date : dates) {
+            if (filter.isInstance(date)) {
+                ret.add((T)date);
             }
         }
         return ret;
@@ -357,10 +375,10 @@ public class DateArrayHelper {
      * @param filterTechnique
      * @param format
      */
-    public static <T extends ExtractedDate> void printDateArray(List<T> dates, DateType filterTechnique, String format) {
+    public static <T extends ExtractedDate> void printDateArray(List<T> dates, Class<T> filter, String format) {
         List<T> temp = dates;
-        if (filterTechnique != null) {
-            temp = filter(dates, filterTechnique);
+        if (filter != null) {
+            temp = filter(dates, filter);
         }
 
         for (T date : temp) {
@@ -434,8 +452,8 @@ public class DateArrayHelper {
      * @param dates
      * @param filterTechnique
      */
-    public static void printDateArray(List<? extends ExtractedDate> dates, DateType filterTechnique) {
-        printDateArray(dates, filterTechnique, null);
+    public static <T extends ExtractedDate> void printDateArray(List<T> dates, Class<T> filter) {
+        printDateArray(dates, filter, null);
     }
 
 //    /**

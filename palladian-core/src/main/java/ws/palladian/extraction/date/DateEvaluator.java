@@ -31,14 +31,16 @@ public class DateEvaluator {
      * Standard constructor.
      */
     public DateEvaluator() {
-        setPubMod(PageDateType.publish);
+        //setPubMod(PageDateType.publish);
+        this(PageDateType.publish);
     }
 
     /**
      * Standard constructor.
      */
     public DateEvaluator(PageDateType pub_mod) {
-        setPubMod(pub_mod);
+        //setPubMod(pub_mod);
+        this(null, pub_mod);
     }
 
     /**
@@ -48,16 +50,17 @@ public class DateEvaluator {
      */
     public DateEvaluator(String url, PageDateType pub_mod) {
         this.url = url;
-        setPubMod(pub_mod);
-    }
-
-    /**
-     * Use this method to decide between publish and modified dates. 
-     * @param pub_mod
-     */
-    private void setPubMod(PageDateType pub_mod) {
+        // setPubMod(pub_mod);
         cdr = new ContentDateRater(pub_mod);
     }
+
+//    /**
+//     * Use this method to decide between publish and modified dates. 
+//     * @param pub_mod
+//     */
+//    private void setPubMod(PageDateType pub_mod) {
+//        cdr = new ContentDateRater(pub_mod);
+//    }
 
 
     /**
@@ -71,12 +74,12 @@ public class DateEvaluator {
      */
     @SuppressWarnings("unchecked")
     public <T extends ExtractedDate> Map<T, Double> rate(List<T> extractedDates) {
-        HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
+        Map<T, Double> evaluatedDates = new HashMap<T, Double>();
         List<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
-        HashMap<T, Double> contResult = new HashMap<T, Double>();
+        Map<T, Double> contResult = new HashMap<T, Double>();
 
-        ArrayList<ContentDate> contDates = (ArrayList<ContentDate>) DateArrayHelper.filter(dates, DateType.ContentDate);
-        ArrayList<ContentDate> contFullDates = (ArrayList<ContentDate>) DateArrayHelper.filter(contDates,
+        List<ContentDate> contDates = DateArrayHelper.filter(dates, ContentDate.class);
+        List<ContentDate> contFullDates = (ArrayList<ContentDate>) DateArrayHelper.filter(contDates,
                 DateArrayHelper.FILTER_FULL_DATE);
 
         contResult.putAll((Map<? extends T, ? extends Double>) cdr.rate(contFullDates));

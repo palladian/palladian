@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.extraction.date.comparators.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 import com.ibm.icu.util.Calendar;
@@ -121,6 +122,28 @@ public class ExtractedDateTest {
         assertEquals(7, date18.get(ExtractedDate.HOUR));
         assertEquals(6, date18.get(ExtractedDate.MINUTE));
         assertEquals(5, date18.get(ExtractedDate.SECOND));
-
     }
+    
+    @Test
+    public void testGetExactness() {
+        assertEquals(DateExactness.DAY, date1.getExactness());
+        assertEquals(DateExactness.DAY, date2.getExactness());
+        assertEquals(DateExactness.DAY, date3.getExactness());
+        assertEquals(DateExactness.DAY, date4.getExactness());
+        assertEquals(DateExactness.DAY, date5.getExactness());
+        assertEquals(DateExactness.DAY, date6.getExactness());
+        assertEquals(DateExactness.DAY, date7.getExactness());
+        assertEquals(DateExactness.DAY, date8.getExactness());
+        assertEquals(DateExactness.DAY, date9.getExactness());
+        assertEquals(DateExactness.DAY, date10.getExactness());
+        assertEquals(DateExactness.DAY, date11.getExactness());
+        assertEquals(DateExactness.DAY, date12.getExactness());
+        assertEquals(DateExactness.MONTH, date13.getExactness());
+        assertEquals(DateExactness.MONTH, date14.getExactness());
+        assertEquals(DateExactness.MONTH, date15.getExactness());
+        assertEquals(DateExactness.SECOND, date16.getExactness());
+        assertEquals(DateExactness.SECOND, date17.getExactness());
+        assertEquals(DateExactness.SECOND, date18.getExactness());
+    }
+    
 }

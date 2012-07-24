@@ -78,8 +78,8 @@ public class RatedDateComparator<T extends ExtractedDate> implements Comparator<
      * @return
      */
     private int compareTechnique(ExtractedDate date1, ExtractedDate date2) {
-        int tech1 = date1.getTypeInt();
-        int tech2 = date2.getTypeInt();
+        int tech1 = date1.getType().getIntType();
+        int tech2 = date2.getType().getIntType();
         if (tech1 == 0) {
             tech1 = 99;
         }

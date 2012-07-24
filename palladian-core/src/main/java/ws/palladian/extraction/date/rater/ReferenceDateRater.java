@@ -9,7 +9,6 @@ import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.getter.ReferenceDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.helper.date.dates.DateType;
 import ws.palladian.helper.date.dates.ReferenceDate;
 
 /**
@@ -57,7 +56,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
         rdg.setUrl(url);
         List<ReferenceDate> newRefDates = rdg.getDates();
 
-        List<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, DateType.ReferenceDate);
+        List<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, ReferenceDate.class);
 
         return rate(refDates);
     }

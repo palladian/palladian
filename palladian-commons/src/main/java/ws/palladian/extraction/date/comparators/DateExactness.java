@@ -5,7 +5,12 @@ import java.util.NoSuchElementException;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 /**
- * <p>Constants describing the exactness of the {@link ExtractedDate}s.</p>
+ * <p>
+ * Constants describing the exactness of the {@link ExtractedDate}s. The exactness denotes which date parts of an
+ * {@link ExtractedDate} have been set. For example, a date "2012-07-24" has an exactness {@link #DAY}, where
+ * "2012-07-24 11:54:23" as an exactness {@link #SECOND}.
+ * </p>
+ * 
  * @author Philipp Katz
  */
 public enum DateExactness {
@@ -54,7 +59,8 @@ public enum DateExactness {
     }
     
     /**
-     * @deprecated Reference by explicit type.
+     * <p>Get an int value denoting the exactness.</p>
+     * @deprecated Left for legacy reasons. DateExactness should be referenced by explicit type.
      * @return
      */
     @Deprecated

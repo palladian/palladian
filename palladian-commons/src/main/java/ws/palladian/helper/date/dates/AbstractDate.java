@@ -2,8 +2,6 @@ package ws.palladian.helper.date.dates;
 
 import java.util.Date;
 
-import ws.palladian.helper.date.ExtractedDateHelper;
-
 public interface AbstractDate {
 
     static final int YEAR = 1;
@@ -21,14 +19,14 @@ public interface AbstractDate {
      */
     DateType getType();
 
-    /**
-     * Returns int value representing this type of date.<br>
-     * Returning values are equal to this static TECH_ fields. <br>
-     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
-     * 
-     * @return Integer of this type.
-     */
-    int getTypeInt();
+//    /**
+//     * Returns int value representing this type of date.<br>
+//     * Returning values are equal to this static TECH_ fields. <br>
+//     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
+//     * 
+//     * @return Integer of this type.
+//     */
+//    int getTypeInt();
 
     /**
      * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values

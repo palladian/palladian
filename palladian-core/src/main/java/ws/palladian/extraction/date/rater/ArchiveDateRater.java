@@ -38,7 +38,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      * @param allDates
      * @return
      */
-    public <T extends ExtractedDate> Map<ArchiveDate, Double> rate(List<ArchiveDate> list, HashMap<T, Double> allDates) {
+    public <T extends ExtractedDate> Map<ArchiveDate, Double> rate(List<ArchiveDate> list, Map<T, Double> allDates) {
         double highestRate = DateArrayHelper.getHighestRate(allDates);
         HashMap<ArchiveDate, Double> map = new HashMap<ArchiveDate, Double>();
         if (highestRate == 0.0) {
