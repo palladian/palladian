@@ -13,7 +13,7 @@ import ws.palladian.helper.date.dates.UrlDate;
  * Therefore it uses other regular expression then other techniques.
  * 
  * @author Martin Gregor
- * 
+ * @author Philipp Katz
  */
 public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
 
@@ -21,57 +21,60 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
     public ArrayList<UrlDate> getDates() {
         ArrayList<UrlDate> result = new ArrayList<UrlDate>();
         if (url != null) {
-            result.add(getURLDate(url));
+            result.add(getUrlDate(url));
         }
         return result;
     }
 
     /**
-     * An url has only one date. So first date is this one. <br>
-     * Use setUrl before.
-     * @return
+     * <p>
+     * A URL has only one date, retrieve it using this method.
+     * </p>
+     * 
+     * @return The {@link UrlDate} of this URL, or <code>null</code> if no date was extracted.
      */
     public UrlDate getFirstDate() {
-
-        UrlDate date = new UrlDate();
+        UrlDate date = null;
         if (url != null) {
-            date = getURLDate(url);
+            date = getUrlDate(url);
         }
         return date;
 
     }
+
     /**
-     * An url has only one date. So first date is this one.
+     * <p>
+     * A URL has only one date, retrieve it for the specified URL.
+     * </p>
      * 
-     * @return
+     * @param url The URL from which to retrieve the date.
+     * @return The {@link UrlDate} of the specified URL, or <code>null</code> if no date was extracted.
      */
     public UrlDate getFirstDate(String url) {
-
-        UrlDate date = new UrlDate();
+        UrlDate date = null;
         if (url != null) {
-            date = getURLDate(url);
+            date = getUrlDate(url);
         }
         return date;
-
     }
 
     /**
-     *Looks up for a date in the URL.
+     * Looks up for a date in the URL.
      * 
      * @param url
      * @return a extracted Date
      */
-    private UrlDate getURLDate(String url) {
+    private UrlDate getUrlDate(String url) {
         ExtractedDate date = null;
         UrlDate temp = null;
         Object[] regExpArray = RegExp.getURLRegExp();
         int index = 0;
         while (date == null && index < regExpArray.length) {
-            date = DateGetterHelper.getDateFromString(url, (String[]) regExpArray[index]);
+            date = DateGetterHelper.getDateFromString(url, (String[])regExpArray[index]);
             index++;
         }
         if (date != null) {
-            //temp = DateConverter.convert(date, DateType.UrlDate);
+            // temp = DateConverter.convert(date, DateType.UrlDate);
             temp = new UrlDate(date);
             temp.setUrl(url);
         }

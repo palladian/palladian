@@ -15,13 +15,6 @@ public abstract class KeywordDate extends ExtractedDate {
 
     /**
      * @param dateString
-     */
-    public KeywordDate(String dateString) {
-        super(dateString);
-    }
-
-    /**
-     * @param dateString
      * @param format
      */
     public KeywordDate(String dateString, String format) {

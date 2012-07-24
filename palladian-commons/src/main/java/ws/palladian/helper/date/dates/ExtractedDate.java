@@ -27,9 +27,9 @@ public class ExtractedDate implements AbstractDate {
     /**
      * Found date as string.
      */
-    private String dateString = null;
+    private final String dateString;
     /** The format, the dateString is found. */
-    private String format;
+    private final String format;
 
     /** URL */
     private String url = null;
@@ -45,23 +45,6 @@ public class ExtractedDate implements AbstractDate {
     private String timezone = null;
 
     private double rate = 0;
-
-    /**
-     * Standard constructor.
-     */
-    public ExtractedDate() {
-        super();
-    }
-
-    /**
-     * Creates a new date and sets the dateString.
-     * 
-     * @param dateString
-     */
-    public ExtractedDate(String dateString) {
-        super();
-        this.dateString = dateString;
-    }
 
     /**
      * creates a new date and sets dateString and format
@@ -709,30 +692,11 @@ public class ExtractedDate implements AbstractDate {
     }
 
     /**
-     * Set a string, that contains only a date-string.
-     * 
-     * @param dateString
-     */
-    public void setDateString(final String dateString) {
-        this.dateString = dateString;
-    }
-
-    /**
      * 
      * @return
      */
     public String getDateString() {
         return dateString;
-    }
-
-    /**
-     * Set the format, that belongs to the date-sting.<br>
-     * Formats are the 2nd part of regular expression array found in {@link RegExp}.
-     * 
-     * @param format
-     */
-    public void setFormat(final String format) {
-        this.format = format;
     }
 
     /**
