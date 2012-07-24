@@ -7,13 +7,10 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.date.getter.ContentDateGetter;
-import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 
 public class ContentDateGetterTest {
 	
