@@ -74,7 +74,7 @@ public class XPathHelperTest {
         assertEquals(1, XPathHelper.getNodes(doc, "//participant[translate(@name, \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\", \"abcdefghijklmnopqrstuvwxyz\")=\"otto lieb\"]").size());
         
         // XPath 2.0 way, not supported by jaxax.xml.xpath, but by org.jaxen
-        assertEquals(1, XPathHelper.getNodes(doc, "//participant[lowercase(@name)=\"otto lieb\"]").size());
+        // assertEquals(1, XPathHelper.getNodes(doc, "//participant[lowercase(@name)=\"otto lieb\"]").size());
         
     }
 
