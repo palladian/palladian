@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.retrieval.parser;
 
 import org.apache.commons.lang3.Validate;
 import org.json.JSONException;
