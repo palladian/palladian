@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.DateExactness;
@@ -150,11 +151,11 @@ public class DateRaterHelper {
      * @param toCheckDate
      */
     public static <T extends ExtractedDate> void checkDayMonthYearOrder(T orginalDate, ExtractedDate toCheckDate) {
-        String[] formats = { RegExp.DATE_URL_D.getFormat(), RegExp.DATE_URL_MMMM_D.getFormat(), RegExp.DATE_ISO8601_YMD.getFormat(),
-                RegExp.DATE_ISO8601_YMD_NO.getFormat() };
+        DateFormat[] formats = { RegExp.DATE_URL_D, RegExp.DATE_URL_MMMM_D, RegExp.DATE_ISO8601_YMD,
+                RegExp.DATE_ISO8601_YMD_NO };
 
         for (int i = 0; i < formats.length; i++) {
-            if (orginalDate.getFormat().equalsIgnoreCase(formats[i])) {
+            if (orginalDate.getFormat().equalsIgnoreCase(formats[i].getFormat())) {
                 if (orginalDate.get(ExtractedDate.YEAR) == toCheckDate.get(ExtractedDate.YEAR)) {
                     if (orginalDate.get(ExtractedDate.MONTH) == toCheckDate.get(ExtractedDate.DAY)
                             && orginalDate.get(ExtractedDate.DAY) == toCheckDate.get(ExtractedDate.MONTH)) {

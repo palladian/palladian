@@ -72,7 +72,7 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
         int index = 0;
         ExtractedDate date = null;
         while (date == null && index < regExpArray.length) {
-            date = DateParser.getDateFromString(url, regExpArray[index]);
+            date = DateParser.findDate(url, regExpArray[index]);
             index++;
         }
         if (date != null) {

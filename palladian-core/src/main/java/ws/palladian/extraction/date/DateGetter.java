@@ -57,16 +57,16 @@ public class DateGetter {
 //		this.document = document;
 //	}
 
-//	/**
-//	 * Constructor creates a new DateGetter with a given URL and document.
-//	 * 
-//	 * @param url
-//	 *            URL that will be analyzed
-//	 */
-//	public DateGetter(final String url, Document document) {
-//		this.url = url;
-//		this.document = document;
-//	}
+	/**
+	 * Constructor creates a new DateGetter with a given URL and document.
+	 * 
+	 * @param url
+	 *            URL that will be analyzed
+	 */
+	public DateGetter(final String url, Document document) {
+		this.url = url;
+		this.document = document;
+	}
 
 	/**
 	 * Analyzes a webpage by different techniques to find dates. The techniques

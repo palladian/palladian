@@ -6,8 +6,6 @@ import org.junit.Test;
 
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.helper.normalization.StringNormalizer;
-import ws.palladian.helper.normalization.UnitNormalizer;
 
 /**
  * Test cases for the normalization.
@@ -149,7 +147,6 @@ public class NormalizationTest {
         assertEquals(1.0, StringHelper.calculateSimilarity("http://www.blu-ray.com/movies/movies.php?genre=action",
                 "http://www.blu-ray.com/movies/movies.php?genre=action"), 0);
         assertEquals(1.0, StringHelper.calculateSimilarity("abc", "abcd"), 0);
-        System.out.println(StringHelper.calculateSimilarity("", "abcd"));
         assertEquals(0.0, StringHelper.calculateSimilarity("", "abcd"), 0);
     }
 

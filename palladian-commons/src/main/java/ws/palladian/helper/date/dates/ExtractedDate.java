@@ -25,7 +25,6 @@ public class ExtractedDate {
     public static final int HOUR = 4;
     public static final int MINUTE = 5;
     public static final int SECOND = 6;
-    // public static final int EXACTENESS = 7;
 
 
     /** Found date as string. */
@@ -43,7 +42,7 @@ public class ExtractedDate {
     private int second = -1;
 
     // FIXME is this considered?
-    private String timezone = null;
+    private String timeZone = null;
 
     private double rate = 0;
 
@@ -78,16 +77,17 @@ public class ExtractedDate {
         this.hour = date.hour;
         this.minute = date.minute;
         this.second = date.second;
-        this.timezone = date.timezone;
+        this.timeZone = date.timeZone;
     }
     
-    ExtractedDate(int year, int month, int day, int hour, int minute, int second, String dateString, String format) {
+    ExtractedDate(int year, int month, int day, int hour, int minute, int second, String timeZone, String dateString, String format) {
         this.year = year;
         this.month = month;
         this.day = day;
         this.hour = hour;
         this.minute= minute;
         this.second = second;
+        this.timeZone = timeZone;
         this.dateString = dateString;
         this.format = format;
     }
@@ -216,6 +216,10 @@ public class ExtractedDate {
         }
         return value;
     }
+    
+    public String getTimeZone() {
+        return timeZone;
+    }
 
     /**
      * Sets all standard date-properties as an array.<br>
@@ -260,6 +264,9 @@ public class ExtractedDate {
         stringBuilder.append(" [normalizedDate=").append(getNormalizedDateString());
         stringBuilder.append(", format=").append(format);
         stringBuilder.append(", rate=").append(rate);
+        if (timeZone != null) {
+            stringBuilder.append(", timeZone=").append(timeZone);
+        }
         stringBuilder.append("]");
         return stringBuilder.toString();
     }
@@ -293,15 +300,6 @@ public class ExtractedDate {
         }
         return exactness;
     }
-
-//    /**
-//     * Extracted date has no keyword. But is needed for toString.
-//     * 
-//     * @return
-//     */
-//    public String getKeyword() {
-//        return "";
-//    }
 
     /**
      * Set value of date evaluation.

@@ -26,13 +26,13 @@ public class DateEvaluator {
 
     private final ContentDateRater contentDateRater;
 
-//    /**
-//     * Standard constructor.
-//     */
-//    public DateEvaluator() {
-//        //setPubMod(PageDateType.publish);
-//        this(PageDateType.publish);
-//    }
+    /**
+     * Standard constructor.
+     */
+    public DateEvaluator() {
+        //setPubMod(PageDateType.publish);
+        this(PageDateType.publish);
+    }
 
     /**
      * Standard constructor.

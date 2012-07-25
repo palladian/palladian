@@ -11,100 +11,90 @@ import ws.palladian.helper.nlp.StringHelper;
 
 public class DateParser {
 
-    public static ExtractedDate parse(String dateString, String format) {
+    /**
+     * <p>
+     * Parse a date given a specific format.
+     * </p>
+     * 
+     * @param date The string with the date to be parsed, not <code>null</code>.
+     * @param format The format describing the date to be parsed, not <code>null</code>.
+     * @return
+     */
+    public static ExtractedDate parse(String date, String format) {
         DateParserLogic parseLogic = new DateParserLogic();
-        parseLogic.parse(dateString, format);
+        parseLogic.parse(date, format);
         return new ExtractedDate(parseLogic.year, parseLogic.month, parseLogic.day, parseLogic.hour, parseLogic.minute,
-                parseLogic.second, dateString, format);
+                parseLogic.second, parseLogic.timezone, date, format);
     }
     
     /**
-     * Tries to match a date in a dateformat. The format is given by the regular expressions of RegExp.
+     * <p>
+     * Try to parse a date from a text by trying to match all known date formats, as specified by {@link RegExp#ALL_DATE_FORMATS}.
+     * </p>
      * 
-     * @param dateString a date to match.
-     * @return The found date, defined in RegExp constants. <br>
-     *         If no match is found return <b>null</b>.
+     * @param text The text to check for a date, not <code>null</code>.
+     * @return The {@link ExtractedDate}, or <code>null</code> if the specified text contained no matching date.
      */
-    public static ExtractedDate findDate(String dateString) {
-        return findDate(dateString, RegExp.ALL_DATE_FORMATS);
+    public static ExtractedDate findDate(String text) {
+        return findDate(text, RegExp.ALL_DATE_FORMATS);
     }
 
     /**
-     * Tries to match a date in a dateformat. The format is given by the regular expressions of RegExp.
+     * <p>
+     * Try to parse a date from a text by trying the specified date formats.
+     * </p>
      * 
-     * @param dateString a date to match.
-     * @param regExpArray regular expressions of dates to match. If this is null {@link RegExp}.getAllRegExp will be
-     *            called.
-     * @return The found date, defined in RegExp constants. <br>
-     *         If no match is found return <b>null</b>.
+     * @param text The string with the date to be parsed, not <code>null</code>.
+     * @param formats An array of formats to try for parsing, not <code>null</code>.
+     * @return The {@link ExtractedDate}, or <code>null</code> if the specified string could not be matched by the given
+     *         {@link DateFormat}s.
      */
-    public static ExtractedDate findDate(String dateString, DateFormat[] dateFormats) {
-        ExtractedDate date = null;
-        
-        for (DateFormat dateFormat : dateFormats) {
-            // FIXME "Mon, 18 Apr 2011 09:16:00 GMT-0700" fails.
-            try {
-                date = getDateFromString(dateString, dateFormat);
-            } catch (Throwable th) {
-                th.printStackTrace();
-            }
-            if (date != null) {
-                break;
+    public static ExtractedDate findDate(String text, DateFormat[] formats) {
+        for (DateFormat dateFormat : formats) {
+            // the old code had a catch Throwable around find date, I removed this for now,
+            // if exceptions are encountered, try to solve them, and do not just catch them away.
+            ExtractedDate extractedDate = findDate(text, dateFormat);
+            if (extractedDate != null) {
+                return extractedDate;
             }
         }
-        return date;
+        return null;
     }
     
     /**
+     * <p>
+     * Try to parse a date from a text be trying the specified date format.
+     * </p>
      * 
-     * @param string string, which is to be searched
-     * @param regExp regular expression for search
-     * @param offsetStart is slider for beginning substring (no negative values) - e.g. substring: "abcd" offsetStart=0:
-     *            "abcd" offsetStart=1: "bcd" offsetStart=-1: "abcd"
-     * @return found substring or null
+     * @param string The text to check for a date, not <code>null</code>.
+     * @param format The format to try for parsing, not <code>null</code>.
+     * @return The {@link ExtractedDate} if found, or <code>null</code> if the specified text did not contain a date
+     *         matched by the given {@link DateFormat}.
      */
-    public static ExtractedDate getDateFromString(String dateString, DateFormat dateFormat) {
+    public static ExtractedDate findDate(String text, DateFormat format) {
         
-        String text = StringHelper.removeDoubleWhitespaces(ExtractedDateHelper.replaceHtmlSymbols(dateString)); // FIXME is this necessary?
-        boolean hasPrePostNum = false;
-        ExtractedDate date = null;
-        //Pattern pattern = Pattern.compile(dateFormat.getRegex());
-        Pattern pattern = dateFormat.getPattern();
-        Matcher matcher = pattern.matcher(text);
+        text = ExtractedDateHelper.replaceHtmlSymbols(text);
+        text = StringHelper.removeDoubleWhitespaces(text); // FIXME is this necessary?
         
+        ExtractedDate result = null;
+        
+        Matcher matcher = format.getPattern().matcher(text);
         if (matcher.find()) {
+            boolean digitNeighbor = false;
             int start = matcher.start();
-            int end = matcher.end();
             if (start > 0) {
-                String temp = text.substring(start - 1, start);
-//                try {
-//                    Integer.parseInt(temp);
-//                    hasPrePostNum = true;
-//                } catch (NumberFormatException e) {
-//                    e.printStackTrace(); // FIXME
-//                }
-                hasPrePostNum = temp.matches("\\d");
+                digitNeighbor = Character.isDigit(text.charAt(start - 1));
             }
-            if (end < text.length()) {
-                String temp = text.substring(end, end + 1);
-                //If last character is "/" no check for number is needed.
-                if(!text.substring(end-1, end).equals("/")){
-//                  try {
-//                      Integer.parseInt(temp);
-//                      hasPrePostNum = true;
-//                  } catch (NumberFormatException e) {
-//                      e.printStackTrace(); // FIXME
-//                  }
-                    hasPrePostNum = temp.matches("\\d");
-                }
+            int end = matcher.end();
+            // if last character is "/" no check for number is needed.
+            if (end < text.length() && text.charAt(end - 1) != '/') {
+                digitNeighbor = Character.isDigit(text.charAt(end));
             }
-            if (!hasPrePostNum) {
-                // date = DateParser.parse(text.substring(start, end), dateFormat.getFormat());
-                date = parse(matcher.group(), dateFormat.getFormat());
+            if (!digitNeighbor) {
+                result = parse(matcher.group(), format.getFormat());
             }
-
         }
-        return date;
+        return result;
     }
     
     //Monat und Jahr sind nur gerundet.
@@ -142,48 +132,5 @@ public class DateParser {
         }
         return date;
     }
-
-    
-//    /**
-//     * Convert month-name in a number; January is 01..
-//     * TODO somewhat duplicate to {@link DateHelper#monthNameToNumber(String)}
-//     * 
-//     * @param month
-//     * @return month-number as string
-//     */
-//    public static String getMonthNumber(String monthString) {
-//        String month = monthString;
-//        month = month.replaceAll(",", "");
-//        month = month.replaceAll("\\.", "");
-//        month = month.replaceAll(" ", "");
-//        month = month.toLowerCase();
-//        String monthNumber = null;
-//        if (month.equals("january") || month.equals("januar") || month.equals("jan")) {
-//            monthNumber = "01";
-//        } else if (month.equals("february") || month.equals("februar") || month.equals("feb")) {
-//            monthNumber = "02";
-//        } else if (month.equals("march") || month.equals("märz") || month.equals("mär") || month.equals("mar")) {
-//            monthNumber = "03";
-//        } else if (month.equals("april") || month.equals("apr")) {
-//            monthNumber = "04";
-//        } else if (month.equals("may") || month.equals("mai") || month.equals("may")) {
-//            monthNumber = "05";
-//        } else if (month.equals("june") || month.equals("juni") || month.equals("jun")) {
-//            monthNumber = "06";
-//        } else if (month.equals("july") || month.equals("juli") || month.equals("jul")) {
-//            monthNumber = "07";
-//        } else if (month.equals("august") || month.equals("aug")) {
-//            monthNumber = "08";
-//        } else if (month.equals("september") || month.equals("sep") || month.equals("sept")) {
-//            monthNumber = "09";
-//        } else if (month.equals("october") || month.equals("oktober") || month.equals("oct") || month.equals("okt")) {
-//            monthNumber = "10";
-//        } else if (month.equals("november") || month.equals("nov")) {
-//            monthNumber = "11";
-//        } else if (month.equals("december") || month.equals("dezember") || month.equals("dec") || month.equals("dez")) {
-//            monthNumber = "12";
-//        }
-//        return monthNumber;
-//    }
 
 }
