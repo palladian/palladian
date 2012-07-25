@@ -12,8 +12,8 @@ import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.extraction.date.rater.UrlDateRater;
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.DateExactness;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.UrlDate;
 
@@ -66,10 +66,10 @@ public class UrlEvaluator {
 			if (urlDate != null) {
 				ExtractedDate foundDate;
 				if (pub_mod == PageDateType.publish) {
-					foundDate = DateGetterHelper.findDate(e.getValue().get(
+					foundDate = DateParser.findDate(e.getValue().get(
 							DBExport.PUB_DATE));
 				} else {
-					foundDate = DateGetterHelper.findDate(e.getValue().get(
+					foundDate = DateParser.findDate(e.getValue().get(
 							DBExport.MOD_DATE));
 				}
 				if (foundDate != null) {

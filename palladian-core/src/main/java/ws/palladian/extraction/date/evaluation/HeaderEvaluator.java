@@ -19,7 +19,7 @@ import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.HeadDateRater;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -127,10 +127,10 @@ public class HeaderEvaluator {
 			ExtractedDate date;
 			String dbExportDateString;
 			if(pub_mod == DBExport.PUB_DATE){
-				date = DateGetterHelper.findDate(e.getValue().getPubDate());
+				date = DateParser.findDate(e.getValue().getPubDate());
 				dbExportDateString =" - pubDate:" ;
 			}else{
-				date = DateGetterHelper.findDate(e.getValue().getModDate());
+				date = DateParser.findDate(e.getValue().getModDate());
 				dbExportDateString =" - modDate:" ;
 			}
 			

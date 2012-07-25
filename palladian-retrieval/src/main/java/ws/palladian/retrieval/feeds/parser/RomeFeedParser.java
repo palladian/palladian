@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
@@ -366,7 +366,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
             if (rawDate != null) {
 
                 try {
-                    ExtractedDate extractedDate = DateGetterHelper.findDate(rawDate);
+                    ExtractedDate extractedDate = DateParser.findDate(rawDate);
                     if (extractedDate != null) {
                         publishDate = extractedDate.getNormalizedDate();
                         LOGGER.debug("found publish date in original feed file: " + publishDate);

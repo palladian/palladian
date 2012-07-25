@@ -10,7 +10,9 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.AbstractBodyDate;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.StructureDate;
 
@@ -141,13 +143,13 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
                 Node attributeNode = tag.item(i);
                 String nodeName = attributeNode.getNodeName();
                 if (!nodeName.equalsIgnoreCase("href")) {
-                    ExtractedDate t = DateGetterHelper.findDate(attributeNode.getNodeValue());
+                    ExtractedDate t = DateParser.findDate(attributeNode.getNodeValue());
                     if (t == null) {
                         if (keyword == null) {
-                            keyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),
+                            keyword = ExtractedDateHelper.hasKeyword(attributeNode.getNodeValue(),
                                     KeyWords.DATE_BODY_STRUC);
                         } else {
-                            tempKeyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),
+                            tempKeyword = ExtractedDateHelper.hasKeyword(attributeNode.getNodeValue(),
                                     KeyWords.DATE_BODY_STRUC);
                             if (KeyWords.getKeywordPriority(keyword) > KeyWords.getKeywordPriority(tempKeyword)) {
                                 keyword = tempKeyword;

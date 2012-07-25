@@ -21,8 +21,10 @@ import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateExactness;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.helper.date.dates.StructureDate;
@@ -157,7 +159,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             // TODO: Check if an element is visible
             // checkVisiblityOfAllNodes(body.item(0));
             // Get webpage as text (for finding position).
-            this.doc = StringHelper.removeDoubleWhitespaces(DateGetterHelper.replaceHtmlSymbols(HtmlHelper
+            this.doc = StringHelper.removeDoubleWhitespaces(ExtractedDateHelper.replaceHtmlSymbols(HtmlHelper
                     .documentToReadableText(body.item(0))));
 
             /*
@@ -205,7 +207,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         // String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 
-        String text = DateGetterHelper.replaceHtmlSymbols(node.getNodeValue());
+        String text = ExtractedDateHelper.replaceHtmlSymbols(node.getNodeValue());
 
         int index = -1;
         Node parent = node.getParentNode();
@@ -329,7 +331,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 index = text.indexOf(key);
                 if (index != -1) {
                     this.keyContentMap.put(index, key);
-                    text = text.replaceFirst(key, DateGetterHelper.getXs(key));
+                    text = text.replaceFirst(key, ExtractedDateHelper.getXs(key));
                     i--;
                 }
             }
@@ -485,7 +487,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attr = attributes.item(i);
             if (!attr.getNodeName().equalsIgnoreCase("href")) {
-                date = DateGetterHelper.findDate(attr.getNodeValue(), regExps);
+                date = DateParser.findDate(attr.getNodeValue(), regExps);
                 if (date != null) {
 
                     break;

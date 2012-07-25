@@ -12,6 +12,7 @@ import java.util.Random;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.DateExactness;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 public class EvaluationHelper {
@@ -195,7 +196,7 @@ public class EvaluationHelper {
 	 */
 	public static int compareDate(ExtractedDate foundDate, DBExport dbExport, int compareDate){
 		int returnValue;
-		ExtractedDate ed = DateGetterHelper.findDate(dbExport.get(compareDate));
+		ExtractedDate ed = DateParser.findDate(dbExport.get(compareDate));
 		if(ed == null){
 			if(foundDate == null){
 				returnValue = EvaluationHelper.ARD;

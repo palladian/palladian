@@ -5,7 +5,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
@@ -46,7 +46,7 @@ public class AskDateGetter {
 			int index = divText.indexOf("...");
 			if(index != -1){
 				String dateString = divText.substring(0, index);
-				date = DateGetterHelper.findDate(dateString);
+				date = DateParser.findDate(dateString);
 			}
 		}
 		return date;
