@@ -599,7 +599,12 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
             List<StreamSource> result = query.getResultList();
             return getFirst(result);
         } finally {
-            commitTransaction(openedTransaction);
+            try {
+                commitTransaction(openedTransaction);
+            } catch (javax.persistence.RollbackException e) {
+                System.out.println(e);
+                throw e;
+            }
         }
     }
 
@@ -678,9 +683,14 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
     }
 
     /**
-     * @param forumInternalIdentifier
-     * @param parentStream
-     * @return
+     * <p>
+     * Loads an {@link Item} from an {@link ItemStream} based on its forum internal identifier. The method throws an
+     * exception if multiple {@code Item}s with the same forum internal identifier are found.
+     * </p>
+     * 
+     * @param forumInternalIdentifier The forum internal identifier of the {@code Item} to load.
+     * @param parentStream The {@code ItemStream} to load the {@code Item} from.
+     * @return The item to load or {@code null} if no such item is available.
      */
     public Item loadItem(String forumInternalIdentifier, ItemStream parentStream) {
         TypedQuery<Item> query = getManager().createQuery(
@@ -693,9 +703,11 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
             List<Item> result = query.getResultList();
             if (result.size() == 1) {
                 return result.get(0);
-            } else {
+            } else if (result.size() > 1) {
                 throw new IllegalStateException("Found " + result.size() + " items with internal identifier "
                         + forumInternalIdentifier + "in item stream " + parentStream);
+            } else {
+                return null;
             }
         } finally {
             commitTransaction(openedTransaction);

@@ -66,10 +66,10 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
      */
     @Override
     public boolean contains(final Object obj) {
-        String categoryName = ((Category) obj).getName();
+        String categoryName = ((Category)obj).getName();
 
         for (Category c : this) {
-            if (c.equals(categoryName)) {
+            if (c.getName().equals(categoryName)) {
                 return true;
             }
         }
@@ -80,7 +80,7 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
     public boolean containsCategoryName(final String categoryName) {
 
         for (Category c : this) {
-            if (c.equals(categoryName)) {
+            if (c.getName().equals(categoryName)) {
                 return true;
             }
         }
@@ -96,7 +96,7 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
      */
     public Category getCategoryByName(final String categoryName) {
         for (Category c : this) {
-            if (c.equals(categoryName)) {
+            if (c.getName().equals(categoryName)) {
                 return c;
             }
         }
