@@ -227,7 +227,7 @@ public class RegExp {
         + "))", "DD.MM.YYYY" );
     /** European date. DD.MM.YYYY HH:MM:SS+UTC. */
     public static final DateFormat DATE_EU_D_MM_Y_T = new DateFormat(
-        "(" + DATE_EU_D_MM_Y.getRegExp() + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?)",
+        "(" + DATE_EU_D_MM_Y.getRegex() + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?)",
     "DD.MM.YYYY HH:MM:SS +UTC" );
     /** European date. MM.YYYY . */
     public static final DateFormat DATE_EU_MM_Y = new DateFormat( MONTH_NUMBER_NORMAL + SEP_SYM + YEAR_SHORT_LONG, "MM.YYYY" );

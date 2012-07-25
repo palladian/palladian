@@ -1,7 +1,6 @@
 package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -90,22 +89,30 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
         ExtractedDate date = null;
         if (headers.containsKey(keyword)) {
             List<String> dateList = headers.get(keyword);
-            Iterator<String> dateListIterator = dateList.iterator();
-            while (dateListIterator.hasNext()) {
-                String dateString = dateListIterator.next().toString();
+            for(String dateString : dateList) {
                 int index = 0;
                 while (date == null && index < regExpArray.length) {
                     date = DateGetterHelper.getDateFromString(dateString, regExpArray[index]);
                     index++;
                 }
                 if (date != null) {
-                	//MetaDate httpDate = DateConverter.convert(date, DateType.MetaDate);
-                    // HTTPDate httpDate = DateConverter.convertToHTTPDate(date);
-                    MetaDate httpDate = new MetaDate(date, keyword);
-                    // httpDate.setKeyword(keyword);
-                    result.add(httpDate);
+                    result.add(new MetaDate(date, keyword));
                 }
+                
             }
+            
+//            Iterator<String> dateListIterator = dateList.iterator();
+//            while (dateListIterator.hasNext()) {
+//                String dateString = dateListIterator.next().toString();
+//                int index = 0;
+//                while (date == null && index < regExpArray.length) {
+//                    date = DateGetterHelper.getDateFromString(dateString, regExpArray[index]);
+//                    index++;
+//                }
+//                if (date != null) {
+//                    result.add(new MetaDate(date, keyword));
+//                }
+//            }
         }
         return result;
     }

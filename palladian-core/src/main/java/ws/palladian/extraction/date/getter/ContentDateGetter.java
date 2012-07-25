@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -77,8 +76,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
     private void setFeatures(List<ContentDate> dates) {
 
-        LinkedList<ContentDate> posOrder = new LinkedList<ContentDate>();
-        LinkedList<ContentDate> ageOrder = new LinkedList<ContentDate>();
+        List<ContentDate> posOrder = new LinkedList<ContentDate>();
+        List<ContentDate> ageOrder = new LinkedList<ContentDate>();
         for (int i = 0; i < dates.size(); i++) {
             if (dates.get(i).get(ContentDate.DATEPOS_IN_DOC) != -1) {
                 posOrder.add(dates.get(i));
@@ -166,10 +165,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
              * (regExps.length)*(nodeList.size) [n < n*m]
              */
             DateFormat[] regExps = RegExp.getAllRegExp();
-            Pattern[] pattern = new Pattern[regExps.length];
-            for (int i = 0; i < regExps.length; i++) {
-                pattern[i] = Pattern.compile(regExps[i].getRegExp());
-            }
+//            Pattern[] pattern = new Pattern[regExps.length];
+//            for (int i = 0; i < regExps.length; i++) {
+//                pattern[i] = Pattern.compile(regExps[i].getRegex());
+//            }
 
             setDocKeywords();
 
@@ -180,7 +179,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                     Node parent = node.getParentNode();
                     if (parent.getNodeType() != Node.COMMENT_NODE && !parent.getNodeName().equalsIgnoreCase("script")
                             && !parent.getNodeName().equalsIgnoreCase("style")) {
-                        dates.addAll(checkTextnode((Text) node, pattern, regExps));
+                        dates.addAll(checkTextnode((Text) node, regExps));
                     }
                 }
             }
@@ -202,7 +201,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      *            Depth of node in document structure.
      * @return
      */
-    private List<ContentDate> checkTextnode(Text node, Pattern[] pattern, DateFormat[] regExps) {
+    private List<ContentDate> checkTextnode(Text node, DateFormat[] regExps) {
 
         // String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 
@@ -216,16 +215,16 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             parent = parent.getParentNode();
         }
 
-        ArrayList<ContentDate> returnDates = new ArrayList<ContentDate>();
-        ArrayList<String> textSplitt = new ArrayList<String>();
-        ArrayList<ContentDate> dateList = new ArrayList<ContentDate>();
+        List<ContentDate> returnDates = new ArrayList<ContentDate>();
+        List<String> textSplitt = new ArrayList<String>();
+        List<ContentDate> dateList = new ArrayList<ContentDate>();
         for (int i = 0, beginIndex; (beginIndex = i * 10000) < text.length(); i++) {
             int endIndex = Math.min(beginIndex + 10000, text.length());
             textSplitt.add(text.substring(beginIndex, endIndex));
 
         }
         for (String textPart : textSplitt) {
-            dateList.addAll(DateGetterHelper.findAllDates(textPart, pattern, regExps));
+            dateList.addAll(DateGetterHelper.findAllDates(textPart, regExps));
         }
         if (dateList.size() > 0) {
             Integer beginIndex = nodeIndexMap.get(text);
@@ -243,10 +242,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         for (ContentDate date : dateList) {
 
-            date.setStructureDate(getStructureDate(tag, pattern, regExps));
+            date.setStructureDate(getStructureDate(tag, regExps));
 
             if (date.getStructureDate() == null && tag != parent) {
-                date.setStructureDate(getStructureDate(parent, pattern, regExps));
+                date.setStructureDate(getStructureDate(parent, regExps));
             }
 
             boolean keyword3Class = true;
@@ -455,12 +454,12 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @param regExps
      * @return
      */
-    private StructureDate getStructureDate(Node node, Pattern[] pattern, DateFormat[] regExps) {
+    private StructureDate getStructureDate(Node node, DateFormat[] regExps) {
         Boolean hasDate = lookedUpNodeMap.get(node);
         StructureDate date;
 
         if (hasDate == null) {
-            date = findStructureDate(node, pattern, regExps);
+            date = findStructureDate(node, regExps);
             lookedUpNodeMap.put(node, true);
             structDateMap.put(node, date);
         } else {
@@ -478,7 +477,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @param regExps
      * @return
      */
-    private StructureDate findStructureDate(Node node, Pattern[] pattern, DateFormat[] regExps) {
+    private StructureDate findStructureDate(Node node, DateFormat[] regExps) {
         StructureDate structDate = null;
         ExtractedDate date = null;
 
@@ -486,7 +485,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attr = attributes.item(i);
             if (!attr.getNodeName().equalsIgnoreCase("href")) {
-                date = DateGetterHelper.findDate(attr.getNodeValue(), pattern, regExps);
+                date = DateGetterHelper.findDate(attr.getNodeValue(), regExps);
                 if (date != null) {
 
                     break;

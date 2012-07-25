@@ -63,7 +63,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
         if (bodyNodeList != null) {
             for (int i = 0; i < bodyNodeList.getLength(); i++) {
                 Node node = bodyNodeList.item(i);
-                ArrayList<StructureDate> childrernDates = getChildrenDates(node, 0);
+                List<StructureDate> childrernDates = getChildrenDates(node, 0);
                 if (childrernDates != null) {
                     dates.addAll(childrernDates);
                 }
@@ -80,8 +80,8 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param depth Depth of hierarchy the node is in.
      * @return
      */
-    private ArrayList<StructureDate> getChildrenDates(final Node node, int depth) {
-        ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
+    private List<StructureDate> getChildrenDates(Node node, int depth) {
+        List<StructureDate> dates = new ArrayList<StructureDate>();
         StructureDate date = null;
 
         if (!node.getNodeName().equalsIgnoreCase("script") && !node.getNodeName().equalsIgnoreCase("img")) {
@@ -92,11 +92,11 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
             date.set(AbstractBodyDate.STRUCTURE_DEPTH, depth);
             dates.add(date);
         }
-        final NodeList nodeList = node.getChildNodes();
+        NodeList nodeList = node.getChildNodes();
         if (nodeList != null) {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node childNode = null;
-                ArrayList<StructureDate> childDates = null;
+                List<StructureDate> childDates = null;
                 if (!node.getNodeName().equalsIgnoreCase("script")) {
                     childNode = nodeList.item(i);
                     childDates = getChildrenDates(childNode, depth + 1);
@@ -122,7 +122,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param node to check
      * @return A ExtractedDate with Context.
      */
-    private StructureDate checkForDate(final Node node) {
+    private StructureDate checkForDate(Node node) {
 
         StructureDate date = null;
         /*
