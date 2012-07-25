@@ -1,24 +1,29 @@
 package ws.palladian.helper.html;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
-import org.jaxen.JaxenException;
-import org.jaxen.SimpleNamespaceContext;
-import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * A helper class for handling XPath queries, depending on Jaxen XPath library.
+ * A helper class for handling XPath queries.
  * </p>
  * 
  * <p>
@@ -40,13 +45,35 @@ import org.w3c.dom.NodeList;
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
- * 
- * @see <a href="http://jaxen.codehaus.org/">jaxen: universal Java XPath engine</a>
  */
 public final class XPathHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(XPathHelper.class);
+    
+    private static class MyNamespaceContext implements NamespaceContext {
+        private final Map<String, String> namespaces = new HashMap<String, String>();
+
+        public String getNamespaceURI(String prefix) {
+            Validate.notEmpty(prefix);
+            return namespaces.get(prefix);
+        }
+
+        // This method isn't necessary for XPath processing.
+        public String getPrefix(String uri) {
+            throw new UnsupportedOperationException();
+        }
+
+        // This method isn't necessary for XPath processing either.
+        public Iterator<?> getPrefixes(String uri) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void addNamespace(String prefix, String uri) {
+            namespaces.put(prefix, uri);
+        }
+
+    }
 
     private XPathHelper() {
         // utility class, prevent instantiation.
@@ -63,34 +90,65 @@ public final class XPathHelper {
      * @return Matching nodes for the given XPath expression, or an empty {@link List} if no nodes match or an error
      *         occurred.
      */
-    @SuppressWarnings("unchecked")
+//    @SuppressWarnings("unchecked")
     public static List<Node> getNodes(Node node, String xPath, Map<String, String> namespaces) {
+//        Validate.notNull(node, "node must not be null.");
+//        Validate.notEmpty(xPath, "xPath must not be empty.");
+//
+//        List<Node> nodes = new ArrayList<Node>();
+//
+//        try {
+//
+//            DOMXPath xpathObj = new DOMXPath(xPath);
+//            SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
+//            namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+//            if (namespaces != null) {
+//                for (Entry<String, String> entry : namespaces.entrySet()) {
+//                    String prefix = entry.getKey();
+//                    String uri = entry.getValue();
+//                    namespaceContext.addNamespace(prefix, uri);
+//                }
+//            }
+//            xpathObj.setNamespaceContext(namespaceContext);
+//
+//            nodes = xpathObj.selectNodes(node);
+//
+//        } catch (JaxenException e) {
+//            LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
+//        }
+//
+//        return nodes;
+        
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
-        List<Node> nodes = new ArrayList<Node>();
+        List<Node> ret = new ArrayList<Node>();
 
-        try {
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xPathObject = factory.newXPath();
 
-            DOMXPath xpathObj = new DOMXPath(xPath);
-            SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
-            namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-            if (namespaces != null) {
-                for (Entry<String, String> entry : namespaces.entrySet()) {
-                    String prefix = entry.getKey();
-                    String URI = entry.getValue();
-                    namespaceContext.addNamespace(prefix, URI);
-                }
+        MyNamespaceContext namespaceContext = new MyNamespaceContext();
+        namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+        if (namespaces != null) {
+            for (Entry<String, String> entry : namespaces.entrySet()) {
+                String prefix = entry.getKey();
+                String uri = entry.getValue();
+                namespaceContext.addNamespace(prefix, uri);
             }
-            xpathObj.setNamespaceContext(namespaceContext);
-
-            nodes = xpathObj.selectNodes(node);
-
-        } catch (JaxenException e) {
+        }
+        xPathObject.setNamespaceContext(namespaceContext);
+        try {
+            XPathExpression xPathExpression = xPathObject.compile(xPath);
+            NodeList nodes = (NodeList)xPathExpression.evaluate(node, XPathConstants.NODESET);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                ret.add(nodes.item(i));
+            }
+        } catch (XPathExpressionException e) {
+            // TODO this exception should be thrown
             LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
         }
 
-        return nodes;
+        return ret;
     }
 
     /**
@@ -512,5 +570,6 @@ public final class XPathHelper {
         return xPath.replaceAll("(/)(?=\\w+(\\[|\\/|$)(?:[^']|'[^']*')*$)", "/xhtml:");
 
     }
+
 
 }
