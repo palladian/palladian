@@ -18,7 +18,7 @@ public abstract class AbstractBodyDate extends KeywordDate {
     private String tag = null;
 
     /**
-     * In witch depth of html-structure the date was found. For rating of date.
+     * In which depth of html-structure the date was found. For rating of date.
      */
     private int structuralDepth = -1;
 

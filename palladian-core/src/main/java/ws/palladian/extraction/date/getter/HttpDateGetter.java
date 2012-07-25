@@ -7,7 +7,7 @@ import java.util.Map;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.retrieval.HttpException;
@@ -92,7 +92,7 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
             for(String dateString : dateList) {
                 int index = 0;
                 while (date == null && index < regExpArray.length) {
-                    date = DateGetterHelper.getDateFromString(dateString, regExpArray[index]);
+                    date = DateParser.getDateFromString(dateString, regExpArray[index]);
                     index++;
                 }
                 if (date != null) {

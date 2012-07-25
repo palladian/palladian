@@ -9,7 +9,7 @@ import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.retrieval.HttpResult;
 
@@ -58,7 +58,7 @@ public final class HttpHelper {
 
                     // optionally detect via palladian's date recognition
                     if (!strict) {
-                        ExtractedDate ed = DateGetterHelper.findDate(dateString);
+                        ExtractedDate ed = DateParser.findDate(dateString);
                         if (ed != null) {
                             date = ed.getNormalizedDate();
                         }
@@ -138,7 +138,7 @@ public final class HttpHelper {
             if (!dateString.equalsIgnoreCase("0") && !dateString.equalsIgnoreCase("-1")) {
             }
 
-            ExtractedDate ed = DateGetterHelper.findDate(dateString);
+            ExtractedDate ed = DateParser.findDate(dateString);
             if (ed != null) {
                 date = ed.getNormalizedDate();
             }

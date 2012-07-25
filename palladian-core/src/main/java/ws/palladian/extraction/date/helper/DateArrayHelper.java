@@ -2,14 +2,12 @@ package ws.palladian.extraction.date.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.helper.date.dates.AbstractDate;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateExactness;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -53,8 +51,8 @@ public class DateArrayHelper {
                     }
                     break;
                 case FILTER_FULL_DATE:
-                    if (date.get(AbstractDate.YEAR) != -1 && date.get(AbstractDate.MONTH) != -1
-                            && date.get(AbstractDate.DAY) != -1) {
+                    if (date.get(ExtractedDate.YEAR) != -1 && date.get(ExtractedDate.MONTH) != -1
+                            && date.get(ExtractedDate.DAY) != -1) {
 
                         ret.add(date);
                     }
@@ -180,17 +178,17 @@ public class DateArrayHelper {
      *            Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
-    public static <T extends ExtractedDate> List<List<T>> arrangeByDate(List<T> dates, DateExactness compareDepth) {
-        List<List<T>> result = new ArrayList<List<T>>();
+    public static <T extends ExtractedDate> List<List<T>> cluster(List<T> dates, DateExactness compareDepth) {
+        List<List<T>> clusters = new ArrayList<List<T>>();
         for (int datesIndex = 0; datesIndex < dates.size(); datesIndex++) {
             boolean sameDatestamp = false;
             T date = dates.get(datesIndex);
-            for (int resultIndex = 0; resultIndex < result.size(); resultIndex++) {
-                T firstDate = result.get(resultIndex).get(0);
+            for (int resultIndex = 0; resultIndex < clusters.size(); resultIndex++) {
+                T firstDate = clusters.get(resultIndex).get(0);
                 DateComparator dc = new DateComparator(compareDepth);
                 int compare = dc.compare(firstDate, date);
                 if (compare == 0) {
-                    result.get(resultIndex).add(date);
+                    clusters.get(resultIndex).add(date);
                     sameDatestamp = true;
                     break;
                 }
@@ -198,10 +196,10 @@ public class DateArrayHelper {
             if (!sameDatestamp) {
                 List<T> newDate = new ArrayList<T>();
                 newDate.add(date);
-                result.add(newDate);
+                clusters.add(newDate);
             }
         }
-        return result;
+        return clusters;
     }
 
 //    /**
@@ -630,7 +628,7 @@ public class DateArrayHelper {
      *            True for dates with rate. False for dates without rate.
      * @return
      */
-    public static <T extends ExtractedDate> List<T> getRatedDates(List<T> dates, double rate, boolean include) {
+    private static <T extends ExtractedDate> List<T> getRatedDates(List<T> dates, double rate, boolean include) {
         List<T> result = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {
             T date = dates.get(i);
@@ -719,11 +717,11 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates, DateExactness compareDepth) {
+    public static <T extends ExtractedDate> Map<T, Double> getSameDatesMap(ExtractedDate date, Map<T, Double> dates, DateExactness compareDepth) {
         DateComparator dc = new DateComparator(compareDepth);
-        HashMap<T, Double> result = new HashMap<T, Double>();
+        Map<T, Double> result = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
-            if (dc.compare(date, (ExtractedDate) e.getKey()) == 0) {
+            if (dc.compare(date, e.getKey()) == 0) {
                 result.put(e.getKey(), e.getValue());
             }
         }
@@ -807,7 +805,7 @@ public class DateArrayHelper {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <T, V> Entry<T, V>[] mapToArray(Map<T, V> map) {
+    private static <T, V> Entry<T, V>[] mapToArray(Map<T, V> map) {
         Entry<T, V>[] array = new Entry[map.size()];
         int i = 0;
         for (Entry<T, V> e : map.entrySet()) {

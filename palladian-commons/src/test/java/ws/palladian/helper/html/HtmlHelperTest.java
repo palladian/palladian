@@ -8,7 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
 
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -69,7 +69,7 @@ public class HtmlHelperTest {
         String htmlText = "&nbsp; &Auml; &auml; &Ouml; &ouml; &Uuml; &uuml; &szlig; &lt; &gt; &amp; &quot;";
         String clearText = "  Ä ä Ö ö Ü ü ß < > & \"";
         assertEquals(clearText, StringHelper.replaceProtectedSpace(StringEscapeUtils.unescapeHtml(htmlText)));
-        assertEquals(clearText, DateGetterHelper.replaceHtmlSymbols(htmlText));
+        assertEquals(clearText, ExtractedDateHelper.replaceHtmlSymbols(htmlText));
     }
 
 }

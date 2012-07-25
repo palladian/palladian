@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import ws.palladian.control.AllTests;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.DocumentRetriever;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.UrlDate;
 
@@ -72,7 +72,7 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
         int index = 0;
         ExtractedDate date = null;
         while (date == null && index < regExpArray.length) {
-            date = DateGetterHelper.getDateFromString(url, regExpArray[index]);
+            date = DateParser.getDateFromString(url, regExpArray[index]);
             index++;
         }
         if (date != null) {

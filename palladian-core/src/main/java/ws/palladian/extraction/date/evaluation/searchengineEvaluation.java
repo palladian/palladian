@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.DateExactness;
+import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 
 public class searchengineEvaluation {
@@ -58,16 +58,16 @@ public class searchengineEvaluation {
 		
 		for (Entry<String, DBExport> e : map.entrySet()) {
 			System.out.println(i++);
-			ExtractedDate pubDate = DateGetterHelper.findDate(e.getValue()
+			ExtractedDate pubDate = DateParser.findDate(e.getValue()
 					.getPubDate());
-			ExtractedDate modDate = DateGetterHelper.findDate(e.getValue()
+			ExtractedDate modDate = DateParser.findDate(e.getValue()
 					.getModDate());
 
-			ExtractedDate googleDate = DateGetterHelper.findDate(e.getValue()
+			ExtractedDate googleDate = DateParser.findDate(e.getValue()
 					.getGoogleDate());
-			ExtractedDate hakiaDate = DateGetterHelper.findDate(e.getValue()
+			ExtractedDate hakiaDate = DateParser.findDate(e.getValue()
 					.getHakiaDate());
-			ExtractedDate askDate = DateGetterHelper.findDate(e.getValue()
+			ExtractedDate askDate = DateParser.findDate(e.getValue()
 					.getAskDate());
 
 			// Google PubDate

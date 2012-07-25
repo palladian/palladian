@@ -16,7 +16,16 @@ import ws.palladian.helper.date.ExtractedDateHelper;
  * 
  * @author Martin Gregor
  */
-public class ExtractedDate implements AbstractDate {
+public class ExtractedDate {
+    
+    public static final int YEAR = 1;
+    public static final int MONTH = 2;
+    public static final int DAY = 3;
+    public static final int HOUR = 4;
+    public static final int MINUTE = 5;
+    public static final int SECOND = 6;
+    // public static final int EXACTENESS = 7;
+
 
     /** Found date as string. */
     private final String dateString;
@@ -71,12 +80,22 @@ public class ExtractedDate implements AbstractDate {
         this.timezone = date.timezone;
     }
 
-    @Override
+    /**
+     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
+     * 
+     * @param dateParts
+     * @return
+     */
     public String getNormalizedDateString() {
         return getNormalizedDate(true);
     }
 
-    @Override
+    /**
+     * Converts this extracted-date in a {@link Date}. <br>
+     * Be careful, if a datepart is not given, it will be set to 0. (Except day will be set to 1). <br>
+     * 
+     * @return
+     */
     public Date getNormalizedDate() {
         return new Date(getLongDate());
     }
@@ -95,7 +114,12 @@ public class ExtractedDate implements AbstractDate {
         return cal.getTimeInMillis();
     }
 
-    @Override
+    /**
+     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
+     * 
+     * @param time <code>true</code> to include time.
+     * @return
+     */
     public String getNormalizedDate(boolean time) {
         StringBuilder normalizedDate = new StringBuilder();
         if (year == -1) {
@@ -146,7 +170,16 @@ public class ExtractedDate implements AbstractDate {
         return format;
     }
 
-    @Override
+    /**
+     * Returns date values. <br>
+     * To get a value use static date fields of this class.<br>
+     * <br>
+     * Only for date properties. For date-technique use getType(). <br>
+     * Use this static fields to define a property.
+     * 
+     * @param field
+     * @return
+     */
     public int get(int field) {
         int value = -1;
         switch (field) {

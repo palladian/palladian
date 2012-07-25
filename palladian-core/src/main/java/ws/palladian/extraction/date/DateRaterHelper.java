@@ -101,7 +101,7 @@ public class DateRaterHelper {
      * @param dates
      */
     public static <T extends ExtractedDate> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, DateExactness compareDepth) {
-        List<List<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, compareDepth);
+        List<List<T>> groupedDates = DateArrayHelper.cluster(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {
                 double newRate = 1.0 * groupedDates.get(k).size() / datesToSet.size();

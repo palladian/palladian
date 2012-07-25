@@ -5,8 +5,10 @@ import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 public class DateParser {
@@ -24,13 +26,143 @@ public class DateParser {
         DateParser dateParser = new DateParser();
         dateParser.setDateParticles(dateString, format);
         ExtractedDate extractedDate = new ExtractedDate(dateString, format);
-        extractedDate.set(AbstractDate.YEAR, dateParser.year);
-        extractedDate.set(AbstractDate.MONTH, dateParser.month);
-        extractedDate.set(AbstractDate.DAY, dateParser.day);
-        extractedDate.set(AbstractDate.HOUR, dateParser.hour);
-        extractedDate.set(AbstractDate.MINUTE, dateParser.minute);
-        extractedDate.set(AbstractDate.SECOND, dateParser.second);
+        extractedDate.set(ExtractedDate.YEAR, dateParser.year);
+        extractedDate.set(ExtractedDate.MONTH, dateParser.month);
+        extractedDate.set(ExtractedDate.DAY, dateParser.day);
+        extractedDate.set(ExtractedDate.HOUR, dateParser.hour);
+        extractedDate.set(ExtractedDate.MINUTE, dateParser.minute);
+        extractedDate.set(ExtractedDate.SECOND, dateParser.second);
         return extractedDate;
+    }
+    
+    /**
+     * Tries to match a date in a dateformat. The format is given by the regular expressions of RegExp.
+     * 
+     * @param dateString a date to match.
+     * @return The found date, defined in RegExp constants. <br>
+     *         If no match is found return <b>null</b>.
+     */
+    public static ExtractedDate findDate(String dateString) {
+        return findDate(dateString, null);
+    }
+
+    /**
+     * Tries to match a date in a dateformat. The format is given by the regular expressions of RegExp.
+     * 
+     * @param dateString a date to match.
+     * @param regExpArray regular expressions of dates to match. If this is null {@link RegExp}.getAllRegExp will be
+     *            called.
+     * @return The found date, defined in RegExp constants. <br>
+     *         If no match is found return <b>null</b>.
+     */
+    public static ExtractedDate findDate(String dateString, DateFormat[] dateFormats) {
+        ExtractedDate date = null;
+        DateFormat[] regExps = dateFormats;
+
+        if (regExps == null) {
+            regExps = RegExp.getAllRegExp();
+        }
+
+        for (DateFormat regExp : regExps) {
+            // FIXME "Mon, 18 Apr 2011 09:16:00 GMT-0700" fails.
+            try {
+                date = getDateFromString(dateString, regExp);
+            } catch (Throwable th) {
+                th.printStackTrace();
+            }
+            if (date != null) {
+                break;
+            }
+        }
+        return date;
+    }
+    
+    /**
+     * 
+     * @param string string, which is to be searched
+     * @param regExp regular expression for search
+     * @param offsetStart is slider for beginning substring (no negative values) - e.g. substring: "abcd" offsetStart=0:
+     *            "abcd" offsetStart=1: "bcd" offsetStart=-1: "abcd"
+     * @return found substring or null
+     */
+    public static ExtractedDate getDateFromString(String dateString, DateFormat dateFormat) {
+        
+        String text = StringHelper.removeDoubleWhitespaces(ExtractedDateHelper.replaceHtmlSymbols(dateString)); // FIXME is this necessary?
+        boolean hasPrePostNum = false;
+        ExtractedDate date = null;
+        //Pattern pattern = Pattern.compile(dateFormat.getRegex());
+        Pattern pattern = dateFormat.getPattern();
+        Matcher matcher = pattern.matcher(text);
+        
+        if (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            if (start > 0) {
+                String temp = text.substring(start - 1, start);
+//                try {
+//                    Integer.parseInt(temp);
+//                    hasPrePostNum = true;
+//                } catch (NumberFormatException e) {
+//                    e.printStackTrace(); // FIXME
+//                }
+                hasPrePostNum = temp.matches("\\d");
+            }
+            if (end < text.length()) {
+                String temp = text.substring(end, end + 1);
+                //If last character is "/" no check for number is needed.
+                if(!text.substring(end-1, end).equals("/")){
+//                  try {
+//                      Integer.parseInt(temp);
+//                      hasPrePostNum = true;
+//                  } catch (NumberFormatException e) {
+//                      e.printStackTrace(); // FIXME
+//                  }
+                    hasPrePostNum = temp.matches("\\d");
+                }
+            }
+            if (!hasPrePostNum) {
+                // date = DateParser.parse(text.substring(start, end), dateFormat.getFormat());
+                date = parse(matcher.group(), dateFormat.getFormat());
+            }
+
+        }
+        return date;
+    }
+    
+    //Monat und Jahr sind nur gerundet.
+    public static ExtractedDate findRelativeDate(String text) {
+
+        ExtractedDate date = null;
+        DateFormat[] relativeDateFormats = RegExp.getRelativeDates();
+        for (DateFormat dateFormat : relativeDateFormats) {
+            Pattern pattern = dateFormat.getPattern();
+            Matcher matcher = pattern.matcher(text);
+            if (matcher.find()) {
+                String relativeTime = matcher.group();
+                long number = Long.valueOf(relativeTime.split(" ")[0]);
+
+                String format = dateFormat.getFormat();
+                GregorianCalendar cal = new GregorianCalendar();
+                long actTime = cal.getTimeInMillis();
+                long difTime = 0;
+                if (format.equalsIgnoreCase("min")) {
+                    difTime = number * 60 * 1000;
+                } else if (format.equalsIgnoreCase("hour")) {
+                    difTime = number * 60 * 60 * 1000;
+                } else if (format.equalsIgnoreCase("day")) {
+                    difTime = number * 24 * 60 * 60 * 1000;
+                } else if (format.equalsIgnoreCase("mon")) {
+                    difTime = number * 30 * 24 * 60 * 60 * 1000;
+                } else if (format.equalsIgnoreCase("year")) {
+                    difTime = number * 365 * 24 * 60 * 60 * 1000;
+                }
+
+                long relTime = actTime - difTime;
+                date = ExtractedDateHelper.createDate(relTime);
+                break;
+            }
+        }
+        return date;
     }
 
     /**
