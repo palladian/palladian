@@ -83,11 +83,11 @@ public final class DateGetterHelper {
             regExps = newArray.toArray(new DateFormat[0]);
         }
 
-        Pattern[] pattern = new Pattern[regExps.length];
-        for (int i = 0; i < regExps.length; i++) {
-            pattern[i] = Pattern.compile((regExps[i].getRegExp()));
-        }
-        return findAllDates(text, pattern, regExps);
+//        Pattern[] pattern = new Pattern[regExps.length];
+//        for (int i = 0; i < regExps.length; i++) {
+//            pattern[i] = Pattern.compile((regExps[i].getRegex()));
+//        }
+        return findAllDates(text, regExps);
     }
 
     /**
@@ -96,12 +96,13 @@ public final class DateGetterHelper {
      * @return The found format, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static List<ContentDate> findAllDates(String text, Pattern[] pattern, DateFormat[] regExps) {
+    public static List<ContentDate> findAllDates(String text, DateFormat[] formats) {
     	String tempText = text;
     	List<ContentDate> dates = new ArrayList<ContentDate>();
     	
-    	for(int i = 0; i < pattern.length; i++){
-    	    Matcher matcher = pattern[i].matcher(tempText);
+    	for(int i = 0; i < formats.length; i++){
+    	    // Matcher matcher = pattern[i].matcher(tempText);
+    	    Matcher matcher = formats[i].getPattern().matcher(tempText);
     		while(matcher.find()){
 				boolean hasPrePostNum = false;
 				int start = matcher.start();
@@ -126,7 +127,7 @@ public final class DateGetterHelper {
 	            	try {
 		            	// String dateString = tempText.substring(start, end);
 	            	    String dateString = matcher.group();
-		            	ExtractedDate temp = DateParser.parse(dateString, regExps[i].getFormat());
+		            	ExtractedDate temp = DateParser.parse(dateString, formats[i].getFormat());
 		            	ContentDate date = new ContentDate(temp);
 		            	int index = tempText.indexOf(date.getDateString());
 		            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
@@ -149,7 +150,7 @@ public final class DateGetterHelper {
      * @param regExps
      * @return
      */
-    public static ExtractedDate findDate(String text, Pattern[] pattern, DateFormat[] regExps) {
+    /*public static ExtractedDate findDate(String text, DateFormat[] regExps) {
 //        String tempText = text;
 //        ExtractedDate date = null;
 //        for (int i = 0; i < pattern.length; i++) {
@@ -182,12 +183,12 @@ public final class DateGetterHelper {
 //            }
 //        }
 //        return date;
-        List<ContentDate> dates = findAllDates(text, pattern, regExps);
+        List<ContentDate> dates = findAllDates(text, regExps);
         if (dates.size() > 0) {
             return dates.get(0);
         }
         return null;
-    }
+    }*/
 
 
     /**
@@ -239,7 +240,7 @@ public final class DateGetterHelper {
         String text = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(dateString));
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
-        Pattern pattern = Pattern.compile(dateFormat.getRegExp());
+        Pattern pattern = Pattern.compile(dateFormat.getRegex());
         Matcher matcher = pattern.matcher(text);
         
         if (matcher.find()) {
@@ -265,8 +266,8 @@ public final class DateGetterHelper {
             	}
             }
             if (!hasPrePostNum) {
-                //date = new ExtractedDate(text.substring(start, end), regExp[1]);
-                date = DateParser.parse(text.substring(start, end), dateFormat.getFormat());
+                // date = DateParser.parse(text.substring(start, end), dateFormat.getFormat());
+                date = DateParser.parse(matcher.group(), dateFormat.getFormat());
             }
 
         }
