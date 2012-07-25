@@ -9,8 +9,8 @@ import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 
 /**

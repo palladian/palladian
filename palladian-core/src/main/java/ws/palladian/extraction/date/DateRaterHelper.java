@@ -8,10 +8,10 @@ import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateHelper;
-import ws.palladian.helper.date.dates.DateExactness;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.KeywordDate;
 
 /**

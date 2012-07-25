@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 
 /**

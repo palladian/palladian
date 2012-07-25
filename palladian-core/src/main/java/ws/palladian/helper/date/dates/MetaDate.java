@@ -1,5 +1,7 @@
 package ws.palladian.helper.date.dates;
 
+import ws.palladian.helper.date.ExtractedDate;
+
 public final class MetaDate extends KeywordDate {
 
     /** Name of the tag, where this {@link MetaDate} was found. */

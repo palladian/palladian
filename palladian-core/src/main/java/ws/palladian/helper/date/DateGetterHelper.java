@@ -7,8 +7,6 @@ import java.util.regex.Matcher;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
 
 /**
  * DateGetterHelper provides the techniques to find dates out of webpages. Also provides different helper methods.

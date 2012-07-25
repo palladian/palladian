@@ -1,4 +1,4 @@
-package ws.palladian.helper.date.dates;
+package ws.palladian.helper.date;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.DateParserLogic;
+import ws.palladian.helper.date.ExtractedDate;
 
 /** @formatter:off */
 public class DateParserTest {

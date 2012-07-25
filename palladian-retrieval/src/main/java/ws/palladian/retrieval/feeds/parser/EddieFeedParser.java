@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 import uk.org.catnip.eddie.Entry;
 import uk.org.catnip.eddie.FeedData;
 import uk.org.catnip.eddie.parser.Parser;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 

@@ -19,8 +19,8 @@ import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.HeadDateRater;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.retrieval.DocumentRetriever;
 

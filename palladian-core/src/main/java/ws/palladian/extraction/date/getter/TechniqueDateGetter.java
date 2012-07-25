@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDate;
 
 /**
  * <p>

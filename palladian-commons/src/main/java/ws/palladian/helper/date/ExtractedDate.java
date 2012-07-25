@@ -1,4 +1,4 @@
-package ws.palladian.helper.date.dates;
+package ws.palladian.helper.date;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.date.ExtractedDateHelper;
 
 /**
  * Represents a date, found in a webpage. <br>

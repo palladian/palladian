@@ -2,6 +2,8 @@ package ws.palladian.helper.date.dates;
 
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.date.ExtractedDate;
+
 /**
  * Template for dates found in HTML-body.
  * 

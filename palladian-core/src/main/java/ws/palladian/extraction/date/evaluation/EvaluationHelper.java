@@ -10,10 +10,10 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.DateExactness;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 
 public class EvaluationHelper {
 

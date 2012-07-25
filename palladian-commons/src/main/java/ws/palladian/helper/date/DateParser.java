@@ -1,4 +1,4 @@
-package ws.palladian.helper.date.dates;
+package ws.palladian.helper.date;
 
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 public class DateParser {

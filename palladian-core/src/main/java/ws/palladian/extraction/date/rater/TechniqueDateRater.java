@@ -6,7 +6,7 @@ import java.util.Map;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDate;
 
 /**
  * <p>

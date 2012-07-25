@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateHelper;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
 
 public class DateRaterHelperTest {
 

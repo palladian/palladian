@@ -19,8 +19,8 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.LocalizeHelper;
-import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;

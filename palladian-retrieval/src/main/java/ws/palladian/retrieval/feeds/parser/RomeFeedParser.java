@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
