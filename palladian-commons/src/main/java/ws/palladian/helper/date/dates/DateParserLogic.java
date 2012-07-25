@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 class DateParserLogic {
     
@@ -28,13 +27,12 @@ class DateParserLogic {
      */
     void parse(String dateString, String format) {
 
-        String[] tempArray = removeTimezone(dateString);
-        timezone = tempArray[1];
-        if (timezone != null) {
-            dateString = tempArray[0];
+        String[] timeZoneSplit = splitTimeZone(dateString);
+        if (timeZoneSplit != null) {
+            dateString = timeZoneSplit[0];
+            timezone = timeZoneSplit[1];
         }
 
-        String[] dateParts = new String[3];
         if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD_T.getFormat())) {
             String separator = "T";
             int index = dateString.indexOf(separator);
@@ -57,7 +55,7 @@ class DateParserLogic {
             } else {
                 separator = " ";
             }
-            dateParts = dateString.split(separator);
+            String[] dateParts = dateString.split(separator);
             setDateByWeekOfYear(dateParts[0], true, true);
             setTimeValues(dateParts[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW.getFormat())) {
@@ -69,13 +67,13 @@ class DateParserLogic {
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D.getFormat())) {
             setDateValues(dateString.split("/"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT.getFormat())) {
-            dateParts = dateString.split("/");
+            String[] dateParts = dateString.split("/");
             int tempMonth = 0;
             try {
                 year = normalizeYear(dateParts[0]);
                 day = Integer.parseInt(dateParts[dateParts.length - 1]);
                 tempMonth = -1;
-            } catch (NumberFormatException exeption) {
+            } catch (NumberFormatException e) {
                 String lastField = dateParts[dateParts.length - 1];
                 String[] tempDateParts = lastField.split(getSeparator(lastField));
                 month = Integer.parseInt(tempDateParts[0]);
@@ -84,7 +82,6 @@ class DateParserLogic {
             if (tempMonth == -1) {
                 month = Integer.parseInt(dateParts[dateParts.length - 2]);
             }
-
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL.getFormat())) {
             setDateValues(dateString.split(getSeparator(dateString)), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y.getFormat())) {
@@ -99,7 +96,7 @@ class DateParserLogic {
             if (dateString.contains("-")) {
                 dateString = dateString.replaceAll("-", " ");
             }
-            dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split(" ");
             setDateValues(dateParts, 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y.getFormat())) {
             try {
@@ -114,7 +111,6 @@ class DateParserLogic {
                 setDateValues(parts, 2, 0, 1);
             } catch (Exception e) {
             }
-
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_SEP.getFormat())) {
             setDateValues(dateString.split("-"), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_MMMM_Y.getFormat())) {
@@ -128,17 +124,8 @@ class DateParserLogic {
             String separator = getSeparator(dateString);
             setDateValues(dateString.split(separator), -1, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM.getFormat())) {
-            /*
-             * int index = dateString.indexOf(".");
-             * if (index == -1) {
-             * setDateValues(dateString.split(" "), -1, 1, 0);
-             * } else {
-             * setDateValues(dateString.split("\\."), -1, 1, 0);
-             * }
-             */
             dateString = dateString.replaceAll("\\.", "");
             setDateValues(dateString.split(" "), -1, 1, 0);
-
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D.getFormat())) {
             setDateValues(dateString.split("/"), -1, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D.getFormat())) {
@@ -146,15 +133,15 @@ class DateParserLogic {
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_Y.getFormat())) {
             setDateValues(dateString.split("/"), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ANSI_C.getFormat())) {
-            dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split(" ");
             setDateValues(dateParts, 4, 1, 2);
             setTimeValues(dateParts[3]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ANSI_C_TZ.getFormat())) {
-            dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split(" ");
             setDateValues(dateParts, 4, 1, 2);
             setTimeValues(dateParts[3] + dateParts[5]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1123.getFormat())) {
-            dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split(" ");
             setDateValues(dateParts, 3, 2, 1);
             setTimeValues(dateParts[4]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1036.getFormat())) {
@@ -172,7 +159,7 @@ class DateParserLogic {
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD_NO.getFormat())) {
             setDateByDayOfYear(dateString, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1123_UTC.getFormat())) {
-            dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split(" ");
             setDateValues(dateParts, 3, 2, 1);
             setTimeValues(dateParts[4] + dateParts[5]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1036_UTC.getFormat())) {
@@ -180,13 +167,11 @@ class DateParserLogic {
             setDateValues(parts[1].split("-"), 2, 1, 0);
             setTimeValues(parts[2] + parts[3]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y_T.getFormat())) {
-
             String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
-
             String separator = getSeparator(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 1, 0);
@@ -199,7 +184,6 @@ class DateParserLogic {
             setTimeValues(builder.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y_T.getFormat())) {
-
             String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
@@ -218,7 +202,6 @@ class DateParserLogic {
             setTimeValues(stringBuilder.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y_T.getFormat())) {
-
             String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
@@ -236,7 +219,6 @@ class DateParserLogic {
             setTimeValues(stringBuilder.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_T.getFormat())) {
-
             String meridiem = hasAmPm(dateString);
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
@@ -263,7 +245,7 @@ class DateParserLogic {
      * @param meridiem AM or PM
      * @return Cleared string.
      */
-    private String removeAmPm(String text, String meridiem) {
+    private static String removeAmPm(String text, String meridiem) {
         String newText = text.replaceAll(meridiem, "");
         return newText.replaceAll("  ", " ");
     }
@@ -297,10 +279,8 @@ class DateParserLogic {
      */
     private void set24h(String meridiem) {
         if (hour != -1 && meridiem != null) {
-            if (meridiem.equalsIgnoreCase("pm")) {
-                if (hour > 0 && hour < 12) {
-                    hour += 12;
-                }
+            if (meridiem.equalsIgnoreCase("pm") && hour > 0 && hour < 12) {
+                hour += 12;
             } else if (meridiem.equalsIgnoreCase("am") && hour == 12) {
                 hour = 0;
             }
@@ -330,7 +310,6 @@ class DateParserLogic {
         }
 
         Calendar calendar = new GregorianCalendar();
-
         calendar.setMinimalDaysInFirstWeek(4);
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
@@ -388,14 +367,8 @@ class DateParserLogic {
     private void setTimeValues(String time) {
         String actualTime = time;
         String diffToUtc = null;
-        // int index = actualTime.indexOf('.');
         if (actualTime.contains(".")) {
-            String regExp = "\\.(\\d)*";
-            Pattern pattern = Pattern.compile(regExp);
-            Matcher matcher = pattern.matcher(actualTime);
-            if (matcher.find()) {
-                actualTime = actualTime.replaceAll(regExp, "");
-            }
+            actualTime = actualTime.replaceAll("\\.(\\d)*", "");
         }
 
         String separator = null;
@@ -438,17 +411,15 @@ class DateParserLogic {
         }
         int tempHour;
         int tempMinute = 0;
-        if (!time.contains(":")) {
-            if (time.length() == 4) {
-                tempHour = Integer.parseInt(time.substring(0, 2));
-                tempMinute = Integer.parseInt(time.substring(2, 4));
-            } else {
-                tempHour = Integer.parseInt(time);
-            }
-        } else {
+        if (time.contains(":")) {
             String[] timeParts = time.split(":");
             tempHour = Integer.parseInt(timeParts[0]);
             tempMinute = Integer.parseInt(timeParts[1]);
+        } else if (time.length() == 4) {
+            tempHour = Integer.parseInt(time.substring(0, 2));
+            tempMinute = Integer.parseInt(time.substring(2, 4));
+        } else {
+            tempHour = Integer.parseInt(time);
         }
 
         int tempMinute2 = 0;
@@ -483,10 +454,7 @@ class DateParserLogic {
      * @param time must have one of the following forms: HH:MM:SS or HH:MM or HH.
      */
     private void setActualTimeValues(String time) {
-        if (!time.isEmpty() && !time.contains(":")) {
-            hour = Integer.parseInt(time);
-
-        } else {
+        if (time.isEmpty() || time.contains(":")) {
             String[] timeParts = time.trim().split(":");
             if (timeParts.length > 0 && !timeParts[0].isEmpty()) {
                 hour = Integer.parseInt(timeParts[0]);
@@ -497,6 +465,8 @@ class DateParserLogic {
                     }
                 }
             }
+        } else {
+            hour = Integer.parseInt(time);
         }
     }
 
@@ -610,13 +580,24 @@ class DateParserLogic {
     }
 
     /**
-     * Removes timezone acronyms.
+     * <p>
+     * Split time zone acronyms (as defined in {@link RegExp#TIMEZONE}) from the specified date string.
+     * </p>
      * 
-     * @param dateString
+     * @param dateString The date string potentially containing a time zone acronym.
      * @return
      */
-    static String[] removeTimezone(String dateString) {
-        return StringHelper.removeFirstStringpart(dateString, RegExp.TIMEZONE);
+    static String[] splitTimeZone(String dateString) {
+        Pattern pattern = Pattern.compile(RegExp.TIMEZONE, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(dateString);
+
+        if (matcher.find()) {
+            String timeZonePart = matcher.group().trim();
+            String timePart = matcher.replaceAll(" ").replace("  ", " ");
+            return new String[] {timePart, timeZonePart};
+        }
+        
+        return null;
     }
 
     /**

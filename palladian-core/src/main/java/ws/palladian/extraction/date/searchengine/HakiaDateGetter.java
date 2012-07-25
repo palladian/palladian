@@ -57,7 +57,7 @@ public class HakiaDateGetter {
                 if (requestUrl != null && requestUrl.equalsIgnoreCase(url)) {
                     DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
                     String dateString = dateFormat.format(result.getDate());
-                    date = DateParser.getDateFromString(dateString, RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
+                    date = DateParser.findDate(dateString, RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
                     break;
                 }
 

@@ -92,7 +92,7 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
             for(String dateString : dateList) {
                 int index = 0;
                 while (date == null && index < regExpArray.length) {
-                    date = DateParser.getDateFromString(dateString, regExpArray[index]);
+                    date = DateParser.findDate(dateString, regExpArray[index]);
                     index++;
                 }
                 if (date != null) {

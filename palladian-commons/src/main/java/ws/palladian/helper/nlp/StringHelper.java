@@ -1418,33 +1418,32 @@ public final class StringHelper {
         return camelCaseToWords(camelCasedString, " ");
     }
 
-    /**
-     * Looks for a regular expression in string. Removes found substring from source-string. <br>
-     * Only the first found match will be deleted. <br>
-     * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
-     * 
-     * @param string to be cleared.
-     * @param regExp A regular expression.
-     * @return Cleared string and removed string in an array.
-     */
-    public static String[] removeFirstStringpart(String string, String regExp) {
-        String returnString = null;
-        String removedString = null;
-        Matcher matcher;
-        Pattern pattern;
-
-        pattern = Pattern.compile(regExp.toLowerCase());
-        matcher = pattern.matcher(string.toLowerCase());
-        if (matcher.find()) {
-            int start = matcher.start();
-            int end = matcher.end();
-            removedString = string.substring(start, end);
-            returnString = string.replace(removedString, " ");
-            returnString = returnString.replaceAll("  ", " ");
-        }
-        String[] result = {returnString, removedString};
-        return result;
-    }
+    // only used in date package -> moved there.
+//    /**
+//     * Looks for a regular expression in string. Removes found substring from source-string. <br>
+//     * Only the first found match will be deleted. <br>
+//     * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
+//     * 
+//     * @param string to be cleared.
+//     * @param regExp A regular expression.
+//     * @return Cleared string and removed string in an array.
+//     */
+//    public static String[] removeFirstStringpart(String string, String regExp) {
+//        String returnString = null;
+//        String removedString = null;
+//        Pattern pattern = Pattern.compile(regExp.toLowerCase());
+//        Matcher matcher = pattern.matcher(string.toLowerCase());
+//
+//        if (matcher.find()) {
+//            int start = matcher.start();
+//            int end = matcher.end();
+//            removedString = string.substring(start, end);
+//            returnString = string.replace(removedString, " ");
+//            returnString = returnString.replaceAll("  ", " ");
+//        }
+//        String[] result = {returnString, removedString};
+//        return result;
+//    }
 
     /**
      * <p>
