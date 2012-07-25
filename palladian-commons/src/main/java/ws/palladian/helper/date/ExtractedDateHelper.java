@@ -122,27 +122,6 @@ public class ExtractedDateHelper {
 //        return sb.toString();
         return StringUtils.repeat('x', text.length());
     }
-
-    /**
-     * Check a string for keywords. Used to look in tag-values for date-keys.
-     * 
-     * @param text string with possible keywords.
-     * @param keys a array of keywords.
-     * @return the found keyword.
-     */
-    // TODO move to KEyWords
-    public static String hasKeyword(String text, String[] keys) {
-        String keyword = null;
-        for (String key : keys) {
-            Pattern pattern = Pattern.compile(key.toLowerCase());
-            Matcher matcher = pattern.matcher(text.toLowerCase());
-            if (matcher.find()) {
-                keyword = key;
-                break;
-            }
-        }
-        return keyword;
-    }
     
     /**
      * <p>

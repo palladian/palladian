@@ -1,5 +1,8 @@
 package ws.palladian.extraction.date;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -115,5 +118,26 @@ public final class KeyWords {
 		}
 		return hasKeyword;
 	}
+	
+    /**
+     * Check a string for keywords. Used to look in tag-values for date-keys.
+     * 
+     * @param text string with possible keywords.
+     * @param keys a array of keywords.
+     * @return the found keyword.
+     */
+    public static String searchKeyword(String text, String[] keys) {
+        String keyword = null;
+        // FIXME this implementations looks horribly inefficient
+        for (String key : keys) {
+            Pattern pattern = Pattern.compile(key.toLowerCase());
+            Matcher matcher = pattern.matcher(text.toLowerCase());
+            if (matcher.find()) {
+                keyword = key;
+                break;
+            }
+        }
+        return keyword;
+    }
 
 }

@@ -9,7 +9,6 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
@@ -58,7 +57,7 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
             if (nameAttribute == null || contentAttribute == null) {
                 continue;
             }
-            String keyword = ExtractedDateHelper.hasKeyword(nameAttribute.getNodeValue(), KeyWords.HEAD_KEYWORDS);
+            String keyword = KeyWords.searchKeyword(nameAttribute.getNodeValue(), KeyWords.HEAD_KEYWORDS);
             if (keyword == null) {
                 continue;
             }

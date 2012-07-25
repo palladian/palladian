@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.normalization.DateNormalizer;
 
 // TODO Move to Extraction package
