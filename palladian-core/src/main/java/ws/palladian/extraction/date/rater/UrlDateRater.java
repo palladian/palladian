@@ -42,13 +42,13 @@ public class UrlDateRater extends TechniqueDateRater<UrlDate> {
             if (date != null && DateRaterHelper.isDateInRange(date)) {
                 String format = date.getFormat();
                 if (format != null) {
-                    if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
+                    if (format.equalsIgnoreCase(RegExp.DATE_URL_D.getFormat())) {
                         rate = 0.95;
-                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
+                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT.getFormat())) {
                         rate = 0.98;
-                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL[1])) {
+                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL.getFormat())) {
                         rate = 0.99;
-                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D[1])) {
+                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D.getFormat())) {
                         rate = 1.0;
                     } else {
                         rate = 0.88; // TODO: rate genau bestimmen.

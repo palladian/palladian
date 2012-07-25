@@ -13,7 +13,7 @@ public class RegExp {
 
     // TODO: Warning (10/11/2010): changed regexp without further testing, was:
     // ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*))*
-    public static final String ENTITY = "([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10}";
+    // public static final String ENTITY = "([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10}";
 
     // dates needed to normalize date found by general date pattern
     public static final String DATE0 = "(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}"; // YYYY-MM-DD hh:mm:ss
@@ -32,9 +32,9 @@ public class RegExp {
     public static final String BOOLEAN = "(?<!(\\w))(?i)(yes|no)(?!(\\w))";
     // TODO catch special chars differently
     public static final String STRING = "([A-Z.]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*)(\\s)?)+([A-Z.0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9.]*)(\\s)?)*";
-    public static final String MIXED = "(.)*";
-    public static final String URI = "(\\w)\\.(\\w)\\.(\\w){1,4}(\\/(\\w))*"; // TODO test
-    public static final String IMAGE = "src=\"";
+    // public static final String MIXED = "(.)*";
+    // public static final String URI = "(\\w)\\.(\\w)\\.(\\w){1,4}(\\/(\\w))*"; // TODO test
+    // public static final String IMAGE = "src=\"";
     public static final String DATE_ALL = "((\\d){4}-(\\d){2}-(\\d){2})|((\\d){1,2}[\\.|/|-](\\d){1,2}[\\.|/|-](\\d){1,4})|((?<!(\\d){2})(\\d){1,2}(th)?(\\.)?(\\s)?([A-Za-z]){3,9}((\\,)|(\\s))+(['])?(\\d){2,4})|((\\w){3,9}\\s(\\d){1,2}(th)?((\\,)|(\\s))+(['])?(\\d){2,4})"; // date
 
     // shortcuts
@@ -98,9 +98,9 @@ public class RegExp {
     private static final String DIFF_UTC = "(" + GMT_opt + "(\\s)?((\\+)|(-))" + HOUR + "((:)?" + MIN + ")?)";
     private static final String ISO_TIME = "(((T)|(\\s))" + TIME24 + "(" + DIFF_UTC + "|(Z))?)";
 
-    private static final String APOSROPH = "('?)";
+    private static final String APOSTROPHE = "('?)";
     private static final String ST_ND_RD_TH_OPT = "(((st)|(nd)|(rd)|(th))?)";
-    private static final String YEAR_SHORT_LONG = "(" + LONG_YEAR + "|(" + APOSROPH + SHOR_YEAR + "))"; // YYYY|(')?YY
+    private static final String YEAR_SHORT_LONG = "(" + LONG_YEAR + "|(" + APOSTROPHE + SHOR_YEAR + "))"; // YYYY|(')?YY
     private static final String URL_SYM = "[/\\._-]"; // [/._-] - symbols in URLs
     private static final String SEP_SYM = "([/\\._-])"; // [/._-] - symbols to separate dateparts
 
@@ -108,11 +108,11 @@ public class RegExp {
     // ISO8601
 
     /** Years in context. */
-    public static final String[] DATE_CONTEXT_YYYY = {"(?<=(in|of|from|year|until|through|during)\\s)[0-9]{4}", "YYYY"};
+    public static final DateFormat DATE_CONTEXT_YYYY = new DateFormat("(?<=(in|of|from|year|until|through|during)\\s)[0-9]{4}", "YYYY");
 
     /** <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO8601<a> YYYY-MM-DD TIME+UTC. */
-    public static final String[] DATE_ISO8601_YMD_T = {
-        YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE + "-" + DAY_OF_MONTH + ISO_TIME, "YYYY-MM-DDTHH:MM:SS+HH:MM" };
+    public static final DateFormat DATE_ISO8601_YMD_T = new DateFormat(
+        YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE + "-" + DAY_OF_MONTH + ISO_TIME, "YYYY-MM-DDTHH:MM:SS+HH:MM" );
     /** <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO8601<a> YYYY-MM-DD TIME+UTC. */
 
     private static final String DATE_ISO8601_YMD_SEPARATOR_T_1 = YEAR_SHORT_LONG + "/" + MONTH_NUMBER_DOUBLE + "/"
@@ -122,12 +122,12 @@ public class RegExp {
     private static final String DATE_ISO8601_YMD_SEPARATOR_T_3 = YEAR_SHORT_LONG + "_" + MONTH_NUMBER_DOUBLE + "_"
     + DAY_OF_MONTH + ISO_TIME;
 
-    public static final String[] DATE_ISO8601_YMD_SEPARATOR_T = {
+    public static final DateFormat DATE_ISO8601_YMD_SEPARATOR_T = new DateFormat(
         "((" + DATE_ISO8601_YMD_SEPARATOR_T_1 + ")|(" + DATE_ISO8601_YMD_SEPARATOR_T_2 + ")|("
-        + DATE_ISO8601_YMD_SEPARATOR_T_3 + "))", "YYYY-MM-DDTHH:MM:SS+HH:MM" };
+        + DATE_ISO8601_YMD_SEPARATOR_T_3 + "))", "YYYY-MM-DDTHH:MM:SS+HH:MM" );
     /** ISO8601 YYYY-MM-DD . */
-    public static final String[] DATE_ISO8601_YMD = { YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE + "-" + DAY_OF_MONTH,
-    "YYYY-MM-DD" };
+    public static final DateFormat DATE_ISO8601_YMD = new DateFormat( YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE + "-" + DAY_OF_MONTH,
+    "YYYY-MM-DD" );
 
     private static final String DATE_ISO8601_YMD_SEPARATOR_1 = YEAR_SHORT_LONG + "/" + MONTH_NUMBER_DOUBLE + "/"
     + DAY_OF_MONTH;
@@ -137,45 +137,45 @@ public class RegExp {
     + DAY_OF_MONTH;
 
     /** ISO8601 YYYY-MM-DD . */
-    public static final String[] DATE_ISO8601_YMD_SEPARATOR = {
+    public static final DateFormat DATE_ISO8601_YMD_SEPARATOR = new DateFormat(
         "((" + DATE_ISO8601_YMD_SEPARATOR_1 + ")|(" + DATE_ISO8601_YMD_SEPARATOR_2 + ")|("
-        + DATE_ISO8601_YMD_SEPARATOR_3 + "))", "YYYY-MM-DD" };
+        + DATE_ISO8601_YMD_SEPARATOR_3 + "))", "YYYY-MM-DD" );
     
     
     /** ISO8601 YYYY-MM . */
-    public static final String[] DATE_ISO8601_YM = { YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE, "YYYY-MM" };
+    public static final DateFormat DATE_ISO8601_YM = new DateFormat( YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE, "YYYY-MM" );
     /** ISO8601 YYYY-WW-D TIME+UTC . */
-    public static final String[] DATE_ISO8601_YWD_T = { LONG_YEAR + "-" + WEEK_OF_YEAR + "-" + DAY_OF_WEEK + ISO_TIME,
-    "YYYY-WW-DTHH:MM:SS+HH:MM" };
+    public static final DateFormat DATE_ISO8601_YWD_T = new DateFormat( LONG_YEAR + "-" + WEEK_OF_YEAR + "-" + DAY_OF_WEEK + ISO_TIME,
+    "YYYY-WW-DTHH:MM:SS+HH:MM" );
     /** ISO8601 YYYY-WW-D . */
-    public static final String[] DATE_ISO8601_YWD = { LONG_YEAR + "-" + WEEK_OF_YEAR + "-" + DAY_OF_WEEK, "YYYY-WW-D" };
+    public static final DateFormat DATE_ISO8601_YWD = new DateFormat( LONG_YEAR + "-" + WEEK_OF_YEAR + "-" + DAY_OF_WEEK, "YYYY-WW-D" );
     /** ISO8601 YYYY-WW . */
-    public static final String[] DATE_ISO8601_YW = { LONG_YEAR + "-" + WEEK_OF_YEAR, "YYYY-WW" };
+    public static final DateFormat DATE_ISO8601_YW = new DateFormat( LONG_YEAR + "-" + WEEK_OF_YEAR, "YYYY-WW" );
     /** ISO8601 YYYY-DDD TIME+UTC. */
-    public static final String[] DATE_ISO8601_YD_T = { LONG_YEAR + "-" + DAY_OF_YEAR + ISO_TIME,
-    "YYYY-DDDTHH:MM:SS+HH:MM" };
+    public static final DateFormat DATE_ISO8601_YD_T = new DateFormat( LONG_YEAR + "-" + DAY_OF_YEAR + ISO_TIME,
+    "YYYY-DDDTHH:MM:SS+HH:MM" );
     /** ISO8601 YYYY-DDD . */
-    public static final String[] DATE_ISO8601_YD = { LONG_YEAR + "-" + DAY_OF_YEAR, "YYYY-DDD" };
+    public static final DateFormat DATE_ISO8601_YD = new DateFormat( LONG_YEAR + "-" + DAY_OF_YEAR, "YYYY-DDD" );
     /**
      * Year, month and day written without separator.<br>
      * YYYYMMMDD
      */
-    public static final String[] DATE_ISO8601_YMD_NO = { LONG_YEAR + MONTH_NUMBER_DOUBLE + DAY_OF_MONTH, "YYYYMMDD" };
+    public static final DateFormat DATE_ISO8601_YMD_NO = new DateFormat( LONG_YEAR + MONTH_NUMBER_DOUBLE + DAY_OF_MONTH, "YYYYMMDD" );
     /**
      * Year, month and day written without separator.<br>
      * YYYYWWD
      */
-    public static final String[] DATE_ISO8601_YWD_NO = { LONG_YEAR + WEEK_OF_YEAR + DAY_OF_WEEK, "YYYYWWD" };
+    public static final DateFormat DATE_ISO8601_YWD_NO = new DateFormat( LONG_YEAR + WEEK_OF_YEAR + DAY_OF_WEEK, "YYYYWWD" );
     /**
      * Year and month written without separator.<br>
      * YYYYWW
      */
-    public static final String[] DATE_ISO8601_YW_NO = { LONG_YEAR + WEEK_OF_YEAR, "YYYYWW" };
+    public static final DateFormat DATE_ISO8601_YW_NO = new DateFormat( LONG_YEAR + WEEK_OF_YEAR, "YYYYWW" );
     /**
      * Year and month written without separator.<br>
      * YYYYDDD
      */
-    public static final String[] DATE_ISO8601_YD_NO = { LONG_YEAR + DAY_OF_YEAR, "YYYYDDD" };
+    public static final DateFormat DATE_ISO8601_YD_NO = new DateFormat( LONG_YEAR + DAY_OF_YEAR, "YYYYDDD" );
 
     // Possible dates in URLs.
     /**
@@ -191,25 +191,25 @@ public class RegExp {
      * Dates in URL. YYYY_MM_DD .<br>
      * "_" can also be "." or "-" or "/"
      */
-    public static final String[] DATE_URL_D = { "((" + DATE_URL_D_1 + ")|(" + DATE_URL_D_2 + ")|(" + DATE_URL_D_3 + ")|(" + DATE_URL_D_4 + "))", "YYYY_MM_DD" };
+    public static final DateFormat DATE_URL_D = new DateFormat( "((" + DATE_URL_D_1 + ")|(" + DATE_URL_D_2 + ")|(" + DATE_URL_D_3 + ")|(" + DATE_URL_D_4 + "))", "YYYY_MM_DD" );
     /**
      * Dates in URL. YYYY_MM_DD .<br>
      * "_" can also be "." or "-" or "/"
      */
-    public static final String[] DATE_URL_MMMM_D = { YEAR_SHORT_LONG + "(/)" + MONTH_NAME_LONG + "(/)" + DAY_OF_MONTH + "(/)", "YYYY_MMMM_DD_URL" };
+    public static final DateFormat DATE_URL_MMMM_D = new DateFormat( YEAR_SHORT_LONG + "(/)" + MONTH_NAME_LONG + "(/)" + DAY_OF_MONTH + "(/)", "YYYY_MMMM_DD_URL" );
 
     /**
      * Dates in URL. YYYY_MM .<br>
      * "_" can also be "." or "-" or"/"
      */
-    public static final String[] DATE_URL = { YEAR_SHORT_LONG + URL_SYM + MONTH_NUMBER_DOUBLE, "YYYY_MM" };
+    public static final DateFormat DATE_URL = new DateFormat( YEAR_SHORT_LONG + URL_SYM + MONTH_NUMBER_DOUBLE, "YYYY_MM" );
 
     /**
      * Date in URL, that can be split by folders between year an month. <br>
      * YYYY\...\MM\DD
      */
-    public static final String[] DATE_URL_SPLIT = {
-        LONG_YEAR + "/(.)+/" + MONTH_NUMBER_DOUBLE + URL_SYM + DAY_OF_MONTH, "YYYY.x.MM.DD" };
+    public static final DateFormat DATE_URL_SPLIT = new DateFormat(
+        LONG_YEAR + "/(.)+/" + MONTH_NUMBER_DOUBLE + URL_SYM + DAY_OF_MONTH, "YYYY.x.MM.DD" );
 
     // Europeandates also used worldwide
     private static final String DATE_EU_D_MM_Y_1 = DAY_OF_MONTH_1_2 + "(\\.)" + MONTH_NUMBER_NORMAL + "(\\.)"
@@ -222,38 +222,38 @@ public class RegExp {
     + YEAR_SHORT_LONG;
 
     /** European date. DD.MM.YYYY . */
-    public static final String[] DATE_EU_D_MM_Y = {
+    public static final DateFormat DATE_EU_D_MM_Y = new DateFormat(
         "((" + DATE_EU_D_MM_Y_1 + ")|(" + DATE_EU_D_MM_Y_2 + ")|(" + DATE_EU_D_MM_Y_3 + ")|(" + DATE_EU_D_MM_Y_4
-        + "))", "DD.MM.YYYY" };
+        + "))", "DD.MM.YYYY" );
     /** European date. DD.MM.YYYY HH:MM:SS+UTC. */
-    public static final String[] DATE_EU_D_MM_Y_T = {
-        "(" + DATE_EU_D_MM_Y[0] + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?)",
-    "DD.MM.YYYY HH:MM:SS +UTC" };
+    public static final DateFormat DATE_EU_D_MM_Y_T = new DateFormat(
+        "(" + DATE_EU_D_MM_Y.getRegExp() + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?)",
+    "DD.MM.YYYY HH:MM:SS +UTC" );
     /** European date. MM.YYYY . */
-    public static final String[] DATE_EU_MM_Y = { MONTH_NUMBER_NORMAL + SEP_SYM + YEAR_SHORT_LONG, "MM.YYYY" };
+    public static final DateFormat DATE_EU_MM_Y = new DateFormat( MONTH_NUMBER_NORMAL + SEP_SYM + YEAR_SHORT_LONG, "MM.YYYY" );
     /** European date. DD.MM. . */
-    public static final String[] DATE_EU_D_MM = { DAY_OF_MONTH_1_2 + "\\." + MONTH_NUMBER_NORMAL + "\\.", "DD.MM." };
+    public static final DateFormat DATE_EU_D_MM = new DateFormat( DAY_OF_MONTH_1_2 + "\\." + MONTH_NUMBER_NORMAL + "\\.", "DD.MM." );
 
     /** European date. DD. MMMM YYYY . */
-    public static final String[] DATE_EU_D_MMMM_Y = {
+    public static final DateFormat DATE_EU_D_MMMM_Y = new DateFormat(
         DAY_OF_MONTH_1_2 + "(((\\.)?" + ST_ND_RD_TH_OPT + "\\s)|(-))" + MONTH_NAME_LONG + "(((,)?\\s)|(-))"
-        + YEAR_SHORT_LONG, "DD. MMMM YYYY" };
+        + YEAR_SHORT_LONG, "DD. MMMM YYYY" );
 
     /** European date. DD.MMMM . */
-    public static final String[] DATE_EU_D_MMMM = { DAY_OF_MONTH_1_2 + "(\\.)? " + MONTH_NAME_LONG, "DD.MMMM" };
+    public static final DateFormat DATE_EU_D_MMMM = new DateFormat( DAY_OF_MONTH_1_2 + "(\\.)? " + MONTH_NAME_LONG, "DD.MMMM" );
     /** European date. DD. MMMM YYYY HH:MM:SS +UTC . */
-    public static final String[] DATE_EU_D_MMMM_Y_T = {
+    public static final DateFormat DATE_EU_D_MMMM_Y_T = new DateFormat(
         DAY_OF_MONTH_1_2 + "(((\\.)?\\s)|(-))" + MONTH_NAME_LONG + "(((,)?\\s)|(-))" + YEAR_SHORT_LONG
-        + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?", "DD. MMMM YYYY HH:MM:SS +UTC" };
+        + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?", "DD. MMMM YYYY HH:MM:SS +UTC" );
 
     // US dates
     /** American date. MM/DD/YYYY. */
-    public static final String[] DATE_USA_MM_D_Y = {
-        MONTH_NUMBER_NORMAL + "/" + DAY_OF_MONTH_1_2 + "/" + YEAR_SHORT_LONG, "MM/DD/YYYY" };
+    public static final DateFormat DATE_USA_MM_D_Y = new DateFormat(
+        MONTH_NUMBER_NORMAL + "/" + DAY_OF_MONTH_1_2 + "/" + YEAR_SHORT_LONG, "MM/DD/YYYY" );
     /** American date MM/DD/YYYY. HH:MM:SS +UTC. */
-    public static final String[] DATE_USA_MM_D_Y_T = {
+    public static final DateFormat DATE_USA_MM_D_Y_T = new DateFormat(
         MONTH_NUMBER_NORMAL + "/" + DAY_OF_MONTH_1_2 + "/" + YEAR_SHORT_LONG + TIME_SEPARATOR + TIME + "("
-        + DIFF_UTC + "|" + TIMEZONE + ")?", "MM/DD/YYYY HH:MM:SS +UTC" };
+        + DIFF_UTC + "|" + TIMEZONE + ")?", "MM/DD/YYYY HH:MM:SS +UTC" );
 
     public static final String DATE_USA_MM_D_Y_SEPARATOR_1 = MONTH_NUMBER_NORMAL + "\\." + DAY_OF_MONTH_1_2 + "\\."
     + YEAR_SHORT_LONG;
@@ -263,67 +263,67 @@ public class RegExp {
     + YEAR_SHORT_LONG;
 
     /** American date. MM/DD/YYYY. */
-    public static final String[] DATE_USA_MM_D_Y_SEPARATOR = {
+    public static final DateFormat DATE_USA_MM_D_Y_SEPARATOR = new DateFormat(
         "((" + DATE_USA_MM_D_Y_SEPARATOR_1 + ")|(" + DATE_USA_MM_D_Y_SEPARATOR_2 + ")|("
-        + DATE_USA_MM_D_Y_SEPARATOR_3 + "))", "MM/DD/YYYY" };
+        + DATE_USA_MM_D_Y_SEPARATOR_3 + "))", "MM/DD/YYYY" );
     
     /** American date. MM/DD/YYYY. */
-    public static final String[] DATE_USA_MM_D_Y_T_SEPARATOR = {
+    public static final DateFormat DATE_USA_MM_D_Y_T_SEPARATOR = new DateFormat(
         "((" + DATE_USA_MM_D_Y_SEPARATOR_1 + ")|(" + DATE_USA_MM_D_Y_SEPARATOR_2 + ")|("
         + DATE_USA_MM_D_Y_SEPARATOR_3 + "))"+ TIME_SEPARATOR + TIME + "("
-        + DIFF_UTC + "|" + TIMEZONE + ")?", "MM/DD/YYYY HH:MM:SS +UTC" };
+        + DIFF_UTC + "|" + TIMEZONE + ")?", "MM/DD/YYYY HH:MM:SS +UTC" );
 
 
     /** American date. MM/YYYY . */
-    public static final String[] DATE_USA_MM_Y = { MONTH_NUMBER_NORMAL + "/" + YEAR_SHORT_LONG, "MM/YYYY" };
+    public static final DateFormat DATE_USA_MM_Y = new DateFormat( MONTH_NUMBER_NORMAL + "/" + YEAR_SHORT_LONG, "MM/YYYY" );
     /** American date. MM/DD . */
-    public static final String[] DATE_USA_MM_D = { MONTH_NUMBER_NORMAL + "/" + DAY_OF_MONTH_1_2, "MM/DD" };
+    public static final DateFormat DATE_USA_MM_D = new DateFormat( MONTH_NUMBER_NORMAL + "/" + DAY_OF_MONTH_1_2, "MM/DD" );
     /** American date. MMMM DD(st), YYYY . */
-    public static final String[] DATE_USA_MMMM_D_Y = {
+    public static final DateFormat DATE_USA_MMMM_D_Y = new DateFormat(
         MONTH_NAME_LONG2 + "((\\s)|(\\.)|((\\.)(\\s)))" + DAY_OF_MONTH_1_2 + "(((" + ST_ND_RD_TH_OPT
-        + ")(,)?)|(\\.)?)" + " " + YEAR_SHORT_LONG, "MMMM DD, YYYY" };
-    public static final String[] DATE_USA_MMMM_D_Y_SEP = {
-        MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2 + "-" + YEAR_SHORT_LONG, "MMMM-DD-YYYY" };
+        + ")(,)?)|(\\.)?)" + " " + YEAR_SHORT_LONG, "MMMM DD, YYYY" );
+    public static final DateFormat DATE_USA_MMMM_D_Y_SEP = new DateFormat(
+        MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2 + "-" + YEAR_SHORT_LONG, "MMMM-DD-YYYY" );
     /** American date. MMMM DD(st), YYYY HH:MM:SS +UTC. */
-    public static final String[] DATE_USA_MMMM_D_Y_T = {
+    public static final DateFormat DATE_USA_MMMM_D_Y_T = new DateFormat(
         MONTH_NAME_LONG + " " + DAY_OF_MONTH_1_2 + ST_ND_RD_TH_OPT + ", " + YEAR_SHORT_LONG + "(,)?"
         + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?",
-    "MMMM DD, YYYY YYYY HH:MM:SS +UTC" };
+    "MMMM DD, YYYY YYYY HH:MM:SS +UTC" );
     /** American date. MMMM DD(st) . */
-    public static final String[] DATE_USA_MMMM_D = { MONTH_NAME_LONG + " " + DAY_OF_MONTH_1_2 + ST_ND_RD_TH_OPT,
-    "MMMM DD" };
+    public static final DateFormat DATE_USA_MMMM_D = new DateFormat( MONTH_NAME_LONG + " " + DAY_OF_MONTH_1_2 + ST_ND_RD_TH_OPT,
+    "MMMM DD" );
 
     // US and European dates
     /** American and European date. "MMMM YYYY . */
-    public static final String[] DATE_EUSA_MMMM_Y = { MONTH_NAME_LONG + " " + YEAR_SHORT_LONG, "MMMM YYYY" };
+    public static final DateFormat DATE_EUSA_MMMM_Y = new DateFormat( MONTH_NAME_LONG + " " + YEAR_SHORT_LONG, "MMMM YYYY" );
     /** US ans EU. YYYY-MMM-D*/
-    public static final String[] DATE_EUSA_YYYY_MMM_D = {LONG_YEAR + "-" + MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2, "YYYY-MMM-D"};
+    public static final DateFormat DATE_EUSA_YYYY_MMM_D = new DateFormat(LONG_YEAR + "-" + MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2, "YYYY-MMM-D");
 
     // RFC standards
     /** RFC 1123. WD, DD MMM YYYY HH:MM:SS TZ . */
-    public static final String[] DATE_RFC_1123 = {
+    public static final DateFormat DATE_RFC_1123 = new DateFormat(
         WEEKDAY_NAME_SHORT + ", " + DAY_OF_MONTH + " " + MONTH_NAME_SHORT_ENG + " " + LONG_YEAR + " " + TIME_SEC
-        + TIMEZONE, "WD, DD MMM YYYY HH:MM:SS TZ" };
+        + TIMEZONE, "WD, DD MMM YYYY HH:MM:SS TZ" );
     /** RFC 1036. WWD, DD-MMM-YYYY HH:MM:SS TZ . */
-    public static final String[] DATE_RFC_1036 = {
+    public static final DateFormat DATE_RFC_1036 =new DateFormat(
         WEEKDAY_NAME_LONG + ", " + DAY_OF_MONTH + "-" + MONTH_NAME_SHORT_ENG + "-" + SHOR_YEAR + " " + TIME_SEC
-        + TIMEZONE, "WWD, DD-MMM-YY HH:MM:SS TZ" };
+        + TIMEZONE, "WWD, DD-MMM-YY HH:MM:SS TZ" );
     /** RFC 1123. WD, DD MMM YYYY HH:MM:SS +UTC . */
-    public static final String[] DATE_RFC_1123_UTC = {
+    public static final DateFormat DATE_RFC_1123_UTC = new DateFormat(
         WEEKDAY_NAME_SHORT + ", " + DAY_OF_MONTH + " " + MONTH_NAME_SHORT_ENG + " " + LONG_YEAR + " " + TIME_SEC
-        + " " + DIFF_UTC, "WD, DD MMM YYYY HH:MM:SS +UTC" };
+        + " " + DIFF_UTC, "WD, DD MMM YYYY HH:MM:SS +UTC" );
     /** RFC 1036. WWD, DD-MMM-YYYY HH:MM:SS +UTC . */
-    public static final String[] DATE_RFC_1036_UTC = {
+    public static final DateFormat DATE_RFC_1036_UTC = new DateFormat(
         WEEKDAY_NAME_LONG + ", " + DAY_OF_MONTH + "-" + MONTH_NAME_SHORT_ENG + "-" + SHOR_YEAR + " " + TIME_SEC
-        + " " + DIFF_UTC, "WWD, DD-MMM-YY HH:MM:SS +UTC" };
+        + " " + DIFF_UTC, "WWD, DD-MMM-YY HH:MM:SS +UTC" );
     /** ANSI C's ascitime. WD MMM DD_1 HH:MM:SS YYYY . */
-    public static final String[] DATE_ANSI_C = {
+    public static final DateFormat DATE_ANSI_C = new DateFormat(
         WEEKDAY_NAME_SHORT + " " + MONTH_NAME_SHORT_ENG + " " + DAY_OF_MONTH_1 + " " + TIME_SEC + " " + LONG_YEAR,
-    "WD MMM DD_1 HH:MM:SS YYYY" };
+    "WD MMM DD_1 HH:MM:SS YYYY" );
     /** ANSI C's ascitime with time difference to UTC. WD MMM DD_1 HH:MM:SS YYYY +UTC. */
-    public static final String[] DATE_ANSI_C_TZ = {
+    public static final DateFormat DATE_ANSI_C_TZ = new DateFormat(
         WEEKDAY_NAME_SHORT + " " + MONTH_NAME_SHORT_ENG + " " + DAY_OF_MONTH_1 + " " + TIME_SEC + " " + LONG_YEAR
-        + " " + DIFF_UTC, "WD MMM DD_1 HH:MM:SS YYYY +UTC" };
+        + " " + DIFF_UTC, "WD MMM DD_1 HH:MM:SS YYYY +UTC" );
 
     /*relative dates like 14 hours ago or 3 days ago*/
     public static final String MINUTEUNIT = "((minute)|(minutes))";
@@ -332,11 +332,11 @@ public class RegExp {
     public static final String MONTHUNIT = "((month)|(months))";
     public static final String YEARUNIT = "((year)|(years))";
     
-    public static final String[] RELATIVEDATEMIN = {"\\d* " + MINUTEUNIT + " ago", "min"};
-    public static final String[] RELATIVEDATEHOUR = {"\\d* " + HOURUNIT + " ago", "hour"};
-    public static final String[] RELATIVEDATEDAY = {"\\d* " + DAYUNIT + " ago", "day"};
-    public static final String[] RELATIVEDATEMON = {"\\d* " + MONTHUNIT + " ago", "mon"};
-    public static final String[] RELATIVEDATEYEAR = {"\\d* " + YEARUNIT + " ago", "year"};
+    public static final DateFormat RELATIVEDATEMIN = new DateFormat("\\d* " + MINUTEUNIT + " ago", "min");
+    public static final DateFormat RELATIVEDATEHOUR = new DateFormat("\\d* " + HOURUNIT + " ago", "hour");
+    public static final DateFormat RELATIVEDATEDAY = new DateFormat("\\d* " + DAYUNIT + " ago", "day");
+    public static final DateFormat RELATIVEDATEMON = new DateFormat("\\d* " + MONTHUNIT + " ago", "mon");
+    public static final DateFormat RELATIVEDATEYEAR = new DateFormat("\\d* " + YEARUNIT + " ago", "year");
 
     // other dateformates
 
@@ -361,13 +361,13 @@ public class RegExp {
      * 
      * @return
      */
-    public static Object[] getAllRegExp() {
-        Object[] rfcRegExp = getRFCRegExp();
-        Object[] timeRegExp = getIncTimeRegExp();
-        Object[] regExp3 = get3PartRegExp();
-        Object[] regExp2 = get2PartRegExp();
-        Object[] regExp1 = get1PartRegExp();
-        Object[] regExp = new Object[rfcRegExp.length + timeRegExp.length + regExp3.length + regExp2.length
+    public static DateFormat[] getAllRegExp() {
+        DateFormat[] rfcRegExp = getRFCRegExp();
+        DateFormat[] timeRegExp = getIncTimeRegExp();
+        DateFormat[] regExp3 = get3PartRegExp();
+        DateFormat[] regExp2 = get2PartRegExp();
+        DateFormat[] regExp1 = get1PartRegExp();
+        DateFormat[] regExp = new DateFormat[rfcRegExp.length + timeRegExp.length + regExp3.length + regExp2.length
                                      + regExp1.length];
         System.arraycopy(rfcRegExp, 0, regExp, 0, rfcRegExp.length);
         System.arraycopy(timeRegExp, 0, regExp, rfcRegExp.length, timeRegExp.length);
@@ -383,10 +383,9 @@ public class RegExp {
      * 
      * @return
      */
-    public static Object[] getRFCRegExp() {
-        Object[] regExp = { DATE_ANSI_C_TZ, DATE_ANSI_C, DATE_RFC_1036_UTC, DATE_RFC_1036, DATE_RFC_1123_UTC,
+    private static DateFormat[] getRFCRegExp() {
+        return new DateFormat[] { DATE_ANSI_C_TZ, DATE_ANSI_C, DATE_RFC_1036_UTC, DATE_RFC_1036, DATE_RFC_1123_UTC,
                 DATE_RFC_1123, };
-        return regExp;
     }
 
     /**
@@ -395,10 +394,9 @@ public class RegExp {
      * 
      * @return
      */
-    public static Object[] getIncTimeRegExp() {
-        Object[] regExp = { DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T, DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T,
+    private static DateFormat[] getIncTimeRegExp() {
+        return new DateFormat[] { DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T, DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T,
                 DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T, DATE_USA_MM_D_Y_T_SEPARATOR};
-        return regExp;
     }
 
     /**
@@ -406,10 +404,9 @@ public class RegExp {
      * 
      * @return
      */
-    public static Object[] get3PartRegExp() {
-        Object[] regExp = { DATE_ISO8601_YMD, DATE_USA_MM_D_Y, DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y,
+    private static DateFormat[] get3PartRegExp() {
+        return new DateFormat[] { DATE_ISO8601_YMD, DATE_USA_MM_D_Y, DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y,
                 DATE_USA_MMMM_D_Y_SEP, DATE_EU_D_MMMM_Y, DATE_ISO8601_YWD, DATE_URL_D, DATE_USA_MM_D_Y_SEPARATOR, DATE_EUSA_YYYY_MMM_D, DATE_ISO8601_YMD_SEPARATOR };
-        return regExp;
     }
 
     /**
@@ -417,10 +414,9 @@ public class RegExp {
      * 
      * @return
      */
-    public static Object[] get2PartRegExp() {
-        Object[] regExp = { DATE_ISO8601_YD, DATE_ISO8601_YM, DATE_ISO8601_YW, DATE_EUSA_MMMM_Y, DATE_USA_MM_D,
+    private static DateFormat[] get2PartRegExp() {
+        return new DateFormat[] { DATE_ISO8601_YD, DATE_ISO8601_YM, DATE_ISO8601_YW, DATE_EUSA_MMMM_Y, DATE_USA_MM_D,
                 DATE_USA_MM_Y, DATE_USA_MMMM_D, DATE_EU_D_MM, DATE_EU_D_MMMM, DATE_EU_MM_Y, DATE_URL, };
-        return regExp;
     }
 
     /**
@@ -429,21 +425,20 @@ public class RegExp {
      * 
      * @return
      */
-    public static Object[] get1PartRegExp() {
-        Object[] regExp = { DATE_ISO8601_YD_NO, DATE_ISO8601_YMD_NO, DATE_ISO8601_YW_NO, DATE_ISO8601_YWD_NO };
-        return regExp;
+    private static DateFormat[] get1PartRegExp() {
+        return new DateFormat[] { DATE_ISO8601_YD_NO, DATE_ISO8601_YMD_NO, DATE_ISO8601_YW_NO, DATE_ISO8601_YWD_NO };
     }
 
-    /**
-     * Rest regular expressions.<br>
-     * E.g.: URL date YYYY\..\MM\DD
-     * 
-     * @return
-     */
-    public static Object[] getOthersRegExp() {
-        Object[] regExp = { DATE_URL_SPLIT };
-        return regExp;
-    }
+//    /**
+//     * Rest regular expressions.<br>
+//     * E.g.: URL date YYYY\..\MM\DD
+//     * 
+//     * @return
+//     */
+//    public static Object[] getOthersRegExp() {
+//        Object[] regExp = { DATE_URL_SPLIT };
+//        return regExp;
+//    }
 
     /**
      * Return all regular expressions for month and week days.
@@ -465,11 +460,10 @@ public class RegExp {
      * 
      * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
      */
-    public static Object[] getURLRegExp() {
-        final Object[] regExp = { RegExp.DATE_URL_D, RegExp.DATE_URL_MMMM_D, RegExp.DATE_URL_SPLIT,
-                RegExp.DATE_ISO8601_YMD_NO, RegExp.DATE_ISO8601_YWD, RegExp.DATE_ISO8601_YD, RegExp.DATE_URL,
-                RegExp.DATE_ISO8601_YW };
-        return regExp;
+    public static DateFormat[] getURLRegExp() {
+        return new DateFormat[] { DATE_URL_D, DATE_URL_MMMM_D, DATE_URL_SPLIT,
+                DATE_ISO8601_YMD_NO, DATE_ISO8601_YWD, DATE_ISO8601_YD, DATE_URL,
+                DATE_ISO8601_YW };
     }
 
     /**
@@ -484,7 +478,7 @@ public class RegExp {
      * 
      * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
      */
-    public static Object[] getHTTPRegExp() {
+    public static DateFormat[] getHTTPRegExp() {
         return getRFCRegExp();
     }
 
@@ -499,16 +493,15 @@ public class RegExp {
      * 
      * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
      */
-    public static Object[] getHeadRegExp() {
-        final Object[] regExp = { RegExp.DATE_RFC_1123, RegExp.DATE_RFC_1036, RegExp.DATE_ANSI_C_TZ,
-                RegExp.DATE_ANSI_C, RegExp.DATE_ISO8601_YMD_T, DATE_ISO8601_YMD_SEPARATOR_T, RegExp.DATE_ISO8601_YMD,
-                DATE_ISO8601_YMD_SEPARATOR, RegExp.DATE_ISO8601_YWD, RegExp.DATE_ISO8601_YD, RegExp.DATE_ISO8601_YM,
-                RegExp.DATE_ISO8601_YW };
-        return regExp;
+    public static DateFormat[] getHeadRegExp() {
+        return new DateFormat[] { DATE_RFC_1123, DATE_RFC_1036, DATE_ANSI_C_TZ,
+                DATE_ANSI_C, DATE_ISO8601_YMD_T, DATE_ISO8601_YMD_SEPARATOR_T, DATE_ISO8601_YMD,
+                DATE_ISO8601_YMD_SEPARATOR, DATE_ISO8601_YWD, DATE_ISO8601_YD, DATE_ISO8601_YM,
+                DATE_ISO8601_YW };
     }
 
-    public static Object[] getRelativeDates(){
-    	return new Object[] {RELATIVEDATEMIN, RELATIVEDATEHOUR, RELATIVEDATEDAY, RELATIVEDATEMON, RELATIVEDATEYEAR};
+    public static DateFormat[] getRelativeDates(){
+    	return new DateFormat[] {RELATIVEDATEMIN, RELATIVEDATEHOUR, RELATIVEDATEDAY, RELATIVEDATEMON, RELATIVEDATEYEAR};
     }
     
 //    public static String getTimezones() {

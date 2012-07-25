@@ -19,6 +19,7 @@ import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ContentDate;
@@ -164,10 +165,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
              * Prepare Pattern for faster matching. Only regExps.length. Not
              * (regExps.length)*(nodeList.size) [n < n*m]
              */
-            Object[] regExps = RegExp.getAllRegExp();
+            DateFormat[] regExps = RegExp.getAllRegExp();
             Pattern[] pattern = new Pattern[regExps.length];
             for (int i = 0; i < regExps.length; i++) {
-                pattern[i] = Pattern.compile(((String[]) regExps[i])[0]);
+                pattern[i] = Pattern.compile(regExps[i].getRegExp());
             }
 
             setDocKeywords();
@@ -201,7 +202,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      *            Depth of node in document structure.
      * @return
      */
-    private List<ContentDate> checkTextnode(Text node, Pattern[] pattern, Object[] regExps) {
+    private List<ContentDate> checkTextnode(Text node, Pattern[] pattern, DateFormat[] regExps) {
 
         // String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 
@@ -454,7 +455,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @param regExps
      * @return
      */
-    private StructureDate getStructureDate(Node node, Pattern[] pattern, Object[] regExps) {
+    private StructureDate getStructureDate(Node node, Pattern[] pattern, DateFormat[] regExps) {
         Boolean hasDate = lookedUpNodeMap.get(node);
         StructureDate date;
 
@@ -477,7 +478,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @param regExps
      * @return
      */
-    private StructureDate findStructureDate(Node node, Pattern[] pattern, Object[] regExps) {
+    private StructureDate findStructureDate(Node node, Pattern[] pattern, DateFormat[] regExps) {
         StructureDate structDate = null;
         ExtractedDate date = null;
 

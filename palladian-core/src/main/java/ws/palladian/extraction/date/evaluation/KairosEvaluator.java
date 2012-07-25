@@ -2,6 +2,7 @@ package ws.palladian.extraction.date.evaluation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
@@ -72,12 +73,12 @@ public class KairosEvaluator {
 		for (Entry<String, DBExport> e : set.entrySet()) {
 			System.out.println(cntAll++);
 			urlDateGetter.setUrl(e.getValue().getUrl());
-			ArrayList<UrlDate> urlDates = urlDateGetter.getDates();
+			List<UrlDate> urlDates = urlDateGetter.getDates();
 
 			DocumentRetriever dr = new DocumentRetriever();
 			Document doc = dr.getWebDocument(e.getValue().getFilePath());
 			metaDateGetter.setDocument(doc);
-			ArrayList<MetaDate> metaDates = metaDateGetter.getDates();
+			List<MetaDate> metaDates = metaDateGetter.getDates();
 
 			ExtractedDate pubDate = DateGetterHelper.findDate(e.getValue()
 					.getPubDate());

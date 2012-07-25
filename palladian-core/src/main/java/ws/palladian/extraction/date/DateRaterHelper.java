@@ -1,6 +1,5 @@
 package ws.palladian.extraction.date;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,7 +29,7 @@ public class DateRaterHelper {
      */
     public static boolean isDateInRange(ExtractedDate date) {
         //ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
-        ExtractedDate begin = DateParser.parse("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
+        ExtractedDate begin = DateParser.parse("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T.getFormat());
         ExtractedDate end = ExtractedDateHelper.getCurrentDate();
 //        DateComparator comp = new DateComparator();
 //        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
@@ -151,8 +150,8 @@ public class DateRaterHelper {
      * @param toCheckDate
      */
     public static <T extends ExtractedDate> void checkDayMonthYearOrder(T orginalDate, ExtractedDate toCheckDate) {
-        String[] formats = { RegExp.DATE_URL_D[1], RegExp.DATE_URL_MMMM_D[1], RegExp.DATE_ISO8601_YMD[1],
-                RegExp.DATE_ISO8601_YMD_NO[1] };
+        String[] formats = { RegExp.DATE_URL_D.getFormat(), RegExp.DATE_URL_MMMM_D.getFormat(), RegExp.DATE_ISO8601_YMD.getFormat(),
+                RegExp.DATE_ISO8601_YMD_NO.getFormat() };
 
         for (int i = 0; i < formats.length; i++) {
             if (orginalDate.getFormat().equalsIgnoreCase(formats[i])) {

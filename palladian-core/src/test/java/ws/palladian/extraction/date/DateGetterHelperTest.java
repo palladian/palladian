@@ -10,7 +10,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateGetterHelper;
