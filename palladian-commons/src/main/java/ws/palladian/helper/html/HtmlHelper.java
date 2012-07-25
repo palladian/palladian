@@ -345,7 +345,7 @@ public class HtmlHelper {
                     if (ignoreCharacters) {
                         return;
                     }
-                    builder.append(ch);
+                    builder.append(ch, start, length);
                 }
             }));
         } catch (TransformerConfigurationException e) {

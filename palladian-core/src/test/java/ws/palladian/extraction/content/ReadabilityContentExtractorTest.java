@@ -7,8 +7,6 @@ import java.io.FileNotFoundException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 
-import ws.palladian.extraction.content.PageContentExtractorException;
-import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.ParserException;
 
@@ -24,7 +22,7 @@ import ws.palladian.retrieval.parser.ParserException;
 public class ReadabilityContentExtractorTest {
 
     @Test
-    public void testPageContentExtractorWithHashes() throws PageContentExtractorException, FileNotFoundException {
+    public void testReadabilityContentExtractor() throws PageContentExtractorException, FileNotFoundException {
         ReadabilityContentExtractor e = new ReadabilityContentExtractor();
         assertEquals("test001.html", "a078a28fd8d1a59d9364b53c4818539b", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test001.html")).getResultText()));
         assertEquals("test002.html", "0211a72e522229abdb6b4019279ea128", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test002.html")).getResultText()));
