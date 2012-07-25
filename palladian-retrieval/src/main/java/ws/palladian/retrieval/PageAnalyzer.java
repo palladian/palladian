@@ -15,8 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.jaxen.JaxenException;
-import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -64,32 +62,41 @@ public class PageAnalyzer {
      * 
      * @return The title of the web page.
      */
-    @SuppressWarnings("unchecked")
+//    @SuppressWarnings("unchecked")
     public String getTitle() {
-        String title = "";
+        
+//        String title = "";
 
         String xPath = "//title";
-        try {
-            xPath = XPathHelper.addXhtmlNsToXPath(document, xPath);
-
-            // TODO no attribute xpath working "/@href"
-            DOMXPath xpathObj = new DOMXPath(xPath);
-
-            List<Node> results = xpathObj.selectNodes(document.getLastChild());
-            Iterator<Node> nodeIterator = results.iterator();
-            while (nodeIterator.hasNext()) {
-                Node node = nodeIterator.next();
-                title += node.getTextContent();
-            }
-
-        } catch (JaxenException e) {
-            Logger.getRootLogger().error(xPath, e);
-            title = "#error#";
-        } catch (DOMException e) {
-            Logger.getRootLogger().error(xPath, e);
-            title = "#error#";
-        } catch (Exception e) {
-            Logger.getRootLogger().error(xPath, e);
+//        try {
+//            xPath = XPathHelper.addXhtmlNsToXPath(document, xPath);
+//
+//            // TODO no attribute xpath working "/@href"
+//            DOMXPath xpathObj = new DOMXPath(xPath);
+//
+//            List<Node> results = xpathObj.selectNodes(document.getLastChild());
+//            Iterator<Node> nodeIterator = results.iterator();
+//            while (nodeIterator.hasNext()) {
+//                Node node = nodeIterator.next();
+//                title += node.getTextContent();
+//            }
+//
+//        } catch (JaxenException e) {
+//            Logger.getRootLogger().error(xPath, e);
+//            title = "#error#";
+//        } catch (DOMException e) {
+//            Logger.getRootLogger().error(xPath, e);
+//            title = "#error#";
+//        } catch (Exception e) {
+//            Logger.getRootLogger().error(xPath, e);
+//            title = "#error#";
+//        }
+        String title;
+        Node titleNode = XPathHelper.getXhtmlNode(document, xPath);
+        if (titleNode != null) {
+            title = titleNode.getTextContent();
+        } else {
+            // preserve compatibility
             title = "#error#";
         }
 
@@ -708,7 +715,7 @@ public class PageAnalyzer {
      * @param attributeXPath This path should point to one attribute cell.
      * @return An array of table row xPaths.
      */
-    public ArrayList<String[]> getTableRows(String attributeXPath) {
+    public List<String[]> getTableRows(String attributeXPath) {
         return getTableRows(getDocument(), attributeXPath, getNextSibling(attributeXPath, true));
     }
 
@@ -719,7 +726,7 @@ public class PageAnalyzer {
      * @param siblingXPath This path should point to the fact value cell of the attribute.
      * @return An array of table row xPaths.
      */
-    public ArrayList<String[]> getTableRows(String attributeXPath, String siblingXPath) {
+    public List<String[]> getTableRows(String attributeXPath, String siblingXPath) {
         return getTableRows(getDocument(), attributeXPath, siblingXPath);
     }
 
@@ -731,7 +738,7 @@ public class PageAnalyzer {
      * @param siblingXPath This path should point to the fact value cell of the attribute.
      * @return An array of table row xPaths.
      */
-    public ArrayList<String[]> getTableRows(Document document, String attributeXPath, String siblingXPath) {
+    public List<String[]> getTableRows(Document document, String attributeXPath, String siblingXPath) {
         ArrayList<String[]> tableRowsXPaths = new ArrayList<String[]>();
 
         int lastOpeningBrackets = Math.max(attributeXPath.lastIndexOf("tr["), attributeXPath.lastIndexOf("TR[")) + 2;
@@ -879,34 +886,34 @@ public class PageAnalyzer {
         return numberOfColumns;
     }
 
-    @SuppressWarnings("unchecked")
-    public String getHTMLTextByXPath(String xPath) {
-        StringBuilder sb = new StringBuilder();
-
-        DOMXPath xpathObj;
-        try {
-            xpathObj = new DOMXPath(xPath);
-
-            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-
-            List<Node> results = xpathObj.selectNodes(document.getLastChild());
-
-            Iterator<Node> nodeIterator = results.iterator();
-            while (nodeIterator.hasNext()) {
-                Node node = nodeIterator.next();
-                // String a = node.getNodeName();
-                // String b = node.getNodeValue();
-                // String c = node.getTextContent();
-                // String d = node.getChildNodes().toString();
-                // sb.append(nodeIterator.next());
-
-                sb.append(getChildHTMLContents(node, new StringBuilder()));
-            }
-        } catch (JaxenException e) {
-            e.printStackTrace();
-        }
-        return sb.toString();
-    }
+//    @SuppressWarnings("unchecked")
+//    public String getHTMLTextByXPath(String xPath) {
+//        StringBuilder sb = new StringBuilder();
+//
+//        DOMXPath xpathObj;
+//        try {
+//            xpathObj = new DOMXPath(xPath);
+//
+//            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+//
+//            List<Node> results = xpathObj.selectNodes(document.getLastChild());
+//
+//            Iterator<Node> nodeIterator = results.iterator();
+//            while (nodeIterator.hasNext()) {
+//                Node node = nodeIterator.next();
+//                // String a = node.getNodeName();
+//                // String b = node.getNodeValue();
+//                // String c = node.getTextContent();
+//                // String d = node.getChildNodes().toString();
+//                // sb.append(nodeIterator.next());
+//
+//                sb.append(getChildHTMLContents(node, new StringBuilder()));
+//            }
+//        } catch (JaxenException e) {
+//            e.printStackTrace();
+//        }
+//        return sb.toString();
+//    }
 
     public String getTextByXPath(String xPath) {
         return getTextByXPath(document, xPath);
@@ -1043,12 +1050,12 @@ public class PageAnalyzer {
      * @param xPath The xPath.
      * @return A list of contents from the nodes that were targeted with the xPath.
      */
-    public ArrayList<String> getTextsByXPath(String xPath) {
+    public List<String> getTextsByXPath(String xPath) {
         return getTextsByXpath(document, xPath);
     }
 
-    @SuppressWarnings("unchecked")
-    public ArrayList<String> getTextsByXpath(Document document, String xpath) {
+//    @SuppressWarnings("unchecked")
+    public List<String> getTextsByXpath(Document document, String xPath) {
 
         ArrayList<String> texts = new ArrayList<String>();
 
@@ -1057,32 +1064,37 @@ public class PageAnalyzer {
         }
 
 
-        try {
-            // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
-            // evaluation results)
-            xpath = XPathHelper.addXhtmlNsToXPath(document, xpath);
-
-            // xpath = xpath.replaceAll("/xhtml:TBODY", "/");
-
-            // TODO no attribute xpath working "/@href"
-            DOMXPath xpathObj = new DOMXPath(xpath);
-            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-
-            List<Node> results = xpathObj.selectNodes(document.getLastChild());
-
-            Iterator<Node> nodeIterator = results.iterator();
-            while (nodeIterator.hasNext()) {
-                // get all text nodes
-                Node node = nodeIterator.next();
-                texts.add(node.getTextContent());
-            }
-
-        } catch (JaxenException e) {
-            Logger.getRootLogger().error(xpath, e);
-        } catch (DOMException e) {
-            Logger.getRootLogger().error(xpath, e);
-        } catch (Exception e) {
-            Logger.getRootLogger().error(xpath, e);
+//        try {
+//            // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
+//            // evaluation results)
+//            xpath = XPathHelper.addXhtmlNsToXPath(document, xpath);
+//
+//            // xpath = xpath.replaceAll("/xhtml:TBODY", "/");
+//
+//            // TODO no attribute xpath working "/@href"
+//            DOMXPath xpathObj = new DOMXPath(xpath);
+//            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+//
+//            List<Node> results = xpathObj.selectNodes(document.getLastChild());
+//
+//            Iterator<Node> nodeIterator = results.iterator();
+//            while (nodeIterator.hasNext()) {
+//                // get all text nodes
+//                Node node = nodeIterator.next();
+//                texts.add(node.getTextContent());
+//            }
+//
+//        } catch (JaxenException e) {
+//            Logger.getRootLogger().error(xpath, e);
+//        } catch (DOMException e) {
+//            Logger.getRootLogger().error(xpath, e);
+//        } catch (Exception e) {
+//            Logger.getRootLogger().error(xpath, e);
+//        }
+        
+        List<Node> nodes = XPathHelper.getXhtmlNodes(document, xPath);
+        for (Node node : nodes) {
+            texts.add(node.getTextContent());
         }
 
         return texts;

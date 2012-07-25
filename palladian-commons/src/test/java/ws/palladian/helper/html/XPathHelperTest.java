@@ -67,6 +67,15 @@ public class XPathHelperTest {
 
         assertEquals("event", XPathHelper.getNodeByID(doc, "e01").getNodeName());
         assertEquals("events", XPathHelper.getParentNodeByID(doc, "e01").getNodeName());
+        
+        assertEquals(2, XPathHelper.getNodes(doc, "//participant[@events=\"e02\"]").size());
+        
+        // XPath 1.0 way, no lower-case available
+        assertEquals(1, XPathHelper.getNodes(doc, "//participant[translate(@name, \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\", \"abcdefghijklmnopqrstuvwxyz\")=\"otto lieb\"]").size());
+        
+        // XPath 2.0 way, not supported by jaxax.xml.xpath, but by org.jaxen
+        assertEquals(1, XPathHelper.getNodes(doc, "//participant[lowercase(@name)=\"otto lieb\"]").size());
+        
     }
 
     @Test
