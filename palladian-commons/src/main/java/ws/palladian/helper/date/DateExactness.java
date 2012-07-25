@@ -1,4 +1,4 @@
-package ws.palladian.helper.date.dates;
+package ws.palladian.helper.date;
 
 import java.util.NoSuchElementException;
 

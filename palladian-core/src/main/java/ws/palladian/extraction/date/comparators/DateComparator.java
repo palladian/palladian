@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.date.dates.DateExactness;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.ExtractedDate;
 
 /**
  * <p>

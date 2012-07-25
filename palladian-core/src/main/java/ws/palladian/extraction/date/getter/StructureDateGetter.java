@@ -9,9 +9,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.AbstractBodyDate;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.StructureDate;
 
 /**

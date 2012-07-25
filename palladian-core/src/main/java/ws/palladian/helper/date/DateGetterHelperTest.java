@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.helper.date.dates.DateParser;
 
 public class DateGetterHelperTest {
     

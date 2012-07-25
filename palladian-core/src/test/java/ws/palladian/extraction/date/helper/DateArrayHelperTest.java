@@ -8,12 +8,12 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ArchiveDate;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateExactness;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.date.dates.KeywordDate;
 import ws.palladian.helper.date.dates.StructureDate;
 import ws.palladian.helper.date.dates.UrlDate;

@@ -10,8 +10,8 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.search.SearcherException;

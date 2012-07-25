@@ -12,9 +12,9 @@ import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.extraction.date.rater.UrlDateRater;
-import ws.palladian.helper.date.dates.DateExactness;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.UrlDate;
 
 public class UrlEvaluator {

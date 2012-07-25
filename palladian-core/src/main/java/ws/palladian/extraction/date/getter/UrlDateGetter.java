@@ -5,8 +5,8 @@ import java.util.List;
 
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.UrlDate;
 
 /**

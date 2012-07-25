@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import ws.palladian.control.AllTests;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class DateGetterTest {

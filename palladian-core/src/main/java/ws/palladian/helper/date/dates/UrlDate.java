@@ -1,5 +1,7 @@
 package ws.palladian.helper.date.dates;
 
+import ws.palladian.helper.date.ExtractedDate;
+
 /**
  * Represents a date found in an url-string.
  * 

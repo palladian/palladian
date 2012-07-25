@@ -9,8 +9,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.dates.DateParser;
-import ws.palladian.helper.date.dates.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**

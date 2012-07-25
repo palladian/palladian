@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateExactness;
-import ws.palladian.helper.date.dates.ExtractedDate;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.

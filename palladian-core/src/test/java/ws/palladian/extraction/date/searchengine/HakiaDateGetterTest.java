@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import ws.palladian.control.AllTests;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDate;
 
 public class HakiaDateGetterTest {
     private static final Logger LOGGER = Logger.getLogger(HakiaDateGetterTest.class);
