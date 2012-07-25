@@ -156,7 +156,40 @@ public class DateHelper {
 //
 //        // no valid month name given
 //        return "";
-        return DateParser.getMonthNumber(monthName);
+        
+        
+        String month = monthName;
+        month = month.replaceAll(",", "");
+        month = month.replaceAll("\\.", "");
+        month = month.replaceAll(" ", "");
+        month = month.toLowerCase();
+        String monthNumber = null;
+        if (month.equals("january") || month.equals("januar") || month.equals("jan")) {
+            monthNumber = "01";
+        } else if (month.equals("february") || month.equals("februar") || month.equals("feb")) {
+            monthNumber = "02";
+        } else if (month.equals("march") || month.equals("märz") || month.equals("mär") || month.equals("mar")) {
+            monthNumber = "03";
+        } else if (month.equals("april") || month.equals("apr")) {
+            monthNumber = "04";
+        } else if (month.equals("may") || month.equals("mai") || month.equals("may")) {
+            monthNumber = "05";
+        } else if (month.equals("june") || month.equals("juni") || month.equals("jun")) {
+            monthNumber = "06";
+        } else if (month.equals("july") || month.equals("juli") || month.equals("jul")) {
+            monthNumber = "07";
+        } else if (month.equals("august") || month.equals("aug")) {
+            monthNumber = "08";
+        } else if (month.equals("september") || month.equals("sep") || month.equals("sept")) {
+            monthNumber = "09";
+        } else if (month.equals("october") || month.equals("oktober") || month.equals("oct") || month.equals("okt")) {
+            monthNumber = "10";
+        } else if (month.equals("november") || month.equals("nov")) {
+            monthNumber = "11";
+        } else if (month.equals("december") || month.equals("dezember") || month.equals("dec") || month.equals("dez")) {
+            monthNumber = "12";
+        }
+        return monthNumber;
     }
 
     /**

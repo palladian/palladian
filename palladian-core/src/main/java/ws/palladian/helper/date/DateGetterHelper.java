@@ -1,20 +1,14 @@
 package ws.palladian.helper.date;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * DateGetterHelper provides the techniques to find dates out of webpages. Also provides different helper methods.
@@ -30,7 +24,7 @@ public final class DateGetterHelper {
     }
 
     public static List<ContentDate> findAllDates(String text, boolean includeYearOnly) {
-        DateFormat[] regExps = RegExp.getAllRegExp();
+        DateFormat[] regExps = RegExp.ALL_DATE_FORMATS;
 
         // try to catch numbers that might be year mentions
         if (includeYearOnly) {

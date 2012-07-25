@@ -1,5 +1,7 @@
 package ws.palladian.helper;
 
+
+
 /**
  * This class maps the data types (xsd) to regular expressions.<br>
  * <br>
@@ -332,20 +334,12 @@ public class RegExp {
     public static final String MONTHUNIT = "((month)|(months))";
     public static final String YEARUNIT = "((year)|(years))";
     
-    public static final DateFormat RELATIVEDATEMIN = new DateFormat("\\d* " + MINUTEUNIT + " ago", "min");
-    public static final DateFormat RELATIVEDATEHOUR = new DateFormat("\\d* " + HOURUNIT + " ago", "hour");
-    public static final DateFormat RELATIVEDATEDAY = new DateFormat("\\d* " + DAYUNIT + " ago", "day");
-    public static final DateFormat RELATIVEDATEMON = new DateFormat("\\d* " + MONTHUNIT + " ago", "mon");
-    public static final DateFormat RELATIVEDATEYEAR = new DateFormat("\\d* " + YEARUNIT + " ago", "year");
+    public static final DateFormat RELATIVE_DATE_MIN = new DateFormat("\\d* " + MINUTEUNIT + " ago", "min");
+    public static final DateFormat RELATIVE_DATE_HOUR = new DateFormat("\\d* " + HOURUNIT + " ago", "hour");
+    public static final DateFormat RELATIVE_DATE_DAY = new DateFormat("\\d* " + DAYUNIT + " ago", "day");
+    public static final DateFormat RELATIVE_DATE_MON = new DateFormat("\\d* " + MONTHUNIT + " ago", "mon");
+    public static final DateFormat RELATIVE_DATE_YEAR = new DateFormat("\\d* " + YEARUNIT + " ago", "year");
 
-    // other dateformates
-
-    /*
-     * //RegExp as optional
-     * public static String regExpAsOpt(String regExp){
-     * return "(" + regExp + ")+";
-     * }
-     */
 
     // other patterns
     // public static final String COLON_FACT_REPRESENTATION =
@@ -356,156 +350,70 @@ public class RegExp {
     public static final String COLON_FACT_REPRESENTATION = "[A-Za-z0-9/() ]{1,20}:\\s?("
         + COLON_FACT_REPRESENTATION_VALUE + ")+((\\s|,)+" + COLON_FACT_REPRESENTATION_VALUE + ")*";
 
-    /**
-     * Get all regular Expressions in a ordered array.
-     * 
-     * @return
-     */
-    public static DateFormat[] getAllRegExp() {
-        DateFormat[] rfcRegExp = getRFCRegExp();
-        DateFormat[] timeRegExp = getIncTimeRegExp();
-        DateFormat[] regExp3 = get3PartRegExp();
-        DateFormat[] regExp2 = get2PartRegExp();
-        DateFormat[] regExp1 = get1PartRegExp();
-        DateFormat[] regExp = new DateFormat[rfcRegExp.length + timeRegExp.length + regExp3.length + regExp2.length
-                                     + regExp1.length];
-        System.arraycopy(rfcRegExp, 0, regExp, 0, rfcRegExp.length);
-        System.arraycopy(timeRegExp, 0, regExp, rfcRegExp.length, timeRegExp.length);
-        System.arraycopy(regExp3, 0, regExp, rfcRegExp.length + timeRegExp.length, regExp3.length);
-        System.arraycopy(regExp2, 0, regExp, rfcRegExp.length + timeRegExp.length + regExp3.length, regExp2.length);
-        System.arraycopy(regExp1, 0, regExp, rfcRegExp.length + timeRegExp.length + regExp3.length + regExp2.length,
-                regExp1.length);
-        return regExp;
-    }
 
-    /**
-     * All regular expressions for RFC1036, RFC 1123 and ANSI'C
-     * 
-     * @return
-     */
-    private static DateFormat[] getRFCRegExp() {
-        return new DateFormat[] { DATE_ANSI_C_TZ, DATE_ANSI_C, DATE_RFC_1036_UTC, DATE_RFC_1036, DATE_RFC_1123_UTC,
-                DATE_RFC_1123, };
-    }
+    /** All formats for RFC1036, RFC 1123 and ANSI'C */
+    private static final DateFormat[] RFC_FORMATS = new DateFormat[] {DATE_ANSI_C_TZ, DATE_ANSI_C, DATE_RFC_1036_UTC,
+            DATE_RFC_1036, DATE_RFC_1123_UTC, DATE_RFC_1123};
 
-    /**
-     * All regular expressions with time.<br>
-     * ISO, US and EU standards. No RFCs!
-     * 
-     * @return
-     */
-    private static DateFormat[] getIncTimeRegExp() {
-        return new DateFormat[] { DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T, DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T,
-                DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T, DATE_USA_MM_D_Y_T_SEPARATOR};
-    }
+    /** All formats with time. ISO, US and EU standards. No RFCs! */
+    private static final DateFormat[] TIME_FORMATS = new DateFormat[] {DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T,
+            DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T, DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T,
+            DATE_USA_MM_D_Y_T_SEPARATOR};
 
-    /**
-     * All regular expressions with three parts. (year, month and day).
-     * 
-     * @return
-     */
-    private static DateFormat[] get3PartRegExp() {
-        return new DateFormat[] { DATE_ISO8601_YMD, DATE_USA_MM_D_Y, DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y,
-                DATE_USA_MMMM_D_Y_SEP, DATE_EU_D_MMMM_Y, DATE_ISO8601_YWD, DATE_URL_D, DATE_USA_MM_D_Y_SEPARATOR, DATE_EUSA_YYYY_MMM_D, DATE_ISO8601_YMD_SEPARATOR };
-    }
+    /** All formats with three parts (year, month and day). */
+    private static final DateFormat[] THREE_PART_FORMATS = new DateFormat[] {DATE_ISO8601_YMD, DATE_USA_MM_D_Y,
+            DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y, DATE_USA_MMMM_D_Y_SEP, DATE_EU_D_MMMM_Y, DATE_ISO8601_YWD, DATE_URL_D,
+            DATE_USA_MM_D_Y_SEPARATOR, DATE_EUSA_YYYY_MMM_D, DATE_ISO8601_YMD_SEPARATOR};
 
-    /**
-     * All regular expressions with two parts. (year and month or year and day or year and month...).
-     * 
-     * @return
-     */
-    private static DateFormat[] get2PartRegExp() {
-        return new DateFormat[] { DATE_ISO8601_YD, DATE_ISO8601_YM, DATE_ISO8601_YW, DATE_EUSA_MMMM_Y, DATE_USA_MM_D,
-                DATE_USA_MM_Y, DATE_USA_MMMM_D, DATE_EU_D_MM, DATE_EU_D_MMMM, DATE_EU_MM_Y, DATE_URL, };
-    }
+    /** All formats with two parts (year and month, or year and day, or year and month, ...). */
+    private static final DateFormat[] TWO_PART_FORMATS = new DateFormat[] {DATE_ISO8601_YD, DATE_ISO8601_YM,
+            DATE_ISO8601_YW, DATE_EUSA_MMMM_Y, DATE_USA_MM_D, DATE_USA_MM_Y, DATE_USA_MMMM_D, DATE_EU_D_MM,
+            DATE_EU_D_MMMM, DATE_EU_MM_Y, DATE_URL,};
 
-    /**
-     * All regular expressions with one part. <br>
-     * ISO standards like YYYYDDD and YYYYWW.
-     * 
-     * @return
-     */
-    private static DateFormat[] get1PartRegExp() {
-        return new DateFormat[] { DATE_ISO8601_YD_NO, DATE_ISO8601_YMD_NO, DATE_ISO8601_YW_NO, DATE_ISO8601_YWD_NO };
-    }
+    /** All formats with one part. ISO standards like YYYYDDD and YYYYWW. */
+    private static final DateFormat[] ONE_PART_FORMATS = new DateFormat[] {DATE_ISO8601_YD_NO, DATE_ISO8601_YMD_NO,
+            DATE_ISO8601_YW_NO, DATE_ISO8601_YWD_NO};
 
-//    /**
-//     * Rest regular expressions.<br>
-//     * E.g.: URL date YYYY\..\MM\DD
-//     * 
-//     * @return
-//     */
-//    public static Object[] getOthersRegExp() {
-//        Object[] regExp = { DATE_URL_SPLIT };
-//        return regExp;
-//    }
+    /** All formats for month and week days. */
+    public static final String[] DATE_FRAGMENTS = new String[] {MONTH_NAME_SHORT_ENG, MONTH_NAME_LONG_ENG,
+            WEEKDAY_NAME_SHORT, WEEKDAY_NAME_LONG};
 
-    /**
-     * Return all regular expressions for month and week days.
-     * 
-     * @return A set of regular expressions.
-     */
-    public static String[] getDateFragmentRegExp() {
-        return new String[] { MONTH_NAME_SHORT_ENG, MONTH_NAME_LONG_ENG, WEEKDAY_NAME_SHORT, WEEKDAY_NAME_LONG };
-    }
+    /** All formats for dates in URLs. */
+    // important: We need order because short regular expression matches also longer ones. So we get for 2010-07-20 a
+    // match for YYYY-MM and YYYY-MM-DD. But last one would be more specific.
+    public static final DateFormat[] URL_DATES = new DateFormat[] {DATE_URL_D, DATE_URL_MMMM_D, DATE_URL_SPLIT,
+            DATE_ISO8601_YMD_NO, DATE_ISO8601_YWD, DATE_ISO8601_YD, DATE_URL, DATE_ISO8601_YW};
 
-    /**
-     * <h1>For URL-dates.</h1><br>
-     * Get an ordered array of <a title="String[] = {regular expression, description}" >
-     * <u>regular expressions</u> </a> <br>
-     * to match the longest possible string.<br>
-     * <br>
-     * We need order because short regular expression matches also longer ones. <br>
-     * E.g.: So we get for 2010-07-20 a match for YYYY-MM and YYYY-MM-DD. But last one would be more specific.
-     * 
-     * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
-     */
-    public static DateFormat[] getURLRegExp() {
-        return new DateFormat[] { DATE_URL_D, DATE_URL_MMMM_D, DATE_URL_SPLIT,
-                DATE_ISO8601_YMD_NO, DATE_ISO8601_YWD, DATE_ISO8601_YD, DATE_URL,
-                DATE_ISO8601_YW };
-    }
+    /** All formats for dates in HTTP headers. */
+    // important: We need order because short regular expression matches also longer ones. So we get for 2010-07-20 a
+    // match for YYYY-MM and YYYY-MM-DD. But last one would be more specific.
+    public static final DateFormat[] HTTP_DATES = RFC_FORMATS;
 
-    /**
-     * <h1>For HTTP-Header-dates.</h1><br>
-     * 
-     * Get an ordered array of <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a> <br>
-     * to match the longest possible string.<br>
-     * <br>
-     * We need order because short regular expression matches also longer ones. <br>
-     * E.g.: So we get for 2010-07-20 a match for YYYY-MM and YYYY-MM-DD. But last one would be more specific.
-     * 
-     * 
-     * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
-     */
-    public static DateFormat[] getHTTPRegExp() {
-        return getRFCRegExp();
-    }
+    /** All formats for dates in HTML headers. */
+    // important: We need order because short regular expression matches also longer ones. So we get for 2010-07-20 a
+    // match for YYYY-MM and YYYY-MM-DD. But last one would be more specific.
+    public static final DateFormat[] HTML_HEAD_DATES = new DateFormat[] {DATE_RFC_1123, DATE_RFC_1036, DATE_ANSI_C_TZ,
+            DATE_ANSI_C, DATE_ISO8601_YMD_T, DATE_ISO8601_YMD_SEPARATOR_T, DATE_ISO8601_YMD,
+            DATE_ISO8601_YMD_SEPARATOR, DATE_ISO8601_YWD, DATE_ISO8601_YD, DATE_ISO8601_YM, DATE_ISO8601_YW};
 
-    /**
-     * <h1>For HTML-head-dates..</h1><br>
-     * Get an ordered array of <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a> <br>
-     * to match the longest possible string.<br>
-     * <br>
-     * We need order because short regular expression matches also longer ones. <br>
-     * E.g.: So we get for 2010-07-20 a match for YYYY-MM and YYYY-MM-DD. But last one would be more specific.
-     * 
-     * 
-     * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
-     */
-    public static DateFormat[] getHeadRegExp() {
-        return new DateFormat[] { DATE_RFC_1123, DATE_RFC_1036, DATE_ANSI_C_TZ,
-                DATE_ANSI_C, DATE_ISO8601_YMD_T, DATE_ISO8601_YMD_SEPARATOR_T, DATE_ISO8601_YMD,
-                DATE_ISO8601_YMD_SEPARATOR, DATE_ISO8601_YWD, DATE_ISO8601_YD, DATE_ISO8601_YM,
-                DATE_ISO8601_YW };
-    }
+    /** All formats for relative dates. */
+    public static final DateFormat[] RELATIVE_DATES = new DateFormat[] {RELATIVE_DATE_MIN, RELATIVE_DATE_HOUR,
+            RELATIVE_DATE_DAY, RELATIVE_DATE_MON, RELATIVE_DATE_YEAR};
 
-    public static DateFormat[] getRelativeDates(){
-    	return new DateFormat[] {RELATIVEDATEMIN, RELATIVEDATEHOUR, RELATIVEDATEDAY, RELATIVEDATEMON, RELATIVEDATEYEAR};
+    /** All date formats. */
+    public static final DateFormat[] ALL_DATE_FORMATS;
+
+    static {
+        ALL_DATE_FORMATS = new DateFormat[RFC_FORMATS.length + TIME_FORMATS.length + THREE_PART_FORMATS.length
+                + TWO_PART_FORMATS.length + ONE_PART_FORMATS.length];
+        System.arraycopy(RFC_FORMATS, 0, ALL_DATE_FORMATS, 0, RFC_FORMATS.length);
+        System.arraycopy(TIME_FORMATS, 0, ALL_DATE_FORMATS, RFC_FORMATS.length, TIME_FORMATS.length);
+        System.arraycopy(THREE_PART_FORMATS, 0, ALL_DATE_FORMATS, RFC_FORMATS.length + TIME_FORMATS.length,
+                THREE_PART_FORMATS.length);
+        System.arraycopy(TWO_PART_FORMATS, 0, ALL_DATE_FORMATS, RFC_FORMATS.length + TIME_FORMATS.length
+                + THREE_PART_FORMATS.length, TWO_PART_FORMATS.length);
+        System.arraycopy(ONE_PART_FORMATS, 0, ALL_DATE_FORMATS, RFC_FORMATS.length + TIME_FORMATS.length
+                + THREE_PART_FORMATS.length + TWO_PART_FORMATS.length, ONE_PART_FORMATS.length);
     }
-    
-//    public static String getTimezones() {
-//        return TIMEZONE;
-//    }
 
 }

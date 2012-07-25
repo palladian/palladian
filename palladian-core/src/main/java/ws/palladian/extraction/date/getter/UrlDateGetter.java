@@ -68,7 +68,7 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
      */
     private UrlDate getUrlDate(String url) {
         UrlDate ret = null;
-        DateFormat[] regExpArray = RegExp.getURLRegExp();
+        DateFormat[] regExpArray = RegExp.URL_DATES;
         int index = 0;
         ExtractedDate date = null;
         while (date == null && index < regExpArray.length) {
