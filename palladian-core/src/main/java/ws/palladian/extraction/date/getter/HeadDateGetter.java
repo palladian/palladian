@@ -9,7 +9,6 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.DateParser;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -63,7 +62,7 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
             if (keyword == null) {
                 continue;
             }
-            ExtractedDate date = DateParser.findDate(contentAttribute.getNodeValue(), RegExp.getHeadRegExp());
+            ExtractedDate date = DateParser.findDate(contentAttribute.getNodeValue(), RegExp.HTML_HEAD_DATES);
             if (date == null) {
                 continue;
             }

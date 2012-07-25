@@ -166,7 +166,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
              * Prepare Pattern for faster matching. Only regExps.length. Not
              * (regExps.length)*(nodeList.size) [n < n*m]
              */
-            DateFormat[] regExps = RegExp.getAllRegExp();
+            DateFormat[] regExps = RegExp.ALL_DATE_FORMATS;
 //            Pattern[] pattern = new Pattern[regExps.length];
 //            for (int i = 0; i < regExps.length; i++) {
 //                pattern[i] = Pattern.compile(regExps[i].getRegex());

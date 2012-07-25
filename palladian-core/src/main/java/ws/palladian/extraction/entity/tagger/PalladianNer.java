@@ -1183,7 +1183,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     private boolean containsDateFragment(String text) {
         text = text.toLowerCase();
-        String[] regExps = RegExp.getDateFragmentRegExp();
+        String[] regExps = RegExp.DATE_FRAGMENTS;
 
         for (String regExp : regExps) {
             if (text.replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
@@ -1203,7 +1203,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      *         removal on position 1.
      */
     private Object[] removeDateFragment(String text) {
-        String[] regExps = RegExp.getDateFragmentRegExp();
+        String[] regExps = RegExp.DATE_FRAGMENTS;
 
         Object[] result = new Object[2];
         int offsetChange = 0;

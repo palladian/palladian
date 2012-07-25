@@ -15,6 +15,7 @@ import ws.palladian.helper.date.ExtractedDateHelper;
  * It can be asked for year, month, day and time. If some values can not be constructed the value will be -1.
  * 
  * @author Martin Gregor
+ * @author Philipp Katz
  */
 public class ExtractedDate {
     
@@ -78,6 +79,17 @@ public class ExtractedDate {
         this.minute = date.minute;
         this.second = date.second;
         this.timezone = date.timezone;
+    }
+    
+    ExtractedDate(int year, int month, int day, int hour, int minute, int second, String dateString, String format) {
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.hour = hour;
+        this.minute= minute;
+        this.second = second;
+        this.dateString = dateString;
+        this.format = format;
     }
 
     /**

@@ -14,12 +14,7 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.Preprocessor;
 import ws.palladian.classification.page.TextInstance;
-import ws.palladian.extraction.TagAnnotation;
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
-import ws.palladian.extraction.pos.BasePosTagger;
-import ws.palladian.extraction.pos.LingPipePosTagger;
-import ws.palladian.helper.Cache;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -111,7 +106,7 @@ public class Annotation extends UniversalInstance {
 
     private int containsDateFragment(String text) {
         text = text.toLowerCase();
-        String[] regExps = RegExp.getDateFragmentRegExp();
+        String[] regExps = RegExp.DATE_FRAGMENTS;
 
         int fragments = 0;
         for (String regExp : regExps) {

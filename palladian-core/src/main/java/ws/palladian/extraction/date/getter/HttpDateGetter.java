@@ -85,7 +85,7 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
      */
     private static List<MetaDate> checkHttpTags(String keyword, Map<String, List<String>> headers) {
         List<MetaDate> result = new ArrayList<MetaDate>();
-        DateFormat[] regExpArray = RegExp.getHTTPRegExp();
+        DateFormat[] regExpArray = RegExp.HTTP_DATES;
         ExtractedDate date = null;
         if (headers.containsKey(keyword)) {
             List<String> dateList = headers.get(keyword);
