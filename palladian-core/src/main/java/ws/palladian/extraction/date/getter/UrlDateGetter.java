@@ -1,7 +1,9 @@
 package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -18,8 +20,8 @@ import ws.palladian.helper.date.dates.UrlDate;
 public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
 
     @Override
-    public ArrayList<UrlDate> getDates() {
-        ArrayList<UrlDate> result = new ArrayList<UrlDate>();
+    public List<UrlDate> getDates() {
+        List<UrlDate> result = new ArrayList<UrlDate>();
         if (url != null) {
             result.add(getUrlDate(url));
         }
@@ -67,10 +69,10 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
     private UrlDate getUrlDate(String url) {
         ExtractedDate date = null;
         UrlDate temp = null;
-        Object[] regExpArray = RegExp.getURLRegExp();
+        DateFormat[] regExpArray = RegExp.getURLRegExp();
         int index = 0;
         while (date == null && index < regExpArray.length) {
-            date = DateGetterHelper.getDateFromString(url, (String[])regExpArray[index]);
+            date = DateGetterHelper.getDateFromString(url, regExpArray[index]);
             index++;
         }
         if (date != null) {

@@ -70,7 +70,7 @@ public class ExtractedDateHelper {
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.HOUR_OF_DAY)) + ":"
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.MINUTE)) + ":"
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.SECOND)) + "Z";
-        String format = RegExp.DATE_ISO8601_YMD_T[1];
+        String format = RegExp.DATE_ISO8601_YMD_T.getFormat();
 
         // return new ExtractedDate(dateString, format);
         return DateParser.parse(dateString, format);
@@ -94,7 +94,7 @@ public class ExtractedDateHelper {
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.HOUR_OF_DAY)) + ":"
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.MINUTE)) + ":"
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.SECOND)) + "Z";
-        String format = RegExp.DATE_ISO8601_YMD_T[1];
+        String format = RegExp.DATE_ISO8601_YMD_T.getFormat();
 
         //ExtractedDate date = new ExtractedDate(dateString, format);
         //return date;

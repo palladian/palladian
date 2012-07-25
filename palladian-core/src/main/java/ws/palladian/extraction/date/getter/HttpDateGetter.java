@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ExtractedDate;
@@ -83,9 +84,9 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
      * @param headers Map of headers.
      * @return HTTP-date.
      */
-    private static ArrayList<MetaDate> checkHttpTags(String keyword, Map<String, List<String>> headers) {
-        ArrayList<MetaDate> result = new ArrayList<MetaDate>();
-        Object[] regExpArray = RegExp.getHTTPRegExp();
+    private static List<MetaDate> checkHttpTags(String keyword, Map<String, List<String>> headers) {
+        List<MetaDate> result = new ArrayList<MetaDate>();
+        DateFormat[] regExpArray = RegExp.getHTTPRegExp();
         ExtractedDate date = null;
         if (headers.containsKey(keyword)) {
             List<String> dateList = headers.get(keyword);
@@ -94,7 +95,7 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
                 String dateString = dateListIterator.next().toString();
                 int index = 0;
                 while (date == null && index < regExpArray.length) {
-                    date = DateGetterHelper.getDateFromString(dateString, (String[]) regExpArray[index]);
+                    date = DateGetterHelper.getDateFromString(dateString, regExpArray[index]);
                     index++;
                 }
                 if (date != null) {

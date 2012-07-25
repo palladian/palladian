@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.DateParser;
@@ -43,9 +44,9 @@ public final class DateGetterHelper {
      * @return The found date, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static ExtractedDate findDate(String dateString, Object[] regExpArray) {
+    public static ExtractedDate findDate(String dateString, DateFormat[] dateFormats) {
     	ExtractedDate date = null;
-    	Object[] regExps = regExpArray;
+    	DateFormat[] regExps = dateFormats;
 
     	if (regExps == null) {
             regExps = RegExp.getAllRegExp();
@@ -54,7 +55,7 @@ public final class DateGetterHelper {
         for (int i = 0; i < regExps.length; i++) {
             // FIXME "Mon, 18 Apr 2011 09:16:00 GMT-0700" fails.
             try {
-                date = getDateFromString(dateString, (String[]) regExps[i]);
+                date = getDateFromString(dateString, regExps[i]);
             } catch (Throwable th) {
                 th.printStackTrace();
             }
@@ -69,22 +70,22 @@ public final class DateGetterHelper {
     }
 
     public static List<ContentDate> findAllDates(String text, boolean includeYearOnly) {
-        Object[] regExps = RegExp.getAllRegExp();
+        DateFormat[] regExps = RegExp.getAllRegExp();
 
         // try to catch numbers that might be year mentions
         if (includeYearOnly) {
-            String[] yearRegExp = RegExp.DATE_CONTEXT_YYYY;
-            List<Object> newArray = new ArrayList<Object>();
-            for (Object regExp : regExps) {
+            DateFormat yearRegExp = RegExp.DATE_CONTEXT_YYYY;
+            List<DateFormat> newArray = new ArrayList<DateFormat>();
+            for (DateFormat regExp : regExps) {
                 newArray.add(regExp);
             }
             newArray.add(yearRegExp);
-            regExps = newArray.toArray();
+            regExps = newArray.toArray(new DateFormat[0]);
         }
 
         Pattern[] pattern = new Pattern[regExps.length];
         for (int i = 0; i < regExps.length; i++) {
-            pattern[i] = Pattern.compile(((String[])regExps[i])[0]);
+            pattern[i] = Pattern.compile((regExps[i].getRegExp()));
         }
         return findAllDates(text, pattern, regExps);
     }
@@ -95,7 +96,7 @@ public final class DateGetterHelper {
      * @return The found format, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static List<ContentDate> findAllDates(String text, Pattern[] pattern, Object[] regExps) {
+    public static List<ContentDate> findAllDates(String text, Pattern[] pattern, DateFormat[] regExps) {
     	String tempText = text;
     	List<ContentDate> dates = new ArrayList<ContentDate>();
     	
@@ -123,8 +124,9 @@ public final class DateGetterHelper {
 	            }
 	            if (!hasPrePostNum) {
 	            	try {
-		            	String dateString = tempText.substring(start, end);
-		            	ExtractedDate temp = DateParser.parse(dateString, ((String[])regExps[i])[1]);
+		            	// String dateString = tempText.substring(start, end);
+	            	    String dateString = matcher.group();
+		            	ExtractedDate temp = DateParser.parse(dateString, regExps[i].getFormat());
 		            	ContentDate date = new ContentDate(temp);
 		            	int index = tempText.indexOf(date.getDateString());
 		            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
@@ -147,39 +149,44 @@ public final class DateGetterHelper {
      * @param regExps
      * @return
      */
-    public static ExtractedDate findDate(String text, Pattern[] pattern, Object[] regExps) {
-        String tempText = text;
-        ExtractedDate date = null;
-        for (int i = 0; i < pattern.length; i++) {
-            Matcher matcher = pattern[i].matcher(tempText);
-            if (matcher.find()) {
-                boolean hasPrePostNum = false;
-                int start = matcher.start();
-                int end = matcher.end();
-                if (start > 0) {
-                    String temp = tempText.substring(start - 1, start);
-                    try {
-                        Integer.parseInt(temp);
-                        hasPrePostNum = true;
-                    } catch (NumberFormatException e) {
-                    }
-                }
-                if (end < tempText.length()) {
-                    String temp = tempText.substring(end, end + 1);
-                    try {
-                        Integer.parseInt(temp);
-                        hasPrePostNum = true;
-                    } catch (NumberFormatException e) {
-                    }
-                }
-                if (!hasPrePostNum) {
-                    String dateString = tempText.substring(start, end);
-                    date = DateParser.parse(dateString, ((String[])regExps[i])[1]);
-                    break;
-                }
-            }
+    public static ExtractedDate findDate(String text, Pattern[] pattern, DateFormat[] regExps) {
+//        String tempText = text;
+//        ExtractedDate date = null;
+//        for (int i = 0; i < pattern.length; i++) {
+//            Matcher matcher = pattern[i].matcher(tempText);
+//            if (matcher.find()) {
+//                boolean hasPrePostNum = false;
+//                int start = matcher.start();
+//                int end = matcher.end();
+//                if (start > 0) {
+//                    String temp = tempText.substring(start - 1, start);
+//                    try {
+//                        Integer.parseInt(temp);
+//                        hasPrePostNum = true;
+//                    } catch (NumberFormatException e) {
+//                    }
+//                }
+//                if (end < tempText.length()) {
+//                    String temp = tempText.substring(end, end + 1);
+//                    try {
+//                        Integer.parseInt(temp);
+//                        hasPrePostNum = true;
+//                    } catch (NumberFormatException e) {
+//                    }
+//                }
+//                if (!hasPrePostNum) {
+//                    String dateString = tempText.substring(start, end);
+//                    date = DateParser.parse(dateString, ((String[])regExps[i])[1]);
+//                    break;
+//                }
+//            }
+//        }
+//        return date;
+        List<ContentDate> dates = findAllDates(text, pattern, regExps);
+        if (dates.size() > 0) {
+            return dates.get(0);
         }
-        return date;
+        return null;
     }
 
 
@@ -227,12 +234,12 @@ public final class DateGetterHelper {
      *            "abcd" offsetStart=1: "bcd" offsetStart=-1: "abcd"
      * @return found substring or null
      */
-    public static ExtractedDate getDateFromString(String dateString, String[] regExp) {
+    public static ExtractedDate getDateFromString(String dateString, DateFormat dateFormat) {
     	
         String text = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(dateString));
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
-        Pattern pattern = Pattern.compile(regExp[0]);
+        Pattern pattern = Pattern.compile(dateFormat.getRegExp());
         Matcher matcher = pattern.matcher(text);
         
         if (matcher.find()) {
@@ -259,7 +266,7 @@ public final class DateGetterHelper {
             }
             if (!hasPrePostNum) {
                 //date = new ExtractedDate(text.substring(start, end), regExp[1]);
-                date = DateParser.parse(text.substring(start, end), regExp[1]);
+                date = DateParser.parse(text.substring(start, end), dateFormat.getFormat());
             }
 
         }
@@ -277,9 +284,10 @@ public final class DateGetterHelper {
             Pattern pattern = Pattern.compile(regExp[0]);
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
-                int start = matcher.start();
-                int end = matcher.end();
-                String relativeTime = text.substring(start, end);
+                // int start = matcher.start();
+                // int end = matcher.end();
+                // String relativeTime = text.substring(start, end);
+                String relativeTime = matcher.group();
                 long number = Long.valueOf(relativeTime.split(" ")[0]);
 
                 String format = regExp[1];
