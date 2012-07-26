@@ -11,7 +11,6 @@ import org.junit.Test;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ArchiveDate;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.KeywordDate;
@@ -24,7 +23,7 @@ public class DateArrayHelperTest {
     public void testFilter() throws FileNotFoundException {
         List<ExtractedDate> dates = new ArrayList<ExtractedDate>();
         
-        ExtractedDate now = ExtractedDateHelper.getCurrentDate();
+        ExtractedDate now = new ExtractedDate();
         dates.add(now);
         dates.add(new ContentDate(now));
         dates.add(new UrlDate(now, "http://www.example.com"));
@@ -43,35 +42,35 @@ public class DateArrayHelperTest {
     @Test
     public void testCluster() {
         List<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-        ExtractedDate date1 = DateParser.parse("2010-08-01", "YYYY-MM-DD");
+        ExtractedDate date1 = DateParser.parseDate("2010-08-01", "YYYY-MM-DD");
         dates.add(date1);
-        ExtractedDate date2 = DateParser.parse("2010-08-02", "YYYY-MM-DD");
+        ExtractedDate date2 = DateParser.parseDate("2010-08-02", "YYYY-MM-DD");
         dates.add(date2);
-        ExtractedDate date3 = DateParser.parse("2010-08-03", "YYYY-MM-DD");
+        ExtractedDate date3 = DateParser.parseDate("2010-08-03", "YYYY-MM-DD");
         dates.add(date3);
-        ExtractedDate date4 = DateParser.parse("2010-08-04", "YYYY-MM-DD");
+        ExtractedDate date4 = DateParser.parseDate("2010-08-04", "YYYY-MM-DD");
         dates.add(date4);
-        ExtractedDate date5 = DateParser.parse("2010-08-05", "YYYY-MM-DD");
+        ExtractedDate date5 = DateParser.parseDate("2010-08-05", "YYYY-MM-DD");
         dates.add(date5);
-        ExtractedDate date6 = DateParser.parse("2010-08-03", "YYYY-MM-DD");
+        ExtractedDate date6 = DateParser.parseDate("2010-08-03", "YYYY-MM-DD");
         dates.add(date6);
-        ExtractedDate date7 = DateParser.parse("2010-08-04", "YYYY-MM-DD");
+        ExtractedDate date7 = DateParser.parseDate("2010-08-04", "YYYY-MM-DD");
         dates.add(date7);
-        ExtractedDate date8 = DateParser.parse("2010-08-05", "YYYY-MM-DD");
+        ExtractedDate date8 = DateParser.parseDate("2010-08-05", "YYYY-MM-DD");
         dates.add(date8);
-        ExtractedDate date9 = DateParser.parse("2010-08-05", "YYYY-MM-DD");
+        ExtractedDate date9 = DateParser.parseDate("2010-08-05", "YYYY-MM-DD");
         dates.add(date9);
-        ExtractedDate date10 = DateParser.parse("2010-08-05", "YYYY-MM-DD");
+        ExtractedDate date10 = DateParser.parseDate("2010-08-05", "YYYY-MM-DD");
         dates.add(date10);
-        ExtractedDate date11 = DateParser.parse("2010-08-04", "YYYY-MM-DD");
+        ExtractedDate date11 = DateParser.parseDate("2010-08-04", "YYYY-MM-DD");
         dates.add(date11);
-        ExtractedDate date12 = DateParser.parse("2010-08-03", "YYYY-MM-DD");
+        ExtractedDate date12 = DateParser.parseDate("2010-08-03", "YYYY-MM-DD");
         dates.add(date12);
-        ExtractedDate date13 = DateParser.parse("2010-08-05", "YYYY-MM-DD");
+        ExtractedDate date13 = DateParser.parseDate("2010-08-05", "YYYY-MM-DD");
         dates.add(date13);
-        ExtractedDate date14 = DateParser.parse("2010-08-02", "YYYY-MM-DD");
+        ExtractedDate date14 = DateParser.parseDate("2010-08-02", "YYYY-MM-DD");
         dates.add(date14);
-        ExtractedDate date15 = DateParser.parse("2010-08-04", "YYYY-MM-DD");
+        ExtractedDate date15 = DateParser.parseDate("2010-08-04", "YYYY-MM-DD");
         dates.add(date15);
         
         List<List<ExtractedDate>> clusters = DateArrayHelper.cluster(dates, DateExactness.DAY);

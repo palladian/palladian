@@ -7,8 +7,9 @@ import org.apache.commons.lang3.Validate;
 /**
  * <p>
  * Constants describing the <i>exactness</i> of the {@link ExtractedDate}s. The exactness denotes which date parts of an
- * {@link ExtractedDate} have been set. For example, a date "2012-07-24" has an exactness {@link #DAY}, where
- * "2012-07-24 11:54:23" as an exactness {@link #SECOND}.
+ * {@link ExtractedDate} have been set. For example, a date
+ * <code>2012-07-24</code> has an exactness {@link #DAY}, where as a date
+ * <code>2012-07-24 11:54:23</code> as an exactness {@link #SECOND}.
  * </p>
  * 
  * @author Philipp Katz
@@ -34,7 +35,7 @@ public enum DateExactness {
 
     private final int value;
 
-    DateExactness(int value) {
+    private DateExactness(int value) {
         this.value = value;
     }
 
@@ -54,7 +55,7 @@ public enum DateExactness {
                 return compareDepth;
             }
         }
-        throw new NoSuchElementException("No CompareDepth with value " + value);
+        throw new NoSuchElementException("No DateExactness with value " + value);
     }
 
     /**

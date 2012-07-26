@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -24,7 +26,6 @@ import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.helper.date.dates.StructureDate;
@@ -159,7 +160,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             // TODO: Check if an element is visible
             // checkVisiblityOfAllNodes(body.item(0));
             // Get webpage as text (for finding position).
-            this.doc = StringHelper.removeDoubleWhitespaces(ExtractedDateHelper.replaceHtmlSymbols(HtmlHelper
+            this.doc = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper
                     .documentToReadableText(body.item(0))));
 
             /*
@@ -207,7 +208,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         // String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 
-        String text = ExtractedDateHelper.replaceHtmlSymbols(node.getNodeValue());
+        String text = replaceHtmlSymbols(node.getNodeValue());
 
         int index = -1;
         Node parent = node.getParentNode();
@@ -331,7 +332,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 index = text.indexOf(key);
                 if (index != -1) {
                     this.keyContentMap.put(index, key);
-                    text = text.replaceFirst(key, ExtractedDateHelper.getXs(key));
+                    text = text.replaceFirst(key, StringUtils.repeat('x', key.length()));
                     i--;
                 }
             }
@@ -507,5 +508,29 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
     public String getDoc() {
         return this.doc;
+    }
+    
+    /**
+     * <p>
+     * Sometimes texts in webpages have special code for character. E.g. <i>&ampuuml;</i> or whitespace. To evaluate
+     * this text reasonably you need to convert this code.
+     * </p>
+     * 
+     * @param text
+     * @return
+     */
+    private static String replaceHtmlSymbols(String text) {
+
+        String result = StringEscapeUtils.unescapeHtml(text);
+        result = StringHelper.replaceProtectedSpace(result);
+
+        // remove undesired characters
+        result = result.replace("&#8203;", " "); // empty whitespace
+        result = result.replace("\n", " ");
+        result = result.replace("&#09;", " "); // html tabulator
+        result = result.replace("\t", " ");
+        result = result.replace(" ,", " ");
+
+        return result;
     }
 }

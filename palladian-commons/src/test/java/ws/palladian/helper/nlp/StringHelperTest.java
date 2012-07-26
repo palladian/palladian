@@ -3,16 +3,12 @@ package ws.palladian.helper.nlp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * Test cases for the StringHelper class.
@@ -114,16 +110,6 @@ public class StringHelperTest {
     }
 
     @Test
-    public void testRename() throws FileNotFoundException {
-        // System.out.println(FileHelper.rename(new
-        // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
-        String renamedFile = FileHelper.getRenamedFilename(new File(ResourceHelper.getResourcePath("/empty.txt")),
-                "empty_tagged");
-        renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
-        assertEquals("empty_tagged.txt", renamedFile);
-    }
-
-    @Test
     public void testContainsNumber() {
         assertEquals(true, StringHelper.containsNumber("120"));
         assertEquals(true, StringHelper.containsNumber("120.2 GB"));
@@ -203,6 +189,7 @@ public class StringHelperTest {
 
     @Test
     public void testEscapeForRegularExpression() {
+        assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));
         // String containing RegEx meta characters which need to be escaped
         String s = "(the) [quick] {brown} fox$ ^jumps+ \n ov|er the? l-a\\zy ]dog[";
         // test successful escape by matching escaped RegEx ...
@@ -271,6 +258,67 @@ public class StringHelperTest {
         assertEquals("\u00B6", StringHelper.removeFourByteChars("\u00B6"));
         assertEquals("\u6771", StringHelper.removeFourByteChars("\u6771"));
         assertEquals("", StringHelper.removeFourByteChars("\uD801\uDC00"));
+    }
+    
+    @Test
+    public void testIsCompletelyUppercase() {
+        assertEquals(true, StringHelper.isCompletelyUppercase("ABC"));
+        assertEquals(false, StringHelper.isCompletelyUppercase("AbC"));
+        assertEquals(true, StringHelper.isCompletelyUppercase("A BC"));
+    }
+
+    @Test
+    public void testIsNumber() {
+        assertEquals(false, StringHelper.isNumber("44.000."));
+        assertEquals(false, StringHelper.isNumber("44 000"));
+        assertEquals(true, StringHelper.isNumber("44.000"));
+        assertEquals(true, StringHelper.isNumber("41"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("45"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("one"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("two"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("three"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("four"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("five"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("six"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("seven"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("eight"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("nine"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("ten"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("eleven"));
+        assertEquals(true, StringHelper.isNumberOrNumberWord("twelve"));
+    }
+
+    @Test
+    public void testIsNumericExpression() {
+        assertEquals(false, StringHelper.isNumericExpression("44a000."));
+        assertEquals(false, StringHelper.isNumericExpression("44 000 also"));
+        assertEquals(true, StringHelper.isNumericExpression("44.000%"));
+        assertEquals(true, StringHelper.isNumericExpression("41 %"));
+        assertEquals(true, StringHelper.isNumericExpression("345,234,231"));
+        assertEquals(true, StringHelper.isNumericExpression("$12,21€"));
+        assertEquals(false, StringHelper.isNumericExpression("TBC"));
+
+    }
+
+    @Test
+    public void testCalculateSimilarity() {
+        assertEquals(1.0, StringHelper.calculateSimilarity("http://www.blu-ray.com/movies/movies.php?genre=action",
+                "http://www.blu-ray.com/movies/movies.php?genre=action"), 0);
+        assertEquals(1.0, StringHelper.calculateSimilarity("abc", "abcd"), 0);
+        assertEquals(0.0, StringHelper.calculateSimilarity("", "abcd"), 0);
+    }
+
+    @Test
+    public void testIsTimeExpression() {
+        assertEquals(true, StringHelper.isTimeExpression("3:22 pm"));
+        assertEquals(true, StringHelper.isTimeExpression("23:1am"));
+        assertEquals(false, StringHelper.isTimeExpression("abc 23:13!"));
+    }
+
+    @Test
+    public void testPutArticleInFront() {
+        assertEquals("The Fog", StringHelper.putArticleInFront("Fog,the"));
+        assertEquals("Los Amigos", StringHelper.putArticleInFront("Amigos, Los"));
     }
 
 }

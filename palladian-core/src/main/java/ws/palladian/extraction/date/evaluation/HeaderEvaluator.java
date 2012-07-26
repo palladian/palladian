@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
@@ -74,7 +75,7 @@ public class HeaderEvaluator {
 		int counter=0;
 		int compare;
 		
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
@@ -117,7 +118,7 @@ public class HeaderEvaluator {
 					//System.out.print("best date... ");
 					bestDate = (T) dr.getBestDate();
 					if(bestDate != null){
-						bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+						bestDateString = ((ExtractedDate) bestDate).getNormalizedDateString(true);
 					}
 				}
 			}
@@ -181,7 +182,7 @@ public class HeaderEvaluator {
 	
 	
 	private static void countHeadURls(String in, String out, HeadDateGetter dg){
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(in);
+		Map<String, DBExport> set = EvaluationHelper.readFile(in);
 		ArrayList<DBExport> headSet = new ArrayList<DBExport>();
 		DocumentRetriever c = new DocumentRetriever();
 		int index=0;
@@ -263,11 +264,11 @@ public class HeaderEvaluator {
 	
 	private static void mergeUrlsets(String in1, String in2, String out){
 			
-			HashMap<String, DBExport> set1 = EvaluationHelper.readFile(in1);
-			HashMap<String, DBExport> set2 = EvaluationHelper.readFile(in2);
+			Map<String, DBExport> set1 = EvaluationHelper.readFile(in1);
+			Map<String, DBExport> set2 = EvaluationHelper.readFile(in2);
 			System.out.println(set1.size());
 			System.out.println(set2.size());
-			HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
+			Map<String, DBExport> merged = new HashMap<String, DBExport>();
 			merged.putAll(set1);
 			merged.putAll(set2);
 			String separator = EvaluationHelper.SEPARATOR;

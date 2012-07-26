@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.dates.ContentDate;
@@ -81,11 +83,11 @@ public final class DateGetterHelper {
 	            	try {
 		            	// String dateString = tempText.substring(start, end);
 	            	    String dateString = matcher.group();
-		            	ExtractedDate temp = DateParser.parse(dateString, format.getFormat());
+		            	ExtractedDate temp = DateParser.parseDate(dateString, format.getFormat());
 		            	ContentDate date = new ContentDate(temp);
 		            	int index = tempText.indexOf(date.getDateString());
 		            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
-		                String xString = ExtractedDateHelper.getXs(dateString);
+		                String xString = StringUtils.repeat('x', dateString.length());
 		                tempText = tempText.replaceFirst(dateString, xString);
 		                dates.add(date);
 	            	} catch (Exception e) {

@@ -1,6 +1,6 @@
 package ws.palladian.extraction.date.evaluation;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
@@ -15,7 +15,7 @@ public class searchengineEvaluation {
 	 */
 	public static void main(String[] args) {
 		String file = "data/evaluation/daterecognition/datasets/finalEvaluation.txt";
-		HashMap<String, DBExport> map = EvaluationHelper.readFile(file);
+		Map<String, DBExport> map = EvaluationHelper.readFile(file);
 		DateComparator dc = new DateComparator(DateExactness.DAY);
 
 		int googleAFRPub = 0;

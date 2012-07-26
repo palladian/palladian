@@ -11,7 +11,6 @@ import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.MetaDate;
 
 /**
@@ -87,7 +86,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 
         } else {
         	if(currentDate == null){
-        		currentDate = ExtractedDateHelper.getCurrentDate();
+        		currentDate = new ExtractedDate();
         	}
             for (int i = 0; i < lowRatedDates.size(); i++) {
                 double rate = 0.75;

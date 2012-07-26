@@ -1,8 +1,8 @@
 package ws.palladian.extraction.date.evaluation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
@@ -53,7 +53,7 @@ public class KairosEvaluator {
 	}
 
 	private static void countUrlHeadDates(String file) {
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 
 		UrlDateGetter urlDateGetter = new UrlDateGetter();
 		MetaDateGetter metaDateGetter = new MetaDateGetter();
@@ -130,7 +130,7 @@ public class KairosEvaluator {
 
 	}
 
-	private static ArrayList<MetaDate> getHttpDates(DBExport dbExport) {
+	private static List<MetaDate> getHttpDates(DBExport dbExport) {
 		ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
 		String headerDate = dbExport.get(DBExport.HEADER_DATE);
 		String headerLastMod = dbExport.get(DBExport.HEADER_LAST);
@@ -171,7 +171,7 @@ public class KairosEvaluator {
 		int counter = 0;
 		int compare;
 
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		DocumentRetriever crawler = new DocumentRetriever();
 
 		StopWatch timer = new StopWatch();
@@ -203,8 +203,8 @@ public class KairosEvaluator {
 			time += timer.getElapsedTime();
 			System.out.print("get dates... ");
 			if (bestDate != null) {
-				bestDateString = ((ExtractedDate) bestDate).getDateString();
-				rate = String.valueOf(((ExtractedDate) bestDate).getRate());
+				bestDateString = bestDate.getDateString();
+				rate = String.valueOf(bestDate.getRate());
 			}
 
 			System.out.println("compare...");

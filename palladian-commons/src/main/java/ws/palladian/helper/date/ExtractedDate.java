@@ -7,24 +7,25 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
 
-
 /**
- * Represents a date, found in a webpage. <br>
- * A object will be created with a date-string and a possible format. <br>
- * It can be asked for year, month, day and time. If some values can not be constructed the value will be -1.
+ * <p>
+ * This class represents a date which was extracted e.g. from a text. The date has properties like <code>year</code>,
+ * <code>month</code> , …, <code>seconds</code>. As the information extracted varies, not all of these properties need
+ * to be set. Internally, unset properties are initialized with a value of <code>-1</code>. The amount of available data
+ * (i.e. the exactness) can be determined using {@link #getExactness()}.
+ * </p>
  * 
  * @author Martin Gregor
  * @author Philipp Katz
  */
 public class ExtractedDate {
-    
+
     public static final int YEAR = 1;
     public static final int MONTH = 2;
     public static final int DAY = 3;
     public static final int HOUR = 4;
     public static final int MINUTE = 5;
     public static final int SECOND = 6;
-
 
     /** Found date as string. */
     private final String dateString;
@@ -44,17 +45,22 @@ public class ExtractedDate {
     private String timeZone = null;
 
     private double rate = 0;
-
-    /**
-     * creates a new date and sets dateString and format
-     * 
-     * @param dateString
-     * @param format
-     */
-    protected ExtractedDate(String dateString, String format) {
-        super();
-        this.dateString = dateString;
-        this.format = format;
+    
+    public ExtractedDate() {
+        this(System.currentTimeMillis());
+    }
+    
+    public ExtractedDate(long milliseconds) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(milliseconds);
+        this.year = calendar.get(Calendar.YEAR);
+        this.month = calendar.get(Calendar.MONTH) + 1;
+        this.day = calendar.get(Calendar.DAY_OF_MONTH);
+        this.hour = calendar.get(Calendar.HOUR_OF_DAY);
+        this.minute = calendar.get(Calendar.MINUTE);
+        this.second = calendar.get(Calendar.SECOND);
+        this.format = null;
+        this.dateString = null;
     }
 
     /**
@@ -78,17 +84,26 @@ public class ExtractedDate {
         this.second = date.second;
         this.timeZone = date.timeZone;
     }
-    
-    ExtractedDate(int year, int month, int day, int hour, int minute, int second, String timeZone, String dateString, String format) {
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        this.hour = hour;
-        this.minute= minute;
-        this.second = second;
-        this.timeZone = timeZone;
-        this.dateString = dateString;
-        this.format = format;
+
+    /**
+     * <p>
+     * Constructor for the {@link DateParser} to create a new {@link ExtractedDate} after the input has been parsed.
+     * Only intended for the parser, therefore package private.
+     * </p>
+     * 
+     * @param parseLogic The parse logic providing the input for initialization. Not <code>null</code>.
+     */
+    ExtractedDate(DateParserLogic parseLogic) {
+        Validate.notNull(parseLogic, "parseLogic must not be null");
+        this.year = parseLogic.year;
+        this.month = parseLogic.month;
+        this.day = parseLogic.day;
+        this.hour = parseLogic.hour;
+        this.minute= parseLogic.minute;
+        this.second = parseLogic.second;
+        this.timeZone = parseLogic.timeZone;
+        this.dateString = parseLogic.originalDateString;
+        this.format = parseLogic.format;
     }
 
     /**
@@ -98,7 +113,7 @@ public class ExtractedDate {
      * @return
      */
     public String getNormalizedDateString() {
-        return getNormalizedDate(true);
+        return getNormalizedDateString(true);
     }
 
     /**
@@ -131,7 +146,7 @@ public class ExtractedDate {
      * @param time <code>true</code> to include time.
      * @return
      */
-    public String getNormalizedDate(boolean time) {
+    public String getNormalizedDateString(boolean time) {
         StringBuilder normalizedDate = new StringBuilder();
         if (year == -1) {
             normalizedDate.append("0");
@@ -142,16 +157,16 @@ public class ExtractedDate {
         if (month == -1) {
             normalizedDate.append(0);
         } else {
-            normalizedDate.append(ExtractedDateHelper.get2Digits(month));
+            normalizedDate.append(get2Digits(month));
         }
         if (day != -1) {
-            normalizedDate.append("-").append(ExtractedDateHelper.get2Digits(day));
+            normalizedDate.append("-").append(get2Digits(day));
             if (hour != -1 && time) {
-                normalizedDate.append(" ").append(ExtractedDateHelper.get2Digits(hour));
+                normalizedDate.append(" ").append(get2Digits(hour));
                 if (minute != -1) {
-                    normalizedDate.append(":").append(ExtractedDateHelper.get2Digits(minute));
+                    normalizedDate.append(":").append(get2Digits(minute));
                     if (second != -1) {
-                        normalizedDate.append(":").append(ExtractedDateHelper.get2Digits(second));
+                        normalizedDate.append(":").append(get2Digits(second));
                     }
                 }
             }
@@ -163,6 +178,21 @@ public class ExtractedDate {
 
         return normalizedDate.toString();
 
+    }
+    
+    /**
+     * Adds a leading zero for numbers less then ten. <br>
+     * E.g.: 3 ->"03"; 12 -> "12"; 386 -> "376" ...
+     * 
+     * @param number
+     * @return a minimum two digit number
+     */
+    static String get2Digits(int number) {
+        String numberString = String.valueOf(number);
+        if (number < 10) {
+            numberString = "0" + number;
+        }
+        return numberString;
     }
 
     /**
@@ -195,22 +225,22 @@ public class ExtractedDate {
         int value = -1;
         switch (field) {
             case YEAR:
-                value = this.year;
+                value = year;
                 break;
             case MONTH:
-                value = this.month;
+                value = month;
                 break;
             case DAY:
-                value = this.day;
+                value = day;
                 break;
             case HOUR:
-                value = this.hour;
+                value = hour;
                 break;
             case MINUTE:
-                value = this.minute;
+                value = minute;
                 break;
             case SECOND:
-                value = this.second;
+                value = second;
                 break;
         }
         return value;
@@ -232,22 +262,22 @@ public class ExtractedDate {
     public void set(int field, int value) {
         switch (field) {
             case YEAR:
-                this.year = value;
+                year = value;
                 break;
             case MONTH:
-                this.month = value;
+                month = value;
                 break;
             case DAY:
-                this.day = value;
+                day = value;
                 break;
             case HOUR:
-                this.hour = value;
+                hour = value;
                 break;
             case MINUTE:
-                this.minute = value;
+                minute = value;
                 break;
             case SECOND:
-                this.second = value;
+                second = value;
                 break;
         }
     }
@@ -279,17 +309,17 @@ public class ExtractedDate {
      */
     public DateExactness getExactness() {
         DateExactness exactness = DateExactness.UNSET;
-        if (this.year != -1) {
+        if (year != -1) {
             exactness = DateExactness.YEAR;
-            if (this.month != -1) {
+            if (month != -1) {
                 exactness = DateExactness.MONTH;
-                if (this.day != -1) {
+                if (day != -1) {
                     exactness = DateExactness.DAY;
-                    if (this.hour != -1) {
+                    if (hour != -1) {
                         exactness = DateExactness.HOUR;
-                        if (this.minute != -1) {
+                        if (minute != -1) {
                             exactness = DateExactness.MINUTE;
-                            if (this.second != -1) {
+                            if (second != -1) {
                                 exactness = DateExactness.SECOND;
                             }
                         }

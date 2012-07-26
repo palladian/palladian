@@ -1,7 +1,7 @@
 package ws.palladian.extraction.date.evaluation;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
@@ -24,7 +24,7 @@ public abstract class Evaluator {
 		int counter=0;
 		int compare;
 		
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
@@ -62,7 +62,7 @@ public abstract class Evaluator {
 					//System.out.print("best date... ");
 					bestDate = dr.getBestDate();
 					if(bestDate != null){
-						bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+						bestDateString = bestDate.getNormalizedDateString(true);
 					}
 				}
 			}

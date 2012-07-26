@@ -61,7 +61,7 @@ public class DateWekaInstanceFactoryTest {
     }
 
     private ContentDate getTestDate() {
-        ContentDate cDate = new ContentDate(DateParser.parse("April 01, 2011", "MMMM DD, YYYY"));
+        ContentDate cDate = new ContentDate(DateParser.parseDate("April 01, 2011", "MMMM DD, YYYY"));
 
         cDate.setRelDocPos(0.375);
         cDate.setOrdDocPos(0.75);
