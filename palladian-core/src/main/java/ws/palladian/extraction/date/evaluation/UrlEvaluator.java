@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
@@ -41,7 +42,7 @@ public class UrlEvaluator {
 	}
 
 	private static void countUrlsWithDate(String file) {
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		UrlDateGetter dg = new UrlDateGetter();
 		int count = 0;
 		for (Entry<String, DBExport> e : set.entrySet()) {
@@ -56,7 +57,7 @@ public class UrlEvaluator {
 	private static void compareUrlDateFoundDate(PageDateType pub_mod,
 			String file) {
 
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		UrlDateGetter dg = new UrlDateGetter();
 		int countAll = 0;
 		int countTP = 0;
@@ -97,10 +98,10 @@ public class UrlEvaluator {
 
 	private static void mergeUrlsets(String in1, String in2, String out) {
 
-		HashMap<String, DBExport> set1 = EvaluationHelper.readFile(in1);
-		HashMap<String, DBExport> set2 = EvaluationHelper.readFile(in2);
+		Map<String, DBExport> set1 = EvaluationHelper.readFile(in1);
+		Map<String, DBExport> set2 = EvaluationHelper.readFile(in2);
 
-		HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
+		Map<String, DBExport> merged = new HashMap<String, DBExport>();
 		merged.putAll(set1);
 		merged.putAll(set2);
 		String separator = EvaluationHelper.SEPARATOR;

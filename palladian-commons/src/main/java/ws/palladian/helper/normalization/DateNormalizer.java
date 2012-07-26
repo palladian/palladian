@@ -21,8 +21,8 @@ import ws.palladian.helper.date.DateHelper;
 public class DateNormalizer {
 
     public static String normalizeDateFormat(Date date, String format) {
-        Locale.setDefault(Locale.ENGLISH);
-        Calendar c = Calendar.getInstance();
+        // Locale.setDefault(Locale.ENGLISH);
+        Calendar c = Calendar.getInstance(Locale.ENGLISH);
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         c.setTime(date);
         String dateString = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DATE) + " "
@@ -30,11 +30,11 @@ public class DateNormalizer {
         return normalizeDateFormat(dateString, format);
     }
 
-    public static String normalizeDateFormat(String dateString, String format) {
+    private static String normalizeDateFormat(String dateString, String format) {
         String normalizedDate = "";
 
-        Locale.setDefault(Locale.ENGLISH);
-        DateFormat dfm = new SimpleDateFormat(format);
+        // Locale.setDefault(Locale.ENGLISH);
+        DateFormat dfm = new SimpleDateFormat(format, Locale.ENGLISH);
 
         try {
             Date rfcDate = dfm.parse(dateString);
@@ -66,7 +66,6 @@ public class DateNormalizer {
             }
 
             normalizedDate = year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
-            return normalizedDate;
 
         } catch (ParseException e) {
             Logger.getRootLogger().debug(format + " could not be parsed for " + dateString);

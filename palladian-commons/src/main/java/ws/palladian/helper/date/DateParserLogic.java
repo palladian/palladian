@@ -5,31 +5,65 @@ import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 
-class DateParserLogic {
-    
-    int year = -1;
-    int month = -1;
-    int day = -1;
-    int hour = -1;
-    int minute = -1;
-    int second = -1;
-    String timezone = null;
-    
-    /**
-     * Normalizes the date, if a format is given. <br>
-     * If no day is given, it will be set to the 1st of month. <br>
-     * Set the time to 00:00:00+00, if no time is given <br>
-     * 
-     * @return a date in format YYYY-MM-DD
-     */
-    void parse(String dateString, String format) {
+/**
+ * <p>
+ * This class contains the background magic which is carrying out the parsing of dates. For each {@link DateFormat}
+ * specified in {@link RegExp}, dedicated parsing logic is implemented here. This class is not thread-safe and not
+ * intended to be used by the outside world. Instances are created by the {@link DateParser} only and discarded
+ * immediately, after an {@link ExtractedDate} has been constructed.
+ * </p>
+ * 
+ * @author Martin Gregor
+ * @author Philipp Katz
+ */
+final class DateParserLogic {
 
+    final String originalDateString;
+    final String format;
+
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    String timeZone;
+
+    /**
+     * <p>
+     * Initialize the date parse logic with the provided date string and the given format used for parsing.
+     * </p>
+     * 
+     * @param dateString The date string to be parsed, not <code>null</code>.
+     * @param format The format describing the structure of the date string, not <code>null</code>.
+     */
+    public DateParserLogic(String dateString, String format) {
+        this.originalDateString = dateString;
+        this.format = format;
+        this.year = -1;
+        this.month = -1;
+        this.day = -1;
+        this.hour = -1;
+        this.minute = -1;
+        this.second = -1;
+        this.timeZone = null;
+    }
+
+    /**
+     * <p>
+     * Parse the supplied date string by using the given format.
+     * </p>
+     */
+    void parse() {
+
+        String dateString = originalDateString;
         String[] timeZoneSplit = splitTimeZone(dateString);
         if (timeZoneSplit != null) {
             dateString = timeZoneSplit[0];
-            timezone = timeZoneSplit[1];
+            timeZone = timeZoneSplit[1];
         }
 
         if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD_T.getFormat())) {
@@ -39,10 +73,10 @@ class DateParserLogic {
                 separator = " ";
             }
             String[] temp = dateString.split(separator);
-            setDateValues(temp[0].split(getSeparator(temp[0])), 0, 1, 2);
+            setDateValues(temp[0].split(getSeparatorRegEx(temp[0])), 0, 1, 2);
             setTimeValues(temp[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD.getFormat())) {
-            setDateValues(dateString.split(getSeparator(dateString)), 0, 1, 2);
+            setDateValues(dateString.split(getSeparatorRegEx(dateString)), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YM.getFormat())) {
             setDateValues(dateString.split("-"), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD.getFormat())) {
@@ -62,7 +96,7 @@ class DateParserLogic {
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD.getFormat())) {
             setDateByDayOfYear(dateString, true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_D.getFormat())) {
-            setDateValues(dateString.split(getSeparator(dateString)), 0, 1, 2);
+            setDateValues(dateString.split(getSeparatorRegEx(dateString)), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D.getFormat())) {
             setDateValues(dateString.split("/"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT.getFormat())) {
@@ -74,7 +108,7 @@ class DateParserLogic {
                 tempMonth = -1;
             } catch (NumberFormatException e) {
                 String lastField = dateParts[dateParts.length - 1];
-                String[] tempDateParts = lastField.split(getSeparator(lastField));
+                String[] tempDateParts = lastField.split(getSeparatorRegEx(lastField));
                 month = Integer.parseInt(tempDateParts[0]);
                 day = Integer.parseInt(tempDateParts[1]);
             }
@@ -82,12 +116,12 @@ class DateParserLogic {
                 month = Integer.parseInt(dateParts[dateParts.length - 2]);
             }
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL.getFormat())) {
-            setDateValues(dateString.split(getSeparator(dateString)), 0, 1, -1);
+            setDateValues(dateString.split(getSeparatorRegEx(dateString)), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y.getFormat())) {
-            String separator = getSeparator(dateString);
+            String separator = getSeparatorRegEx(dateString);
             setDateValues(dateString.split(separator), 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y.getFormat())) {
-            setDateValues(dateString.split(getSeparator(dateString)), 2, 0, 1);
+            setDateValues(dateString.split(getSeparatorRegEx(dateString)), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y.getFormat())) {
             if (dateString.contains("\\.")) {
                 dateString = dateString.replaceAll("\\.", "");
@@ -117,10 +151,10 @@ class DateParserLogic {
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_YYYY_MMM_D.getFormat())) {
             setDateValues(dateString.split("-"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y.getFormat())) {
-            String separator = getSeparator(dateString);
+            String separator = getSeparatorRegEx(dateString);
             setDateValues(dateString.split(separator), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM.getFormat())) {
-            String separator = getSeparator(dateString);
+            String separator = getSeparatorRegEx(dateString);
             setDateValues(dateString.split(separator), -1, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM.getFormat())) {
             dateString = dateString.replaceAll("\\.", "");
@@ -171,7 +205,7 @@ class DateParserLogic {
                 dateString = removeAmPm(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
-            String separator = getSeparator(parts[0]);
+            String separator = getSeparatorRegEx(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 1, 0);
             StringBuilder builder = new StringBuilder();
@@ -206,7 +240,7 @@ class DateParserLogic {
                 dateString = removeAmPm(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
-            String separator = getSeparator(parts[0]);
+            String separator = getSeparatorRegEx(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 0, 1);
             StringBuilder stringBuilder = new StringBuilder();
@@ -236,45 +270,51 @@ class DateParserLogic {
             year = Integer.valueOf(dateString);
         }
     }
-    
+
     /**
-     * Removes PM and AM from a string and delete double whitespace.
+     * <p>
+     * Removes <code>AM</code> and <code>PM</code> from a date string and delete double whitespace.
+     * </p>
      * 
-     * @param text String to be cleared.
-     * @param meridiem AM or PM
-     * @return Cleared string.
+     * @param dateString The date string to be cleared.
+     * @param meridiem <code>AM</code> or <code>PM</code> to be removed from the string.
+     * @return The string without the meridiem value, with double whitespace removed.
      */
-    private static String removeAmPm(String text, String meridiem) {
-        String newText = text.replaceAll(meridiem, "");
-        return newText.replaceAll("  ", " ");
+    private static String removeAmPm(String dateString, String meridiem) {
+        return dateString.replaceAll(meridiem, "").replaceAll("  ", " ");
     }
 
     /**
-     * Checks for AM and PM in a string and returns the found.
+     * <p>
+     * Checks for <code>AM</code> and <code>PM</code> in a string, and return the value if found.
+     * </p>
      * 
-     * @param text String to b checked.
-     * @return Am or PM.
+     * @param dateString The date string to be checked.
+     * @return <code>AM</code> or <code>PM</code> if found (or lower case), or <code>null</code>.
      */
-    private static String hasAmPm(String text) {
-        if (text.contains("am")) {
+    private static String hasAmPm(String dateString) {
+        if (dateString.contains("am")) {
             return "am";
         }
-        if (text.contains("AM")) {
+        if (dateString.contains("AM")) {
             return "AM";
         }
-        if (text.contains("pm")) {
+        if (dateString.contains("pm")) {
             return "pm";
         }
-        if (text.contains("PM")) {
+        if (dateString.contains("PM")) {
             return "PM";
         }
         return null;
     }
 
     /**
-     * If this date has a hour and the date-string has AM or PM values, the hour will be changed in 24h system.
+     * <p>
+     * Change the hour of the date to 24h system, if this date has an hour and the date string has <code>AM</code> or
+     * <code>PM</code> values.
+     * </p>
      * 
-     * @param meridiem Am or PM
+     * @param meridiem <code>AM</code> or <code>PM</code>
      */
     private void set24h(String meridiem) {
         if (hour != -1 && meridiem != null) {
@@ -287,13 +327,14 @@ class DateParserLogic {
     }
 
     /**
-     * If a date is given by week and day, the normal date (day, month and year) will be calculated.
-     * If no day is given, the first day of week will be set.
-     * Using ISO8601 standard ( First week of a year has four or more days; first day of a week is Monday)
+     * <p>
+     * Calculate day, month, and year for a date given by week and day. If no day is given, the first day of the week
+     * will be set, using ISO8601 standard (first week of a year has four or more days, first day of a week is Monday).
+     * </p>
      * 
-     * @param withDay flag for the cases, that a day is given or not
-     * @param withSeparator Is there a separator in the dateString?
-     * 
+     * @param dateString The string with the date.
+     * @param withDay <code>true</code> if the date string contains a day.
+     * @param withSeparator <code>true</code> if date string contains a separator.
      */
     private void setDateByWeekOfYear(String dateString, boolean withDay, boolean withSeparator) {
         String[] dateParts = new String[3];
@@ -327,26 +368,30 @@ class DateParserLogic {
     }
 
     /**
-     * If a date is given by year and day of year, the date (day, month and year) will be calculated.
-     * Using ISO8601 standard ( First week of a year has four or more days; first day of a week is Monday)
+     * <p>
+     * Calculate day, month, year for a date which is given by year and day of year, using ISO8601 standard (first week
+     * of a year has four or more days, first day of a week is Monday).
+     * </p>
      * 
-     * @param withSeparator Is there a separator in the dateString?
-     * 
-     * 
+     * @param dateString The string with the date.
+     * @param withSeparator <code>true</code> if date string contains a separator.
      */
     private void setDateByDayOfYear(String dateString, boolean withSeparator) {
         Calendar calendar = new GregorianCalendar();
         calendar.setMinimalDaysInFirstWeek(4);
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        int tempYear;
+        int tempDay;
         if (withSeparator) {
             String[] dateParts = dateString.split("-");
-            calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
-            calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(dateParts[1]));
-
+            tempYear = Integer.parseInt(dateParts[0]);
+            tempDay = Integer.parseInt(dateParts[1]);
         } else {
-            calendar.set(Calendar.YEAR, Integer.parseInt(dateString.substring(0, 4)));
-            calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(dateString.substring(4)));
+            tempYear = Integer.parseInt(dateString.substring(0, 4));
+            tempDay = Integer.parseInt(dateString.substring(4));
         }
+        calendar.set(Calendar.YEAR, tempYear);
+        calendar.set(Calendar.DAY_OF_YEAR, tempDay);
 
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH) + 1;
@@ -354,31 +399,31 @@ class DateParserLogic {
     }
 
     /**
-     * <b>!!! IMPORTANT: call <u>AFTER</u> setting dateparts like year, month and day !!! </b><br>
-     * <br>
+     * <p>
+     * Set hour, minute, second, if string is in one of the following forms: <code>HH:MM:SS</code>, <code>HH:MM</code>
+     * or <code>HH</code> and optionally contains a difference to UTC in one of the following formats:
+     * <code>+|- HH:MM</code>, <code>+|- HH</code> or <code>Z</code> (stands for UTC timezone). <b>Important:</b> Call
+     * after setting date parts like year, month and day!
+     * </p>
      * 
-     * Set hour, minute and second, if string is in one of the following forms: <br>
-     * <i>HH:MM:SS</i>, <i>HH:MM</i> or <i>HH</i> and has optional a difference to UTC in on of the following formats: <br>
-     * <i>+|- HH:MM</i>, <i>+|- HH</i> or "<i>Z</i>" (stands for UTC timezone).
-     * 
-     * @param time
+     * @param timeString The string containing the time.
      */
-    private void setTimeValues(String time) {
-        String actualTime = time;
+    private void setTimeValues(String timeString) {
+        String actualTime = timeString;
         String diffToUtc = null;
         if (actualTime.contains(".")) {
             actualTime = actualTime.replaceAll("\\.(\\d)*", "");
         }
 
         String separator = null;
-        if (time.contains("Z")) {
+        if (timeString.contains("Z")) {
             separator = "Z";
-        } else if (time.contains("+")) {
+        } else if (timeString.contains("+")) {
             separator = "\\+";
-        } else if (time.contains("-")) {
+        } else if (timeString.contains("-")) {
             separator = "-";
         }
-        
+
         String cleanedTime = actualTime;
         if (separator != null) {
             cleanedTime = actualTime.split(separator)[0];
@@ -393,16 +438,16 @@ class DateParserLogic {
     }
 
     /**
-     * Refreshes the time with given difference to UTC. <br>
-     * E.g.: time is 14:00 and difference to UTC is +02:00 -> new time is 12:00. <br>
-     * <br>
-     * If only one of hour, day, month or year is not set, we can not calculate a difference to UTC, because we do not
-     * know following or previous date. <br>
-     * E.g.: if year is unknown: what day is following on February 28th? February 29th or March 1st? <br>
-     * If day is unknown, what is following on 23:59:59?
+     * <p>
+     * Updates the time with the given difference to UTC. E.g. when time is <code>14:00</code> and difference to UTC is
+     * <code>+02:00</code>, the new time is set to <code>12:00</code>. If one of hour, day, month, or year is not set,
+     * the difference to UTC cannot be calculated, because the following/previous date cannot be determined (e.g.: 1)
+     * The year is unknown, what day is following <code>February 28th</code>? <code>February 29th</code> or
+     * <code>March 1st</code>? 2) If day is unknown, what is following <code>23:59:59</code>?
+     * </p>
      * 
-     * @param time must have format: HH:MM or HH.
-     * @param sign must be + or -
+     * @param time The string with the time in format <code>HH:MM</code> or <code>HH</code>.
+     * @param sign The sign, either <code>+</code> or <code>-</code>.
      */
     private void setTimeDiff(String time, String sign) {
         if (year == -1 || month == -1 || day == -1 || hour == -1) {
@@ -442,19 +487,19 @@ class DateParserLogic {
         if (minute != -1 || tempMinute != 0) {
             minute = calendar.get(Calendar.MINUTE);
         }
-
     }
 
     /**
-     * Sets hour, minute and second by extracting from time-string. <br>
-     * There for the time-string must have one the following forms: HH:MM:SS or HH:MM or HH. <br>
-     * Only the given parts will be set.
+     * <p>
+     * Set hour, minute, and second by extracting from time string. The date string must have any of the following
+     * forms: HH:MM:SS, HH:MM, or HH. Only the given parts will be set, leaving the non given parts untouched.
+     * </p>
      * 
-     * @param time must have one of the following forms: HH:MM:SS or HH:MM or HH.
+     * @param timeString The string containing the time in any of the mentioned forms.
      */
-    private void setActualTimeValues(String time) {
-        if (time.isEmpty() || time.contains(":")) {
-            String[] timeParts = time.trim().split(":");
+    private void setActualTimeValues(String timeString) {
+        if (timeString.isEmpty() || timeString.contains(":")) {
+            String[] timeParts = timeString.trim().split(":");
             if (timeParts.length > 0 && !timeParts[0].isEmpty()) {
                 hour = Integer.parseInt(timeParts[0]);
                 if (timeParts.length > 1) {
@@ -465,18 +510,20 @@ class DateParserLogic {
                 }
             }
         } else {
-            hour = Integer.parseInt(time);
+            hour = Integer.parseInt(timeString);
         }
     }
 
     /**
-     * Sets the year, month and day of this date by getting a array with this values and the position of each value in
-     * the array.
+     * <p>
+     * Set year, month and day by from an array of values, given the explicit positions of each value in the array. A
+     * value of <code>-1</code> signifies that the given value array contains no such value.
+     * </p>
      * 
-     * @param dateParts The array with date-parts.
-     * @param yearPos Position of year in the date-array.
-     * @param monthPos Position of month in the date-array.
-     * @param dayPos Position of day in the date-array.
+     * @param dateParts An array with date parts.
+     * @param yearPos The position in the array containing the year, <code>-1</code> if array contains no year.
+     * @param monthPos The position in the array containing the month, <code>-1</code> if array contains no month.
+     * @param dayPos The position in the array containing the day, <code>-1</code> if array contains no day.
      */
     private void setDateValues(String[] dateParts, int yearPos, int monthPos, int dayPos) {
         if (yearPos != -1) {
@@ -487,14 +534,12 @@ class DateParserLogic {
             }
         }
         if (monthPos != -1) {
-            dateParts[monthPos] = dateParts[monthPos].replace(" ", "");
-            try {
-                dateParts[monthPos] = String.valueOf(Integer.parseInt(dateParts[monthPos]));
-            } catch (NumberFormatException e) {
-                dateParts[monthPos] = DateHelper.monthNameToNumber(dateParts[monthPos]);
+            String monthString = dateParts[monthPos].replace(" ", "");
+            if (!monthString.matches("\\d+")) {
+                monthString = DateHelper.monthNameToNumber(monthString);
             }
-            if (dateParts[monthPos] != null) {
-                month = Integer.parseInt(dateParts[monthPos]);
+            if (monthString != null) {
+                month = Integer.parseInt(monthString);
             }
 
         }
@@ -504,9 +549,11 @@ class DateParserLogic {
     }
 
     /**
-     * Normalizes a year. Removes apostrophe (e.g. '99) and makes it four digit.
+     * <p>
+     * Normalizes a year string by removing apostrophes (e.g. '99) and and transforming it four digits (e.g. 1999).
+     * </p>
      * 
-     * @param year
+     * @param year The string with the year to normalize.
      * @return A four digit year.
      */
     static int normalizeYear(String year) {
@@ -514,14 +561,19 @@ class DateParserLogic {
     }
 
     /**
-     * Sets the year in 4 digits format. <br>
-     * E.g.: year = 12; current year = 2010 -> year > 10 -> 1912 <br>
-     * year = 7; current year = 2010 -> year < 10 -> 2007 <br>
-     * year = 10; current year = 2010 -> year > 10 -> 2010 <br>
-     * year = 99; current year = 2010 -> year > 10 -> 1999
+     * <p>
+     * Sets the year in four digits format. For transformation, the current year is considered as a context. Examples:
+     * </p>
      * 
-     * @param date
-     * @return
+     * <ul>
+     * <li>year = 20; current year = 2010 -> year > 10 -> result = 1920</li>
+     * <li>year = 7; current year = 2010 -> year < 10 -> result = 2007</li>
+     * <li>year = 10; current year = 2010 -> year > 10 -> result = 2010</li>
+     * <li>year = 99; current year = 2010 -> year > 10 -> result = 1999</li>
+     * </ul>
+     * 
+     * @param date int value representing the year to transform to four digit representation.
+     * @return The supplied value with four digits.
      */
     static int get4DigitYear(int year) {
         int longYear = year;
@@ -537,16 +589,19 @@ class DateParserLogic {
     }
 
     /**
-     * Removes the symbols "'" from Year '99 and "," from Day 03, June.
+     * <p>
+     * Removes the symbols <code>'</code> from year (e.g. '99), <code>,</code> and <code>st</code>, <code>nd</code>,
+     * <code>rd</code>, <code>th</code> from day (e.g. 3rd, June).
+     * </p>
      * 
-     * @param date
-     * @return the entered date without the symbols
+     * @param dateString The string containing the date.
+     * @return the The supplied date string with the described characters removed.
      */
-    static String removeNoDigits(String datePart) {
-        String result = datePart;
+    static String removeNoDigits(String dateString) {
+        String result = dateString;
         int index = result.indexOf('\'');
         if (index != -1) {
-            result = result.substring(index + 1, datePart.length());
+            result = result.substring(index + 1, dateString.length());
         }
         index = result.indexOf(',');
         if (index != -1) {
@@ -584,7 +639,8 @@ class DateParserLogic {
      * </p>
      * 
      * @param dateString The date string potentially containing a time zone acronym.
-     * @return
+     * @return An array with two items, the first being the time part, the second the time zone, or <code>null</code>,
+     *         if the date string did not contain any time zone information.
      */
     static String[] splitTimeZone(String dateString) {
         Pattern pattern = Pattern.compile(RegExp.TIMEZONE, Pattern.CASE_INSENSITIVE);
@@ -595,26 +651,31 @@ class DateParserLogic {
             String timePart = matcher.replaceAll(" ").replace("  ", " ");
             return new String[] {timePart, timeZonePart};
         }
-        
+
         return null;
     }
 
     /**
+     * <p>
+     * Get a regular expression for splitting the supplied date string.
+     * </p>
      * 
-     * @param text a date, where year, month and day are separated by . / or _
-     * @return the separating symbol
+     * @param dateString A date string, where year, month and day are separated by one of <code>.</code>,
+     *            </code>/</code>, <code>_</code> or <code>-</code>.
+     * @return A regex for splitting the supplied date string, or <code>null</code>, if none of the given separator
+     *         characters could be found.
      */
-    static String getSeparator(String text) {
-        if (text.contains(".")) {
+    static String getSeparatorRegEx(String dateString) {
+        if (dateString.contains(".")) {
             return "\\.";
         }
-        if (text.contains("/")) {
+        if (dateString.contains("/")) {
             return "/";
         }
-        if (text.contains("_")) {
+        if (dateString.contains("_")) {
             return "_";
         }
-        if (text.contains("-")) {
+        if (dateString.contains("-")) {
             return "-";
         }
         return null;

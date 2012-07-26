@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.nlp.StringHelper;
-
 /**
  * Test cases for the normalization.
  * 
@@ -27,15 +24,6 @@ public class NormalizationTest {
         assertEquals(StringNormalizer.normalizeNumber("7,500,000"), "7500000");
         assertEquals(StringNormalizer.normalizeNumber("7,500,400"), "7500400");
         assertEquals(StringNormalizer.normalizeNumber("1990"), "1990");
-    }
-
-    @Test
-    public void testRemoveHTMLTags() {
-        assertEquals("some text1", HtmlHelper.stripHtmlTags(
-                "<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>",
-                true, true, true, true));
-        assertEquals("some text 2", HtmlHelper.stripHtmlTags(
-                "<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />", true, true, true, true));
     }
 
     @Test
@@ -102,69 +90,5 @@ public class NormalizationTest {
         assertEquals(UnitNormalizer.isBigger("minute", "second"), true);
     }
 
-    @Test
-    public void testIsCompletelyUppercase() {
-        assertEquals(true, StringHelper.isCompletelyUppercase("ABC"));
-        assertEquals(false, StringHelper.isCompletelyUppercase("AbC"));
-        assertEquals(true, StringHelper.isCompletelyUppercase("A BC"));
-    }
 
-    @Test
-    public void testIsNumber() {
-        assertEquals(false, StringHelper.isNumber("44.000."));
-        assertEquals(false, StringHelper.isNumber("44 000"));
-        assertEquals(true, StringHelper.isNumber("44.000"));
-        assertEquals(true, StringHelper.isNumber("41"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("45"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("one"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("two"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("three"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("four"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("five"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("six"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("seven"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("eight"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("nine"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("ten"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("eleven"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("twelve"));
-    }
-
-    @Test
-    public void testIsNumericExpression() {
-        assertEquals(false, StringHelper.isNumericExpression("44a000."));
-        assertEquals(false, StringHelper.isNumericExpression("44 000 also"));
-        assertEquals(true, StringHelper.isNumericExpression("44.000%"));
-        assertEquals(true, StringHelper.isNumericExpression("41 %"));
-        assertEquals(true, StringHelper.isNumericExpression("345,234,231"));
-        assertEquals(true, StringHelper.isNumericExpression("$12,21€"));
-        assertEquals(false, StringHelper.isNumericExpression("TBC"));
-
-    }
-
-    @Test
-    public void testCalculateSimilarity() {
-        assertEquals(1.0, StringHelper.calculateSimilarity("http://www.blu-ray.com/movies/movies.php?genre=action",
-                "http://www.blu-ray.com/movies/movies.php?genre=action"), 0);
-        assertEquals(1.0, StringHelper.calculateSimilarity("abc", "abcd"), 0);
-        assertEquals(0.0, StringHelper.calculateSimilarity("", "abcd"), 0);
-    }
-
-    @Test
-    public void testIsTimeExpression() {
-        assertEquals(true, StringHelper.isTimeExpression("3:22 pm"));
-        assertEquals(true, StringHelper.isTimeExpression("23:1am"));
-        assertEquals(false, StringHelper.isTimeExpression("abc 23:13!"));
-    }
-
-    @Test
-    public void testPutArticleInFront() {
-        assertEquals("The Fog", StringHelper.putArticleInFront("Fog,the"));
-        assertEquals("Los Amigos", StringHelper.putArticleInFront("Amigos, Los"));
-    }
-
-    @Test
-    public void testEscapeForRegularExpression() {
-        assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));
-    }
 }

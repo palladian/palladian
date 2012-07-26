@@ -3,6 +3,7 @@ package ws.palladian.extraction.date.evaluation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
@@ -44,7 +45,7 @@ public class HttpEvaluator {
 		int wf = 0;
 		int counter=0;
 		int compare;
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
 			String tempDateString = "";
@@ -74,7 +75,7 @@ public class HttpEvaluator {
 			dates = DateArrayHelper.getRatedDates(dateArray, rate);
 			if(dates.size()>0 && dates.get(0) != null){
 				tempDate = dates.get(0);
-				tempDateString = tempDate.getNormalizedDate(true);
+				tempDateString = tempDate.getNormalizedDateString(true);
 				
 			}else{
 				tempDate = null;

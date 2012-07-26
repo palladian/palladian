@@ -96,8 +96,8 @@ public class RegExp {
     private static final String TIME12_1 = "((" + HOUR12_1 + "(:" + MIN + "(:" + SEC + FLOAT_SEC_OPT + ")?)?)" + AM_PM + "?)";
     private static final String TIME = "(" + TIME12 + "|" + TIME24 + "|" + TIME12_1 + "|" + TIME24_1 + ")";
     private static final String TIME_SEPARATOR = "((\\s)|(\\s)/(\\s))";
-    private static final String GMT_opt = "((\\s)?((GMT)|(UTC)|(Z))?)";
-    private static final String DIFF_UTC = "(" + GMT_opt + "(\\s)?((\\+)|(-))" + HOUR + "((:)?" + MIN + ")?)";
+    private static final String GMT_OPT = "((\\s)?((GMT)|(UTC)|(Z))?)";
+    private static final String DIFF_UTC = "(" + GMT_OPT + "(\\s)?((\\+)|(-))" + HOUR + "((:)?" + MIN + ")?)";
     private static final String ISO_TIME = "(((T)|(\\s))" + TIME24 + "(" + DIFF_UTC + "|(Z))?)";
 
     private static final String APOSTROPHE = "('?)";
@@ -128,8 +128,8 @@ public class RegExp {
         "((" + DATE_ISO8601_YMD_SEPARATOR_T_1 + ")|(" + DATE_ISO8601_YMD_SEPARATOR_T_2 + ")|("
         + DATE_ISO8601_YMD_SEPARATOR_T_3 + "))", "YYYY-MM-DDTHH:MM:SS+HH:MM" );
     /** ISO8601 YYYY-MM-DD . */
-    public static final DateFormat DATE_ISO8601_YMD = new DateFormat( YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE + "-" + DAY_OF_MONTH,
-    "YYYY-MM-DD" );
+    public static final DateFormat DATE_ISO8601_YMD = new DateFormat(YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE + "-"
+            + DAY_OF_MONTH, "YYYY-MM-DD");
 
     private static final String DATE_ISO8601_YMD_SEPARATOR_1 = YEAR_SHORT_LONG + "/" + MONTH_NUMBER_DOUBLE + "/"
     + DAY_OF_MONTH;
@@ -238,8 +238,8 @@ public class RegExp {
 
     /** European date. DD. MMMM YYYY . */
     public static final DateFormat DATE_EU_D_MMMM_Y = new DateFormat(
-        DAY_OF_MONTH_1_2 + "(((\\.)?" + ST_ND_RD_TH_OPT + "\\s)|(-))" + MONTH_NAME_LONG + "(((,)?\\s)|(-))"
-        + YEAR_SHORT_LONG, "DD. MMMM YYYY" );
+            DAY_OF_MONTH_1_2 + "(((\\.)?" + ST_ND_RD_TH_OPT + "\\s)|(-))" + MONTH_NAME_LONG + "(((,)?\\s)|(-))"
+                    + YEAR_SHORT_LONG, "DD. MMMM YYYY" );
 
     /** European date. DD.MMMM . */
     public static final DateFormat DATE_EU_D_MMMM = new DateFormat( DAY_OF_MONTH_1_2 + "(\\.)? " + MONTH_NAME_LONG, "DD.MMMM" );

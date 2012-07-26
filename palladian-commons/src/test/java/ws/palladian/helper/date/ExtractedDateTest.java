@@ -1,18 +1,13 @@
-package ws.palladian.extraction.date;
+package ws.palladian.helper.date;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import ws.palladian.helper.date.DateExactness;
-import ws.palladian.helper.date.DateParser;
-import ws.palladian.helper.date.ExtractedDate;
-
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.GregorianCalendar;
 
 public class ExtractedDateTest {
 
@@ -37,24 +32,24 @@ public class ExtractedDateTest {
 
     @Before
     public void setUp() throws Exception {
-        date1 = DateParser.parse("2010-06-12", "yyyy-mm-dd");
-        date2 = DateParser.parse("10-06-07", "yyyy-mm-dd");
-        date3 = DateParser.parse("07.06.2010", "dd.mm.yyyy");
-        date4 = DateParser.parse("07.06.10", "dd.mm.yyyy");
-        date5 = DateParser.parse("06/07/2010", "mm/dd/yyyy");
-        date6 = DateParser.parse("06/07/10", "mm/dd/yyyy");
-        date7 = DateParser.parse("07. June 2010", "dd. mmmm yyyy");
-        date8 = DateParser.parse("June 07, 2010", "mmmm dd, yyyy");
-        date9 = DateParser.parse("07. June '10", "dd. mmmm yyyy");
-        date10 = DateParser.parse("2010_06_07", "yyyy_mm_dd");
-        date11 = DateParser.parse("2010.06.07", "yyyy_mm_dd");
-        date12 = DateParser.parse("2010/06/07", "yyyy_mm_dd");
-        date13 = DateParser.parse("june 10", "MMMM YYYY");
-        date14 = DateParser.parse("june 2010", "MMMM YYYY");
-        date15 = DateParser.parse("june '10", "MMMM YYYY");
-        date16 = DateParser.parse("mon, 07 jun 2010 07:06:05 GMT", "WD, DD MMM YYYY HH:MM:SS TZ");
-        date17 = DateParser.parse("Mondy, 07-jun-10 07:06:05 GMT", "WWD, DD-MMM-YY HH:MM:SS TZ");
-        date18 = DateParser.parse("mon jun 7 07:06:05 2010", "WD MMM DD_1 HH:MM:SS YYYY");
+        date1 = DateParser.parseDate("2010-06-12", "yyyy-mm-dd");
+        date2 = DateParser.parseDate("10-06-07", "yyyy-mm-dd");
+        date3 = DateParser.parseDate("07.06.2010", "dd.mm.yyyy");
+        date4 = DateParser.parseDate("07.06.10", "dd.mm.yyyy");
+        date5 = DateParser.parseDate("06/07/2010", "mm/dd/yyyy");
+        date6 = DateParser.parseDate("06/07/10", "mm/dd/yyyy");
+        date7 = DateParser.parseDate("07. June 2010", "dd. mmmm yyyy");
+        date8 = DateParser.parseDate("June 07, 2010", "mmmm dd, yyyy");
+        date9 = DateParser.parseDate("07. June '10", "dd. mmmm yyyy");
+        date10 = DateParser.parseDate("2010_06_07", "yyyy_mm_dd");
+        date11 = DateParser.parseDate("2010.06.07", "yyyy_mm_dd");
+        date12 = DateParser.parseDate("2010/06/07", "yyyy_mm_dd");
+        date13 = DateParser.parseDate("june 10", "MMMM YYYY");
+        date14 = DateParser.parseDate("june 2010", "MMMM YYYY");
+        date15 = DateParser.parseDate("june '10", "MMMM YYYY");
+        date16 = DateParser.parseDate("mon, 07 jun 2010 07:06:05 GMT", "WD, DD MMM YYYY HH:MM:SS TZ");
+        date17 = DateParser.parseDate("Mondy, 07-jun-10 07:06:05 GMT", "WWD, DD-MMM-YY HH:MM:SS TZ");
+        date18 = DateParser.parseDate("mon jun 7 07:06:05 2010", "WD MMM DD_1 HH:MM:SS YYYY");
     }
 
     @Test
@@ -156,6 +151,13 @@ public class ExtractedDateTest {
         assertEquals(120, date1.getDifference(date2, TimeUnit.HOURS), 0);
         assertEquals(5, date1.getDifference(date2, TimeUnit.DAYS), 0);
         assertEquals(0, date1.getDifference(date1, TimeUnit.SECONDS), 0);
+    }
+    
+    @Test
+    public void testGet2Digits() {
+        assertEquals("00", ExtractedDate.get2Digits(0));
+        assertEquals("09", ExtractedDate.get2Digits(9));
+        assertEquals("10", ExtractedDate.get2Digits(10));
     }
     
 }

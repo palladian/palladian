@@ -13,7 +13,6 @@ import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.HeadDateRater;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.date.dates.MetaDate;
 
 public class TestHeadDateRater extends HeadDateRater {
@@ -77,7 +76,7 @@ public class TestHeadDateRater extends HeadDateRater {
      * @return Hashmap with dates and rateings.
      */
 	protected HashMap<MetaDate, Double> evaluateHeadDate(ArrayList<MetaDate> headDates) {
-		ExtractedDate actualDate = ExtractedDateHelper.getCurrentDate();
+		ExtractedDate actualDate = new ExtractedDate();
 		return evaluateHeadDate(headDates, actualDate);
 	}
 	

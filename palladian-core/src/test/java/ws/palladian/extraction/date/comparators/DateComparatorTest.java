@@ -16,15 +16,15 @@ public class DateComparatorTest {
 
     @Test
     public void testOrderDates() {
-        ExtractedDate date1 = DateParser.parse("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date2 = DateParser.parse("2005-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date3 = DateParser.parse("2010-07-21", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date4 = DateParser.parse("2010-07", RegExp.DATE_ISO8601_YM.getFormat());
-        ExtractedDate date5 = DateParser.parse("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date6 = DateParser.parse("2010-09-03", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date7 = DateParser.parse("2010-09-01T20:14:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
-        ExtractedDate date8 = DateParser.parse("2010-09-01T19:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
-        ExtractedDate date9 = DateParser.parse("2010-09-01T20:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        ExtractedDate date1 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
+        ExtractedDate date2 = DateParser.parseDate("2005-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
+        ExtractedDate date3 = DateParser.parseDate("2010-07-21", RegExp.DATE_ISO8601_YMD.getFormat());
+        ExtractedDate date4 = DateParser.parseDate("2010-07", RegExp.DATE_ISO8601_YM.getFormat());
+        ExtractedDate date5 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
+        ExtractedDate date6 = DateParser.parseDate("2010-09-03", RegExp.DATE_ISO8601_YMD.getFormat());
+        ExtractedDate date7 = DateParser.parseDate("2010-09-01T20:14:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        ExtractedDate date8 = DateParser.parseDate("2010-09-01T19:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        ExtractedDate date9 = DateParser.parseDate("2010-09-01T20:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
 
         List<ExtractedDate> unordered = new ArrayList<ExtractedDate>();
         unordered.add(date1);

@@ -5,13 +5,10 @@ import static org.junit.Assert.assertEquals;
 import java.io.FileNotFoundException;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
 
-import ws.palladian.helper.date.ExtractedDateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>Test cases for the {@link HtmlHelper} class.</p>
@@ -54,6 +51,12 @@ public class HtmlHelperTest {
         // System.out.println(DigestUtils.md5Hex(stripped));
 //        Assert.assertEquals(DigestUtils.md5Hex(stripped), DigestUtils.md5Hex(result));
 //        assertThat(result,is(stripped));
+        
+        assertEquals("some text1", HtmlHelper.stripHtmlTags(
+                "<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>",
+                true, true, true, true));
+        assertEquals("some text 2", HtmlHelper.stripHtmlTags(
+                "<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />", true, true, true, true));
     }
 
 //    @Test
@@ -64,12 +67,5 @@ public class HtmlHelperTest {
 //        Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
 //    }
 
-    @Test
-    public void testReplaceHTMLSymbols() {
-        String htmlText = "&nbsp; &Auml; &auml; &Ouml; &ouml; &Uuml; &uuml; &szlig; &lt; &gt; &amp; &quot;";
-        String clearText = "  Ä ä Ö ö Ü ü ß < > & \"";
-        assertEquals(clearText, StringHelper.replaceProtectedSpace(StringEscapeUtils.unescapeHtml(htmlText)));
-        assertEquals(clearText, ExtractedDateHelper.replaceHtmlSymbols(htmlText));
-    }
 
 }

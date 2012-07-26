@@ -6,12 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.helper.date.DateExactness;
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 
@@ -64,16 +64,16 @@ public class EvaluationHelper {
 	public static final String HEADEVAL = "headeval";
 	public static final String KAIROSEVAL = "kairoseval";
 	
-	public static HashMap<String, DBExport> readFile(String file){
+	public static Map<String, DBExport> readFile(String file){
 		return readFile(-1, false, file);
 	}
-	public static HashMap<String, DBExport> readFile(){
+	public static Map<String, DBExport> readFile(){
 		return readFile(-1);
 	}
-	public static HashMap<String, DBExport> readFile(int maxEntries){
+	public static Map<String, DBExport> readFile(int maxEntries){
 		return readFile(maxEntries, false, null);
 	}
-	public static HashMap<String, DBExport> readFile(int entries, boolean random, String dataset){
+	public static Map<String, DBExport> readFile(int entries, boolean random, String dataset){
 		File readfile;
 		if(dataset == null || dataset.equalsIgnoreCase("")){
 			readfile = file;
