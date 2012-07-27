@@ -20,6 +20,7 @@ import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.HeadDateRater;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.MetaDate;
@@ -99,7 +100,7 @@ public class HeaderEvaluator {
 			List<T> list = dg.getDates();
 			timer.stop();
 			timer.getElapsedTimeString(true);
-			list = DateArrayHelper.removeNull(list);
+			CollectionHelper.removeNulls(list);
 			
 			if(list.size() > 0){
 				

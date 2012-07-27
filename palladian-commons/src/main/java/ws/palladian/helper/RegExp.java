@@ -235,7 +235,7 @@ public class RegExp {
     /** American date. MM/DD . */
     public static final DateFormat DATE_USA_MM_D = new DateFormat( MONTH_NUMBER_NORMAL + "/" + DAY_OF_MONTH_1_2, "MM/DD" );
     /** American date. MMMM DD(st), YYYY . */
-    public static final DateFormat DATE_USA_MMMM_D_Y = new DateFormat(MONTH_NAME_LONG2 + "(\\s|\\.|(\\.\\s))" + DAY_OF_MONTH_1_2 + "(((" + ST_ND_RD_TH_OPT + "),?)|\\.?)" + " " + YEAR_SHORT_LONG, "MMMM DD, YYYY" );
+    public static final DateFormat DATE_USA_MMMM_D_Y = new DateFormat(MONTH_NAME_LONG2 + "(\\s|\\.|\\.\\s)" + DAY_OF_MONTH_1_2 + "(((" + ST_ND_RD_TH_OPT + "),?)|\\.?)" + " " + YEAR_SHORT_LONG, "MMMM DD, YYYY" );
     public static final DateFormat DATE_USA_MMMM_D_Y_SEP = new DateFormat(MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2 + "-" + YEAR_SHORT_LONG, "MMMM-DD-YYYY" );
     /** American date. MMMM DD(st), YYYY HH:MM:SS +UTC. */
     public static final DateFormat DATE_USA_MMMM_D_Y_T = new DateFormat(MONTH_NAME_LONG + " " + DAY_OF_MONTH_1_2 + ST_ND_RD_TH_OPT + ", " + YEAR_SHORT_LONG + ",?" + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?", "MMMM DD, YYYY YYYY HH:MM:SS +UTC" );

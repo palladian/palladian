@@ -1,5 +1,6 @@
 package ws.palladian.extraction.date.technique.testtechniques;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -138,7 +139,7 @@ public class DateEvaluatorTest {
             contResult.putAll(cdr.rate(contDates));
         }
         if (urlResult.size() > 0 && contResult.size() > 0) {
-            checkDayMonthYearOrder(DateArrayHelper.getFirstElement(urlResult), contResult);
+            checkDayMonthYearOrder(urlResult.keySet().iterator().next(), contResult);
         }
 
         if (structDates != null && structDates.size() > 0) {
@@ -210,6 +211,7 @@ public class DateEvaluatorTest {
         Map<T, Double> temp = dates; // Where worked dates can be removed.
         Map<T, Double> tempContentDates; // only dates that are equal to metaDate.
         Map<T, Double> tempResult = new HashMap<T, Double>(); // worked dates can be put in.
+        List<ExtractedDate> metaDatesList = new ArrayList<ExtractedDate>(metaDates.keySet());
 
         Entry<MetaDate, Double>[] orderedMetaDates = DateArrayHelper.orderHashMap(metaDates, true);
         for (int stopcounter = 0; stopcounter < 3; stopcounter++) {
@@ -220,7 +222,7 @@ public class DateEvaluatorTest {
                 MetaDate metaDate = orderedMetaDate.getKey();
                 // DateComparator.STOP_MINUTE instead of stopFlag, because original dates should be distinguished up to
                 // minute.
-                int countFactor = DateArrayHelper.countDates(metaDate, metaDates, DateExactness.MINUTE.getValue()) + 1;
+                int countFactor = DateArrayHelper.countDates(metaDate, metaDatesList, DateExactness.MINUTE) + 1;
                 double metaDateFactor = metaDates.get(metaDate);
                 tempContentDates = DateArrayHelper.getSameDatesMap(metaDate, temp, DateExactness.byValue(stopFlag));
                 for (Entry<T, Double> date : tempContentDates.entrySet()) {
@@ -354,7 +356,7 @@ public class DateEvaluatorTest {
     private Map<ContentDate, Double> guessRate(Map<ContentDate, Double> dates) {
         Map<ContentDate, Double> result = dates;
         if (result.size() > 0) {
-            List<ContentDate> orderAge = DateArrayHelper.mapToList(dates);
+            List<ContentDate> orderAge = new ArrayList<ContentDate>(dates.keySet());
             List<ContentDate> orderPosInDoc = orderAge;
 
             DateComparator dc = new DateComparator();
@@ -452,30 +454,30 @@ public class DateEvaluatorTest {
         return result;
     }
 
-    /**
-     * Set url.
-     * 
-     * @param url
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
+//    /**
+//     * Set url.
+//     * 
+//     * @param url
+//     */
+//    public void setUrl(String url) {
+//        this.url = url;
+//    }
+//
+//    /**
+//     * Getter for url.
+//     * 
+//     * @return Url as a String.
+//     */
+//    public String getUrl() {
+//        return url;
+//    }
 
-    /**
-     * Getter for url.
-     * 
-     * @return Url as a String.
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    /**
-     * Activate or disable the possibility of using reference-technique.
-     * 
-     * @param referneceLookUp
-     */
-    public void setReferneceLookUp(boolean referneceLookUp) {
-        this.referneceLookUp = referneceLookUp;
-    }
+//    /**
+//     * Activate or disable the possibility of using reference-technique.
+//     * 
+//     * @param referneceLookUp
+//     */
+//    public void setReferneceLookUp(boolean referneceLookUp) {
+//        this.referneceLookUp = referneceLookUp;
+//    }
 }

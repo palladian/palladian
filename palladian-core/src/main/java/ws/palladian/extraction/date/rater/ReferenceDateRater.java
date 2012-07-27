@@ -62,14 +62,6 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
     }
 
     /**
-     * 
-     * @param url
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    /**
      * Returns youngest date of given list.
      * 
      * @param refDates List of dates.

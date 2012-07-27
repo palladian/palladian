@@ -61,7 +61,6 @@ public class DateArrayHelper {
                     tempFilter = -1;
                 case FILTER_KEYLOC_CONT:
                 case FILTER_KEYLOC_ATTR:
-                    //if (date.getType().equals(DateType.ContentDate)) {
                     if (date instanceof ContentDate) {
                         int keyloc = ((ContentDate)date).get(ContentDate.KEYWORDLOCATION);
                         if (keyloc == tempFilter) {
@@ -180,12 +179,12 @@ public class DateArrayHelper {
      */
     public static <T extends ExtractedDate> List<List<T>> cluster(List<T> dates, DateExactness compareDepth) {
         List<List<T>> clusters = new ArrayList<List<T>>();
+        DateComparator dc = new DateComparator(compareDepth);
         for (int datesIndex = 0; datesIndex < dates.size(); datesIndex++) {
             boolean sameDatestamp = false;
             T date = dates.get(datesIndex);
             for (int resultIndex = 0; resultIndex < clusters.size(); resultIndex++) {
                 T firstDate = clusters.get(resultIndex).get(0);
-                DateComparator dc = new DateComparator(compareDepth);
                 int compare = dc.compare(firstDate, date);
                 if (compare == 0) {
                     clusters.get(resultIndex).add(date);
@@ -306,19 +305,19 @@ public class DateArrayHelper {
      * @param dates
      * @return
      */
-    public static <T extends ExtractedDate, V extends ExtractedDate> int countDates(T date, List<V> dates, int stopFlag) {
+    public static int countDates(ExtractedDate date, List<? extends ExtractedDate> dates, DateExactness exactness) {
         int count = 0;
-        for (int i = 0; i < dates.size(); i++) {
-            if (!date.equals(dates.get(i))) {
-                int tempStopFlag = stopFlag;
-                if (tempStopFlag == -1) {
-                    tempStopFlag = Math.min(date.getExactness().getValue(),
-                            dates.get(i).getExactness().getValue());
-                }
-                DateComparator dc = new DateComparator(DateExactness.byValue(tempStopFlag));
-                if (dc.compare(date, dates.get(i)) == 0) {
-                    count++;
-                }
+        for (ExtractedDate currentDate : dates) {
+            if (date.equals(currentDate)) {
+                continue;
+            }
+            DateExactness thisExactness = exactness;
+            if (exactness == DateExactness.UNSET) {
+                thisExactness = DateExactness.getCommonExactness(date.getExactness(), currentDate.getExactness());
+            }
+            DateComparator dc = new DateComparator(thisExactness);
+            if (dc.compare(date, currentDate) == 0) {
+                count++;
             }
         }
         return count;
@@ -341,23 +340,23 @@ public class DateArrayHelper {
 //        return countDates(date, dates, DateComparator.STOP_DAY);
 //    }
 
-    public static <T extends ExtractedDate> int countDates(T date, Map<T, Double> dates, int stopFlag) {
-        int count = 0;
-        for (Entry<T, Double> e : dates.entrySet()) {
-            if (!date.equals(e.getKey())) {
-                int tempStopFlag = stopFlag;
-                if (tempStopFlag == -1) {
-                    tempStopFlag = Math.min(date.getExactness().getValue(),
-                            e.getKey().getExactness().getValue());
-                }
-                DateComparator dc = new DateComparator(DateExactness.byValue(tempStopFlag));
-                if (dc.compare(date, e.getKey()) == 0) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
+//    public static <T extends ExtractedDate> int countDates(T date, Map<T, Double> dates, int stopFlag) {
+//        int count = 0;
+//        for (Entry<T, Double> e : dates.entrySet()) {
+//            if (!date.equals(e.getKey())) {
+//                int tempStopFlag = stopFlag;
+//                if (tempStopFlag == -1) {
+//                    tempStopFlag = Math.min(date.getExactness().getValue(),
+//                            e.getKey().getExactness().getValue());
+//                }
+//                DateComparator dc = new DateComparator(DateExactness.byValue(tempStopFlag));
+//                if (dc.compare(date, e.getKey()) == 0) {
+//                    count++;
+//                }
+//            }
+//        }
+//        return count;
+//    }
 
 //    /**
 //     * Same as printeDateArray() with filter of techniques. These are found in
@@ -815,22 +814,22 @@ public class DateArrayHelper {
         return array;
     }
 
-    /**
-     * * Keys of a hashmap will be put in a list.<br>
-     * Ignoring value part of hashmap.
-     * 
-     * @param <T>
-     * @param <V>
-     * @param map
-     * @return
-     */
-    public static <T, V> List<T> mapToList(Map<T, V> map) {
-        ArrayList<T> array = new ArrayList<T>();
-        for (Entry<T, V> e : map.entrySet()) {
-            array.add(e.getKey());
-        }
-        return array;
-    }
+//    /**
+//     * * Keys of a hashmap will be put in a list.<br>
+//     * Ignoring value part of hashmap.
+//     * 
+//     * @param <T>
+//     * @param <V>
+//     * @param map
+//     * @return
+//     */
+//    public static <T, V> List<T> mapToList(Map<T, V> map) {
+//        ArrayList<T> array = new ArrayList<T>();
+//        for (Entry<T, V> e : map.entrySet()) {
+//            array.add(e.getKey());
+//        }
+//        return array;
+//    }
 
     /**
      * Check if all values of hashmap are zero.
@@ -975,31 +974,31 @@ public class DateArrayHelper {
         return result;
     }
 
-    /**
-     * Returns first element of a hashmap.
-     * 
-     * @param <T>
-     * @param map
-     * @return
-     */
-    // WTF? What is a "first" element of a HashMap?!?!?!
-    public static <T, V> T getFirstElement(Map<T, V> map) {
-        T result = null;
-        for (Entry<T, V> e : map.entrySet()) {
-            result = e.getKey();
-        }
-        return result;
-    }
+//    /**
+//     * Returns first element of a hashmap.
+//     * 
+//     * @param <T>
+//     * @param map
+//     * @return
+//     */
+//    // WTF? What is a "first" element of a HashMap?!?!?!
+//    public static <T, V> T getFirstElement(Map<T, V> map) {
+//        T result = null;
+//        for (Entry<T, V> e : map.entrySet()) {
+//            result = e.getKey();
+//        }
+//        return result;
+//    }
 
-    public static <T> List<T> removeNull(List<T> list) {
-        List<T> returnList = new ArrayList<T>();
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i) != null) {
-                returnList.add(list.get(i));
-            }
-        }
-        return returnList;
-    }
+//    public static <T> List<T> removeNull(List<T> list) {
+//        List<T> returnList = new ArrayList<T>();
+//        for (int i = 0; i < list.size(); i++) {
+//            if (list.get(i) != null) {
+//                returnList.add(list.get(i));
+//            }
+//        }
+//        return returnList;
+//    }
 
 //    /**
 //     * If some rates are greater then one, use this method to normalize them.

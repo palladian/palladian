@@ -9,6 +9,7 @@ import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -43,7 +44,7 @@ public abstract class Evaluator {
 			List<T> list = dg.getDates();
 			timer.stop();
 			timer.getElapsedTimeString(true);
-			list = DateArrayHelper.removeNull(list);
+			CollectionHelper.removeNulls(list);
 			
 			if(list.size() > 0){
 				

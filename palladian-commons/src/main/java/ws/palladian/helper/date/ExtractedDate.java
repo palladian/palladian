@@ -107,7 +107,7 @@ public class ExtractedDate {
     }
 
     /**
-     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
+     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values.
      * 
      * @param dateParts
      * @return

@@ -26,6 +26,11 @@ public final class DateParser {
     private DateParser() {
         // utility class, no instances.
     }
+    
+    public static ExtractedDate parseDate(String date, DateFormat format) {
+        return parseDate(date, format.getFormat());
+    }
+
 
     /**
      * <p>
@@ -155,5 +160,6 @@ public final class DateParser {
     public static ExtractedDate findRelativeDate(String text) {
         return findRelativeDate(text, System.currentTimeMillis());
     }
+
 
 }

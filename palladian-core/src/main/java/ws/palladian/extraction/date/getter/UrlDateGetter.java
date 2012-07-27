@@ -67,18 +67,14 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
      * @return a extracted Date
      */
     private UrlDate getUrlDate(String url) {
-        UrlDate ret = null;
-        DateFormat[] regExpArray = RegExp.URL_DATES;
-        int index = 0;
-        ExtractedDate date = null;
-        while (date == null && index < regExpArray.length) {
-            date = DateParser.findDate(url, regExpArray[index]);
-            index++;
+        DateFormat[] urkDateFormats = RegExp.URL_DATES;
+        for (DateFormat dateFormat : urkDateFormats) {
+            ExtractedDate extractedDate = DateParser.findDate(url, dateFormat);
+            if (extractedDate != null) {
+                return new UrlDate(extractedDate, url);
+            }
         }
-        if (date != null) {
-            ret = new UrlDate(date, url);
-        }
-        return ret;
+        return null;
     }
 
 }
