@@ -3,8 +3,10 @@ package ws.palladian.extraction.date.comparators;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.helper.RegExp;
@@ -13,48 +15,66 @@ import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 
 public class DateComparatorTest {
+    
+    private ExtractedDate date1;
+    private ExtractedDate date2;
+    private ExtractedDate date3;
+    private ExtractedDate date4;
+    private ExtractedDate date5;
+    private ExtractedDate date6;
+    private ExtractedDate date7;
+    private ExtractedDate date8;
+    private ExtractedDate date9;
+    private List<ExtractedDate> dates;
+
+    @Before
+    public void setUp() {
+        date1 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
+        date2 = DateParser.parseDate("2005-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
+        date3 = DateParser.parseDate("2010-07-21", RegExp.DATE_ISO8601_YMD.getFormat());
+        date4 = DateParser.parseDate("2010-07", RegExp.DATE_ISO8601_YM.getFormat());
+        date5 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
+        date6 = DateParser.parseDate("2010-09-03", RegExp.DATE_ISO8601_YMD.getFormat());
+        date7 = DateParser.parseDate("2010-09-01T20:14:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        date8 = DateParser.parseDate("2010-09-01T19:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        date9 = DateParser.parseDate("2010-09-01T20:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        dates = new ArrayList<ExtractedDate>();
+        dates.add(date1);
+        dates.add(date2);
+        dates.add(date8);
+        dates.add(date4);
+        dates.add(date5);
+        dates.add(date6);
+        dates.add(date7);
+        dates.add(date3);
+        dates.add(date9);
+        dates.add(date2);
+    }
 
     @Test
-    public void testOrderDates() {
-        ExtractedDate date1 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date2 = DateParser.parseDate("2005-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date3 = DateParser.parseDate("2010-07-21", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date4 = DateParser.parseDate("2010-07", RegExp.DATE_ISO8601_YM.getFormat());
-        ExtractedDate date5 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date6 = DateParser.parseDate("2010-09-03", RegExp.DATE_ISO8601_YMD.getFormat());
-        ExtractedDate date7 = DateParser.parseDate("2010-09-01T20:14:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
-        ExtractedDate date8 = DateParser.parseDate("2010-09-01T19:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
-        ExtractedDate date9 = DateParser.parseDate("2010-09-01T20:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
-
-        List<ExtractedDate> unordered = new ArrayList<ExtractedDate>();
-        unordered.add(date1);
-        unordered.add(date2);
-        unordered.add(date8);
-        unordered.add(date4);
-        unordered.add(date5);
-        unordered.add(date6);
-        unordered.add(date7);
-        unordered.add(date3);
-        unordered.add(date9);
-        unordered.add(date2);
-
-        DateComparator comparator = new DateComparator();
-        List<ExtractedDate> ordered = comparator.orderDates(unordered, true);
-
-        // DateArrayHelper.printDateArray(unordered);
-        // System.out.println("===============================================================================");
-        // DateArrayHelper.printDateArray(ordered);
-
-        assertEquals(date6.getDateString(), ordered.get(0).getDateString());
-        assertEquals(date7.getDateString(), ordered.get(1).getDateString());
-        assertEquals(date9.getDateString(), ordered.get(2).getDateString());
-        assertEquals(date8.getDateString(), ordered.get(3).getDateString());
-        assertEquals(date1.getDateString(), ordered.get(4).getDateString());
-        assertEquals(date5.getDateString(), ordered.get(5).getDateString());
-        assertEquals(date3.getDateString(), ordered.get(6).getDateString());
-        assertEquals(date4.getDateString(), ordered.get(7).getDateString());
-        assertEquals(date2.getDateString(), ordered.get(8).getDateString());
-        assertEquals(date2.getDateString(), ordered.get(9).getDateString());
+    public void testDateComparator1() {
+        Collections.sort(dates, new DateComparator());
+        assertEquals(date6.getDateString(), dates.get(0).getDateString());
+        assertEquals(date7.getDateString(), dates.get(1).getDateString());
+        assertEquals(date9.getDateString(), dates.get(2).getDateString());
+        assertEquals(date8.getDateString(), dates.get(3).getDateString());
+        assertEquals(date1.getDateString(), dates.get(4).getDateString());
+        assertEquals(date5.getDateString(), dates.get(5).getDateString());
+        assertEquals(date3.getDateString(), dates.get(6).getDateString());
+        assertEquals(date4.getDateString(), dates.get(7).getDateString());
+        assertEquals(date2.getDateString(), dates.get(8).getDateString());
+        assertEquals(date2.getDateString(), dates.get(9).getDateString());
+    }
+    
+    @Test
+    public void testDateComparator2() {
+        DateComparator comparator = new DateComparator(DateExactness.DAY);
+        assertEquals(0, comparator.compare(date7, date8));
+        assertEquals(-1, comparator.compare(date6, date7));
+        
+        comparator = new DateComparator(DateExactness.HOUR);
+        assertEquals(0, comparator.compare(date7, date9));
+        assertEquals(-1, comparator.compare(date7, date8));
     }
 
 //    /**
