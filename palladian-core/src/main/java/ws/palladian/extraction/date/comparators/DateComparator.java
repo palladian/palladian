@@ -35,10 +35,14 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * Create a new {@link DateComparator} with the specified exactness.
      * </p>
      * 
-     * @param dateExactness The exactness until which the comparison is carried out. Not <code>null</code>.
+     * @param dateExactness The exactness until which the comparison is carried out. Not {@link DateExactness#UNSET} or
+     *            <code>null</code>.
      */
     public DateComparator(DateExactness dateExactness) {
         Validate.notNull(dateExactness, "dateExactness must not be null");
+        if (dateExactness == DateExactness.UNSET) {
+            throw new IllegalArgumentException("DateExactness must not be \"UNSET\"");
+        }
         this.dateExactness = dateExactness;
     }
 
@@ -67,15 +71,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
     @Override
     public int compare(ExtractedDate date1, ExtractedDate date2) {
         int returnValue = compare(date1.get(ExtractedDate.YEAR), date2.get(ExtractedDate.YEAR));
-        if (returnValue == 0 && DateExactness.YEAR.inRange(dateExactness)) {
+        if (returnValue == 0 && DateExactness.MONTH.inRange(dateExactness)) {
             returnValue = compare(date1.get(ExtractedDate.MONTH), date2.get(ExtractedDate.MONTH));
-            if (returnValue == 0 && DateExactness.MONTH.inRange(dateExactness)) {
+            if (returnValue == 0 && DateExactness.DAY.inRange(dateExactness)) {
                 returnValue = compare(date1.get(ExtractedDate.DAY), date2.get(ExtractedDate.DAY));
-                if (returnValue == 0 && DateExactness.DAY.inRange(dateExactness)) {
+                if (returnValue == 0 && DateExactness.HOUR.inRange(dateExactness)) {
                     returnValue = compare(date1.get(ExtractedDate.HOUR), date2.get(ExtractedDate.HOUR));
-                    if (returnValue == 0 && DateExactness.HOUR.inRange(dateExactness)) {
+                    if (returnValue == 0 && DateExactness.MINUTE.inRange(dateExactness)) {
                         returnValue = compare(date1.get(ExtractedDate.MINUTE), date2.get(ExtractedDate.MINUTE));
-                        if (returnValue == 0 && DateExactness.MINUTE.inRange(dateExactness)) {
+                        if (returnValue == 0 && DateExactness.SECOND.inRange(dateExactness)) {
                             returnValue = compare(date1.get(ExtractedDate.SECOND), date2.get(ExtractedDate.SECOND));
                         }
                     }
