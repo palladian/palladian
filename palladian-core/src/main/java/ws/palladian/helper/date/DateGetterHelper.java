@@ -83,7 +83,7 @@ public final class DateGetterHelper {
 	            	try {
 		            	// String dateString = tempText.substring(start, end);
 	            	    String dateString = matcher.group();
-		            	ExtractedDate temp = DateParser.parseDate(dateString, format.getFormat());
+		            	ExtractedDate temp = DateParser.parseDate(dateString, format);
 		            	ContentDate date = new ContentDate(temp);
 		            	int index = tempText.indexOf(date.getDateString());
 		            	date.set(ContentDate.DATEPOS_IN_TAGTEXT, index);

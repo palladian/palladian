@@ -26,11 +26,25 @@ public final class DateParser {
     private DateParser() {
         // utility class, no instances.
     }
-    
-    public static ExtractedDate parseDate(String date, DateFormat format) {
-        return parseDate(date, format.getFormat());
-    }
 
+    /**
+     * <p>
+     * Parse a date by trying to match all known date formats, as specified by {@link RegExp#ALL_DATE_FORMATS}.
+     * </p>
+     * 
+     * @param date The string with the date to be parsed, not <code>null</code>.
+     * @return The {@link ExtractedDate}, nor <code>null</code> if no date could be parsed.
+     */
+    public static ExtractedDate parseDate(String date) {
+        for (DateFormat format : RegExp.ALL_DATE_FORMATS) {
+            Pattern pattern = format.getPattern();
+            Matcher matcher = pattern.matcher(date);
+            if (matcher.matches()) {
+                return parseDate(date, format);
+            }
+        }
+        return null;
+    }
 
     /**
      * <p>
@@ -39,9 +53,9 @@ public final class DateParser {
      * 
      * @param date The string with the date to be parsed, not <code>null</code>.
      * @param format The format describing the date to be parsed, not <code>null</code>.
-     * @return
+     * @return The {@link ExtractedDate}.
      */
-    public static ExtractedDate parseDate(String date, String format) {
+    public static ExtractedDate parseDate(String date, DateFormat format) {
         DateParserLogic parseLogic = new DateParserLogic(date, format);
         parseLogic.parse();
         return new ExtractedDate(parseLogic);
@@ -110,7 +124,7 @@ public final class DateParser {
                 digitNeighbor = Character.isDigit(text.charAt(end));
             }
             if (!digitNeighbor) {
-                result = parseDate(matcher.group(), format.getFormat());
+                result = parseDate(matcher.group(), format);
             }
         }
         return result;
@@ -160,6 +174,5 @@ public final class DateParser {
     public static ExtractedDate findRelativeDate(String text) {
         return findRelativeDate(text, System.currentTimeMillis());
     }
-
 
 }
