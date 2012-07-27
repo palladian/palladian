@@ -22,6 +22,7 @@ import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.DateParser;
@@ -96,8 +97,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         mdg.setDocument(document);
         mdg.setUrl(url);
         udg.setUrl(url);
-        List<MetaDate> metaDates = DateArrayHelper.removeNull(mdg.getDates());
-        List<UrlDate> urlDates = DateArrayHelper.removeNull(udg.getDates());
+        List<MetaDate> metaDates = mdg.getDates();
+        CollectionHelper.removeNulls(metaDates);
+        List<UrlDate> urlDates = udg.getDates();
+        CollectionHelper.removeNulls(urlDates);
 
         for (ContentDate date : dates) {
 
@@ -109,15 +112,15 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             double ordAgePos = Math.round((ageOrder.indexOf(date) + 1.0) / dates.size() * 1000.0) / 1000.0;
             date.setOrdAgePos(ordAgePos);
 
-            if (metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateExactness.DAY.getValue()) > 0) {
+            if (metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateExactness.DAY) > 0) {
                 date.setInMetaDates(true);
             }
-            if (urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateExactness.DAY.getValue()) > 0) {
+            if (urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateExactness.DAY) > 0) {
                 date.setInUrl(true);
             }
 
             double relCntSame = Math
-                    .round((double) (DateArrayHelper.countDates(date, dates, DateExactness.DAY.getValue()) + 1)
+                    .round((double) (DateArrayHelper.countDates(date, dates, DateExactness.DAY) + 1)
                             / (double) dates.size() * 1000.0) / 1000.0;
             date.setRelCntSame(relCntSame);
 
@@ -241,7 +244,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             // System.out.println(index);
         }
 
-        DateArrayHelper.removeNull(dateList);
+        CollectionHelper.removeNulls(dateList);
 
         for (ContentDate date : dateList) {
 

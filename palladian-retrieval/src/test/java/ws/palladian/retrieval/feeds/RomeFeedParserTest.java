@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +17,6 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import ws.palladian.control.AllTests;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -33,19 +31,6 @@ public class RomeFeedParserTest {
     private static final Logger LOGGER = Logger.getLogger(RomeFeedParserTest.class);
 
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z", Locale.US);
-
-    /**
-     * Test downloading a feed from the web.
-     * 
-     * @throws FeedParserException
-     */
-    @Test
-    public void testDownloadFeed() throws FeedParserException {
-        if (AllTests.ALL_TESTS) {
-            FeedParser romeFeedParser = new RomeFeedParser();
-            romeFeedParser.getFeed("http://www.gizmodo.de/feed/atom");
-        }
-    }
 
     /**
      * Test, if feeds can be parsed. This is a very primitive way of testing, as we just assert no
@@ -154,35 +139,6 @@ public class RomeFeedParserTest {
 
     }
 
-    /**
-     * Check, if feed item's publish dates were parsed correctly, by comparing the date of the <b>first</b> item to an
-     * expected value.
-     * 
-     * @param expected
-     * @param feedFile
-     * @throws ParseException
-     * @throws FileNotFoundException 
-     */
-    private void checkDate(String expected, String feedFile) throws ParseException, FileNotFoundException {
-
-        FeedParser romeFeedParser = new RomeFeedParser();
-        // DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
-
-        try {
-
-            Date expectedDate = df.parse(expected);
-            Feed feed = romeFeedParser.getFeed(new File(ResourceHelper.getResourcePath(feedFile)));
-
-            // we always test the feed's first entry
-            Date itemDate = feed.getItems().iterator().next().getPublished();
-            assertEquals(feedFile, expectedDate, itemDate);
-
-        } catch (FeedParserException e) {
-            fail("feed " + feedFile + " could not be read : " + e.getMessage());
-        }
-
-    }
-
     // ///////////////////////////////////////////////////////////////
     // Code for testset compilation below
     // ///////////////////////////////////////////////////////////////
@@ -250,11 +206,11 @@ public class RomeFeedParserTest {
      * Performance test concerning date recognition.
      * @throws FileNotFoundException 
      */
-    @SuppressWarnings("unused")
-    private void evaluateDateParsing() throws FeedParserException, FileNotFoundException {
+    @Test
+    public void evaluateDateParsing() throws FeedParserException, FileNotFoundException {
 
         RomeFeedParser romeFeedParser = new RomeFeedParser();
-        int numIterations = 100;
+        int numIterations = 10000;
         File feed = new File(ResourceHelper.getResourcePath("/feeds/feed014.xml"));
 
         StopWatch sw = new StopWatch();
@@ -262,20 +218,20 @@ public class RomeFeedParserTest {
         for (int i = 0; i < numIterations; i++) {
             romeFeedParser.getFeed(feed);
         }
-        LOGGER.info("without date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
+        System.out.println("without date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
 
         sw = new StopWatch();
         romeFeedParser.setUseDateRecognition(true);
         for (int i = 0; i < numIterations; i++) {
             romeFeedParser.getFeed(feed);
         }
-        LOGGER.info("with date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
+        System.out.println("with date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
 
     }
 
     public static void main(String[] args) throws Exception {
-        // RomeFeedParserTest feedRetrieverTest = new RomeFeedParserTest();
-        // feedRetrieverTest.evaluateDateParsing();
+         RomeFeedParserTest feedRetrieverTest = new RomeFeedParserTest();
+         feedRetrieverTest.evaluateDateParsing();
         // feedRetrieverTest.buildTestsetWithErrors("data/_feeds_testset.txt", "data/_feeds_errors.txt");
     }
 

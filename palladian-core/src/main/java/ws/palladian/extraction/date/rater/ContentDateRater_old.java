@@ -9,6 +9,7 @@ import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.html.HtmlHelper;
@@ -129,7 +130,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
             ContentDate key = rate1dates.get(i);
 
             factor_keyword = calcContDateAttr(key);
-            int countSame = DateArrayHelper.countDates(key, rate1dates, -1) + 1;
+            int countSame = DateArrayHelper.countDates(key, rate1dates, DateExactness.UNSET) + 1;
             double newRate = 1.0 * countSame / rate1dates.size();
             contResult.put(key, Math.round(newRate * factor_keyword * 10000) / 10000.0);
         }
@@ -137,7 +138,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
         for (int i = 0; i < rateRestDates.size(); i++) {
             ContentDate key = rateRestDates.get(i);
             factor_keyword = calcContDateAttr(key);
-            int countSame = DateArrayHelper.countDates(key, rateRestDates, -1) + 1;
+            int countSame = DateArrayHelper.countDates(key, rateRestDates, DateExactness.UNSET) + 1;
             double newRate = 1.0 * contResult.get(key) * countSame / contDates.size();
             contResult.put(key, Math.round(newRate * factor_keyword * 10000) / 10000.0);
         }
@@ -245,7 +246,7 @@ public class ContentDateRater_old extends TechniqueDateRater<ContentDate> {
     public static <T extends ExtractedDate> Map<T, Double> setRateWhightedByGroups(List<T> datesToSet, List<T> dates) {
         Map<T, Double> resultDates = new HashMap<T, Double>();
         for (int k = 0; k < datesToSet.size(); k++) {
-            int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, -1) + 1;
+            int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, DateExactness.UNSET) + 1;
             double newRate = 1.0 * contSame / dates.size();
 
             resultDates.put(datesToSet.get(k), Math.round(newRate * 10000) / 10000.0);

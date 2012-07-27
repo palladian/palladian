@@ -23,10 +23,10 @@ import ws.palladian.helper.date.dates.ArchiveDate;
 public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
 
     public ArchiveDateRater(PageDateType dateType) {
-		super(dateType);
-	}
+        super(dateType);
+    }
 
-	/**
+    /**
      * Enter archive dates and other rated dates.<br>
      * Archive date will be rated in dependency of other rated dates.<br>
      * Archive date will be rated 1, if it is older then best rated date of the other dates or all the other dates are
@@ -44,10 +44,10 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
         if (highestRate == 0.0) {
             map.put(list.get(0), 1.0);
         } else {
-            List<T> sort = DateArrayHelper.mapToList(allDates);
+            List<T> sort = new ArrayList<T>(allDates.keySet());
             DateComparator dc = new DateComparator();
             Collections.sort(sort, new RatedDateComparator());
-            if (dc.compare(list.get(0), (ExtractedDate) sort.get(0)) < 0) {
+            if (dc.compare(list.get(0), sort.get(0)) < 0) {
                 map.put(list.get(0), allDates.get(sort.get(0)) / 2.0);
             } else {
                 map.put(list.get(0), 1.0);
@@ -64,7 +64,6 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      */
     @Override
     public Map<ArchiveDate, Double> rate(List<ArchiveDate> list) {
-        // TODO Auto-generated method stub
         return null;
     }
 }

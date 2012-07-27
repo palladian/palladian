@@ -7,7 +7,6 @@ import java.util.Map;
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
-import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.dates.StructureDate;
@@ -56,7 +55,7 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * @return
      */
     private Map<StructureDate, Double> evaluateStructDate(List<StructureDate> structDates) {
-        HashMap<StructureDate, Double> result = new HashMap<StructureDate, Double>();
+        Map<StructureDate, Double> result = new HashMap<StructureDate, Double>();
         double rate;
         for (int i = 0; i < structDates.size(); i++) {
             StructureDate date = structDates.get(i);

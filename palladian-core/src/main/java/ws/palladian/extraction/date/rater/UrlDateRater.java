@@ -36,9 +36,8 @@ public class UrlDateRater extends TechniqueDateRater<UrlDate> {
      */
     private Map<UrlDate, Double> evaluateURLDate(List<UrlDate> dates) {
         HashMap<UrlDate, Double> evaluate = new HashMap<UrlDate, Double>();
-        for (int i = 0; i < dates.size(); i++) {
+        for (UrlDate date : dates) {
             double rate = 0;
-            UrlDate date = dates.get(i);
             if (date != null && DateRaterHelper.isDateInRange(date)) {
                 String format = date.getFormat();
                 if (format != null) {

@@ -102,7 +102,7 @@ public class WebPageDateEvaluator {
 			dg.setURL(url);
 			List<ExtractedDate> dates = dg.getDate();
 			Map<ExtractedDate, Double> ratedDates = dr.rate(dates);
-			this.list = DateArrayHelper.mapToList(ratedDates);
+			this.list = new ArrayList<ExtractedDate>(ratedDates.keySet());
 		}
 	}
 

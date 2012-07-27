@@ -125,21 +125,19 @@ public class DateComparator implements Comparator<ExtractedDate> {
         // Considering the available test cases, the following implementation also works, but I haven't tested it
         // extensively. If we have unset date particles (i.e. field equals -1) we return Integer.MAX_VALUE, or
         // Integer.MIN_VALUE instead of generally returning a value of -2. -- Philipp, 2011-12-15
-        int result;
-        if (i == -1 && k == -1) {
-            result = 0;
-        } else if (i == -1) {
-            result = Integer.MAX_VALUE;
-        } else if (k == -1) {
-            result = Integer.MIN_VALUE;
+        if (i == -1 && k != -1) {
+            return Integer.MAX_VALUE;
+        } else if (k == -1 && i != -1) {
+            return Integer.MIN_VALUE;
         } else {
-            result = Integer.valueOf(k).compareTo(i);
+            return Integer.valueOf(k).compareTo(i);
         }
-        return result;
     }
 
     /**
-     * <p>Orders a {@link List} of dates, beginning with oldest date.</p>
+     * <p>
+     * Orders a {@link List} of dates, beginning with oldest date.
+     * </p>
      * 
      * @param <T>
      * @param dates
@@ -159,11 +157,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
     }
 
     /**
-     * Returns oldest date.
+     * <p>
+     * Returns the oldest date.
+     * </p>
      * 
      * @param <T>
-     * @param dates
-     * @return
+     * @param dates {@link Collection} of {@link ExtractedDate}s.
+     * @return The oldest date from the Collection.
      */
     public <T extends ExtractedDate> T getOldestDate(Collection<T> dates) {
         List<T> orderDates = orderDates(dates, false);
@@ -175,11 +175,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
     }
 
     /**
-     * Returns youngest dates.
+     * <p>
+     * Returns the youngest date.
+     * </p>
      * 
      * @param <T>
-     * @param dates
-     * @return
+     * @param dates {@link Collection} of {@link ExtractedDate}s.
+     * @return The youngest date from the Collection.
      */
     public <T extends ExtractedDate> T getYoungestDate(Collection<T> dates) {
         List<T> orderDates = orderDates(dates, true);

@@ -19,17 +19,17 @@ import ws.palladian.helper.date.ExtractedDate;
  */
 public abstract class TechniqueDateRater<T extends ExtractedDate> {
 
-    protected double minRate = 0.20;
-    protected PageDateType dateType;
-
-    public TechniqueDateRater(PageDateType dateType) {
-        this.dateType = dateType;
-    }
+    protected final PageDateType dateType;
 
     /**
      * Rate-method fills this map for further use.
      */
-    protected Map<T, Double> ratedDates = new HashMap<T, Double>();
+    protected Map<T, Double> ratedDates;
+    
+    public TechniqueDateRater(PageDateType dateType) {
+        this.dateType = dateType;
+        this.ratedDates = new HashMap<T, Double>();
+    }
 
     /**
      * Enter a list of dates. <br>
@@ -53,16 +53,7 @@ public abstract class TechniqueDateRater<T extends ExtractedDate> {
             double rate = DateArrayHelper.getHighestRate(this.ratedDates);
             date = DateArrayHelper.getRatedDates(this.ratedDates, rate).get(0);
         }
-
         return date;
-    }
-
-    public void setMinRate(double minRate) {
-        this.minRate = minRate;
-    }
-
-    public double getMinRate() {
-        return this.minRate;
     }
 
 }
