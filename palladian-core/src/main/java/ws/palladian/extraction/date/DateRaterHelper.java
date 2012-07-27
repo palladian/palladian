@@ -29,7 +29,7 @@ public class DateRaterHelper {
      */
     public static boolean isDateInRange(ExtractedDate date) {
         //ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
-        ExtractedDate begin = DateParser.parseDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        ExtractedDate begin = DateParser.parseDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T);
         ExtractedDate end = new ExtractedDate();
 //        DateComparator comp = new DateComparator();
 //        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
@@ -38,7 +38,7 @@ public class DateRaterHelper {
 //        return gt && lt;
 
         DateExactness compareDepth = DateExactness.DAY;
-        if  (date.getExactness().getValue() != 0) {
+        if  (date.getExactness() != DateExactness.UNSET) {
             compareDepth = DateExactness.getCommonExactness(DateExactness.DAY, date.getExactness());
         }
         DateComparator dateComparator = new DateComparator(compareDepth);

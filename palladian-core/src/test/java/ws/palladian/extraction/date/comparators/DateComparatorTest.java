@@ -29,15 +29,15 @@ public class DateComparatorTest {
 
     @Before
     public void setUp() {
-        date1 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        date2 = DateParser.parseDate("2005-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        date3 = DateParser.parseDate("2010-07-21", RegExp.DATE_ISO8601_YMD.getFormat());
-        date4 = DateParser.parseDate("2010-07", RegExp.DATE_ISO8601_YM.getFormat());
-        date5 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD.getFormat());
-        date6 = DateParser.parseDate("2010-09-03", RegExp.DATE_ISO8601_YMD.getFormat());
-        date7 = DateParser.parseDate("2010-09-01T20:14:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
-        date8 = DateParser.parseDate("2010-09-01T19:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
-        date9 = DateParser.parseDate("2010-09-01T20:12:00", RegExp.DATE_ISO8601_YMD_T.getFormat());
+        date1 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD);
+        date2 = DateParser.parseDate("2005-09-01", RegExp.DATE_ISO8601_YMD);
+        date3 = DateParser.parseDate("2010-07-21", RegExp.DATE_ISO8601_YMD);
+        date4 = DateParser.parseDate("2010-07", RegExp.DATE_ISO8601_YM);
+        date5 = DateParser.parseDate("2010-09-01", RegExp.DATE_ISO8601_YMD);
+        date6 = DateParser.parseDate("2010-09-03", RegExp.DATE_ISO8601_YMD);
+        date7 = DateParser.parseDate("2010-09-01T20:14:00", RegExp.DATE_ISO8601_YMD_T);
+        date8 = DateParser.parseDate("2010-09-01T19:12:00", RegExp.DATE_ISO8601_YMD_T);
+        date9 = DateParser.parseDate("2010-09-01T20:12:00", RegExp.DATE_ISO8601_YMD_T);
         dates = new ArrayList<ExtractedDate>();
         dates.add(date1);
         dates.add(date2);

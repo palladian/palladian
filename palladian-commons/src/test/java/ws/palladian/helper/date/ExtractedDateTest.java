@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.helper.RegExp;
+
 public class ExtractedDateTest {
 
     private ExtractedDate date1;
@@ -32,24 +34,24 @@ public class ExtractedDateTest {
 
     @Before
     public void setUp() throws Exception {
-        date1 = DateParser.parseDate("2010-06-12", "yyyy-mm-dd");
-        date2 = DateParser.parseDate("10-06-07", "yyyy-mm-dd");
-        date3 = DateParser.parseDate("07.06.2010", "dd.mm.yyyy");
-        date4 = DateParser.parseDate("07.06.10", "dd.mm.yyyy");
-        date5 = DateParser.parseDate("06/07/2010", "mm/dd/yyyy");
-        date6 = DateParser.parseDate("06/07/10", "mm/dd/yyyy");
-        date7 = DateParser.parseDate("07. June 2010", "dd. mmmm yyyy");
-        date8 = DateParser.parseDate("June 07, 2010", "mmmm dd, yyyy");
-        date9 = DateParser.parseDate("07. June '10", "dd. mmmm yyyy");
-        date10 = DateParser.parseDate("2010_06_07", "yyyy_mm_dd");
-        date11 = DateParser.parseDate("2010.06.07", "yyyy_mm_dd");
-        date12 = DateParser.parseDate("2010/06/07", "yyyy_mm_dd");
-        date13 = DateParser.parseDate("june 10", "MMMM YYYY");
-        date14 = DateParser.parseDate("june 2010", "MMMM YYYY");
-        date15 = DateParser.parseDate("june '10", "MMMM YYYY");
-        date16 = DateParser.parseDate("mon, 07 jun 2010 07:06:05 GMT", "WD, DD MMM YYYY HH:MM:SS TZ");
-        date17 = DateParser.parseDate("Mondy, 07-jun-10 07:06:05 GMT", "WWD, DD-MMM-YY HH:MM:SS TZ");
-        date18 = DateParser.parseDate("mon jun 7 07:06:05 2010", "WD MMM DD_1 HH:MM:SS YYYY");
+        date1 = DateParser.parseDate("2010-06-12", RegExp.DATE_ISO8601_YMD);
+        date2 = DateParser.parseDate("10-06-07", RegExp.DATE_ISO8601_YMD);
+        date3 = DateParser.parseDate("07.06.2010", RegExp.DATE_EU_D_MM_Y);
+        date4 = DateParser.parseDate("07.06.10", RegExp.DATE_EU_D_MM_Y);
+        date5 = DateParser.parseDate("06/07/2010", RegExp.DATE_USA_MM_D_Y);
+        date6 = DateParser.parseDate("06/07/10", RegExp.DATE_USA_MM_D_Y);
+        date7 = DateParser.parseDate("07. June 2010", RegExp.DATE_EU_D_MMMM_Y);
+        date8 = DateParser.parseDate("June 07, 2010", RegExp.DATE_USA_MMMM_D_Y);
+        date9 = DateParser.parseDate("07. June '10", RegExp.DATE_EU_D_MMMM_Y);
+        date10 = DateParser.parseDate("2010_06_07", RegExp.DATE_URL_D);
+        date11 = DateParser.parseDate("2010.06.07", RegExp.DATE_URL_D);
+        date12 = DateParser.parseDate("2010/06/07", RegExp.DATE_URL_D);
+        date13 = DateParser.parseDate("june 10", RegExp.DATE_EUSA_MMMM_Y);
+        date14 = DateParser.parseDate("june 2010", RegExp.DATE_EUSA_MMMM_Y);
+        date15 = DateParser.parseDate("june '10", RegExp.DATE_EUSA_MMMM_Y);
+        date16 = DateParser.parseDate("mon, 07 jun 2010 07:06:05 GMT", RegExp.DATE_RFC_1123);
+        date17 = DateParser.parseDate("Mondy, 07-jun-10 07:06:05 GMT", RegExp.DATE_RFC_1036);
+        date18 = DateParser.parseDate("mon jun 7 07:06:05 2010", RegExp.DATE_ANSI_C);
     }
 
     @Test

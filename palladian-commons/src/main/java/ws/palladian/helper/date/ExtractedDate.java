@@ -103,7 +103,7 @@ public class ExtractedDate {
         this.second = parseLogic.second;
         this.timeZone = parseLogic.timeZone;
         this.dateString = parseLogic.originalDateString;
-        this.format = parseLogic.format;
+        this.format = parseLogic.format.getFormat();
     }
 
     /**
