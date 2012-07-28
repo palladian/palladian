@@ -1,6 +1,7 @@
 package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -9,12 +10,12 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 
 	private boolean lookHttpDates = true;
 	
-	private HttpDateGetter httpDateGetter = new HttpDateGetter();
-	private HeadDateGetter headDateGetter = new HeadDateGetter();
+	private final HttpDateGetter httpDateGetter = new HttpDateGetter();
+	private final HeadDateGetter headDateGetter = new HeadDateGetter();
 	
 	@Override
-	public ArrayList<MetaDate> getDates() {
-		ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
+	public List<MetaDate> getDates() {
+		List<MetaDate> dates = new ArrayList<MetaDate>();
 		if(checkDocAndUrl()){
 			if(lookHttpDates){
 				httpDateGetter.setUrl(this.url);
@@ -26,21 +27,21 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
 		return dates;
 	}
 
-	public void setHttpDateGetter(HttpDateGetter httpDateGetter) {
-		this.httpDateGetter = httpDateGetter;
-	}
+//	public void setHttpDateGetter(HttpDateGetter httpDateGetter) {
+//		this.httpDateGetter = httpDateGetter;
+//	}
 
-	public HttpDateGetter getHttpDateGetter() {
-		return httpDateGetter;
-	}
+//	public HttpDateGetter getHttpDateGetter() {
+//		return httpDateGetter;
+//	}
 
-	public void setHeadDateGetter(HeadDateGetter headDateGetter) {
-		this.headDateGetter = headDateGetter;
-	}
+//	public void setHeadDateGetter(HeadDateGetter headDateGetter) {
+//		this.headDateGetter = headDateGetter;
+//	}
 
-	public HeadDateGetter getHeadDateGetter() {
-		return headDateGetter;
-	}
+//	public HeadDateGetter getHeadDateGetter() {
+//		return headDateGetter;
+//	}
 
 	private boolean checkDocAndUrl(){
 		boolean result;

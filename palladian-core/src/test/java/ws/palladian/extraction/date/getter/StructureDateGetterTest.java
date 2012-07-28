@@ -27,7 +27,7 @@ public class StructureDateGetterTest {
         Document document = htmlParser.parse(testPage);
 
         StructureDateGetter structureDateGetter = new StructureDateGetter();
-        List<StructureDate> dates = structureDateGetter.getStructureDate(document);
+        List<StructureDate> dates = structureDateGetter.getBodyStructureDates(document);
 
         assertEquals(7, dates.size());
         assertEquals("2010-07-08T08:02:04-05:00", dates.get(0).getDateString());
@@ -40,7 +40,7 @@ public class StructureDateGetterTest {
         
         testPage = ResourceHelper.getResourceFile("/webPages/website103.html");
         document = htmlParser.parse(testPage);
-        dates = structureDateGetter.getStructureDate(document);
+        dates = structureDateGetter.getBodyStructureDates(document);
         
         // assertEquals(1, dates.size());
         assertEquals("2002-08-06T03:08", dates.get(0).getDateString());

@@ -124,7 +124,13 @@ public class DateHelper {
         return getCurrentDatetime("yyyy-MM-dd_HH-mm-ss");
     }
 
-    public static String monthNameToNumber(String monthName) {
+    /**
+     * <p>Convert the supplied month name to a number.</p>
+     * @param monthName The month name to convert to number, not <code>null</code>.
+     * @return The number for the month name, or <code>-1</code> if no month was recognized.
+     */
+    public static int monthNameToNumber(String monthName) {
+        
 //        monthName = monthName.toLowerCase().trim();
 //
 //        if (monthName.equals("january") || monthName.equals("jan")) {
@@ -162,31 +168,31 @@ public class DateHelper {
         month = month.replaceAll("\\.", "");
         month = month.replaceAll(" ", "");
         month = month.toLowerCase();
-        String monthNumber = null;
+        int monthNumber = -1;
         if (month.equals("january") || month.equals("januar") || month.equals("jan")) {
-            monthNumber = "01";
+            monthNumber = 1;
         } else if (month.equals("february") || month.equals("februar") || month.equals("feb")) {
-            monthNumber = "02";
+            monthNumber = 2;
         } else if (month.equals("march") || month.equals("märz") || month.equals("mär") || month.equals("mar")) {
-            monthNumber = "03";
+            monthNumber = 3;
         } else if (month.equals("april") || month.equals("apr")) {
-            monthNumber = "04";
+            monthNumber = 4;
         } else if (month.equals("may") || month.equals("mai") || month.equals("may")) {
-            monthNumber = "05";
+            monthNumber = 5;
         } else if (month.equals("june") || month.equals("juni") || month.equals("jun")) {
-            monthNumber = "06";
+            monthNumber = 6;
         } else if (month.equals("july") || month.equals("juli") || month.equals("jul")) {
-            monthNumber = "07";
+            monthNumber = 7;
         } else if (month.equals("august") || month.equals("aug")) {
-            monthNumber = "08";
+            monthNumber = 8;
         } else if (month.equals("september") || month.equals("sep") || month.equals("sept")) {
-            monthNumber = "09";
+            monthNumber = 9;
         } else if (month.equals("october") || month.equals("oktober") || month.equals("oct") || month.equals("okt")) {
-            monthNumber = "10";
+            monthNumber = 10;
         } else if (month.equals("november") || month.equals("nov")) {
-            monthNumber = "11";
+            monthNumber = 11;
         } else if (month.equals("december") || month.equals("dezember") || month.equals("dec") || month.equals("dez")) {
-            monthNumber = "12";
+            monthNumber = 12;
         }
         return monthNumber;
     }

@@ -51,6 +51,10 @@ final class DateParserLogic {
         this.second = -1;
         this.timeZone = null;
     }
+    
+    DateParserLogic() {
+        this(null, null);
+    }
 
     /**
      * <p>
@@ -317,12 +321,13 @@ final class DateParserLogic {
      * @param meridiem <code>AM</code> or <code>PM</code>
      */
     private void set24h(String meridiem) {
-        if (hour != -1 && meridiem != null) {
-            if (meridiem.equalsIgnoreCase("pm") && hour > 0 && hour < 12) {
-                hour += 12;
-            } else if (meridiem.equalsIgnoreCase("am") && hour == 12) {
-                hour = 0;
-            }
+        if (hour == -1 || meridiem == null) {
+            return;
+        }
+        if (meridiem.equalsIgnoreCase("pm") && 0 < hour && hour < 12) {
+            hour += 12;
+        } else if (meridiem.equalsIgnoreCase("am") && hour == 12) {
+            hour = 0;
         }
     }
 
@@ -337,11 +342,12 @@ final class DateParserLogic {
      * @param withSeparator <code>true</code> if date string contains a separator.
      */
     private void setDateByWeekOfYear(String dateString, boolean withDay, boolean withSeparator) {
-        String[] dateParts = new String[3];
+        String[] dateParts;
 
         if (withSeparator) {
             dateParts = dateString.split("-");
         } else {
+            dateParts = new String[3];
             dateParts[0] = dateString.substring(0, 4);
             dateParts[1] = dateString.substring(4, 7);
             if (withDay) {
@@ -380,18 +386,18 @@ final class DateParserLogic {
         Calendar calendar = new GregorianCalendar();
         calendar.setMinimalDaysInFirstWeek(4);
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        int tempYear;
-        int tempDay;
+        String tempYear;
+        String tempDay;
         if (withSeparator) {
             String[] dateParts = dateString.split("-");
-            tempYear = Integer.parseInt(dateParts[0]);
-            tempDay = Integer.parseInt(dateParts[1]);
+            tempYear = dateParts[0];
+            tempDay = dateParts[1];
         } else {
-            tempYear = Integer.parseInt(dateString.substring(0, 4));
-            tempDay = Integer.parseInt(dateString.substring(4));
+            tempYear = dateString.substring(0, 4);
+            tempDay = dateString.substring(4);
         }
-        calendar.set(Calendar.YEAR, tempYear);
-        calendar.set(Calendar.DAY_OF_YEAR, tempDay);
+        calendar.set(Calendar.YEAR, Integer.parseInt(tempYear));
+        calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(tempDay));
 
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH) + 1;
@@ -449,7 +455,8 @@ final class DateParserLogic {
      * @param time The string with the time in format <code>HH:MM</code> or <code>HH</code>.
      * @param sign The sign, either <code>+</code> or <code>-</code>.
      */
-    private void setTimeDiff(String time, String sign) {
+    // TODO wouldn't it be better, to store the time difference instead of modifying the actual time?
+    void setTimeDiff(String time, String sign) {
         if (year == -1 || month == -1 || day == -1 || hour == -1) {
             return;
         }
@@ -469,10 +476,9 @@ final class DateParserLogic {
         int tempMinute2 = 0;
         if (minute != -1) {
             tempMinute2 = minute;
-
         }
-        Calendar calendar = new GregorianCalendar(year, month - 1, day, hour, tempMinute2);
 
+        Calendar calendar = new GregorianCalendar(year, month - 1, day, hour, tempMinute2);
         if (sign.equalsIgnoreCase("-")) {
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + tempHour);
             calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + tempMinute);
@@ -527,21 +533,15 @@ final class DateParserLogic {
      */
     private void setDateValues(String[] dateParts, int yearPos, int monthPos, int dayPos) {
         if (yearPos != -1) {
-            try {
-                year = normalizeYear(dateParts[yearPos]);
-            } catch (Exception e) {
-                // LOGGER.error(e.getMessage());
-            }
+            year = normalizeYear(dateParts[yearPos]);
         }
         if (monthPos != -1) {
             String monthString = dateParts[monthPos].replace(" ", "");
-            if (!monthString.matches("\\d+")) {
-                monthString = DateHelper.monthNameToNumber(monthString);
-            }
-            if (monthString != null) {
+            if (monthString.matches("\\d+")) {
                 month = Integer.parseInt(monthString);
+            } else {
+                month = DateHelper.monthNameToNumber(monthString);
             }
-
         }
         if (dayPos != -1) {
             day = Integer.parseInt(removeNoDigits(dateParts[dayPos]));
@@ -576,16 +576,15 @@ final class DateParserLogic {
      * @return The supplied value with four digits.
      */
     static int get4DigitYear(int year) {
-        int longYear = year;
-        if (year < 100) {
-            int currentYear = new GregorianCalendar().get(Calendar.YEAR);
-            if (year > currentYear - 2000) {
-                longYear = year + 1900;
-            } else {
-                longYear = year + 2000;
-            }
+        if (year > 100) {
+            return year;
         }
-        return longYear;
+        int currentYear = new GregorianCalendar().get(Calendar.YEAR);
+        if (year > currentYear - 2000) {
+            return year + 1900;
+        } else {
+            return year + 2000;
+        }
     }
 
     /**
@@ -679,6 +678,31 @@ final class DateParserLogic {
             return "-";
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("DateParserLogic [originalDateString=");
+        builder.append(originalDateString);
+        builder.append(", format=");
+        builder.append(format);
+        builder.append(", year=");
+        builder.append(year);
+        builder.append(", month=");
+        builder.append(month);
+        builder.append(", day=");
+        builder.append(day);
+        builder.append(", hour=");
+        builder.append(hour);
+        builder.append(", minute=");
+        builder.append(minute);
+        builder.append(", second=");
+        builder.append(second);
+        builder.append(", timeZone=");
+        builder.append(timeZone);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

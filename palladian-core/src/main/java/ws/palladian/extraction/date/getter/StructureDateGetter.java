@@ -26,7 +26,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
     public List<StructureDate> getDates() {
         List<StructureDate> result = new ArrayList<StructureDate>();
         if (document != null) {
-            result = getStructureDate(document);
+            result = getBodyStructureDates(document);
         }
         return result;
     }
@@ -37,36 +37,14 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param document Document to be searched.
      * @return List of dates.
      */
-    public List<StructureDate> getStructureDate(Document document) {
-
-        List<StructureDate> dates = new ArrayList<StructureDate>();
-
-        if (document != null) {
-            List<StructureDate> structureDates = getBodyStructureDates(document);
-            if (structureDates != null) {
-                dates.addAll(structureDates);
-            }
-        }
-        return dates;
-
-    }
-
-    /**
-     * Finds dates in structure of a document.
-     * 
-     * @param document Document to be searched.
-     * @return List of dates.
-     */
-    private List<StructureDate> getBodyStructureDates(Document document) {
+    List<StructureDate> getBodyStructureDates(Document document) {
         List<StructureDate> dates = new ArrayList<StructureDate>();
         NodeList bodyNodeList = document.getElementsByTagName("body");
         if (bodyNodeList != null) {
             for (int i = 0; i < bodyNodeList.getLength(); i++) {
                 Node node = bodyNodeList.item(i);
-                List<StructureDate> childrernDates = getChildrenDates(node, 0);
-                if (childrernDates != null) {
-                    dates.addAll(childrernDates);
-                }
+                List<StructureDate> childrenDates = getChildrenDates(node, 0);
+                dates.addAll(childrenDates);
             }
         }
         return dates;
@@ -85,7 +63,6 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
         StructureDate date = null;
 
         if (!node.getNodeName().equalsIgnoreCase("script") && !node.getNodeName().equalsIgnoreCase("img")) {
-
             date = checkForDate(node);
         }
         if (date != null) {
@@ -95,15 +72,12 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
         NodeList nodeList = node.getChildNodes();
         if (nodeList != null) {
             for (int i = 0; i < nodeList.getLength(); i++) {
-                Node childNode = null;
-                List<StructureDate> childDates = null;
-                if (!node.getNodeName().equalsIgnoreCase("script")) {
-                    childNode = nodeList.item(i);
-                    childDates = getChildrenDates(childNode, depth + 1);
+                if (node.getNodeName().equalsIgnoreCase("script")) {
+                    continue;
                 }
-                if (childDates != null) {
-                    dates.addAll(childDates);
-                }
+                Node childNode = nodeList.item(i);
+                List<StructureDate> childDates = getChildrenDates(childNode, depth + 1);
+                dates.addAll(childDates);
             }
         }
 
@@ -125,59 +99,30 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
     private StructureDate checkForDate(Node node) {
 
         StructureDate date = null;
-        /*
-    	if(this.lookedUpNodeMap.get(node) == null){
-
-    	}else{
-    		date = this.structDateMap.get(node);
-    	}
-         */
         NamedNodeMap tag = node.getAttributes();
         if (tag != null) {
             String keyword = null;
-            String tempKeyword = null;
             String dateTagName = null;
             for (int i = 0; i < tag.getLength(); i++) {
+                String tempKeyword = null;
                 Node attributeNode = tag.item(i);
                 String nodeName = attributeNode.getNodeName();
-                if (!nodeName.equalsIgnoreCase("href")) {
-                    ExtractedDate t = DateParser.findDate(attributeNode.getNodeValue());
-                    if (t == null) {
-                        if (keyword == null) {
-                            keyword = KeyWords.searchKeyword(attributeNode.getNodeValue(),
-                                    KeyWords.DATE_BODY_STRUC);
-                        } else {
-                            tempKeyword = KeyWords.searchKeyword(attributeNode.getNodeValue(),
-                                    KeyWords.DATE_BODY_STRUC);
-                            if (KeyWords.getKeywordPriority(keyword) > KeyWords.getKeywordPriority(tempKeyword)) {
-                                keyword = tempKeyword;
-                            }
-
-                        }
+                if (nodeName.equalsIgnoreCase("href")) {
+                    continue;
+                }
+                ExtractedDate t = DateParser.findDate(attributeNode.getNodeValue());
+                if (t == null) {
+                    if (keyword == null) {
+                        keyword = KeyWords.searchKeyword(attributeNode.getNodeValue(), KeyWords.DATE_BODY_STRUC);
                     } else {
-                        date = new StructureDate(t);
-                        dateTagName = nodeName;
+                        tempKeyword = KeyWords.searchKeyword(attributeNode.getNodeValue(), KeyWords.DATE_BODY_STRUC);
+                        if (KeyWords.getKeywordPriority(keyword) > KeyWords.getKeywordPriority(tempKeyword)) {
+                            keyword = tempKeyword;
+                        }
                     }
-                    
-                    
-                    //StructureDate tempDate = DateConverter.convert(t, DateType.StructureDate);
-//                    StructureDate tempDate = new StructureDate(t);
-//                    if (tempDate == null) {
-//                        if (keyword == null) {
-//                            keyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),
-//                                    KeyWords.DATE_BODY_STRUC);
-//                        } else {
-//                            tempKeyword = DateGetterHelper.hasKeyword(attributeNode.getNodeValue(),
-//                                    KeyWords.DATE_BODY_STRUC);
-//                            if (KeyWords.getKeywordPriority(keyword) > KeyWords.getKeywordPriority(tempKeyword)) {
-//                                keyword = tempKeyword;
-//                            }
-//
-//                        }
-//                    } else {
-//                        date = tempDate;
-//                        dateTagName = nodeName;
-//                    }
+                } else {
+                    date = new StructureDate(t);
+                    dateTagName = nodeName;
                 }
 
             }
