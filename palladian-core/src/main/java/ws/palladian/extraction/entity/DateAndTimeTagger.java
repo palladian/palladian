@@ -6,8 +6,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -29,9 +29,9 @@ public class DateAndTimeTagger {
 
 		Annotations annotations = new Annotations();
 
-        List<ContentDate> allDates = DateGetterHelper.findAllDates(inputText, ALL_DATES_WITH_YEARS);
+        List<ExtractedDate> allDates = DateParser.findDates(inputText, ALL_DATES_WITH_YEARS);
 		
-		for (ContentDate dateTime : allDates) {
+		for (ExtractedDate dateTime : allDates) {
 			
 			// get the offset
 			List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(inputText, dateTime.getDateString());

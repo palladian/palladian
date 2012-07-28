@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,6 @@ import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateExactness;
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.dates.ContentDate;
@@ -172,7 +172,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                     Node parent = node.getParentNode();
                     if (parent.getNodeType() != Node.COMMENT_NODE && !parent.getNodeName().equalsIgnoreCase("script")
                             && !parent.getNodeName().equalsIgnoreCase("style")) {
-                        dates.addAll(checkTextnode((Text) node, RegExp.ALL_DATE_FORMATS));
+                        dates.addAll(checkTextnode((Text) node));
                     }
                 }
             }
@@ -194,7 +194,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      *            Depth of node in document structure.
      * @return
      */
-    private List<ContentDate> checkTextnode(Text node, DateFormat[] regExps) {
+    private List<ContentDate> checkTextnode(Text node) {
 
         // String text = StringHelper.removeDoubleWhitespaces(HtmlHelper.replaceHtmlSymbols(node.getNodeValue()));
 
@@ -217,7 +217,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         }
         for (String textPart : textSplitt) {
-            dateList.addAll(DateGetterHelper.findAllDates(textPart, regExps));
+            dateList.addAll(findAllDates(textPart));
         }
         if (dateList.size() > 0) {
             Integer beginIndex = nodeIndexMap.get(text);
@@ -234,10 +234,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         for (ContentDate date : dateList) {
 
-            date.setStructureDate(getStructureDate(tag, regExps));
+            date.setStructureDate(getStructureDate(tag));
 
             if (date.getStructureDate() == null && tag != parent) {
-                date.setStructureDate(getStructureDate(parent, regExps));
+                date.setStructureDate(getStructureDate(parent));
             }
 
             boolean keyword3Class = true;
@@ -439,12 +439,12 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @param regExps
      * @return
      */
-    private StructureDate getStructureDate(Node node, DateFormat[] regExps) {
+    private StructureDate getStructureDate(Node node) {
         Boolean hasDate = lookedUpNodeMap.get(node);
         StructureDate date;
 
         if (hasDate == null) {
-            date = findStructureDate(node, regExps);
+            date = findStructureDate(node);
             lookedUpNodeMap.put(node, true);
             structDateMap.put(node, date);
         } else {
@@ -462,7 +462,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @param regExps
      * @return
      */
-    private StructureDate findStructureDate(Node node, DateFormat[] regExps) {
+    private StructureDate findStructureDate(Node node) {
         StructureDate structDate = null;
         ExtractedDate date = null;
 
@@ -470,7 +470,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attr = attributes.item(i);
             if (!attr.getNodeName().equalsIgnoreCase("href")) {
-                date = DateParser.findDate(attr.getNodeValue(), regExps);
+                date = DateParser.findDate(attr.getNodeValue());
                 if (date != null) {
                     break;
                 }
@@ -489,6 +489,34 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 //    public String getDoc() {
 //        return this.doc;
 //    }
+    
+    
+    static List<ContentDate> findAllDates(String text) {
+        List<ContentDate> dates = new ArrayList<ContentDate>();
+        for (DateFormat format : RegExp.ALL_DATE_FORMATS) {
+            Matcher matcher = format.getPattern().matcher(text);
+            while (matcher.find()) {
+                boolean digitNeighbor = false;
+                int start = matcher.start();
+                if (start > 0) {
+                    digitNeighbor = Character.isDigit(text.charAt(start - 1));
+                }
+                int end = matcher.end();
+                if (end < text.length()) {
+                    digitNeighbor = Character.isDigit(text.charAt(end));
+                }
+                if (!digitNeighbor) {
+                    String dateString = matcher.group();
+                    ContentDate date = new ContentDate(DateParser.parseDate(dateString, format));
+                    int datePosition = text.indexOf(date.getDateString());
+                    date.set(ContentDate.DATEPOS_IN_TAGTEXT, datePosition);
+                    text = text.replaceFirst(dateString, StringUtils.repeat('x', dateString.length()));
+                    dates.add(date);
+                }
+            }
+        }
+        return dates;
+    }
     
     /**
      * <p>

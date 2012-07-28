@@ -1,8 +1,12 @@
 package ws.palladian.helper.date;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
@@ -107,10 +111,86 @@ public final class DateParser {
      *         matched by the given {@link DateFormat}.
      */
     public static ExtractedDate findDate(String text, DateFormat format) {
+//        text = StringHelper.removeDoubleWhitespaces(text);
+//        ExtractedDate result = null;
+//        Matcher matcher = format.getPattern().matcher(text);
+//        if (matcher.find()) {
+//            // Determine, if the found potential date string is directly surrounded by digits.
+//            // In this case, we skip the pattern and advance to the next one.
+//            boolean digitNeighbor = false;
+//            int start = matcher.start();
+//            if (start > 0) {
+//                digitNeighbor = Character.isDigit(text.charAt(start - 1));
+//            }
+//            int end = matcher.end();
+//            // if last character is "/" no check for number is needed.
+//            if (end < text.length() && text.charAt(end - 1) != '/') {
+//                digitNeighbor = Character.isDigit(text.charAt(end));
+//            }
+//            if (!digitNeighbor) {
+//                result = parseDate(matcher.group(), format);
+//            }
+//        }
+//        return result;
+        List<ExtractedDate> extractedDates = findDates(text, format);
+        if (extractedDates.isEmpty()) {
+            return null;
+        }
+        return extractedDates.get(0);
+    }
+    
+    /**
+     * <p>
+     * Find all dates in a text by trying to match all {@link DateFormat}s as defined in {@link RegExp#ALL_DATE_FORMATS}
+     * .
+     * </p>
+     * 
+     * @param text The text to check for dates, not <code>null</code>.
+     * @return A {@link List} of extracted dates which were found in the text, or an empty List if no dates were found,
+     *         never <code>null</code>.
+     */
+    public static List<ExtractedDate> findDates(String text) {
+        return findDates(text, RegExp.ALL_DATE_FORMATS);
+    }
+
+    /**
+     * <p>
+     * Find all dates in a text by trying the given {@link DateFormat}s.
+     * </p>
+     * 
+     * @param text The text to check for dates, not <code>null</code>.
+     * @param formats A list of formats to try for parsing, not <code>null</code>.
+     * @return A {@link List} of extracted dates which were found in the text, or an empty List if no dates were found,
+     *         never <code>null</code>.
+     */
+    public static List<ExtractedDate> findDates(String text, DateFormat... formats) {
+        List<ExtractedDate> result = new ArrayList<ExtractedDate>();
+        for (DateFormat format : formats) {
+            List<ExtractedDate> dates = findDates(text, format);
+            for (ExtractedDate date : dates) {
+                String dateString = date.getDateString();
+                text = text.replaceFirst(dateString, StringUtils.repeat('x', dateString.length()));
+                result.add(date);
+            }
+
+        }
+        return result;
+    }
+
+    /**
+     * <p>
+     * Find all dates in a text matching the given {@link DateFormat}.
+     * 
+     * @param text The text to check for dates, not <code>null</code>.
+     * @param format The format to try for parsing, not <code>null</code>.
+     * @return A {@link List} of extracted dates which were found in the text, or an empty List if no dates were found,
+     *         never <code>null</code>.
+     */
+    public static List<ExtractedDate> findDates(String text, DateFormat format) {
         text = StringHelper.removeDoubleWhitespaces(text);
-        ExtractedDate result = null;
+        List<ExtractedDate> result = new ArrayList<ExtractedDate>();
         Matcher matcher = format.getPattern().matcher(text);
-        if (matcher.find()) {
+        while (matcher.find()) {
             // Determine, if the found potential date string is directly surrounded by digits.
             // In this case, we skip the pattern and advance to the next one.
             boolean digitNeighbor = false;
@@ -124,7 +204,10 @@ public final class DateParser {
                 digitNeighbor = Character.isDigit(text.charAt(end));
             }
             if (!digitNeighbor) {
-                result = parseDate(matcher.group(), format);
+                ExtractedDate extractedDate = parseDate(matcher.group(), format);
+                if (extractedDate != null) {
+                    result.add(extractedDate);
+                }
             }
         }
         return result;
