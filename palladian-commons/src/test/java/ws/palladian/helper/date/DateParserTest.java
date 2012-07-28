@@ -424,5 +424,18 @@ public class DateParserTest {
         assertEquals("\\.", DateParserLogic.getSeparatorRegEx("2010.05.06"));
         assertEquals("/", DateParserLogic.getSeparatorRegEx("2010/05/06"));
     }
+    
+    @Test
+    public void testSetTimeDiff() {
+        DateParserLogic dateParserLogic = new DateParserLogic();
+        dateParserLogic.year = 2010;
+        dateParserLogic.month = 10;
+        dateParserLogic.day = 10;
+        dateParserLogic.hour = 12;
+        dateParserLogic.minute = 30;
+        dateParserLogic.setTimeDiff("06:30", "-");
+        assertEquals(dateParserLogic.hour, 19);
+        assertEquals(dateParserLogic.minute, 0);
+    }
 
 }

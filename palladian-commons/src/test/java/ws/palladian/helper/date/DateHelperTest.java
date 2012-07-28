@@ -26,58 +26,58 @@ public class DateHelperTest {
     }
 
     @Test
-    public void testmonthNameToNumber() {
-        assertEquals("01", DateHelper.monthNameToNumber("Januar"));
-        assertEquals("02", DateHelper.monthNameToNumber("Februar"));
-        assertEquals("03", DateHelper.monthNameToNumber("März"));
-        assertEquals("04", DateHelper.monthNameToNumber("April"));
-        assertEquals("05", DateHelper.monthNameToNumber("Mai"));
-        assertEquals("06", DateHelper.monthNameToNumber("Juni"));
-        assertEquals("07", DateHelper.monthNameToNumber("Juli"));
-        assertEquals("08", DateHelper.monthNameToNumber("August"));
-        assertEquals("09", DateHelper.monthNameToNumber("September"));
-        assertEquals("10", DateHelper.monthNameToNumber("Oktober"));
-        assertEquals("11", DateHelper.monthNameToNumber("November"));
-        assertEquals("12", DateHelper.monthNameToNumber("Dezember"));
+    public void testMonthNameToNumber() {
+        assertEquals(1, DateHelper.monthNameToNumber("Januar"));
+        assertEquals(2, DateHelper.monthNameToNumber("Februar"));
+        assertEquals(3, DateHelper.monthNameToNumber("März"));
+        assertEquals(4, DateHelper.monthNameToNumber("April"));
+        assertEquals(5, DateHelper.monthNameToNumber("Mai"));
+        assertEquals(6, DateHelper.monthNameToNumber("Juni"));
+        assertEquals(7, DateHelper.monthNameToNumber("Juli"));
+        assertEquals(8, DateHelper.monthNameToNumber("August"));
+        assertEquals(9, DateHelper.monthNameToNumber("September"));
+        assertEquals(10, DateHelper.monthNameToNumber("Oktober"));
+        assertEquals(11, DateHelper.monthNameToNumber("November"));
+        assertEquals(12, DateHelper.monthNameToNumber("Dezember"));
 
-        assertEquals("01", DateHelper.monthNameToNumber("January"));
-        assertEquals("02", DateHelper.monthNameToNumber("February"));
-        assertEquals("03", DateHelper.monthNameToNumber("March"));
-        assertEquals("04", DateHelper.monthNameToNumber("April"));
-        assertEquals("05", DateHelper.monthNameToNumber("May"));
-        assertEquals("06", DateHelper.monthNameToNumber("June"));
-        assertEquals("07", DateHelper.monthNameToNumber("July"));
-        assertEquals("08", DateHelper.monthNameToNumber("August"));
-        assertEquals("09", DateHelper.monthNameToNumber("September"));
-        assertEquals("10", DateHelper.monthNameToNumber("October"));
-        assertEquals("11", DateHelper.monthNameToNumber("November"));
-        assertEquals("12", DateHelper.monthNameToNumber("December"));
+        assertEquals(1, DateHelper.monthNameToNumber("January"));
+        assertEquals(2, DateHelper.monthNameToNumber("February"));
+        assertEquals(3, DateHelper.monthNameToNumber("March"));
+        assertEquals(4, DateHelper.monthNameToNumber("April"));
+        assertEquals(5, DateHelper.monthNameToNumber("May"));
+        assertEquals(6, DateHelper.monthNameToNumber("June"));
+        assertEquals(7, DateHelper.monthNameToNumber("July"));
+        assertEquals(8, DateHelper.monthNameToNumber("August"));
+        assertEquals(9, DateHelper.monthNameToNumber("September"));
+        assertEquals(10, DateHelper.monthNameToNumber("October"));
+        assertEquals(11, DateHelper.monthNameToNumber("November"));
+        assertEquals(12, DateHelper.monthNameToNumber("December"));
 
-        assertEquals("01", DateHelper.monthNameToNumber("Jan"));
-        assertEquals("02", DateHelper.monthNameToNumber("Feb"));
-        assertEquals("03", DateHelper.monthNameToNumber("Mär"));
-        assertEquals("04", DateHelper.monthNameToNumber("Apr"));
-        assertEquals("05", DateHelper.monthNameToNumber("Mai"));
-        assertEquals("06", DateHelper.monthNameToNumber("Jun"));
-        assertEquals("07", DateHelper.monthNameToNumber("Jul"));
-        assertEquals("08", DateHelper.monthNameToNumber("Aug"));
-        assertEquals("09", DateHelper.monthNameToNumber("Sep"));
-        assertEquals("10", DateHelper.monthNameToNumber("Okt"));
-        assertEquals("11", DateHelper.monthNameToNumber("Nov"));
-        assertEquals("12", DateHelper.monthNameToNumber("Dez"));
+        assertEquals(1, DateHelper.monthNameToNumber("Jan"));
+        assertEquals(2, DateHelper.monthNameToNumber("Feb"));
+        assertEquals(3, DateHelper.monthNameToNumber("Mär"));
+        assertEquals(4, DateHelper.monthNameToNumber("Apr"));
+        assertEquals(5, DateHelper.monthNameToNumber("Mai"));
+        assertEquals(6, DateHelper.monthNameToNumber("Jun"));
+        assertEquals(7, DateHelper.monthNameToNumber("Jul"));
+        assertEquals(8, DateHelper.monthNameToNumber("Aug"));
+        assertEquals(9, DateHelper.monthNameToNumber("Sep"));
+        assertEquals(10, DateHelper.monthNameToNumber("Okt"));
+        assertEquals(11, DateHelper.monthNameToNumber("Nov"));
+        assertEquals(12, DateHelper.monthNameToNumber("Dez"));
 
-        assertEquals("01", DateHelper.monthNameToNumber("Jan"));
-        assertEquals("02", DateHelper.monthNameToNumber("Feb"));
-        assertEquals("03", DateHelper.monthNameToNumber("Mar"));
-        assertEquals("04", DateHelper.monthNameToNumber("Apr"));
-        assertEquals("05", DateHelper.monthNameToNumber("May"));
-        assertEquals("06", DateHelper.monthNameToNumber("Jun"));
-        assertEquals("07", DateHelper.monthNameToNumber("Jul"));
-        assertEquals("08", DateHelper.monthNameToNumber("Aug"));
-        assertEquals("09", DateHelper.monthNameToNumber("Sep"));
-        assertEquals("10", DateHelper.monthNameToNumber("Oct"));
-        assertEquals("11", DateHelper.monthNameToNumber("Nov"));
-        assertEquals("12", DateHelper.monthNameToNumber("Dec"));
+        assertEquals(1, DateHelper.monthNameToNumber("Jan"));
+        assertEquals(2, DateHelper.monthNameToNumber("Feb"));
+        assertEquals(3, DateHelper.monthNameToNumber("Mar"));
+        assertEquals(4, DateHelper.monthNameToNumber("Apr"));
+        assertEquals(5, DateHelper.monthNameToNumber("May"));
+        assertEquals(6, DateHelper.monthNameToNumber("Jun"));
+        assertEquals(7, DateHelper.monthNameToNumber("Jul"));
+        assertEquals(8, DateHelper.monthNameToNumber("Aug"));
+        assertEquals(9, DateHelper.monthNameToNumber("Sep"));
+        assertEquals(10, DateHelper.monthNameToNumber("Oct"));
+        assertEquals(11, DateHelper.monthNameToNumber("Nov"));
+        assertEquals(12, DateHelper.monthNameToNumber("Dec"));
 
     }
 

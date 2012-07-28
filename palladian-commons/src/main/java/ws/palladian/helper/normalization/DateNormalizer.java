@@ -203,7 +203,7 @@ public class DateNormalizer {
             }
 
             String day = values[0].replace("th", "").trim();
-            String month = DateHelper.monthNameToNumber(values[1].replace(",", ""));
+            String month = String.format("%02d", DateHelper.monthNameToNumber(values[1].replace(",", "")));
             String year = values[2].replace("'", "").trim();
 
             if (day.length() < 2) {
@@ -234,7 +234,7 @@ public class DateNormalizer {
             }
 
             String day = values[1].replace("th", "").trim();
-            String month = DateHelper.monthNameToNumber(values[0]);
+            String month = String.format("%02d", DateHelper.monthNameToNumber(values[0]));
             String year = values[2].replace("'", "").trim();
 
             if (day.length() < 2) {

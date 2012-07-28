@@ -84,7 +84,7 @@ public final class DateParser {
      * @return The {@link ExtractedDate}, or <code>null</code> if the specified string could not be matched by the given
      *         {@link DateFormat}s.
      */
-    public static ExtractedDate findDate(String text, DateFormat[] formats) {
+    public static ExtractedDate findDate(String text, DateFormat... formats) {
         for (DateFormat format : formats) {
             // the old code had a catch Throwable around find date, I removed this for now,
             // if exceptions are encountered, try to solve them, and do not just catch them away.

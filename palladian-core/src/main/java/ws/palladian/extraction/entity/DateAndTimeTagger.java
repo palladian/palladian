@@ -2,6 +2,10 @@ package ws.palladian.extraction.entity;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import ws.palladian.helper.DateFormat;
+import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.nlp.StringHelper;
@@ -15,14 +19,17 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class DateAndTimeTagger {
 
-	/** The tag name for URLs. */
+    /** The tag name for URLs. */
 	public static final String DATETIME_TAG_NAME = "DATETIME";
+	
+	/** All date formats defined by default, plus additionally years in context. */
+	private static final DateFormat[] ALL_DATES_WITH_YEARS = ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS, RegExp.DATE_CONTEXT_YYYY);
 	
 	public Annotations tagDateAndTime(String inputText) {
 
 		Annotations annotations = new Annotations();
 
-        List<ContentDate> allDates = DateGetterHelper.findAllDates(inputText, true);
+        List<ContentDate> allDates = DateGetterHelper.findAllDates(inputText, ALL_DATES_WITH_YEARS);
 		
 		for (ContentDate dateTime : allDates) {
 			
