@@ -7,9 +7,9 @@ import java.util.Map;
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.getter.ReferenceDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.helper.date.dates.ReferenceDate;
 
 /**
  * This class rates reference dates.

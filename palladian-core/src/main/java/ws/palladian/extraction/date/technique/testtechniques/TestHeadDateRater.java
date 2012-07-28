@@ -10,10 +10,10 @@ import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.HeadDateRater;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
 
 public class TestHeadDateRater extends HeadDateRater {
 	

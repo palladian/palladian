@@ -9,9 +9,9 @@ import java.util.Map;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
+import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.ArchiveDate;
 
 /**
  * 

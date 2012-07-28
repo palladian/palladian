@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.date.dates.StructureDate;
+import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.StopWatch;
@@ -207,6 +208,7 @@ public class RomeFeedParserTest {
      * @throws FileNotFoundException 
      */
     @Test
+    @Ignore
     public void evaluateDateParsing() throws FeedParserException, FileNotFoundException {
 
         RomeFeedParser romeFeedParser = new RomeFeedParser();

@@ -11,6 +11,12 @@ import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.ArchiveDate;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.ReferenceDate;
+import ws.palladian.extraction.date.dates.StructureDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.extraction.date.rater.ArchiveDateRater;
 import ws.palladian.extraction.date.rater.ContentDateRater;
@@ -20,12 +26,6 @@ import ws.palladian.extraction.date.rater.StructureDateRater;
 import ws.palladian.extraction.date.rater.UrlDateRater;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.ArchiveDate;
-import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.MetaDate;
-import ws.palladian.helper.date.dates.ReferenceDate;
-import ws.palladian.helper.date.dates.StructureDate;
-import ws.palladian.helper.date.dates.UrlDate;
 
 /**
  * This class is responsible for rating dates. <br>

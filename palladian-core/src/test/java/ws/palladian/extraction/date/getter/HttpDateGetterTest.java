@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;

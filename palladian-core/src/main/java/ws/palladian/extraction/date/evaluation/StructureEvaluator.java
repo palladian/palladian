@@ -1,11 +1,11 @@
 package ws.palladian.extraction.date.evaluation;
 
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.extraction.date.getter.StructureDateGetter;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.rater.StructureDateRater;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
-import ws.palladian.helper.date.dates.StructureDate;
 
 public class StructureEvaluator {
 

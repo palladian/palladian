@@ -1,4 +1,4 @@
-package ws.palladian.helper.date.dates;
+package ws.palladian.extraction.date.dates;
 
 import org.w3c.dom.Node;
 

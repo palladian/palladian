@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
 
 public class MetaDateRater extends TechniqueDateRater<MetaDate> {
 

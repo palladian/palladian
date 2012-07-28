@@ -10,10 +10,10 @@ import org.junit.Test;
 
 import weka.core.Instance;
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.helper.DateWekaInstanceFactory;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateParser;
-import ws.palladian.helper.date.dates.ContentDate;
 
 public class DateWekaInstanceFactoryTest {
 

@@ -10,6 +10,9 @@ import org.w3c.dom.Document;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.getter.MetaDateGetter;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
@@ -20,9 +23,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.MetaDate;
-import ws.palladian.helper.date.dates.UrlDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public class KairosEvaluator {

@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
 
 /**
  * This class rates HTTP-dates by constant and age of date.

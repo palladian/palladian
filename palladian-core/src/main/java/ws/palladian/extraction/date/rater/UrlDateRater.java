@@ -6,8 +6,8 @@ import java.util.Map;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.dates.UrlDate;
 
 /**
  * 

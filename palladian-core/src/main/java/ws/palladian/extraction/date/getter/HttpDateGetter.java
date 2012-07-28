@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;

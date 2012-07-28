@@ -13,10 +13,10 @@ import weka.core.Instance;
 import weka.core.SerializationHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.helper.DateWekaInstanceFactory;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.date.dates.ContentDate;
 
 /**
  * <p>

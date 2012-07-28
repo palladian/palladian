@@ -7,9 +7,9 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.ArchiveDate;
+import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.helper.date.dates.ArchiveDate;
-import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;

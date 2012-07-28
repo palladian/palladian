@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.getter.HeadDateGetter;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
@@ -23,7 +24,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
 

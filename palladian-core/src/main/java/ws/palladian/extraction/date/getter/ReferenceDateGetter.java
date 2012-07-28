@@ -11,9 +11,9 @@ import ws.palladian.extraction.date.DateEvaluator;
 import ws.palladian.extraction.date.DateGetter;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.ReferenceDate;
 import ws.palladian.helper.html.HtmlHelper;
 
 /**
