@@ -9,10 +9,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.dates.AbstractBodyDate;
+import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.AbstractBodyDate;
-import ws.palladian.helper.date.dates.StructureDate;
 
 /**
  * This class extracts dates out of the structure of a HTML-document.

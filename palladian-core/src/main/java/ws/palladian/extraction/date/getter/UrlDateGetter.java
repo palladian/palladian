@@ -3,11 +3,11 @@ package ws.palladian.extraction.date.getter;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.UrlDate;
 
 /**
  * 

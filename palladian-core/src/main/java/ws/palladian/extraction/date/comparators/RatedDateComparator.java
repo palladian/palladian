@@ -2,12 +2,12 @@ package ws.palladian.extraction.date.comparators;
 
 import java.util.Comparator;
 
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.StructureDate;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.MetaDate;
-import ws.palladian.helper.date.dates.StructureDate;
-import ws.palladian.helper.date.dates.UrlDate;
 
 /**
  * Compare rated dates.<br>

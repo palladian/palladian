@@ -1,4 +1,4 @@
-package ws.palladian.helper.date.dates;
+package ws.palladian.extraction.date.dates;
 
 import ws.palladian.helper.date.ExtractedDate;
 

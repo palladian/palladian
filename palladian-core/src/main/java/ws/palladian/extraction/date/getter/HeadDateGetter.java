@@ -8,10 +8,10 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
 import ws.palladian.helper.html.XPathHelper;
 
 /**

@@ -5,13 +5,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.KeywordDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.KeywordDate;
 
 /**
  * This class contains methods to help DateRate to rate dates.

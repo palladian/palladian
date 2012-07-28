@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
@@ -16,7 +17,6 @@ import ws.palladian.extraction.date.rater.UrlDateRater;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.UrlDate;
 
 public class UrlEvaluator {
 

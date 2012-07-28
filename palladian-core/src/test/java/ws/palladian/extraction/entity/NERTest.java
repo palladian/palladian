@@ -30,6 +30,7 @@ import ws.palladian.helper.math.MathHelper;
  * @since 1.0
  * 
  */
+@Ignore
 public class NERTest {
 
     private String trainingFile;

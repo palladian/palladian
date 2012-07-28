@@ -7,9 +7,9 @@ import java.util.Map;
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.date.DateExactness;
-import ws.palladian.helper.date.dates.StructureDate;
 
 /**
  * This class rates structure dates by keywords.

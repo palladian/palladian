@@ -1,11 +1,11 @@
 package ws.palladian.extraction.date.evaluation;
 
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.rater.ContentDateRater_old;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
-import ws.palladian.helper.date.dates.ContentDate;
 
 public class ContentEvaluator {
 

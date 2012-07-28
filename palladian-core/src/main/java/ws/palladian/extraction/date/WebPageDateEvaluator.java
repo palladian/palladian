@@ -9,10 +9,10 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
+import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.dates.ContentDate;
 
 /**
  * Use this class to rate a webpage. <br>

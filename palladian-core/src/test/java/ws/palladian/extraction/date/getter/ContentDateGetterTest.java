@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
