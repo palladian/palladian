@@ -1,4 +1,6 @@
-package ws.palladian.extraction.date;
+package ws.palladian.extraction.date.getter;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
@@ -7,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.dates.ContentDate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -82,8 +83,9 @@ public class ContentDateGetterTest {
 	    String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/text01.txt"));
 		System.out.println(text.length());
 		
-		List<ContentDate> newDates = DateGetterHelper.findAllDates(text);
+		List<ContentDate> newDates = ContentDateGetter.findAllDates(text);
 		HashMap<String, Integer> dateMap = new HashMap<String, Integer>(); 
+		assertEquals(142, newDates.size());
 		System.out.println(newDates.size());
 		for(int i=0; i< newDates.size(); i++){
 			if(dateMap.get(newDates.get(i).getDateString() + newDates.get(i).get(ContentDate.DATEPOS_IN_DOC)) != null){
@@ -99,6 +101,7 @@ public class ContentDateGetterTest {
 			}
 			i++;
 		}
+		assertEquals(119, i);
 		System.out.println(i);
 		
 	}

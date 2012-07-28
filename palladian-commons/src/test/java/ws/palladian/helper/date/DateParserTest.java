@@ -3,6 +3,8 @@ package ws.palladian.helper.date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import ws.palladian.helper.RegExp;
@@ -339,6 +341,69 @@ public class DateParserTest {
         assertEquals("2008-09-20", date.getNormalizedDateString());
         date = DateParser.findDate("11-12-2010 19:48:00", RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
         assertEquals("2010-11-12 19:48:00", date.getNormalizedDateString());
+    }
+    
+    @Test
+    public void testFindDates() {
+        assertEquals("2010-01", DateParser.findDates("Januar 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-02", DateParser.findDates("Februar 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-03", DateParser.findDates("März 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-04", DateParser.findDates("April 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-05", DateParser.findDates("Mai 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-06", DateParser.findDates("Juni 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-07", DateParser.findDates("Juli 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-08", DateParser.findDates("August 2010").get(0).getNormalizedDateString());
+        assertEquals("MMMM YYYY", DateParser.findDates("August 2010").get(0).getFormat());
+        assertEquals("2010-09", DateParser.findDates("September 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-10", DateParser.findDates("Oktober 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-11", DateParser.findDates("November 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-12", DateParser.findDates("Dezember 2010").get(0).getNormalizedDateString());
+        String date = DateParser.findDates("SEPTEMBER 1, 2010").get(0).getNormalizedDateString();
+        assertEquals("2010-09-01", date);
+        date = DateParser.findDates(", 17/09/06 03:51:53").get(0).getNormalizedDateString();
+        assertEquals("2006-09-17 03:51:53", date);
+        date = DateParser.findDates("30.09.2010").get(0).getNormalizedDateString();
+        assertEquals("2010-09-30", date);
+        date = DateParser.findDates(", 08. Februar 2010, 17:15").get(0).getNormalizedDateString();
+        assertEquals("2010-02-08", date);
+        date = DateParser.findDates("Sept. 3, 2010").get(0).getNormalizedDateString();
+        assertEquals("2010-09-03", date);
+        date = DateParser.findDates("Last Modified: Wednesday, 11-Aug-2010 14:41:10 EDT").get(0)
+                .getNormalizedDateString();
+        assertEquals("2010-08-11 14:41:10", date);
+        date = DateParser.findDates("JUNE 1, 2010").get(0).getNormalizedDateString();
+        assertEquals("2010-06-01", date);
+        assertEquals("2010-01", DateParser.findDates("jan. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-02", DateParser.findDates("Feb. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-03", DateParser.findDates("Mär. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-04", DateParser.findDates("Apr. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-05", DateParser.findDates("Mai. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-06", DateParser.findDates("Jun. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-07", DateParser.findDates("Jul. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-08", DateParser.findDates("Aug. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-09", DateParser.findDates("Sep. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-10", DateParser.findDates("Okt. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-11", DateParser.findDates("nov. 2010").get(0).getNormalizedDateString());
+        assertEquals("2010-12", DateParser.findDates("Dez. 2010").get(0).getNormalizedDateString());
+        assertEquals("2007-12-06 17:37:45", DateParser.findDates("2007-12-06T17:37:45Z").get(0)
+                .getNormalizedDateString());
+
+        List<ExtractedDate> dates = DateParser.findDates("2007-12-06T17:37:45Z 2008-12-06T17:37:45Z");
+        assertEquals(2, dates.size());
+        assertEquals("2007-12-06 17:37:45", dates.get(0).getNormalizedDateString());
+        assertEquals("2008-12-06 17:37:45", dates.get(1).getNormalizedDateString());
+
+        dates = DateParser.findDates("Saturday, September 20, 2008");
+        assertEquals(1, dates.size());
+        assertEquals("2008-09-20", dates.get(0).getNormalizedDateString());
+
+        dates = DateParser.findDates("Mon, 18 Apr 2011 09:16:00 GMT-0700");
+        assertEquals(1, dates.size());
+        assertEquals("2011-04-18 16:16:00", dates.get(0).getNormalizedDateString());
+
+        dates = DateParser.findDates("Dienstag, 03. Mai 2011 um 05:13");
+        assertEquals(1, dates.size());
+        assertEquals("2011-05-03", dates.get(0).getNormalizedDateString());
     }
 
     @Test
