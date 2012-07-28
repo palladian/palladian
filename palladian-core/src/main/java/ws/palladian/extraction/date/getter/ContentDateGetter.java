@@ -244,7 +244,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
             date.setTagNode(parent.toString());
             date.setTag(tag.getNodeName());
-            date.setNode(tag);
+            // date.setNode(tag);
 
             date.setSimpleTag(HtmlHelper.isSimpleElement(tag) ? "1" : "0");
             date.sethTag(HtmlHelper.isHeadlineTag(tag) ? "1" : "0");
@@ -481,7 +481,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             String keyword = getNodeKeyword(node);
             structDate = new StructureDate(date);
             structDate.setKeyword(keyword);
-            structDate.setNode(node);
+            //structDate.setNode(node);
         }
         return structDate;
     }

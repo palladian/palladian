@@ -1,7 +1,5 @@
 package ws.palladian.extraction.date.dates;
 
-import org.w3c.dom.Node;
-
 import ws.palladian.helper.date.ExtractedDate;
 
 /**
@@ -32,7 +30,7 @@ public abstract class AbstractBodyDate extends KeywordDate {
     /**
      * Node.
      */
-    private Node node = null;
+//    private Node node = null;
     
 //    /**
 //     * @param dateString
@@ -112,12 +110,12 @@ public abstract class AbstractBodyDate extends KeywordDate {
         return tagNode;
     }
     
-    public Node getNode(){
-    	return node;
-    }
+//    public Node getNode(){
+//    	return node;
+//    }
     
-    public void setNode(Node node){
-    	this.node= node;
-    }
+//    public void setNode(Node node){
+//    	this.node= node;
+//    }
     
 }
