@@ -48,7 +48,7 @@ public class HttpRetrieverTest {
     @Test(timeout = 5000, expected = HttpException.class)
     public void testGetTimeout() throws HttpException {
         HttpRetriever httpRetriever = new HttpRetriever(1000, 1000, 0, 1);
-        httpRetriever.httpGet("http://localhost:8080/");
+        httpRetriever.httpGet("http://localhost:" + PORT + "/");
     }
     
     // TODO add further tests.
