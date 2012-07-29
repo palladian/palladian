@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
@@ -49,6 +50,24 @@ public class StringHelperTest {
         assertEquals(false, StringHelper.containsWordRegExp("Deutsche.Bahn", "DeutscheBahn"));
         assertEquals(false, StringHelper.containsWordRegExp("Deutsche.Bahn", "Deutsche..Bahn"));
 
+    }
+
+    @Test
+    public void testReplaceWord() {
+
+        StopWatch stopWatch = new StopWatch();
+        assertEquals("a b", StringHelper.removeWord("test", "a test b"));
+        assertEquals("atest b", StringHelper.removeWord("test", "atest b"));
+        assertEquals("atestb", StringHelper.removeWord("test", "atestb"));
+        assertEquals("a testb", StringHelper.removeWord("test", "a testb"));
+        assertEquals("", StringHelper.removeWord("test", "test"));
+        assertEquals(".", StringHelper.removeWord("test", "test."));
+        assertEquals("!", StringHelper.removeWord("test", "test!"));
+        assertEquals("?", StringHelper.removeWord("test", "test?"));
+        assertEquals(",", StringHelper.removeWord("test", "test,"));
+        assertEquals(";", StringHelper.removeWord("test", "test;"));
+        assertEquals("()", StringHelper.removeWord("test", "(test)"));
+        System.out.println(stopWatch.getElapsedTimeString());
     }
 
     @Test
@@ -214,8 +233,12 @@ public class StringHelperTest {
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", " in ohio", "all "));
-        assertEquals(2, StringHelper.getSubstringsBetween("all the lilacs in ohio all the lilacs in ohio all the lilacs", "the ", " in").size());
-        assertEquals(Arrays.asList("1", "2", "3", "4", "5"), StringHelper.getSubstringsBetween("(1) (2) (3) (4) (5) (6", "(", ")"));
+        assertEquals(
+                2,
+                StringHelper.getSubstringsBetween("all the lilacs in ohio all the lilacs in ohio all the lilacs",
+                        "the ", " in").size());
+        assertEquals(Arrays.asList("1", "2", "3", "4", "5"),
+                StringHelper.getSubstringsBetween("(1) (2) (3) (4) (5) (6", "(", ")"));
     }
 
     @Test
