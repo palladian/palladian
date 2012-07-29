@@ -50,6 +50,7 @@ public class LingPipePosTaggerTest {
         this.document = new PipelineDocument<String>(document);
     }
 
+    // FIXME add actual tests, remove sysouts
     @Test
     public void test() throws FileNotFoundException, DocumentUnprocessableException {
         File modelFile = ResourceHelper.getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel");
@@ -69,4 +70,14 @@ public class LingPipePosTaggerTest {
         }
         System.out.println();
     }
+
+    // FIXME make this work
+    // @Test
+    // public void testSimple() throws FileNotFoundException {
+    // File modelFile = ResourceHelper.getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel");
+    // BasePosTagger tagger = new LingPipePosTagger(modelFile);
+    // TagAnnotations tagResult = tagger.tag("I'm here to say that we're about to do that.");
+    // Assert.assertEquals(tagResult.size(), 10);
+    // // System.out.println(tagResult.getTaggedString());
+    // }
 }
