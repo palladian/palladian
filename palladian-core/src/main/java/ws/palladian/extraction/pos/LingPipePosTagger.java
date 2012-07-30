@@ -195,5 +195,4 @@ public final class LingPipePosTagger extends BasePosTagger {
         // tagger.evaluate("data/datasets/pos/testSmall/",
         // "data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
     }
-
 }
