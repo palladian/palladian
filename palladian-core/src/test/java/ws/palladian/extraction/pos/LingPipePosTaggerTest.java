@@ -7,12 +7,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
@@ -35,25 +39,40 @@ import ws.palladian.processing.features.TextAnnotationFeature;
 @RunWith(value = Parameterized.class)
 public class LingPipePosTaggerTest {
 
+    /**
+     * <p>
+     * 
+     * </p>
+     */
+    private static final String MODEL = "/model/pos-en-general-brown.HiddenMarkovModel";
     private final PipelineDocument<String> document;
+    private final String[] expectedTags;
 
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { {"The quick brown fox jumps over the lazy dog."}, {"I like my cake."},
-                {"Your gun is the best friend you have."}};
+        Object[][] data = new Object[][] {
+                {"The quick brown fox jumps over the lazy dog.",
+                        new String[] {"AT", "JJ", "JJ", "NN", "NNS", "IN", "AT", "JJ", "NN", "."}},
+                {"I like my cake.", new String[] {"PPSS", "VB", "PP$", "NN", "."}},
+                {"Your gun is the best friend you have.",
+                        new String[] {"PP$", "NN", "BEZ", "AT", "JJT", "NN", "PPSS", "HV", "."}},
+                {
+                        "I'm here to say that we're about to do that.",
+                        new String[] {"PPSS", "'", "BEM", "RB", "TO", "VB", "CS", "PPSS", "'", "QL", "RB", "TO", "DO",
+                                "DT", "."}}};
         return Arrays.asList(data);
     }
 
-    public LingPipePosTaggerTest(String document) {
+    public LingPipePosTaggerTest(String document, String[] expectedTags) {
         super();
 
         this.document = new PipelineDocument<String>(document);
+        this.expectedTags = expectedTags;
     }
 
-    // FIXME add actual tests, remove sysouts
     @Test
     public void test() throws FileNotFoundException, DocumentUnprocessableException {
-        File modelFile = ResourceHelper.getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel");
+        File modelFile = ResourceHelper.getResourceFile(MODEL);
         PipelineProcessor tokenizer = new LingPipeTokenizer();
         PipelineProcessor objectOfClassUnderTest = new LingPipePosTagger(modelFile);
 
@@ -62,22 +81,20 @@ public class LingPipePosTaggerTest {
         pipeline.add(objectOfClassUnderTest);
 
         pipeline.process(document);
-        System.out.println(document.getContent());
-        TextAnnotationFeature featureVector = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        for (Annotation<String> token : featureVector.getValue()) {
-            System.out.print(" "
-                    + token.getFeatureVector().get(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue());
+        TextAnnotationFeature featureVector = document.getFeatureVector()
+                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<Annotation<String>> tokens = featureVector.getValue();
+        for (int i = 0; i < tokens.size(); i++) {
+            Assert.assertThat(tokens.get(i).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(),
+                    Matchers.is(expectedTags[i]));
         }
-        System.out.println();
     }
 
-    // FIXME make this work
-    // @Test
-    // public void testSimple() throws FileNotFoundException {
-    // File modelFile = ResourceHelper.getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel");
-    // BasePosTagger tagger = new LingPipePosTagger(modelFile);
-    // TagAnnotations tagResult = tagger.tag("I'm here to say that we're about to do that.");
-    // Assert.assertEquals(tagResult.size(), 10);
-    // // System.out.println(tagResult.getTaggedString());
-    // }
+    @Test
+    public void testSimple() throws FileNotFoundException {
+        File modelFile = ResourceHelper.getResourceFile(MODEL);
+        BasePosTagger tagger = new LingPipePosTagger(modelFile);
+        TagAnnotations tagResult = tagger.tag(document.getContent());
+        Assert.assertEquals(expectedTags.length, tagResult.size());
+    }
 }

@@ -101,7 +101,14 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * A JPQL query loading only {@link Item}s not yet labeled by {@code :labeler} but by other {@link Labeler}s.
      * </p>
      */
-    private static final String LOAD_ITEMS_ONLY_LABELED_BY_OTHERS = "SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE l.labeledItem NOT IN ( SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler AND lr NOT IN(:excludedLabelers))";
+    private static final String LOAD_ITEMS_ONLY_LABELED_BY_OTHERS_EXCLUDING_LABELERS = "SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE l.labeledItem NOT IN ( SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler AND lr NOT IN(:excludedLabelers))";
+
+    /**
+     * <p>
+     * A JPQL query loading only {@link Item}s not yet labeled by {@code :labeler} but by other {@link Labeler}s.
+     * </p>
+     */
+    private static final String LOAD_ITEMS_ONLY_LABELED_BY_OTHERS = "SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE l.labeledItem NOT IN ( SELECT l.labeledItem FROM Labeler lr JOIN lr.labels l WHERE lr=:labeler)";
 
     /**
      * <p>
@@ -967,10 +974,49 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      */
     public Item loadNextNonSelfLabeledItem(final Labeler labeler, final Collection<Labeler> excludedLabelers) {
         TypedQuery<Item> loadItemsOnlyLabeledByOthersQuery = getManager().createQuery(
-                LOAD_ITEMS_ONLY_LABELED_BY_OTHERS, Item.class);
+                LOAD_ITEMS_ONLY_LABELED_BY_OTHERS_EXCLUDING_LABELERS, Item.class);
         loadItemsOnlyLabeledByOthersQuery.setMaxResults(MAX_NUMBER_OF_RESULTS);
         loadItemsOnlyLabeledByOthersQuery.setParameter("labeler", labeler);
         loadItemsOnlyLabeledByOthersQuery.setParameter("excludedLabelers", excludedLabelers);
+        Boolean openedTransaction = openTransaction();
+        try {
+            List<Item> itemsLabeledByOthers = loadItemsOnlyLabeledByOthersQuery.getResultList();
+
+            if (itemsLabeledByOthers.isEmpty()) {
+                LOGGER.debug("Selecting random item from items not labeled by " + labeler.getName()
+                        + " but by other labelers");
+                return loadRandomNonLabeledItem();
+            } else {
+                LOGGER.debug("Selecting random item from non labeled items.");
+                return chooseRandomItem(itemsLabeledByOthers);
+            }
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * Tries to find a random {@link Item} from the database, that was not labeled by {@link Labeler} but was already
+     * labeled by another person. If no such {@code Item} exists a random not yet labeled {@code Item} is returned. This
+     * method is especially helpful to maximize the amount of labels per {@code Item} and is thus useful for calculating
+     * the kappa value of a dataset. The kappa value describes the agreement between {@code Labelers}. It can be used to
+     * make assumptions how easy the label task is and how clear the definitions of individual labels are. A dataset has
+     * a high kappa value the {@code Labeler} agree on almost all {@code Label}s whereas a low kappa value denotes
+     * disagreement between different {@code Labeler}s.
+     * </p>
+     * 
+     * @param labeler The {@code Labeler} denoted by self. The method tries to find items only labeled by other
+     *            {@code Labeler}s.
+     * @return A random {@code Item} not already labeled by {@code labeler}. At first all items are choosen that where
+     *         already labeled by other {@code Labeler}s and if no such {@code Item} exists another unlabeled random
+     *         {@code Item} is selected.
+     */
+    public Item loadNextNonSelfLabeledItem(final Labeler labeler) {
+        TypedQuery<Item> loadItemsOnlyLabeledByOthersQuery = getManager().createQuery(
+                LOAD_ITEMS_ONLY_LABELED_BY_OTHERS, Item.class);
+        loadItemsOnlyLabeledByOthersQuery.setMaxResults(MAX_NUMBER_OF_RESULTS);
+        loadItemsOnlyLabeledByOthersQuery.setParameter("labeler", labeler);
         Boolean openedTransaction = openTransaction();
         try {
             List<Item> itemsLabeledByOthers = loadItemsOnlyLabeledByOthersQuery.getResultList();
