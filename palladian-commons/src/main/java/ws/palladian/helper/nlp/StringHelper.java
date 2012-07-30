@@ -543,12 +543,12 @@ public final class StringHelper {
         }
 
         word = word.toLowerCase();
-        searchString = searchString.toLowerCase();
+        String searchStringLc = searchString.toLowerCase();
 
         int oldIndex = 0;
         int index = 0;
         do {
-            index = searchString.indexOf(word, oldIndex);
+            index = searchStringLc.indexOf(word, oldIndex);
             if (index == -1) {
                 return searchString;
             }
@@ -558,14 +558,14 @@ public final class StringHelper {
             if (index == 0) {
                 leftBorder = true;
             } else {
-                char prevChar = searchString.charAt(index - 1);
+                char prevChar = searchStringLc.charAt(index - 1);
                 leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
             }
             boolean rightBorder;
-            if (index + word.length() == searchString.length()) {
+            if (index + word.length() == searchStringLc.length()) {
                 rightBorder = true;
             } else {
-                char nextChar = searchString.charAt(index + word.length());
+                char nextChar = searchStringLc.charAt(index + word.length());
                 rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
             }
 
