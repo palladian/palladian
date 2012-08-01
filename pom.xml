@@ -85,7 +85,7 @@
 							as we should strive for a modular dependency management when Palladian is 
 							used in OGSi environments, so we might want to remove this later again. Philipp, 
 							2012-08-01 -->
-						<manifestFile>${project.build.directory}/osgi/MANIFEST.MF</manifestFile>
+						<!-- manifestFile>${project.build.directory}/osgi/MANIFEST.MF</manifestFile -->
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
