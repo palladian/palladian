@@ -86,6 +86,7 @@
 							used in OGSi environments, so we might want to remove this later again. Philipp, 
 							2012-08-01 -->
 						<!-- manifestFile>${project.build.directory}/osgi/MANIFEST.MF</manifestFile -->
+						<manifest></manifest>
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
