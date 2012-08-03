@@ -569,11 +569,11 @@ public final class StringHelper {
                 rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
             }
 
-            // if word exists, cut it out
+            // if word exists, cut it out and replace with replacement
             if (leftBorder && rightBorder) {
                 String before = searchString.substring(0, index);
                 String after = searchString.substring(oldIndex);
-                searchString = before + after;
+                searchString = before + replacement + after;
             }
 
         } while (index > -1);
