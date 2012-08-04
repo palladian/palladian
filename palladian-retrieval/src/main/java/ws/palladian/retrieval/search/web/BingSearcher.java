@@ -1,10 +1,14 @@
 package ws.palladian.retrieval.search.web;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -18,8 +22,8 @@ public final class BingSearcher extends BaseBingSearcher<WebResult> {
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
      */
-    public BingSearcher(String apiKey) {
-        super(apiKey);
+    public BingSearcher(String accountKey) {
+        super(accountKey);
     }
 
     /**

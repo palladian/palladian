@@ -6,8 +6,7 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.parser.JsonHelper;
 
 /**
  * <p>
@@ -22,8 +21,8 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
      */
-    public BingNewsSearcher(String apiKey) {
-        super(apiKey);
+    public BingNewsSearcher(String accountKey) {
+        super(accountKey);
     }
 
     /**
@@ -43,35 +42,29 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
         return "News";
     }
 
-    @Override
-    protected String getRequestUrl(String query, String sourceType, Language language, int offset, int count) {
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("http://api.bing.net/json.aspx");
-        queryBuilder.append("?AppId=").append(apiKey);
-        if (offset > 0) {
-            queryBuilder.append("&News.Offset=").append(offset);
-        }
-        queryBuilder.append("&Sources=News");
-        queryBuilder.append("&JsonType=raw");
-        queryBuilder.append("&Adult=Moderate");
-        if (language != null) {
-            queryBuilder.append("&Market=").append(getLanguageString(language));
-        }
-        queryBuilder.append("&Query=").append(UrlHelper.urlEncode(query));
-        return queryBuilder.toString();
-    }
+//    @Override
+//    protected String buildRequestUrl(String query, String sourceType, Language language, int offset, int count) {
+//        StringBuilder queryBuilder = new StringBuilder();
+//        queryBuilder.append("http://api.bing.net/json.aspx");
+//        queryBuilder.append("?AppId=").append(accountKey);
+//        if (offset > 0) {
+//            queryBuilder.append("&News.Offset=").append(offset);
+//        }
+//        queryBuilder.append("&Sources=News");
+//        queryBuilder.append("&JsonType=raw");
+//        queryBuilder.append("&Adult=Moderate");
+//        if (language != null) {
+//            queryBuilder.append("&Market=").append(getLanguageString(language));
+//        }
+//        queryBuilder.append("&Query=").append(UrlHelper.urlEncode(query));
+//        return queryBuilder.toString();
+//    }
 
     @Override
     protected WebResult parseResult(JSONObject currentResult) throws JSONException {
         String url = currentResult.getString("Url");
-        String title = null;
-        if (currentResult.has("Title")) {
-            title = currentResult.getString("Title");
-        }
-        String summary = null;
-        if (currentResult.has("Snippet")) {
-            summary = currentResult.getString("Snippet");
-        }
+        String title = JsonHelper.getString(currentResult, "Title");
+        String summary = JsonHelper.getString(currentResult, "Description");
         Date date = null;
         if (currentResult.has("Date")) {
             String dateString = currentResult.getString("Date");
