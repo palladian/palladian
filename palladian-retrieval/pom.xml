@@ -37,10 +37,6 @@
 			<artifactId>json</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.catnip</groupId>
-			<artifactId>eddie</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
