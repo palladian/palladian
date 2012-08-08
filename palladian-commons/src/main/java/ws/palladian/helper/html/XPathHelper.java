@@ -1,11 +1,14 @@
 package ws.palladian.helper.html;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.xml.namespace.NamespaceContext;
@@ -55,7 +58,6 @@ public final class XPathHelper {
         private final Map<String, String> namespaces = new HashMap<String, String>();
 
         public String getNamespaceURI(String prefix) {
-            Validate.notEmpty(prefix);
             return namespaces.get(prefix);
         }
 
@@ -556,7 +558,7 @@ public final class XPathHelper {
      * @param xPath The XPath, not <code>null</code> or empty.
      * @return The XPath with included XHTML namespace.
      */
-    public static String addXhtmlNsToXPath(String xPath) {
+    static String addXhtmlNsToXPath(String xPath) {
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
         if (xPath.toLowerCase(Locale.ENGLISH).indexOf("xhtml:") > -1) {
@@ -567,8 +569,41 @@ public final class XPathHelper {
         // for example in @type='application/rss+xml'
         // RegEx from http://stackoverflow.com/questions/632475/regex-to-pick-commas-outside-of-quotes
         // return xPath.replaceAll("(/)(?=\\w(?:[^']|'[^']*')*$)", "/xhtml:");
-        return xPath.replaceAll("(/)(?=\\w+(\\[|\\/|$)(?:[^']|'[^']*')*$)", "/xhtml:");
+//        return xPath.replaceAll("(/)(?=\\w+(\\[|\\/|$)(?:[^']|'[^']*')*$)", "/xhtml:");
+        
+        // The RegEx-based implementation is very error prone, therefore I changed it the following method. It splits up
+        // the XPath in individual parts, and for every part we check, whether the "xhtml:" prefix needs to be added
+        // (which is the case for node names like "body", "h1", ..., but not for functions like text() and logical
+        // operators like "and", "or"). Similar to the RegEx-based approach, this is most likely not 100 % accurate, but
+        // for tests achieved a more accurate transformation. If you discover any inaccuracies, please try to fix the
+        // existing code below and add tests. Philipp, 2012-08-08
+        
+        List<String> xPathParts = new ArrayList<String>();
+        StringBuilder buf = new StringBuilder();
+        Set<Character> split = new HashSet<Character>(Arrays.asList('/', ' ', '[', ']'));
 
+        for (int i = 0; i < xPath.length(); i++) {
+            char currentChar = xPath.charAt(i);
+            if (split.contains(currentChar)) {
+                xPathParts.add(buf.toString());
+                buf = new StringBuilder();
+                xPathParts.add(String.valueOf(currentChar));
+            } else {
+                buf.append(currentChar);
+            }
+            if (i == xPath.length() - 1) {
+                xPathParts.add(buf.toString());
+            }
+        }
+        
+        StringBuilder result = new StringBuilder();
+        for (String xPathPart : xPathParts) {
+            if (xPathPart.matches("[a-zA-Z][\\w]*|\\*") && !xPathPart.matches("and|or")) {
+                result.append("xhtml:");
+            }
+            result.append(xPathPart);
+        }
+        return result.toString();
     }
 
 

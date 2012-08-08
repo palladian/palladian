@@ -177,7 +177,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
         // check, if we got an error response
         checkError(responseNode);
 
-        List<Node> resultDocs = XPathHelper.getChildNodes(responseNode, "results/grouping/group/doc");
+        List<Node> resultDocs = XPathHelper.getNodes(responseNode, "results/grouping/group/doc");
         List<WebResult> result = new ArrayList<WebResult>();
         for (Node resultDoc : resultDocs) {
             // required
