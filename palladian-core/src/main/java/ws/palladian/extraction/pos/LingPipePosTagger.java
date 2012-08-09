@@ -176,7 +176,7 @@ public final class LingPipePosTagger extends BasePosTagger {
 
     public static void main(String[] args) {
 
-        final File modelFile = new File("/Users/pk/Desktop/pos-en-general-brown.HiddenMarkovModel");
+        final File modelFile = new File("pos-en-general-brown.HiddenMarkovModel");
 
         // PipelineDocument document = new PipelineDocument("I'm here to say that we're about to do that.");
         // ProcessingPipeline pipeline = new ProcessingPipeline();
@@ -195,5 +195,4 @@ public final class LingPipePosTagger extends BasePosTagger {
         // tagger.evaluate("data/datasets/pos/testSmall/",
         // "data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
     }
-
 }

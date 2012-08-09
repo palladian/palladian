@@ -38,7 +38,7 @@ public final class CompositeRankingService extends BaseRankingService implements
         rankingServices.add(new FacebookLinkStats());
         rankingServices.add(new FriendfeedAggregatedStats());
         rankingServices.add(new FriendfeedStats());
-        rankingServices.add(new GooglePageRank(config));
+        rankingServices.add(new GooglePageRank());
         rankingServices.add(new MajesticSeo(config));
         rankingServices.add(new PlurkPosts(config));
         rankingServices.add(new RedditStats());

@@ -9,13 +9,16 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
@@ -26,13 +29,16 @@ import ws.palladian.retrieval.search.SearcherException;
  * Base implementation for Bing searchers.
  * </p>
  * 
- * @see http://www.bing.com/developers/s/APIBasics.html
+ * @see <a href="https://datamarket.azure.com/dataset/bing/search">Bing Search API on Windows Azure Marketplace</a>
  * @author Philipp Katz
  */
 abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(BaseBingSearcher.class);
+
+    /** The base URL endpoint of the Bing service. */
+    private static final String BASE_SERVICE_URL = "https://api.datamarket.azure.com/Bing/Search/v1/";
 
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.bing.key";
@@ -41,21 +47,19 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
-    protected final String apiKey;
+    protected final String accountKey;
 
     /**
      * <p>
      * Creates a new Bing searcher.
      * </p>
      * 
-     * @param apiKey The API key for accessing Bing.
+     * @param accountKey The account key for accessing Bing.
      */
-    public BaseBingSearcher(String apiKey) {
+    public BaseBingSearcher(String accountKey) {
         super();
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing");
-        }
-        this.apiKey = apiKey;
+        Validate.notEmpty(accountKey, "accountKey must not be empty");
+        this.accountKey = accountKey;
     }
 
     /**
@@ -63,7 +67,8 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
      * Creates a new Bing searcher.
      * </p>
      * 
-     * @param configuration The configuration which must provide an API key for accessing Bing, which must be provided
+     * @param configuration The configuration which must provide an account key for accessing Bing, which must be
+     *            provided
      *            as string via key <tt>api.bing.key</tt> in the configuration.
      */
     public BaseBingSearcher(Configuration configuration) {
@@ -75,24 +80,20 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
         List<R> webResults = new ArrayList<R>();
 
-        int necessaryPages = (int) Math.ceil((double) resultCount / getDefaultFetchSize());
+        int necessaryPages = (int)Math.ceil((double)resultCount / getDefaultFetchSize());
         int offset = 0;
 
-        try {
+        for (int i = 0; i < necessaryPages; i++) {
 
-            for (int i = 0; i < necessaryPages; i++) {
+            String sourceType = getSourceType();
+            String requestUrl = buildRequestUrl(query, sourceType, language, offset, getDefaultFetchSize());
 
-                String sourceType = getSourceType();
-                String requestUrl = getRequestUrl(query, sourceType, language, offset, getDefaultFetchSize());
-                JSONObject responseData = getResponseData(requestUrl, sourceType);
+            try {
+
+                JSONObject responseData = getResponseData(requestUrl, accountKey);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
-                int total = responseData.getInt("Total");
-                if (total == 0) {
-                    break;
-                }
-
-                JSONArray results = responseData.getJSONArray("Results");
+                JSONArray results = responseData.getJSONArray("results");
                 int numResults = results.length();
                 offset += numResults;
 
@@ -106,17 +107,17 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
                     }
                 }
 
-                if (offset >= total) {
+                if (!responseData.has("__next")) {
                     break;
                 }
 
+            } catch (HttpException e) {
+                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                        + e.getMessage(), e);
+            } catch (JSONException e) {
+                throw new SearcherException("Error parsing the JSON response while searching for \"" + query
+                        + "\" with " + getName() + ": " + e.getMessage() + ", url: \"" + requestUrl + "\"", e);
             }
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
-        } catch (JSONException e) {
-            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
-                    + getName() + ": " + e.getMessage(), e);
         }
 
         LOGGER.debug("bing requests: " + TOTAL_REQUEST_COUNT.get());
@@ -159,17 +160,17 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
      * </p>
      * 
      * @param requestUrl
-     * @param sourceType
      * @return
      * @throws HttpException
      * @throws JSONException
      */
-    private JSONObject getResponseData(String requestUrl, String sourceType) throws HttpException, JSONException {
-        HttpResult httpResult = retriever.httpGet(requestUrl);
+    private JSONObject getResponseData(String requestUrl, String accountKey) throws HttpException, JSONException {
+        String basicAuthentication = "Basic " + StringHelper.encodeBase64(":" + accountKey);
+        MapBuilder<String, String> headers = new MapBuilder<String, String>().add("Authorization", basicAuthentication);
+        HttpResult httpResult = retriever.httpGet(requestUrl, headers);
         String jsonString = new String(HttpHelper.getStringContent(httpResult));
         JSONObject jsonObject = new JSONObject(jsonString);
-        JSONObject responseData = jsonObject.getJSONObject("SearchResponse").getJSONObject(sourceType);
-        return responseData;
+        return jsonObject.getJSONObject("d");
     }
 
     /**
@@ -184,28 +185,25 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
      * @param count the number of results to retrieve.
      * @return
      */
-    protected String getRequestUrl(String query, String sourceType, Language language, int offset, int count) {
+    protected String buildRequestUrl(String query, String sourceType, Language language, int offset, int count) {
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("http://api.bing.net/json.aspx");
-        queryBuilder.append("?AppId=").append(apiKey);
-        queryBuilder.append("&").append(sourceType).append(".Count=").append(count);
+        queryBuilder.append(BASE_SERVICE_URL);
+        queryBuilder.append(sourceType);
+        queryBuilder.append("?Query=%27").append(UrlHelper.urlEncode(query)).append("%27");
+        queryBuilder.append("&$top=").append(count);
         if (offset > 0) {
-            queryBuilder.append("&").append(sourceType).append(".Offset=").append(offset);
+            queryBuilder.append("$skip=").append(offset);
         }
-        queryBuilder.append("&Sources=").append(sourceType);
-        queryBuilder.append("&JsonType=raw");
-        queryBuilder.append("&Adult=Moderate");
+        queryBuilder.append("&$format=JSON");
         if (language != null) {
-            queryBuilder.append("&Market=").append(getLanguageString(language));
+            queryBuilder.append("&Market=%27").append(getLanguageString(language)).append("%27");
         }
-        queryBuilder.append("&Query=").append(UrlHelper.urlEncode(query));
         return queryBuilder.toString();
     }
 
     /**
      * <p>
-     * Transform the {@link Language} into a string identifier. See Bing API documentation for available
-     * language codes.
+     * Transform the {@link Language} into a string identifier. See Bing API documentation for available language codes.
      * </p>
      * 
      * @param language
@@ -221,20 +219,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     @Override
     public int getTotalResultCount(String query, Language language) throws SearcherException {
-        int hitCount = 0;
-        try {
-            String sourceType = getSourceType();
-            String requestUrl = getRequestUrl(query, sourceType, language, 0, 1);
-            JSONObject responseData = getResponseData(requestUrl, sourceType);
-            hitCount = responseData.getInt("Total");
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
-        } catch (JSONException e) {
-            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + ": " + e.getMessage(), e);
-        }
-        return hitCount;
+        throw new SearcherException("Getting the total result count is not supported in the new Bing API.");
     }
 
     /**

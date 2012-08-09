@@ -37,28 +37,8 @@
 			<artifactId>json</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.catnip</groupId>
-			<artifactId>eddie</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.temesoft</groupId>
-			<artifactId>google-pagerank-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-analyzers</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

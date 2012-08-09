@@ -18,8 +18,8 @@ public final class BingSearcher extends BaseBingSearcher<WebResult> {
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
      */
-    public BingSearcher(String apiKey) {
-        super(apiKey);
+    public BingSearcher(String accountKey) {
+        super(accountKey);
     }
 
     /**
