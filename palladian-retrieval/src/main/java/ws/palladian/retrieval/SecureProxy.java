@@ -1,17 +1,48 @@
 package ws.palladian.retrieval;
 
+import java.util.Date;
+
+import ws.palladian.helper.nlp.StringHelper;
+
 public class SecureProxy {
 
     private String ip;
     private int port;
-    private String username;
-    private String password;
+    private String username = "";
+    private String password = "";
+
+    /** The response time in milliseconds. */
+    private long responseTime;
 
     /** The time when this proxy was blocked. If null, the proxy was / is not blocked. */
-    private Long blockedTimestamp = null;
+    private Date lastBlocked = null;
+
+    /** Number of times we found that this proxy is blocked. */
+    private int blockCount = 0;
+
+    /** Number of times we found that this proxy is dead (connection timeouts etc.). */
+    private int deadCount = 0;
 
     /** The number of requests sent through this proxy. */
     private int requestsSent;
+
+    /** The last time the proxy was used. */
+    private Date lastUsed = null;
+
+    /**
+     * <p>
+     * Initialize a proxy with a string.
+     * </p>
+     * 
+     * @param proxyString Must be in the form of ip:port.
+     */
+    public SecureProxy(String proxyString) {
+        String host = StringHelper.clean(proxyString.substring(0, proxyString.indexOf(":")));
+        String port = proxyString.substring(proxyString.indexOf(":") + 1);
+        port = StringHelper.clean(port);
+        this.ip = host;
+        this.port = Integer.valueOf(port);
+    }
 
     public SecureProxy(String ip, int port, String username, String password) {
         super();
@@ -53,12 +84,12 @@ public class SecureProxy {
         this.password = password;
     }
 
-    public Long getBlockedTimestamp() {
-        return blockedTimestamp;
+    public Date getLastBlocked() {
+        return lastBlocked;
     }
 
-    public void setBlockedTimestamp(Long blockedTimestamp) {
-        this.blockedTimestamp = blockedTimestamp;
+    public void setLastBlocked(Date blockedTimestamp) {
+        this.lastBlocked = blockedTimestamp;
     }
 
     public int getRequestsSent() {
@@ -69,11 +100,51 @@ public class SecureProxy {
         this.requestsSent++;
     }
 
+    public long getResponseTime() {
+        return responseTime;
+    }
+
+    public void setResponseTime(long responseTime) {
+        this.responseTime = responseTime;
+    }
+
+    public Date getLastUsed() {
+        return lastUsed;
+    }
+
+    public void setLastUsed(Date lastUsedTimestamp) {
+        this.lastUsed = lastUsedTimestamp;
+    }
+
+    public int getBlockCount() {
+        return blockCount;
+    }
+
+    public void setBlockCount(int blockCount) {
+        this.blockCount = blockCount;
+    }
+
+    public void increaseBlockCount() {
+        this.blockCount++;
+    }
+
+    public int getDeadCount() {
+        return deadCount;
+    }
+
+    public void setDeadCount(int deadCount) {
+        this.deadCount = deadCount;
+    }
+
+    public void increaseDeadCount() {
+        this.deadCount++;
+    }
+
     @Override
     public String toString() {
         return "SecureProxy [ip=" + ip + ", port=" + port + ", username=" + username + ", password=" + password
-                + ", blockedTimestamp=" + blockedTimestamp + ", requestsSend=" + requestsSent + "]";
+                + ", responseTime=" + responseTime + ", blockedTimestamp=" + lastBlocked + ", requestsSent="
+                + requestsSent + "]";
     }
-
 
 }

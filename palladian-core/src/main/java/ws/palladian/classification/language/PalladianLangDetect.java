@@ -10,7 +10,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
@@ -243,15 +242,15 @@ public class PalladianLangDetect extends LanguageClassifier {
         // String languageModelPath =
         // "C:\\My Dropbox\\KeywordExtraction\\palladianLanguageJRC_o\\palladianLanguageJRC.gz";
         //
-        PalladianLangDetect pld0 = new PalladianLangDetect("data/models/language/wikipedia76Languages20ipc.gz");
-        // PalladianLangDetect pld0 = new PalladianLangDetect("data/models/language/languageMicroblogging.gz");
-        String language = pld0.classify("This is a sample text in English");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Das ist ein Beispieltext auf Deutsch");
-        System.out.println("The text was classified as: " + language);
-        language = pld0.classify("Se trata de un texto de muestra en español");
-        System.out.println("The text was classified as: " + language);
-        System.exit(0);
+        // PalladianLangDetect pld0 = new PalladianLangDetect("data/models/language/wikipedia76Languages20ipc.gz");
+        // // PalladianLangDetect pld0 = new PalladianLangDetect("data/models/language/languageMicroblogging.gz");
+        // String language = pld0.classify("This is a sample text in English");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Das ist ein Beispieltext auf Deutsch");
+        // System.out.println("The text was classified as: " + language);
+        // language = pld0.classify("Se trata de un texto de muestra en español");
+        // System.out.println("The text was classified as: " + language);
+        // System.exit(0);
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// find the best performing settings ///////////////////
@@ -262,16 +261,16 @@ public class PalladianLangDetect extends LanguageClassifier {
         // ////////////////////////////////////////////////////////////////
 
         // ///////////////// learn from a given dataset ///////////////////
-        String datasetRootFolder = "H:\\PalladianData\\Datasets\\JRCLanguageCorpus";
+        // String datasetRootFolder = "H:\\PalladianData\\Datasets\\JRCLanguageCorpus";
 
         // // create an index over the dataset
-        DatasetManager dsManager = new DatasetManager();
+        // DatasetManager dsManager = new DatasetManager();
         // String path = dsManager.createIndex(datasetRootFolder, new String[] { "en", "es", "de" });
         // String path = dsManager.createIndex(datasetRootFolder);
         //
         // // create an excerpt with 1000 instances per class
-        String indexExcerpt = dsManager.createIndexExcerpt(
-                "H:\\PalladianData\\Datasets\\Wikipedia76Languages\\languageDocumentIndex.txt", " ", 20);
+        // String indexExcerpt = dsManager.createIndexExcerpt(
+        // "H:\\PalladianData\\Datasets\\Wikipedia76Languages\\languageDocumentIndex.txt", " ", 20);
         //
         // // specify the dataset that should be used as training data
         Dataset dataset = new Dataset();
@@ -280,15 +279,17 @@ public class PalladianLangDetect extends LanguageClassifier {
         dataset.setFirstFieldLink(true);
 
         // set the path to the dataset, the first field is a link, and columns are separated with a space
-        // dataset.setPath("H:\\PalladianData\\Datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20.txt");
+        dataset.setPath("H:\\PalladianData\\Datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20.txt");
         // dataset.setPath("H:\\PalladianData\\Datasets\\Microblogging35Languages\\languageDocumentIndex.txt");
         // dataset.setPath("H:\\PalladianData\\Datasets\\Wikipedia76Languages\\languageDocumentIndex.txt");
-        dataset.setPath(indexExcerpt);
+        // dataset.setPath(indexExcerpt);
 
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
 
-        PalladianLangDetect.train(dataset, "wikipedia76Languages20ipc", "data/models/palladian/language/");
+        PalladianLangDetect.train(dataset, "jrc22Languages20ipc", "data/models/palladian/language/");
+        // PalladianLangDetect.train(dataset, "microblogging35Languages", "data/models/palladian/language/");
+        // PalladianLangDetect.train(dataset, "wikipedia76Languages20ipc", "data/models/palladian/language/");
         // ////////////////////////////////////////////////////////////////
 
     }

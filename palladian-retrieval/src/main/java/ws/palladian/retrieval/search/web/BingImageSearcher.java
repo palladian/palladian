@@ -16,8 +16,8 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
      */
-    public BingImageSearcher(String apiKey) {
-        super(apiKey);
+    public BingImageSearcher(String accountKey) {
+        super(accountKey);
     }
 
     /**

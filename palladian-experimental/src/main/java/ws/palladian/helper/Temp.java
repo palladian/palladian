@@ -592,7 +592,7 @@ public class Temp {
         
         DocumentRetriever dret = new DocumentRetriever();
         Document webDocument = dret.getWebDocument(googlePage);
-        List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(webDocument, XPathHelper.addXhtmlNsToXPath("//div[4]/div/div/div[9]/span/div/table/tr/td/a"));
+        List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(webDocument, "//div[4]/div/div/div[9]/span/div/table/tr/td/a");
         List<String> paginationUrls = new ArrayList<String>();
         for (Node n : paginationCandidates) {
             paginationUrls.add(n.getAttributes().getNamedItem("href").getTextContent());

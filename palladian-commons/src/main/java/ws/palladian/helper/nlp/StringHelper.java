@@ -533,27 +533,50 @@ public final class StringHelper {
     }
 
     public static String removeWord(String word, String searchString) {
-        return replaceWord(word, " ", searchString);
+        return removeDoubleWhitespaces(replaceWord(word, "", searchString));
     }
 
     public static String replaceWord(String word, String replacement, String searchString) {
-        String allowedNeighbors = "[\\s,.;\\-´\"']";
 
-        word = escapeForRegularExpression(word);
-
-        String regexp = "(?<=" + allowedNeighbors + ")" + word + "(?=" + allowedNeighbors + ")" + "|(^" + word
-                + allowedNeighbors + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
-
-        Pattern pat = null;
-        try {
-            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
-        } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+        if (word.isEmpty()) {
             return searchString;
         }
-        Matcher m = pat.matcher(searchString);
 
-        searchString = m.replaceAll(replacement).trim();
+        word = word.toLowerCase();
+        String searchStringLc = searchString.toLowerCase();
+
+        int oldIndex = 0;
+        int index = 0;
+        do {
+            index = searchStringLc.indexOf(word, oldIndex);
+            if (index == -1) {
+                return searchString;
+            }
+            oldIndex = index + word.length();
+
+            boolean leftBorder;
+            if (index == 0) {
+                leftBorder = true;
+            } else {
+                char prevChar = searchStringLc.charAt(index - 1);
+                leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
+            }
+            boolean rightBorder;
+            if (index + word.length() == searchStringLc.length()) {
+                rightBorder = true;
+            } else {
+                char nextChar = searchStringLc.charAt(index + word.length());
+                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
+            }
+
+            // if word exists, cut it out and replace with replacement
+            if (leftBorder && rightBorder) {
+                String before = searchString.substring(0, index);
+                String after = searchString.substring(oldIndex);
+                searchString = before + replacement + after;
+            }
+
+        } while (index > -1);
 
         return searchString;
     }

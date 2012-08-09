@@ -195,11 +195,11 @@ public class HttpRetriever {
      * <table>
      * <tr>
      * <td>connection timeout</td>
-     * <td>10 milliseconds</td>
+     * <td>10 seconds</td>
      * </tr>
      * <tr>
      * <td>socket timeout</td>
-     * <td>180 milliseconds</td>
+     * <td>180 seconds</td>
      * </tr>
      * <tr>
      * <td>retries</td>
@@ -222,10 +222,10 @@ public class HttpRetriever {
      * Creates a new HTTP retriever with the supplied parameters.
      * </p>
      * 
-     * @param connectionTimeout
-     * @param socketTimeout
-     * @param numRetries
-     * @param numConnections
+     * @param connectionTimeout The connection timeout in milliseconds.
+     * @param socketTimeout The socket timeout in milliseconds.
+     * @param numRetries The number of retries, if a request fails.
+     * @param numConnections The maximum number of simultaneous connections.
      */
     // TODO visibility should be set to protected, as instances are created by the factory
     public HttpRetriever(int connectionTimeout, int socketTimeout, int numRetries, int numConnections) {

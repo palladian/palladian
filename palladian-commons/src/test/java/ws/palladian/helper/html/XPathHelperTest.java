@@ -1,8 +1,10 @@
 package ws.palladian.helper.html;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import ws.palladian.helper.io.ResourceHelper;
@@ -31,35 +35,21 @@ public class XPathHelperTest {
 
     @Test
     public void testAddNamespaceToXPath() {
-        assertEquals(XPathHelper.addXhtmlNsToXPath("//TABLE/TR/TD/A[4]"), "//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
-        assertEquals(XPathHelper.addXhtmlNsToXPath("/TABLE/TR/TD/A[4]"), "/xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
-        assertEquals(XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A"), "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A");
-        assertEquals(XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A/text()"),
-                "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A/text()");
+        assertEquals("//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]", XPathHelper.addXhtmlNsToXPath("//TABLE/TR/TD/A[4]"));
+        assertEquals("/xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]", XPathHelper.addXhtmlNsToXPath("/TABLE/TR/TD/A[4]"));
+        assertEquals("/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A", XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A"));
+        assertEquals("/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A/text()", XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A/text()"));
 
-        // TODO assertEquals(XPathHelper.addXhtmlNsToXPath("//a[img]"), "//xhtml:a[xhtml:img]");
+        assertEquals("//xhtml:a[xhtml:img]", XPathHelper.addXhtmlNsToXPath("//a[img]"));
+        assertEquals("xhtml:img", XPathHelper.addXhtmlNsToXPath("img"));
+        assertEquals("//xhtml:*", XPathHelper.addXhtmlNsToXPath("//*"));
+        
+        assertEquals("//xhtml:link[@rel='application/atom+xml']", XPathHelper.addXhtmlNsToXPath("//link[@rel='application/atom+xml']"));
+        assertEquals(
+                "//xhtml:link[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and (translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]", 
+                XPathHelper.addXhtmlNsToXPath("//link[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and (translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]"));
 
     }
-
-    // FIXME needs to be re-added
-    // @Test
-    // public void testGetXhtmlChildNodes() throws FileNotFoundException, ParserException {
-    //
-    // Document doc = htmlParser.parse(ResourceHelper.getResourceStream("/webPages/NekoTableTestcase1.html"));
-    //
-    // List<Node> rows = XPathHelper.getXhtmlNodes(doc, "//table/tr");
-    // assertEquals(3, rows.size());
-    //
-    // for (Node row : rows) {
-    //
-    // // iterate over TDs
-    // List<Node> cells = XPathHelper.getXhtmlChildNodes(row, "//td"); // does not work EDIT: now it does
-    // assertEquals(3, cells.size());
-    //
-    // cells = XPathHelper.getXhtmlChildNodes(row, "*"); // infinite loop? EDIT: yes, stupid me :) solved.
-    // assertEquals(3, cells.size());
-    // }
-    // }
 
     @Test
     public void testGetElementById() throws ParserConfigurationException, SAXException, IOException {
@@ -92,12 +82,38 @@ public class XPathHelperTest {
         assertEquals(1, nodes.size());
 
     }
+    
+    @Test
+    public void testGetNodes() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+        Document doc = parse(ResourceHelper.getResourceFile("/w3c_xhtml_strict.html"));
+        List<Node> tocNodes = XPathHelper.getXhtmlNodes(doc, "//div[@class='toc']");
+        assertEquals(2, tocNodes.size());
+        
+        Node firstTocNode = XPathHelper.getXhtmlNode(doc, "//body/div[@class='toc']");
+        assertNotNull(firstTocNode);
+        
+        List<Node> tocItems = XPathHelper.getXhtmlChildNodes(firstTocNode, "ul/li");
+        assertEquals(10, tocItems.size());
+        
+        List<Node> tocItems2 = XPathHelper.getXhtmlChildNodes(firstTocNode, "ul/*");
+        assertEquals(10, tocItems2.size());
+    }
 
     private final Document parse(File file) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new XhtmlEntityResolver());
         return documentBuilder.parse(file);
+    }
+    
+    private static final class XhtmlEntityResolver implements EntityResolver {
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            String fileName = systemId.substring(systemId.lastIndexOf("/"));
+            return new InputSource(ResourceHelper.getResourceStream(fileName));
+        }
+        
     }
 
 }

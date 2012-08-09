@@ -28,8 +28,8 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideoResult> {
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
      */
-    public BingVideoSearcher(String apiKey) {
-        super(apiKey);
+    public BingVideoSearcher(String accountKey) {
+        super(accountKey);
     }
 
     @Override
@@ -40,7 +40,7 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideoResult> {
     @Override
     protected WebVideoResult parseResult(JSONObject currentResult) throws JSONException {
         String title = currentResult.getString("Title");
-        String url = currentResult.getString("PlayUrl");
+        String url = currentResult.getString("MediaUrl");
         // interpret a value of "0", as "no run time specified"
         Long runTime = currentResult.getLong("RunTime");
         if (runTime == 0) {

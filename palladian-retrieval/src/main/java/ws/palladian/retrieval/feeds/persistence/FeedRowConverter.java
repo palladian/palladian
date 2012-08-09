@@ -3,6 +3,8 @@ package ws.palladian.retrieval.feeds.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
@@ -35,7 +37,11 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setNewestItemHash(resultSet.getString("newestItemHash"));
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setHttpLastModified(resultSet.getTimestamp("lastModified"));
-        feed.setLastFeedTaskResult(FeedTaskResult.valueOf(resultSet.getString("lastResult")));
+        try {
+            feed.setLastFeedTaskResult(FeedTaskResult.valueOf(resultSet.getString("lastResult")));
+        } catch (NullPointerException e) {
+            Logger.getRootLogger().warn("the lastResult of the feed was set to null");
+        }
         feed.setActivityPattern(FeedActivityPattern.fromIdentifier(resultSet.getInt("activityPattern")));
         feed.getMetaInformation().setFeedFormat(resultSet.getString("feedFormat"));
         feed.getMetaInformation().setByteSize(resultSet.getLong("feedSize"));

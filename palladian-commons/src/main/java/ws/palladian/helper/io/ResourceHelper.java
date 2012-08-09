@@ -9,7 +9,10 @@ import java.net.URLDecoder;
 
 /**
  * <p>
- * Helper class to handle resources.
+ * Helper class to handle resources. <b>Attention:</b> This class is only intended to load resources in JUnit tests, it
+ * is <b>not</b> intended to be used in "regular" code, as the mechanism for loading resources depends on the current
+ * {@link Thread}'s class loader (<code>Thread.currentThread().getContentClassLoader()</code>). This will fail in OSGi
+ * environments where different class loaders are used for different bundles.
  * </p>
  * 
  * @author Philipp Katz
@@ -79,8 +82,7 @@ public class ResourceHelper {
      */
     public static File getResourceFile(String resourceLocation) throws FileNotFoundException {
         String resourcePath = getResourcePath(resourceLocation);
-        File file = new File(resourcePath);
-        return file;
+        return new File(resourcePath);
     }
 
     /**
@@ -98,7 +100,7 @@ public class ResourceHelper {
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceLocation);
 
         if (inputStream == null) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(resourceLocation + " could not be found or accessed");
         }
 
         return inputStream;
