@@ -33,7 +33,7 @@ public class HeadDateGetterTest {
     @Test
     public void testGetHeadDates() throws FileNotFoundException, ParserException {
         DocumentParser htmlParser = ParserFactory.createHtmlParser();
-        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webpages/dateExtraction/zeit2.htm"));
+        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm"));
         HeadDateGetter headDateGetter = new HeadDateGetter();
 
         headDateGetter.setDocument(document);

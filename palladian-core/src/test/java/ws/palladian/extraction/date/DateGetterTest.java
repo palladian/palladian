@@ -52,7 +52,7 @@ public class DateGetterTest {
     // @Ignore
     @Test
     public void testGetContentDates2() throws FileNotFoundException {
-        final String url = ResourceHelper.getResourcePath("/webpages/dateExtraction/Bangkok.htm");
+        final String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/Bangkok.htm");
 
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper
