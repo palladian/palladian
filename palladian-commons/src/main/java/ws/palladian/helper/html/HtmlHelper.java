@@ -32,22 +32,16 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
-import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.html.HTMLDocument;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.io.StringInputStream;
 
 /**
  * <p>
@@ -57,7 +51,7 @@ import ws.palladian.helper.io.StringInputStream;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class HtmlHelper {
+public final class HtmlHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(HtmlHelper.class);
@@ -369,49 +363,50 @@ public class HtmlHelper {
         return result;
     }
 
-    /**
-     * <p>
-     * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
-     * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
-     * whitespace is handled more correctly than in {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}
-     * which never worked well for me.
-     * </p>
-     * TODO: "namespace not declared errors"
-     * 
-     * @param html
-     * @param oneLine
-     * @return
-     * @author Philipp Katz
-     */
-    public static String documentToReadableText(String html, boolean oneLine) {
-
-        String result;
-
-        try {
-
-            DOMFragmentParser parser = new DOMFragmentParser();
-            HTMLDocument document = new HTMLDocumentImpl();
-
-            // see http://nekohtml.sourceforge.net/usage.html
-            DocumentFragment fragment = document.createDocumentFragment();
-            parser.parse(new InputSource(new StringInputStream(html)), fragment);
-            result = documentToReadableText(fragment);
-
-        } catch (Exception e) {
-
-            // parser failed -> fall back, remove tags directly from the string without parsing
-            LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
-            result = stripHtmlTags(html, true, true, true, false);
-
-        }
-
-        if (oneLine) {
-            result = result.replaceAll("\n", " ");
-            result = result.replaceAll(" {2,}", " ");
-        }
-
-        return result;
-    }
+//    /**
+//     * <p>
+//     * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
+//     * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
+//     * whitespace is handled more correctly than in {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}
+//     * which never worked well for me.
+//     * </p>
+//     * TODO: "namespace not declared errors"
+//     * 
+//     * @param html
+//     * @param oneLine
+//     * @return
+//     * @author Philipp Katz
+//     */
+//    @Deprecated
+//    public static String documentToReadableText(String html, boolean oneLine) {
+//
+//        String result;
+//
+//        try {
+//
+//            DOMFragmentParser parser = new DOMFragmentParser();
+//            HTMLDocument document = new HTMLDocumentImpl();
+//
+//            // see http://nekohtml.sourceforge.net/usage.html
+//            DocumentFragment fragment = document.createDocumentFragment();
+//            parser.parse(new InputSource(new StringInputStream(html)), fragment);
+//            result = documentToReadableText(fragment);
+//
+//        } catch (Exception e) {
+//
+//            // parser failed -> fall back, remove tags directly from the string without parsing
+//            LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
+//            result = stripHtmlTags(html, true, true, true, false);
+//
+//        }
+//
+//        if (oneLine) {
+//            result = result.replaceAll("\n", " ");
+//            result = result.replaceAll(" {2,}", " ");
+//        }
+//
+//        return result;
+//    }
 
     /**
      * <p>
@@ -722,51 +717,52 @@ public class HtmlHelper {
         }
     }
 
-    /**
-     * <p>
-     * Get the sub tree of the document or node as text without tags. You could also use {@link documentToHTMLString}
-     * and {@link htmlToReadableText} to achieve similar results.
-     * </p>
-     * 
-     * @param node The node from where to start.
-     * @return A text representation of the node and its sub nodes without tags.
-     */
-    public static String documentToText(Node node) {
-
-        // ignore css and script nodes
-        if (node == null || node.getNodeName() == null || node.getNodeName().equalsIgnoreCase("script")
-                || node.getNodeName().equalsIgnoreCase("style") || node.getNodeName().equalsIgnoreCase("#comment")
-                || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta")
-                || node.getNodeName().equalsIgnoreCase("head")) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        // System.out.println(node.getNodeName()+node.getTextContent());
-        if (node.getTextContent() != null) {
-
-            if (node.getNodeName().equalsIgnoreCase("#text")) {
-                sb.append(node.getTextContent().trim()).append(" ");
-            }
-
-        }
-        if (isWrappingNode(node)) {
-            sb.append("\n");
-        }
-
-        try {
-            Node child = node.getFirstChild();
-            while (child != null) {
-                sb.append(documentToText(child));
-                child = child.getNextSibling();
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return sb.toString().replaceAll("[ ]{2,}", "");
-    }
+//    /**
+//     * <p>
+//     * Get the sub tree of the document or node as text without tags. You could also use {@link documentToHTMLString}
+//     * and {@link htmlToReadableText} to achieve similar results.
+//     * </p>
+//     * 
+//     * @param node The node from where to start.
+//     * @return A text representation of the node and its sub nodes without tags.
+//     */
+//    @Deprecated
+//    public static String documentToText(Node node) {
+//
+//        // ignore css and script nodes
+//        if (node == null || node.getNodeName() == null || node.getNodeName().equalsIgnoreCase("script")
+//                || node.getNodeName().equalsIgnoreCase("style") || node.getNodeName().equalsIgnoreCase("#comment")
+//                || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta")
+//                || node.getNodeName().equalsIgnoreCase("head")) {
+//            return "";
+//        }
+//
+//        StringBuilder sb = new StringBuilder();
+//
+//        // System.out.println(node.getNodeName()+node.getTextContent());
+//        if (node.getTextContent() != null) {
+//
+//            if (node.getNodeName().equalsIgnoreCase("#text")) {
+//                sb.append(node.getTextContent().trim()).append(" ");
+//            }
+//
+//        }
+//        if (isWrappingNode(node)) {
+//            sb.append("\n");
+//        }
+//
+//        try {
+//            Node child = node.getFirstChild();
+//            while (child != null) {
+//                sb.append(documentToText(child));
+//                child = child.getNextSibling();
+//            }
+//        } catch (Exception e) {
+//            LOGGER.error(e.getMessage());
+//        }
+//
+//        return sb.toString().replaceAll("[ ]{2,}", "");
+//    }
 
     // TODO doesn't this belong to PageAnalyzer (actually it was there in the past)
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
@@ -843,23 +839,23 @@ public class HtmlHelper {
         return "";
     }
 
-    // FIXME -- wrapping node == block level element (see constant).
-    private static boolean isWrappingNode(Node node) {
-
-        String nodeName = node.getNodeName().toLowerCase();
-
-        Set<String> wrappingNodes = new HashSet<String>();
-        wrappingNodes.add("p");
-        wrappingNodes.add("div");
-        wrappingNodes.add("td");
-        wrappingNodes.add("h1");
-        wrappingNodes.add("h2");
-        wrappingNodes.add("h3");
-        wrappingNodes.add("h4");
-        wrappingNodes.add("h5");
-        wrappingNodes.add("h6");
-        wrappingNodes.add("li");
-        return wrappingNodes.contains(nodeName);
-    }
+//    // FIXME -- wrapping node == block level element (see constant).
+//    private static boolean isWrappingNode(Node node) {
+//
+//        String nodeName = node.getNodeName().toLowerCase();
+//
+//        Set<String> wrappingNodes = new HashSet<String>();
+//        wrappingNodes.add("p");
+//        wrappingNodes.add("div");
+//        wrappingNodes.add("td");
+//        wrappingNodes.add("h1");
+//        wrappingNodes.add("h2");
+//        wrappingNodes.add("h3");
+//        wrappingNodes.add("h4");
+//        wrappingNodes.add("h5");
+//        wrappingNodes.add("h6");
+//        wrappingNodes.add("li");
+//        return wrappingNodes.contains(nodeName);
+//    }
 
 }
