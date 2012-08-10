@@ -147,7 +147,7 @@ public abstract class RuleBasedPageClassifier<T> {
         // HTMLHelper.documentToHTMLString(document)));
 
         setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(),
-                HtmlHelper.documentToText(document)));
+                HtmlHelper.documentToReadableText(document)));
 
         // setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(),
         // pse.getSentencesString()));
