@@ -18,8 +18,8 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.date.DateGetterHelper;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.LocalizeHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
@@ -157,7 +157,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      */
     static Date convertSQLDateTimeToDate(final String dateTime) throws Exception {
         LocalizeHelper.setUTCandEnglish();
-        Date date = DateGetterHelper.findDate(dateTime).getNormalizedDate();
+        Date date = DateParser.findDate(dateTime).getNormalizedDate();
         LocalizeHelper.restoreTimeZoneAndLocale();
         return date;
     }

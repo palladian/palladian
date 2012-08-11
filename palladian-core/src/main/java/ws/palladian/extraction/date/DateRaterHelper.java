@@ -1,22 +1,22 @@
 package ws.palladian.extraction.date;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.KeywordDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.ExtractedDateHelper;
-import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 
 /**
- * This class contains methods to help DateRate to rate dates. Like the name said.
+ * This class contains methods to help DateRate to rate dates.
  * 
- * @author Martin Greogr
+ * @author Martin Gregor
  * 
  */
 public class DateRaterHelper {
@@ -28,12 +28,22 @@ public class DateRaterHelper {
      * @return
      */
     public static boolean isDateInRange(ExtractedDate date) {
-        ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
-        ExtractedDate end = ExtractedDateHelper.createActualDate();
-        DateComparator comp = new DateComparator();
-        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
-        boolean gt = comp.compare(begin, date, stopFlag) > -1;
-        boolean lt = comp.compare(date, end, stopFlag) > -1;
+        //ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
+        ExtractedDate begin = DateParser.parseDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T);
+        ExtractedDate end = new ExtractedDate();
+//        DateComparator comp = new DateComparator();
+//        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
+//        boolean gt = comp.compare(begin, date, stopFlag) > -1;
+//        boolean lt = comp.compare(date, end, stopFlag) > -1;
+//        return gt && lt;
+
+        DateExactness compareDepth = DateExactness.DAY;
+        if  (date.getExactness() != DateExactness.UNSET) {
+            compareDepth = DateExactness.getCommonExactness(DateExactness.DAY, date.getExactness());
+        }
+        DateComparator dateComparator = new DateComparator(compareDepth);
+        boolean gt = dateComparator.compare(begin, date) > -1;
+        boolean lt = dateComparator.compare(date, end) > -1;
         return gt && lt;
     }
 
@@ -78,22 +88,8 @@ public class DateRaterHelper {
 //        return temp;
 //    }
 
-    /**
-     * Increase the rate by 10 percent, if date sourrunding tag is a headline-tag.
-     * 
-     * @param contentDates
-     * @return
-     */
-    public static Map<ContentDate, Double> evaluateTag(Map<ContentDate, Double> contentDates) {
-        Map<ContentDate, Double> result = contentDates;
-        for (Entry<ContentDate, Double> e : contentDates.entrySet()) {
-            if (HtmlHelper.isHeadlineTag(e.getKey().getTag())) {
-                double newRate = (1 - e.getValue()) * 0.1 + e.getValue();
-                result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
-            }
-        }
-        return result;
-    }
+
+
 
     /**
      * Calculates the rate for dates.<br>
@@ -104,22 +100,8 @@ public class DateRaterHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> Map<T, Double> setRateWhightedByGroups(List<T> datesToSet, List<T> dates) {
-        return setRateWhightedByDates(datesToSet, dates);
-        // setRateWhightedByGroups(datesToSet, dates, DateComparator.STOP_DAY);
-    }
-
-    /**
-     * Calculates the rate for dates.<br>
-     * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
-     * Example: datesToSet.size()=5; 3/5 and 2/5.
-     * 
-     * @param <T>
-     * @param datesToSet
-     * @param dates
-     */
-    public static <T> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, int stopFlag) {
-        List<List<T>> groupedDates = DateArrayHelper.arrangeByDate(datesToSet, stopFlag);
+    public static <T extends ExtractedDate> void setRateWhightedByGroups(List<T> datesToSet, Map<T, Double> dates, DateExactness compareDepth) {
+        List<List<T>> groupedDates = DateArrayHelper.cluster(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {
                 double newRate = 1.0 * groupedDates.get(k).size() / datesToSet.size();
@@ -129,50 +111,27 @@ public class DateRaterHelper {
     }
 
     /**
-     * Calculates the rate for dates.<br>
-     * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
-     * Example: datesToSet.size()=5; 3/5 and 2/5.
-     * 
-     * @param <T>
-     * @param datesToSet
-     * @param dates
-     */
-    private static <T> Map<T, Double> setRateWhightedByDates(List<T> datesToSet, List<T> dates) {
-        HashMap<T, Double> resultDates = new HashMap<T, Double>();
-        for (int k = 0; k < datesToSet.size(); k++) {
-            int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, -1) + 1;
-            double newRate = 1.0 * contSame / dates.size();
-
-            resultDates.put(datesToSet.get(k), Math.round(newRate * 10000) / 10000.0);
-
-        }
-        return resultDates;
-    }
-
-    /**
-     * Sets for all dates from arraylist the rate-value to 0.0 in map.
+     * Sets for all dates from {@link List} the rate-value to 0.0 in map.
      * 
      * @param <T>
      * @param datesToBeSetZero
      * @param map
      */
     public static <T> void setRateToZero(List<T> datesToBeSetZero, Map<T, Double> map) {
-        setRat(datesToBeSetZero, map, 0.0);
-
+        setRate(datesToBeSetZero, map, 0.0);
     }
 
     /**
-     * Sets for all dates from arraylist the rate-value to given value in map.
+     * Sets for all dates from {@link List} the rate-value to given value in map.
      * 
      * @param <T>
      * @param datesToBeSetZero
      * @param map
      */
-    public static <T> void setRat(List<T> datesToBeSetZero, Map<T, Double> map, double rate) {
+    public static <T> void setRate(List<T> datesToBeSetZero, Map<T, Double> map, double rate) {
         for (int i = 0; i < datesToBeSetZero.size(); i++) {
             map.put(datesToBeSetZero.get(i), 0.0);
         }
-
     }
 
     /**
@@ -190,16 +149,15 @@ public class DateRaterHelper {
      * @param orginalDate
      * @param toCheckDate
      */
-    public static <T> void checkDayMonthYearOrder(T orginalDate, ExtractedDate toCheckDate) {
-        String[] formats = { RegExp.DATE_URL_D[1], RegExp.DATE_URL_MMMM_D[1], RegExp.DATE_ISO8601_YMD[1],
-                RegExp.DATE_ISO8601_YMD_NO[1] };
-        ExtractedDate orginal = (ExtractedDate) orginalDate;
+    public static <T extends ExtractedDate> void checkDayMonthYearOrder(T orginalDate, ExtractedDate toCheckDate) {
+        DateFormat[] formats = { RegExp.DATE_URL_D, RegExp.DATE_URL_MMMM_D, RegExp.DATE_ISO8601_YMD,
+                RegExp.DATE_ISO8601_YMD_NO };
 
         for (int i = 0; i < formats.length; i++) {
-            if (orginal.getFormat().equalsIgnoreCase(formats[i])) {
-                if (orginal.get(ExtractedDate.YEAR) == toCheckDate.get(ExtractedDate.YEAR)) {
-                    if (orginal.get(ExtractedDate.MONTH) == toCheckDate.get(ExtractedDate.DAY)
-                            && orginal.get(ExtractedDate.DAY) == toCheckDate.get(ExtractedDate.MONTH)) {
+            if (orginalDate.getFormat().equalsIgnoreCase(formats[i].getFormat())) {
+                if (orginalDate.get(ExtractedDate.YEAR) == toCheckDate.get(ExtractedDate.YEAR)) {
+                    if (orginalDate.get(ExtractedDate.MONTH) == toCheckDate.get(ExtractedDate.DAY)
+                            && orginalDate.get(ExtractedDate.DAY) == toCheckDate.get(ExtractedDate.MONTH)) {
                         int help = toCheckDate.get(ExtractedDate.MONTH);
                         toCheckDate.set(ExtractedDate.MONTH, toCheckDate.get(ExtractedDate.DAY));
                         toCheckDate.set(ExtractedDate.DAY, help);
@@ -217,7 +175,7 @@ public class DateRaterHelper {
      * @param date
      * @return
      */
-    public static byte getKeywordPriority(ExtractedDate date) {
+    public static <T extends KeywordDate> byte getKeywordPriority(T date) {
         byte keywordPriority = -1;
         String keyword = date.getKeyword();
         if (keyword != null) {
@@ -233,9 +191,9 @@ public class DateRaterHelper {
      * @param <T>
      * @param map
      */
-    public static <T> void writeRateInDate(Map<T, Double> map) {
+    public static <T extends ExtractedDate> void writeRateInDate(Map<T, Double> map) {
         for (Entry<T, Double> e : map.entrySet()) {
-            ((ExtractedDate) e.getKey()).setRate(e.getValue());
+            e.getKey().setRate(e.getValue());
         }
     }
 }

@@ -2,9 +2,10 @@ package ws.palladian.helper.io;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+import java.io.File;
+import java.io.FileNotFoundException;
 
-import ws.palladian.helper.io.FileHelper;
+import org.junit.Test;
 
 /**
  * Test cases for the FileHelper class.
@@ -48,4 +49,15 @@ public class FileHelperTest {
         assertEquals(false, FileHelper.isFileName(".just a sentence. "));
         assertEquals(false, FileHelper.isFileName("everything..."));
     }
+    
+    @Test
+    public void testRename() throws FileNotFoundException {
+        // System.out.println(FileHelper.rename(new
+        // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
+        String renamedFile = FileHelper.getRenamedFilename(new File(ResourceHelper.getResourcePath("/empty.txt")),
+                "empty_tagged");
+        renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
+        assertEquals("empty_tagged.txt", renamedFile);
+    }
+
 }

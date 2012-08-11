@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.nlp.StringHelper;
@@ -189,7 +189,7 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
                 }
 
                 try {
-                    final Date timestamp = DateGetterHelper.findDate(
+                    final Date timestamp = DateParser.findDate(
                             revision.getAttributes().getNamedItem("timestamp").getTextContent()).getNormalizedDate();
                     revisions.add(new Revision(revisionID, timestamp, author));
                 } catch (Exception e) {

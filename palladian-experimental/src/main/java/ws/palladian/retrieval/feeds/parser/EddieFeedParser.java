@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 import uk.org.catnip.eddie.Entry;
 import uk.org.catnip.eddie.FeedData;
 import uk.org.catnip.eddie.parser.Parser;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 
@@ -67,7 +67,7 @@ public final class EddieFeedParser extends BaseFeedParser implements FeedParser 
                 publishDate = entry.getModified();
             }
             try {
-                ExtractedDate extractedDate = DateGetterHelper.findDate(rawDate);
+                ExtractedDate extractedDate = DateParser.findDate(rawDate);
                 if (extractedDate != null) {
                     publishDate = extractedDate.getNormalizedDate();
                     LOGGER.debug("found publish date in original feed file: " + publishDate);

@@ -3,17 +3,16 @@ package ws.palladian.extraction.date.evaluation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.getter.HttpDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.HttpDateGetter;
-import ws.palladian.extraction.date.technique.HttpDateRater;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.date.DateConverter;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.DateType;
-import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
+import ws.palladian.extraction.date.rater.HttpDateRater;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 
 
 public class HttpEvaluator {
@@ -46,7 +45,7 @@ public class HttpEvaluator {
 		int wf = 0;
 		int counter=0;
 		int compare;
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
 			String tempDateString = "";
@@ -55,26 +54,28 @@ public class HttpEvaluator {
 			System.out.print("get dates... ");
 			
 			List<MetaDate> dates = new ArrayList<MetaDate>();
-			ExtractedDate dateDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_DATE));
-			MetaDate tempDate = DateConverter.convert(dateDate, DateType.MetaDate);
+			ExtractedDate dateDate = DateParser.findDate(e.getValue().get(DBExport.HEADER_DATE));
+			// MetaDate tempDate = DateConverter.convert(dateDate, DateType.MetaDate);
+			MetaDate tempDate = new MetaDate(dateDate);
 			if(tempDate != null){
 				dates.add(tempDate);
 			}
-			ExtractedDate lastDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_LAST));
-			tempDate = DateConverter.convert(lastDate, DateType.MetaDate);
+			ExtractedDate lastDate = DateParser.findDate(e.getValue().get(DBExport.HEADER_LAST));
+			//tempDate = DateConverter.convert(lastDate, DateType.MetaDate);
+			tempDate = new MetaDate(lastDate);
 			if(tempDate != null){
 				dates.add(tempDate);
 			}
 			
 			System.out.print("rate...");
 			
-			ExtractedDate downloadedDate = DateGetterHelper.findDate(e.getValue().get(DBExport.ACTUAL_DATE));
+			ExtractedDate downloadedDate = DateParser.findDate(e.getValue().get(DBExport.ACTUAL_DATE));
 			HashMap<MetaDate, Double> dateArray = dr.evaluateHTTPDate(dates, downloadedDate);
 			double rate = DateArrayHelper.getHighestRate(dateArray);
 			dates = DateArrayHelper.getRatedDates(dateArray, rate);
 			if(dates.size()>0 && dates.get(0) != null){
 				tempDate = dates.get(0);
-				tempDateString = tempDate.getNormalizedDate(true);
+				tempDateString = tempDate.getNormalizedDateString(true);
 				
 			}else{
 				tempDate = null;

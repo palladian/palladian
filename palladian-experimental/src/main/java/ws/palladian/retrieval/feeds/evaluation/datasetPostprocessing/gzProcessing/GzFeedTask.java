@@ -154,7 +154,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                 }
 
                 FeedParser feedParser = new RomeFeedParser();
-                HttpResult gzHttpResult = HttpRetriever.loadSerializedGzip(file);
+                HttpResult gzHttpResult = HttpRetriever.loadSerializedHttpResult(file);
 
                 correctedFeed.setLastPollTime(getChecktimeFromFile(file));
 

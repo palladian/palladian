@@ -100,7 +100,7 @@ public class ResourceHelper {
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceLocation);
 
         if (inputStream == null) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException(resourceLocation + " could not be found or accessed");
         }
 
         return inputStream;

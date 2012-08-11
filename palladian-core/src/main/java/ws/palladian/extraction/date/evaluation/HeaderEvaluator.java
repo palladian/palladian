@@ -9,19 +9,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.getter.HeadDateGetter;
+import ws.palladian.extraction.date.getter.TechniqueDateGetter;
+import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.HeadDateGetter;
-import ws.palladian.extraction.date.technique.HeadDateRater;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.extraction.date.technique.TechniqueDateGetter;
-import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.UrlDateGetter;
+import ws.palladian.extraction.date.rater.HeadDateRater;
+import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
 
@@ -74,7 +76,7 @@ public class HeaderEvaluator {
 		int counter=0;
 		int compare;
 		
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
@@ -98,7 +100,7 @@ public class HeaderEvaluator {
 			List<T> list = dg.getDates();
 			timer.stop();
 			timer.getElapsedTimeString(true);
-			list = DateArrayHelper.removeNull(list);
+			CollectionHelper.removeNulls(list);
 			
 			if(list.size() > 0){
 				
@@ -117,7 +119,7 @@ public class HeaderEvaluator {
 					//System.out.print("best date... ");
 					bestDate = (T) dr.getBestDate();
 					if(bestDate != null){
-						bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+						bestDateString = ((ExtractedDate) bestDate).getNormalizedDateString(true);
 					}
 				}
 			}
@@ -127,10 +129,10 @@ public class HeaderEvaluator {
 			ExtractedDate date;
 			String dbExportDateString;
 			if(pub_mod == DBExport.PUB_DATE){
-				date = DateGetterHelper.findDate(e.getValue().getPubDate());
+				date = DateParser.findDate(e.getValue().getPubDate());
 				dbExportDateString =" - pubDate:" ;
 			}else{
-				date = DateGetterHelper.findDate(e.getValue().getModDate());
+				date = DateParser.findDate(e.getValue().getModDate());
 				dbExportDateString =" - modDate:" ;
 			}
 			
@@ -181,14 +183,14 @@ public class HeaderEvaluator {
 	
 	
 	private static void countHeadURls(String in, String out, HeadDateGetter dg){
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(in);
+		Map<String, DBExport> set = EvaluationHelper.readFile(in);
 		ArrayList<DBExport> headSet = new ArrayList<DBExport>();
 		DocumentRetriever c = new DocumentRetriever();
 		int index=0;
 		for(Entry<String, DBExport> e : set.entrySet()){
 			System.out.println(index + ": " + e.getKey());
 			dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
-			ArrayList<MetaDate> dates = dg.getDates();
+			List<MetaDate> dates = dg.getDates();
 			if(dates.size() != 0){
 				headSet.add(e.getValue());
 			}
@@ -229,7 +231,7 @@ public class HeaderEvaluator {
 						String url = line.substring(indexStart + 1, indexEnd);
 						System.out.println(lineindex + ": " + url);
 						dg.setDocument(c.getWebDocument(url));
-						ArrayList<MetaDate> dates = dg.getDates();
+						List<MetaDate> dates = dg.getDates();
 						if(!dates.isEmpty()){
 							System.out.println("+");
 							headSet.add(line);
@@ -263,11 +265,11 @@ public class HeaderEvaluator {
 	
 	private static void mergeUrlsets(String in1, String in2, String out){
 			
-			HashMap<String, DBExport> set1 = EvaluationHelper.readFile(in1);
-			HashMap<String, DBExport> set2 = EvaluationHelper.readFile(in2);
+			Map<String, DBExport> set1 = EvaluationHelper.readFile(in1);
+			Map<String, DBExport> set2 = EvaluationHelper.readFile(in2);
 			System.out.println(set1.size());
 			System.out.println(set2.size());
-			HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
+			Map<String, DBExport> merged = new HashMap<String, DBExport>();
 			merged.putAll(set1);
 			merged.putAll(set2);
 			String separator = EvaluationHelper.SEPARATOR;
@@ -282,7 +284,7 @@ public class HeaderEvaluator {
 					
 					dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
 					
-					ArrayList<MetaDate> headDates = dg.getDates();
+					List<MetaDate> headDates = dg.getDates();
 					System.out.println(headDates.size());					
 					if(headDates.size()>0){
 					

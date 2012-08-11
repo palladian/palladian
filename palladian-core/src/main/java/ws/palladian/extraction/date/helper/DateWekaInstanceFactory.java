@@ -10,9 +10,9 @@ import java.io.StringReader;
 import weka.core.Instance;
 import weka.core.Instances;
 import ws.palladian.extraction.date.KeyWords;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringOutputStream;
 
@@ -21,7 +21,7 @@ import ws.palladian.helper.io.StringOutputStream;
  * 
  * @author Martin Gregor
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class DateWekaInstanceFactory {
 
@@ -146,7 +146,7 @@ public class DateWekaInstanceFactory {
 
         String keyword = (keywordString.indexOf(" ") > -1) ? "'"
                 + keywordString + "'" : keywordString;
-        String excatness = String.valueOf(date.getExactness());
+        String excatness = String.valueOf(date.getExactness().getValue());
 
         String keyLoc201 = date.getKeyLoc201() + ".0";
         String keyLoc202 = date.getKeyLoc202() + ".0";
@@ -168,7 +168,7 @@ public class DateWekaInstanceFactory {
     }
 
     private static boolean isInstance(ContentDate date) {
-        boolean resultExactness = date.get(ExtractedDate.EXACTENESS) >= 3 ? true
+        boolean resultExactness = date.getExactness().getValue() >= 3 ? true
                 : false;
         boolean resultFormat = isNormalFormat(date.getFormat()) ? true
                 : ((changeFormat(date.getFormat()) != null) ? true : false);

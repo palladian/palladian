@@ -2,12 +2,10 @@ package ws.palladian.helper.date;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,37 +124,77 @@ public class DateHelper {
         return getCurrentDatetime("yyyy-MM-dd_HH-mm-ss");
     }
 
-    public static String monthNameToNumber(String monthName) {
-        monthName = monthName.toLowerCase().trim();
-
-        if (monthName.equals("january") || monthName.equals("jan")) {
-            return "01";
-        } else if (monthName.equals("february") || monthName.equals("feb")) {
-            return "02";
-        } else if (monthName.equals("march") || monthName.equals("mar")) {
-            return "03";
-        } else if (monthName.equals("april") || monthName.equals("apr")) {
-            return "04";
-        } else if (monthName.equals("may")) {
-            return "05";
-        } else if (monthName.equals("june") || monthName.equals("jun")) {
-            return "06";
-        } else if (monthName.equals("july") || monthName.equals("jul")) {
-            return "07";
-        } else if (monthName.equals("august") || monthName.equals("aug")) {
-            return "08";
-        } else if (monthName.equals("september") || monthName.equals("sep")) {
-            return "09";
-        } else if (monthName.equals("october") || monthName.equals("oct")) {
-            return "10";
-        } else if (monthName.equals("november") || monthName.equals("nov")) {
-            return "11";
-        } else if (monthName.equals("december") || monthName.equals("dec")) {
-            return "12";
+    /**
+     * <p>Convert the supplied month name to a number.</p>
+     * @param monthName The month name to convert to number, not <code>null</code>.
+     * @return The number for the month name, or <code>-1</code> if no month was recognized.
+     */
+    public static int monthNameToNumber(String monthName) {
+        
+//        monthName = monthName.toLowerCase().trim();
+//
+//        if (monthName.equals("january") || monthName.equals("jan")) {
+//            return "01";
+//        } else if (monthName.equals("february") || monthName.equals("feb")) {
+//            return "02";
+//        } else if (monthName.equals("march") || monthName.equals("mar")) {
+//            return "03";
+//        } else if (monthName.equals("april") || monthName.equals("apr")) {
+//            return "04";
+//        } else if (monthName.equals("may")) {
+//            return "05";
+//        } else if (monthName.equals("june") || monthName.equals("jun")) {
+//            return "06";
+//        } else if (monthName.equals("july") || monthName.equals("jul")) {
+//            return "07";
+//        } else if (monthName.equals("august") || monthName.equals("aug")) {
+//            return "08";
+//        } else if (monthName.equals("september") || monthName.equals("sep")) {
+//            return "09";
+//        } else if (monthName.equals("october") || monthName.equals("oct")) {
+//            return "10";
+//        } else if (monthName.equals("november") || monthName.equals("nov")) {
+//            return "11";
+//        } else if (monthName.equals("december") || monthName.equals("dec")) {
+//            return "12";
+//        }
+//
+//        // no valid month name given
+//        return "";
+        
+        
+        String month = monthName;
+        month = month.replaceAll(",", "");
+        month = month.replaceAll("\\.", "");
+        month = month.replaceAll(" ", "");
+        month = month.toLowerCase();
+        int monthNumber = -1;
+        if (month.equals("january") || month.equals("januar") || month.equals("jan")) {
+            monthNumber = 1;
+        } else if (month.equals("february") || month.equals("februar") || month.equals("feb")) {
+            monthNumber = 2;
+        } else if (month.equals("march") || month.equals("märz") || month.equals("mär") || month.equals("mar")) {
+            monthNumber = 3;
+        } else if (month.equals("april") || month.equals("apr")) {
+            monthNumber = 4;
+        } else if (month.equals("may") || month.equals("mai") || month.equals("may")) {
+            monthNumber = 5;
+        } else if (month.equals("june") || month.equals("juni") || month.equals("jun")) {
+            monthNumber = 6;
+        } else if (month.equals("july") || month.equals("juli") || month.equals("jul")) {
+            monthNumber = 7;
+        } else if (month.equals("august") || month.equals("aug")) {
+            monthNumber = 8;
+        } else if (month.equals("september") || month.equals("sep") || month.equals("sept")) {
+            monthNumber = 9;
+        } else if (month.equals("october") || month.equals("oktober") || month.equals("oct") || month.equals("okt")) {
+            monthNumber = 10;
+        } else if (month.equals("november") || month.equals("nov")) {
+            monthNumber = 11;
+        } else if (month.equals("december") || month.equals("dezember") || month.equals("dec") || month.equals("dez")) {
+            monthNumber = 12;
         }
-
-        // no valid month name given
-        return "";
+        return monthNumber;
     }
 
     /**

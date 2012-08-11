@@ -34,7 +34,7 @@ public abstract class BaseFeedParser implements FeedParser {
     @Override
     public Feed getFeed(File file, boolean serializedGzip) throws FeedParserException {
         if (serializedGzip) {
-            HttpResult httpResult = HttpRetriever.loadSerializedGzip(file);
+            HttpResult httpResult = HttpRetriever.loadSerializedHttpResult(file);
             if (httpResult == null) {
                 throw new FeedParserException("Error loading serialized file from \"" + file + "\"");
             }

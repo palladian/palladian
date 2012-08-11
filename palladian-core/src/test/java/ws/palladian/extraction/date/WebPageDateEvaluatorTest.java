@@ -12,15 +12,11 @@ import org.junit.Test;
 
 import weka.classifiers.Classifier;
 import weka.core.SerializationHelper;
-import ws.palladian.control.AllTests;
-import ws.palladian.extraction.date.technique.ContentDateRater;
+import ws.palladian.extraction.date.rater.ContentDateRater;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
- * FIXME {@link #testGetAllBestRatedDate()} and {@link #testGetAllDates()} fail, after Document parser has been changed
- * to produce lower case tag names.
- * 
  * @author Martin Gregor
  * @author Klemens Muthmann
  */
@@ -32,7 +28,6 @@ public class WebPageDateEvaluatorTest {
      */
     @Test
     public void testGetBestRatedDate() throws FileNotFoundException {
-    if (AllTests.ALL_TESTS) {
             String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit2.htm");
             WebPageDateEvaluator wpde = new WebPageDateEvaluator();
             wpde.setUrl(url);
@@ -48,7 +43,6 @@ public class WebPageDateEvaluatorTest {
             // wpde.setUrl(url);
             // wpde.evaluate();
             // assertEquals("2010-05-28 22:41", wpde.getBestRatedDate().getNormalizedDateString());
-        }
     }
 
     /**
@@ -77,7 +71,6 @@ public class WebPageDateEvaluatorTest {
         url = "http://www.spiegel.de/sport/formel1/0,1518,770789,00.html";
         wpde.setUrl(url);
         wpde.evaluate();
-         System.out.println(wpde.getAllDates());
     }
 
     /**

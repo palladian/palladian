@@ -10,8 +10,8 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.RegExp;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.search.SearcherException;
@@ -57,7 +57,7 @@ public class HakiaDateGetter {
                 if (requestUrl != null && requestUrl.equalsIgnoreCase(url)) {
                     DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
                     String dateString = dateFormat.format(result.getDate());
-                    date = DateGetterHelper.getDateFromString(dateString, RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
+                    date = DateParser.findDate(dateString, RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
                     break;
                 }
 

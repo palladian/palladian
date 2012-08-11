@@ -15,7 +15,7 @@ public class DateEvaluatorTest {
             // "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html");
             String url;
             WebPageDateEvaluator ae = new WebPageDateEvaluator();
-            Class<?> classResource = DateEvaluatorTest.class;
+//            Class<?> classResource = DateEvaluatorTest.class;
 //            for(int index = 19; index <= 27; index++){
 //            	System.out.println(index);
 //	            url = classResource.getResource("/webPages/dateExtraction/tests/page" + index + ".htm").getFile();
