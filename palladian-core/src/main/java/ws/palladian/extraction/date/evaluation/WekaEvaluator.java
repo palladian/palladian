@@ -19,8 +19,8 @@ import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.evaluation.weka.WekaClassifierEval;
-import ws.palladian.extraction.date.technique.PageDateType;
 
 public class WekaEvaluator {
 

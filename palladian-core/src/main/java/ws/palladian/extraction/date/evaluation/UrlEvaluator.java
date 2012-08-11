@@ -4,17 +4,19 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.extraction.date.technique.TechniqueDateGetter;
-import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.UrlDateGetter;
-import ws.palladian.extraction.date.technique.UrlDateRater;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.date.dates.UrlDate;
+import ws.palladian.extraction.date.dates.UrlDate;
+import ws.palladian.extraction.date.getter.TechniqueDateGetter;
+import ws.palladian.extraction.date.getter.UrlDateGetter;
+import ws.palladian.extraction.date.rater.TechniqueDateRater;
+import ws.palladian.extraction.date.rater.UrlDateRater;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 
 public class UrlEvaluator {
 
@@ -40,7 +42,7 @@ public class UrlEvaluator {
 	}
 
 	private static void countUrlsWithDate(String file) {
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		UrlDateGetter dg = new UrlDateGetter();
 		int count = 0;
 		for (Entry<String, DBExport> e : set.entrySet()) {
@@ -55,9 +57,8 @@ public class UrlEvaluator {
 	private static void compareUrlDateFoundDate(PageDateType pub_mod,
 			String file) {
 
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		UrlDateGetter dg = new UrlDateGetter();
-		DateComparator dc = new DateComparator();
 		int countAll = 0;
 		int countTP = 0;
 		int countFN = 0;
@@ -66,15 +67,16 @@ public class UrlEvaluator {
 			if (urlDate != null) {
 				ExtractedDate foundDate;
 				if (pub_mod == PageDateType.publish) {
-					foundDate = DateGetterHelper.findDate(e.getValue().get(
+					foundDate = DateParser.findDate(e.getValue().get(
 							DBExport.PUB_DATE));
 				} else {
-					foundDate = DateGetterHelper.findDate(e.getValue().get(
+					foundDate = DateParser.findDate(e.getValue().get(
 							DBExport.MOD_DATE));
 				}
 				if (foundDate != null) {
-					int compare = dc.compare(urlDate, foundDate, dc
-							.getCompareDepth(urlDate, foundDate));
+				    DateExactness compareDepth = DateExactness.getCommonExactness(urlDate.getExactness(), foundDate.getExactness());
+				    DateComparator dc = new DateComparator(compareDepth);
+					int compare = dc.compare(urlDate, foundDate);
 					if (compare == 0) {
 						countTP++;
 					} else {
@@ -96,10 +98,10 @@ public class UrlEvaluator {
 
 	private static void mergeUrlsets(String in1, String in2, String out) {
 
-		HashMap<String, DBExport> set1 = EvaluationHelper.readFile(in1);
-		HashMap<String, DBExport> set2 = EvaluationHelper.readFile(in2);
+		Map<String, DBExport> set1 = EvaluationHelper.readFile(in1);
+		Map<String, DBExport> set2 = EvaluationHelper.readFile(in2);
 
-		HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
+		Map<String, DBExport> merged = new HashMap<String, DBExport>();
 		merged.putAll(set1);
 		merged.putAll(set2);
 		String separator = EvaluationHelper.SEPARATOR;

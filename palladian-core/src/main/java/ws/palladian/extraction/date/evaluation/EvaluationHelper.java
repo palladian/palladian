@@ -6,12 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 
 public class EvaluationHelper {
 
@@ -62,16 +64,16 @@ public class EvaluationHelper {
 	public static final String HEADEVAL = "headeval";
 	public static final String KAIROSEVAL = "kairoseval";
 	
-	public static HashMap<String, DBExport> readFile(String file){
+	public static Map<String, DBExport> readFile(String file){
 		return readFile(-1, false, file);
 	}
-	public static HashMap<String, DBExport> readFile(){
+	public static Map<String, DBExport> readFile(){
 		return readFile(-1);
 	}
-	public static HashMap<String, DBExport> readFile(int maxEntries){
+	public static Map<String, DBExport> readFile(int maxEntries){
 		return readFile(maxEntries, false, null);
 	}
-	public static HashMap<String, DBExport> readFile(int entries, boolean random, String dataset){
+	public static Map<String, DBExport> readFile(int entries, boolean random, String dataset){
 		File readfile;
 		if(dataset == null || dataset.equalsIgnoreCase("")){
 			readfile = file;
@@ -192,9 +194,9 @@ public class EvaluationHelper {
 	 * @param compareDate Use static field mod_date or pub_date of {@link DBExport}.
 	 * @return -2 false negative; -1 false positive; 0 true negative; 1 true positive
 	 */
-	public static <T> int compareDate(T foundDate, DBExport dbExport, int compareDate){
+	public static int compareDate(ExtractedDate foundDate, DBExport dbExport, int compareDate){
 		int returnValue;
-		ExtractedDate ed = DateGetterHelper.findDate(dbExport.get(compareDate));
+		ExtractedDate ed = DateParser.findDate(dbExport.get(compareDate));
 		if(ed == null){
 			if(foundDate == null){
 				returnValue = EvaluationHelper.ARD;
@@ -205,8 +207,9 @@ public class EvaluationHelper {
 			if(foundDate == null){
 				returnValue = EvaluationHelper.ANF;
 			}else{
-				DateComparator dc = new DateComparator();
-				if (dc.compare(ed, (ExtractedDate) foundDate, Math.min(dc.getCompareDepth(ed, (ExtractedDate) foundDate),DateComparator.STOP_DAY)) == 0){
+			    DateExactness compareDepth = DateExactness.getCommonExactness(ed.getExactness(), foundDate.getExactness());
+				DateComparator dc = new DateComparator(DateExactness.getCommonExactness(compareDepth, DateExactness.DAY));
+				if (dc.compare(ed, (ExtractedDate) foundDate) == 0){
 					returnValue = EvaluationHelper.AFR;
 				}else{
 					returnValue = EvaluationHelper.AFW;

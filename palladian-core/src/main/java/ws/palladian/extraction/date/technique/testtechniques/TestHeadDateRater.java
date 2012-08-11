@@ -4,35 +4,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.HeadDateRater;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.date.ExtractedDateHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
+import ws.palladian.extraction.date.rater.HeadDateRater;
+import ws.palladian.helper.date.ExtractedDate;
 
 public class TestHeadDateRater extends HeadDateRater {
 	
+    public static final byte PUB_DATE_PARAMETER = 0;
+    public static final byte MOD_DATE_PARAMETER = 1;
+    public static final byte TIME_DIFF_PARAMETER = 2;
+    public static final byte MEASURE_PARAMETER = 3;
+    public static final byte OLDEST_PARAMETER = 4;
+    public static final byte YOUNGEST_PARAMERT = 5;
+    
 	public TestHeadDateRater(PageDateType dateType) {
 		super(dateType);
 	}
-
-
-
-	public static final byte PUB_DATE_PARAMETER = 0;
-	public static final byte MOD_DATE_PARAMETER = 1;
-	public static final byte TIME_DIFF_PARAMETER = 2;
-	public static final byte MEASURE_PARAMETER = 3;
-	public static final byte OLDEST_PARAMETER = 4;
-	public static final byte YOUNGEST_PARAMERT = 5;
 	
 	private byte hightPriority = KeyWords.PUBLISH_KEYWORD;
 	private byte middlePriority = KeyWords.MODIFIED_KEYWORD;
-	private int diffMeasure = DateComparator.MEASURE_HOUR;
+	//private int diffMeasure = DateComparator.MEASURE_HOUR;
+	private TimeUnit diffUnit = TimeUnit.HOURS;
 	private boolean old = true;
 	
 	public void setParameter(HashMap<Byte, Integer[]> parameter){
@@ -45,7 +44,7 @@ public class TestHeadDateRater extends HeadDateRater {
 				setModParameter();
 				break;
 			case MEASURE_PARAMETER:
-				setDiffMeasure(e.getValue()[0]);
+//				setDiffMeasure(e.getValue()[0]);
 				break;
 			case OLDEST_PARAMETER:
 				old=true;
@@ -65,9 +64,9 @@ public class TestHeadDateRater extends HeadDateRater {
 		hightPriority = KeyWords.MODIFIED_KEYWORD;
 		middlePriority = KeyWords.PUBLISH_KEYWORD;
 	}
-	private void setDiffMeasure(int measure){
-		diffMeasure = measure;
-	}
+//	private void setDiffMeasure(TimeUnit timeUnit){
+//	    diffUnit = timeUnit;
+//	}
 	
 	/**
      * Evaluates the head-dates.<br>
@@ -77,7 +76,7 @@ public class TestHeadDateRater extends HeadDateRater {
      * @return Hashmap with dates and rateings.
      */
 	protected HashMap<MetaDate, Double> evaluateHeadDate(ArrayList<MetaDate> headDates) {
-		ExtractedDate actualDate = ExtractedDateHelper.createActualDate();
+		ExtractedDate actualDate = new ExtractedDate();
 		return evaluateHeadDate(headDates, actualDate);
 	}
 	
@@ -90,10 +89,9 @@ public class TestHeadDateRater extends HeadDateRater {
      */
 	protected HashMap<MetaDate, Double> evaluateHeadDate(ArrayList<MetaDate> headDates, ExtractedDate actualDate) {
         HashMap<MetaDate, Double> result = new HashMap<MetaDate, Double>();
-        double rate;
-        MetaDate date;
         for (int i = 0; i < headDates.size(); i++) {
-            date = headDates.get(i);
+            double rate;
+            MetaDate date = headDates.get(i);
             byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
             if (keywordPriority == hightPriority) {
                 rate = 1;
@@ -112,16 +110,13 @@ public class TestHeadDateRater extends HeadDateRater {
             DateRaterHelper.setRateToZero(lowRatedDates, result);
 
         } else if (middleRatedDates.size() > 0) {
-            DateRaterHelper.setRat(middleRatedDates, result, 1.0);
+            DateRaterHelper.setRate(middleRatedDates, result, 1.0);
             DateRaterHelper.setRateToZero(lowRatedDates, result);
-
         } else {
-
-            
             DateComparator dc = new DateComparator();
             for (int i = 0; i < lowRatedDates.size(); i++) {
-                rate = 0.75;
-                if (dc.getDifference(actualDate, lowRatedDates.get(i), DateComparator.MEASURE_HOUR) < 12) {
+                double rate = 0.75;
+                if (actualDate.getDifference(lowRatedDates.get(i), TimeUnit.HOURS) < 12) {
                     rate = 0.0;
                 }
                 result.put(lowRatedDates.get(i), rate);
@@ -129,26 +124,22 @@ public class TestHeadDateRater extends HeadDateRater {
         }
 
         DateComparator dc = new DateComparator();
-        List<MetaDate> dates = dc.orderDates(result);
+        List<MetaDate> dates = dc.orderDates(result.keySet(), false);
         MetaDate tempDate;
         if(old){
-        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
         }else{
-        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result));
+        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result).keySet());
         }
 
-        double diff;
-        double oldRate;
-        double newRate;
-
         for (int i = 0; i < dates.size(); i++) {
-            diff = dc.getDifference(tempDate, dates.get(i), diffMeasure);
+            double diff = tempDate.getDifference(dates.get(i), diffUnit);
             if (diff > 24) {
                 diff = 24;
             }
-            date = dates.get(i);
-            oldRate = result.get(date);
-            newRate = oldRate - oldRate * (diff / 24.0);
+            MetaDate date = dates.get(i);
+            double oldRate = result.get(date);
+            double newRate = oldRate - oldRate * (diff / 24.0);
             result.put(date, Math.round(newRate * 10000) / 10000.0);
         }
         
@@ -169,9 +160,7 @@ public class TestHeadDateRater extends HeadDateRater {
 		}else{
 			date = dc.getYoungestDate(list);
 		}
-		
 		return date;
-		
 	}
 	
 }

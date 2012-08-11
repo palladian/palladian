@@ -1,28 +1,28 @@
 package ws.palladian.extraction.date.evaluation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.date.comparators.DateComparator;
-import ws.palladian.extraction.date.technique.ContentDateGetter;
-import ws.palladian.extraction.date.technique.ContentDateRater;
-import ws.palladian.extraction.date.technique.MetaDateGetter;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.extraction.date.technique.TechniqueDateGetter;
-import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.UrlDateGetter;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.UrlDate;
+import ws.palladian.extraction.date.getter.ContentDateGetter;
+import ws.palladian.extraction.date.getter.MetaDateGetter;
+import ws.palladian.extraction.date.getter.TechniqueDateGetter;
+import ws.palladian.extraction.date.getter.UrlDateGetter;
+import ws.palladian.extraction.date.rater.ContentDateRater;
+import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateConverter;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ContentDate;
-import ws.palladian.helper.date.dates.DateType;
-import ws.palladian.helper.date.dates.ExtractedDate;
-import ws.palladian.helper.date.dates.MetaDate;
-import ws.palladian.helper.date.dates.UrlDate;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public class KairosEvaluator {
@@ -53,7 +53,7 @@ public class KairosEvaluator {
 	}
 
 	private static void countUrlHeadDates(String file) {
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 
 		UrlDateGetter urlDateGetter = new UrlDateGetter();
 		MetaDateGetter metaDateGetter = new MetaDateGetter();
@@ -68,34 +68,32 @@ public class KairosEvaluator {
 
 		int cntAll = 0;
 
-		DateComparator dc = new DateComparator();
+		DateComparator dc = new DateComparator(DateExactness.DAY);
 
 		for (Entry<String, DBExport> e : set.entrySet()) {
 			System.out.println(cntAll++);
 			urlDateGetter.setUrl(e.getValue().getUrl());
-			ArrayList<UrlDate> urlDates = urlDateGetter.getDates();
+			List<UrlDate> urlDates = urlDateGetter.getDates();
 
 			DocumentRetriever dr = new DocumentRetriever();
 			Document doc = dr.getWebDocument(e.getValue().getFilePath());
 			metaDateGetter.setDocument(doc);
-			ArrayList<MetaDate> metaDates = metaDateGetter.getDates();
+			List<MetaDate> metaDates = metaDateGetter.getDates();
 
-			ExtractedDate pubDate = DateGetterHelper.findDate(e.getValue()
+			ExtractedDate pubDate = DateParser.findDate(e.getValue()
 					.getPubDate());
-			ExtractedDate modDate = DateGetterHelper.findDate(e.getValue()
+			ExtractedDate modDate = DateParser.findDate(e.getValue()
 					.getModDate());
 
 			if (metaDates != null && metaDates.size() > 0) {
 				for (ExtractedDate metaDate : metaDates) {
 					cntAllMetaDates++;
 					if (pubDate != null
-							&& dc.compare(metaDate, pubDate,
-									DateComparator.STOP_DAY) == 0) {
+							&& dc.compare(metaDate, pubDate) == 0) {
 						cntPubMetaDates++;
 					}
 					if (modDate != null
-							&& dc.compare(metaDate, modDate,
-									DateComparator.STOP_DAY) == 0) {
+							&& dc.compare(metaDate, modDate) == 0) {
 						cntModMetaDates++;
 					}
 				}
@@ -104,24 +102,21 @@ public class KairosEvaluator {
 			if (urlDates != null && urlDates.size() > 0
 					&& urlDates.get(0) != null
 					&& (pubDate != null || modDate != null)
-					&& urlDates.get(0).getExactness() >= 3) {
+					&& urlDates.get(0).getExactness().getValue() >= 3) {
 				cntAllUrlDates++;
 				System.out.println(cntAllUrlDates);
 				if (pubDate != null
-						&& dc.compare(urlDates.get(0), pubDate,
-								DateComparator.STOP_DAY) == 0) {
+						&& dc.compare(urlDates.get(0), pubDate) == 0) {
 					cntPubUrlDates++;
 				}
 				if (pubDate != null
-						&& dc.compare(urlDates.get(0), pubDate,
-								DateComparator.STOP_DAY) != 0) {
+						&& dc.compare(urlDates.get(0), pubDate) != 0) {
 					System.out
 							.println(pubDate.getNormalizedDateString() + " - "
 									+ urlDates.get(0).getNormalizedDateString());
 				}
 				if (modDate != null
-						&& dc.compare(urlDates.get(0), modDate,
-								DateComparator.STOP_DAY) == 0) {
+						&& dc.compare(urlDates.get(0), modDate) == 0) {
 					cntModUrlDates++;
 				}
 			}
@@ -135,21 +130,23 @@ public class KairosEvaluator {
 
 	}
 
-	private static ArrayList<MetaDate> getHttpDates(DBExport dbExport) {
+	private static List<MetaDate> getHttpDates(DBExport dbExport) {
 		ArrayList<MetaDate> dates = new ArrayList<MetaDate>();
 		String headerDate = dbExport.get(DBExport.HEADER_DATE);
 		String headerLastMod = dbExport.get(DBExport.HEADER_LAST);
 
-		ExtractedDate headerExtrDate = DateGetterHelper.findDate(headerDate);
-		MetaDate headerHttpDate = DateConverter.convert(headerExtrDate,
-				DateType.MetaDate);
+		ExtractedDate headerExtrDate = DateParser.findDate(headerDate);
+		// MetaDate headerHttpDate = DateConverter.convert(headerExtrDate,
+		//		DateType.MetaDate);
+		MetaDate headerHttpDate = new MetaDate(headerExtrDate);
 		if (headerHttpDate != null) {
 			headerHttpDate.setKeyword("date");
 		}
-		ExtractedDate headerExtrLastMod = DateGetterHelper
+		ExtractedDate headerExtrLastMod = DateParser
 				.findDate(headerLastMod);
-		MetaDate headerHttpLastMod = DateConverter.convert(headerExtrLastMod,
-				DateType.MetaDate);
+		//MetaDate headerHttpLastMod = DateConverter.convert(headerExtrLastMod,
+		//		DateType.MetaDate);
+		MetaDate headerHttpLastMod = new MetaDate(headerExtrLastMod);
 		if (headerHttpLastMod != null) {
 			headerHttpLastMod.setKeyword("last-modified");
 		}
@@ -161,10 +158,10 @@ public class KairosEvaluator {
 	}
 
 	private static ExtractedDate getDownloadedDate(DBExport dbExport) {
-		return DateGetterHelper.findDate(dbExport.get(DBExport.ACTUAL_DATE));
+		return DateParser.findDate(dbExport.get(DBExport.ACTUAL_DATE));
 	}
 
-	public static <T> void evaluate(PageDateType pub_mod,	TechniqueDateGetter<ContentDate> dg,
+	public static void evaluate(PageDateType pub_mod, TechniqueDateGetter<ContentDate> dg,
 			TechniqueDateRater<ContentDate> dr, String file, boolean writeRate) {
 		int ard = 0;
 		int awd = 0;
@@ -174,7 +171,7 @@ public class KairosEvaluator {
 		int counter = 0;
 		int compare;
 
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		DocumentRetriever crawler = new DocumentRetriever();
 
 		StopWatch timer = new StopWatch();
@@ -183,7 +180,7 @@ public class KairosEvaluator {
 		for (Entry<String, DBExport> e : set.entrySet()) {
 
 			ExtractedDate date;
-			T bestDate;
+			ExtractedDate bestDate;
 			String dbExportDateString;
 			WebPageDateEvaluator wp = new WebPageDateEvaluator();
 
@@ -193,7 +190,7 @@ public class KairosEvaluator {
 
 			String bestDateString = "";
 			String rate = "-1";
-			String dbDateString;
+			// String dbDateString;
 
 			System.out.println(url);
 
@@ -202,12 +199,12 @@ public class KairosEvaluator {
 			wp.setDocument(document);
 			wp.setPubMod(pub_mod);
 			wp.evaluate();
-			bestDate = (T) wp.getBestRatedDate();
+			bestDate = wp.getBestRatedDate();
 			time += timer.getElapsedTime();
 			System.out.print("get dates... ");
 			if (bestDate != null) {
-				bestDateString = ((ExtractedDate) bestDate).getDateString();
-				rate = String.valueOf(((ExtractedDate) bestDate).getRate());
+				bestDateString = bestDate.getDateString();
+				rate = String.valueOf(bestDate.getRate());
 			}
 
 			System.out.println("compare...");
@@ -215,15 +212,15 @@ public class KairosEvaluator {
 			if (pub_mod.equals(PageDateType.publish)) {
 				compare = EvaluationHelper.compareDate(bestDate, e.getValue(),
 						DBExport.PUB_DATE);
-				date = DateGetterHelper.findDate(e.getValue().getPubDate());
-				dbDateString = e.getValue().getPubDate();
+				date = DateParser.findDate(e.getValue().getPubDate());
+				// dbDateString = e.getValue().getPubDate();
 
 				dbExportDateString = " - pubDate:";
 			} else {
 				compare = EvaluationHelper.compareDate(bestDate, e.getValue(),
 						DBExport.MOD_DATE);
-				date = DateGetterHelper.findDate(e.getValue().getModDate());
-				dbDateString = e.getValue().getModDate();
+				date = DateParser.findDate(e.getValue().getModDate());
+				// dbDateString = e.getValue().getModDate();
 				dbExportDateString = " - modDate:";
 			}
 

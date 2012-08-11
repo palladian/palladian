@@ -105,7 +105,7 @@ public class HttpRetriever {
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
-    public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
+    public static final int DEFAULT_SOCKET_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(180);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
@@ -293,7 +293,7 @@ public class HttpRetriever {
      */
     public HttpResult httpHead(String url) throws HttpException {
         Validate.notEmpty(url, "url must not be empty");
-        
+
         HttpHead head;
         try {
             head = new HttpHead(url);
@@ -519,7 +519,7 @@ public class HttpRetriever {
 
         return location;
     }
-    
+
     /**
      * <p>
      * Get the redirect URLs for the specified URL (redirects are indicated by a HTTP response code 3xx, and the
@@ -543,7 +543,7 @@ public class HttpRetriever {
         HttpClient client = new DefaultHttpClient(connectionManager);
         HttpParams params = client.getParams();
         params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-        
+
         // TODO hard coded time out values for now; does it make sense to use the same values configured for normal HTTP
         // operations? For now I set shorter timeouts to avoid lagging.
         HttpConnectionParams.setSoTimeout(params, 1000);
@@ -570,9 +570,9 @@ public class HttpRetriever {
                             throw new HttpException("Detected redirect loop for \"" + url
                                     + "\". URLs collected so far: " + StringUtils.join(ret, ","));
                         }
-                        
+
                         // TODO: add checking for a maximum # of redirects here, to avoid endless redirects
-                        
+
                         ret.add(url);
                     }
                 } else {
@@ -711,14 +711,15 @@ public class HttpRetriever {
 
     /**
      * <p>
-     * Load a GZIP dataset file and return a {@link HttpResult}.
+     * Load a HttpResult from a dataset file and return a {@link HttpResult}. If the file is gzipped (ending with
+     * <code>.gz</code> or <code>.gzip</code>), it is decompressed automatically.
      * </p>
      * 
      * @param file
      * @return The {@link HttpResult} from file or <code>null</code> on in case an {@link IOException} was caught.
      */
     // TODO should this be extended to handle files without the written header?
-    public static HttpResult loadSerializedGzip(File file) {
+    public static HttpResult loadSerializedHttpResult(File file) {
 
         HttpResult httpResult = null;
         InputStream inputStream = null;
@@ -733,7 +734,11 @@ public class HttpRetriever {
 
             // Wrap this with a GZIPInputStream, if necessary.
             // Do not use InputStreamReader, as this works encoding specific.
-            inputStream = new GZIPInputStream(new FileInputStream(file));
+            inputStream = new FileInputStream(file);
+            if (file.getName().endsWith(".gz") || file.getName().endsWith(".gzip")) {
+                inputStream = new GZIPInputStream(inputStream);
+            }
+            // inputStream = new GZIPInputStream(new FileInputStream(file));
 
             // Read the header information, until the HTTP_RESULT_SEPARATOR is reached.
             // We assume here, that one byte resembles one character, which is not true
@@ -1036,13 +1041,6 @@ public class HttpRetriever {
 
     public void setProxyAuthentication(String proxyAuthentication) {
         this.proxyAuthentication = proxyAuthentication;
-    }
-    
-    public static void main(String[] args) throws HttpException {
-        String url = "http://t.co/oEtPQ49H";
-        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        List<String> redirectUrls = httpRetriever.getRedirectUrls(url);
-        System.out.println(redirectUrls);
     }
 
 }

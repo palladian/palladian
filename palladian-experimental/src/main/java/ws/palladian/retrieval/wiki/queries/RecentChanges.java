@@ -48,7 +48,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.date.DateGetterHelper;
+import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.nlp.StringHelper;
@@ -201,7 +201,7 @@ public class RecentChanges extends TitleQuery<WikiPage> {
                     .getTextContent()));
             final String author = MediaWiki.decode(recentChange.getAttributes().getNamedItem("user").getTextContent());
             try {
-                final Date timestamp = (DateGetterHelper.findDate(recentChange.getAttributes()
+                final Date timestamp = (DateParser.findDate(recentChange.getAttributes()
                         .getNamedItem("timestamp").getTextContent())).getNormalizedDate();
                 revision = new Revision(revisionID, timestamp, author);
             } catch (Exception e) {

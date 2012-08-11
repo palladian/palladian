@@ -1,16 +1,17 @@
 package ws.palladian.extraction.date.evaluation;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.extraction.date.getter.TechniqueDateGetter;
+import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.extraction.date.technique.TechniqueDateGetter;
-import ws.palladian.extraction.date.technique.TechniqueDateRater;
-import ws.palladian.extraction.date.technique.UrlDateGetter;
+import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public abstract class Evaluator {
@@ -24,7 +25,7 @@ public abstract class Evaluator {
 		int counter=0;
 		int compare;
 		
-		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
+		Map<String, DBExport> set = EvaluationHelper.readFile(file);
 		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
@@ -43,7 +44,7 @@ public abstract class Evaluator {
 			List<T> list = dg.getDates();
 			timer.stop();
 			timer.getElapsedTimeString(true);
-			list = DateArrayHelper.removeNull(list);
+			CollectionHelper.removeNulls(list);
 			
 			if(list.size() > 0){
 				
@@ -62,7 +63,7 @@ public abstract class Evaluator {
 					//System.out.print("best date... ");
 					bestDate = dr.getBestDate();
 					if(bestDate != null){
-						bestDateString = ((ExtractedDate) bestDate).getNormalizedDate(true);
+						bestDateString = bestDate.getNormalizedDateString(true);
 					}
 				}
 			}
@@ -72,10 +73,10 @@ public abstract class Evaluator {
 			ExtractedDate date;
 			String dbExportDateString;
 			if(pub_mod == DBExport.PUB_DATE){
-				date = DateGetterHelper.findDate(e.getValue().getPubDate());
+				date = DateParser.findDate(e.getValue().getPubDate());
 				dbExportDateString =" - pubDate:" ;
 			}else{
-				date = DateGetterHelper.findDate(e.getValue().getModDate());
+				date = DateParser.findDate(e.getValue().getModDate());
 				dbExportDateString =" - modDate:" ;
 			}
 			

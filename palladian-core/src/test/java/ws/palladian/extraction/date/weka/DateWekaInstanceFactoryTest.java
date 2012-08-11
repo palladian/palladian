@@ -9,9 +9,11 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 
 import weka.core.Instance;
+import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.helper.DateWekaInstanceFactory;
-import ws.palladian.extraction.date.technique.PageDateType;
-import ws.palladian.helper.date.dates.ContentDate;
+import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateParser;
 
 public class DateWekaInstanceFactoryTest {
 
@@ -60,7 +62,7 @@ public class DateWekaInstanceFactoryTest {
     }
 
     private ContentDate getTestDate() {
-        ContentDate cDate = new ContentDate("April 01, 2011", "MMMM DD, YYYY");
+        ContentDate cDate = new ContentDate(DateParser.parseDate("April 01, 2011", RegExp.DATE_USA_MMMM_D_Y));
 
         cDate.setRelDocPos(0.375);
         cDate.setOrdDocPos(0.75);

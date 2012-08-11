@@ -2,8 +2,12 @@ package ws.palladian.extraction.entity;
 
 import java.util.List;
 
-import ws.palladian.helper.date.DateGetterHelper;
-import ws.palladian.helper.date.dates.ContentDate;
+import org.apache.commons.lang3.ArrayUtils;
+
+import ws.palladian.helper.DateFormat;
+import ws.palladian.helper.RegExp;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -15,16 +19,19 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class DateAndTimeTagger {
 
-	/** The tag name for URLs. */
+    /** The tag name for URLs. */
 	public static final String DATETIME_TAG_NAME = "DATETIME";
+	
+	/** All date formats defined by default, plus additionally years in context. */
+	private static final DateFormat[] ALL_DATES_WITH_YEARS = ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS, RegExp.DATE_CONTEXT_YYYY);
 	
 	public Annotations tagDateAndTime(String inputText) {
 
 		Annotations annotations = new Annotations();
 
-        List<ContentDate> allDates = DateGetterHelper.findAllDates(inputText, true);
+        List<ExtractedDate> allDates = DateParser.findDates(inputText, ALL_DATES_WITH_YEARS);
 		
-		for (ContentDate dateTime : allDates) {
+		for (ExtractedDate dateTime : allDates) {
 			
 			// get the offset
 			List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(inputText, dateTime.getDateString());

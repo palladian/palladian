@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.searchengine.GoogleDateGetter;
-import ws.palladian.helper.date.dates.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDate;
 
 public class GoogleDateGetterTest {
 
