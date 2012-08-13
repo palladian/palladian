@@ -987,7 +987,7 @@ public class HttpRetriever {
         numberOfDownloadedPages++;
 
         if (secureProxy != null) {
-            secureProxy.increaseRequestsSent();
+            secureProxy.increaseUseCount();
         }
     }
 
