@@ -23,8 +23,8 @@ public class SecureProxy {
     /** Number of times we found that this proxy is dead (connection timeouts etc.). */
     private int deadCount = 0;
 
-    /** The number of requests sent through this proxy. */
-    private int requestsSent;
+    /** The number of times this proxy has been used. */
+    private int useCount = 0;
 
     /** The last time the proxy was used. */
     private Date lastUsed = null;
@@ -92,12 +92,16 @@ public class SecureProxy {
         this.lastBlocked = blockedTimestamp;
     }
 
-    public int getRequestsSent() {
-        return requestsSent;
+    public int getUseCount() {
+        return useCount;
     }
 
-    public void increaseRequestsSent() {
-        this.requestsSent++;
+    public void setUseCount(int useCount) {
+        this.useCount = useCount;
+    }
+
+    public void increaseUseCount() {
+        this.useCount++;
     }
 
     public long getResponseTime() {
@@ -144,7 +148,7 @@ public class SecureProxy {
     public String toString() {
         return "SecureProxy [ip=" + ip + ", port=" + port + ", username=" + username + ", password=" + password
                 + ", responseTime=" + responseTime + ", blockedTimestamp=" + lastBlocked + ", requestsSent="
-                + requestsSent + "]";
+                + useCount + "]";
     }
 
 }
