@@ -127,16 +127,13 @@ final class DateParserLogic {
         } else if (format.equals(RegExp.DATE_USA_MM_D_Y)) {
             setDateValues(dateString.split(getSeparatorRegEx(dateString)), 2, 0, 1);
         } else if (format.equals(RegExp.DATE_EU_D_MMMM_Y)) {
-            if (dateString.contains("\\.")) {
-                dateString = dateString.replaceAll("\\.", "");
-            }
-            if (dateString.contains("-")) {
-                dateString = dateString.replaceAll("-", " ");
-            }
+            dateString = dateString.replaceAll("\\.\\s?", " ");
+            dateString = dateString.replaceAll("-", " ");
             String[] dateParts = dateString.split(" ");
             setDateValues(dateParts, 2, 1, 0);
         } else if (format.equals(RegExp.DATE_USA_MMMM_D_Y)) {
-            try {
+            dateString = dateString.replaceAll("\\,\\s|\\,|\\s", " ");
+            // try {
                 String[] parts = dateString.split(" ");
                 if (parts.length == 2) {
                     String[] tempParts = new String[3];
@@ -146,8 +143,8 @@ final class DateParserLogic {
                     parts = tempParts;
                 }
                 setDateValues(parts, 2, 0, 1);
-            } catch (Exception e) {
-            }
+            // } catch (Exception e) {
+            // }
         } else if (format.equals(RegExp.DATE_USA_MMMM_D_Y_SEP)) {
             setDateValues(dateString.split("-"), 2, 0, 1);
         } else if (format.equals(RegExp.DATE_EUSA_MMMM_Y)) {
