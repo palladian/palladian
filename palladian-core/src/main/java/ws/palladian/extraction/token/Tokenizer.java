@@ -211,7 +211,6 @@ public final class Tokenizer {
      * @param n The number of words for a gram.
      * @return A list of n-grams.
      */
-    // TODO a Bag would be more appropriate
     public static List<String> calculateWordNGramsAsList(String string, int n) {
         List<String> nGrams = new ArrayList<String>();
 
