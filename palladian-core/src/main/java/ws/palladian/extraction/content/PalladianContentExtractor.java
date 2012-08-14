@@ -82,13 +82,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // try to find the article using html 5 article tag
         Node articleNode = XPathHelper.getXhtmlNode(document, "//article");
         if (articleNode != null) {
-            content = HtmlHelper.documentToReadableText(articleNode);
+            content = HtmlHelper.documentToText(articleNode);
             sentences = Tokenizer.getSentences(content, true);
 
             resultNode = articleNode;
 
         } else {
-            content = HtmlHelper.documentToReadableText(document);
+            content = HtmlHelper.documentToText(document);
             sentences = Tokenizer.getSentences(content, true);
 
             // try to find the main content in absence of HTML5 article node
