@@ -42,7 +42,7 @@ public class PageAnalyzer {
     public PageAnalyzer() {
     }
 
-    private Document getDocument() {
+    public Document getDocument() {
         return this.document;
     }
 
@@ -62,35 +62,10 @@ public class PageAnalyzer {
      * 
      * @return The title of the web page.
      */
-//    @SuppressWarnings("unchecked")
     public String getTitle() {
-        
-//        String title = "";
 
         String xPath = "//title";
-//        try {
-//            xPath = XPathHelper.addXhtmlNsToXPath(document, xPath);
-//
-//            // TODO no attribute xpath working "/@href"
-//            DOMXPath xpathObj = new DOMXPath(xPath);
-//
-//            List<Node> results = xpathObj.selectNodes(document.getLastChild());
-//            Iterator<Node> nodeIterator = results.iterator();
-//            while (nodeIterator.hasNext()) {
-//                Node node = nodeIterator.next();
-//                title += node.getTextContent();
-//            }
-//
-//        } catch (JaxenException e) {
-//            Logger.getRootLogger().error(xPath, e);
-//            title = "#error#";
-//        } catch (DOMException e) {
-//            Logger.getRootLogger().error(xPath, e);
-//            title = "#error#";
-//        } catch (Exception e) {
-//            Logger.getRootLogger().error(xPath, e);
-//            title = "#error#";
-//        }
+
         String title;
         Node titleNode = XPathHelper.getXhtmlNode(document, xPath);
         if (titleNode != null) {
@@ -122,7 +97,7 @@ public class PageAnalyzer {
         // check whether there is one more xPath that ends on "th" instead of "td" with the same count
         if (tableParameters[0].length() > 0) {
             int thCount = xPaths
-            .getCountOfXPath(tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h");
+                    .getCountOfXPath(tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h");
             if (thCount == xPaths.getCountOfXPath(tableParameters[0])) {
                 tableParameters[0] = tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h";
 
@@ -195,9 +170,9 @@ public class PageAnalyzer {
         // printDOM(document.getLastChild(),"_");
 
         // xpaths = visit(document.getLastChild(),0,keyword,xpaths);
-        
+
         //System.out.println(document.getFirstChild());
-        
+
         try {
             xpaths = visit(document.getLastChild(), keyword, wordMatch, xpaths);
         } catch (StackOverflowError e) {
@@ -644,13 +619,13 @@ public class PageAnalyzer {
         if (tdIndex > lastClosingBrackets && tdIndex > thIndex) {
             String firstPart = xPath.substring(0, tdIndex);
             String lastPart = xPath.substring(tdIndex).replace("/td", "/td[1]").replace("/TD", "/TD[1]")
-            .replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
+                    .replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
             xPath = firstPart + lastPart;
             return xPath;
         } else if (thIndex > lastClosingBrackets && thIndex > tdIndex) {
             String firstPart = xPath.substring(0, thIndex);
             String lastPart = xPath.substring(thIndex).replace("/th", "/td[1]").replace("/TH", "/TD[1]")
-            .replace("/xhtml:th", "/xhtml:td[1]").replace("/xhtml:TH", "/xhtml:TD[1]");
+                    .replace("/xhtml:th", "/xhtml:td[1]").replace("/xhtml:TH", "/xhtml:TD[1]");
             xPath = firstPart + lastPart;
             return xPath;
         }
@@ -663,7 +638,7 @@ public class PageAnalyzer {
         // update counter and return the updated xpath (no th was found after the last brackets)
         int currentIndex = Integer.valueOf(xPath.substring(lastOpeningBrackets + 1, lastClosingBrackets));
         return xPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(++currentIndex)
-        + xPath.substring(lastClosingBrackets);
+                + xPath.substring(lastClosingBrackets);
     }
 
     public String getNextTableCell(String xPath) {
@@ -691,7 +666,7 @@ public class PageAnalyzer {
         if (tdIndex > lastClosingBrackets && tdIndex > thIndex) {
             String firstPart = xPath.substring(0, tdIndex);
             String lastPart = xPath.substring(tdIndex).replace("/td", "/td[1]").replace("/TD", "/TD[1]")
-            .replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
+                    .replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
             xPath = firstPart + lastPart;
             return xPath;
         }
@@ -778,9 +753,9 @@ public class PageAnalyzer {
         for (int i = 1; i <= rowCount; i++) {
             String[] rowXPaths = new String[2];
             rowXPaths[0] = attributeXPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(i)
-            + attributeXPath.substring(lastClosingBrackets);
+                    + attributeXPath.substring(lastClosingBrackets);
             rowXPaths[1] = siblingXPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(i)
-            + siblingXPath.substring(lastClosingBrackets);
+                    + siblingXPath.substring(lastClosingBrackets);
 
             tableRowsXPaths.add(rowXPaths);
         }
@@ -807,7 +782,7 @@ public class PageAnalyzer {
         if (xPath.substring(trIndex + 2, trIndex + 3).equals("[")) {
             int currentIndex = Integer.valueOf(xPath.substring(trIndex + 3, xPath.indexOf("]", trIndex + 3)));
             xPath = xPath.substring(0, trIndex + 3) + String.valueOf(currentIndex + 1)
-            + xPath.substring(xPath.indexOf("]", trIndex + 3));
+                    + xPath.substring(xPath.indexOf("]", trIndex + 3));
             return xPath;
         } else {
             xPath = xPath.substring(0, trIndex + 2) + "[1]" + xPath.substring(trIndex + 2);
@@ -886,34 +861,34 @@ public class PageAnalyzer {
         return numberOfColumns;
     }
 
-//    @SuppressWarnings("unchecked")
-//    public String getHTMLTextByXPath(String xPath) {
-//        StringBuilder sb = new StringBuilder();
-//
-//        DOMXPath xpathObj;
-//        try {
-//            xpathObj = new DOMXPath(xPath);
-//
-//            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-//
-//            List<Node> results = xpathObj.selectNodes(document.getLastChild());
-//
-//            Iterator<Node> nodeIterator = results.iterator();
-//            while (nodeIterator.hasNext()) {
-//                Node node = nodeIterator.next();
-//                // String a = node.getNodeName();
-//                // String b = node.getNodeValue();
-//                // String c = node.getTextContent();
-//                // String d = node.getChildNodes().toString();
-//                // sb.append(nodeIterator.next());
-//
-//                sb.append(getChildHTMLContents(node, new StringBuilder()));
-//            }
-//        } catch (JaxenException e) {
-//            e.printStackTrace();
-//        }
-//        return sb.toString();
-//    }
+    //    @SuppressWarnings("unchecked")
+    //    public String getHTMLTextByXPath(String xPath) {
+    //        StringBuilder sb = new StringBuilder();
+    //
+    //        DOMXPath xpathObj;
+    //        try {
+    //            xpathObj = new DOMXPath(xPath);
+    //
+    //            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+    //
+    //            List<Node> results = xpathObj.selectNodes(document.getLastChild());
+    //
+    //            Iterator<Node> nodeIterator = results.iterator();
+    //            while (nodeIterator.hasNext()) {
+    //                Node node = nodeIterator.next();
+    //                // String a = node.getNodeName();
+    //                // String b = node.getNodeValue();
+    //                // String c = node.getTextContent();
+    //                // String d = node.getChildNodes().toString();
+    //                // sb.append(nodeIterator.next());
+    //
+    //                sb.append(getChildHTMLContents(node, new StringBuilder()));
+    //            }
+    //        } catch (JaxenException e) {
+    //            e.printStackTrace();
+    //        }
+    //        return sb.toString();
+    //    }
 
     public String getTextByXPath(String xPath) {
         return getTextByXPath(document, xPath);
@@ -1054,7 +1029,7 @@ public class PageAnalyzer {
         return getTextsByXpath(document, xPath);
     }
 
-//    @SuppressWarnings("unchecked")
+    //    @SuppressWarnings("unchecked")
     public List<String> getTextsByXpath(Document document, String xPath) {
 
         ArrayList<String> texts = new ArrayList<String>();
@@ -1064,34 +1039,34 @@ public class PageAnalyzer {
         }
 
 
-//        try {
-//            // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
-//            // evaluation results)
-//            xpath = XPathHelper.addXhtmlNsToXPath(document, xpath);
-//
-//            // xpath = xpath.replaceAll("/xhtml:TBODY", "/");
-//
-//            // TODO no attribute xpath working "/@href"
-//            DOMXPath xpathObj = new DOMXPath(xpath);
-//            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-//
-//            List<Node> results = xpathObj.selectNodes(document.getLastChild());
-//
-//            Iterator<Node> nodeIterator = results.iterator();
-//            while (nodeIterator.hasNext()) {
-//                // get all text nodes
-//                Node node = nodeIterator.next();
-//                texts.add(node.getTextContent());
-//            }
-//
-//        } catch (JaxenException e) {
-//            Logger.getRootLogger().error(xpath, e);
-//        } catch (DOMException e) {
-//            Logger.getRootLogger().error(xpath, e);
-//        } catch (Exception e) {
-//            Logger.getRootLogger().error(xpath, e);
-//        }
-        
+        //        try {
+        //            // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
+        //            // evaluation results)
+        //            xpath = XPathHelper.addXhtmlNsToXPath(document, xpath);
+        //
+        //            // xpath = xpath.replaceAll("/xhtml:TBODY", "/");
+        //
+        //            // TODO no attribute xpath working "/@href"
+        //            DOMXPath xpathObj = new DOMXPath(xpath);
+        //            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+        //
+        //            List<Node> results = xpathObj.selectNodes(document.getLastChild());
+        //
+        //            Iterator<Node> nodeIterator = results.iterator();
+        //            while (nodeIterator.hasNext()) {
+        //                // get all text nodes
+        //                Node node = nodeIterator.next();
+        //                texts.add(node.getTextContent());
+        //            }
+        //
+        //        } catch (JaxenException e) {
+        //            Logger.getRootLogger().error(xpath, e);
+        //        } catch (DOMException e) {
+        //            Logger.getRootLogger().error(xpath, e);
+        //        } catch (Exception e) {
+        //            Logger.getRootLogger().error(xpath, e);
+        //        }
+
         List<Node> nodes = XPathHelper.getXhtmlNodes(document, xPath);
         for (Node node : nodes) {
             texts.add(node.getTextContent());
@@ -1382,14 +1357,14 @@ public class PageAnalyzer {
     public static String removeXPathIndicesNot(String xPath, String[] notRemoveCountElements) {
         for (String notRemoveCountElement : notRemoveCountElements) {
             xPath = xPath
-            .replaceAll(notRemoveCountElement + "\\[(\\d)+\\]", notRemoveCountElement + "\\{$1\\}");
+                    .replaceAll(notRemoveCountElement + "\\[(\\d)+\\]", notRemoveCountElement + "\\{$1\\}");
         }
 
         xPath = xPath.replaceAll("\\[(\\d)+\\]", "");
 
         for (String notRemoveCountElement : notRemoveCountElements) {
             xPath = xPath
-            .replaceAll(notRemoveCountElement + "\\{(\\d)+\\}", notRemoveCountElement + "\\[$1\\]");
+                    .replaceAll(notRemoveCountElement + "\\{(\\d)+\\}", notRemoveCountElement + "\\[$1\\]");
         }
         return xPath;
     }
