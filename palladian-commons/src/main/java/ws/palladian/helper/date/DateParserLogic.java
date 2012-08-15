@@ -269,6 +269,10 @@ final class DateParserLogic {
             set24h(meridiem);
         } else if (format.equals(RegExp.DATE_CONTEXT_YYYY)) {
             year = Integer.valueOf(dateString);
+        } else if (format.equals(RegExp.DATE_MMMM_DD_HH_MM_SS_TZ_YYYY)) {
+            String[] parts = dateString.split(" ");
+            setDateValues(parts, 3, 0, 1);
+            setTimeValues(parts[2]);
         }
     }
 
