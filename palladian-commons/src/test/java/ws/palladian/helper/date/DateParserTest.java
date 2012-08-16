@@ -92,30 +92,28 @@ public class DateParserTest {
         assertEquals("1956-01-17", DateParser.findDate("17th January 1956").getNormalizedDateString());
         assertEquals("1956-01-17", DateParser.findDate("17. January 1956").getNormalizedDateString());
         assertEquals("1956-01-17", DateParser.findDate("17. Jan '56").getNormalizedDateString());
-//        assertEquals("1956-01-17", DateParser.findDate("17.Jan '56").getNormalizedDateString());
+        assertEquals("1956-01-17", DateParser.findDate("17.Jan '56").getNormalizedDateString());
         assertEquals("1956-01-17", DateParser.findDate("17 JAN 56").getNormalizedDateString());
-//        assertEquals("1956-01-17", DateParser.findDate("January 17,1956").getNormalizedDateString());
-//        assertEquals("1956-01-17", DateParser.findDate("January 17,'56").getNormalizedDateString());
+        assertEquals("1956-01-17", DateParser.findDate("January 17, 1956").getNormalizedDateString());
+        assertEquals("1956-01-17", DateParser.findDate("January 17,1956").getNormalizedDateString());
+        assertEquals("1956-01-17", DateParser.findDate("January 17,'56").getNormalizedDateString());
         assertEquals("1956-01-17", DateParser.findDate("January 17th, 1956").getNormalizedDateString());
         assertEquals("1956-01-17", DateParser.findDate("Jan 17th, 1956").getNormalizedDateString());
         assertEquals("1956-01-17", DateParser.findDate("1956-01-17").getNormalizedDateString());
         assertEquals("1956-01-03", DateParser.findDate("January 3, 1956").getNormalizedDateString());
-        // System.out.println(DateNormalizer.normalizeDate("10 Oct 2008 16:34:01 EST"));
         assertEquals("2007-03-12 23:13:05", DateParser.findDate("Mon, 12 Mar 2007 23:13:05 GMT").getNormalizedDateString());
         assertEquals("2008-10-13 01:28:26", DateParser.findDate("Mon, 13 Oct 2008 01:28:26 GMT").getNormalizedDateString());
-        // System.out.println(DateNormalizer.normalizeDate("10 Oct 2008 16:34:01 EST"));
-//        assertEquals("2008-10-10 21:34:01", DateParser.findDate("10 Oct 2008 16:34:01 EST").getNormalizedDateString());
-        // System.out.println(DateNormalizer.normalizeDate("Mon, 27 Oct 2008 19:00 GMT"));
-//        assertEquals("2008-10-27 19:00:00", DateParser.findDate("Mon, 27 Oct 2008 19:00 GMT").getNormalizedDateString());
-        // System.out.println(normalizeDate("10 Oct 2008 16:34:01 EST"));
-//        assertEquals("2008-11-23 00:00:00", DateParser.findDate("Sun, 23 Nov 2008").getNormalizedDateString(true));
-        // System.out.println(DateNormalizer.normalizeDate("Tue, 16 May 2006 15:04:54 +0900",true));
-        assertEquals("2006-05-16 06:04:54", DateParser.findDate("Tue, 16 May 2006 15:04:54 +0900").getNormalizedDateString(true));
-//        assertEquals("2009-02-12 00:56:22", DateParser.findDate("Thu Feb 12 01:56:22 CET 2009").getNormalizedDateString(true));
-        assertEquals("2009-02-12 00:00:00", DateParser.findDate("2009-02-12 00:00:00").getNormalizedDateString(true));
-//        assertEquals("2009-02-12 00:00:00", DateParser.findDate("2009-02-12").getNormalizedDateString(true));
-
         
+        // TODO old DateNormalizer was converting TZ
+        assertEquals("2008-10-10 16:34:01", DateParser.findDate("10 Oct 2008 16:34:01 EST").getNormalizedDateString());
+        assertEquals("2008-10-27 19:00", DateParser.findDate("Mon, 27 Oct 2008 19:00 GMT").getNormalizedDateString());
+        assertEquals("2008-10-10 16:34:01", DateParser.findDate("10 Oct 2008 16:34:01 EST").getNormalizedDateString());
+        assertEquals("2009-02-12 01:56:22", DateParser.findDate("Thu Feb 12 01:56:22 CET 2009").getNormalizedDateString()); 
+        
+        assertEquals("2008-11-23", DateParser.findDate("Sun, 23 Nov 2008").getNormalizedDateString());
+        assertEquals("2006-05-16 06:04:54", DateParser.findDate("Tue, 16 May 2006 15:04:54 +0900").getNormalizedDateString());
+        assertEquals("2009-02-12 00:00:00", DateParser.findDate("2009-02-12 00:00:00").getNormalizedDateString());
+        assertEquals("2009-02-12", DateParser.findDate("2009-02-12").getNormalizedDateString());
 
     }
 
