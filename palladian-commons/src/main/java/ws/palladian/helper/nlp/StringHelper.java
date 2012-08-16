@@ -574,6 +574,7 @@ public final class StringHelper {
                 String before = searchString.substring(0, index);
                 String after = searchString.substring(oldIndex);
                 searchString = before + replacement + after;
+                searchStringLc = searchString.toLowerCase();
             }
 
         } while (index > -1);
@@ -1446,7 +1447,7 @@ public final class StringHelper {
 //     * Looks for a regular expression in string. Removes found substring from source-string. <br>
 //     * Only the first found match will be deleted. <br>
 //     * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
-//     * 
+//     *
 //     * @param string to be cleared.
 //     * @param regExp A regular expression.
 //     * @return Cleared string and removed string in an array.

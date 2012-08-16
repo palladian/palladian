@@ -54,7 +54,8 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
      * Create a new {@link MajesticSeo} ranking service.
      * </p>
      * 
-     * @param configuration The configuration which must provide an API key (<tt>api.majestic.key</tt>) for accesing the
+     * @param configuration The configuration which must provide an API key (<tt>api.majestic.key</tt>) for accessing
+     *            the
      *            service.
      */
     public MajesticSeo(Configuration configuration) {
