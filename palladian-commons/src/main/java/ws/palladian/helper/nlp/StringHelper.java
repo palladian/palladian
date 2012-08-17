@@ -316,8 +316,7 @@ public final class StringHelper {
         String modName = name.replaceAll("\\s", "_");
 
         String[] parts = modName.split("_");
-        for (int i = 0; i < parts.length; i++) {
-            String part = parts[i];
+        for (String part : parts) {
             camelCasedName += upperCaseFirstLetter(part);
         }
 
@@ -965,19 +964,19 @@ public final class StringHelper {
             Character first = string.charAt(0);
             Character last = string.charAt(string.length() - 1);
             // System.out.println(Character.getType(last));
-            for (int i = 0, l = unwanted.length; i < l; ++i) {
-                if (keepCharacters.indexOf(unwanted[i]) > -1) {
+            for (String element : unwanted) {
+                if (keepCharacters.indexOf(element) > -1) {
                     continue;
                 }
 
                 // System.out.println(first.charValue());
                 // System.out.println(Character.isSpaceChar(first));
-                if (first == unwanted[i].charAt(0)
+                if (first == element.charAt(0)
                         || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
                         || Character.isSpaceChar(first)) {
                     deleteFirst = true;
                 }
-                if (last == unwanted[i].charAt(0)
+                if (last == element.charAt(0)
                         || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
                         || Character.isSpaceChar(last)) {
                     deleteLast = true;
@@ -1355,27 +1354,42 @@ public final class StringHelper {
      * </p>
      * 
      * @param string The string from which to extract the substring, not <code>null</code>.
-     * @param leftBorder The left border, not <code>null</code> or empty.
-     * @param rightBorder The right border, not <code>null</code> or empty.
+     * @param leftBorder The left border, not empty, if <code>null</code> the start of the string is the left border.
+     * @param rightBorder The right border, not empty, if <code>null</code> the end of the string is the right border..
      * @return {@link List} of substrings between the two given strings, or an empty List if not matches were found.
      */
     public static List<String> getSubstringsBetween(String string, String leftBorder, String rightBorder) {
         Validate.notNull(string, "string must not be null");
-        Validate.notEmpty(leftBorder, "leftBorder must not be empty");
-        Validate.notEmpty(rightBorder, "rightBorder must not be empty");
 
         List<String> substrings = new ArrayList<String>();
 
+        int leftBorderLength = 0;
+        if (leftBorder != null) {
+            leftBorderLength = leftBorder.length();
+        }
         int rightIndex = 0;
+        // if (rightBorder == null) {
+        // rightIndex = string.length();
+        // }
+        int i = 0;
         for (;;) {
-            int leftIndex = string.indexOf(leftBorder, rightIndex);
-            rightIndex = string.indexOf(rightBorder, leftIndex + leftBorder.length());
-            if (rightIndex > leftIndex && leftIndex > -1) {
-                substrings.add(string.substring(leftIndex + leftBorder.length(), rightIndex));
+            int leftIndex = 0;
+            if (leftBorder != null) {
+                leftIndex = string.indexOf(leftBorder, rightIndex);
+            }
+            if (rightBorder != null) {
+                rightIndex = string.indexOf(rightBorder, leftIndex + leftBorderLength);
+            } else {
+                rightIndex = string.length();
+            }
+            if (rightIndex > leftIndex && ((leftIndex > -1 && leftBorder != null) || (i == 0 && leftBorder == null))) {
+                substrings.add(string.substring(leftIndex + leftBorderLength, rightIndex));
             } else {
                 break;
             }
+            i++;
         }
+
         return substrings;
     }
 
@@ -1442,31 +1456,31 @@ public final class StringHelper {
     }
 
     // only used in date package -> moved there.
-//    /**
-//     * Looks for a regular expression in string. Removes found substring from source-string. <br>
-//     * Only the first found match will be deleted. <br>
-//     * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
-//     * 
-//     * @param string to be cleared.
-//     * @param regExp A regular expression.
-//     * @return Cleared string and removed string in an array.
-//     */
-//    public static String[] removeFirstStringpart(String string, String regExp) {
-//        String returnString = null;
-//        String removedString = null;
-//        Pattern pattern = Pattern.compile(regExp.toLowerCase());
-//        Matcher matcher = pattern.matcher(string.toLowerCase());
-//
-//        if (matcher.find()) {
-//            int start = matcher.start();
-//            int end = matcher.end();
-//            removedString = string.substring(start, end);
-//            returnString = string.replace(removedString, " ");
-//            returnString = returnString.replaceAll("  ", " ");
-//        }
-//        String[] result = {returnString, removedString};
-//        return result;
-//    }
+    //    /**
+    //     * Looks for a regular expression in string. Removes found substring from source-string. <br>
+    //     * Only the first found match will be deleted. <br>
+    //     * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
+    //     *
+    //     * @param string to be cleared.
+    //     * @param regExp A regular expression.
+    //     * @return Cleared string and removed string in an array.
+    //     */
+    //    public static String[] removeFirstStringpart(String string, String regExp) {
+    //        String returnString = null;
+    //        String removedString = null;
+    //        Pattern pattern = Pattern.compile(regExp.toLowerCase());
+    //        Matcher matcher = pattern.matcher(string.toLowerCase());
+    //
+    //        if (matcher.find()) {
+    //            int start = matcher.start();
+    //            int end = matcher.end();
+    //            removedString = string.substring(start, end);
+    //            returnString = string.replace(removedString, " ");
+    //            returnString = returnString.replaceAll("  ", " ");
+    //        }
+    //        String[] result = {returnString, removedString};
+    //        return result;
+    //    }
 
     /**
      * <p>
