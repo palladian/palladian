@@ -19,6 +19,7 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -32,7 +33,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @since 0.1.7
  */
 public class SparseArffWriterTest {
-    private final String expectedArffFile = "@relation model\n\n @attribute \"nominalFeature\" {dummy,a,b}\n@attribute \"numericFeature\" numeric\n\n@data\n{0 a,1 0.78}\n";
+    private final String expectedArffFile = "@relation model\n\n @attribute \"la\" numeric\n@attribute \"blah\" numeric\n@attribute \"da\" numeric\n@attribute \"nominalFeature\" {dummy,a,b}\n@attribute \"numericFeature\" numeric\n\n@data\n{0 1.0,1 1.0,2 1.0,3 a,4 0.78}\n"; 
 
     @Test
     public void test() throws IOException, DocumentUnprocessableException {
@@ -40,13 +41,17 @@ public class SparseArffWriterTest {
                 NominalFeature.class);
         FeatureDescriptor<NumericFeature> numericFeatureDescriptor = FeatureDescriptorBuilder.build("numericFeature",
                 NumericFeature.class);
+        FeatureDescriptor<ListFeature> listFeatureDescriptor = FeatureDescriptorBuilder.build("listFeature",
+                ListFeature.class);
         PipelineDocument<String> document = new PipelineDocument<String>("This is some test document.");
         document.addFeature(new NominalFeature(nominalFeatureDescriptor, "a", "a", "b"));
         document.addFeature(new NumericFeature(numericFeatureDescriptor, 0.78));
+        // la should be only once in the result ARFF.
+        document.addFeature(new ListFeature(listFeatureDescriptor, new String[] {"la", "blah", "da", "la"}));
 
         FeatureDescriptor<Feature<?>>[] featureDescriptors = new FeatureDescriptor[] {nominalFeatureDescriptor,
-                numericFeatureDescriptor};
-        
+                numericFeatureDescriptor, listFeatureDescriptor};
+
         File tempFile = File.createTempFile("sparsearffwritertext", "arff");
 
         SparseArffWriter objectOfClassUnderTest = new SparseArffWriter(tempFile.getAbsolutePath(), featureDescriptors);
@@ -54,8 +59,8 @@ public class SparseArffWriterTest {
         objectOfClassUnderTest.process();
         objectOfClassUnderTest.processingFinished();
 
-        //File arffFile = new File("sparsearffwritertest");
-        
+        // File arffFile = new File("sparsearffwritertest");
+
         String actualArffFile = FileUtils.readFileToString(tempFile);
         assertThat(actualArffFile, is(expectedArffFile));
         // FileUtils.forceDelete(arffFile);
