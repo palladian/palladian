@@ -33,7 +33,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @since 0.1.7
  */
 public class SparseArffWriterTest {
-    private final String expectedArffFile = "@relation model\n\n @attribute \"la\" numeric\n@attribute \"blah\" numeric\n@attribute \"da\" numeric\n@attribute \"nominalFeature\" {dummy,a,b}\n@attribute \"numericFeature\" numeric\n\n@data\n{0 1.0,1 1.0,2 1.0,3 a,4 0.78}"; 
+    private final String expectedArffFile = "@relation model\n\n @attribute \"la\" numeric\n@attribute \"blah\" numeric\n@attribute \"da\" numeric\n@attribute \"nominalFeature\" {dummy,a,b}\n@attribute \"numericFeature\" numeric\n\n@data\n{0 1.0,1 1.0,2 1.0,3 a,4 0.78}\n"; 
 
     @Test
     public void test() throws IOException, DocumentUnprocessableException {
