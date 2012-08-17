@@ -144,8 +144,16 @@ public class ProcessingPipeline implements Serializable {
 
             process();
 
-            return (PipelineDocument<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts().get(0)
-                    .getPipelineDocument();
+            List<Port<?>> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
+
+            // Check if default output is available. This might not be the case if a writer was used to process the
+            // final data.
+            if (outputPorts.isEmpty()) {
+                return null;
+            } else {
+                Port<T> defaultOutputPort = (Port<T>)outputPorts.get(0);
+                return defaultOutputPort.getPipelineDocument();
+            }
         } else {
             return document;
         }
