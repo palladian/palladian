@@ -14,15 +14,16 @@ import java.util.List;
 
 import org.apache.commons.collections15.BidiMap;
 import org.apache.commons.collections15.bidimap.DualHashBidiMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.extraction.patterns.SequentialPatternsFeature;
-import ws.palladian.helper.ProgressHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
@@ -32,12 +33,18 @@ import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * 
+ * Saves the {@link Feature}s from the {@link PipelineDocument} provided to this component as a sparse ARFF file. The
+ * ARFF file format is used as input for Weka classifiers. For further information see <a
+ * href="http://www.cs.waikato.ac.nz/ml/weka/">the Weka Website</a>.
+ * </p>
+ * <p>
+ * This writer is especially used for the sparse ARFF format which is a little different then the normal ARFF format.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -46,7 +53,12 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
-    private static final Logger LOGGER = Logger.getLogger(SparseArffWriter.class);
+    /**
+     * <p>
+     * The logger for objects of this class.
+     * </p>
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(SparseArffWriter.class);
     /**
      * <p>
      * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
@@ -74,9 +86,27 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * 
      * @param fileName
      * @param featureDescriptors
+     * @throws IOException
      */
-    public SparseArffWriter(final String fileName, final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) {
-        this(fileName, 1, featureDescriptors);
+    public SparseArffWriter(final String fileName, final FeatureDescriptor<? extends Feature<?>>... featureDescriptors)
+            throws IOException {
+        this(fileName, true, 1, featureDescriptors);
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
+     * exists.
+     * </p>
+     * 
+     * @param fileName
+     * @param featureDescriptors
+     * @throws IOException
+     */
+    public SparseArffWriter(final String fileName, final Boolean overwrite,
+            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) throws IOException {
+        this(fileName, overwrite, 1, featureDescriptors);
     }
 
     /**
@@ -89,22 +119,99 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param fileName
      * @param batchSize
      * @param featureDescriptors
+     * @throws IOException
      */
     public SparseArffWriter(final String fileName, final Integer batchSize,
-            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) {
+            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) throws IOException {
+        this(fileName, true, batchSize, featureDescriptors);
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
+     * exists.
+     * </p>
+     * 
+     * @param fileName
+     * @param batchSize
+     * @param featureDescriptors
+     * @throws IOException
+     */
+    public SparseArffWriter(final String fileName, final Boolean overwrite, final Integer batchSize,
+            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) throws IOException {
         super(Arrays.asList(new Port<?>[] {new Port<Object>(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port<?>>());
 
         Validate.notNull(fileName, "fileName must not be null");
         Validate.notEmpty(featureDescriptors, "featureDescriptors must not be empty");
 
-        this.targetFile = new File(fileName);
-        if (targetFile.exists()) {
-            targetFile.delete();
-        }
-        this.featureDescriptors = Arrays.asList(featureDescriptors);
         featureTypes = new DualHashBidiMap<String, Integer>();
         instances = new LinkedList<List<Pair<Integer, String>>>();
         featuresAdded = 0;
+
+        this.targetFile = new File(fileName);
+        if (targetFile.exists()) {
+            if (overwrite) {
+                targetFile.delete();
+            } else {
+                readExistingArffFile();
+            }
+        }
+        this.featureDescriptors = Arrays.asList(featureDescriptors);
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @throws IOException
+     * 
+     */
+    private void readExistingArffFile() throws IOException {
+        List<String> lines = FileUtils.readLines(targetFile);
+
+        int currentLineIndex = 0;
+        String currentLine = lines.get(0).trim();
+        // read the header
+        while (!currentLine.startsWith("@attribute")) {
+            currentLineIndex++;
+            currentLine = lines.get(currentLineIndex).trim();
+        }
+
+        int attributeIndex = 0;
+        // read the schema
+        while (currentLine.startsWith("@attribute")) {
+            String featureType = currentLine.replaceFirst("@attribute ", "");
+            featureType = featureType.replace("\n", "");
+            featureTypes.put(featureType, attributeIndex);
+            currentLineIndex++;
+            currentLine = lines.get(currentLineIndex).trim();
+        }
+
+        // jump to data section
+        while (!currentLine.startsWith("@data")) {
+            currentLineIndex++;
+            currentLine = lines.get(currentLineIndex).trim();
+        }
+
+        // read the data
+        while (currentLineIndex < lines.size() && !currentLine.isEmpty()) {
+            // this needs to happen at the beginning to jump over the @data line
+            currentLineIndex++;
+            currentLine = lines.get(currentLineIndex).trim();
+
+            // remove curly braces at the beginning and the end
+            currentLine.substring(1, currentLine.length() - 1);
+            String[] dataEntries = currentLine.split(",");
+            List<Pair<Integer, String>> instance = new ArrayList<Pair<Integer, String>>();
+            for (String dataEntry : dataEntries) {
+                String[] entry = dataEntry.split(" ");
+                Integer featureTypeIndex = featureTypes.get(entry[0]);
+                instance.add(new ImmutablePair(attributeIndex, entry[1]));
+            }
+            instances.add(instance);
+        }
     }
 
     @Override
@@ -130,13 +237,14 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                 }
                 IOUtils.write("@attribute " + featureType + "\n", arffFileStream);
 
-                ProgressHelper.showProgress(i, featuresAdded, 5, LOGGER);
+                LOGGER.debug("Saved {}% of schema to ARFF file.",
+                        i.doubleValue() * 100.0d / featuresAdded.doubleValue());
             }
 
             IOUtils.write("\n@data\n", arffFileStream);
 
             LOGGER.info("Saving instances:");
-            int instanceCounter = 0;
+            Integer instanceCounter = 0;
             for (List<Pair<Integer, String>> instance : instances) {
                 StringBuilder instanceBuilder = new StringBuilder("{");
                 Collections.sort(instance);
@@ -154,7 +262,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                 instanceBuilder.append("}\n");
                 IOUtils.write(instanceBuilder.toString(), arffFileStream);
 
-                ProgressHelper.showProgress(instanceCounter, instances.size(), 5, LOGGER);
+                LOGGER.debug("Saved {}% of all instances to ARFF file.", instanceCounter.doubleValue() * 100.0d
+                        / instances.size());
                 instanceCounter++;
             }
         } finally {
@@ -195,6 +304,35 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             handleNominalFeature((NominalFeature)feature, newInstance);
         } else if (feature instanceof SequentialPatternsFeature) {
             handleSequentialPatterns((SequentialPatternsFeature)feature, newInstance);
+        } else if (feature instanceof ListFeature) {
+            handleListFeature((ListFeature)feature, newInstance);
+        }
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param feature
+     * @param newInstance
+     */
+    private void handleListFeature(ListFeature feature, List<Pair<Integer, String>> newInstance) {
+        List<Object> elements = feature.getValue();
+        for (Object element : elements) {
+            String featureType = "\"" + element.toString() + "\" numeric";
+
+            Integer featureTypeIndex = featureTypes.get(featureType);
+            if (featureTypeIndex == null) {
+                featureTypes.put(featureType, featuresAdded);
+                featureTypeIndex = featuresAdded;
+                featuresAdded++;
+            }
+
+            ImmutablePair<Integer, String> featureValue = new ImmutablePair<Integer, String>(featureTypeIndex, "1.0");
+            if (!newInstance.contains(featureValue)) {
+                newInstance.add(featureValue);
+            }
         }
     }
 

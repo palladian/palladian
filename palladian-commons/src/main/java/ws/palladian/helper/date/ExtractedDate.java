@@ -141,10 +141,15 @@ public class ExtractedDate {
     }
 
     /**
-     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
+     * <p>
+     * Constructs a normalized date string in a format from <code>YYYY-MM-DD HH:MM:SS</code> to <code>YYYY-MM</code>
+     * depending of given values.
+     * </p>
      * 
-     * @param time <code>true</code> to include time.
-     * @return
+     * @param time <code>true</code> to include time (the time is only included, if time values are actually given, i.e.
+     *            in an {@link ExtractedDate} where time parts are not set, they will not be returned, altough this
+     *            parameter might be set to <code>true</code>).
+     * @return A normalized date string as described above.
      */
     public String getNormalizedDateString(boolean time) {
         StringBuilder normalizedDate = new StringBuilder();
@@ -177,7 +182,6 @@ public class ExtractedDate {
         }
 
         return normalizedDate.toString();
-
     }
     
     /**

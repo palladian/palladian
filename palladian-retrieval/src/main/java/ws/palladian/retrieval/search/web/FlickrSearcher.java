@@ -1,32 +1,33 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * Search for images on <a href="http://www.flickr.com/">Flickr</a>.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://www.flickr.com/services/api/">Flickr Services</a>
  * @see <a href="http://www.flickr.com/services/api/misc.api_keys.html">Obtaining an API key</a>
  */
 public final class FlickrSearcher extends WebSearcher<WebImageResult> {
 
-    /** Identifier for the API key when supplied via {@link Configuration}. */
+    /**
+     * Identifier for the API key when supplied via {@link Configuration}.
+     */
     public static final String CONFIG_API_KEY = null;
 
     private final String apiKey;
@@ -35,7 +36,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
      * <p>
      * Creates a new Flickr searcher.
      * </p>
-     * 
+     *
      * @param apiKey The API key for accessing Flickr, not <code>null</code> or empty.
      */
     public FlickrSearcher(String apiKey) {
@@ -47,9 +48,9 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
      * <p>
      * Creates a new Flickr searcher.
      * </p>
-     * 
+     *
      * @param configuration The configuration which must provide an API key for accessing Flickr, which must be provided
-     *            as string via key {@value FlickrSearcher#CONFIG_API_KEY} in the configuration.
+     *                      as string via key {@value FlickrSearcher#CONFIG_API_KEY} in the configuration.
      */
     public FlickrSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -62,12 +63,16 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
 
     @Override
     public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
+        return search(query, null, null, resultCount, language);
+    }
+
+    public List<WebImageResult> search(String query, String min_upload_date, String tags, int resultCount, Language language) throws SearcherException {
         List<WebImageResult> result = new ArrayList<WebImageResult>();
 
         // TODO paging currently not implemented.
         // TODO implement checking for error codes.
 
-        String requestUrl = buildRequestUrl(query, 1, language);
+        String requestUrl = buildRequestUrl(query, tags, min_upload_date, 1, language);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
@@ -97,12 +102,20 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
         return result;
     }
 
-    private String buildRequestUrl(String query, int page, Language language) {
+    private String buildRequestUrl(String query, String tags, String uploadDate, int page, Language language) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://api.flickr.com/services/rest/");
         urlBuilder.append("?method=flickr.photos.search");
         urlBuilder.append("&api_key=").append(apiKey);
-        urlBuilder.append("&text=").append(query);
+        if (query != null) {
+            urlBuilder.append("&text=").append(query);
+        }
+        if (tags != null) {
+            urlBuilder.append("&tags=").append(tags);
+        }
+        if (uploadDate != null) {
+            urlBuilder.append("&min_upload_date=").append(uploadDate);
+        }
         urlBuilder.append("&format=json");
         urlBuilder.append("&nojsoncallback=1");
         return urlBuilder.toString();
@@ -112,7 +125,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
      * <p>
      * Transforms the given parts back to an image URL.
      * </p>
-     * 
+     *
      * @param farmId
      * @param serverId
      * @param id
