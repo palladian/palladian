@@ -36,7 +36,7 @@ public class DateNormalizerTest {
         // System.out.println(DateNormalizer.normalizeDate("10 Oct 2008 16:34:01 EST"));
         assertEquals("2008-10-10 21:34:01", DateNormalizer.normalizeDate("10 Oct 2008 16:34:01 EST"));
         // System.out.println(DateNormalizer.normalizeDate("Mon, 27 Oct 2008 19:00 GMT"));
-        assertEquals("2008-10-27 19:00:00", DateNormalizer.normalizeDate("Mon, 27 Oct 2008 19:00 GMT"));
+        assertEquals("2008-10-27 19:00:00", DateNormalizer.normalizeDate("Mon, 27 Oct 2008 19:00 GMT", true));
         // System.out.println(normalizeDate("10 Oct 2008 16:34:01 EST"));
         assertEquals("2008-11-23 00:00:00", DateNormalizer.normalizeDate("Sun, 23 Nov 2008", true));
         // System.out.println(DateNormalizer.normalizeDate("Tue, 16 May 2006 15:04:54 +0900",true));

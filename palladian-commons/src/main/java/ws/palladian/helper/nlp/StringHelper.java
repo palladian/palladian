@@ -1368,9 +1368,6 @@ public final class StringHelper {
             leftBorderLength = leftBorder.length();
         }
         int rightIndex = 0;
-        // if (rightBorder == null) {
-        // rightIndex = string.length();
-        // }
         int i = 0;
         for (;;) {
             int leftIndex = 0;
