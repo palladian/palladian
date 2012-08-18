@@ -1,13 +1,15 @@
 package ws.palladian.retrieval.search.web;
 
-import org.junit.Before;
-import org.junit.Test;
-import ws.palladian.helper.constants.Language;
-import ws.palladian.retrieval.search.SearcherException;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +18,7 @@ import static org.junit.Assert.assertTrue;
  * Time: 17:18
  * To change this template use File | Settings | File Templates.
  */
+@Ignore
 public class FlickrSearcherTest {
 
     private static final String TEST_API_KEY = "3bb508b5d6a50a1b30726e5107de7855";
@@ -28,14 +31,9 @@ public class FlickrSearcherTest {
     }
 
     @Test
-    public void testSearch() {
-        try {
-            List<WebImageResult> webImageResults = flickrSearcher.search("cats", "20.12.2010", "dogs,cats", 100, Language.ENGLISH);
-            assertTrue(webImageResults.size() == 100);
-
-        } catch (SearcherException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+    public void testSearch() throws SearcherException {
+        List<WebImageResult> webImageResults = flickrSearcher.search("cats", "20.12.2010", "dogs,cats", 100, Language.ENGLISH);
+        assertTrue(webImageResults.size() == 100);
     }
 
 }
