@@ -26,7 +26,7 @@ import ws.palladian.helper.io.LineAction;
  * @author Philipp Katz
  */
 public final class MathHelper {
-    
+
     private MathHelper() {
         // no instances.
     }
@@ -231,7 +231,7 @@ public final class MathHelper {
             return values[numValues / 2];
         }
     }
-    
+
     public static double getMedian(long[] values) {
         int numValues = values.length;
         Arrays.sort(values);
@@ -249,7 +249,7 @@ public final class MathHelper {
         }
         return sum / values.length;
     }
-    
+
     public static double getAverage(long[] values) {
         double sum = 0;
         for (long value : values) {
@@ -264,7 +264,7 @@ public final class MathHelper {
     @Deprecated
     public static long getMedianDifference(long[] sortedList) {
         long[] distances = getDistances(sortedList);
-        return (long) getMedian(distances);
+        return (long)getMedian(distances);
     }
 
     /**
@@ -295,7 +295,7 @@ public final class MathHelper {
             return Math.sqrt(deviationSum / values.length);
         }
     }
-    
+
     /**
      * <p>
      * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
@@ -335,7 +335,7 @@ public final class MathHelper {
             return Math.sqrt(deviationSum / values.length);
         }
     }
-    
+
     public static double getStandardDeviation(long[] values) {
         return getStandardDeviation(values, true);
     }
@@ -463,7 +463,7 @@ public final class MathHelper {
         similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
         double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
         double rootMeanSquareError = computeRootMeanSquareError(positionValues);
-        
+
         return new ListSimilarity(similarity, squaredShiftSimilarity, rootMeanSquareError);
     }
 
@@ -709,7 +709,7 @@ public final class MathHelper {
      */
     public static long[] getDistances(long[] values) {
         Validate.notNull(values, "values must not be null");
-        
+
         if (values.length < 1) {
             return new long[0];
         }
@@ -719,6 +719,32 @@ public final class MathHelper {
             ret[i - 1] = values[i] - values[i - 1];
         }
         return ret;
+    }
+
+    /**
+     * <p>
+     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
+     * </p>
+     * 
+     * @param lat1 The latitude of the first place.
+     * @param lng1 The longitude of the first place.
+     * @param lat2 The latitude of the second place.
+     * @param lng2 The longitude of the second place.
+     * @return The distance between the points in kilometers.
+     */
+    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
+        double earthRadius = 6384;
+        double lat1Rad = Math.toRadians(lat1);
+        double lat2Rad = Math.toRadians(lat2);
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double sindLat = Math.sin(dLat / 2);
+        double sindLng = Math.sin(dLng / 2);
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = earthRadius * c;
+
+        return distance;
     }
 
 }

@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HtmlHelper;
@@ -634,7 +633,7 @@ public class FileFormatParser {
             // add tag </ + name + > and nested tag length to cumulated tag offset
             cumulatedTagOffset += nestedTagLength + conceptName.length() + 3;
 
-            ProgressHelper.showProgress(cumulatedTagOffset, taggedText.length(), 1);
+            // ProgressHelper.showProgress(cumulatedTagOffset, taggedText.length(), 1);
         }
 
         return annotations;

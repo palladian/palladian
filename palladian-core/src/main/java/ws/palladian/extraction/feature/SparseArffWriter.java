@@ -413,8 +413,13 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param feature {@see #handleFeature(Feature, List)}
      * @param newInstance {@see #handleFeature(Feature, List)}
      */
+<<<<<<< HEAD
     private void handleListFeature(final ListFeature feature, final List<Pair<Integer, String>> newInstance) {
         List elements = feature.getList();
+=======
+    private void handleListFeature(ListFeature feature, List<Pair<Integer, String>> newInstance) {
+        List<Object> elements = feature.getValue();
+>>>>>>> refs/remotes/origin/master
         for (Object element : elements) {
             String featureType = "\"" + element.toString() + "\" numeric";
 

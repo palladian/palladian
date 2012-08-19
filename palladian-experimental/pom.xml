@@ -122,5 +122,10 @@
 			<artifactId>eddie</artifactId>
 			<version>0.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.mahout</groupId>
+			<artifactId>mahout-core</artifactId>
+			<version>0.7</version>
+		</dependency>
 	</dependencies>
 </project>

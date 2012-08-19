@@ -202,6 +202,17 @@
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>quickdt</groupId>
+			<artifactId>quickdt</artifactId>
+			<version>0.0.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>testng</artifactId>
+					<groupId>org.testng</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 </project>
 

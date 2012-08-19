@@ -217,6 +217,8 @@ public class StringHelperTest {
 
     @Test
     public void testGetSubstringBetween() {
+        assertEquals("all the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", null, " in ohio"));
+        assertEquals("the lilacs in ohio", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", null));
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", " in ohio", "all "));
@@ -282,7 +284,7 @@ public class StringHelperTest {
         assertEquals("\u6771", StringHelper.removeFourByteChars("\u6771"));
         assertEquals("", StringHelper.removeFourByteChars("\uD801\uDC00"));
     }
-    
+
     @Test
     public void testIsCompletelyUppercase() {
         assertEquals(true, StringHelper.isCompletelyUppercase("ABC"));
