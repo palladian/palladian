@@ -31,7 +31,7 @@ public abstract class LineAction {
      * </p>
      * 
      * @param line The string content of the line.
-     * @param lineNumber The number of the line, starting with <code>1</code>.
+     * @param lineNumber The number of the line, starting with <code>0</code>.
      */
     public abstract void performAction(String line, int lineNumber);
 

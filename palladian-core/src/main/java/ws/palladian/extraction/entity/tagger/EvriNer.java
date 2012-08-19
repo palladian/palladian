@@ -1,7 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,8 +14,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,10 +24,15 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HTTPPoster;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -61,14 +62,14 @@ import ws.palladian.retrieval.HTTPPoster;
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class EvriNer extends NamedEntityRecognizer {
 
     /** The maximum number of characters allowed to send per request (actually ???). */
-    private final int MAXIMUM_TEXT_LENGTH = 50000;
+    private final int MAXIMUM_TEXT_LENGTH = 1000;
     
-    // FIXME make configurable
+    // TODO make configurable
     private static final String APP_ID = "xDqBQd435pyZMqU2xDzhBgmtOxGBWgMW";
 
     public EvriNer() {
@@ -111,56 +112,35 @@ public class EvriNer extends NamedEntityRecognizer {
 
         // we need to build chunks of texts because we can not send very long texts at once to open calais
         List<String> sentences = Tokenizer.getSentences(inputText);
-        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
+        List<String> textChunks = new ArrayList<String>();
         StringBuilder currentTextChunk = new StringBuilder();
         for (String sentence : sentences) {
 
             if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
-                textChunks.add(currentTextChunk);
+                textChunks.add(currentTextChunk.toString());
                 currentTextChunk = new StringBuilder();
             }
 
             currentTextChunk.append(sentence);
         }
-        textChunks.add(currentTextChunk);
+        textChunks.add(currentTextChunk.toString());
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
         Set<String> checkedEntities = new HashSet<String>();
-        for (StringBuilder textChunk : textChunks) {
+        for (String textChunk : textChunks) {
 
             try {
-
-                // use get
-                // Crawler c = new Crawler();
-                // String restCall = "http://api.evri.com/v1/media/entities.json?uri=http://www.webknox.com&text=" +
-                // inputText
-                // + "&appId=evri.com-restdoc";
-                // System.out.println(restCall);
-                // JSONObject json = c.getJSONDocument(restCall);
-
-                HttpPost pm = createPostMethod(textChunk.toString());
-
-                HTTPPoster poster = new HTTPPoster();
-                String response = poster.handleRequest(pm);
-                System.out.println(response);
+                
+                String encodedText = UrlHelper.urlEncode(textChunk);
+                String apiUrl = "http://api.evri.com/v1/media/entities.json?uri=http://www.webknox.com&text=" + encodedText + "&appId=" + APP_ID;
+                HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+                HttpResult httpResult = httpRetriever.httpGet(apiUrl);
+                String response = HttpHelper.getStringContent(httpResult);
 
                 JSONObject json = new JSONObject(response);
 
                 JSONArray entities = new JSONArray();
-
-                // JSONObject e1 = new JSONObject();
-                // e1.put("@href", "/person/sdafas");
-                // Map<String, String> m = new HashMap<String, String>();
-                // m.put("$", "Milhouse");
-                // e1.put("name", new JSONObject(m));
-                // entities.put(e1);
-                // JSONObject e2 = new JSONObject();
-                // e2.put("@href", "/politician/sdafas");
-                // m = new HashMap<String, String>();
-                // m.put("$", "Richard Milhouse Nixon");
-                // e2.put("name", new JSONObject(m));
-                // entities.put(e2);
 
                 // try to get an array of entities, if it was only one found, get the one as json object instead
                 try {
@@ -194,7 +174,7 @@ public class EvriNer extends NamedEntityRecognizer {
                         } catch (Exception e) {
                             JSONArray array = facets.getJSONArray("facet");
                             if (array.length() > 0) {
-                                concept = array.getString(0);
+                                concept = array.getJSONObject(0).getString("$");
                             }
                         }
 
@@ -221,6 +201,8 @@ public class EvriNer extends NamedEntityRecognizer {
 
             } catch (JSONException e) {
                 LOGGER.error(getName() + " could not parse json, " + e.getMessage());
+            } catch (HttpException e) {
+                LOGGER.error("HttpException from " + getName() + ": " + e.getMessage());
             }
 
         }
@@ -232,26 +214,6 @@ public class EvriNer extends NamedEntityRecognizer {
         FileHelper.writeToFile("data/test/ner/evriOutput.txt", tagText(inputText, annotations));
 
         return annotations;
-    }
-
-    private HttpPost createPostMethod(String inputText) {
-
-        HttpPost method = new HttpPost("http://api.evri.com/v1/media/entities.json");
-
-        // set input content type
-        method.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-
-        // set response/output format
-        method.setHeader("Accept", "application/json");
-
-        try {
-            method.setEntity(new StringEntity("uri=" + URLEncoder.encode("http://www.webknox.com", "UTF-8") + "&text="
-                    + URLEncoder.encode(inputText, "UTF-8") + "&appId=" + APP_ID, "text/raw", "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("encoding is not supported, " + e.getMessage());
-        }
-
-        return method;
     }
 
     /**

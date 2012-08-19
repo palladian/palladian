@@ -501,6 +501,11 @@
 			<id>Twitter</id>
 			<url>http://maven.twttr.com/</url>
 		</repository>
+		<repository>
+			<id>sanity-maven-repo</id>
+			<name>Sanity's Maven repository on GitHub</name>
+			<url>http://sanity.github.com/maven-repo/repository/</url>
+		</repository>
 	</repositories>
 	<distributionManagement>
 		<repository>
