@@ -20,9 +20,15 @@ import ws.palladian.processing.features.NumericFeature;
  * <p>
  * Predictor implementation using Weka.
  * </p>
+ * <p>
+ * Use {@link #learn(List)} to train a new classifier based on a list of example instances and
+ * {@link #predict(FeatureVector)} to classify a {@link FeatureVector}. The {@code FeatureVector} used for training
+ * requires the class to be the last {@link Feature} in each instances {@code FeatureVector}.
+ * </p>
  * 
  * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>
  * @author Philipp Katz
+ * @author Klemens Muthmann
  */
 public final class WekaPredictor implements Predictor<String> {
 
