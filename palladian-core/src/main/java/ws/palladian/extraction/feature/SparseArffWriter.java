@@ -9,8 +9,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.BidiMap;
 import org.apache.commons.collections15.bidimap.DualHashBidiMap;
@@ -87,6 +92,13 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * </p>
      */
     private final BidiMap<String, Integer> featureTypes;
+
+    /**
+     * <p>
+     * A collection of all values possible for each {@link NominalFeature} in the dataset.
+     * </p>
+     */
+    private final Map<Integer, Set<String>> nominalPossibleValues;
     /**
      * <p>
      * The currently available instances in the data part of the ARFF file. This is a list of lists. Each sublist is one
@@ -215,6 +227,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
         featureTypes = new DualHashBidiMap<String, Integer>();
         instances = new LinkedList<List<Pair<Integer, String>>>();
+        nominalPossibleValues = new HashMap<Integer, Set<String>>();
         featuresAdded = 0;
 
         this.targetFile = modelArffFile;
@@ -271,6 +284,15 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         while (currentLine.startsWith("@attribute")) {
             String featureType = currentLine.replaceFirst("@attribute ", "");
             featureType = featureType.replace("\n", "");
+
+            // Read possible values for nominal values
+            Pattern pattern = Pattern.compile("\".*?\"\\s{dummy,(.*?)}");
+            java.util.regex.Matcher featureMatcher = pattern.matcher(featureType);
+            if (featureMatcher.matches()) {
+                String[] possibleValues = featureMatcher.group().split(",");
+                nominalPossibleValues.put(attributeIndex, new HashSet<String>(Arrays.asList(possibleValues)));
+            }
+
             featureTypes.put(featureType, attributeIndex);
             currentLineIndex++;
             currentLine = lines.get(currentLineIndex).trim();
@@ -329,7 +351,19 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                     throw new IllegalStateException("No feature type at index: " + i + " expected to write "
                             + (featuresAdded - 1) + " feature types.");
                 }
-                IOUtils.write("@attribute " + featureType + "\n", arffFileStream);
+                StringBuilder featureTypeBuilder = new StringBuilder(featureType);
+
+                // write possible values for nominal attributes
+                Set<String> possibleValues = nominalPossibleValues.get(i);
+                if (possibleValues != null) {
+                    featureTypeBuilder.append(" {wekadummy");
+                    for (String possibleValue : possibleValues) {
+                        featureTypeBuilder.append("," + possibleValue);
+                    }
+                    featureTypeBuilder.append("}");
+                }
+
+                IOUtils.write("@attribute " + featureTypeBuilder.toString() + "\n", arffFileStream);
 
                 LOGGER.debug("Saved {}% of schema to ARFF file.",
                         i.doubleValue() * 100.0d / featuresAdded.doubleValue());
@@ -472,14 +506,15 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param newInstance {@see #handleFeature(Feature, List)}
      */
     private void handleNominalFeature(final NominalFeature feature, final List<Pair<Integer, String>> newInstance) {
-        StringBuilder featureTypeBuilder = new StringBuilder("\"" + feature.getName() + "\" {dummy");
+        // StringBuilder featureTypeBuilder = new StringBuilder("\"" + feature.getName() + "\" {dummy");
 
-        for (String value : feature.getPossibleValues()) {
-            featureTypeBuilder.append(",");
-            featureTypeBuilder.append(value);
-        }
-        featureTypeBuilder.append("}");
-        String featureType = featureTypeBuilder.toString();
+        // for (String value : feature.getPossibleValues()) {
+        // featureTypeBuilder.append(",");
+        // featureTypeBuilder.append(value);
+        // }
+        // featureTypeBuilder.append("}");
+        // String featureType = featureTypeBuilder.toString();
+        String featureType = feature.getName();
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
@@ -487,6 +522,13 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             featureTypes.put(featureType, featureTypeIndex);
             featuresAdded++;
         }
+
+        Set<String> possibleValues = nominalPossibleValues.get(featureTypeIndex);
+        if (possibleValues == null) {
+            possibleValues = new HashSet<String>();
+        }
+        possibleValues.add(feature.getValue());
+        nominalPossibleValues.put(featureTypeIndex, possibleValues);
 
         ImmutablePair<Integer, String> featureValue = new ImmutablePair<Integer, String>(featureTypeIndex,
                 feature.getValue());
