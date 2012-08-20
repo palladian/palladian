@@ -11,6 +11,6 @@ public enum Language {
     
     // TODO replace this by java.util.Locale?
 
-    ENGLISH, GERMAN;
+    ENGLISH, GERMAN, CHINESE;
 
 }
