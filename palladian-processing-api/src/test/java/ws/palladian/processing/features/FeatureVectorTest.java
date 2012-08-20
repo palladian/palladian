@@ -8,13 +8,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
-
 public class FeatureVectorTest {
 
     private FeatureVector featureVector;
@@ -26,7 +19,7 @@ public class FeatureVectorTest {
     @Before
     public void setUp() {
         featureVector = new FeatureVector();
-        f1 = new NominalFeature("nominalFeature1", "test", "value1", "value2");
+        f1 = new NominalFeature("nominalFeature1", "test");
         f2 = new Feature<String>("nominalFeature3", "test");
         f3 = new NumericFeature("numericFeature1", 2.);
         f4 = new Feature<Double>("numericFeature2", 3.);
