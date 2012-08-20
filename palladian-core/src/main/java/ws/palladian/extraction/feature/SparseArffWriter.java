@@ -514,7 +514,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         // }
         // featureTypeBuilder.append("}");
         // String featureType = featureTypeBuilder.toString();
-        String featureType = feature.getName();
+        String featureType = "\"" + feature.getName() + "\"";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
