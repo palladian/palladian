@@ -573,6 +573,7 @@ public final class StringHelper {
                 String before = searchString.substring(0, index);
                 String after = searchString.substring(oldIndex);
                 searchString = before + replacement + after;
+                searchStringLc = searchString.toLowerCase();
             }
 
         } while (index > -1);

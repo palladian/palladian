@@ -63,6 +63,14 @@ public class StringHelperTest {
         assertEquals(",", StringHelper.removeWord("test", "test,"));
         assertEquals(";", StringHelper.removeWord("test", "test;"));
         assertEquals("()", StringHelper.removeWord("test", "(test)"));
+        assertEquals("", StringHelper.removeWord("", ""));
+        assertEquals("", StringHelper.removeWord("abc", ""));
+        assertEquals("abc", StringHelper.removeWord("", "abc"));
+        assertEquals("it and or ", StringHelper.removeWord("abc", "it abc and Abc or aBc"));
+
+        assertEquals("a (test) b", StringHelper.replaceWord("test", "(test)", "a test b"));
+        assertEquals("a  b", StringHelper.replaceWord("test", "", "a test b"));
+        assertEquals("a test b", StringHelper.replaceWord("", "", "a test b"));
         System.out.println(stopWatch.getElapsedTimeString());
     }
 
