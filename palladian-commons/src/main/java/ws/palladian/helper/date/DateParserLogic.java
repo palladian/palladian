@@ -273,6 +273,8 @@ final class DateParserLogic {
             String[] parts = dateString.split(" ");
             setDateValues(parts, 3, 0, 1);
             setTimeValues(parts[2]);
+        } else {
+            throw new IllegalStateException("No parse logic for format \"" + format + "\"");
         }
     }
 
