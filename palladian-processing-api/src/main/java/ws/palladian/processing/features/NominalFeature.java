@@ -13,12 +13,12 @@ package ws.palladian.processing.features;
  */
 public final class NominalFeature extends Feature<String> {
 
-    /**
-     * <p>
-     * The values this {@code NominalFeature} can take on.
-     * </p>
-     */
-    private final String[] possibleValues;
+    // /**
+    // * <p>
+    // * The values this {@code NominalFeature} can take on.
+    // * </p>
+    // */
+    // private final String[] possibleValues;
 
     /**
      * <p>
@@ -29,10 +29,10 @@ public final class NominalFeature extends Feature<String> {
      * @param value The {@code String} value of this {@code Feature}.
      * @param possibleValues The values this {@code NominalFeature} can take on.
      */
-    public NominalFeature(final String name, final String value, final String... possibleValues) {
+    public NominalFeature(final String name, final String value) {
         super(name, value);
 
-        this.possibleValues = possibleValues;
+        // this.possibleValues = possibleValues;
     }
 
     /**
@@ -45,16 +45,15 @@ public final class NominalFeature extends Feature<String> {
      * @param value The {@code String} value of this {@code Feature}.
      * @param The values this {@code NominalFeature} can take on.
      */
-    public NominalFeature(final FeatureDescriptor<NominalFeature> descriptor, final String value,
-            final String... possibleValues) {
-        this(descriptor.getIdentifier(), value, possibleValues);
+    public NominalFeature(final FeatureDescriptor<NominalFeature> descriptor, final String value) {
+        this(descriptor.getIdentifier(), value);
     }
-
-    /**
-     * @return The values this {@code NominalFeature} can take on.
-     */
-    public String[] getPossibleValues() {
-        return possibleValues;
-    }
+    //
+    // /**
+    // * @return The values this {@code NominalFeature} can take on.
+    // */
+    // public String[] getPossibleValues() {
+    // return possibleValues;
+    // }
 
 }

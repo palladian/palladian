@@ -32,7 +32,7 @@ public class ProgressHelper {
 
         String processString = "";
         try {
-            if (counter % (showEveryPercent * totalCount / 100) == 0) {
+            if (counter % (showEveryPercent * totalCount / 100.0) < 1) {
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
                 processString = percent + "% ("
                         + (totalCount - counter) + " items remaining";
@@ -61,7 +61,7 @@ public class ProgressHelper {
 
     public static void main(String[] args) {
 
-        int totalCount = 1000;
+        int totalCount = 5000;
         int showEvery = 5;
 
         for (int i = 1; i <= totalCount; i++) {

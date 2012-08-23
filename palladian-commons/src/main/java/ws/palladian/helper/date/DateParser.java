@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
@@ -26,6 +27,9 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public final class DateParser {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(DateParser.class);
 
     private DateParser() {
         // utility class, no instances.
@@ -61,7 +65,14 @@ public final class DateParser {
      */
     public static ExtractedDate parseDate(String date, DateFormat format) {
         DateParserLogic parseLogic = new DateParserLogic(date, format);
-        parseLogic.parse();
+        try {
+            parseLogic.parse();
+        } catch (Exception e) {
+            LOGGER.error("Exception while parsing date string \"" + date + "\" with format \"" + format + "\": "
+                    + e.getMessage());
+            // TODO what to do in this case; return null? For now I just return the ExtractedDate which is incorrect,
+            // but we avoid NPEs for now.
+        }
         return new ExtractedDate(parseLogic);
     }
 
