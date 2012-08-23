@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  * <p>
- * Helper to get an Integer/Long/Double/Boolean values from a result set that preserves <code>null</code> values.
+ * Helper to get an Integer/Long/Double/Boolean/String values from a result set that preserves <code>null</code> values.
  * </p>
  * 
  * @author Sandro Reichert
@@ -107,6 +107,30 @@ public class SqlHelper {
         Boolean value = null;
         synchronized (resultSet) {
             value = resultSet.getBoolean(columnLabel);
+            value = resultSet.wasNull() ? null : value;
+        }
+        return value;
+    }
+
+    /**
+     * <p>
+     * Helper to get a String value from a result set that preserves <code>null</code> values.
+     * </p>
+     * 
+     * <p>
+     * SQL only provides a getString method that returns an String value. In case the original value in the database was
+     * <code>null</code>, it returns 0.
+     * </p>
+     * 
+     * @param resultSet The resultSet to get the String value from.
+     * @param columnLabel The label of the column to get the value from.
+     * @return The String of the column or <code>null</code> if <code>null</code> is read from database.
+     * @throws SQLException
+     */
+    public static String getString(ResultSet resultSet, String columnLabel) throws SQLException {
+        String value = null;
+        synchronized (resultSet) {
+            value = resultSet.getString(columnLabel);
             value = resultSet.wasNull() ? null : value;
         }
         return value;

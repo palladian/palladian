@@ -28,7 +28,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
     /**
      * Identifier for the API key when supplied via {@link Configuration}.
      */
-    public static final String CONFIG_API_KEY = null;
+    public static final String CONFIG_API_KEY = "api.flickr.key";
 
     private final String apiKey;
 
@@ -66,13 +66,13 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
         return search(query, null, null, resultCount, language);
     }
 
-    public List<WebImageResult> search(String query, String min_upload_date, String tags, int resultCount, Language language) throws SearcherException {
+    public List<WebImageResult> search(String query, String minUploadDate, String tags, int resultCount, Language language) throws SearcherException {
         List<WebImageResult> result = new ArrayList<WebImageResult>();
 
         // TODO paging currently not implemented.
         // TODO implement checking for error codes.
 
-        String requestUrl = buildRequestUrl(query, tags, min_upload_date, 1, language);
+        String requestUrl = buildRequestUrl(query, tags, minUploadDate, 1, language);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
