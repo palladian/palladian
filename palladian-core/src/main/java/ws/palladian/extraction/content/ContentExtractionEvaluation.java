@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -126,7 +125,7 @@ public class ContentExtractionEvaluation {
         // keep statistics
         Bag<WebPageContentExtractor> wins = new HashBag<WebPageContentExtractor>();
         Bag<WebPageContentExtractor> errors = new HashBag<WebPageContentExtractor>();
-        Map<WebPageContentExtractor, SummaryStatistics> stats = new HashMap<WebPageContentExtractor, SummaryStatistics>();
+        Map<WebPageContentExtractor, Double> stats = new HashMap<WebPageContentExtractor, Double>();
 
         // loop through the dataset
         for (Entry<String, String> entry : dataset.entrySet()) {
@@ -139,7 +138,6 @@ public class ContentExtractionEvaluation {
                 String head = "UUID\tURL\t";
                 for (WebPageContentExtractor technique : result.keySet()) {
                     head += technique.getExtractorName() + "\t";
-                    stats.put(technique, new SummaryStatistics());
                 }
                 LOGGER.info(head);
                 writeHeader = false;
@@ -165,7 +163,11 @@ public class ContentExtractionEvaluation {
                 if (score == -1) {
                     errors.add(technique);
                 } else {
-                    stats.get(technique).addValue(score);
+                    Double scoreSum = stats.get(technique);
+                    if (scoreSum == null) {
+                        scoreSum = 0.;
+                    }
+                    stats.put(technique, scoreSum + score);
                 }
             }
 
@@ -181,7 +183,7 @@ public class ContentExtractionEvaluation {
         LOGGER.info("------------- stats ------------------");
         for (WebPageContentExtractor extractor : extractors) {
             LOGGER.info(" " + extractor.getExtractorName() + "\t#wins:" + wins.getCount(extractor) + "\t#errors:"
-                    + errors.getCount(extractor) + "\tavg. score:" + stats.get(extractor).getMean());
+                    + errors.getCount(extractor) + "\tavg. score:" + (double) stats.get(extractor) / dataset.size());
         }
 
         return sb.toString();

@@ -1,13 +1,13 @@
 package ws.palladian.extraction.keyphrase;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
-import scala.actors.threadpool.Arrays;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
 

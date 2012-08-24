@@ -4,11 +4,11 @@
 package ws.palladian.extraction.feature;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import scala.actors.threadpool.Arrays;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.LingPipeSentenceDetector;
@@ -61,7 +61,6 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
                 "Nount annotator can only work if the text was processed by a BaseTokenizer. Please add one to your pipeline.");
 
         List<Annotation<String>> ret = new ArrayList<Annotation<String>>();
-        @SuppressWarnings("unchecked")
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
         for (Annotation<String> sentence : sentencesFeature.getValue()) {
             List<Annotation<String>> tokens = tokenFeature.getAnnotations(sentence.getStartPosition(),
