@@ -4,10 +4,10 @@
 package ws.palladian.extraction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import scala.actors.threadpool.Arrays;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
