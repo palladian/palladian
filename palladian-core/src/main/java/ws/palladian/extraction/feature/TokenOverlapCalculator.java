@@ -3,13 +3,13 @@
  */
 package ws.palladian.extraction.feature;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import scala.actors.threadpool.Arrays;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
@@ -66,8 +66,9 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
             final FeatureDescriptor<? extends AnnotationFeature<?>> input2FeatureDescriptor) {
         // Ports parameterized with Objects since it does not matter which type they have, because the Calculator only
         // uses the feature vector.
-        super(Arrays.asList(new Port[] {new Port<Object>(INPUT_PORT_ONE_IDENTIFIER),
-                new Port<Object>(INPUT_PORT_TWO_IDENTIFIER)}), Arrays.asList(new Port[] {new Port<Object>(
+        // FIXME omfg, we have to think of a cleaner solution here, look at all those warning! -- 2012-08-24, Philipp
+        super((List)Arrays.asList(new Port[] {new Port<Object>(INPUT_PORT_ONE_IDENTIFIER),
+                new Port<Object>(INPUT_PORT_TWO_IDENTIFIER)}), (List)Arrays.asList(new Port[] {new Port<Object>(
                 PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}), featureDescriptor);
 
         this.input1FeatureDescriptor = input1FeatureDescriptor;

@@ -2,6 +2,8 @@ package ws.palladian.external.lingpipe;
 
 import java.io.File;
 
+import ws.palladian.extraction.entity.tagger.helper.Conll2002ChunkTagParser;
+
 import com.aliasi.chunk.AbstractCharLmRescoringChunker;
 import com.aliasi.chunk.ChunkerEvaluator;
 import com.aliasi.util.AbstractExternalizable;

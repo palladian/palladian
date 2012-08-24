@@ -43,10 +43,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>weka</groupId>
-			<artifactId>weka</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.tartarus.snowball</groupId>
 			<artifactId>snowball</artifactId>
 		</dependency>
@@ -58,10 +54,6 @@
 			<groupId>com.sun.media</groupId>
 			<artifactId>jai-codec</artifactId>
 		</dependency>
-		<!-- dependency> <groupId>tud.iir.external</groupId> <artifactId>opennlp</artifactId> 
-			<classifier>incubating</classifier> </dependency -->
-		<!-- dependency> <groupId>tud.iir.external</groupId> <artifactId>maxent</artifactId> 
-			<classifier>incubating</classifier> </dependency -->
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-maxent</artifactId>
@@ -77,21 +69,6 @@
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>juliener</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ws.palladian</groupId>
-			<artifactId>palladian-external-code</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>trove</artifactId>
-					<groupId>gnu</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>icu4j</artifactId>
-					<groupId>icu4j</groupId>
-				</exclusion>
-			</exclusions>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -154,41 +131,6 @@
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-memory</artifactId>
 		</dependency>
-		<!-- following dependencies are necessary for ark-tweet-nlp -->
-		<dependency>
-			<groupId>edu.cmu.cs.lti.ark.tweetnlp</groupId>
-			<artifactId>ark-tweet-nlp</artifactId>
-			<version>0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jargs.gnu</groupId>
-			<artifactId>jargs</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>posBerkeley</groupId>
-			<artifactId>posBerkeley</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.twitter.common</groupId>
-			<artifactId>text</artifactId>
-			<version>0.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.9.1-1</version>
-		</dependency>
-		<!-- // end ark-tweet-nlp -->
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-similarity</artifactId>
@@ -205,13 +147,7 @@
 		<dependency>
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
-			<version>0.0.2</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>testng</artifactId>
-					<groupId>org.testng</groupId>
-				</exclusion>
-			</exclusions>
+			<version>0.0.4</version>
 		</dependency>
 	</dependencies>
 </project>
