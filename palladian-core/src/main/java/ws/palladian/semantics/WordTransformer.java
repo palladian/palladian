@@ -10,13 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
+import org.tartarus.snowball.SnowballStemmer;
+import org.tartarus.snowball.ext.englishStemmer;
 
-import weka.core.stemmers.SnowballStemmer;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.pos.PosTagger;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -427,8 +426,10 @@ public class WordTransformer {
 //    }
 
     public static String stemEnglishWord(String word) {
-        SnowballStemmer snowballStemmer = new SnowballStemmer();
-        return snowballStemmer.stem(word);
+        SnowballStemmer snowballStemmer = new englishStemmer();
+        snowballStemmer.setCurrent(word);
+        snowballStemmer.stem();
+        return snowballStemmer.getCurrent();
     }
 
     /**

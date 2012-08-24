@@ -1,22 +1,23 @@
 package ws.palladian.extraction.date.rater;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
-import weka.classifiers.Classifier;
-import weka.core.Instance;
-import weka.core.SerializationHelper;
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.Instance2;
+import ws.palladian.classification.Predictor;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.extraction.date.helper.DateWekaInstanceFactory;
+import ws.palladian.extraction.date.helper.DateInstanceFactory;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ConfigHolder;
 
 /**
  * <p>
@@ -34,67 +35,57 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ContentDateRater.class);
 
-    public static final String DATE_CLASSIFIER_IDENTIFIER = "wekaRandomCommitteeObjectModel";
+    private static final String CLASSIFIER_MODEL_PUB = "/dates_pub_model.gz";
+    private static final String CLASSIFIER_MODEL_MOD = "/dates_mod_model.gz";
 
-    private Classifier classifier = null;
+    private Predictor<String> classifier;
 
     public ContentDateRater(PageDateType dateType) {
         super(dateType);
-        loadClassifier();
+        if (dateType == PageDateType.publish) {
+            loadClassifier(CLASSIFIER_MODEL_PUB);
+        } else {
+            loadClassifier(CLASSIFIER_MODEL_MOD);
+        }
     }
 
-    private void loadClassifier() {
-        Configuration config = ConfigHolder.getInstance().getConfig();
+    @SuppressWarnings("unchecked")
+    private void loadClassifier(String classifierModel) {
+        classifier = (Predictor<String>)Cache.getInstance().getDataObject(classifierModel);
+        if (classifier == null) {
 
-        String classifierFile;
-        String modelsRoot = config.getString("models.root");
-        String modelPublished = config.getString("models.palladian.date.published");
-        String modelModified = config.getString("models.palladian.date.modified");
-        if (modelsRoot == null || modelPublished == null || modelModified == null) {
-            throw new IllegalStateException("Path to the models has not been set.");
-        }
-        
-        if (this.dateType.equals(PageDateType.publish)) {
-            classifierFile = modelsRoot + modelPublished;
-        } else {
-            classifierFile = modelsRoot + modelModified;
-        }
-        
-        // FIXME there are two different models, but they are cached as one item with one identifier?
-        try {
-            this.classifier = (Classifier)Cache.getInstance().getDataObject(DATE_CLASSIFIER_IDENTIFIER);
-            if (this.classifier == null) {
-                LOGGER.debug("load classifier from " + classifierFile);
-                InputStream stream = ContentDateRater.class.getResourceAsStream(classifierFile);
-                this.classifier = (Classifier)SerializationHelper.read(stream);
-                Cache.getInstance().putDataObject(DATE_CLASSIFIER_IDENTIFIER, this.classifier);
+            InputStream inputStream = this.getClass().getResourceAsStream(CLASSIFIER_MODEL_PUB);
+            if (inputStream == null) {
+                throw new IllegalStateException("Could not load model file \"" + classifierModel + "\"");
             }
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not load the classifier from " + classifierFile, e);
+
+            try {
+                ObjectInputStream objectInputStream = new ObjectInputStream(new GZIPInputStream(inputStream));
+                classifier = (Predictor<String>)objectInputStream.readObject();
+                Cache.getInstance().putDataObject(classifierModel, classifier);
+            } catch (IOException e) {
+                throw new IllegalStateException("Error loading the model file \"" + classifierModel + "\": "
+                        + e.getMessage(), e);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("Error loading the model file \"" + classifierModel + "\": "
+                        + e.getMessage(), e);
+            }
         }
     }
 
     @Override
     public Map<ContentDate, Double> rate(List<ContentDate> list) {
 
-        int pubModCLassifierIndex;
         Map<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
-        DateWekaInstanceFactory dwif = new DateWekaInstanceFactory(this.dateType);
-
-        if (this.dateType.equals(PageDateType.publish)) {
-            pubModCLassifierIndex = 0;
-        } else {
-            pubModCLassifierIndex = 0;
-        }
 
         for (ContentDate date : list) {
             if (this.dateType.equals(PageDateType.publish) && date.isInUrl()) {
                 returnDates.put(date, 1.0);
             } else {
-                Instance instance = dwif.getDateInstanceByArffTemplate(date);
+                Instance2<String> instance = DateInstanceFactory.createInstance(date);
                 try {
-                    double[] dbl = this.classifier.distributionForInstance(instance);
-                    returnDates.put(date, dbl[pubModCLassifierIndex]);
+                    CategoryEntries dbl = classifier.predict(instance.featureVector);
+                    returnDates.put(date, dbl.getMostLikelyCategoryEntry().getRelevance());
                 } catch (Exception e) {
                     LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
                 }

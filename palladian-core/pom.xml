@@ -43,10 +43,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>weka</groupId>
-			<artifactId>weka</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.tartarus.snowball</groupId>
 			<artifactId>snowball</artifactId>
 		</dependency>
@@ -78,7 +74,7 @@
 			<groupId>tud.iir.external</groupId>
 			<artifactId>juliener</artifactId>
 		</dependency>
-		<dependency>
+		<!--  dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-external-code</artifactId>
 			<exclusions>
@@ -92,7 +88,7 @@
 				</exclusion>
 			</exclusions>
 			<version>${project.version}</version>
-		</dependency>
+		</dependency -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -205,13 +201,13 @@
 		<dependency>
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
-			<version>0.0.2</version>
-			<exclusions>
+			<version>0.0.4</version>
+			<!-- exclusions>
 				<exclusion>
 					<artifactId>testng</artifactId>
 					<groupId>org.testng</groupId>
 				</exclusion>
-			</exclusions>
+			</exclusions -->
 		</dependency>
 	</dependencies>
 </project>
