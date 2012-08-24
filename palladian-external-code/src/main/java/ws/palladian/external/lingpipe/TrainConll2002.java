@@ -3,6 +3,8 @@ package ws.palladian.external.lingpipe;
 import java.io.File;
 import java.io.IOException;
 
+import ws.palladian.extraction.entity.tagger.helper.Conll2002ChunkTagParser;
+
 import com.aliasi.chunk.CharLmRescoringChunker;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;

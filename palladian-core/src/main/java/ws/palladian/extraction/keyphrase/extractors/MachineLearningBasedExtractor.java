@@ -14,12 +14,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import weka.classifiers.meta.Bagging;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance2;
 import ws.palladian.classification.Predictor;
-import ws.palladian.classification.WekaPredictor;
+import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -126,10 +125,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     }
 
     private Predictor<String> createClassifier() {
-        return new WekaPredictor(new Bagging());
-        // return new WekaPredictor(new NaiveBayes());
-        // return new WekaPredictor(new RandomForest());
-        // return new WekaPredictor(new MultilayerPerceptron());
+        return new BaggedDecisionTreeClassifier(10);
     }
 
     @Override

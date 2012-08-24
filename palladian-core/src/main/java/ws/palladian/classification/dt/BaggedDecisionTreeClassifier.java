@@ -1,5 +1,6 @@
 package ws.palladian.classification.dt;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -26,8 +27,8 @@ import ws.palladian.processing.features.FeatureVector;
 public class BaggedDecisionTreeClassifier implements Predictor<String> {
 
     private final List<Predictor<String>> predictors;
-    private final int numClassifiers;
-    private final Random random;
+    private transient final int numClassifiers;
+    private transient final Random random;
 
     /**
      * <p>
@@ -92,8 +93,8 @@ public class BaggedDecisionTreeClassifier implements Predictor<String> {
     public String toString() {
         StringBuilder buildToString = new StringBuilder();
         buildToString.append("BaggedDecisionTreeClassifier").append('\n');
-        buildToString.append("# classifiers: ").append(numClassifiers).append('\n'); 
-        for (int i = 0; i < numClassifiers; i++) {
+        buildToString.append("# classifiers: ").append(predictors.size()).append('\n'); 
+        for (int i = 0; i < predictors.size(); i++) {
             buildToString.append("classifier ").append(i).append(":").append('\n');
             buildToString.append(predictors.get(i));
             buildToString.append('\n');
