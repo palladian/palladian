@@ -106,14 +106,6 @@ public class DateInstanceFactory {
 
     }
 
-    private static boolean isInstance(ContentDate date) {
-        boolean resultExactness = date.getExactness().getValue() >= 3 ? true : false;
-        boolean resultFormat = isNormalFormat(date.getFormat()) ? true
-                : ((changeFormat(date.getFormat()) != null) ? true : false);
-
-        return resultExactness && resultFormat;
-    }
-
     private static boolean isNormalKeyword(String keyword) {
         return KeyWords.hasKeyword(keyword, KeyWords.ARFF_KEYWORDS);
     }
