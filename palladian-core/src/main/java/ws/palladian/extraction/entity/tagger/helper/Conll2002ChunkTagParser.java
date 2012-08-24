@@ -1,4 +1,4 @@
-package ws.palladian.external.lingpipe;
+package ws.palladian.extraction.entity.tagger.helper;
 
 import com.aliasi.chunk.BioTagChunkCodec;
 import com.aliasi.chunk.Chunking;
