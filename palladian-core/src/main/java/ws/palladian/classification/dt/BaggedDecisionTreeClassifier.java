@@ -26,6 +26,8 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public class BaggedDecisionTreeClassifier implements Predictor<String> {
 
+    private static final long serialVersionUID = 1L;
+    
     private final List<Predictor<String>> predictors;
     private transient final int numClassifiers;
     private transient final Random random;
