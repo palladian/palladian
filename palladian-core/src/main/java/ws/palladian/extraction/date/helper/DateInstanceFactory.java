@@ -99,9 +99,6 @@ public class DateInstanceFactory {
         String[] names = "hour;minute;second;relDocPos;ordDocPos;ordAgePos;keyClass;keyLoc;keyDiff;simpleTag;hTag;tagName;hasStructureDate;inMetaDates;inUrl;relCntSame;relSize;distPosBefore;distPosAfter;distAgeBefore;format;keyword;excatness;keyLoc201;keyLoc202;isKeyClass1;isKeyClass2;isKeyClass3;isPublishedClass".split(";");
         Instance2<String> instance = CsvInstanceReader.readLine(dateString, names);
         
-        
-        System.out.println("size: " + instance.featureVector.size());
-        
         return instance;
 
     }

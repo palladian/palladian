@@ -22,19 +22,20 @@ public class CsvInstanceReader {
 
     public static void main(String[] args) {
         
-        BaggedDecisionTreeClassifier classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
-        System.out.println(classifier);
+//        BaggedDecisionTreeClassifier classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
+//        System.out.println(classifier);
 //        
 //        System.exit(0);
 //        
-        List<Instance2<String>> instances = readInstances("/Users/pk/Desktop/DateDatasetMartinGregor/dates_pub.csv");
+        List<Instance2<String>> instances = readInstances("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv");
         
         List<Instance2<String>> train = instances.subList(0, instances.size() / 2);
         List<Instance2<String>> test = instances.subList(instances.size() / 2, instances.size() - 1);
 //        
-//        classifier = new BaggedDecisionTreeClassifier(10);
-//        classifier.learn(train);
-//        FileHelper.serialize(classifier, "/Users/pk/Desktop/dates_pub_model.gz");
+        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier(10);
+        classifier.learn(instances);
+        FileHelper.serialize(classifier, "/Users/pk/Desktop/dates_mod_model.gz");
+        System.exit(0);
 //        
 //        classifier = null;
 //        classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
