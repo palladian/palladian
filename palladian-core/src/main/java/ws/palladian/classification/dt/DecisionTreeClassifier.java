@@ -30,6 +30,8 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public final class DecisionTreeClassifier implements Predictor<String> {
 
+    private static final long serialVersionUID = 1L;
+
     private final int maxDepth;
 
     private final double minProbability;
