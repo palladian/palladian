@@ -45,10 +45,6 @@ public class WebPageDateEvaluator {
 	    dateGetter = new DateGetter();
     }
 	
-	public WebPageDateEvaluator() {
-	    this(PageDateType.PUBLISH);
-	}
-
 	/**
 	 * Set url for webpage to be searched.
 	 * 

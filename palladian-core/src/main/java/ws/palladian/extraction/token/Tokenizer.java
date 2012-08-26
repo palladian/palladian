@@ -370,7 +370,7 @@ public final class Tokenizer {
             uCount++;
         }
 
-        // recognize URLs so we don't break them
+        // recognize dates so we don't break them
         DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
         Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
         int dCount = 1;
