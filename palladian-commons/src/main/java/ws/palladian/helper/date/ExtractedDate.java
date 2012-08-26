@@ -178,7 +178,7 @@ public class ExtractedDate {
         }
 
         if (normalizedDate.toString().endsWith("-0")) {
-            normalizedDate.delete(normalizedDate.length() - 3, normalizedDate.length() - 1);
+            normalizedDate.delete(normalizedDate.length() - 2, normalizedDate.length());
         }
 
         return normalizedDate.toString();
