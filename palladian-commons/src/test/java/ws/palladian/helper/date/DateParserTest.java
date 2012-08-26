@@ -339,6 +339,9 @@ public class DateParserTest {
         assertEquals("2008-09-20", date.getNormalizedDateString());
         date = DateParser.findDate("11-12-2010 19:48:00", RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
         assertEquals("2010-11-12 19:48:00", date.getNormalizedDateString());
+        
+        // Year
+        assertEquals("2012", DateParser.findDate("it happened in 2012", RegExp.DATE_CONTEXT_YYYY).getNormalizedDateString());
     }
     
     @Test
