@@ -52,7 +52,7 @@ public class DateEvaluatorTest {
      * Standard constructor.
      */
     public DateEvaluatorTest() {
-    	setPubMod(PageDateType.publish);
+    	setPubMod(PageDateType.PUBLISH);
     }
     
     /**

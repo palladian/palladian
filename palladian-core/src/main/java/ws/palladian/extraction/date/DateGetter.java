@@ -1,12 +1,12 @@
 package ws.palladian.extraction.date;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.getter.ContentDateGetter;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -24,9 +24,7 @@ import ws.palladian.retrieval.DocumentRetriever;
  */
 public class DateGetter {
 
-    private boolean techHtmlContent = true;
-
-	private final ContentDateGetter cdg = new ContentDateGetter();
+	private final ContentDateGetter contentDateGetter = new ContentDateGetter();
 
 	/** URL that will be called */
 	private String url;
@@ -43,7 +41,7 @@ public class DateGetter {
 	 * @param url
 	 *            URL that will be analyzed
 	 */
-	public DateGetter(final String url) {
+	public DateGetter(String url) {
 		this.url = url;
 	}
 
@@ -53,15 +51,13 @@ public class DateGetter {
 	 * @param url
 	 *            URL that will be analyzed
 	 */
-	public DateGetter(final String url, Document document) {
+	public DateGetter(String url, Document document) {
 		this.url = url;
 		this.document = document;
 	}
 
 	/**
-	 * Analyzes a webpage by different techniques to find dates. The techniques
-	 * are found in DateGetterHelper. <br>
-	 * Type of the found dates are ExtractedDate.
+	 * Analyzes a webpage by different techniques to find dates.
 	 * 
 	 * @param <T>
 	 * 
@@ -72,17 +68,17 @@ public class DateGetter {
 		List<ExtractedDate> dates = new ArrayList<ExtractedDate>();
 		DocumentRetriever crawler = new DocumentRetriever();
 
-        if (url != null && techHtmlContent) {
+        if (url != null) {
 			Document document = this.document;
 			if (document == null) {
 				document = crawler.getWebDocument(url);
 			}
 			if (document != null) {
-				cdg.setDocument(document);
-				dates.addAll(cdg.getDates());
+				contentDateGetter.setDocument(document);
+				dates.addAll(contentDateGetter.getDates());
 			}
 		}
-        dates.removeAll(Collections.singletonList(null));
+        CollectionHelper.removeNulls(dates);
 		return dates;
 
 	}
@@ -92,17 +88,8 @@ public class DateGetter {
 	 * 
 	 * @return URL.
 	 */
-	public void setURL(final String url) {
+	public void setURL(String url) {
 		this.url = url;
-	}
-
-	/**
-	 * Activate or disable HTML-content-technique.
-	 * 
-	 * @param value
-	 */
-	public void setTechHTMLContent(boolean value) {
-        techHtmlContent = value;
 	}
 
 	public void setDocument(Document document) {

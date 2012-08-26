@@ -15,14 +15,6 @@ public abstract class KeywordDate extends ExtractedDate {
      */
     private String keyword = null;
 
-//    /**
-//     * @param dateString
-//     * @param format
-//     */
-//    public KeywordDate(String dateString, String format) {
-//        super(dateString, format);
-//    }
-
     public KeywordDate(ExtractedDate date) {
         super(date);
     }
@@ -32,9 +24,15 @@ public abstract class KeywordDate extends ExtractedDate {
         this.keyword = keyword;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        return super.toString() + "\n" + "Keyword: " + keyword;
+        StringBuilder builder = new StringBuilder();
+        builder.append(super.toString());
+        builder.append(" keyword=").append(keyword);
+        return builder.toString();
     }
 
     /**
@@ -49,7 +47,6 @@ public abstract class KeywordDate extends ExtractedDate {
      * All techniques except extracted-date and url-date have keywords.<br>
      * Should be set direct after founding this date.
      */
-    // @Override
     public String getKeyword() {
         return keyword;
     }

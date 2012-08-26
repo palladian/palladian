@@ -29,7 +29,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 	
     public HeadDateRater(PageDateType dateType) {
 		super(dateType);
-		if(this.dateType.equals(PageDateType.publish)){
+		if(this.dateType.equals(PageDateType.PUBLISH)){
 			hightPriority = KeyWords.PUBLISH_KEYWORD;
 			middlePriority = KeyWords.MODIFIED_KEYWORD;
 			lowPriority = KeyWords.OTHER_KEYWORD;
@@ -101,10 +101,10 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
         List<MetaDate> dates = dc.orderDates(result.keySet(), false);
         MetaDate tempDate;
         switch(dateType){
-	        case publish:
+	        case PUBLISH:
 	        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
 	        	break;
-	        case last_modified:
+	        case LAST_MODIFIED:
 	        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result).keySet());
 	        	break;
         	default:

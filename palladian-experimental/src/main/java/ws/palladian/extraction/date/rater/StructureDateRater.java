@@ -27,7 +27,7 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
 	
     public StructureDateRater(PageDateType dateType) {
 		super(dateType);
-		if(this.dateType.equals(PageDateType.publish)){
+		if(this.dateType.equals(PageDateType.PUBLISH)){
 			hightPriority = KeyWords.PUBLISH_KEYWORD;
 			middlePriority = KeyWords.MODIFIED_KEYWORD;
 			lowPriority = KeyWords.OTHER_KEYWORD;

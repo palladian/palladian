@@ -30,7 +30,7 @@ public class HttpEvaluator {
 		//createHttpUrlList("", "");
 		
 		HttpDateGetter dg = new HttpDateGetter();
-		HttpDateRater dr = new HttpDateRater(PageDateType.publish);
+		HttpDateRater dr = new HttpDateRater(PageDateType.PUBLISH);
 		
 		String file = "data/evaluation/daterecognition/datasets/httpdataset.txt";
 		evaluate(DBExport.PUB_DATE, dg, dr,file);

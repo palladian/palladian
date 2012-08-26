@@ -40,7 +40,7 @@ public class HeaderEvaluator {
 		//DataSetHandler.addCloumn(EvaluationHelper.HEADEVAL, "mod2", "INT", "-10");
 		
 		TechniqueDateGetter<MetaDate> dg = new HeadDateGetter();
-		TechniqueDateRater<MetaDate> dr = new HeadDateRater(PageDateType.publish);
+		TechniqueDateRater<MetaDate> dr = new HeadDateRater(PageDateType.PUBLISH);
 		
 		//TestHeadDateRater testDR = new TestHeadDateRater(PageDateType.publish);
 		
