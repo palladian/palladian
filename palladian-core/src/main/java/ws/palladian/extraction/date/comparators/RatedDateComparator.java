@@ -20,6 +20,7 @@ import ws.palladian.helper.date.ExtractedDate;
  * 
  * 
  * @author Martin Gregor
+ * @author Philipp Katz
  * 
  * @param <T>
  */
@@ -29,9 +30,8 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
     public int compare(ExtractedDate date1, ExtractedDate date2) {
         int result = compareRate(date1, date2);
         if (result == 0) {
-            // if (date1.getType().equals(DateType.ContentDate) && date2.getType().equals(DateType.ContentDate)) {
             if (date1 instanceof ContentDate && date2 instanceof ContentDate) {
-                result = comparePosInDoc((ContentDate)date1, (ContentDate)date2);
+                result = compareDocumentPosition((ContentDate)date1, (ContentDate)date2);
             } else {
                 result = compareTechnique(date1, date2);
             }
@@ -51,7 +51,7 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
      * @param date2
      * @return
      */
-    private int compareRate(ExtractedDate date1, ExtractedDate date2) {
+    private static int compareRate(ExtractedDate date1, ExtractedDate date2) {
         double rate1 = date1.getRate();
         double rate2 = date2.getRate();
         return rate1 < rate2 ? 1 : rate1 > rate2 ? -1 : 0;
@@ -66,7 +66,7 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
      * @param date2
      * @return
      */
-    private int comparePosInDoc(ContentDate date1, ContentDate date2) {
+    private static int compareDocumentPosition(ContentDate date1, ContentDate date2) {
         int pos1 = date1.get(ContentDate.DATEPOS_IN_DOC);
         int pos2 = date2.get(ContentDate.DATEPOS_IN_DOC);
         return pos1 > pos2 ? 1 : pos1 < pos2 ? -1 : 0;
@@ -81,22 +81,13 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
      * @param date2
      * @return
      */
-    private int compareTechnique(ExtractedDate date1, ExtractedDate date2) {
-//        int tech1 = date1.getType().getIntType();
-//        int tech2 = date2.getType().getIntType();
-//        if (tech1 == 0) {
-//            tech1 = 99;
-//        }
-//        if (tech2 == 0) {
-//            tech2 = 99;
-//        }
-//        return tech1 > tech2 ? 1 : tech1 < tech2 ? -1 : 0;
+    private static int compareTechnique(ExtractedDate date1, ExtractedDate date2) {
         int tech1 = getTypeValue(date1);
         int tech2 = getTypeValue(date2);
         return Integer.valueOf(tech1).compareTo(tech2);
     }
 
-    private int getTypeValue(ExtractedDate date) {
+    private static int getTypeValue(ExtractedDate date) {
         if (date instanceof StructureDate) {
             return 4;
         }
@@ -110,8 +101,6 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
             return 1;
         }
         return 99;
-//        // TODO Auto-generated method stub
-//        return 0;
     }
 
     /**
@@ -123,12 +112,9 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
      * @param date2
      * @return
      */
-    private int compareAge(ExtractedDate date1, ExtractedDate date2) {
-        // int stopFlag = Math.min(date1.getExactness(), date2.getExactness());
-        // DateExactness compareDepth = DateExactness.byValue(stopFlag);
+    private static int compareAge(ExtractedDate date1, ExtractedDate date2) {
         DateExactness compareDepth = DateExactness.getCommonExactness(date1.getExactness(), date2.getExactness());
-        DateComparator dc = new DateComparator(compareDepth);
-        return dc.compare(date1, date2);
-
+        DateComparator dateComparator = new DateComparator(compareDepth);
+        return dateComparator.compare(date1, date2);
     }
 }

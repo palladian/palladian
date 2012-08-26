@@ -47,16 +47,6 @@ public class DateGetter {
 		this.url = url;
 	}
 
-//	/**
-//	 * Constructor creates a new DateGetter with a given document.
-//	 * 
-//	 * @param url
-//	 *            URL that will be analyzed
-//	 */
-//	public DateGetter(final Document document) {
-//		this.document = document;
-//	}
-
 	/**
 	 * Constructor creates a new DateGetter with a given URL and document.
 	 * 
@@ -97,15 +87,6 @@ public class DateGetter {
 
 	}
 
-//	/**
-//	 * Getter for global variable URL.
-//	 * 
-//	 * @return URL.
-//	 */
-//	public String getURL() {
-//		return this.url;
-//	}
-
 	/**
 	 * Setter for global variable URL.
 	 * 
@@ -127,9 +108,5 @@ public class DateGetter {
 	public void setDocument(Document document) {
 		this.document = document;
 	}
-
-//	public Document getDocument() {
-//		return this.document;
-//	}
 
 }

@@ -1,6 +1,5 @@
 package ws.palladian.extraction.date;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,12 +74,11 @@ public class DateEvaluator {
     @SuppressWarnings("unchecked")
     public <T extends ExtractedDate> Map<T, Double> rate(List<T> extractedDates) {
         Map<T, Double> evaluatedDates = new HashMap<T, Double>();
-        List<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+        List<T> dates = DateArrayHelper.filterByRange(extractedDates);
         Map<T, Double> contResult = new HashMap<T, Double>();
 
         List<ContentDate> contDates = DateArrayHelper.filter(dates, ContentDate.class);
-        List<ContentDate> contFullDates = (ArrayList<ContentDate>) DateArrayHelper.filter(contDates,
-                DateArrayHelper.FILTER_FULL_DATE);
+        List<ContentDate> contFullDates = DateArrayHelper.filterFullDate(contDates);
 
         contResult.putAll((Map<? extends T, ? extends Double>) contentDateRater.rate(contFullDates));
         evaluatedDates.putAll(contResult);

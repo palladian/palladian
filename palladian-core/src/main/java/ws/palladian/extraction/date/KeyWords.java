@@ -15,7 +15,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  */
 public final class KeyWords {
 
-	public static String[] ARFF_KEYWORDS = { "date", "null", "posted", "update",
+	public static final String[] ARFF_KEYWORDS = { "date", "null", "posted", "update",
 			"release", "added", "updated", "create", "publish", "released",
 			"published", "revised", "created", "pdate", "revise",
 			"last modified", "date-header", "pubdate", "datetime",

@@ -1,10 +1,14 @@
 package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -44,31 +48,13 @@ public class CollectionHelperTest {
 
     }
 
-    // @Test
-    // public void removeNullElementsTest() {
-    // ArrayList<String> array = new ArrayList<String>();
-    // String temp = null;
-    // array.add(temp);
-    // temp = "1";
-    // array.add(temp);
-    // temp = "2";
-    // array.add(temp);
-    // temp = null;
-    // array.add(temp);
-    // temp = "3";
-    // array.add(temp);
-    // temp = null;
-    // array.add(temp);
-    // temp = "4";
-    // array.add(temp);
-    // temp = null;
-    // array.add(temp);
-    // array = CollectionHelper.removeNullElements(array);
-    // assertEquals(4, array.size());
-    // for (int i = 0; i < array.size(); i++) {
-    // assertEquals(i + 1, Integer.parseInt(array.get(i)));
-    // }
-    // }
+    @Test
+    public void removeNulls() {
+        List<Integer> list = new ArrayList<Integer>(Arrays.asList(null, 1, 2, 3, 4, null));
+        boolean removed = CollectionHelper.removeNulls(list);
+        assertTrue(removed);
+        assertEquals(4, list.size());
+    }
 
     @Test
     public void sortByStringKeyLength() {
@@ -85,6 +71,19 @@ public class CollectionHelperTest {
                 .getKey());
         assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, true).entrySet().iterator().next().getKey());
 
+    }
+
+    @Test
+    public void testFilter() {
+        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
+        boolean filtered = CollectionHelper.filter(items, new Filter<String>() {
+            @Override
+            public boolean accept(String item) {
+                return item.equals("a") || item.equals("b");
+            }
+        });
+        assertTrue(filtered);
+        assertEquals(4, items.size());
     }
 
 }

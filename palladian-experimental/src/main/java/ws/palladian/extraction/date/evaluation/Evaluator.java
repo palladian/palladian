@@ -48,11 +48,11 @@ public abstract class Evaluator {
 			
 			if(list.size() > 0){
 				
-				List<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
-				filteredDates = DateArrayHelper.filter(filteredDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+				List<T> filteredDates = DateArrayHelper.filterFullDate(list);
+				filteredDates = DateArrayHelper.filterByRange(filteredDates);
 				
 				if(dg instanceof UrlDateGetter){
-					filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_IS_IN_RANGE);
+					filteredDates = DateArrayHelper.filterByRange(list);
 				}
 				
 				

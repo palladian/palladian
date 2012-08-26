@@ -182,7 +182,7 @@ public class KairosEvaluator {
 			ExtractedDate date;
 			ExtractedDate bestDate;
 			String dbExportDateString;
-			WebPageDateEvaluator wp = new WebPageDateEvaluator();
+			WebPageDateEvaluator wp = new WebPageDateEvaluator(pub_mod);
 
 			String url = e.getValue().get(DBExport.URL);
 			String path = e.getValue().get(DBExport.PATH);
@@ -197,7 +197,6 @@ public class KairosEvaluator {
 			timer.start();
 			wp.setUrl(url);
 			wp.setDocument(document);
-			wp.setPubMod(pub_mod);
 			wp.evaluate();
 			bestDate = wp.getBestRatedDate();
 			time += timer.getElapsedTime();
