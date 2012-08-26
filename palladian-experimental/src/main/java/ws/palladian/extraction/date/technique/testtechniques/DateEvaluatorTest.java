@@ -103,7 +103,7 @@ public class DateEvaluatorTest {
     public Map<ExtractedDate, Double> rate(List<ExtractedDate> extractedDates) {
         Map<ExtractedDate, Double> evaluatedDates = new HashMap<ExtractedDate, Double>();
 
-        List<ExtractedDate> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+        List<ExtractedDate> dates = DateArrayHelper.filterByRange(extractedDates);
         Map<UrlDate, Double> urlResult = new HashMap<UrlDate, Double>();
         Map<MetaDate, Double> metaResult = new HashMap<MetaDate, Double>();
         Map<StructureDate, Double> structResult = new HashMap<StructureDate, Double>();
@@ -117,7 +117,7 @@ public class DateEvaluatorTest {
         List<StructureDate> structDates = DateArrayHelper.filter(dates, StructureDate.class);
 
         List<ContentDate> contDates = DateArrayHelper.filter(dates, ContentDate.class);
-        List<ContentDate> contFullDates = DateArrayHelper.filter(contDates, DateArrayHelper.FILTER_FULL_DATE);
+        List<ContentDate> contFullDates = DateArrayHelper.filterFullDate(contDates);
 
         List<ArchiveDate> archiveDate = DateArrayHelper.filter(dates, ArchiveDate.class);
 

@@ -2,7 +2,6 @@ package ws.palladian.helper.collection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -177,32 +176,32 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Get a human readable, line separated output of a {@link Collection}.
+     * Get a human readable, line separated output of an {@link Iterable}.
      * </p>
      * 
-     * @param collection
+     * @param iterable
      * @return
      */
-    public static String getPrint(Collection<?> collection) {
-        StringBuilder s = new StringBuilder();
-
-        for (Object entry : collection) {
-            s.append(entry).append("\n");
+    public static String getPrint(Iterable<?> iterable) {
+        StringBuilder print = new StringBuilder();
+        int count = 0;
+        for (Object entry : iterable) {
+            print.append(entry).append("\n");
+            count++;
         }
-        s.append("#Entries: ").append(collection.size()).append("\n");
-
-        return s.toString();
+        print.append("#Entries: ").append(count).append("\n");
+        return print.toString();
     }
 
     /**
      * <p>
-     * Print a human readable, line separated output of a {@link Collection}.
+     * Print a human readable, line separated output of an {@link Iterable}.
      * </p>
      * 
-     * @param collection
+     * @param iterable
      */
-    public static void print(Collection<?> collection) {
-        System.out.println(getPrint(collection));
+    public static void print(Iterable<?> iterable) {
+        System.out.println(getPrint(iterable));
     }
 
     /**
@@ -259,15 +258,46 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Remove all <code>null</code> elements in the supplied {@link Collection}.
+     * Remove all <code>null</code> elements in the supplied {@link Iterable}.
      * </p>
      * 
-     * @param collection The collection from which to remove <code>null</code> elements.
+     * @param collection The iterable from which to remove <code>null</code> elements.
      * @return <code>true</code> if any elements were removed, else <code>false</code>.
      */
-    public static boolean removeNulls(Collection<?> collection) {
-        Validate.notNull(collection, "collection must not be null");
-        return collection.removeAll(Collections.singletonList(null));
+    public static <T> boolean removeNulls(Iterable<T> iterable) {
+        Validate.notNull(iterable, "iterable must not be null");
+        return filter(iterable, new Filter<T>() {
+            @Override
+            public boolean accept(T item) {
+                return item != null;
+            }
+        });
+    }
+
+    /**
+     * <p>
+     * Apply a {@link Filter} to an {@link Iterable}; after applying this method, the Iterable only contains the items
+     * which matched the filter.
+     * </p>
+     * 
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param filter The Filter to apply, not <code>null</code>.
+     * @return <code>true</code> if any items were removed, else <code>false</code>.
+     */
+    public static <T> boolean filter(Iterable<T> iterable, Filter<T> filter) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(filter, "filter must not be null");
+
+        boolean modified = false;
+        Iterator<T> iterator = iterable.iterator();
+        while (iterator.hasNext()) {
+            T item = iterator.next();
+            if (!filter.accept(item)) {
+                iterator.remove();
+                modified = true;
+            }
+        }
+        return modified;
     }
 
 }

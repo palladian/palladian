@@ -5,13 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.ExtractedDate;
 
 /**
@@ -23,28 +21,32 @@ import ws.palladian.helper.date.ExtractedDate;
  * 
  */
 public class WebPageDateEvaluator {
-	/** Standard DateGetter. */
-	private DateGetter dg = new DateGetter();
+    
+    private static final double THRESHOLD_GROUP_1 = 0.15;
+    private static final double THRESHOLD_GROUP_2 = 0.24;
+    private static final double THRESHOLD_GROUP_3 = 0.18;
+    private static final double THRESHOLD_GROUP_4 = 0.16;
+    private static final double THRESHOLD_GROUP_5 = 0.14;
+    private static final double THRESHOLD_GROUP_6 = 0.13;
+    private static final double THRESHOLD_GROUP_7 = 0.17;
+    private static final double THRESHOLD_GROUP_8 = 0.26;
+    
+	private final DateGetter dateGetter;
 
-	/** Standard DateRater. */
-	private DateEvaluator dr = new DateEvaluator(PageDateType.publish);
+	private final DateEvaluator dateEvaluator;
 
-	private List<ExtractedDate> list = new ArrayList<ExtractedDate>();
+	private List<ExtractedDate> extractedDates = new ArrayList<ExtractedDate>();
 
 	private String url;
 	private Document document;
 	
-	public static final double DEFAULT_THRESHOLD_GROUP_1 = 0.15;
-	public static final double DEFAULT_THRESHOLD_GROUP_2 = 0.24;
-	public static final double DEFAULT_THRESHOLD_GROUP_3 = 0.18;
-	public static final double DEFAULT_THRESHOLD_GROUP_4 = 0.16;
-	public static final double DEFAULT_THRESHOLD_GROUP_5 = 0.14;
-	public static final double DEFAULT_THRESHOLD_GROUP_6 = 0.13;
-	public static final double DEFAULT_THRESHOLD_GROUP_7 = 0.17;
-	public static final double DEFAULT_THRESHOLD_GROUP_8 = 0.26;
-
-	public void setPubMod(PageDateType pub_mod) {
-		this.dr = new DateEvaluator(pub_mod);
+	public WebPageDateEvaluator(PageDateType dateType) {
+	    dateEvaluator = new DateEvaluator(dateType);
+	    dateGetter = new DateGetter();
+    }
+	
+	public WebPageDateEvaluator() {
+	    this(PageDateType.publish);
 	}
 
 	/**
@@ -61,48 +63,20 @@ public class WebPageDateEvaluator {
 		this.document = document;
 	}
 
-//	/**
-//	 * Look up for all dates of webpage and rate them.<br>
-//	 * Writes results in list, get it by getter-methods.
-//	 * 
-//	 * @param url
-//	 *            for webpage.
-//	 */
-//	public void evaluate(String url) {
-//		this.url = url;
-//		evaluate();
-//	}
-
-//	/**
-//	 * Look up for all dates of webpage and rate them.<br>
-//	 * Writes results in list, get it by getter-methods.<br><br>
-//	 * Uses url of document. <br>
-//	 * If you like to use different urls and documents use setters.
-//	 * 
-//	 * @param doc
-//	 *            for webpage.
-//	 */
-//	public void evaluate(Document doc) {
-//		this.url = doc.getDocumentURI();
-//		this.document = doc;
-//		evaluate();
-//	}
-
 	/**
 	 * Look up for all dates of webpage and rate them.<br>
 	 * Writes results in list, get it by getter-methods.<br>
 	 * <br>
-	 * Be sure an url is set. Otherwise use <b>evaluate(String url)</b>.
 	 */
 	public void evaluate() {
 		if (this.url != null) {
 			if (document != null) {
-				dg.setDocument(document);
+				dateGetter.setDocument(document);
 			}
-			dg.setURL(url);
-			List<ExtractedDate> dates = dg.getDate();
-			Map<ExtractedDate, Double> ratedDates = dr.rate(dates);
-			this.list = new ArrayList<ExtractedDate>(ratedDates.keySet());
+			dateGetter.setURL(url);
+			List<ExtractedDate> dates = dateGetter.getDate();
+			Map<ExtractedDate, Double> ratedDates = dateEvaluator.rate(dates);
+			this.extractedDates = new ArrayList<ExtractedDate>(ratedDates.keySet());
 		}
 	}
 
@@ -129,36 +103,28 @@ public class WebPageDateEvaluator {
 	 */
 	private ExtractedDate getBestRatedDate(double limit) {
 		ExtractedDate result = null;
-		if (list != null && list.size() > 0) {
-			//List<ExtractedDate> orderedList = list;
-//			Collections.sort(orderedList,
-//					new RatedDateComparator());
-//		    ExtractedDate date = orderedList.get(0);
-		    Collections.sort(list, new RatedDateComparator());
-		    ExtractedDate date = list.get(0);
+		if (extractedDates != null && extractedDates.size() > 0) {
+		    Collections.sort(extractedDates, new RatedDateComparator());
+		    ExtractedDate date = extractedDates.get(0);
 			if (limit < 0) {
-				//DateType dateType = date.getType();
-				//if (dateType.equals(DateType.ContentDate)) {
 			    if (date instanceof ContentDate) {
-					ConfigHolder configHolder = ConfigHolder.getInstance();
-					PropertiesConfiguration config = configHolder.getConfig();
 					double size = 1 / ((ContentDate) date).getRelSize();
 					if (0 < size && size <= 1) {
-						limit = config.getDouble("threshold.group1", DEFAULT_THRESHOLD_GROUP_1);
+						limit = THRESHOLD_GROUP_1;
 					} else if (1 < size && size <= 2) {
-						limit = config.getDouble("threshold.group2", DEFAULT_THRESHOLD_GROUP_2);
+						limit = THRESHOLD_GROUP_2;
 					} else if (2 < size && size <= 3) {
-						limit = config.getDouble("threshold.group3", DEFAULT_THRESHOLD_GROUP_3);
+						limit = THRESHOLD_GROUP_3;
 					} else if (3 < size && size <= 5) {
-						limit = config.getDouble("threshold.group4", DEFAULT_THRESHOLD_GROUP_4);
+						limit = THRESHOLD_GROUP_4;
 					} else if (5 < size && size <= 10) {
-						limit = config.getDouble("threshold.group5", DEFAULT_THRESHOLD_GROUP_5);
+						limit = THRESHOLD_GROUP_5;
 					} else if (10 < size && size <= 20) {
-						limit = config.getDouble("threshold.group6", DEFAULT_THRESHOLD_GROUP_6);
+						limit = THRESHOLD_GROUP_6;
 					} else if (20 < size && size <= 50) {
-						limit = config.getDouble("threshold.group7", DEFAULT_THRESHOLD_GROUP_7);
+						limit = THRESHOLD_GROUP_7;
 					} else if (50 < size) {
-						limit = config.getDouble("threshold.group8", DEFAULT_THRESHOLD_GROUP_8);
+						limit = THRESHOLD_GROUP_8;
 					}
 				} else {
 					limit = 0;
@@ -189,10 +155,9 @@ public class WebPageDateEvaluator {
 	 * @return ArraylList of dates.
 	 */
 	private List<ExtractedDate> getAllBestRatedDate(boolean onlyFullDates) {
-		List<ExtractedDate> dates = list;
+		List<ExtractedDate> dates = extractedDates;
 		if (onlyFullDates) {
-			dates = DateArrayHelper.filter(dates,
-					DateArrayHelper.FILTER_FULL_DATE);
+			dates = DateArrayHelper.filterFullDate(dates);
 		}
 		double rate = DateArrayHelper.getHighestRate(dates);
 		dates = DateArrayHelper.getRatedDates(dates, rate);
@@ -206,8 +171,7 @@ public class WebPageDateEvaluator {
 	 * @return all dates.
 	 */
 	List<ExtractedDate> getAllDates() {
-		List<ExtractedDate> sorted = list;
-		Collections.sort(sorted, new RatedDateComparator());
-		return sorted;
+		Collections.sort(extractedDates, new RatedDateComparator());
+		return extractedDates;
 	}
 }

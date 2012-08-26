@@ -62,7 +62,7 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
             contentDateGetter.setDocument(document);
             List<ContentDate> contentDates = contentDateGetter.getDates();
 
-            contentDates = DateArrayHelper.filter(contentDates, DateArrayHelper.FILTER_FULL_DATE);
+            contentDates = DateArrayHelper.filterFullDate(contentDates);
             DateComparator dateComparator = new DateComparator();
 
             oldest = new ArchiveDate(dateComparator.getOldestDate(contentDates));

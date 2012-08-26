@@ -28,15 +28,8 @@ public class DateRaterHelper {
      * @return
      */
     public static boolean isDateInRange(ExtractedDate date) {
-        //ExtractedDate begin = new ExtractedDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
         ExtractedDate begin = DateParser.parseDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T);
         ExtractedDate end = new ExtractedDate();
-//        DateComparator comp = new DateComparator();
-//        int stopFlag = Math.min(DateComparator.STOP_DAY, date.getExactness());
-//        boolean gt = comp.compare(begin, date, stopFlag) > -1;
-//        boolean lt = comp.compare(date, end, stopFlag) > -1;
-//        return gt && lt;
-
         DateExactness compareDepth = DateExactness.DAY;
         if  (date.getExactness() != DateExactness.UNSET) {
             compareDepth = DateExactness.getCommonExactness(DateExactness.DAY, date.getExactness());
@@ -46,50 +39,6 @@ public class DateRaterHelper {
         boolean lt = dateComparator.compare(date, end) > -1;
         return gt && lt;
     }
-
-//    /**
-//     * Returns the date with highest rate. <br>
-//     * 
-//     * @param <T>
-//     * @param dates
-//     * @return Hashmap with a single entry.
-//     */
-//    public static <T> Map<T, Double> getHighestRate(Map<T, Double> dates) {
-//        HashMap<T, Double> map = new HashMap<T, Double>();
-//        T date = null;
-//        double temp = -1;
-//        for (Entry<T, Double> e : dates.entrySet()) {
-//            double value = e.getValue();
-//
-//            if (value > temp) {
-//                date = e.getKey();
-//                temp = value;
-//            }
-//        }
-//        map.put(date, temp);
-//        return map;
-//    }
-
-//    /**
-//     * Returns the date with highest rate. <br>
-//     * 
-//     * @param <T>
-//     * @param dates
-//     * @return Hashmap with a single entry.
-//     */
-//    public static <T> Double getHighestRateValue(Map<T, Double> dates) {
-//        double temp = -1;
-//        for (Entry<T, Double> e : dates.entrySet()) {
-//            double value = e.getValue();
-//            if (value > temp) {
-//                temp = value;
-//            }
-//        }
-//        return temp;
-//    }
-
-
-
 
     /**
      * Calculates the rate for dates.<br>
