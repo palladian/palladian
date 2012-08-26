@@ -14,7 +14,7 @@ public class DateEvaluatorTest {
             // DateGetter dg = new DateGetter(
             // "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html");
             String url;
-            WebPageDateEvaluator ae = new WebPageDateEvaluator();
+            WebPageDateEvaluator ae = new WebPageDateEvaluator(PageDateType.PUBLISH);
 //            Class<?> classResource = DateEvaluatorTest.class;
 //            for(int index = 19; index <= 27; index++){
 //            	System.out.println(index);

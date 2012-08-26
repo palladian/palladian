@@ -22,12 +22,12 @@ public class WebPageDateEvaluatorTest {
 
     /**
      * Test method for {@link ws.palladian.daterecognition.WebPageDateEvaluatorOld#getBestRatedDate()}.
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
     @Test
     public void testGetBestRatedDate() throws FileNotFoundException {
             String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit2.htm");
-            WebPageDateEvaluator wpde = new WebPageDateEvaluator();
+        WebPageDateEvaluator wpde = new WebPageDateEvaluator(PageDateType.PUBLISH);
             wpde.setUrl(url);
             wpde.evaluate();
             // FIXME assertEquals("2010-09-02", wpde.getBestRatedDate().getNormalizedDateString());
@@ -44,13 +44,13 @@ public class WebPageDateEvaluatorTest {
     }
 
     /**
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
     @Test
     @Ignore // FIXME
     public void testGetAllBestRatedDate() throws FileNotFoundException {
         String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit2.htm");
-        WebPageDateEvaluator wpde = new WebPageDateEvaluator();
+        WebPageDateEvaluator wpde = new WebPageDateEvaluator(PageDateType.PUBLISH);
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(1, wpde.getAllBestRatedDate().size());
@@ -81,7 +81,7 @@ public class WebPageDateEvaluatorTest {
     @Test
     public void testGetAllDates() throws Exception {
         String url = ResourceHelper.getResourcePath("/webPages/dateExtraction/zeit2.htm");
-        WebPageDateEvaluator wpde = new WebPageDateEvaluator();
+        WebPageDateEvaluator wpde = new WebPageDateEvaluator(PageDateType.PUBLISH);
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(2, wpde.getAllDates().size());
