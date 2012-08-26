@@ -72,13 +72,11 @@ public class KairosEvaluator {
 
 		for (Entry<String, DBExport> e : set.entrySet()) {
 			System.out.println(cntAll++);
-			urlDateGetter.setUrl(e.getValue().getUrl());
-			List<UrlDate> urlDates = urlDateGetter.getDates();
+			List<UrlDate> urlDates = urlDateGetter.getDates(e.getValue().getUrl());
 
 			DocumentRetriever dr = new DocumentRetriever();
 			Document doc = dr.getWebDocument(e.getValue().getFilePath());
-			metaDateGetter.setDocument(doc);
-			List<MetaDate> metaDates = metaDateGetter.getDates();
+			List<MetaDate> metaDates = metaDateGetter.getDates(doc);
 
 			ExtractedDate pubDate = DateParser.findDate(e.getValue()
 					.getPubDate());

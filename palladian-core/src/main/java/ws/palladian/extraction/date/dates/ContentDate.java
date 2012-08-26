@@ -68,15 +68,6 @@ public final class ContentDate extends AbstractBodyDate {
     private boolean hasStrucutreDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
-
-//    /**
-//     * @param dateString
-//     * @param format
-//     */
-//    public ContentDate(String dateString, String format) {
-//        super(dateString, format);
-//    }
-
    
     public ContentDate(ExtractedDate date) {
         super(date);
@@ -163,14 +154,6 @@ public final class ContentDate extends AbstractBodyDate {
 
 	public StructureDate getStructureDate() {
 		return structureDate;
-	}
-	
-	public String getStructureDateString(){
-		String string = "no structure date";
-		if(this.structureDate != null){
-			string = this.structureDate.getNormalizedDateString();
-		}
-		return string;
 	}
 
 	public void setHasStrucutreDate(boolean hasStrucutreDate) {

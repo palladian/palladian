@@ -19,7 +19,7 @@ public class HttpDateGetterTest {
         HttpResult httpResult = HttpRetriever.loadSerializedHttpResult(ResourceHelper.getResourceFile("/httpResults/testPage01.httpResult"));
         
         HttpDateGetter httpDateGetter = new HttpDateGetter();
-        List<MetaDate> dates = httpDateGetter.getHttpHeaderDate(httpResult);
+        List<MetaDate> dates = httpDateGetter.getDates(httpResult);
         
         assertEquals("2012-07-22 14:35:38", dates.get(0).getNormalizedDateString());
         assertEquals("2012-07-22 13:59:10", dates.get(1).getNormalizedDateString());

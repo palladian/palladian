@@ -54,7 +54,7 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
     private static int compareRate(ExtractedDate date1, ExtractedDate date2) {
         double rate1 = date1.getRate();
         double rate2 = date2.getRate();
-        return rate1 < rate2 ? 1 : rate1 > rate2 ? -1 : 0;
+        return Double.valueOf(rate2).compareTo(rate1);
     }
 
     /**
@@ -69,7 +69,7 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
     private static int compareDocumentPosition(ContentDate date1, ContentDate date2) {
         int pos1 = date1.get(ContentDate.DATEPOS_IN_DOC);
         int pos2 = date2.get(ContentDate.DATEPOS_IN_DOC);
-        return pos1 > pos2 ? 1 : pos1 < pos2 ? -1 : 0;
+        return Integer.valueOf(pos1).compareTo(pos2);
     }
 
     /**

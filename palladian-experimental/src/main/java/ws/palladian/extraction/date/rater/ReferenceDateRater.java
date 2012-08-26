@@ -53,8 +53,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
      */
     private Map<ReferenceDate, Double> getRefDates() {
         ReferenceDateGetter rdg = new ReferenceDateGetter();
-        rdg.setUrl(url);
-        List<ReferenceDate> newRefDates = rdg.getDates();
+        List<ReferenceDate> newRefDates = rdg.getDates(url);
 
         List<ReferenceDate> refDates = DateArrayHelper.filter(newRefDates, ReferenceDate.class);
 

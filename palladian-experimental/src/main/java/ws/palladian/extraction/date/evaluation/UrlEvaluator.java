@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -46,7 +47,7 @@ public class UrlEvaluator {
 		UrlDateGetter dg = new UrlDateGetter();
 		int count = 0;
 		for (Entry<String, DBExport> e : set.entrySet()) {
-			if (dg.getFirstDate(e.getKey()) != null) {
+			if (!dg.getDates(e.getKey()).isEmpty()) {
 				System.out.println(e.getKey());
 				count++;
 			}
@@ -63,9 +64,10 @@ public class UrlEvaluator {
 		int countTP = 0;
 		int countFN = 0;
 		for (Entry<String, DBExport> e : set.entrySet()) {
-			ExtractedDate urlDate = dg.getFirstDate(e.getKey());
-			if (urlDate != null) {
-				ExtractedDate foundDate;
+		    List<UrlDate> urlDates = dg.getDates(e.getKey());
+			if (urlDates.size() > 0) {
+			    ExtractedDate urlDate = urlDates.get(0);
+			    ExtractedDate foundDate;
 				if (pub_mod == PageDateType.PUBLISH) {
 					foundDate = DateParser.findDate(e.getValue().get(
 							DBExport.PUB_DATE));
@@ -113,7 +115,8 @@ public class UrlEvaluator {
 			bw
 					.write("url *;_;* path *;_;* pub_date *;_;* pub_sureness *;_;* mod_date *;_;* mod_sureness *;_;* google_date *;_;* hakia_date *;_;* ask_date *;_;* header_last_mod *;_;* header_date *;_;* down_date");
 			for (Entry<String, DBExport> e : merged.entrySet()) {
-				if (dg.getFirstDate(e.getKey()) != null) {
+			    List<UrlDate> urlDates = dg.getDates(e.getKey());
+				if (urlDates.size() > 0) {
 					String write = e.getValue().getUrl() + separator
 							+ e.getValue().getFilePath() + separator
 							+ e.getValue().getPubDate() + separator

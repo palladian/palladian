@@ -27,23 +27,7 @@ import ws.palladian.helper.html.XPathHelper;
 public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @Override
-    public List<MetaDate> getDates() {
-        List<MetaDate> result = new ArrayList<MetaDate>();
-        if (document != null) {
-            result = getHeadDates(document);
-        }
-        return result;
-    }
-
-    /**
-     * <p>
-     * Find dates in <code>meta</code> tags of a web {@link Document}'s <code>head</code> section.
-     * </p>
-     * 
-     * @param document The {@link Document} from which to extract head dates, not <code>null</code>.
-     * @return List with extracted {@link MetaDate}s, or empty list if no dates were found, never <code>null</code>.
-     */
-    private static List<MetaDate> getHeadDates(final Document document) {
+    public List<MetaDate> getDates(Document document) {
         List<MetaDate> dates = new ArrayList<MetaDate>();
 
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(document, "//head/meta");
