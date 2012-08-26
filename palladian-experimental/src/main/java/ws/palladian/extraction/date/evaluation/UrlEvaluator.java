@@ -26,7 +26,7 @@ public class UrlEvaluator {
 	public static void main(String[] args) {
 
 		TechniqueDateGetter<UrlDate> dg = new UrlDateGetter();
-		TechniqueDateRater<UrlDate> dr = new UrlDateRater(PageDateType.publish);
+		TechniqueDateRater<UrlDate> dr = new UrlDateRater(PageDateType.PUBLISH);
 
 		String file = "data/evaluation/daterecognition/datasets/urldataset.txt";
 		evaluate(DBExport.PUB_DATE, dg, dr, file);
@@ -66,7 +66,7 @@ public class UrlEvaluator {
 			ExtractedDate urlDate = dg.getFirstDate(e.getKey());
 			if (urlDate != null) {
 				ExtractedDate foundDate;
-				if (pub_mod == PageDateType.publish) {
+				if (pub_mod == PageDateType.PUBLISH) {
 					foundDate = DateParser.findDate(e.getValue().get(
 							DBExport.PUB_DATE));
 				} else {

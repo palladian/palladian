@@ -46,7 +46,7 @@ public class WebPageDateEvaluator {
     }
 	
 	public WebPageDateEvaluator() {
-	    this(PageDateType.publish);
+	    this(PageDateType.PUBLISH);
 	}
 
 	/**

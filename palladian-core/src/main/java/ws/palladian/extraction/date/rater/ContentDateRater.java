@@ -42,7 +42,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
     public ContentDateRater(PageDateType dateType) {
         super(dateType);
-        if (dateType == PageDateType.publish) {
+        if (dateType == PageDateType.PUBLISH) {
             loadClassifier(CLASSIFIER_MODEL_PUB);
         } else {
             loadClassifier(CLASSIFIER_MODEL_MOD);
@@ -79,7 +79,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         Map<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
 
         for (ContentDate date : list) {
-            if (this.dateType.equals(PageDateType.publish) && date.isInUrl()) {
+            if (this.dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
                 returnDates.put(date, 1.0);
             } else {
                 Instance2<String> instance = DateInstanceFactory.createInstance(date);

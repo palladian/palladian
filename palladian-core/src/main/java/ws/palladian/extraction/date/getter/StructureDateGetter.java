@@ -51,11 +51,12 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
     }
 
     /**
-     * Searches in a node and it's children for structure dates.<br>
-     * Used recursively.
+     * <p>
+     * Recursively searches for {@link StructureDate}s in a {@link Node} and its children.
+     * </p>
      * 
-     * @param node Node to be searched.
-     * @param depth Depth of hierarchy the node is in.
+     * @param node The Node to be searched.
+     * @param depth The depth of the Node in the hierarchy.
      * @return
      */
     private List<StructureDate> getChildrenDates(Node node, int depth) {

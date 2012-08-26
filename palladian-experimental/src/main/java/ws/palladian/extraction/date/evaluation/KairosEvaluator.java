@@ -34,19 +34,19 @@ public class KairosEvaluator {
 
 		TechniqueDateGetter<ContentDate> dg = new ContentDateGetter();
 		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater(
-				PageDateType.publish);
+				PageDateType.PUBLISH);
 		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater(
-				PageDateType.last_modified);
+				PageDateType.LAST_MODIFIED);
 
 		String file = "data/evaluation/daterecognition/datasets/finalEvaluation.txt";
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
-		 evaluate(PageDateType.publish, dg, pub_dr, file, false);
+		 evaluate(PageDateType.PUBLISH, dg, pub_dr, file, false);
 		long pubTime = stopwatch.getElapsedTime();
 		System.out.println("pubTime: " + pubTime);
 		stopwatch.stop();
 		stopwatch.start();
-		 evaluate( PageDateType.last_modified, dg, mod_dr, file, false);
+		 evaluate( PageDateType.LAST_MODIFIED, dg, mod_dr, file, false);
 		long modTime = stopwatch.getElapsedTime();
 		System.out.println("Time incl. DB zugriff - pub: " + pubTime
 				+ " - mod: " + modTime);
@@ -208,7 +208,7 @@ public class KairosEvaluator {
 
 			System.out.println("compare...");
 
-			if (pub_mod.equals(PageDateType.publish)) {
+			if (pub_mod.equals(PageDateType.PUBLISH)) {
 				compare = EvaluationHelper.compareDate(bestDate, e.getValue(),
 						DBExport.PUB_DATE);
 				date = DateParser.findDate(e.getValue().getPubDate());

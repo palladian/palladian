@@ -209,14 +209,14 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         }
 
         List<ContentDate> returnDates = new ArrayList<ContentDate>();
-        List<String> textSplitt = new ArrayList<String>();
+        List<String> textSplit = new ArrayList<String>();
         List<ContentDate> dateList = new ArrayList<ContentDate>();
         for (int i = 0, beginIndex; (beginIndex = i * 10000) < text.length(); i++) {
             int endIndex = Math.min(beginIndex + 10000, text.length());
-            textSplitt.add(text.substring(beginIndex, endIndex));
+            textSplit.add(text.substring(beginIndex, endIndex));
 
         }
-        for (String textPart : textSplitt) {
+        for (String textPart : textSplit) {
             dateList.addAll(findAllDates(textPart));
         }
         if (dateList.size() > 0) {
@@ -485,11 +485,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         }
         return structDate;
     }
-
-//    public String getDoc() {
-//        return this.doc;
-//    }
-    
     
     static List<ContentDate> findAllDates(String text) {
         List<ContentDate> dates = new ArrayList<ContentDate>();

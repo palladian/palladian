@@ -40,7 +40,6 @@ public class DateGetterTest {
                 // date.addAll(DateGetterHelper
                 // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
                 DateGetter dateGetter = new DateGetter(url);
-                dateGetter.setTechHTMLContent(true);
                 List<ExtractedDate> dates = dateGetter.getDate();
                 date.addAll(dates);
                 CollectionHelper.print(date);
@@ -60,7 +59,6 @@ public class DateGetterTest {
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
             DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setTechHTMLContent(true);
             List<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             // DateArrayHelper.printDateArray(date);
@@ -88,7 +86,6 @@ public class DateGetterTest {
         if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setTechHTMLContent(true);
             List<ExtractedDate> dates = dateGetter.getDate();
             date.addAll(dates);
             // DateArrayHelper.printDateArray(date);

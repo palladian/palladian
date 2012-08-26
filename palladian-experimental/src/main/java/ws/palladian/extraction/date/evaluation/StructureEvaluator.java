@@ -10,7 +10,7 @@ import ws.palladian.extraction.date.rater.TechniqueDateRater;
 public class StructureEvaluator {
 
 	private static StructureDateGetter sdg = new StructureDateGetter();
-	private static StructureDateRater sdr = new StructureDateRater(PageDateType.publish);
+	private static StructureDateRater sdr = new StructureDateRater(PageDateType.PUBLISH);
 	
 	/**
 	 * @param args
@@ -18,8 +18,8 @@ public class StructureEvaluator {
 	public static void main(String[] args) {
 		
 		TechniqueDateGetter<StructureDate> dg = new StructureDateGetter();
-		TechniqueDateRater<StructureDate> pub_dr = new StructureDateRater(PageDateType.publish);
-		TechniqueDateRater<StructureDate> mod_dr = new StructureDateRater(PageDateType.last_modified);
+		TechniqueDateRater<StructureDate> pub_dr = new StructureDateRater(PageDateType.PUBLISH);
+		TechniqueDateRater<StructureDate> mod_dr = new StructureDateRater(PageDateType.LAST_MODIFIED);
 		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
 		evaluate(DBExport.PUB_DATE, dg, pub_dr,file);
 		evaluate(DBExport.MOD_DATE, dg, mod_dr,file);
