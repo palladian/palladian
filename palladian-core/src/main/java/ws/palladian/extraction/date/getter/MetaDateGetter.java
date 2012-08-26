@@ -1,66 +1,58 @@
 package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.w3c.dom.Document;
+
 import ws.palladian.extraction.date.dates.MetaDate;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.ParserException;
 
-public class MetaDateGetter extends TechniqueDateGetter<MetaDate>{
+/**
+ * <p>
+ * This {@link TechniqueDateGetter} extracts dates from meta information, it combines {@link HttpDateGetter} to extract
+ * dates from HTTP response headers and {@link HeadDateGetter} to extract dates from HTML documents' <code>head</code>
+ * section.
+ * </p>
+ * 
+ * @author Martin Gregor
+ * @author Philipp Katz
+ */
+public class MetaDateGetter extends TechniqueDateGetter<MetaDate> {
 
-	private boolean lookHttpDates = true;
-	
-	private final HttpDateGetter httpDateGetter = new HttpDateGetter();
-	private final HeadDateGetter headDateGetter = new HeadDateGetter();
-	
-	@Override
-	public List<MetaDate> getDates() {
-		List<MetaDate> dates = new ArrayList<MetaDate>();
-		if(checkDocAndUrl()){
-			if(lookHttpDates){
-				httpDateGetter.setUrl(this.url);
-				dates.addAll(httpDateGetter.getDates());
-			}
-			headDateGetter.setDocument(this.document);
-			dates.addAll(headDateGetter.getDates());
-		}
-		return dates;
-	}
+    private final HttpDateGetter httpDateGetter = new HttpDateGetter();
+    private final HeadDateGetter headDateGetter = new HeadDateGetter();
 
-//	public void setHttpDateGetter(HttpDateGetter httpDateGetter) {
-//		this.httpDateGetter = httpDateGetter;
-//	}
+    @Override
+    public List<MetaDate> getDates(String url) {
+        try {
+            HttpResult httpResult = httpRetriever.httpGet(url);
+            return getDates(httpResult);
+        } catch (HttpException e) {
+            return Collections.emptyList();
+        }
+    }
 
-//	public HttpDateGetter getHttpDateGetter() {
-//		return httpDateGetter;
-//	}
+    @Override
+    public List<MetaDate> getDates(HttpResult httpResult) {
+        List<MetaDate> dates = new ArrayList<MetaDate>();
+        dates.addAll(httpDateGetter.getDates(httpResult));
 
-//	public void setHeadDateGetter(HeadDateGetter headDateGetter) {
-//		this.headDateGetter = headDateGetter;
-//	}
+        try {
+            Document document = htmlParser.parse(httpResult);
+            dates.addAll(headDateGetter.getDates(document));
+        } catch (ParserException e) {
+        }
 
-//	public HeadDateGetter getHeadDateGetter() {
-//		return headDateGetter;
-//	}
+        return dates;
+    }
 
-	private boolean checkDocAndUrl(){
-		boolean result;
-		if(this.url == null && this.document == null){
-			result = false;
-		}else {
-			result = true;
-			if(this.url == null){
-				this.url = document.getBaseURI();
-			}else if(this.document == null){
-				DocumentRetriever crawler = new DocumentRetriever();
-				this.document = crawler.getWebDocument(this.url);
-			}
-		}
-		return result;
-	}
-	
-	public void setLookHttpDates(boolean lookHttpDates){
-		this.lookHttpDates = lookHttpDates;
-	}
-	
+    @Override
+    public List<MetaDate> getDates(Document document) {
+        return getDates(getUrl(document));
+    }
+
 }

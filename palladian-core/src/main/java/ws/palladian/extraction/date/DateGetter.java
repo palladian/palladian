@@ -74,8 +74,7 @@ public class DateGetter {
 				document = crawler.getWebDocument(url);
 			}
 			if (document != null) {
-				contentDateGetter.setDocument(document);
-				dates.addAll(contentDateGetter.getDates());
+				dates.addAll(contentDateGetter.getDates(document));
 			}
 		}
         CollectionHelper.removeNulls(dates);

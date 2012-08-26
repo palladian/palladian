@@ -12,11 +12,7 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * <p>
@@ -31,41 +27,27 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ArchiveDateGetter.class);
-    /** Used for HTTP communication. */
-    private final HttpRetriever httpRetriever;
-    /** Used for parsing HTML pages. */
-    private final DocumentParser htmlParser;
 
-    public ArchiveDateGetter() {
-        httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        htmlParser = ParserFactory.createHtmlParser();
-    }
+    /** The base URL of the archive web page. */
+    private static final String ARCHIVE_BASE_URL = "http://web.archive.org/web/*/";
 
     @Override
-    public List<ArchiveDate> getDates() {
+    public List<ArchiveDate> getDates(String url) {
         List<ArchiveDate> result = new ArrayList<ArchiveDate>();
-        if (url != null) {
-            result.add(getArchiveDates(url));
-        }
-        return result;
-    }
-
-    private ArchiveDate getArchiveDates(String url) {
-        ArchiveDate oldest = null;
-        String archiveUrl = "http://web.archive.org/web/*/" + url;
+        String archiveUrl = ARCHIVE_BASE_URL + url;
 
         try {
+
             HttpResult httpResult = httpRetriever.httpGet(archiveUrl);
             Document document = htmlParser.parse(httpResult);
 
             ContentDateGetter contentDateGetter = new ContentDateGetter();
-            contentDateGetter.setDocument(document);
-            List<ContentDate> contentDates = contentDateGetter.getDates();
+            List<ContentDate> contentDates = contentDateGetter.getDates(document);
 
             contentDates = DateArrayHelper.filterFullDate(contentDates);
             DateComparator dateComparator = new DateComparator();
 
-            oldest = new ArchiveDate(dateComparator.getOldestDate(contentDates));
+            result.add(new ArchiveDate(dateComparator.getOldestDate(contentDates)));
 
         } catch (HttpException e) {
             LOGGER.error("HttpException while getting date for \"" + url + "\": " + e.getMessage(), e);
@@ -73,6 +55,16 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
             LOGGER.error("ParseException while getting date for \"" + url + "\": " + e.getMessage(), e);
         }
 
-        return oldest;
+        return result;
+    }
+
+    @Override
+    public List<ArchiveDate> getDates(HttpResult httpResult) {
+        return getDates(httpResult.getUrl());
+    }
+
+    @Override
+    public List<ArchiveDate> getDates(Document document) {
+        return getDates(getUrl(document));
     }
 }

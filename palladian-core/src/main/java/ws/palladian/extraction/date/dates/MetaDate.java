@@ -29,4 +29,15 @@ public final class MetaDate extends KeywordDate {
         return tag;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(" tag=");
+        builder.append(tag);
+        return builder.toString();
+    }
+
 }

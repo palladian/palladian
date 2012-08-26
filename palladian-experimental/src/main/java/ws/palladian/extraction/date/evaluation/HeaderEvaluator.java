@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.w3c.dom.Document;
+
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.getter.HeadDateGetter;
@@ -80,24 +82,22 @@ public class HeaderEvaluator {
 		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
-			dg.reset();
 			T bestDate = null;
 			String bestDateString ="";
 			String url =e.getValue().get(DBExport.URL);
-			dg.setUrl(url);
-			//System.out.println(url);
-			if(table.equalsIgnoreCase(EvaluationHelper.CONTENTEVAL) || table.equalsIgnoreCase(EvaluationHelper.STRUCTEVAL) || table.equalsIgnoreCase(EvaluationHelper.HEADEVAL)){
-				String path = e.getValue().get(DBExport.PATH);
-				//System.out.println(path);
-				dg.setDocument(crawler.getWebDocument(path));
-			}else{
-				
-				dg.setUrl(url);
-			}
 			
 			System.out.print("get dates... ");
 			StopWatch timer = new StopWatch();
-			List<T> list = dg.getDates();
+			List<T> list;
+			//System.out.println(url);
+			if(table.equalsIgnoreCase(EvaluationHelper.CONTENTEVAL) || table.equalsIgnoreCase(EvaluationHelper.STRUCTEVAL) || table.equalsIgnoreCase(EvaluationHelper.HEADEVAL)){
+				String path = e.getValue().get(DBExport.PATH);
+				Document document = crawler.getWebDocument(path);
+				list = dg.getDates(document);
+			}else{
+				list = dg.getDates(url);
+			}
+			
 			timer.stop();
 			timer.getElapsedTimeString(true);
 			CollectionHelper.removeNulls(list);
@@ -189,8 +189,7 @@ public class HeaderEvaluator {
 		int index=0;
 		for(Entry<String, DBExport> e : set.entrySet()){
 			System.out.println(index + ": " + e.getKey());
-			dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
-			List<MetaDate> dates = dg.getDates();
+			List<MetaDate> dates = dg.getDates(c.getWebDocument(e.getValue().get(DBExport.PATH)));
 			if(dates.size() != 0){
 				headSet.add(e.getValue());
 			}
@@ -230,8 +229,7 @@ public class HeaderEvaluator {
 					if(indexStart > -1 && indexEnd > -1){
 						String url = line.substring(indexStart + 1, indexEnd);
 						System.out.println(lineindex + ": " + url);
-						dg.setDocument(c.getWebDocument(url));
-						List<MetaDate> dates = dg.getDates();
+						List<MetaDate> dates = dg.getDates(c.getWebDocument(url));
 						if(!dates.isEmpty()){
 							System.out.println("+");
 							headSet.add(line);
@@ -282,9 +280,7 @@ public class HeaderEvaluator {
 				for(Entry<String, DBExport>e : merged.entrySet()){
 					HeadDateGetter dg = new HeadDateGetter();
 					
-					dg.setDocument(c.getWebDocument(e.getValue().get(DBExport.PATH)));
-					
-					List<MetaDate> headDates = dg.getDates();
+					List<MetaDate> headDates = dg.getDates(c.getWebDocument(e.getValue().get(DBExport.PATH)));
 					System.out.println(headDates.size());					
 					if(headDates.size()>0){
 					

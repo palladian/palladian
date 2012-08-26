@@ -37,9 +37,7 @@ import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
- * This class extracts all dates out of the content of webpages. For more than one use, use
- * {@link ContentDateGetter#reset()} to avoid errors and mistakes. Otherwise list will not be cleared and you get
- * {@link OutOfMemoryError}.
+ * This class extracts all dates out of the content of webpages.
  * </p>
  * 
  * @author Martin Gregor
@@ -47,13 +45,9 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
-    /**
-     * Stores all keywords with index, that are within document's text.
-     */
+    /** All keywords with index, that are within document's text. */
     private Map<Integer, String> keyContentMap = new HashMap<Integer, String>();
-    /**
-     * Stores a node and its keyword.
-     */
+    /** Nodes with their keywords. */
     private Map<Node, String> keyAttrMap = new HashMap<Node, String>();
     /**
      * Stores the position after in a document found text. <br>
@@ -68,16 +62,17 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     // private HashMap<Node, Boolean> visibleNodeMap = new HashMap<Node, Boolean>();
 
     @Override
-    public List<ContentDate> getDates() {
+    public List<ContentDate> getDates(Document document) {
         List<ContentDate> result = new ArrayList<ContentDate>();
         if (document != null) {
-            result = getContentDates(this.document);
-            setFeatures(result);
+            result = getContentDates(document);
+            setFeatures(result, document);
         }
+        reset();
         return result;
     }
 
-    private void setFeatures(List<ContentDate> dates) {
+    private void setFeatures(List<ContentDate> dates, Document document) {
 
         List<ContentDate> posOrder = new LinkedList<ContentDate>();
         List<ContentDate> ageOrder = new LinkedList<ContentDate>();
@@ -93,12 +88,9 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         MetaDateGetter mdg = new MetaDateGetter();
         UrlDateGetter udg = new UrlDateGetter();
-        mdg.setDocument(document);
-        mdg.setUrl(url);
-        udg.setUrl(url);
-        List<MetaDate> metaDates = mdg.getDates();
+        List<MetaDate> metaDates = mdg.getDates(document);
         CollectionHelper.removeNulls(metaDates);
-        List<UrlDate> urlDates = udg.getDates();
+        List<UrlDate> urlDates = udg.getDates(document.getDocumentURI());
         CollectionHelper.removeNulls(urlDates);
 
         for (ContentDate date : dates) {
@@ -118,9 +110,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 date.setInUrl(true);
             }
 
-            double relCntSame = Math
-                    .round((double) (DateArrayHelper.countDates(date, dates, DateExactness.DAY) + 1)
-                            / (double) dates.size() * 1000.0) / 1000.0;
+            double relCntSame = Math.round((double)(DateArrayHelper.countDates(date, dates, DateExactness.DAY) + 1)
+                    / (double)dates.size() * 1000.0) / 1000.0;
             date.setRelCntSame(relCntSame);
 
             int datePosOrderAbsl = posOrder.indexOf(date);
@@ -134,12 +125,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             }
             int dateAgeOrdAbsl = ageOrder.indexOf(date);
             if (dateAgeOrdAbsl > 0) {
-                date.setDistAgeBefore(Math.round(date.getDifference(ageOrder.get(dateAgeOrdAbsl - 1),
-                        TimeUnit.HOURS)));
+                date.setDistAgeBefore(Math.round(date.getDifference(ageOrder.get(dateAgeOrdAbsl - 1), TimeUnit.HOURS)));
             }
             if (dateAgeOrdAbsl < ageOrder.size() - 1) {
-                date.setDistAgeAfter(Math.round(date.getDifference(ageOrder.get(dateAgeOrdAbsl + 1),
-                        TimeUnit.HOURS)));
+                date.setDistAgeAfter(Math.round(date.getDifference(ageOrder.get(dateAgeOrdAbsl + 1), TimeUnit.HOURS)));
             }
         }
     }
@@ -160,8 +149,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             // TODO: Check if an element is visible
             // checkVisiblityOfAllNodes(body.item(0));
             // Get webpage as text (for finding position).
-            this.doc = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper
-                    .documentToReadableText(body.item(0))));
+            this.doc = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper.documentToReadableText(body
+                    .item(0))));
 
             setDocKeywords();
 
@@ -172,7 +161,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                     Node parent = node.getParentNode();
                     if (parent.getNodeType() != Node.COMMENT_NODE && !parent.getNodeName().equalsIgnoreCase("script")
                             && !parent.getNodeName().equalsIgnoreCase("style")) {
-                        dates.addAll(checkTextnode((Text) node));
+                        dates.addAll(checkTextnode((Text)node));
                     }
                 }
             }
@@ -252,7 +241,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             if (index != -1) {
                 int ablsDocPos = index + date.get(ContentDate.DATEPOS_IN_TAGTEXT);
                 date.set(ContentDate.DATEPOS_IN_DOC, ablsDocPos);
-                date.setRelDocPos(Math.round((double) ablsDocPos / (double) doc.length() * 1000.0) / 1000.0);
+                date.setRelDocPos(Math.round((double)ablsDocPos / (double)doc.length() * 1000.0) / 1000.0);
             }
 
             String keyword = getNodeKeyword(tag);
@@ -309,16 +298,16 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @return Hashmap with indexes and keywords.
      */
     private void setDocKeywords() {
-        if (this.doc != null) {
-            this.keyContentMap = new HashMap<Integer, String>();
-            String text = this.doc.toLowerCase();
+        if (doc != null) {
+            keyContentMap = new HashMap<Integer, String>();
+            String text = doc.toLowerCase();
             String[] keywords = KeyWords.BODY_CONTENT_KEYWORDS_ALL;
             int index;
             for (int i = 0; i < keywords.length; i++) {
                 String key = keywords[i];
                 index = text.indexOf(key);
                 if (index != -1) {
-                    this.keyContentMap.put(index, key);
+                    keyContentMap.put(index, key);
                     text = text.replaceFirst(key, StringUtils.repeat('x', key.length()));
                     i--;
                 }
@@ -343,7 +332,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 int indexBefore = datePos - i;
                 int indexAfter = datePos + i;
 
-                String keywordBefore = this.keyContentMap.get(indexBefore);
+                String keywordBefore = keyContentMap.get(indexBefore);
                 if (keywordBefore != null) {
                     keyword = keywordBefore;
                     subStart = indexBefore + keywordBefore.length();
@@ -414,14 +403,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         return returnValue;
     }
 
-    @Override
+    // @Override
     /**
      * Clears all maps for a new use, if the ContentDateGetter will not be initialized for another turn. <br>
      * Use this to avoid OutOfMemeryErrors!
      */
-    public void reset() {
+    private void reset() {
         this.doc = null;
-        this.document = null;
         this.keyAttrMap = new HashMap<Node, String>();
         this.keyContentMap = new HashMap<Integer, String>();
         this.nodeIndexMap = new HashMap<String, Integer>();
@@ -481,11 +469,11 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             String keyword = getNodeKeyword(node);
             structDate = new StructureDate(date);
             structDate.setKeyword(keyword);
-            //structDate.setNode(node);
+            // structDate.setNode(node);
         }
         return structDate;
     }
-    
+
     static List<ContentDate> findAllDates(String text) {
         List<ContentDate> dates = new ArrayList<ContentDate>();
         for (DateFormat format : RegExp.ALL_DATE_FORMATS) {
@@ -512,7 +500,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         }
         return dates;
     }
-    
+
     /**
      * <p>
      * Sometimes texts in webpages have special code for character. E.g. <i>&ampuuml;</i> or whitespace. To evaluate
@@ -536,4 +524,5 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         return result;
     }
+
 }

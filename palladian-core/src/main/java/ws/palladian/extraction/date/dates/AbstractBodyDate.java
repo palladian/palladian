@@ -27,19 +27,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
      */
     private String tagNode = null;
 
-    /**
-     * Node.
-     */
-//    private Node node = null;
-    
-//    /**
-//     * @param dateString
-//     * @param format
-//     */
-//    public AbstractBodyDate(String dateString, String format) {
-//        super(dateString, format);
-//    }
-
     public AbstractBodyDate(ExtractedDate date) {
         super(date);
     }
@@ -74,6 +61,8 @@ public abstract class AbstractBodyDate extends KeywordDate {
         return value;
     }
 
+
+
     @Override
     public void set(int field, int value) {
         switch (field) {
@@ -84,12 +73,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
                 super.set(field, value);
         }
 
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + "\n" + "Keyword: " + super.getKeyword() + " Tagname: " + tag + "\n"
-                + "Stucturedepth: " + structuralDepth;
     }
 
     /**
@@ -110,12 +93,20 @@ public abstract class AbstractBodyDate extends KeywordDate {
         return tagNode;
     }
     
-//    public Node getNode(){
-//    	return node;
-//    }
-    
-//    public void setNode(Node node){
-//    	this.node= node;
-//    }
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(super.toString());
+        builder.append(" tag=");
+        builder.append(tag);
+        builder.append(", structuralDepth=");
+        builder.append(structuralDepth);
+        builder.append(", tagNode=");
+        builder.append(tagNode);
+        return builder.toString();
+    }
     
 }

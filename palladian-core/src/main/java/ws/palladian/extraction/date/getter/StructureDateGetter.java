@@ -21,23 +21,9 @@ import ws.palladian.helper.date.ExtractedDate;
  * 
  */
 public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
-
+    
     @Override
-    public List<StructureDate> getDates() {
-        List<StructureDate> result = new ArrayList<StructureDate>();
-        if (document != null) {
-            result = getBodyStructureDates(document);
-        }
-        return result;
-    }
-
-    /**
-     * Finds dates in structure of a document.
-     * 
-     * @param document Document to be searched.
-     * @return List of dates.
-     */
-    List<StructureDate> getBodyStructureDates(Document document) {
+    public List<StructureDate> getDates(Document document) {
         List<StructureDate> dates = new ArrayList<StructureDate>();
         NodeList bodyNodeList = document.getElementsByTagName("body");
         if (bodyNodeList != null) {

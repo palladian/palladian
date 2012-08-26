@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.w3c.dom.Document;
+
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
 import ws.palladian.extraction.date.helper.DateArrayHelper;
@@ -29,19 +31,16 @@ public abstract class Evaluator {
 		DocumentRetriever crawler = new DocumentRetriever();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
-			dg.reset();
 			T bestDate = null;
 			String bestDateString ="";
 			String url =e.getValue().get(DBExport.URL);
-			dg.setUrl(url);
 			String path = e.getValue().get(DBExport.PATH);
-			dg.setDocument(crawler.getWebDocument(path));
-			
-			dg.setUrl(url);
+			Document document = crawler.getWebDocument(path);
+			document.setDocumentURI(url);
 			
 			System.out.print("get dates... ");
 			StopWatch timer = new StopWatch();
-			List<T> list = dg.getDates();
+			List<T> list = dg.getDates(document);
 			timer.stop();
 			timer.getElapsedTimeString(true);
 			CollectionHelper.removeNulls(list);

@@ -21,8 +21,7 @@ public class HeadDateGetterTest {
         DocumentParser htmlParser = ParserFactory.createHtmlParser();
         Document document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/website104.html"));
         HeadDateGetter headDateGetter = new HeadDateGetter();
-        headDateGetter.setDocument(document);
-        List<MetaDate> headDates = headDateGetter.getDates();
+        List<MetaDate> headDates = headDateGetter.getDates(document);
         
         assertEquals(3, headDates.size());
         assertEquals("2009-01-15", headDates.get(0).getNormalizedDateString());
@@ -36,8 +35,7 @@ public class HeadDateGetterTest {
         Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm"));
         HeadDateGetter headDateGetter = new HeadDateGetter();
 
-        headDateGetter.setDocument(document);
-        List<MetaDate> dates = headDateGetter.getDates();
+        List<MetaDate> dates = headDateGetter.getDates(document);
         assertEquals(6, dates.size());
         assertEquals("2010-09-03 09:43:13", dates.get(0).getNormalizedDateString());
         assertEquals("2010-09-02 06:00:00", dates.get(1).getNormalizedDateString());
