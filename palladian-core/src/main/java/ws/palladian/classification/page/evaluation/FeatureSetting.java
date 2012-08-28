@@ -1,12 +1,8 @@
 package ws.palladian.classification.page.evaluation;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
 
 /**
  * <p>Save the settings which text features should be used for a classifier.</p>
@@ -49,40 +45,47 @@ public class FeatureSetting implements Serializable {
     private int maximumTermLength = 20;
 
     /** Set of English stop words. */
-    public static Set<String> englishStopWords = new HashSet<String>();
+    // public static Set<String> englishStopWords = new HashSet<String>();
 
     private Set<String> stopWords = new HashSet<String>();
 
     public FeatureSetting() {
 
-        init();
+        // init();
 
     }
     
     public FeatureSetting(FeatureSetting fs) {
         super();
-        try {
-            PropertyUtils.copyProperties(this, fs);
-        } catch (IllegalAccessException e) {
-            Logger.getRootLogger().error(e);
-        } catch (InvocationTargetException e) {
-            Logger.getRootLogger().error(e);
-        } catch (NoSuchMethodException e) {
-            Logger.getRootLogger().error(e);
-        }
+//        try {
+//            PropertyUtils.copyProperties(this, fs);
+//        } catch (IllegalAccessException e) {
+//            Logger.getRootLogger().error(e);
+//        } catch (InvocationTargetException e) {
+//            Logger.getRootLogger().error(e);
+//        } catch (NoSuchMethodException e) {
+//            Logger.getRootLogger().error(e);
+//        }
         
-        init();
+        this.maxTerms = fs.maxTerms;
+        this.minNGramLength = fs.minNGramLength;
+        this.maxNGramLength = fs.maxNGramLength;
+        this.minimumTermLength = fs.minimumTermLength;
+        this.maximumTermLength = fs.maximumTermLength;
+        this.stopWords = new HashSet<String>(fs.stopWords);
+        
+//        init();
     }
 
-    private void init() {
-        String[] englishStopWordsArray = { "I", "a", "about", "an", "and", "are", "as", "at", "be", "by", "com", "de",
-                "en", "for", "from", "how", "in", "is", "he", "she", "it", "la", "of", "on", "or", "that", "the",
-                "this", "to", "was", "what", "when", "where", "who", "will", "with", "und", "the", "www" };
-
-        for (String stopWord : englishStopWordsArray) {
-            englishStopWords.add(stopWord);
-        }        
-    }
+//    private void init() {
+//        String[] englishStopWordsArray = { "I", "a", "about", "an", "and", "are", "as", "at", "be", "by", "com", "de",
+//                "en", "for", "from", "how", "in", "is", "he", "she", "it", "la", "of", "on", "or", "that", "the",
+//                "this", "to", "was", "what", "when", "where", "who", "will", "with", "und", "the", "www" };
+//
+//        for (String stopWord : englishStopWordsArray) {
+//            englishStopWords.add(stopWord);
+//        }        
+//    }
     
     public int getTextFeatureType() {
         return textFeatureType;

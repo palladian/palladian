@@ -1,10 +1,6 @@
 package ws.palladian.classification.page.evaluation;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.TextClassifier;
 
@@ -50,15 +46,18 @@ public class ClassificationTypeSetting implements Serializable {
     
     public ClassificationTypeSetting(ClassificationTypeSetting cts) {
         super();
-        try {
-            PropertyUtils.copyProperties(this, cts);
-        } catch (IllegalAccessException e) {
-            Logger.getRootLogger().error(e);
-        } catch (InvocationTargetException e) {
-            Logger.getRootLogger().error(e);
-        } catch (NoSuchMethodException e) {
-            Logger.getRootLogger().error(e);
-        }
+//        try {
+//            PropertyUtils.copyProperties(this, cts);
+//        } catch (IllegalAccessException e) {
+//            Logger.getRootLogger().error(e);
+//        } catch (InvocationTargetException e) {
+//            Logger.getRootLogger().error(e);
+//        } catch (NoSuchMethodException e) {
+//            Logger.getRootLogger().error(e);
+//        }
+        this.classificationType = cts.classificationType;
+        this.serializeClassifier = cts.serializeClassifier;
+        this.classificationTypeTagSetting = new ClassificationTypeTagSetting(cts.classificationTypeTagSetting);
     }
     
     /**
