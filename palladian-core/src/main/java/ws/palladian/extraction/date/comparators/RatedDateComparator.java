@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.date.DateExactness;
@@ -24,11 +25,14 @@ import ws.palladian.helper.date.ExtractedDate;
  * 
  * @param <T>
  */
-public class RatedDateComparator implements Comparator<ExtractedDate> {
-
+public class RatedDateComparator implements Comparator<RatedDate<? extends ExtractedDate>> {
+    
     @Override
-    public int compare(ExtractedDate date1, ExtractedDate date2) {
-        int result = compareRate(date1, date2);
+    public int compare(RatedDate<?> ratedDate1, RatedDate<?> ratedDate2) {
+        ExtractedDate date1 = ratedDate1.getDate();
+        ExtractedDate date2 = ratedDate2.getDate();
+        
+        int result = compareRate(ratedDate1, ratedDate2);
         if (result == 0) {
             if (date1 instanceof ContentDate && date2 instanceof ContentDate) {
                 result = compareDocumentPosition((ContentDate)date1, (ContentDate)date2);
@@ -47,13 +51,13 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
      * Compare by rate.
      * </p>
      * 
-     * @param date1
-     * @param date2
+     * @param ratedDate1
+     * @param ratedDate2
      * @return
      */
-    private static int compareRate(ExtractedDate date1, ExtractedDate date2) {
-        double rate1 = date1.getRate();
-        double rate2 = date2.getRate();
+    private static int compareRate(RatedDate<?> ratedDate1, RatedDate<?> ratedDate2) {
+        double rate1 = ratedDate1.getRate();
+        double rate2 = ratedDate2.getRate();
         return Double.valueOf(rate2).compareTo(rate1);
     }
 
@@ -117,4 +121,5 @@ public class RatedDateComparator implements Comparator<ExtractedDate> {
         DateComparator dateComparator = new DateComparator(compareDepth);
         return dateComparator.compare(date1, date2);
     }
+
 }

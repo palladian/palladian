@@ -8,8 +8,9 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.getter.HttpDateGetter;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.HttpDateRater;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
@@ -25,10 +26,6 @@ public class HttpEvaluator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//evaluateLastModified();
-		
-		//createHttpUrlList("", "");
-		
 		HttpDateGetter dg = new HttpDateGetter();
 		HttpDateRater dr = new HttpDateRater(PageDateType.PUBLISH);
 		
@@ -55,13 +52,11 @@ public class HttpEvaluator {
 			
 			List<MetaDate> dates = new ArrayList<MetaDate>();
 			ExtractedDate dateDate = DateParser.findDate(e.getValue().get(DBExport.HEADER_DATE));
-			// MetaDate tempDate = DateConverter.convert(dateDate, DateType.MetaDate);
 			MetaDate tempDate = new MetaDate(dateDate);
 			if(tempDate != null){
 				dates.add(tempDate);
 			}
 			ExtractedDate lastDate = DateParser.findDate(e.getValue().get(DBExport.HEADER_LAST));
-			//tempDate = DateConverter.convert(lastDate, DateType.MetaDate);
 			tempDate = new MetaDate(lastDate);
 			if(tempDate != null){
 				dates.add(tempDate);
@@ -70,9 +65,10 @@ public class HttpEvaluator {
 			System.out.print("rate...");
 			
 			ExtractedDate downloadedDate = DateParser.findDate(e.getValue().get(DBExport.ACTUAL_DATE));
-			HashMap<MetaDate, Double> dateArray = dr.evaluateHTTPDate(dates, downloadedDate);
-			double rate = DateArrayHelper.getHighestRate(dateArray);
-			dates = DateArrayHelper.getRatedDates(dateArray, rate);
+			List<RatedDate<MetaDate>> dateArray = dr.evaluateHTTPDate(dates, downloadedDate);
+			
+			double rate = DateExtractionHelper.getHighestRate(dateArray);
+			dates = DateExtractionHelper.getRatedDates(dateArray, rate);
 			if(dates.size()>0 && dates.get(0) != null){
 				tempDate = dates.get(0);
 				tempDateString = tempDate.getNormalizedDateString(true);

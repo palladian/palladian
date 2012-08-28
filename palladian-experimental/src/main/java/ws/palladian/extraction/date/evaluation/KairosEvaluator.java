@@ -12,6 +12,7 @@ import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.getter.MetaDateGetter;
@@ -178,25 +179,20 @@ public class KairosEvaluator {
 		for (Entry<String, DBExport> e : set.entrySet()) {
 
 			ExtractedDate date;
-			ExtractedDate bestDate;
 			String dbExportDateString;
-			WebPageDateEvaluator wp = new WebPageDateEvaluator(pub_mod);
 
 			String url = e.getValue().get(DBExport.URL);
 			String path = e.getValue().get(DBExport.PATH);
 			Document document = crawler.getWebDocument(path);
+			document.setDocumentURI(path);
 
 			String bestDateString = "";
 			String rate = "-1";
-			// String dbDateString;
 
 			System.out.println(url);
 
 			timer.start();
-			wp.setUrl(url);
-			wp.setDocument(document);
-			wp.evaluate();
-			bestDate = wp.getBestRatedDate();
+			RatedDate<? extends ExtractedDate> bestDate = WebPageDateEvaluator.getBestDate(document, pub_mod);
 			time += timer.getElapsedTime();
 			System.out.print("get dates... ");
 			if (bestDate != null) {

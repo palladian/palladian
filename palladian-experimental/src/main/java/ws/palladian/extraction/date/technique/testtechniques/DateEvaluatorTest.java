@@ -2,28 +2,32 @@ package ws.palladian.extraction.date.technique.testtechniques;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
+import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.extraction.date.dates.UrlDate;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.getter.ReferenceDateGetter;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.ArchiveDateRater;
 import ws.palladian.extraction.date.rater.ContentDateRater;
 import ws.palladian.extraction.date.rater.MetaDateRater;
 import ws.palladian.extraction.date.rater.ReferenceDateRater;
 import ws.palladian.extraction.date.rater.StructureDateRater;
 import ws.palladian.extraction.date.rater.UrlDateRater;
+import ws.palladian.helper.DateFormat;
+import ws.palladian.helper.RegExp;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
 
@@ -37,29 +41,31 @@ import ws.palladian.helper.date.ExtractedDate;
  */
 public class DateEvaluatorTest {
 
-    private String url;
-    private boolean referneceLookUp = false;
+    private final String url;
+    private final boolean referenceLookUp;
 
-    private MetaDateRater mdr;
-    private UrlDateRater udr;
-    private StructureDateRater sdr;
-    private ContentDateRater cdr;
-    private ArchiveDateRater adr;
-    private ReferenceDateRater rdr;
+    private final MetaDateRater metaDateRater;
+    private final UrlDateRater urlDateRater;
+    private final StructureDateRater structureDateRater;
+    private final ContentDateRater contentDateRater;
+    private final ArchiveDateRater archiveDateRater;
+    private final ReferenceDateRater referenceDateRater;
+    
+    // TODO ???
 	private ExtractedDate actualDate;
 
     /**
      * Standard constructor.
      */
     public DateEvaluatorTest() {
-    	setPubMod(PageDateType.PUBLISH);
+        this(PageDateType.PUBLISH);
     }
     
     /**
      * Standard constructor.
      */
-    public DateEvaluatorTest(PageDateType pub_mod) {
-    	setPubMod(pub_mod);
+    public DateEvaluatorTest(PageDateType pageDateType) {
+        this(null, pageDateType);
     }
 
     /**
@@ -67,9 +73,8 @@ public class DateEvaluatorTest {
      * 
      * @param url
      */
-    public DateEvaluatorTest(String url, PageDateType pub_mod) {
-        this.url = url;
-        setPubMod(pub_mod);
+    public DateEvaluatorTest(String url, PageDateType pageDateType) {
+        this(url, pageDateType, false);
     }
 
     /**
@@ -78,18 +83,15 @@ public class DateEvaluatorTest {
      * @param url
      * @param referenceLookUp
      */
-    public DateEvaluatorTest(String url, boolean referenceLookUp, PageDateType pub_mod) {
+    public DateEvaluatorTest(String url, PageDateType dateType, boolean referenceLookUp) {
         this.url = url;
-        this.referneceLookUp = referenceLookUp;
-        setPubMod(pub_mod);
-    }
-    private void setPubMod(PageDateType pub_mod){
-		mdr = new MetaDateRater(pub_mod);
-		udr = new UrlDateRater(pub_mod);
-		sdr = new StructureDateRater(pub_mod);
-		cdr = new ContentDateRater(pub_mod);
-		adr = new ArchiveDateRater(pub_mod);
-		rdr = new ReferenceDateRater(pub_mod);
+        this.referenceLookUp = referenceLookUp;
+        metaDateRater = new MetaDateRater(dateType);
+        urlDateRater = new UrlDateRater();
+        structureDateRater = new StructureDateRater(dateType);
+        contentDateRater = new ContentDateRater(dateType);
+        archiveDateRater = new ArchiveDateRater();
+        referenceDateRater = new ReferenceDateRater();
     }
 
     /**
@@ -100,83 +102,81 @@ public class DateEvaluatorTest {
      * @param extractedDates ArrayList of ExtractedDates.
      * @return HashMap of dates, with rate as value.
      */
-    public Map<ExtractedDate, Double> rate(List<ExtractedDate> extractedDates) {
-        Map<ExtractedDate, Double> evaluatedDates = new HashMap<ExtractedDate, Double>();
+    public List<RatedDate<? extends ExtractedDate>> rate(List<ExtractedDate> extractedDates) {
+        List<RatedDate<? extends ExtractedDate>> evaluatedDates = CollectionHelper.newArrayList();
 
-        List<ExtractedDate> dates = DateArrayHelper.filterByRange(extractedDates);
-        Map<UrlDate, Double> urlResult = new HashMap<UrlDate, Double>();
-        Map<MetaDate, Double> metaResult = new HashMap<MetaDate, Double>();
-        Map<StructureDate, Double> structResult = new HashMap<StructureDate, Double>();
-        Map<ContentDate, Double> contResult = new HashMap<ContentDate, Double>();
+        List<ExtractedDate> dates = DateExtractionHelper.filterByRange(extractedDates);
+        List<RatedDate<UrlDate>> urlResult = CollectionHelper.newArrayList();
+        List<RatedDate<MetaDate>> metaResult = CollectionHelper.newArrayList();
+        List<RatedDate<StructureDate>> structResult = CollectionHelper.newArrayList();
+        List<RatedDate<ContentDate>> contResult = CollectionHelper.newArrayList();
 
 
-        List<UrlDate> urlDates = DateArrayHelper.filter(dates, UrlDate.class);
+        List<UrlDate> urlDates = DateExtractionHelper.filter(dates, UrlDate.class);
 
-        List<MetaDate> metaDates = DateArrayHelper.filter(dates, MetaDate.class);
+        List<MetaDate> metaDates = DateExtractionHelper.filter(dates, MetaDate.class);
 
-        List<StructureDate> structDates = DateArrayHelper.filter(dates, StructureDate.class);
+        List<StructureDate> structDates = DateExtractionHelper.filter(dates, StructureDate.class);
 
-        List<ContentDate> contDates = DateArrayHelper.filter(dates, ContentDate.class);
-        List<ContentDate> contFullDates = DateArrayHelper.filterFullDate(contDates);
+        List<ContentDate> contDates = DateExtractionHelper.filter(dates, ContentDate.class);
+        List<ContentDate> contFullDates = DateExtractionHelper.filterFullDate(contDates);
 
-        List<ArchiveDate> archiveDate = DateArrayHelper.filter(dates, ArchiveDate.class);
+        List<ArchiveDate> archiveDates = DateExtractionHelper.filter(dates, ArchiveDate.class);
 
-        List<ReferenceDate> referenceDate = DateArrayHelper.filter(dates, ReferenceDate.class);
+        List<ReferenceDate> referenceDates = DateExtractionHelper.filter(dates, ReferenceDate.class);
 
-        if (urlDates != null && urlDates.size() > 0) {
-            urlResult.putAll(udr.rate(urlDates));
+        if (urlDates.size() > 0) {
+            urlResult.addAll(urlDateRater.rate(urlDates));
         }
-        if (metaDates != null && metaDates.size() > 0) {
+        if (metaDates.size() > 0) {
         	if(actualDate != null){
-        		mdr.setActualDate(actualDate);
+        		metaDateRater.setActualDate(actualDate);
         	}
-            metaResult.putAll(mdr.rate(metaDates));
+            metaResult.addAll(metaDateRater.rate(metaDates));
         }
 
-        if (contFullDates != null && contFullDates.size() > 0) {
-            contResult.putAll(cdr.rate(contFullDates));
-        } else if (contDates != null && contDates.size() > 0) {
-            contResult.putAll(cdr.rate(contDates));
+        if (contFullDates.size() > 0) {
+            contResult.addAll(contentDateRater.rate(contFullDates));
+        } else if (contDates.size() > 0) {
+            contResult.addAll(contentDateRater.rate(contDates));
         }
         if (urlResult.size() > 0 && contResult.size() > 0) {
-            checkDayMonthYearOrder(urlResult.keySet().iterator().next(), contResult);
+            checkDayMonthYearOrder(urlResult.get(0), contResult);
         }
 
-        if (structDates != null && structDates.size() > 0) {
-            structResult.putAll(sdr.rate(structDates));
+        if (structDates.size() > 0) {
+            structResult.addAll(structureDateRater.rate(structDates));
         }
 
-        evaluatedDates.putAll(urlResult);
-        evaluatedDates.putAll(metaResult);
-        evaluatedDates.putAll(structResult);
-        evaluatedDates.putAll(contResult);
+        evaluatedDates.addAll(urlResult);
+        evaluatedDates.addAll(metaResult);
+        evaluatedDates.addAll(structResult);
+        evaluatedDates.addAll(contResult);
 
 
-        evaluatedDates.putAll(deployStructureDates(contResult, structResult));
+        evaluatedDates.addAll(deployStructureDates(contResult, structResult));
 
-        evaluatedDates.putAll(deployMetaDates(metaResult, contResult));
-        evaluatedDates.putAll(deployMetaDates(metaResult, structResult));
+        evaluatedDates.addAll(deployMetaDates(metaResult, contResult));
+        evaluatedDates.addAll(deployMetaDates(metaResult, structResult));
 
-        evaluatedDates.putAll(deployUrlDate(urlResult, metaResult));
-        evaluatedDates.putAll(deployUrlDate(urlResult, structResult));
-        evaluatedDates.putAll(deployUrlDate(urlResult, contResult));
+        evaluatedDates.addAll(deployUrlDate(urlResult, metaResult));
+        evaluatedDates.addAll(deployUrlDate(urlResult, structResult));
+        evaluatedDates.addAll(deployUrlDate(urlResult, contResult));
 
-        if (referenceDate != null && referenceDate.size() > 0) {
-            rdr.rate(referenceDate);
-        } else if (referneceLookUp && url != null) {
-            rdr.rate(url);
+        if (referenceDates.size() > 0) {
+            referenceDateRater.rate(referenceDates);
+        } else if (referenceLookUp && url != null) {
+            ReferenceDateGetter rdg = new ReferenceDateGetter();
+            List<ReferenceDate> newRefDates = rdg.getDates(url);
+            referenceDateRater.rate(newRefDates);
         }
 
-        if (DateArrayHelper.isAllZero(evaluatedDates)) {
-            // evaluatedDates.putAll(reRateIfAllZero(contResult));
-            evaluatedDates.putAll(guessRate(contResult));
-
+        if (DateExtractionHelper.isAllZero(evaluatedDates)) {
+            evaluatedDates.addAll(guessRate(contResult));
         }
 
-        DateRaterHelper.writeRateInDate(evaluatedDates);
-
-        if (archiveDate != null && archiveDate.size() > 0) {
-            evaluatedDates.putAll(adr.rate(archiveDate, evaluatedDates));
+        if (archiveDates.size() > 0) {
+            evaluatedDates.addAll(archiveDateRater.rate(archiveDates, evaluatedDates));
         }
 
         return evaluatedDates;
@@ -186,13 +186,10 @@ public class DateEvaluatorTest {
      * @see DateRaterHelper.checkDayMonthYearOrder
      * 
      */
-    public <T extends ExtractedDate, U extends ExtractedDate> void checkDayMonthYearOrder(T orginalDate, Map<U, Double> toCheckDates) {
+    public void checkDayMonthYearOrder(RatedDate<?> orginalDate, List<? extends RatedDate<?>> checkDates) {
         if (orginalDate != null) {
-            for (Entry<U, Double> e : toCheckDates.entrySet()) {
-                if (e.getKey() != null) {
-                    DateRaterHelper.checkDayMonthYearOrder(orginalDate, e.getKey());
-                }
-
+            for (RatedDate<?> e : checkDates) {
+                checkDayMonthYearOrder(orginalDate, e);
             }
         }
     }
@@ -205,88 +202,39 @@ public class DateEvaluatorTest {
      * @param dates Dates to be rated.
      * @return
      */
-    public static <T extends ExtractedDate> Map<T, Double> deployMetaDates(Map<MetaDate, Double> metaDates, Map<T, Double> dates) {
+    public static <T extends ExtractedDate> List<RatedDate<T>> deployMetaDates(List<RatedDate<MetaDate>> metaDates, List<RatedDate<T>> dates) {
 
-        Map<T, Double> result = dates;
-        Map<T, Double> temp = dates; // Where worked dates can be removed.
-        Map<T, Double> tempContentDates; // only dates that are equal to metaDate.
-        Map<T, Double> tempResult = new HashMap<T, Double>(); // worked dates can be put in.
-        List<ExtractedDate> metaDatesList = new ArrayList<ExtractedDate>(metaDates.keySet());
+        List<RatedDate<T>> result = dates;
+        List<RatedDate<T>> temp = dates; // Where worked dates can be removed.
+        List<RatedDate<T>> tempContentDates; // only dates that are equal to metaDate.
+        List<RatedDate<T>> tempResult = CollectionHelper.newArrayList(); // worked dates can be put in.
+        
+        List<RatedDate<MetaDate>> sortedMetaDates = new ArrayList<RatedDate<MetaDate>>(metaDates);
+        RatedDateComparator ratedDateComparator = new RatedDateComparator();
+        Collections.sort(sortedMetaDates, ratedDateComparator);
 
-        Entry<MetaDate, Double>[] orderedMetaDates = DateArrayHelper.orderHashMap(metaDates, true);
-        for (int stopcounter = 0; stopcounter < 3; stopcounter++) {
-            // int stopFlag = DateComparator.STOP_MINUTE - stopcounter;
-            int stopFlag = DateExactness.MINUTE.getValue() - stopcounter;
+        for (int stopCounter = 0; stopCounter < 3; stopCounter++) {
+            int stopFlag = DateExactness.MINUTE.getValue() - stopCounter;
 
-            for (Entry<MetaDate, Double> orderedMetaDate : orderedMetaDates) {
-                MetaDate metaDate = orderedMetaDate.getKey();
+            for (RatedDate<MetaDate> ratedMetaDate : sortedMetaDates) {
                 // DateComparator.STOP_MINUTE instead of stopFlag, because original dates should be distinguished up to
                 // minute.
-                int countFactor = DateArrayHelper.countDates(metaDate, metaDatesList, DateExactness.MINUTE) + 1;
-                double metaDateFactor = metaDates.get(metaDate);
-                tempContentDates = DateArrayHelper.getSameDatesMap(metaDate, temp, DateExactness.byValue(stopFlag));
-                for (Entry<T, Double> date : tempContentDates.entrySet()) {
-                    double weight = 1.0 * countFactor / metaDates.size();
-                    double oldRate = date.getValue();
-                    double excatnesFactor = stopFlag / (1.0 * date.getKey().getExactness().getValue());
+                int countFactor = DateExtractionHelper.countDates(ratedMetaDate, metaDates, DateExactness.MINUTE) + 1;
+                double metaDateFactor = ratedMetaDate.getRate();
+                tempContentDates = DateExtractionHelper.getSameDatesMap(ratedMetaDate, temp, DateExactness.byValue(stopFlag));
+                for (RatedDate<T> date : tempContentDates) {
+                    double weight = (double) countFactor / metaDates.size();
+                    double oldRate = date.getRate();
+                    double excatnesFactor = (double) stopFlag / (date.getExactness().getValue());
                     double newRate = (1 - oldRate) * metaDateFactor * weight * excatnesFactor + oldRate;
-                    tempResult.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
-                    temp.remove(date.getKey());
+                    tempResult.add(RatedDate.create(date.getDate(), Math.round(newRate * 10000) / 10000.0));
+                    temp.remove(date);
                 }
-
             }
         }
-        result.putAll(tempResult);
+        result.addAll(tempResult);
         return result;
     }
-
-//    /**
-//     * Returns joint map of head and http, where rates are recalculated by cross-dependency.
-//     * 
-//     * @param <T>
-//     * @param httpMap
-//     * @param headMap
-//     * @return
-//     */
-//    private <T> HashMap<T, Double> influenceHttpAndHead(HashMap<T, Double> httpMap, HashMap<T, Double> headMap) {
-//        HashMap<T, Double> result = new HashMap<T, Double>();
-//        HashMap<T, Double> resultHTTP;
-//        HashMap<T, Double> resultHead;
-//
-//        resultHead = recalc(httpMap, headMap);
-//        resultHTTP = recalc(headMap, httpMap);
-//
-//        result.putAll(resultHead);
-//        result.putAll(resultHTTP);
-//
-//        return result;
-//    }
-
-//    /**
-//     * Returns map2 with new values, calculated in dependency of map1.
-//     * 
-//     * @param <T>
-//     * @param map1
-//     * @param map2
-//     * @return
-//     */
-//    private <T> HashMap<T, Double> recalc(HashMap<T, Double> map1, HashMap<T, Double> map2) {
-//        HashMap<T, Double> result = new HashMap<T, Double>();
-//        List<Map<T, Double>> arrangedMap1 = DateArrayHelper.arrangeMapByDate(map1, DateComparator.STOP_MINUTE);
-//        for (int i = 0; i < arrangedMap1.size(); i++) {
-//            Map<T, Double> tempMap1 = arrangedMap1.get(i);
-//            double map1Rate = DateArrayHelper.getHighestRate(tempMap1);
-//            T map1Date = DateArrayHelper.getFirstElement(tempMap1);
-//            Map<T, Double> sameMap2 = DateArrayHelper.getSameDatesMap((ExtractedDate) map1Date, map2,
-//                    DateComparator.STOP_DAY);
-//
-//            for (Entry<T, Double> e : sameMap2.entrySet()) {
-//                double newRate = ((1 - e.getValue()) * map1Rate * (tempMap1.size() * 1.0 / map1.size())) + e.getValue();
-//                result.put(e.getKey(), Math.round(newRate * 1000) / 10000.0);
-//            }
-//        }
-//        return result;
-//    }
 
     /**
      * Recalculates dates in dependency of url-dates. <br>
@@ -296,56 +244,19 @@ public class DateEvaluatorTest {
      * @param dates
      * @return
      */
-    private <T extends ExtractedDate> Map<T, Double> deployUrlDate(Map<UrlDate, Double> urlDates, Map<T, Double> dates) {
-        Map<T, Double> result = dates;
-        for (Entry<UrlDate, Double> url : urlDates.entrySet()) {
-            UrlDate urlDate = url.getKey();
-            double urlRate = url.getValue();
+    private static <T extends ExtractedDate> List<RatedDate<T>> deployUrlDate(List<RatedDate<UrlDate>> urlDates, List<RatedDate<T>> dates) {
+        List<RatedDate<T>> result = dates;
+        for (RatedDate<UrlDate> urlDate : urlDates) {
             DateExactness compareDepth = urlDate.getExactness();
             double urlFactor = Math.min(compareDepth.getValue(), 3) / 3.0;
-            Map<T, Double> temp = DateArrayHelper.getSameDatesMap(urlDate, dates, compareDepth);
-            for (Entry<T, Double> date : temp.entrySet()) {
-                double newRate = (1 - date.getValue()) * (urlRate * urlFactor) + date.getValue();
-                result.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
+            List<RatedDate<T>> temp = DateExtractionHelper.getSameDatesMap(urlDate, dates, compareDepth);
+            for (RatedDate<T> date : temp) {
+                double newRate = (1 - date.getRate()) * (urlDate.getRate() * urlFactor) + date.getRate();
+                result.add(RatedDate.create(date.getDate(), Math.round(newRate * 10000) / 10000.0));
             }
-            /**
-             * temp = DateArrayHelper.getDifferentDatesMap(urlDate, dates, urlDate.getExactness());
-             * for (Entry<T, Double> date : temp.entrySet()) {
-             * double newRate = date.getValue() - (0.2 * date.getValue() * (urlRate * urlFactor));
-             * result.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
-             * }
-             */
         }
         return result;
     }
-
-//    /**
-//     * Recalculate rates, if all are zero.<br>
-//     * First get the dates with most dateparts (year, month, day, hour, minute, second). Oldest get the rate of <br>
-//     * (all oldest dates)/(all dates). <br>
-//     * Second get the oldest dates of all. New rate is <br>
-//     * ((1-value)*(all oldest dates)/(all dates))+(value). <br>
-//     * 
-//     * @param <T>
-//     * @param dates
-//     * @return
-//     */
-//    private <T> HashMap<T, Double> reRateIfAllZero(HashMap<T, Double> dates) {
-//        HashMap<T, Double> result = dates;
-//
-//        Map<T, Double> exactestDates = DateArrayHelper.getExactestMap(dates);
-//        DateComparator dc = new DateComparator();
-//        T date = dc.getOldestDate(exactestDates);
-//
-//        Map<T, Double> sameDates = DateArrayHelper.getSameDatesMap((ExtractedDate) date, result);
-//        for (Entry<T, Double> e : sameDates.entrySet()) {
-//            double newRate = (0.1 * sameDates.size()) / result.size();
-//            result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
-//        }
-//
-//        return result;
-//
-//    }
 
     /**
      * This method calculates new rates for content-dates in dependency of position in document and age of date.
@@ -353,42 +264,39 @@ public class DateEvaluatorTest {
      * @param dates
      * @return New rated dates.
      */
-    private Map<ContentDate, Double> guessRate(Map<ContentDate, Double> dates) {
-        Map<ContentDate, Double> result = dates;
+    private List<RatedDate<ContentDate>> guessRate(List<RatedDate<ContentDate>> dates) {
+        List<RatedDate<ContentDate>> result = dates;
         if (result.size() > 0) {
-            List<ContentDate> orderAge = new ArrayList<ContentDate>(dates.keySet());
-            List<ContentDate> orderPosInDoc = orderAge;
+            List<RatedDate<ContentDate>> orderAge = new ArrayList<RatedDate<ContentDate>>(dates);
+            List<RatedDate<ContentDate>> orderPosInDoc = orderAge;
 
             DateComparator dc = new DateComparator();
             Collections.sort(orderAge, dc);
-            Collections.sort(orderPosInDoc, new ContentDateComparator());
-
-            double factorAge;
-            double factorPos;
-            double factorRate;
-            double newRate;
-            double oldRate;
+            Collections.sort(orderPosInDoc, new Comparator<RatedDate<ContentDate>>() {
+                ContentDateComparator contentDateComparator = new ContentDateComparator();
+                public int compare(RatedDate<ContentDate> o1, RatedDate<ContentDate> o2) {
+                    return contentDateComparator.compare(o1.getDate(), o2.getDate());
+                }
+            });
 
             int ageSize = orderAge.size();
             int maxPos = orderPosInDoc.get(orderPosInDoc.size() - 1).get(ContentDate.DATEPOS_IN_DOC);
             int counter = 0;
 
-            ContentDate temp = orderAge.get(0);
-            ContentDate actDate;
+            RatedDate<ContentDate> temp = orderAge.get(0);
 
             for (int i = 0; i < ageSize; i++) {
-                actDate = orderAge.get(i);
+                RatedDate<ContentDate> actDate = orderAge.get(i);
                 if (dc.compare(temp, actDate) != 0) {
                     temp = orderAge.get(i);
                     counter++;
                 }
-                factorAge = (ageSize - counter) * 1.0 / (ageSize * 1.0);
-                factorPos = 1 - actDate.get(ContentDate.DATEPOS_IN_DOC) * 1.0 / (maxPos * 1.0);
-                factorPos += 0.01;
-                factorRate = factorAge * factorPos;
-                oldRate = dates.get(actDate);
-                newRate = oldRate + (1 - oldRate) * factorRate;
-                result.put(actDate, Math.round(newRate * 10000) / 10000.0);
+                double factorAge = (double) (ageSize - counter) / ageSize;
+                double factorPos = 1.01 - (double) actDate.get(ContentDate.DATEPOS_IN_DOC) / maxPos;
+                double factorRate = factorAge * factorPos;
+                double oldRate = actDate.getRate();
+                double newRate = oldRate + (1 - oldRate) * factorRate;
+                result.add(RatedDate.create(actDate.getDate(), Math.round(newRate * 10000) / 10000.0));
             }
         }
         normalizeRate(result);
@@ -400,15 +308,17 @@ public class DateEvaluatorTest {
      * 
      * @param <T>
      * @param dates
+     * @return 
      */
-    private <T> void normalizeRate(Map<T, Double> dates) {
-        double highestRate = DateArrayHelper.getHighestRate(dates);
+    private <T extends ExtractedDate> List<RatedDate<T>> normalizeRate(List<RatedDate<T>> dates) {
+        double highestRate = DateExtractionHelper.getHighestRate(dates);
+        List<RatedDate<T>> result = CollectionHelper.newArrayList();
         if (highestRate > 1.0) {
-            for (Entry<T, Double> e : dates.entrySet()) {
-                dates.put(e.getKey(), Math.round(e.getValue() / highestRate * 10000) / 10000.0);
+            for (RatedDate<T> date : dates) {
+                result.add(RatedDate.create(date.getDate(), Math.round(date.getRate() / highestRate * 10000) / 10000.0));
             }
         }
-
+        return result;
     }
 
     /**
@@ -419,65 +329,77 @@ public class DateEvaluatorTest {
      * @param structDates
      * @return
      */
-    private Map<ContentDate, Double> deployStructureDates(Map<ContentDate, Double> contentDates,
-            Map<StructureDate, Double> structDates) {
+    private static List<RatedDate<ContentDate>> deployStructureDates(List<RatedDate<ContentDate>> contentDates,
+            List<RatedDate<StructureDate>> structDates) {
         DateComparator dc = new DateComparator();
-        List<StructureDate> structureDates = dc.orderDates(structDates.keySet(), true);
-        Map<ContentDate, Double> result = contentDates;
-        Map<ContentDate, Double> temp = contentDates;
-        Map<ContentDate, Double> tempContentDates = new HashMap<ContentDate, Double>();
-        Map<ContentDate, Double> tempResult = new HashMap<ContentDate, Double>();
+        List<RatedDate<StructureDate>> structureDates = dc.orderDates(structDates, true);
+        List<RatedDate<ContentDate>> result = contentDates;
+        List<RatedDate<ContentDate>> temp = contentDates;
+        List<RatedDate<ContentDate>> tempContentDates = CollectionHelper.newArrayList();
+        
+        Map<StructureDate, Double> structureWeights = CollectionHelper.newHashMap();
+        for (RatedDate<StructureDate> structureDate : structDates) {
+            structureWeights.put(structureDate.getDate(), structureDate.getRate());
+        }
+        
         for (int i = 0; i < structureDates.size(); i++) {
-            tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
+            tempContentDates = DateExtractionHelper.getSameDatesMap(structureDates.get(i), temp,
                     DateExactness.MINUTE);
             if (tempContentDates.size() == 0) {
-                tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
+                tempContentDates = DateExtractionHelper.getSameDatesMap(structureDates.get(i), temp,
                         DateExactness.HOUR);
             }
             if (tempContentDates.size() == 0) {
-                tempContentDates = DateArrayHelper.getSameDatesMap(structureDates.get(i), temp,
+                tempContentDates = DateExtractionHelper.getSameDatesMap(structureDates.get(i), temp,
                         DateExactness.DAY);
             }
-            for (Entry<ContentDate, Double> cDate : tempContentDates.entrySet()) {
-                String cDateTag = cDate.getKey().getTagNode();
-                String eTag = structureDates.get(i).getTagNode();
+            for (RatedDate<ContentDate> cDate : tempContentDates) {
+                String cDateTag = cDate.getDate().getTagNode();
+                String eTag = structureDates.get(i).getDate().getTagNode();
                 if (cDateTag.equalsIgnoreCase(eTag)) {
-                    double structValue = structDates.get(structureDates.get(i));
-                    double newRate = (1 - cDate.getValue()) * structValue + cDate.getValue();
-                    tempResult.put(cDate.getKey(), Math.round(newRate * 10000) / 10000.0);
-                    temp.remove(cDate.getKey());
+                    double structRate = structureWeights.get(structureDates.get(i));
+                    double newRate = (1 - cDate.getRate()) * structRate + cDate.getRate();
+                    result.add(RatedDate.create(cDate.getDate(), Math.round(newRate * 10000) / 10000.0));
+                    temp.remove(cDate);
                 }
             }
 
         }
-        result.putAll(tempResult);
         return result;
     }
+    
+    /**
+     * Compares a date1 with a well known date2, where you are sure that this is in the right format. <br>
+     * To make this sure, the format will be checked automatically. (Formats are {@link RegExp.DATE_URL_D},
+     * {@link RegExp.DATE_URL_MMMM_D}, {@link RegExp.DATE_ISO8601_YMD} and {@link RegExp.DATE_ISO8601_YMD_NO}. <br>
+     * If date1 and date2 have equal years and day and month are mixed up, month and day in date2 will be exchanged. <br>
+     * Caution, no other parameters will be changed. So the original datestring and format will stay, and if you call
+     * {@link ExtractedDate.setDateParticles} old values will be rest. <br>
+     * <br>
+     * Example: date1: 2010-09-07; date2: 07/09/2010, but will be identified as US-American-date to 2010-07-09. <br>
+     * date2 month and day will be exchanged so you get 2010-09-07 by calling {@link ExtractedDate.getNormalizedDate}.
+     * 
+     * @param <T>
+     * @param orginalDate
+     * @param toCheckDate
+     */
+    private static <T extends ExtractedDate> void checkDayMonthYearOrder(T orginalDate, ExtractedDate toCheckDate) {
+        DateFormat[] formats = { RegExp.DATE_URL_D, RegExp.DATE_URL_MMMM_D, RegExp.DATE_ISO8601_YMD,
+                RegExp.DATE_ISO8601_YMD_NO };
 
-//    /**
-//     * Set url.
-//     * 
-//     * @param url
-//     */
-//    public void setUrl(String url) {
-//        this.url = url;
-//    }
-//
-//    /**
-//     * Getter for url.
-//     * 
-//     * @return Url as a String.
-//     */
-//    public String getUrl() {
-//        return url;
-//    }
+        for (int i = 0; i < formats.length; i++) {
+            if (orginalDate.getFormat().equalsIgnoreCase(formats[i].getFormat())) {
+                if (orginalDate.get(ExtractedDate.YEAR) == toCheckDate.get(ExtractedDate.YEAR)) {
+                    if (orginalDate.get(ExtractedDate.MONTH) == toCheckDate.get(ExtractedDate.DAY)
+                            && orginalDate.get(ExtractedDate.DAY) == toCheckDate.get(ExtractedDate.MONTH)) {
+                        int help = toCheckDate.get(ExtractedDate.MONTH);
+                        toCheckDate.set(ExtractedDate.MONTH, toCheckDate.get(ExtractedDate.DAY));
+                        toCheckDate.set(ExtractedDate.DAY, help);
+                    }
+                }
+                break;
+            }
+        }
+    }
 
-//    /**
-//     * Activate or disable the possibility of using reference-technique.
-//     * 
-//     * @param referneceLookUp
-//     */
-//    public void setReferneceLookUp(boolean referneceLookUp) {
-//        this.referneceLookUp = referneceLookUp;
-//    }
 }

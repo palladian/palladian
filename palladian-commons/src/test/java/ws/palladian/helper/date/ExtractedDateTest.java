@@ -157,9 +157,9 @@ public class ExtractedDateTest {
     
     @Test
     public void testGet2Digits() {
-        assertEquals("00", ExtractedDate.get2Digits(0));
-        assertEquals("09", ExtractedDate.get2Digits(9));
-        assertEquals("10", ExtractedDate.get2Digits(10));
+        assertEquals("00", ExtractedDateImpl.get2Digits(0));
+        assertEquals("09", ExtractedDateImpl.get2Digits(9));
+        assertEquals("10", ExtractedDateImpl.get2Digits(10));
     }
     
 }

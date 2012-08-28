@@ -6,9 +6,10 @@ import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -47,11 +48,11 @@ public abstract class Evaluator {
 			
 			if(list.size() > 0){
 				
-				List<T> filteredDates = DateArrayHelper.filterFullDate(list);
-				filteredDates = DateArrayHelper.filterByRange(filteredDates);
+				List<T> filteredDates = DateExtractionHelper.filterFullDate(list);
+				filteredDates = DateExtractionHelper.filterByRange(filteredDates);
 				
 				if(dg instanceof UrlDateGetter){
-					filteredDates = DateArrayHelper.filterByRange(list);
+					filteredDates = DateExtractionHelper.filterByRange(list);
 				}
 				
 				
@@ -60,9 +61,9 @@ public abstract class Evaluator {
 					//System.out.print("rate dates... ");
 					dr.rate(filteredDates);
 					//System.out.print("best date... ");
-					bestDate = dr.getBestDate();
-					if(bestDate != null){
-						bestDateString = bestDate.getNormalizedDateString(true);
+					RatedDate<T> temp = dr.getBest(filteredDates);
+					if(temp != null){
+						bestDateString = temp.getDate().getNormalizedDateString(true);
 					}
 				}
 			}

@@ -3,9 +3,7 @@ package ws.palladian.extraction.date.rater;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.log4j.Logger;
@@ -16,8 +14,10 @@ import ws.palladian.classification.Predictor;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.helper.DateInstanceFactory;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -74,24 +74,23 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     @Override
-    public Map<ContentDate, Double> rate(List<ContentDate> list) {
-
-        Map<ContentDate, Double> returnDates = new HashMap<ContentDate, Double>();
+    public List<RatedDate<ContentDate>> rate(List<ContentDate> list) {
+        List<RatedDate<ContentDate>> result = CollectionHelper.newArrayList();
 
         for (ContentDate date : list) {
             if (this.dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
-                returnDates.put(date, 1.0);
+                result.add(RatedDate.create(date, 1.0));
             } else {
                 Instance2<String> instance = DateInstanceFactory.createInstance(date);
                 try {
                     CategoryEntries dbl = classifier.predict(instance.featureVector);
-                    returnDates.put(date, dbl.getMostLikelyCategoryEntry().getRelevance());
+                    result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getRelevance()));
                 } catch (Exception e) {
                     LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
                 }
             }
 
         }
-        return returnDates;
+        return result;
     }
 }

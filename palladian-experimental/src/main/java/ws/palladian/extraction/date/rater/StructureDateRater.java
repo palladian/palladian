@@ -1,15 +1,15 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import ws.palladian.extraction.date.DateRaterHelper;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.ExtractedDate;
 
 /**
  * This class rates structure dates by keywords.
@@ -18,8 +18,6 @@ import ws.palladian.helper.date.DateExactness;
  * 
  */
 public class StructureDateRater extends TechniqueDateRater<StructureDate> {
-
-	//protected double minRate = 0.3;
 	
 	protected byte hightPriority;
 	protected byte middlePriority;
@@ -39,10 +37,9 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
 	}
 
 	@Override
-    public Map<StructureDate, Double> rate(List<StructureDate> list) {
-    	Map<StructureDate, Double> returnDates = evaluateStructDate(list); 
-    	this.ratedDates = returnDates;
-    	return returnDates;
+    public List<RatedDate<StructureDate>> rate(List<StructureDate> list) {
+	    List<RatedDate<StructureDate>> result = evaluateStructDate(list);
+	    return result;
     }
 
     /**
@@ -54,42 +51,56 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * @param structDates
      * @return
      */
-    private Map<StructureDate, Double> evaluateStructDate(List<StructureDate> structDates) {
-        Map<StructureDate, Double> result = new HashMap<StructureDate, Double>();
-        double rate;
-        for (int i = 0; i < structDates.size(); i++) {
-            StructureDate date = structDates.get(i);
-            byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
+    private List<RatedDate<StructureDate>> evaluateStructDate(List<StructureDate> structDates) {
+        List<RatedDate<StructureDate>> result = CollectionHelper.newArrayList();
+        for (StructureDate structDate : structDates) {
+            byte keywordPriority = KeyWords.getKeywordPriority(structDate);
+            double rate;
             if (keywordPriority == hightPriority) {
                 rate = 1;
             } else if (keywordPriority == middlePriority) {
                 rate = -1; // TODO: rate bestimmen.
-
             } else if (keywordPriority == lowPriority) {
                 rate = -2; // TODO: rate bestimmen.
-
             } else {
                 rate = 0;
             }
-            result.put(date, rate);
+            result.add(RatedDate.create(structDate, rate));
         }
 
-        List<StructureDate> highRatedDates = DateArrayHelper.getRatedDates(result, 1);
-        List<StructureDate> middleRatedDates = DateArrayHelper.getRatedDates(result, -1);
-        List<StructureDate> lowRatedDates = DateArrayHelper.getRatedDates(result, -2);
+        List<StructureDate> highRatedDates = DateExtractionHelper.getRatedDates(result, 1);
+        List<StructureDate> middleRatedDates = DateExtractionHelper.getRatedDates(result, -1);
+        List<StructureDate> lowRatedDates = DateExtractionHelper.getRatedDates(result, -2);
         if (highRatedDates.size() > 0) {
-            DateRaterHelper.setRateWhightedByGroups(highRatedDates, result, DateExactness.MINUTE);
-
-            DateRaterHelper.setRateToZero(middleRatedDates, result);
-            DateRaterHelper.setRateToZero(lowRatedDates, result);
+            setRateWhightedByGroups(highRatedDates, result, DateExactness.MINUTE);
+            result.addAll(DateExtractionHelper.setRate(middleRatedDates, 0.0));
+            result.addAll(DateExtractionHelper.setRate(lowRatedDates, 0.0));
         } else if (middleRatedDates.size() > 0) {
-            DateRaterHelper.setRateWhightedByGroups(middleRatedDates, result, DateExactness.MINUTE);
-
-            DateRaterHelper.setRateToZero(lowRatedDates, result);
+            setRateWhightedByGroups(middleRatedDates, result, DateExactness.MINUTE);
+            result.addAll(DateExtractionHelper.setRate(lowRatedDates, 0.0));
         } else {
-            DateRaterHelper.setRateWhightedByGroups(lowRatedDates, result, DateExactness.MINUTE);
+            setRateWhightedByGroups(lowRatedDates, result, DateExactness.MINUTE);
         }
         return result;
+    }
+    
+    /**
+     * Calculates the rate for dates.<br>
+     * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
+     * Example: datesToSet.size()=5; 3/5 and 2/5.
+     * 
+     * @param <T>
+     * @param datesToSet
+     * @param dates
+     */
+    private static <T extends ExtractedDate> void setRateWhightedByGroups(List<T> datesToSet, List<RatedDate<T>> dates, DateExactness compareDepth) {
+        List<List<T>> groupedDates = DateExtractionHelper.cluster(datesToSet, compareDepth);
+        for (int k = 0; k < groupedDates.size(); k++) {
+            for (int i = 0; i < groupedDates.get(k).size(); i++) {
+                double newRate = 1.0 * groupedDates.get(k).size() / datesToSet.size();
+                dates.add(RatedDate.create(groupedDates.get(k).get(i), Math.round(newRate * 10000) / 10000.0));
+            }
+        }
     }
 
 }

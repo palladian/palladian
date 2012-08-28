@@ -73,7 +73,7 @@ public final class DateParser {
             // TODO what to do in this case; return null? For now I just return the ExtractedDate which is incorrect,
             // but we avoid NPEs for now.
         }
-        return new ExtractedDate(parseLogic);
+        return new ExtractedDateImpl(parseLogic);
     }
 
     /**
@@ -248,7 +248,7 @@ public final class DateParser {
                     diffTime = number * 365 * 24 * 60 * 60 * 1000;
                 }
                 long relTime = currentTime - diffTime;
-                date = new ExtractedDate(relTime);
+                date = new ExtractedDateImpl(relTime);
                 break;
             }
         }

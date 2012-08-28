@@ -24,7 +24,7 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.extraction.date.dates.UrlDate;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.helper.DateFormat;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -103,14 +103,14 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             double ordAgePos = Math.round((ageOrder.indexOf(date) + 1.0) / dates.size() * 1000.0) / 1000.0;
             date.setOrdAgePos(ordAgePos);
 
-            if (metaDates.size() > 0 && DateArrayHelper.countDates(date, metaDates, DateExactness.DAY) > 0) {
+            if (metaDates.size() > 0 && DateExtractionHelper.countDates(date, metaDates, DateExactness.DAY) > 0) {
                 date.setInMetaDates(true);
             }
-            if (urlDates.size() > 0 && DateArrayHelper.countDates(date, urlDates, DateExactness.DAY) > 0) {
+            if (urlDates.size() > 0 && DateExtractionHelper.countDates(date, urlDates, DateExactness.DAY) > 0) {
                 date.setInUrl(true);
             }
 
-            double relCntSame = Math.round((double)(DateArrayHelper.countDates(date, dates, DateExactness.DAY) + 1)
+            double relCntSame = Math.round((double)(DateExtractionHelper.countDates(date, dates, DateExactness.DAY) + 1)
                     / (double)dates.size() * 1000.0) / 1000.0;
             date.setRelCntSame(relCntSame);
 

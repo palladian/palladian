@@ -1,6 +1,7 @@
 package ws.palladian.extraction.date.dates;
 
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDateImpl;
 
 /**
  * Template for all dates having a keyword.
@@ -8,7 +9,7 @@ import ws.palladian.helper.date.ExtractedDate;
  * @author Martin Gregor
  * 
  */
-public abstract class KeywordDate extends ExtractedDate {
+public abstract class KeywordDate extends ExtractedDateImpl {
     /**
      * Context, in witch the date was found. <br>
      * E.g.: URL, tag-name, HTTP-tag, keyword...

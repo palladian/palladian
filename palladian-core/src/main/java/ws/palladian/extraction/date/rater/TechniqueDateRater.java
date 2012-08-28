@@ -1,11 +1,11 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import ws.palladian.extraction.date.PageDateType;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.comparators.RatedDateComparator;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.date.ExtractedDate;
 
 /**
@@ -17,43 +17,50 @@ import ws.palladian.helper.date.ExtractedDate;
  * 
  * @param <T> subtype of {@link ExtractedDate} which concrete rater implementations process.
  */
-public abstract class TechniqueDateRater<T extends ExtractedDate> {
+public abstract class TechniqueDateRater<E extends ExtractedDate> {
 
     protected final PageDateType dateType;
-
-    /**
-     * Rate-method fills this map for further use.
-     */
-    protected Map<T, Double> ratedDates;
+    
+    public TechniqueDateRater() {
+        this(null); // FIXME
+    }
     
     public TechniqueDateRater(PageDateType dateType) {
         this.dateType = dateType;
-        this.ratedDates = new HashMap<T, Double>();
     }
 
     /**
      * Enter a list of dates. <br>
      * These will be rated in dependency of date-technique.
      * 
-     * @param list
+     * @param dates
      * @return
      */
-    public abstract Map<T, Double> rate(List<T> list);
-
-    /**
-     * Returns best rated date of property "ratedDates". <br>
-     * In case of more than one best date the first one will be returned. <br>
-     * For other function override this method in subclasses.
-     * 
-     * @return
-     */
-    public T getBestDate() {
-        T date = null;
-        if (this.ratedDates.size() > 0) {
-            double rate = DateArrayHelper.getHighestRate(this.ratedDates);
-            date = DateArrayHelper.getRatedDates(this.ratedDates, rate).get(0);
+    public abstract List<RatedDate<E>> rate(List<E> dates);
+    
+    public RatedDate<E> getBest(List<E> dates) {
+        List<RatedDate<E>> ratedDates = rate(dates);
+        if (ratedDates.size() > 0) {
+            Collections.sort(ratedDates, new RatedDateComparator());
+            return ratedDates.get(0);
         }
-        return date;
+        return null;
     }
+
+//    /**
+//     * Returns best rated date of property "ratedDates". <br>
+//     * In case of more than one best date the first one will be returned. <br>
+//     * For other function override this method in subclasses.
+//     * 
+//     * @return
+//     */
+//    public T getBestDate() {
+//        T date = null;
+//        if (this.ratedDates.size() > 0) {
+//            double rate = DateArrayHelper.getHighestRate(this.ratedDates);
+//            date = DateArrayHelper.getRatedDates(this.ratedDates, rate).get(0);
+//        }
+//        return date;
+//    }
 
 }
