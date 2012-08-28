@@ -6,25 +6,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.dates.RatedDate;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 
 /**
- * 
- * This class rates an archive date in dependency of oterh dates.<br>
+ * <p>This {@link TechniqueDateRater} rates an {@link ArchiveDate} in dependency of other dates.</p>
  * 
  * @author Martin Gregor
- * 
+ * @author Philipp Katz
  */
 public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
-
-    public ArchiveDateRater(PageDateType dateType) {
-        super(dateType);
-    }
 
     /**
      * Enter archive dates and other rated dates.<br>
@@ -34,28 +30,35 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      * Otherwise it will be rate half of best rate of the other dates.
      * 
      * @param <T>
-     * @param list
+     * @param dates
      * @param allDates
      * @return
      */
-    public <T extends ExtractedDate> Map<ArchiveDate, Double> rate(List<ArchiveDate> list, Map<T, Double> allDates) {
-        double highestRate = DateArrayHelper.getHighestRate(allDates);
-        HashMap<ArchiveDate, Double> map = new HashMap<ArchiveDate, Double>();
+    public List<RatedDate<ArchiveDate>> rate(List<ArchiveDate> dates, List<? extends RatedDate<?>> allDates) {
+        List<RatedDate<ArchiveDate>> result = CollectionHelper.newArrayList();
+        
+        
+        Map<ExtractedDate, Double> datesWeights = CollectionHelper.newHashMap();
+        for (RatedDate<?> ratedDate : allDates) {
+            datesWeights.put(ratedDate.getDate(), ratedDate.getRate());
+        }
+        
+        double highestRate = DateExtractionHelper.getHighestRate(allDates);
         if (highestRate == 0.0) {
-            map.put(list.get(0), 1.0);
+            result.add(RatedDate.create(dates.get(0), 1.0));
         } else {
-            List<T> sort = new ArrayList<T>(allDates.keySet());
-            DateComparator dc = new DateComparator();
-            Collections.sort(sort, new RatedDateComparator());
-            if (dc.compare(list.get(0), sort.get(0)) < 0) {
-                map.put(list.get(0), allDates.get(sort.get(0)) / 2.0);
+            List<RatedDate<?>> sortedDates = new ArrayList<RatedDate<?>>(allDates);
+            Collections.sort(sortedDates, new RatedDateComparator());
+            DateComparator dateComparator = new DateComparator();
+            
+            if (dateComparator.compare(dates.get(0), sortedDates.get(0)) < 0) {
+                result.add(RatedDate.create(dates.get(0), datesWeights.get(sortedDates.get(0)) / 2.0));
             } else {
-                map.put(list.get(0), 1.0);
+                result.add(RatedDate.create(dates.get(0), 1.0));
             }
         }
-        list.get(0).setRate(map.get(list.get(0)));
-        this.ratedDates = map;
-        return map;
+        // dates.get(0).setRate(map.get(dates.get(0)));
+        return result;
     }
 
     /**
@@ -63,7 +66,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      * Use {@link ArchiveDateRater#rate(ArrayList, HashMap)} instead.
      */
     @Override
-    public Map<ArchiveDate, Double> rate(List<ArchiveDate> list) {
-        return null;
+    public List<RatedDate<ArchiveDate>> rate(List<ArchiveDate> list) {
+        throw new UnsupportedOperationException("Not usable for ArchiveDates, as other dates are required for comparison. Use #rate(List<ArchiveDate>, List<RatedDate<T>>) instead.");
     }
 }

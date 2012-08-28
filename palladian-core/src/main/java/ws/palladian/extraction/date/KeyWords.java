@@ -3,6 +3,7 @@ package ws.palladian.extraction.date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.extraction.date.dates.KeywordDate;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -138,6 +139,22 @@ public final class KeyWords {
             }
         }
         return keyword;
+    }
+    
+    /**
+     * Returns the classpriority of a keyword. If a date has no keyword -1 will be returned.<br>
+     * Otherwise returning values are equal to {@link KeyWords} static values.
+     * 
+     * @param date
+     * @return
+     */
+    public static <T extends KeywordDate> byte getKeywordPriority(T date) {
+        byte keywordPriority = -1;
+        String keyword = date.getKeyword();
+        if (keyword != null) {
+            keywordPriority = KeyWords.getKeywordPriority(keyword);
+        }
+        return keywordPriority;
     }
 
 }

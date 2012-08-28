@@ -1,13 +1,12 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import ws.palladian.extraction.date.DateRaterHelper;
-import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.UrlDate;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.helper.RegExp;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * 
@@ -18,12 +17,8 @@ import ws.palladian.helper.RegExp;
  */
 public class UrlDateRater extends TechniqueDateRater<UrlDate> {
 
-    public UrlDateRater(PageDateType dateType) {
-		super(dateType);
-	}
-
 	@Override
-    public Map<UrlDate, Double> rate(List<UrlDate> list) {
+    public List<RatedDate<UrlDate>> rate(List<UrlDate> list) {
         return evaluateURLDate(list);
     }
 
@@ -34,11 +29,11 @@ public class UrlDateRater extends TechniqueDateRater<UrlDate> {
      * @param dates
      * @return
      */
-    private Map<UrlDate, Double> evaluateURLDate(List<UrlDate> dates) {
-        HashMap<UrlDate, Double> evaluate = new HashMap<UrlDate, Double>();
+    private List<RatedDate<UrlDate>> evaluateURLDate(List<UrlDate> dates) {
+        List<RatedDate<UrlDate>> evaluate = CollectionHelper.newArrayList();
         for (UrlDate date : dates) {
             double rate = 0;
-            if (date != null && DateRaterHelper.isDateInRange(date)) {
+            if (date != null && DateExtractionHelper.isDateInRange(date)) {
                 String format = date.getFormat();
                 if (format != null) {
                     if (format.equalsIgnoreCase(RegExp.DATE_URL_D.getFormat())) {
@@ -54,9 +49,8 @@ public class UrlDateRater extends TechniqueDateRater<UrlDate> {
                     }
                 }
             }
-            evaluate.put(date, rate);
+            evaluate.add(RatedDate.create(date, rate));
         }
-        this.ratedDates = evaluate;
         return evaluate;
     }
 

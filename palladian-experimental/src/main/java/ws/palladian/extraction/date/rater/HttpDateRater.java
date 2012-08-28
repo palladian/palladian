@@ -1,15 +1,16 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.MetaDate;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.dates.RatedDate;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDateImpl;
 
 /**
  * This class rates HTTP-dates by constant and age of date.
@@ -25,10 +26,8 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
 	}
 
 	@Override
-    public Map<MetaDate, Double> rate(List<MetaDate> list) {
-    	Map<MetaDate, Double> returnDates = evaluateHTTPDate(list);
-    	this.ratedDates = returnDates;
-        return returnDates;
+    public List<RatedDate<MetaDate>> rate(List<MetaDate> list) {
+    	return evaluateHTTPDate(list);
     }
 
     /**
@@ -39,10 +38,10 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
      * @param httpDates
      * @return
      */
-    private Map<MetaDate, Double> evaluateHTTPDate(List<MetaDate> httpDates) {
+    private List<RatedDate<MetaDate>> evaluateHTTPDate(List<MetaDate> httpDates) {
     	ExtractedDate current = actualDate;
     	if(current == null){
-    		current = new ExtractedDate();
+    		current = new ExtractedDateImpl();
     	}
     	return evaluateHTTPDate(httpDates, current);
     }
@@ -55,12 +54,11 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
      * @param httpDates
      * @return
      */
-    public HashMap<MetaDate, Double> evaluateHTTPDate(List<MetaDate> httpDates,ExtractedDate downloadedDate) {
-    	MetaDate date = null;
-        HashMap<MetaDate, Double> result = new HashMap<MetaDate, Double>();
+    public List<RatedDate<MetaDate>> evaluateHTTPDate(List<MetaDate> httpDates,ExtractedDate downloadedDate) {
+        List<RatedDate<MetaDate>> result = CollectionHelper.newArrayList();
         double rate = 0;
         for (int i = 0; i < httpDates.size(); i++) {
-            date = httpDates.get(i);
+            MetaDate date = httpDates.get(i);
             
             double timedifference = httpDates.get(i).getDifference(downloadedDate, TimeUnit.HOURS);
 
@@ -71,26 +69,22 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
             } else {
                 rate = 0;
             }
-            result.put(date, rate);
+            result.add(RatedDate.create(date, rate));
         }
 
         DateComparator dc = new DateComparator();
-        List<MetaDate> dates = dc.orderDates(result.keySet(), false);
-        MetaDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result).keySet());
-
-        double diff;
-        double oldRate;
-        double newRate;
+        List<RatedDate<MetaDate>> dates = dc.orderDates(result, false);
+        RatedDate<MetaDate> oldest = dc.getOldestDate(DateExtractionHelper.filterExactest(result));
 
         for (int i = 0; i < dates.size(); i++) {
-            diff = oldest.getDifference(dates.get(i), TimeUnit.HOURS);
+            double diff = oldest.getDifference(dates.get(i), TimeUnit.HOURS);
             if (diff > 24) {
                 diff = 24;
             }
-            date = dates.get(i);
-            oldRate = result.get(date);
-            newRate = oldRate - oldRate * (diff / 24.0);
-            result.put(date, Math.round(newRate * 10000) / 10000.0);
+            RatedDate<MetaDate> date = dates.get(i);
+            double oldRate = date.getRate();
+            double newRate = oldRate - oldRate * (diff / 24.0);
+            result.add(RatedDate.create(date.getDate(), Math.round(newRate * 10000) / 10000.0));
         }
 
         return result;

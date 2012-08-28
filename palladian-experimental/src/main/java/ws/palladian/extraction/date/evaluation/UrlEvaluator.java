@@ -27,7 +27,7 @@ public class UrlEvaluator {
 	public static void main(String[] args) {
 
 		TechniqueDateGetter<UrlDate> dg = new UrlDateGetter();
-		TechniqueDateRater<UrlDate> dr = new UrlDateRater(PageDateType.PUBLISH);
+		TechniqueDateRater<UrlDate> dr = new UrlDateRater();
 
 		String file = "data/evaluation/daterecognition/datasets/urldataset.txt";
 		evaluate(DBExport.PUB_DATE, dg, dr, file);

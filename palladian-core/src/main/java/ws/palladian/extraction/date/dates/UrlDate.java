@@ -1,6 +1,7 @@
 package ws.palladian.extraction.date.dates;
 
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDateImpl;
 
 /**
  * Represents a date found in an url-string.
@@ -8,7 +9,7 @@ import ws.palladian.helper.date.ExtractedDate;
  * @author Martin Greogr
  * 
  */
-public final class UrlDate extends ExtractedDate {
+public final class UrlDate extends ExtractedDateImpl {
     
     private final String url; 
 

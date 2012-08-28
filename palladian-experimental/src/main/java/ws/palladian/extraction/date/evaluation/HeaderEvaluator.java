@@ -16,10 +16,11 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.getter.HeadDateGetter;
 import ws.palladian.extraction.date.getter.TechniqueDateGetter;
 import ws.palladian.extraction.date.getter.UrlDateGetter;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.HeadDateRater;
 import ws.palladian.extraction.date.rater.TechniqueDateRater;
 import ws.palladian.helper.StopWatch;
@@ -68,7 +69,7 @@ public class HeaderEvaluator {
 		} 
 	}
 
-	private static <T extends ExtractedDate,V extends ExtractedDate> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<V> dr, String file){
+	private static <T extends ExtractedDate> void evaluate(String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
 		String table = EvaluationHelper.HEADEVAL;
 		int rnf = 0;
 		int ff= 0;
@@ -104,22 +105,21 @@ public class HeaderEvaluator {
 			
 			if(list.size() > 0){
 				
-				List<T> filteredDates = DateArrayHelper.filterFullDate(list);
-				filteredDates = DateArrayHelper.filterByRange(filteredDates);
+				List<T> filteredDates = DateExtractionHelper.filterFullDate(list);
+				filteredDates = DateExtractionHelper.filterByRange(filteredDates);
 				
 				if(dg instanceof UrlDateGetter){
-					filteredDates = DateArrayHelper.filterByRange(list);
+					filteredDates = DateExtractionHelper.filterByRange(list);
 				}
 				
 				
 				if(filteredDates.size()>0){
 						
 					//System.out.print("rate dates... ");
-					dr.rate((ArrayList<V>) filteredDates);
 					//System.out.print("best date... ");
-					bestDate = (T) dr.getBestDate();
-					if(bestDate != null){
-						bestDateString = ((ExtractedDate) bestDate).getNormalizedDateString(true);
+					RatedDate<T> temp = dr.getBest(filteredDates);
+					if(temp != null){
+						bestDateString = temp.getDate().getNormalizedDateString(true);
 					}
 				}
 			}

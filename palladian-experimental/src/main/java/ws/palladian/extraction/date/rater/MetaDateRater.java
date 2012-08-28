@@ -5,19 +5,21 @@ import java.util.Map;
 
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.date.ExtractedDate;
 
 public class MetaDateRater extends TechniqueDateRater<MetaDate> {
 
+    private final HeadDateRater hdr;
 	private ExtractedDate actualDate;
 	
 	public MetaDateRater(PageDateType dateType) {
 		super(dateType);
+		hdr = new HeadDateRater(dateType);
 	}
 
 	@Override
-	public Map<MetaDate, Double> rate(List<MetaDate> list) {
-		HeadDateRater hdr = new HeadDateRater(dateType);
+	public List<RatedDate<MetaDate>> rate(List<MetaDate> list) {
 		hdr.setCurrentDate(actualDate);
 		return hdr.rate(list);
 	}

@@ -9,7 +9,7 @@ import org.w3c.dom.Document;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.extraction.date.helper.DateArrayHelper;
+import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.ParserException;
@@ -44,7 +44,7 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
             ContentDateGetter contentDateGetter = new ContentDateGetter();
             List<ContentDate> contentDates = contentDateGetter.getDates(document);
 
-            contentDates = DateArrayHelper.filterFullDate(contentDates);
+            contentDates = DateExtractionHelper.filterFullDate(contentDates);
             DateComparator dateComparator = new DateComparator();
 
             result.add(new ArchiveDate(dateComparator.getOldestDate(contentDates)));

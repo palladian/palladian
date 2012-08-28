@@ -27,7 +27,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @author Martin Gregor
  * @author Philipp Katz
  * 
- * @param <T> subtype of {@link ExtractedDate} which concrete technique implementations extract.
+ * @param <T> Subtype of {@link ExtractedDate} which concrete technique implementations extract.
  */
 public abstract class TechniqueDateGetter<T extends ExtractedDate> {
 
@@ -91,9 +91,20 @@ public abstract class TechniqueDateGetter<T extends ExtractedDate> {
      */
     public abstract List<T> getDates(Document document);
 
-    protected final String getUrl(Document document) {
+    /**
+     * <p>
+     * Utility method to obtain a URL from a {@link Document}. Some {@link TechniqueDateGetter} implementations require
+     * an URL, this method can be used to get the URL back from the Document. If no URL is assigned to the Document, an
+     * {@link IllegalArgumentException} is thrown.
+     * </p>
+     * 
+     * @param document The Document from which to retrieve the URL, not <code>null</code>.
+     * @return The Document's URL.
+     */
+    protected static final String getUrl(Document document) {
+        Validate.notNull(document, "document must not be null");
         String documentUrl = document.getDocumentURI();
-        Validate.notEmpty(documentUrl, "The document must supply its original URL (Document#getDocumentURI)");
+        Validate.isTrue(documentUrl != null, "The document must supply its original URL (Document#getDocumentURI)");
         return documentUrl;
     }
 
