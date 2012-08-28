@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -70,6 +71,12 @@ public class DocumentRetriever {
 
     /** The filter for the retriever. */
     private DownloadFilter downloadFilter;
+
+    /**
+     * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
+     * this retriever.
+     */
+    private Map<String, String> globalHeaders = null;
 
     /** The callbacks that are called after each parsed page. */
     private final List<RetrieverCallback> retrieverCallbacks;
@@ -284,7 +291,7 @@ public class DocumentRetriever {
                     reader = new FileReader(url);
                     contentString = IOUtils.toString(reader);
                 } else {
-                    HttpResult httpResult = httpRetriever.httpGet(url);
+                    HttpResult httpResult = httpRetriever.httpGet(url, globalHeaders);
                     contentString = new String(httpResult.getContent());
                 }
             } catch (IOException e) {
@@ -382,7 +389,7 @@ public class DocumentRetriever {
                     document = parse(inputStream, xml);
                     document.setDocumentURI(file.toURI().toString());
                 } else {
-                    HttpResult httpResult = httpRetriever.httpGet(cleanUrl);
+                    HttpResult httpResult = httpRetriever.httpGet(cleanUrl, globalHeaders);
                     document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
                     document.setDocumentURI(cleanUrl);
                 }
@@ -480,6 +487,14 @@ public class DocumentRetriever {
 
     public String getUserAgent() {
         return httpRetriever.getUserAgent();
+    }
+
+    public Map<String, String> getGlobalHeaders() {
+        return globalHeaders;
+    }
+
+    public void setGlobalHeaders(Map<String, String> globalHeaders) {
+        this.globalHeaders = globalHeaders;
     }
 
     // ////////////////////////////////////////////////////////////////

@@ -7,16 +7,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ws.palladian.control.AllTests;
 import ws.palladian.extraction.date.dates.RatedDate;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
