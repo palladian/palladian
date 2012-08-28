@@ -1,10 +1,6 @@
 package ws.palladian.classification.page.evaluation;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
 
 import ws.palladian.helper.io.FileHelper;
 
@@ -56,15 +52,23 @@ public class Dataset implements Serializable {
      */
     public Dataset(Dataset dataset) {
         super();
-        try {
-            PropertyUtils.copyProperties(this, dataset);
-        } catch (IllegalAccessException e) {
-            Logger.getRootLogger().error(e);
-        } catch (InvocationTargetException e) {
-            Logger.getRootLogger().error(e);
-        } catch (NoSuchMethodException e) {
-            Logger.getRootLogger().error(e);
-        }
+//        try {
+//            PropertyUtils.copyProperties(this, dataset);
+//        } catch (IllegalAccessException e) {
+//            Logger.getRootLogger().error(e);
+//        } catch (InvocationTargetException e) {
+//            Logger.getRootLogger().error(e);
+//        } catch (NoSuchMethodException e) {
+//            Logger.getRootLogger().error(e);
+//        }
+        
+        this.name = dataset.name;
+        this.path = dataset.path;
+        this.rootPath = dataset.rootPath;
+        this.separationString = dataset.separationString;
+        this.usePercentTraining = dataset.usePercentTraining;
+        this.columnNER = dataset.columnNER;
+        this.firstFieldLink = dataset.firstFieldLink;
     }
 
     public Dataset(String name) {

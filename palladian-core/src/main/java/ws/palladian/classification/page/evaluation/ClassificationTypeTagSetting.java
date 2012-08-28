@@ -26,6 +26,17 @@ public class ClassificationTypeTagSetting implements Serializable {
 
     /** Enable category co-occurrence, that works only in tag mode. */
     private boolean useCooccurrence = false;
+    
+    public ClassificationTypeTagSetting() {
+    }
+
+    public ClassificationTypeTagSetting(ClassificationTypeTagSetting tagSetting) {
+        this.tagConfidenceThreshold = tagSetting.tagConfidenceThreshold;
+        this.minTags = tagSetting.minTags;
+        this.maxTags = tagSetting.maxTags;
+        this.tagBoost = tagSetting.tagBoost;
+        this.useCooccurrence = tagSetting.useCooccurrence;
+    }
 
     public double getTagConfidenceThreshold() {
         return tagConfidenceThreshold;
