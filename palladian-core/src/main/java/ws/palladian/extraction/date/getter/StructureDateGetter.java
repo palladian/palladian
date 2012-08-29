@@ -27,7 +27,7 @@ import ws.palladian.helper.html.XPathHelper;
  * @author Philipp Katz
  */
 public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
-    
+
     @Override
     public List<StructureDate> getDates(Document document) {
         Node bodyElement = XPathHelper.getXhtmlChildNode(document, "//body");
@@ -53,7 +53,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
 
         String nodeName = node.getNodeName().toLowerCase();
         if (!Arrays.asList("script", "img").contains(nodeName)) {
-            StructureDate date = checkForDate(node);
+            StructureDate date = getDate(node);
             if (date != null) {
                 date.set(AbstractBodyDate.STRUCTURE_DEPTH, depth);
                 dates.add(date);
@@ -86,47 +86,51 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param node The {@link Node} to check, not <code>null</code>.
      * @return A {@link StructureDate} if one could be extracted, <code>null</code> otherwise.
      */
-    private StructureDate checkForDate(Node node) {
+    private StructureDate getDate(Node node) {
 
-        StructureDate date = null;
+        // node has no attributes, return
         NamedNodeMap attributes = node.getAttributes();
-        if (attributes != null) {
-            String keyword = null;
-            String dateTagName = null;
-            for (int i = 0; i < attributes.getLength(); i++) {
-                String tempKeyword = null;
-                Node attributeNode = attributes.item(i);
-                String nodeName = attributeNode.getNodeName().toLowerCase();
-                if (nodeName.equals("href")) {
-                    continue;
-                }
-                ExtractedDate t = DateParser.findDate(attributeNode.getNodeValue());
-                if (t == null) {
-                    if (keyword == null) {
-                        keyword = KeyWords.searchKeyword(attributeNode.getNodeValue(), KeyWords.DATE_BODY_STRUC);
-                    } else {
-                        tempKeyword = KeyWords.searchKeyword(attributeNode.getNodeValue(), KeyWords.DATE_BODY_STRUC);
-                        if (KeyWords.getKeywordPriority(keyword) > KeyWords.getKeywordPriority(tempKeyword)) {
-                            keyword = tempKeyword;
-                        }
-                    }
-                } else {
-                    date = new StructureDate(t);
-                    dateTagName = nodeName;
-                }
+        if (attributes == null) {
+            return null;
+        }
 
+        int highestPriority = -1;
+        ExtractedDate date = null;
+        String dateKeyword = null;
+        String dateAttribute = null; // name of the attribute, in which the date was found
+
+        for (int i = 0; i < attributes.getLength(); i++) {
+            Node attributeNode = attributes.item(i);
+            String currentKeyword = KeyWords.searchKeyword(attributeNode.getNodeValue(), KeyWords.DATE_BODY_STRUC);
+            String currentAttributeName = attributeNode.getNodeName().toLowerCase();
+            if (currentAttributeName.equals("href")) {
+                continue;
             }
-            if (date != null) {
-                if (keyword == null) {
-                    date.setKeyword(dateTagName);
-                } else {
-                    date.setKeyword(keyword);
+            ExtractedDate currentDate = DateParser.findDate(attributeNode.getNodeValue());
+            if (currentDate != null) {
+                dateAttribute = currentAttributeName;
+                date = currentDate;
+            } else if (dateKeyword == null) {
+                dateKeyword = currentKeyword;
+            } else {
+                int currentPriority = KeyWords.getKeywordPriority(currentKeyword);
+                if (currentPriority > highestPriority) {
+                    dateKeyword = currentKeyword;
+                    highestPriority = currentPriority;
                 }
-                date.setTag(node.getNodeName());
-                date.setTagNode(node.toString());
             }
         }
-        return date;
+
+        // no dates could be extracted, return
+        if (date == null) {
+            return null;
+        }
+
+        if (dateKeyword == null) {
+            dateKeyword = dateAttribute;
+        }
+
+        return new StructureDate(date, dateKeyword, node.getNodeName());
     }
 
 }

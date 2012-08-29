@@ -434,7 +434,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 ExtractedDate date = DateParser.findDate(attr.getNodeValue());
                 if (date != null) {
                     String keyword = getNodeKeyword(node);
-                    structDate = new StructureDate(date, keyword);
+                    structDate = new StructureDate(date, keyword, null);
                 }
             }
         }
