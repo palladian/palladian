@@ -20,11 +20,11 @@ import ws.palladian.retrieval.DocumentRetriever;
  * 
  * @author David Urbansky
  */
-public class ListDiscoveryTest {
+public class ListDiscovererTest {
 
     @Test
     public void testEntriesUniform() {
-        ArrayList<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<String>();
         list.add("Abc ABC");
         list.add("12. A");
         list.add("Very Long Entry With More Than 12 Words A B C D!!!");
@@ -102,7 +102,7 @@ public class ListDiscoveryTest {
     }
 
     private String getTestFile(String filename) {
-        return ListDiscoveryTest.class.getResource("/webPages/" + filename).getFile();
+        return ListDiscovererTest.class.getResource("/webPages/" + filename).getFile();
     }
 
     @Test
