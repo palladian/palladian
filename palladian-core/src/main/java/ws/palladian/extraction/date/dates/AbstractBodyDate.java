@@ -31,6 +31,10 @@ public abstract class AbstractBodyDate extends KeywordDate {
         super(date);
     }
 
+    public AbstractBodyDate(ExtractedDate date, String keyword) {
+        super(date, keyword);
+    }
+
     /**
      * 
      * @param tag
@@ -89,6 +93,7 @@ public abstract class AbstractBodyDate extends KeywordDate {
      * 
      * @return
      */
+ // FIXME #getTag should be sufficient.
     public String getTagNode() {
         return tagNode;
     }

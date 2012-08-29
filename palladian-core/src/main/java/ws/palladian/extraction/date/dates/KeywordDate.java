@@ -40,6 +40,7 @@ public abstract class KeywordDate extends ExtractedDateImpl {
      * 
      * @param keyword
      */
+    @Deprecated
     public void setKeyword(String keyword) {
         this.keyword = keyword;
     }

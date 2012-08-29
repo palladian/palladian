@@ -38,7 +38,7 @@ public class UrlDateGetterTest {
         url = "http://www.tmcnet.com/news/2010/06/30/1517705.htm";
         assertEquals(time, udg.getDates(url).get(0).getNormalizedDateString());
 
-        // Cases without given day, so day will be set to 1st
+        // Cases without given day
         time = "2010-06";
         url = "http://www.zeit.de/sport/2010-06/example";
         assertEquals(time, udg.getDates(url).get(0).getNormalizedDateString());
