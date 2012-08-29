@@ -34,6 +34,11 @@ public abstract class AbstractBodyDate extends KeywordDate {
     public AbstractBodyDate(ExtractedDate date, String keyword) {
         super(date, keyword);
     }
+    
+    public AbstractBodyDate(ExtractedDate date, String keyword, String tag) {
+        super(date, keyword);
+        this.tag = tag;
+    }
 
     /**
      * 
@@ -92,8 +97,9 @@ public abstract class AbstractBodyDate extends KeywordDate {
      * Tag-node is the string representation of a HTML-node, the date is found.
      * 
      * @return
+     * @deprecated This is not set any longer, use {@link #getTag()} instead.
      */
- // FIXME #getTag should be sufficient.
+    @Deprecated
     public String getTagNode() {
         return tagNode;
     }
