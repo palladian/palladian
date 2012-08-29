@@ -35,6 +35,7 @@ public final class MetaDate extends KeywordDate {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
+        builder.append(super.toString());
         builder.append(" tag=");
         builder.append(tag);
         return builder.toString();

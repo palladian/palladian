@@ -12,4 +12,8 @@ public final class StructureDate extends AbstractBodyDate {
         super(date);
     }
 
+    public StructureDate(ExtractedDate date, String keyword) {
+        super(date, keyword);
+    }
+
 }

@@ -96,8 +96,13 @@ public final class ContentDate extends AbstractBodyDate {
 
     @Override
     public String toString() {
-        return super.toString() + " Position in doc: " + positionInDocument + " Position in tag: " + positionInTagtext
-                + "\n" + " Distance date-keyword: " + distanceToContext + " Keyword-location: " + getKeyLocToString();
+        StringBuilder builder = new StringBuilder();
+        builder.append(super.toString());
+        builder.append(", positionInDocument=").append(positionInDocument);
+        builder.append(", positionInTagtext=").append(positionInTagtext);
+        builder.append(", distanceToContext=").append(distanceToContext);
+        builder.append(", keyLoc=").append(getKeyLocToString());
+        return builder.toString();
     }
 
     @Override
