@@ -58,12 +58,12 @@ Considering a specific query (e.\,g. \textit{apples OR oranges}), a set of relev
 
 \begin{equation}
 	\label{eqn:Precision}
-	Precision &= P = \frac{\left|\,\mathit{relevant, retrieved docs}\,\right|}{\left|\,\mathit{retrieved docs}\,\right|} = \frac{\left|\,\mathit{true positives}\,\right|}{\left|\,\mathit{true positives}\,\right| + \left|\,\mathit{false positives}\,\right|}
+	Precision = P = \frac{\left|\,\mathit{relevant, retrieved docs}\,\right|}{\left|\,\mathit{retrieved docs}\,\right|} = \frac{\left|\,\mathit{true positives}\,\right|}{\left|\,\mathit{true positives}\,\right| + \left|\,\mathit{false positives}\,\right|}
 \end{equation}
 
 \begin{equation}	
 	\label{eqn:Recall}
-	Recall &= R = \frac{\left|\,\mathit{relevant, retrieved docs}\,\right|}{\left|\,\mathit{relevant docs}\,\right|} = \frac{\left|\,\mathit{true positives}\,\right|}{\left|\,\mathit{true positives}\,\right| + \left|\,\mathit{false negatives}\,\right|}
+	Recall = R = \frac{\left|\,\mathit{relevant, retrieved docs}\,\right|}{\left|\,\mathit{relevant docs}\,\right|} = \frac{\left|\,\mathit{true positives}\,\right|}{\left|\,\mathit{true positives}\,\right| + \left|\,\mathit{false negatives}\,\right|}
 \end{equation}
 
 The F-measure combines both the Precsion and the Recall to one value. Usually the so called $F_1$ score is calculated by employing a harmonic mean as depicted in Equation~\ref{eqn:F1Measure}. The universal F-measure which allows weighting, and thus prioritizing, Precision and Recall values differently is described in \cite[p.\,156]{Manning:2009}. 
@@ -155,6 +155,8 @@ The library is licensed under the Apache Software license.
 The library is licensed under the GNU GPL and supports English, German, French, Romanian, and Spanish as input languages.
 
 	\item \textbf{Classifier4J} \cite{classifier4j} is a very simple Java library for text classification. Besides Bayesian and vector classification, it offers a text summary feature.
+	
+	\item \textbf{ClearTK} \cite{cleartk, ogren_cleartk:uima_2008} is a Java-based toolkit for developing statistical natural language processing components. It is based on the Apache UIMA framework for text analysis. It provides a wrapper interface for various components and libraries. ClearTK per se is available under a BSD license, whereas some of the wrapped components are licensed under a GPL license.
 
 	\item \textbf{ContentAnalyst} \cite{contentanalyst} is a commercial platform for text analytics. The platform's main features are concept search, dynamic clustering, near-duplicate document identification, automatic summarization, text classification, and latent semantic indexing.
 
@@ -169,6 +171,8 @@ The framework is licensed under the GNU Lesser General Public License.
 	\item The \textbf{Illinois Cognitive Computation Group} \cite{illinoisccg} has a list of ready to use programs for semantic role labeling, text chunking, named entity tagging, named entity discovery, PoS tagging, unsupervised rank aggregation, and named entity similarity metrics.
 	
 	\item \textbf{JTMT} (Java Text Mining Toolkit) \cite{JTMT} is an assorted collection of Java code for various text mining and information retrieval tasks. Different components are explained in-depth in the author's blog. The toolkit is licensed under the Lesser GNU General Public License (LGPL).
+	
+	\item \textbf{jtokenizer} \cite{jtokenizer} is a Java-based library providing a multitude of different tokenizer implementations. It also offers a GUI frontend for experimenting with the different tokenizers. The library is licensed under GNU Lesser GPL.
 
 	\item \textbf{Julie NLP} \cite{tomanek2007uima,hahn2008overview} is a Java-based toolkit of UIMA based text processing components. The toolkit can be used for semantic search, information extraction, named entity recognition, and text mining.
 The Toolkit is licensed under the Common Public License.

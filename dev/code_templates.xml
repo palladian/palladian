@@ -1,4 +1,29 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="true" context="java-statements" deleted="false" description="log with debug level" enabled="true" name="logdebug">LOGGER.debug(${word_selection}${});${cursor}</template><template autoinsert="true" context="java-statements" deleted="false" description="log with error level" enabled="true" name="logerror">LOGGER.error(${word_selection}${});${cursor}</template><template autoinsert="true" context="java-statements" deleted="false" description="log with fatal level" enabled="true" name="logfatal">LOGGER.fatal(${word_selection}${});${cursor}</template><template autoinsert="true" context="java-members" deleted="false" description="create class logger" enabled="true" name="logger">/** The logger for this class. */
-private static final Logger LOGGER = Logger.getLogger(${enclosing_type}.class);</template><template autoinsert="true" context="java-statements" deleted="false" description="log with info level" enabled="true" name="loginfo">LOGGER.info(${word_selection}${});${cursor}</template><template autoinsert="true" context="java-statements" deleted="false" description="log with trace level" enabled="true" name="logtrace">LOGGER.trace(${word_selection}${});${cursor}</template><template autoinsert="true" context="java-statements" deleted="false" description="log with warn level" enabled="true" name="logwarn">LOGGER.warn(${word_selection}${});${cursor}</template><template autoinsert="true" context="java-statements" deleted="false" description="new StringBuilder" enabled="true" name="StringBuilder">StringBuilder sb = new StringBuilder();
-sb.append(${word_selection}${});${cursor}
-</template><template autoinsert="true" context="java-statements" deleted="false" description="exit" enabled="true" name="sysex">System.exit(0);</template></templates>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<templates>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with debug level" enabled="true" name="logdebug">LOGGER.debug(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with error level" enabled="true" name="logerror">LOGGER.error(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with fatal level" enabled="true" name="logfatal">LOGGER.fatal(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-members" deleted="false" description="create class logger" enabled="true" name="logger">${:import(org.apache.log4j.Logger)}/** The logger for this class. */
+		private static final Logger LOGGER =
+		Logger.getLogger(${enclosing_type}.class);</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with info level" enabled="true" name="loginfo">LOGGER.info(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with trace level" enabled="true" name="logtrace">LOGGER.trace(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with warn level" enabled="true" name="logwarn">LOGGER.warn(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-members" deleted="false" description="singleton class" enabled="true" name="singleton">private ${enclosing_type}() {
+		}
+
+		private static class SingletonHolder {
+		public static final ${enclosing_type} INSTANCE = new ${enclosing_type}();
+		}
+
+		public static ${enclosing_type} getInstance() {
+		return SingletonHolder.INSTANCE;
+		}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="new StringBuilder" enabled="true" name="StringBuilder">StringBuilder sb = new StringBuilder();
+		sb.append(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="exit" enabled="true" name="sysex">System.exit(0);</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="print a Collection" enabled="true" name="print_collection">${:import(ws.palladian.helper.collection.CollectionHelper)}CollectionHelper.print(${collection});</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="print an Array" enabled="true" name="print_array">${:import(ws.palladian.helper.collection.CollectionHelper)}CollectionHelper.print(${array});</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="Validate that String is not null or empty" enabled="true" name="notEmpty">${:import(org.apache.commons.lang3.Validate)}Validate.notEmpty(${v1:var(java.lang.String)}, "${v1} must not be empty");</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="Validate that Object is not null" enabled="true" name="notNull">${:import(org.apache.commons.lang3.Validate)}Validate.notNull(${v1:var(java.lang.Object)}, "${v1} must not be null");</template>
+</templates>

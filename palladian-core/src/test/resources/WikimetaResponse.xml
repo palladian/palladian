@@ -1,0 +1,1999 @@
+<?xml version="1.0" encoding="UTF-8"?><wikimeta>
+<key>353407108989</key>
+<version>1.0</version>
+<![CDATA[
+Eastern	NAM	ORG	NORDF	NODBPEDIA	0	NORDF	NORDF
+U	NAM	ORG					
+.	SENT	UNK					
+S	NAM	UNK					
+.	SENT	UNK					
+battles	NNS	UNK					
+heat	NN	UNK					
+wave	NN	UNK					
+amid	IN	UNK					
+power	NN	UNK					
+outages	NNS	UNK					
+(	(	UNK					
+Reuters	NAM	ORG.COM	http://wikimeta.org/perl/display.pl?query=Reuters&search=EN	http://www.dbpedia.org/resource/Reuters	52.0852217215419	NORDF	NORDF
+)	)	UNK					
+-	:	UNK					
+Blistering	NAM	UNK					
+heat	NN	UNK					
+blanketed	VBD	UNK					
+much	RB	UNK					
+of	IN	UNK					
+the	DT	UNK					
+eastern	JJ	LOC	http://wikimeta.org/perl/display.pl?query=Eastern United States&search=EN	http://www.dbpedia.org/resource/Eastern_United_States	49.4583235393875	NORDF	NORDF
+United	NAM	LOC					
+States	NAM	LOC					
+for	IN	UNK					
+the	DT	UNK					
+third	NUM	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+straight	JJ	TIME					
+day	NN	TIME					
+on	IN	UNK					
+Sunday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+,	,	UNK					
+after	IN	UNK					
+violent	JJ	UNK					
+storms	NNS	UNK					
+that	WDT	UNK					
+took	VBD	UNK					
+at	IN	UNK					
+least	JJS	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+a	DT	AMOUNT					
+dozen	NN	UNK					
+lives	NNS	UNK					
+and	CC	UNK					
+knocked	VBD	UNK					
+out	RP	UNK					
+power	NN	UNK					
+to	TO	UNK					
+more	JJR	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+than	IN	AMOUNT					
+3	NUM	AMOUNT					
+million	NUM	AMOUNT					
+customers	NNS	AMOUNT					
+.	SENT	UNK					
+Emergencies	NNS	UNK					
+were	VBD	UNK					
+declared	VBN	UNK					
+in	IN	UNK					
+Maryland	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Maryland&search=EN	http://www.dbpedia.org/resource/Maryland	285.169521878736	http://wikimeta.org/perl/display.pl?query=Maryland Terrapins&search=EN	http://wikimeta.org/perl/display.pl?query=Maryland wine&search=EN
+,	,	UNK					
+Ohio	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Ohio&search=EN	http://www.dbpedia.org/resource/Ohio	266.324507212311	http://wikimeta.org/perl/display.pl?query=Ohio River&search=EN	http://wikimeta.org/perl/display.pl?query=Ohio State University&search=EN
+,	,	UNK					
+Virginia	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Virginia&search=EN	http://www.dbpedia.org/resource/Virginia	527.354401051652	http://wikimeta.org/perl/display.pl?query=Colony of Virginia&search=EN	http://wikimeta.org/perl/display.pl?query=Virginia (pinnace)&search=EN
+,	,	UNK					
+West	NAM	LOC	http://wikimeta.org/perl/display.pl?query=West Virginia&search=EN	http://www.dbpedia.org/resource/West_Virginia	567.55814677373	http://wikimeta.org/perl/display.pl?query=West Virginia wine&search=EN	http://wikimeta.org/perl/display.pl?query=West Virginia&search=EN
+Virginia	NAM	LOC					
+and	CC	UNK					
+Washington	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Washington (state)&search=EN	NODBPEDIA	290.91621591163	http://wikimeta.org/perl/display.pl?query=Washington, D.C.&search=EN	http://wikimeta.org/perl/display.pl?query=Washington University in St. Louis&search=EN
+,	,	UNK					
+D	NAM	UNK					
+.	SENT	UNK					
+C	LS	UNK					
+.	SENT	UNK					
+,	,	UNK					
+on	IN	UNK					
+Saturday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+because	IN	UNK					
+of	IN	UNK					
+damage	NN	UNK					
+from	IN	UNK					
+storms	NNS	UNK					
+that	WDT	UNK					
+unleashed	VBD	UNK					
+hurricane-force	NN	UNK					
+winds	NNS	UNK					
+across	IN	UNK					
+and	CC	UNK					
+a	DT	UNK					
+500-mile	JJ	UNK					
+(	(	UNK					
+800-km	JJ	UNK					
+)	)	UNK					
+stretch	NN	UNK					
+of	IN	UNK					
+the	DT	UNK					
+mid-Atlantic	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Mid-Atlantic states&search=EN	http://www.dbpedia.org/resource/Mid-Atlantic_states	50.2541717845576	NORDF	NORDF
+region	NN	LOC					
+.	SENT	UNK					
+The	DT	UNK					
+storms	NNS	UNK					
+'	POS	UNK					
+rampage	NN	UNK					
+came	VBD	UNK					
+as	IN	UNK					
+sweltering	JJ	UNK					
+temperatures	NNS	UNK					
+topped	VBD	UNK					
+100	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+Fahrenheit	XNAM	AMOUNT					
+(	(	UNK					
+38	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+Celsius	JJ	UNK					
+)	)	UNK					
+in	IN	UNK					
+several	JJ	UNK					
+southern	JJ	UNK					
+cities	NNS	UNK					
+,	,	UNK					
+including	VBG	UNK					
+Atlanta	NAM	LOC.FAC	http://wikimeta.org/perl/display.pl?query=Atlanta&search=EN	http://www.dbpedia.org/resource/Atlanta	296.354458162844	http://wikimeta.org/perl/display.pl?query=Atlanta (gastropod)&search=EN	http://wikimeta.org/perl/display.pl?query=Atlanta Motor Speedway&search=EN
+,	,	UNK					
+where	WRB	UNK					
+the	DT	UNK					
+mercury	NN	UNK					
+hit	VBD	UNK					
+an	DT	UNK					
+all-time	JJ	UNK					
+record	NN	UNK					
+of	IN	UNK					
+106	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+degrees	NNS	AMOUNT					
+(	(	UNK					
+41	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+Celsius	JJ	UNK					
+)	)	UNK					
+,	,	UNK					
+according	VBG	UNK					
+to	TO	UNK					
+Accuweather	NAM	ORG.COM	http://wikimeta.org/perl/display.pl?query=AccuWeather&search=EN	http://www.dbpedia.org/resource/AccuWeather	51.4905494072541	NORDF	NORDF
+.	SENT	UNK					
+com	NN	UNK					
+.	SENT	UNK					
+Over	IN	UNK					
+two	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+dozen	NN	AMOUNT					
+cities	NNS	UNK					
+across	IN	UNK					
+10	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+states	NNS	AMOUNT					
+set	VBN	UNK					
+or	CC	UNK					
+tied	VBN	UNK					
+all-time	JJ	UNK					
+record	NN	UNK					
+high	JJ	UNK					
+temperatures	NNS	UNK					
+on	IN	UNK					
+Friday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+and	CC	UNK					
+Saturday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+,	,	UNK					
+including	VBG	UNK					
+Columbia	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Columbia, South Carolina&search=EN	http://www.dbpedia.org/resource/Columbia,_South_Carolina	431.796861489742	http://wikimeta.org/perl/display.pl?query=Columbia River&search=EN	http://wikimeta.org/perl/display.pl?query=Columbia University&search=EN
+,	,	UNK					
+South	NAM	LOC	http://wikimeta.org/perl/display.pl?query=South Carolina&search=EN	http://www.dbpedia.org/resource/South_Carolina	511.756926420279	http://wikimeta.org/perl/display.pl?query=Indien (1778)&search=EN	http://wikimeta.org/perl/display.pl?query=South Carolina wine&search=EN
+Carolina	FNAM	LOC					
+;	:	UNK					
+Knoxville	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Knoxville, Tennessee&search=EN	http://www.dbpedia.org/resource/Knoxville,_Tennessee	362.331327018698	http://wikimeta.org/perl/display.pl?query=Knoxville College&search=EN	http://wikimeta.org/perl/display.pl?query=Johnny Knoxville&search=EN
+,	,	UNK					
+Tennessee	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Tennessee&search=EN	http://www.dbpedia.org/resource/Tennessee	316.540519119694	http://wikimeta.org/perl/display.pl?query=Tennessee River&search=EN	http://wikimeta.org/perl/display.pl?query=Army of the Tennessee&search=EN
+;	:	UNK					
+and	CC	UNK					
+Raleigh	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Raleigh, North Carolina&search=EN	http://www.dbpedia.org/resource/Raleigh,_North_Carolina	602.897534232556	http://wikimeta.org/perl/display.pl?query=Raleigh County, West Virginia&search=EN	http://wikimeta.org/perl/display.pl?query=Walter Raleigh&search=EN
+,	,	UNK					
+North	NAM	LOC	http://wikimeta.org/perl/display.pl?query=North Carolina&search=EN	http://www.dbpedia.org/resource/North_Carolina	687.518164745081	http://wikimeta.org/perl/display.pl?query=North Carolina wine&search=EN	http://wikimeta.org/perl/display.pl?query=North Carolina&search=EN
+Carolina	FNAM	LOC					
+.	SENT	UNK					
+The	DT	UNK					
+heat	NN	AMBIG	http://wikimeta.org/perl/display.pl?query=Heat wave&search=EN	http://www.dbpedia.org/resource/Heat_wave	222.107841924693	http://wikimeta.org/perl/display.pl?query=(Love Is Like a) Heat Wave&search=EN	http://wikimeta.org/perl/display.pl?query=Heat Wave (comics)&search=EN
+wave	NN	AMBIG					
+continued	VBD	UNK					
+Sunday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+for	IN	UNK					
+millions	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+of	IN	UNK					
+people	NNS	UNK					
+from	IN	UNK					
+the	DT	UNK					
+Plains	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Plains Indians&search=EN	http://www.dbpedia.org/resource/Plains_Indians	55.2945330731509	http://wikimeta.org/perl/display.pl?query=Plains, Georgia&search=EN	http://wikimeta.org/perl/display.pl?query=Plains, Kansas&search=EN
+to	TO	UNK					
+the	DT	UNK					
+mid-Atlantic	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Mid-Atlantic states&search=EN	http://www.dbpedia.org/resource/Mid-Atlantic_states	25.5480412165003	http://wikimeta.org/perl/display.pl?query=Mid-Atlantic states&search=EN	NORDF
+.	SENT	UNK					
+One	NUM	UNK					
+of	IN	UNK					
+the	DT	UNK					
+hardest	JJS	UNK					
+hit	NN	UNK					
+cities	NNS	UNK					
+was	VBD	UNK					
+Charlotte	FNAM	PERS	http://wikimeta.org/perl/display.pl?query=Charlotte, North Carolina&search=EN	http://www.dbpedia.org/resource/Charlotte,_North_Carolina	345.580027258521	http://wikimeta.org/perl/display.pl?query=Charlotte Lewis (Lost)&search=EN	http://wikimeta.org/perl/display.pl?query=Charlotte (given name)&search=EN
+,	,	UNK					
+North	NAM	LOC	http://wikimeta.org/perl/display.pl?query=North Carolina&search=EN	http://www.dbpedia.org/resource/North_Carolina	685.838995307532	http://wikimeta.org/perl/display.pl?query=North Carolina wine&search=EN	http://wikimeta.org/perl/display.pl?query=North Carolina&search=EN
+Carolina	FNAM	LOC					
+,	,	UNK					
+where	WRB	UNK					
+the	DT	UNK					
+mercury	NN	UNK					
+hovered	VBD	UNK					
+at	IN	UNK					
+about	RB	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+101	NUM	AMOUNT					
+degrees	NNS	AMOUNT					
+(	(	UNK					
+38	NUM	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+.	SENT	UNK					
+3	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+C	NAM	UNK					
+)	)	UNK					
+Sunday	NDAY	PROD.ART	http://wikimeta.org/perl/display.pl?query=Sunday Afternoon&search=EN	http://www.dbpedia.org/resource/Sunday_Afternoon	11.0787919064999	NORDF	NORDF
+afternoon	NN	UNK					
+and	CC	UNK					
+was	VBD	UNK					
+expected	VBN	UNK					
+to	TO	UNK					
+at	IN	UNK					
+least	JJS	UNK					
+tie	VB	UNK					
+its	PP$	UNK					
+all-time	JJ	UNK					
+record	NN	UNK					
+of	IN	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+104	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+(	(	UNK					
+40	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+C	NAM	UNK					
+)	)	UNK					
+later	RBR	UNK					
+in	IN	UNK					
+the	DT	UNK					
+day	NN	UNK					
+.	SENT	UNK					
+From	IN	UNK					
+St	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Atari ST&search=EN	http://www.dbpedia.org/resource/Atari_ST	40.4194765928937	http://wikimeta.org/perl/display.pl?query=.st&search=EN	http://wikimeta.org/perl/display.pl?query=The Legend of Zelda: Spirit Tracks&search=EN
+.	SENT	UNK					
+Louis	FNAM	PERS.HUM	http://wikimeta.org/perl/display.pl?query=Louis XVIII of France&search=EN	http://www.dbpedia.org/resource/Louis_XVIII_of_France	102.00316621258	http://wikimeta.org/perl/display.pl?query=Louis XVI of France&search=EN	http://wikimeta.org/perl/display.pl?query=Louis IX of France&search=EN
+,	,	UNK					
+Missouri	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Missouri&search=EN	http://www.dbpedia.org/resource/Missouri	335.192133457099	http://wikimeta.org/perl/display.pl?query=Missouri River&search=EN	http://wikimeta.org/perl/display.pl?query=Missouri wine&search=EN
+,	,	UNK					
+to	TO	UNK					
+Washington	NAM	LOC.FAC	http://wikimeta.org/perl/display.pl?query=Washington, D.C.&search=EN	NODBPEDIA	201.795037064086	http://wikimeta.org/perl/display.pl?query=Washington (state)&search=EN	http://wikimeta.org/perl/display.pl?query=Washington University in St. Louis&search=EN
+,	,	UNK					
+D	NAM	UNK					
+.	SENT	UNK					
+C	LS	UNK					
+.	SENT	UNK					
+,	,	UNK					
+the	DT	UNK					
+forecasts	NNS	UNK					
+were	VBD	UNK					
+for	IN	UNK					
+temperatures	NNS	UNK					
+that	WDT	UNK					
+could	MD	UNK					
+climb	VB	UNK					
+to	TO	UNK					
+more	JJR	UNK					
+all-time	JJ	UNK					
+records	NNS	UNK					
+.	SENT	UNK					
+"	"	UNK					
+It	PP	UNK					
+is	VBZ	UNK					
+very	RB	UNK					
+unsafe	JJ	UNK					
+outdoors	RB	UNK					
+for	IN	UNK					
+those	DT	UNK					
+susceptible	JJ	UNK					
+to	TO	UNK					
+these	DT	UNK					
+extreme	JJ	UNK					
+conditions	NNS	UNK					
+,	,	UNK					
+"	"	UNK					
+the	DT	UNK					
+National	NAM	ORG.POL	http://wikimeta.org/perl/display.pl?query=National Weather Service&search=EN	http://www.dbpedia.org/resource/National_Weather_Service	163.440339598417	http://wikimeta.org/perl/display.pl?query=National Oceanic and Atmospheric Administration&search=EN	http://wikimeta.org/perl/display.pl?query=National Weather Service&search=EN
+Weather	NAM	ORG.POL					
+Service	NAM	ORG.POL					
+said	VBD	UNK					
+in	IN	UNK					
+a	DT	UNK					
+statement	NN	UNK					
+.	SENT	UNK					
+'CATASTROPHIC	JJ	UNK					
+DAMAGE	ABR	ORG	http://wikimeta.org/perl/display.pl?query=Damage (comics)&search=EN	NODBPEDIA	60.1071797857606	http://wikimeta.org/perl/display.pl?query=Damageplan&search=EN	http://wikimeta.org/perl/display.pl?query=Water damage&search=EN
+"	"	UNK					
+TO	ABR	ORG	NORDF	NODBPEDIA	0	NORDF	NORDF
+POWER	ABR	ORG					
+GRIDS	ABR	ORG					
+Power	NAM	ORG					
+crews	NNS	UNK					
+worked	VBD	UNK					
+to	TO	UNK					
+restore	VB	UNK					
+service	NN	UNK					
+to	TO	UNK					
+homes	NNS	UNK					
+and	CC	UNK					
+businesses	NNS	UNK					
+,	,	UNK					
+and	CC	UNK					
+officials	NNS	UNK					
+in	IN	UNK					
+some	DT	UNK					
+areas	NNS	UNK					
+said	VBD	UNK					
+the	DT	UNK					
+job	NN	UNK					
+could	MD	UNK					
+take	VB	UNK					
+up	RP	UNK					
+to	TO	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+a	DT	TIME					
+week	NN	TIME					
+.	SENT	UNK					
+Utilities	NNS	UNK					
+in	IN	UNK					
+Ohio	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Ohio&search=EN	http://www.dbpedia.org/resource/Ohio	338.063880660929	http://wikimeta.org/perl/display.pl?query=Ohio State University&search=EN	http://wikimeta.org/perl/display.pl?query=Ohio River&search=EN
+,	,	UNK					
+Virginia	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Virginia&search=EN	http://www.dbpedia.org/resource/Virginia	851.762491568519	http://wikimeta.org/perl/display.pl?query=Virginia (pinnace)&search=EN	http://wikimeta.org/perl/display.pl?query=CSS Virginia&search=EN
+and	CC	UNK					
+Maryland	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Maryland&search=EN	http://www.dbpedia.org/resource/Maryland	553.532073308964	http://wikimeta.org/perl/display.pl?query=Maryland Terrapins&search=EN	http://wikimeta.org/perl/display.pl?query=Maryland wine&search=EN
+described	VBD	UNK					
+damage	NN	UNK					
+to	TO	UNK					
+their	PP$	UNK					
+power	NN	UNK					
+grids	NNS	UNK					
+as	IN	UNK					
+catastrophic	JJ	UNK					
+.	SENT	UNK					
+Six	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+people	NNS	AMOUNT					
+were	VBD	UNK					
+killed	VBN	UNK					
+in	IN	UNK					
+Virginia	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Virginia&search=EN	http://www.dbpedia.org/resource/Virginia	825.686	http://wikimeta.org/perl/display.pl?query=Virginia (pinnace)&search=EN	http://wikimeta.org/perl/display.pl?query=CSS Virginia&search=EN
+in	IN	UNK					
+storm-related	JJ	UNK					
+incidents	NNS	UNK					
+,	,	UNK					
+and	CC	UNK					
+more	JJR	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+than	IN	AMOUNT					
+1	NUM	AMOUNT					
+million	NUM	AMOUNT					
+customers	NNS	AMOUNT					
+were	VBD	UNK					
+left	VBN	UNK					
+without	IN	UNK					
+power	NN	UNK					
+in	IN	UNK					
+the	DT	UNK					
+worst	JJS	UNK					
+outage	NN	UNK					
+not	RB	UNK					
+linked	VBN	UNK					
+to	TO	UNK					
+a	DT	UNK					
+hurricane	NN	UNK					
+in	IN	UNK					
+the	DT	UNK					
+state	NN	UNK					
+'s	POS	UNK					
+history	NN	UNK					
+,	,	UNK					
+said	VBD	UNK					
+Bob	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Spieldenner	NAM	PERS					
+,	,	UNK					
+a	DT	UNK					
+spokesman	NN	UNK					
+for	IN	UNK					
+the	DT	ORG	NORDF	NODBPEDIA	0	NORDF	NORDF
+Virginia	NAM	ORG					
+Department	NAM	ORG					
+of	IN	ORG					
+Emergency	NAM	ORG					
+Management	NAM	ORG					
+.	SENT	UNK					
+Two	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+Maryland	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Maryland&search=EN	http://www.dbpedia.org/resource/Maryland	762.586373551247	http://wikimeta.org/perl/display.pl?query=Maryland Terrapins&search=EN	http://wikimeta.org/perl/display.pl?query=Maryland wine&search=EN
+residents	NNS	UNK					
+died	VBD	UNK					
+in	IN	UNK					
+the	DT	UNK					
+storm	NN	UNK					
+-	:	UNK					
+one	PP	UNK					
+struck	VBD	UNK					
+by	IN	UNK					
+a	DT	UNK					
+falling	VBG	UNK					
+tree	NN	UNK					
+in	IN	UNK					
+Anne	FNAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Anne Arundel County, Maryland&search=EN	http://www.dbpedia.org/resource/Anne_Arundel_County,_Maryland	384.249414708945	http://wikimeta.org/perl/display.pl?query=Anne Arundel County, Maryland&search=EN	http://wikimeta.org/perl/display.pl?query=Anne Arundel County, Maryland&search=EN
+Arundel	NAM	LOC.ADMI					
+County	NAM	LOC.ADMI					
+,	,	UNK					
+the	DT	UNK					
+other	JJ	UNK					
+electrocuted	VBN	UNK					
+after	IN	UNK					
+a	DT	UNK					
+tree	NN	UNK					
+crashed	VBD	UNK					
+into	IN	UNK					
+a	DT	UNK					
+house	NN	UNK					
+in	IN	UNK					
+Montgomery	FNAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Montgomery County, Maryland&search=EN	http://www.dbpedia.org/resource/Montgomery_County,_Maryland	367.431626383286	http://wikimeta.org/perl/display.pl?query=Montgomery County, Ohio&search=EN	http://wikimeta.org/perl/display.pl?query=Montgomery County, Pennsylvania&search=EN
+County	NAM	LOC.ADMI					
+-	:	UNK					
+said	VBD	UNK					
+state	NN	UNK					
+emergency	NN	ORG.POL	http://wikimeta.org/perl/display.pl?query=Federal Emergency Management Agency&search=EN	http://www.dbpedia.org/resource/Federal_Emergency_Management_Agency	191.318416980806	http://wikimeta.org/perl/display.pl?query=Federal Emergency Management Agency&search=EN	NORDF
+management	NN	ORG.POL					
+agency	NN	ORG.POL					
+spokesman	NN	UNK					
+Edward	FNAM	PERS.HUM	http://wikimeta.org/perl/display.pl?query=Edward Hopkins&search=EN	http://www.dbpedia.org/resource/Edward_Hopkins	31.9159228808025	http://wikimeta.org/perl/display.pl?query=Ted Hopkins&search=EN	NORDF
+Hopkins	NAM	PERS.HUM					
+.	SENT	UNK					
+In	IN	UNK					
+a	DT	UNK					
+late	JJ	UNK					
+Sunday	NDAY	PROD	http://wikimeta.org/perl/display.pl?query=Sunday Morning (No Doubt song)&search=EN	NODBPEDIA	22.9993253234379	http://wikimeta.org/perl/display.pl?query=Sunday Morning (Maroon 5 song)&search=EN	http://wikimeta.org/perl/display.pl?query=Sunday Morning (The Velvet Underground song)&search=EN
+morning	NN	UNK					
+update	NN	UNK					
+,	,	UNK					
+Maryland	NAM	ORG.POL	http://wikimeta.org/perl/display.pl?query=Maryland Emergency Management Agency&search=EN	http://www.dbpedia.org/resource/Maryland_Emergency_Management_Agency	79.6443149341705	http://wikimeta.org/perl/display.pl?query=Maryland Emergency Management Agency&search=EN	NORDF
+Emergency	NAM	ORG.POL					
+Management	NAM	ORG.POL					
+Agency	NAM	ORG.POL					
+spokesman	NN	UNK					
+Ed	NAM	PERS.HUM	http://wikimeta.org/perl/display.pl?query=Ed McDonough&search=EN	http://www.dbpedia.org/resource/Ed_McDonough	22.0721007911194	NORDF	NORDF
+McDonough	NAM	PERS.HUM					
+said	VBD	UNK					
+a	DT	UNK					
+Chesapeake	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Chesapeake Bay&search=EN	http://www.dbpedia.org/resource/Chesapeake_Bay	236.617770223061	http://wikimeta.org/perl/display.pl?query=Chesapeake Bay&search=EN	NORDF
+Bay	NAM	LOC					
+boater	NN	UNK					
+was	VBD	UNK					
+still	RB	UNK					
+missing	VBG	UNK					
+after	IN	UNK					
+the	DT	UNK					
+storm	NN	UNK					
+and	CC	UNK					
+639,000	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+customers	NNS	AMOUNT					
+remained	VBN	UNK					
+without	IN	UNK					
+power	NN	UNK					
+.	SENT	UNK					
+That	DT	UNK					
+was	VBD	UNK					
+down	RB	UNK					
+from	IN	UNK					
+more	JJR	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+than	IN	AMOUNT					
+1	NUM	AMOUNT					
+million	NUM	AMOUNT					
+Maryland	NAM	ORG	http://wikimeta.org/perl/display.pl?query=Maryland&search=EN	http://www.dbpedia.org/resource/Maryland	343.322768904189	http://wikimeta.org/perl/display.pl?query=Maryland Terrapins&search=EN	http://wikimeta.org/perl/display.pl?query=Maryland wine&search=EN
+customers	NNS	UNK					
+without	IN	UNK					
+lights	NNS	UNK					
+and	CC	UNK					
+crucial	JJ	UNK					
+air	NN	PROD	http://wikimeta.org/perl/display.pl?query=Air conditioning&search=EN	http://www.dbpedia.org/resource/Air_conditioning	126.858693353715	http://wikimeta.org/perl/display.pl?query=Air conditioning&search=EN	NORDF
+conditioning	NN	UNK					
+earlier	RBR	UNK					
+on	IN	UNK					
+Sunday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+morning	NN	UNK					
+.	SENT	UNK					
+In	IN	UNK					
+New	NAM	AMBIG	http://wikimeta.org/perl/display.pl?query=New Jersey&search=EN	http://www.dbpedia.org/resource/New_Jersey	868.731498076876	http://wikimeta.org/perl/display.pl?query=USS New Jersey (BB-62)&search=EN	http://wikimeta.org/perl/display.pl?query=It's a Jersey Thing&search=EN
+Jersey	NAM	AMBIG					
+,	,	UNK					
+two	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+cousins	NNS	AMOUNT					
+aged	VBN	UNK					
+2	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+and	CC	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+7	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+were	VBD	UNK					
+killed	VBN	UNK					
+by	IN	UNK					
+a	DT	UNK					
+falling	VBG	UNK					
+tree	NN	UNK					
+in	IN	UNK					
+a	DT	UNK					
+state	NN	LOC	http://wikimeta.org/perl/display.pl?query=State park&search=EN	http://www.dbpedia.org/resource/State_park	58.950259044922	NORDF	NORDF
+park	NN	LOC					
+.	SENT	UNK					
+And	CC	UNK					
+in	IN	UNK					
+eastern	JJ	UNK					
+Tennessee	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Tennessee&search=EN	http://www.dbpedia.org/resource/Tennessee	380.796726791289	http://wikimeta.org/perl/display.pl?query=Army of the Tennessee&search=EN	http://wikimeta.org/perl/display.pl?query=Tennessee River&search=EN
+,	,	UNK					
+heat	NN	UNK					
+was	VBD	UNK					
+blamed	VBN	UNK					
+for	IN	UNK					
+the	DT	UNK					
+deaths	NNS	UNK					
+of	IN	UNK					
+two	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+brothers	NNS	AMOUNT					
+,	,	UNK					
+ages	NNS	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+3	NUM	TIME					
+and	CC	TIME					
+5	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+,	,	UNK					
+in	IN	UNK					
+Bradley	FNAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Bradley County, Tennessee&search=EN	http://www.dbpedia.org/resource/Bradley_County,_Tennessee	69.4251120832353	http://wikimeta.org/perl/display.pl?query=Bradley County, Arkansas&search=EN	http://wikimeta.org/perl/display.pl?query=Bradley County, Arkansas&search=EN
+County	NAM	LOC.ADMI					
+.	SENT	UNK					
+They	PP	UNK					
+had	VBD	UNK					
+been	VBN	UNK					
+playing	VBG	UNK					
+outside	IN	UNK					
+in	IN	UNK					
+105-degree	NAM	LOC	NORDF	NODBPEDIA	0	NORDF	NORDF
+(	(	UNK					
+41-degree	NAM	ORG	NORDF	NODBPEDIA	0	NORDF	NORDF
+C	NAM	ORG					
+)	)	UNK					
+heat	NN	UNK					
+.	SENT	UNK					
+HEATED	ABR	ORG	NORDF	NODBPEDIA	0	NORDF	NORDF
+LABOR	ABR	ORG					
+DISPUTE	ABR	ORG					
+Ohio	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Ohio&search=EN	http://www.dbpedia.org/resource/Ohio	317.195532120554	http://wikimeta.org/perl/display.pl?query=Ohio State University&search=EN	http://wikimeta.org/perl/display.pl?query=Ohio River&search=EN
+,	,	UNK					
+where	WRB	UNK					
+one	NUM	UNK					
+storm-related	JJ	UNK					
+death	NN	UNK					
+was	VBD	UNK					
+reported	VBN	UNK					
+,	,	UNK					
+faced	VBN	UNK					
+similar	JJ	UNK					
+difficulties	NNS	UNK					
+.	SENT	UNK					
+Outages	NNS	UNK					
+hit	VBD	UNK					
+two-thirds	NNS	UNK					
+of	IN	UNK					
+the	DT	UNK					
+state	NN	UNK					
+with	IN	UNK					
+about	RB	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+1	NUM	AMOUNT					
+million	NUM	AMOUNT					
+homes	NNS	AMOUNT					
+and	CC	UNK					
+businesses	NNS	UNK					
+left	VBN	UNK					
+without	IN	UNK					
+electricity	NN	UNK					
+.	SENT	UNK					
+Governor	NAM	UNK					
+John	FNAM	PERS.HUM	http://wikimeta.org/perl/display.pl?query=John Kasich&search=EN	http://www.dbpedia.org/resource/John_Kasich	176.734958083153	NORDF	NORDF
+Kasich	NAM	PERS.HUM					
+said	VBD	UNK					
+it	PP	UNK					
+could	MD	UNK					
+take	VB	UNK					
+a	DT	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+week	NN	TIME					
+to	TO	UNK					
+fully	RB	UNK					
+restore	VB	UNK					
+power	NN	UNK					
+.	SENT	UNK					
+President	NAM	PERS.HUM	http://wikimeta.org/perl/display.pl?query=Barack Obama&search=EN	http://www.dbpedia.org/resource/Barack_Obama.	646.379606116878	http://wikimeta.org/perl/display.pl?query=Presidency of Barack Obama&search=EN	NORDF
+Barack	FNAM	PERS.HUM					
+Obama	NAM	PERS.HUM					
+authorized	VBD	UNK					
+the	DT	ORG	NORDF	NODBPEDIA	0	NORDF	NORDF
+Federal	NAM	ORG					
+Emergency	NAM	ORG					
+Management	NAM	ORG					
+Agency	NAM	ORG					
+(	(	UNK					
+FEMA	ABR	ORG.POL	http://wikimeta.org/perl/display.pl?query=Federal Emergency Management Agency&search=EN	http://www.dbpedia.org/resource/Federal_Emergency_Management_Agency	295.495710788305	http://wikimeta.org/perl/display.pl?query=Flavor and Extract Manufacturers Association&search=EN	http://wikimeta.org/perl/display.pl?query=Fire Equipment Manufacturers' Association&search=EN
+)	)	UNK					
+to	TO	UNK					
+coordinate	VB	UNK					
+all	DT	UNK					
+disaster	NN	UNK					
+relief	NN	UNK					
+efforts	NNS	UNK					
+in	IN	UNK					
+the	DT	UNK					
+storm-ravaged	JJ	UNK					
+state	NN	UNK					
+.	SENT	UNK					
+West	NAM	LOC	http://wikimeta.org/perl/display.pl?query=West Virginia&search=EN	http://www.dbpedia.org/resource/West_Virginia	397.199583124104	http://wikimeta.org/perl/display.pl?query=West Virginia wine&search=EN	http://wikimeta.org/perl/display.pl?query=West Virginia&search=EN
+Virginia	NAM	LOC					
+was	VBD	UNK					
+also	RB	UNK					
+hard-hit	JJ	UNK					
+by	IN	UNK					
+storm-related	JJ	UNK					
+outages	NNS	UNK					
+,	,	UNK					
+with	IN	UNK					
+about	RB	UNK					
+614,000	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+customers	NNS	UNK					
+without	IN	UNK					
+power	NN	UNK					
+,	,	UNK					
+said	VBD	UNK					
+Terrance	NAM	UNK					
+Lively	NAM	PERS.HUM	http://wikimeta.org/perl/display.pl?query=Blake Lively&search=EN	http://www.dbpedia.org/resource/Blake_Lively	60.5091666531328	http://wikimeta.org/perl/display.pl?query=Google Lively&search=EN	http://wikimeta.org/perl/display.pl?query=Eric Lively&search=EN
+,	,	UNK					
+spokesman	NN	UNK					
+for	IN	UNK					
+the	DT	UNK					
+state	NN	UNK					
+emergency	NN	ORG.POL	http://wikimeta.org/perl/display.pl?query=Federal Emergency Management Agency&search=EN	http://www.dbpedia.org/resource/Federal_Emergency_Management_Agency	281.702534064296	http://wikimeta.org/perl/display.pl?query=Federal Emergency Management Agency&search=EN	NORDF
+management	NN	ORG.POL					
+agency	NN	ORG.POL					
+.	SENT	UNK					
+Further	RBR	UNK					
+north	RB	UNK					
+,	,	UNK					
+the	DT	UNK					
+storm	NN	UNK					
+caused	VBD	UNK					
+outages	NNS	UNK					
+from	IN	UNK					
+Indiana	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Indiana&search=EN	http://www.dbpedia.org/resource/Indiana	422.832903668295	http://wikimeta.org/perl/display.pl?query=Indiana (statue)&search=EN	http://wikimeta.org/perl/display.pl?query=Indiana, Pennsylvania&search=EN
+,	,	UNK					
+where	WRB	UNK					
+135,000	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+customers	NNS	UNK					
+lost	VBD	UNK					
+power	NN	UNK					
+,	,	UNK					
+to	TO	UNK					
+New	NAM	AMBIG	http://wikimeta.org/perl/display.pl?query=New Jersey&search=EN	http://www.dbpedia.org/resource/New_Jersey	571.093501055865	http://wikimeta.org/perl/display.pl?query=USS New Jersey (BB-62)&search=EN	http://wikimeta.org/perl/display.pl?query=USS New Jersey (BB-16)&search=EN
+Jersey	NAM	AMBIG					
+,	,	UNK					
+where	WRB	UNK					
+Atlantic	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Atlantic County, New Jersey&search=EN	http://www.dbpedia.org/resource/Atlantic_County,_New_Jersey	78.8745741223523	http://wikimeta.org/perl/display.pl?query=Atlantic County, New Jersey&search=EN	http://wikimeta.org/perl/display.pl?query=Atlantic County, New Jersey&search=EN
+County	NAM	LOC.ADMI					
+declared	VBD	UNK					
+a	DT	UNK					
+state	NN	UNK					
+of	IN	UNK					
+emergency	NN	UNK					
+and	CC	UNK					
+at	IN	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+least	JJS	AMOUNT					
+206,000	NUM	AMOUNT					
+customers	NNS	AMOUNT					
+were	VBD	UNK					
+without	IN	UNK					
+power	NN	UNK					
+.	SENT	UNK					
+In	IN	UNK					
+New	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=New York City&search=EN	http://www.dbpedia.org/resource/New_York_City	403.061444377809	http://wikimeta.org/perl/display.pl?query=New York&search=EN	http://wikimeta.org/perl/display.pl?query=Manhattan&search=EN
+York	NAM	LOC.ADMI					
+,	,	UNK					
+a	DT	UNK					
+heated	JJ	UNK					
+labor	NN	UNK					
+dispute	NN	UNK					
+threatened	VBD	UNK					
+to	TO	UNK					
+compound	VB	UNK					
+problems	NNS	UNK					
+posed	VBN	UNK					
+by	IN	UNK					
+the	DT	UNK					
+summer	NN	UNK					http://wikimeta.org/perl/display.pl?query=Summer Heat&search=EN
+heat	NN	UNK					
+wave	NN	UNK					
+,	,	UNK					
+which	WDT	UNK					
+has	VBZ	UNK					
+already	RB	UNK					
+put	VBN	UNK					
+an	DT	UNK					
+added	JJ	UNK					
+strain	NN	UNK					
+on	IN	UNK					
+the	DT	UNK					
+electrical	JJ	UNK					
+grid	NN	UNK					
+for	IN	UNK					
+New	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=New York City&search=EN	http://www.dbpedia.org/resource/New_York_City	403.061444377809	http://wikimeta.org/perl/display.pl?query=New York&search=EN	http://wikimeta.org/perl/display.pl?query=Manhattan&search=EN
+York	NAM	LOC.ADMI					
+City	NAM	LOC	NORDF	NODBPEDIA	0	NORDF	NORDF
+and	CC	LOC					
+suburban	JJ	LOC					
+Westchester	NAM	LOC					
+county	NN	LOC					
+.	SENT	UNK					
+Power	NN	UNK					
+utility	NN	UNK					
+Consolidated	NAM	ORG.COM	http://wikimeta.org/perl/display.pl?query=Consolidated Edison&search=EN	http://www.dbpedia.org/resource/Consolidated_Edison	112.919720606906	NORDF	NORDF
+Edison	NAM	ORG.COM					
+Inc	NAM	ORG.COM					
+locked	VBD	UNK					
+out	RP	UNK					
+its	PP$	UNK					
+unionized	VBD	UNK					
+workers	NNS	UNK					
+early	RB	UNK					
+on	IN	UNK					
+Sunday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+after	IN	UNK					
+contract	NN	UNK					
+talks	NNS	UNK					
+broke	VBD	UNK					
+down	RP	UNK					
+,	,	UNK					
+both	CC	UNK					
+sides	NNS	UNK					
+said	VBD	UNK					
+,	,	UNK					
+raising	VBG	UNK					
+the	DT	UNK					
+possibility	NN	UNK					
+of	IN	UNK					
+power	NN	UNK					
+cuts	NNS	UNK					
+.	SENT	UNK					
+The	DT	UNK					
+company	NN	UNK					
+said	VBD	UNK					
+it	PP	UNK					
+had	VBD	UNK					
+asked	VBN	UNK					
+to	TO	UNK					
+extend	VB	UNK					
+negotiations	NNS	UNK					
+for	IN	UNK					
+two	NUM	UNK					
+more	JJR	UNK					
+weeks	NNS	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+but	CC	UNK					
+the	DT	UNK					
+union	NN	UNK					
+,	,	UNK					
+which	WDT	UNK					
+had	VBD	UNK					
+threatened	VBN	UNK					
+a	DT	UNK					
+strike	NN	UNK					
+by	IN	UNK					
+its	PP$	UNK					
+8,500	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+workers	NNS	UNK					
+over	IN	UNK					
+a	DT	UNK					
+new	JJ	UNK					
+contract	NN	UNK					
+,	,	UNK					
+refused	VBD	UNK					
+.	SENT	UNK					
+In	IN	UNK					
+response	NN	UNK					
+,	,	UNK					
+the	DT	UNK					
+firm	NN	UNK					
+told	VBD	UNK					
+union	NN	UNK					
+members	NNS	FONC	NORDF	NODBPEDIA	0	NORDF	NORDF
+not	RB	UNK					
+to	TO	UNK					
+report	VB	UNK					
+for	IN	UNK					
+work	NN	UNK					
+on	IN	UNK					
+Sunday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+.	SENT	UNK					
+That	DT	UNK					
+left	VBN	UNK					
+managers	NNS	UNK					
+and	CC	UNK					
+any	DT	UNK					
+crews	NNS	UNK					
+the	DT	UNK					
+company	NN	UNK					
+can	MD	UNK					
+hire	VB	UNK					
+to	TO	UNK					
+fix	VB	UNK					
+whatever	WDT	UNK					
+problems	NNS	UNK					
+arise	VBP	UNK					
+as	IN	UNK					
+8	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+.	SENT	UNK					
+2	NUM	AMOUNT					
+million	NUM	AMOUNT					
+New	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Demographics of New York&search=EN	http://www.dbpedia.org/resource/Demographics_of_New_York	18.3119770687566	NORDF	NORDF
+Yorkers	NAM	LOC					
+crank	VB	UNK					
+up	RP	UNK					
+their	PP$	UNK					
+air	NN	UNK					
+conditioners	NNS	UNK					
+to	TO	UNK					
+beat	VB	UNK					
+the	DT	UNK					
+heat	NN	UNK					
+.	SENT	UNK					
+Records	NNS	UNK					
+for	IN	UNK					
+June	NMON	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+were	VBD	UNK					
+broken	VBN	UNK					
+on	IN	UNK					
+Friday	NDAY	TIME	NORDF	NODBPEDIA	0	NORDF	NORDF
+in	IN	UNK					
+Nashville	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Nashville, Tennessee&search=EN	http://www.dbpedia.org/resource/Nashville,_Tennessee	430.226821573355	http://wikimeta.org/perl/display.pl?query=Nashville, Arkansas&search=EN	http://wikimeta.org/perl/display.pl?query=Nashville (film)&search=EN
+,	,	UNK					
+Tennessee	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Tennessee&search=EN	http://www.dbpedia.org/resource/Tennessee	316.967738989317	http://wikimeta.org/perl/display.pl?query=Army of the Tennessee&search=EN	http://wikimeta.org/perl/display.pl?query=Tennessee River&search=EN
+;	:	UNK					
+Louisville	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Louisville, Kentucky&search=EN	http://www.dbpedia.org/resource/Louisville,_Kentucky	376.705272175005	http://wikimeta.org/perl/display.pl?query=Union Station (Louisville)&search=EN	http://wikimeta.org/perl/display.pl?query=Louisville, Colorado&search=EN
+,	,	UNK					
+Kentucky	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Kentucky&search=EN	http://www.dbpedia.org/resource/Kentucky	365.227258361147	http://wikimeta.org/perl/display.pl?query=Kentucky Wildcats&search=EN	http://wikimeta.org/perl/display.pl?query=Kentucky River&search=EN
+;	:	UNK					
+Washington	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Washington (state)&search=EN	NODBPEDIA	260.579057845748	http://wikimeta.org/perl/display.pl?query=Washington & Jefferson College&search=EN	http://wikimeta.org/perl/display.pl?query=Washington, D.C.&search=EN
+,	,	UNK					
+D	NAM	UNK					
+.	SENT	UNK					
+C	LS	UNK					
+.	SENT	UNK					
+,	,	UNK					
+and	CC	UNK					
+Atlanta	NAM	LOC.FAC	http://wikimeta.org/perl/display.pl?query=Atlanta&search=EN	http://www.dbpedia.org/resource/Atlanta	331.107743803024	http://wikimeta.org/perl/display.pl?query=Atlanta (gastropod)&search=EN	http://wikimeta.org/perl/display.pl?query=Air Atlanta Icelandic&search=EN
+.	SENT	UNK					
+The	DT	UNK					
+temperature	NN	UNK					
+hit	VBD	UNK					
+at	IN	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+least	JJS	AMOUNT					
+104	NUM	AMOUNT					
+F	XNAM	AMOUNT					
+(	(	UNK					
+40	NUM	PROD.DOC	http://wikimeta.org/perl/display.pl?query=Doonesbury&search=EN	http://www.dbpedia.org/resource/Doonesbury	12.4243456899261	http://wikimeta.org/perl/display.pl?query=&search=EN	NORDF
+C	NAM	UNK					
+)	)	UNK					
+in	IN	UNK					
+all	DT	UNK					
+four	NUM	AMOUNT	NORDF	NODBPEDIA	0	NORDF	NORDF
+cities	NNS	AMOUNT					
+,	,	UNK					
+according	VBG	UNK					
+to	TO	UNK					
+the	DT	UNK					
+National	NAM	ORG.POL	http://wikimeta.org/perl/display.pl?query=National Weather Service&search=EN	http://www.dbpedia.org/resource/National_Weather_Service	98.3263493663329	http://wikimeta.org/perl/display.pl?query=National Oceanic and Atmospheric Administration&search=EN	http://wikimeta.org/perl/display.pl?query=National Weather Service&search=EN
+Weather	NAM	ORG.POL					
+Service	NAM	ORG.POL					
+.	SENT	UNK					
+(	(	UNK					
+Additional	JJ	UNK					
+reporting	NN	UNK					
+by	IN	UNK					
+Alex	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Dobuzinskis	NAM	PERS					
+in	IN	UNK					
+Los	NAM	LOC.FAC	http://wikimeta.org/perl/display.pl?query=Los Angeles&search=EN	http://www.dbpedia.org/resource/Los_Angeles.	449.361866096189	http://wikimeta.org/perl/display.pl?query=Downtown Los Angeles&search=EN	http://wikimeta.org/perl/display.pl?query=Los Angeles County, California&search=EN
+Angeles	NAM	LOC.FAC					
+,	,	UNK					
+Paul	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Thomasch	NAM	PERS					
+in	IN	UNK					
+New	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=New York City&search=EN	http://www.dbpedia.org/resource/New_York_City	240.574273372478	http://wikimeta.org/perl/display.pl?query=Manhattan&search=EN	http://wikimeta.org/perl/display.pl?query=New York&search=EN
+York	NAM	LOC.ADMI					
+,	,	UNK					
+Susan	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Guyett	NAM	PERS					
+in	IN	UNK					
+Indianapolis	NAM	LOC.FAC	http://wikimeta.org/perl/display.pl?query=Indianapolis&search=EN	http://www.dbpedia.org/resource/Indianapolis	286.199307833453	http://wikimeta.org/perl/display.pl?query=Indianapolis (Parks and Recreation)&search=EN	http://wikimeta.org/perl/display.pl?query=Indianapolis (balance)&search=EN
+,	,	UNK					
+Tim	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Ghianni	NAM	PERS					
+in	IN	UNK					
+Nashville	NAM	LOC.ADMI	http://wikimeta.org/perl/display.pl?query=Nashville, Tennessee&search=EN	http://www.dbpedia.org/resource/Nashville,_Tennessee	491.353655511036	http://wikimeta.org/perl/display.pl?query=Nashville, Arkansas&search=EN	http://wikimeta.org/perl/display.pl?query=Nashville (film)&search=EN
+and	CC	UNK					
+Alistair	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Bull	NAM	PERS					
+in	IN	UNK					
+Washington	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Washington (state)&search=EN	NODBPEDIA	297.602255837738	http://wikimeta.org/perl/display.pl?query=Washington & Jefferson College&search=EN	http://wikimeta.org/perl/display.pl?query=Washington, D.C.&search=EN
+;	:	UNK					
+Editing	NAM	LOC	http://wikimeta.org/perl/display.pl?query=Film editing&search=EN	http://www.dbpedia.org/resource/Film_editing	28.0173995886511	http://wikimeta.org/perl/display.pl?query=Editing&search=EN	NORDF
+by	IN	UNK					
+Tom	FNAM	PERS.HUM	http://wikimeta.org/perl/display.pl?query=Tom Brown (center fielder)&search=EN	NODBPEDIA	36.5286794018149	http://wikimeta.org/perl/display.pl?query=Tom Brown (naturalist)&search=EN	http://wikimeta.org/perl/display.pl?query=Tom Brown (trombonist)&search=EN
+Brown	NAM	PERS.HUM					
+,	,	UNK					
+Sandra	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Maler	NAM	PERS					
+and	CC	UNK					
+Vicki	FNAM	PERS	NORDF	NODBPEDIA	0	NORDF	NORDF
+Allen	FNAM	PERS					
+)	)	UNK					
+.	SENT	UNK					
+.	SENT	UNK					
+]]>
+<extraction>
+<NE>Eastern U</NE>
+<type>ORG</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>0</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Reuters</NE>
+<type>ORG.COM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DReuters%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FReuters</LINKEDDATA>
+<position>12</position>
+<confidenceScore>52.0852217215419</confidenceScore>
+</extraction>
+<extraction>
+<NE>eastern United States</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DEastern United States%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FEastern_United_States</LINKEDDATA>
+<position>21</position>
+<confidenceScore>49.4583235393875</confidenceScore>
+</extraction>
+<extraction>
+<NE>third straight day</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>26</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sunday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>30</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>least a</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>38</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>more than 3 million customers</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>47</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Maryland</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DMaryland%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FMaryland</LINKEDDATA>
+<position>57</position>
+<confidenceScore>285.169521878736</confidenceScore>
+</extraction>
+<extraction>
+<NE>Ohio</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DOhio%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FOhio</LINKEDDATA>
+<position>59</position>
+<confidenceScore>266.324507212311</confidenceScore>
+</extraction>
+<extraction>
+<NE>Virginia</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DVirginia%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FVirginia</LINKEDDATA>
+<position>61</position>
+<confidenceScore>527.354401051652</confidenceScore>
+</extraction>
+<extraction>
+<NE>West Virginia</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DWest Virginia%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FWest_Virginia</LINKEDDATA>
+<position>63</position>
+<confidenceScore>567.55814677373</confidenceScore>
+</extraction>
+<extraction>
+<NE>Washington</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DWashington (state)%26search%3DEN</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>66</position>
+<confidenceScore>290.91621591163</confidenceScore>
+</extraction>
+<extraction>
+<NE>Saturday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>74</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>mid-Atlantic region</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DMid-Atlantic states%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FMid-Atlantic_states</LINKEDDATA>
+<position>94</position>
+<confidenceScore>50.2541717845576</confidenceScore>
+</extraction>
+<extraction>
+<NE>100 Fahrenheit</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>106</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>38</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>109</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Atlanta</NE>
+<type>LOC.FAC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DAtlanta%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FAtlanta</LINKEDDATA>
+<position>118</position>
+<confidenceScore>296.354458162844</confidenceScore>
+</extraction>
+<extraction>
+<NE>106 degrees</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>128</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>41</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>131</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Accuweather</NE>
+<type>ORG.COM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DAccuWeather%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FAccuWeather</LINKEDDATA>
+<position>137</position>
+<confidenceScore>51.4905494072541</confidenceScore>
+</extraction>
+<extraction>
+<NE>two dozen</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>142</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>10 states</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>146</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Friday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>156</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Saturday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>158</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Columbia</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DColumbia, South Carolina%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FColumbia,_South_Carolina</LINKEDDATA>
+<position>161</position>
+<confidenceScore>431.796861489742</confidenceScore>
+</extraction>
+<extraction>
+<NE>South Carolina</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DSouth Carolina%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FSouth_Carolina</LINKEDDATA>
+<position>163</position>
+<confidenceScore>511.756926420279</confidenceScore>
+</extraction>
+<extraction>
+<NE>Knoxville</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DKnoxville, Tennessee%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FKnoxville,_Tennessee</LINKEDDATA>
+<position>166</position>
+<confidenceScore>362.331327018698</confidenceScore>
+</extraction>
+<extraction>
+<NE>Tennessee</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DTennessee%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FTennessee</LINKEDDATA>
+<position>168</position>
+<confidenceScore>316.540519119694</confidenceScore>
+</extraction>
+<extraction>
+<NE>Raleigh</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DRaleigh, North Carolina%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FRaleigh,_North_Carolina</LINKEDDATA>
+<position>171</position>
+<confidenceScore>602.897534232556</confidenceScore>
+</extraction>
+<extraction>
+<NE>North Carolina</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNorth Carolina%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNorth_Carolina</LINKEDDATA>
+<position>173</position>
+<confidenceScore>687.518164745081</confidenceScore>
+</extraction>
+<extraction>
+<NE>heat wave</NE>
+<type>AMBIG</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DHeat wave%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FHeat_wave</LINKEDDATA>
+<position>177</position>
+<confidenceScore>222.107841924693</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sunday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>180</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>millions</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>182</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Plains</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DPlains Indians%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FPlains_Indians</LINKEDDATA>
+<position>187</position>
+<confidenceScore>55.2945330731509</confidenceScore>
+</extraction>
+<extraction>
+<NE>mid-Atlantic</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DMid-Atlantic states%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FMid-Atlantic_states</LINKEDDATA>
+<position>190</position>
+<confidenceScore>25.5480412165003</confidenceScore>
+</extraction>
+<extraction>
+<NE>Charlotte</NE>
+<type>PERS</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DCharlotte, North Carolina%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FCharlotte,_North_Carolina</LINKEDDATA>
+<position>199</position>
+<confidenceScore>345.580027258521</confidenceScore>
+</extraction>
+<extraction>
+<NE>North Carolina</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNorth Carolina%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNorth_Carolina</LINKEDDATA>
+<position>201</position>
+<confidenceScore>685.838995307532</confidenceScore>
+</extraction>
+<extraction>
+<NE>about 101 degrees</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>209</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>38</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>213</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>3</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>215</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sunday</NE>
+<type>PROD.ART</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DSunday Afternoon%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FSunday_Afternoon</LINKEDDATA>
+<position>218</position>
+<confidenceScore>11.0787919064999</confidenceScore>
+</extraction>
+<extraction>
+<NE>of 104</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>230</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>40</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>233</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>St</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DAtari ST%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FAtari_ST</LINKEDDATA>
+<position>242</position>
+<confidenceScore>40.4194765928937</confidenceScore>
+</extraction>
+<extraction>
+<NE>Louis</NE>
+<type>PERS.HUM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DLouis XVIII of France%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FLouis_XVIII_of_France</LINKEDDATA>
+<position>244</position>
+<confidenceScore>102.00316621258</confidenceScore>
+</extraction>
+<extraction>
+<NE>Missouri</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DMissouri%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FMissouri</LINKEDDATA>
+<position>246</position>
+<confidenceScore>335.192133457099</confidenceScore>
+</extraction>
+<extraction>
+<NE>Washington</NE>
+<type>LOC.FAC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DWashington, D.C.%26search%3DEN</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>249</position>
+<confidenceScore>201.795037064086</confidenceScore>
+</extraction>
+<extraction>
+<NE>National Weather Service</NE>
+<type>ORG.POL</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNational Weather Service%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNational_Weather_Service</LINKEDDATA>
+<position>285</position>
+<confidenceScore>163.440339598417</confidenceScore>
+</extraction>
+<extraction>
+<NE>DAMAGE</NE>
+<type>ORG</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DDamage (comics)%26search%3DEN</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>294</position>
+<confidenceScore>60.1071797857606</confidenceScore>
+</extraction>
+<extraction>
+<NE>TO POWER GRIDS Power</NE>
+<type>ORG</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>296</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>to a week</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>321</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Ohio</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DOhio%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FOhio</LINKEDDATA>
+<position>327</position>
+<confidenceScore>338.063880660929</confidenceScore>
+</extraction>
+<extraction>
+<NE>Virginia</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DVirginia%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FVirginia</LINKEDDATA>
+<position>329</position>
+<confidenceScore>851.762491568519</confidenceScore>
+</extraction>
+<extraction>
+<NE>Maryland</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DMaryland%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FMaryland</LINKEDDATA>
+<position>331</position>
+<confidenceScore>553.532073308964</confidenceScore>
+</extraction>
+<extraction>
+<NE>Six people</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>341</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Virginia</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DVirginia%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FVirginia</LINKEDDATA>
+<position>346</position>
+<confidenceScore>825.686</confidenceScore>
+</extraction>
+<extraction>
+<NE>more than 1 million customers</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>352</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Bob Spieldenner</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>377</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>the Virginia Department of Emergency Management</NE>
+<type>ORG</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>383</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Two</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>390</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Anne Arundel County</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DAnne Arundel County, Maryland%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FAnne_Arundel_County,_Maryland</LINKEDDATA>
+<position>405</position>
+<confidenceScore>384.249414708945</confidenceScore>
+</extraction>
+<extraction>
+<NE>Montgomery County</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DMontgomery County, Maryland%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FMontgomery_County,_Maryland</LINKEDDATA>
+<position>420</position>
+<confidenceScore>367.431626383286</confidenceScore>
+</extraction>
+<extraction>
+<NE>emergency management agency</NE>
+<type>ORG.POL</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DFederal Emergency Management Agency%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FFederal_Emergency_Management_Agency</LINKEDDATA>
+<position>425</position>
+<confidenceScore>191.318416980806</confidenceScore>
+</extraction>
+<extraction>
+<NE>Edward Hopkins</NE>
+<type>PERS.HUM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DEdward Hopkins%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FEdward_Hopkins</LINKEDDATA>
+<position>429</position>
+<confidenceScore>31.9159228808025</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sunday</NE>
+<type>PROD</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DSunday Morning (No Doubt song)%26search%3DEN</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>435</position>
+<confidenceScore>22.9993253234379</confidenceScore>
+</extraction>
+<extraction>
+<NE>Maryland Emergency Management Agency</NE>
+<type>ORG.POL</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DMaryland Emergency Management Agency%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FMaryland_Emergency_Management_Agency</LINKEDDATA>
+<position>439</position>
+<confidenceScore>79.6443149341705</confidenceScore>
+</extraction>
+<extraction>
+<NE>Ed McDonough</NE>
+<type>PERS.HUM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DEd McDonough%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FEd_McDonough</LINKEDDATA>
+<position>444</position>
+<confidenceScore>22.0721007911194</confidenceScore>
+</extraction>
+<extraction>
+<NE>Chesapeake Bay</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DChesapeake Bay%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FChesapeake_Bay</LINKEDDATA>
+<position>448</position>
+<confidenceScore>236.617770223061</confidenceScore>
+</extraction>
+<extraction>
+<NE>639,000 customers</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>458</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>more than 1 million</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>468</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>air</NE>
+<type>PROD</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DAir conditioning%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FAir_conditioning</LINKEDDATA>
+<position>478</position>
+<confidenceScore>126.858693353715</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sunday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>482</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>New Jersey</NE>
+<type>AMBIG</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNew Jersey%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNew_Jersey</LINKEDDATA>
+<position>486</position>
+<confidenceScore>868.731498076876</confidenceScore>
+</extraction>
+<extraction>
+<NE>two cousins</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>489</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>2 and 7</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>492</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>state park</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DState park%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FState_park</LINKEDDATA>
+<position>503</position>
+<confidenceScore>58.950259044922</confidenceScore>
+</extraction>
+<extraction>
+<NE>Tennessee</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DTennessee%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FTennessee</LINKEDDATA>
+<position>509</position>
+<confidenceScore>380.796726791289</confidenceScore>
+</extraction>
+<extraction>
+<NE>two brothers</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>518</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>ages 3 and 5</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>521</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Bradley County</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DBradley County, Tennessee%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FBradley_County,_Tennessee</LINKEDDATA>
+<position>527</position>
+<confidenceScore>69.4251120832353</confidenceScore>
+</extraction>
+<extraction>
+<NE>105-degree</NE>
+<type>LOC</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>536</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>41-degree C</NE>
+<type>ORG</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>538</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>HEATED LABOR DISPUTE</NE>
+<type>ORG</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>543</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>about 1 million homes</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>566</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>John Kasich</NE>
+<type>PERS.HUM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DJohn Kasich%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FJohn_Kasich</LINKEDDATA>
+<position>577</position>
+<confidenceScore>176.734958083153</confidenceScore>
+</extraction>
+<extraction>
+<NE>a week</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>583</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>President Barack Obama</NE>
+<type>PERS.HUM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DBarack Obama%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FBarack_Obama.</LINKEDDATA>
+<position>590</position>
+<confidenceScore>646.379606116878</confidenceScore>
+</extraction>
+<extraction>
+<NE>the Federal Emergency Management Agency</NE>
+<type>ORG</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>594</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>FEMA</NE>
+<type>ORG.POL</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DFederal Emergency Management Agency%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FFederal_Emergency_Management_Agency</LINKEDDATA>
+<position>600</position>
+<confidenceScore>295.495710788305</confidenceScore>
+</extraction>
+<extraction>
+<NE>West Virginia</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DWest Virginia%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FWest_Virginia</LINKEDDATA>
+<position>613</position>
+<confidenceScore>397.199583124104</confidenceScore>
+</extraction>
+<extraction>
+<NE>614,000</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>624</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Lively</NE>
+<type>PERS.HUM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DBlake Lively%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FBlake_Lively</LINKEDDATA>
+<position>631</position>
+<confidenceScore>60.5091666531328</confidenceScore>
+</extraction>
+<extraction>
+<NE>emergency management agency</NE>
+<type>ORG.POL</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DFederal Emergency Management Agency%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FFederal_Emergency_Management_Agency</LINKEDDATA>
+<position>637</position>
+<confidenceScore>281.702534064296</confidenceScore>
+</extraction>
+<extraction>
+<NE>Indiana</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DIndiana%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FIndiana</LINKEDDATA>
+<position>649</position>
+<confidenceScore>422.832903668295</confidenceScore>
+</extraction>
+<extraction>
+<NE>135,000</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>652</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>New Jersey</NE>
+<type>AMBIG</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNew Jersey%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNew_Jersey</LINKEDDATA>
+<position>658</position>
+<confidenceScore>571.093501055865</confidenceScore>
+</extraction>
+<extraction>
+<NE>Atlantic County</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DAtlantic County, New Jersey%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FAtlantic_County,_New_Jersey</LINKEDDATA>
+<position>662</position>
+<confidenceScore>78.8745741223523</confidenceScore>
+</extraction>
+<extraction>
+<NE>at least 206,000 customers</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>670</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>New York</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNew York City%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNew_York_City</LINKEDDATA>
+<position>679</position>
+<confidenceScore>403.061444377809</confidenceScore>
+</extraction>
+<extraction>
+<NE>New York</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNew York City%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNew_York_City</LINKEDDATA>
+<position>709</position>
+<confidenceScore>403.061444377809</confidenceScore>
+</extraction>
+<extraction>
+<NE>Consolidated Edison Inc</NE>
+<type>ORG.COM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DConsolidated Edison%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FConsolidated_Edison</LINKEDDATA>
+<position>719</position>
+<confidenceScore>112.919720606906</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sunday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>729</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>weeks</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>759</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>8,500</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>771</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>members</NE>
+<type>FONC</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>787</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sunday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>794</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>8</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>812</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>New Yorkers</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DDemographics of New York%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FDemographics_of_New_York</LINKEDDATA>
+<position>816</position>
+<confidenceScore>18.3119770687566</confidenceScore>
+</extraction>
+<extraction>
+<NE>June</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>830</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Friday</NE>
+<type>TIME</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>834</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Nashville</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNashville, Tennessee%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNashville,_Tennessee</LINKEDDATA>
+<position>836</position>
+<confidenceScore>430.226821573355</confidenceScore>
+</extraction>
+<extraction>
+<NE>Tennessee</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DTennessee%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FTennessee</LINKEDDATA>
+<position>838</position>
+<confidenceScore>316.967738989317</confidenceScore>
+</extraction>
+<extraction>
+<NE>Louisville</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DLouisville, Kentucky%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FLouisville,_Kentucky</LINKEDDATA>
+<position>840</position>
+<confidenceScore>376.705272175005</confidenceScore>
+</extraction>
+<extraction>
+<NE>Kentucky</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DKentucky%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FKentucky</LINKEDDATA>
+<position>842</position>
+<confidenceScore>365.227258361147</confidenceScore>
+</extraction>
+<extraction>
+<NE>Washington</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DWashington (state)%26search%3DEN</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>844</position>
+<confidenceScore>260.579057845748</confidenceScore>
+</extraction>
+<extraction>
+<NE>Atlanta</NE>
+<type>LOC.FAC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DAtlanta%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FAtlanta</LINKEDDATA>
+<position>852</position>
+<confidenceScore>331.107743803024</confidenceScore>
+</extraction>
+<extraction>
+<NE>at least 104 F</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>857</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>40</NE>
+<type>PROD.DOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DDoonesbury%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FDoonesbury</LINKEDDATA>
+<position>862</position>
+<confidenceScore>12.4243456899261</confidenceScore>
+</extraction>
+<extraction>
+<NE>four cities</NE>
+<type>AMOUNT</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>867</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>National Weather Service</NE>
+<type>ORG.POL</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNational Weather Service%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNational_Weather_Service</LINKEDDATA>
+<position>873</position>
+<confidenceScore>98.3263493663329</confidenceScore>
+</extraction>
+<extraction>
+<NE>Alex Dobuzinskis</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>881</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Los Angeles</NE>
+<type>LOC.FAC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DLos Angeles%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FLos_Angeles.</LINKEDDATA>
+<position>884</position>
+<confidenceScore>449.361866096189</confidenceScore>
+</extraction>
+<extraction>
+<NE>Paul Thomasch</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>887</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>New York</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNew York City%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNew_York_City</LINKEDDATA>
+<position>890</position>
+<confidenceScore>240.574273372478</confidenceScore>
+</extraction>
+<extraction>
+<NE>Susan Guyett</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>893</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Indianapolis</NE>
+<type>LOC.FAC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DIndianapolis%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FIndianapolis</LINKEDDATA>
+<position>896</position>
+<confidenceScore>286.199307833453</confidenceScore>
+</extraction>
+<extraction>
+<NE>Tim Ghianni</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>898</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Nashville</NE>
+<type>LOC.ADMI</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DNashville, Tennessee%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FNashville,_Tennessee</LINKEDDATA>
+<position>901</position>
+<confidenceScore>491.353655511036</confidenceScore>
+</extraction>
+<extraction>
+<NE>Alistair Bull</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>903</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Washington</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DWashington (state)%26search%3DEN</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>906</position>
+<confidenceScore>297.602255837738</confidenceScore>
+</extraction>
+<extraction>
+<NE>Editing</NE>
+<type>LOC</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DFilm editing%26search%3DEN</URI>
+<LINKEDDATA>http%3A%2F%2Fwww.dbpedia.org%2Fresource%2FFilm_editing</LINKEDDATA>
+<position>908</position>
+<confidenceScore>28.0173995886511</confidenceScore>
+</extraction>
+<extraction>
+<NE>Tom Brown</NE>
+<type>PERS.HUM</type>
+<URI>http%3A%2F%2Fwikimeta.org%2Fperl%2Fdisplay.pl%3Fquery%3DTom Brown (center fielder)%26search%3DEN</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>910</position>
+<confidenceScore>36.5286794018149</confidenceScore>
+</extraction>
+<extraction>
+<NE>Sandra Maler</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>913</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+<extraction>
+<NE>Vicki Allen</NE>
+<type>PERS</type>
+<URI>NORDF</URI>
+<LINKEDDATA>NODBPEDIA</LINKEDDATA>
+<position>916</position>
+<confidenceScore>0</confidenceScore>
+</extraction>
+</wikimeta>

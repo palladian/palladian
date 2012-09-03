@@ -1,5 +1,6 @@
-config.version = 18
+config.version = 19
 ### version history:
+### 19: added youtube and webknox api key
 ### 18: added path to palladian POS model
 ### 17: added MavSync ttl mode
 ### 16: added blekko api key; removed obsolete options
@@ -22,104 +23,8 @@ config.version = 18
 
 ######################## Model Paths ########################
 
-models.root = data/models/
-models.opennlp.en.postag = opennlp/postag/en-pos-maxent.bin
-models.opennlp.en.postag.dict = opennlp/postag/tagdict.txt
-models.opennlp.en.tokenize = opennlp/tokenize/en-token.bin
-models.opennlp.en.chunker = opennlp/chunker/en-chunker.bin
-models.opennlp.en.coref = opennlp/coref/
-models.opennlp.en.parser = opennlp/parser/en-parser-chunking.bin
-models.opennlp.en.sentdetect = opennlp/sentdetect/en-sent.bin
-models.opennlp.en.ner.time = opennlp/namefind/en-ner-time.bin
-models.opennlp.en.ner.date = opennlp/namefind/en-ner-date.bin
-models.opennlp.en.ner.location = opennlp/namefind/en-ner-location.bin
-models.opennlp.en.ner.money = opennlp/namefind/en-ner-money.bin
-models.opennlp.en.ner.organization = opennlp/namefind/en-ner-organization.bin
-models.opennlp.en.ner.percentage = opennlp/namefind/en-ner-percentage.bin
-models.opennlp.en.ner.person = opennlp/namefind/en-ner-person.bin
-
-models.lingpipe.en.postag = lingpipe/pos-en-general-brown.HiddenMarkovModel
-models.lingpipe.en.ner = lingpipe/ne-en-news-muc6.AbstractCharLmRescoringChunker
-
-models.palladian.en.pos = palladian/pos/palladianEnPos.gz
-
-models.palladian.en.event.who = palladian/event/who.model
-models.palladian.en.event.where = palladian/event/where.model
-models.palladian.mio = palladian/mio/MIOClassifierLinearRegression.model
-
-models.palladian.language.wiktionary_en = palladian/language/wiktionary_en/
-models.palladian.language.wiktionary_de = palladian/language/wiktionary_de/
-
 models.palladian.date.published = palladian/date/pubClassifierFinal.model
 models.palladian.date.modified =  palladian/date/modClassifierFinal.model
-
-######################## Dataset Paths ########################
-
-# Path to the DeliciousT140 Dataset, downloadable from
-# http://nlp.uned.es/social-tagging/delicioust140/
-
-# download both archives (attention: over 7 GB unzipped) and put their contents 
-# "fdocuments" and "taginfo.xml" in the specified directory
-
-datasets.root = data/datasets/
-datasets.delicoust140 = /Users/pk/Studium/Diplomarbeit/delicioust140/
-datasets.boilerplate = /home/pk/PalladianData/datasets/ContentExtraction/L3S-GN1-20100130203947-00001/
-
-######################## Database ########################
-
-db.driver = com.mysql.jdbc.Driver
-db.jdbcUrl = jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false&useUnicode=true&characterEncoding=UTF-8
-db.username = root
-db.password = 
-
-# false = persistent, true = RAM only (10x faster) (only for H2 databse)
-db.inMemoryMode = true 
-
-######################## DocumentRetriever ########################
-
-# timeouts in milliseconds
-documentRetriever.connectionTimeout = 10000
-documentRetriever.socketTimeout = 180000
-
-# maximum number of retries if download request fails, default is 0 and means no retry
-documentRetriever.numRetries = 0
-
-# number of connections opened by the connection pool
-documentRetriever.numConnections = 100
-
-######################## ProxySwitcher ########################
-
-#  number of request before switching to another proxy, default is -1 and means never switch
-proxySwitcher.switchRequests = -1
-
-# list of proxies to choose from
-# see: http://proxy-list.org/en/index.php
-proxySwitcher.proxyList = 190.128.224.82:8081
-proxySwitcher.proxyList = 201.38.16.234:8090
-proxySwitcher.proxyList = 201.12.130.211:3128
-
-######################## Classification ########################
-# page classification configurations
-
-# percentage of the training/testing file to use as training data
-classification.page.trainingPercentage = 80
-
-# create dictionary on the fly (lowers memory consumption but is slower)
-classification.page.createDictionaryIteratively = false
-
-# alternative algorithm for n-gram finding (lowers memory consumption but is slower)
-classification.page.createDictionaryNGramSearchMode = false
-
-# index type of the classifier:
-# 1: use database with single table (fast but not normalized and more disk space needed)
-# 2: use database with 3 tables (normalized and less disk space needed but slightly slower)
-# 3: use lucene index on disk (slow)
-classification.page.dictionaryClassifierIndexType = 2
-
-# if page.dictionaryClassifierIndexType = 1 or 2, specify type of database
-# 1: mysql (client server)
-# 2: h2 (embedded)
-classification.page.databaseType = 2
 
 ######################## API keys ########################
 api.alchemy.key = b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5
@@ -173,22 +78,15 @@ api.blekko.key = 0d4bb258
 api.webknox.appId = c074e114
 api.webknox.apiKey = 00143c39ce3838f9e690175c41c1fc15 
 
+api.youtube.key =
+
 ######################## Feed ########################
 
 # number of threads in the pool for the FeedReader
 feedReader.threadPoolSize = 100
 
-# number of threads in the pool for the MetadataCreator
-metaInformationCreator.threadPoolSize = 500
-
 # if false, do not check system limitations like number of available file descriptors 
 feedReader.checkSystemLimitations=true
-
-# if true, detected errors will be send by mail 
-schedulerTask.errorMailNotification=false 
-
-# The receipient of email notifications.
-#schedulerTask.emailRecipient
 
 # This many percent of the feeds processed per interval are allowed to be slow.
 schedulerTask.maxSlowPercentage = 10
@@ -209,9 +107,6 @@ datasetEvaluator.fixCheckInterval = 60
 # If datasetEvaluator.updateStrategy = FixLearned, choose mode 0 to average over first window or 1 to also use 
 # timestamp of first poll 
 datasetEvaluator.fixLearnedMode = 0
-
-# If datasetEvaluator.updateStrategy = AdaptiveTTL or IndHistTTL, choose weight M > 0, common values are 0.1 or 0.2
-datasetEvaluator.adaptiveTTLweightM = 0.1
 
 # If datasetEvaluator.updateStrategy = IndHist, choose threshold theta as 0 < theta < 1, common values are between 0.15 and 0.5
 datasetEvaluator.indHistTheta = 0.5
@@ -238,11 +133,6 @@ datasetEvaluator.maxCheckInterval = 1440
 # poll, time 
 datasetEvaluator.benchmarkMode = time
 
-######################## Email Notification #######################
-sendMail.smtpHost = 
-sendMail.smtpPort = 
-sendMail.smtpUser = 
-sendMail.smtpPass =
 
 ######################## Threshold Dateextraction ########################
 threshold.group1 = 0.15

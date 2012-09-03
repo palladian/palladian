@@ -1,0 +1,1649 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:sf="http://sourceforge.net/api/sfelements.rdf#" version="2.0">
+  <channel xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:sf="http://sourceforge.net/api/sfelements.rdf#">
+    <title><![CDATA[SourceForge: Artifacts for Tracker: Bugs, in project: phpMyAdmin]]></title>
+    <link>http://sourceforge.net/api/artifact/index/tracker-id/377408/rss</link>
+    <description><![CDATA[Artifacts for Tracker: Bugs, in project: phpMyAdmin. phpMyAdmin is a tool written in PHP intended to handle the administration of MySQL over the Web. Currently it can create and drop databases, create/drop/alter tables, delete/edit/add fields, execute any SQL statement, manage keys on fields.]]></description>
+    <pubDate>Fri, 28 Jan 2011 10:37:09 +0000</pubDate>
+    <generator>Zend_Feed</generator>
+    <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+    <item>
+      <title><![CDATA[3166950 - Empty dialogafter attempt to create already existing table]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3166950&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3166950&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Empty dialogafter attempt to create already existing table]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2011-01-28 09:43<br />Assigned To: Michal Čihař<br /><br />Status: Open<br />Priority: 5<br />Category: AJAX<br /><br /><br />On database structure, when you try to create table which is already exsting, empty dialog pops up.]]></content:encoded>
+      <pubDate>Fri, 28 Jan 2011 09:43:41 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3166950&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3166356 - (ok 3.4.0-beta3) Search result panel duplicates the elements]]></title>
+      <author>@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3166356&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3166356&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) Search result panel duplicates the elements]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Thilanka Kaushalya<br />Submitted Date: 2011-01-27 04:47<br />Assigned To: Thilanka Kaushalya<br /><br />Status: Open<br />Priority: 1<br />Category: AJAX<br /><br /><br />I have tested the search result UI using the source code from current master branch in google chrome 8.0.552.237. 
+When I search for a text in a specific table it goes to result window and in that the tab navigation bar [1] and the search in database panel [2] repeats twice. A screen shot of the issue is attached here. 
+I have retested the issue using the firefox browser but in that case it is working without any duplication. 
+And also I have tested the PMA 3.3.7 version on google chrome 8.0.552.237 and it is working without any duplication. 
+
+My testing environment contains following specifications. 
+OS  -  Ubuntu 10.10
+Server - Apache 2.216
+Mysql  -  2.5.0
+php - 5.3.3
+Browser - Google Chrome 8.0.552.237]]></content:encoded>
+      <pubDate>Thu, 27 Jan 2011 04:47:48 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3166356&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3165562 - Changes DB]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3165562&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3165562&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Changes DB]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2011-01-25 22:11<br />Assigned To: Olaf van der Spek<br /><br />Status: Open<br />Priority: 5<br />Category: Displaying results<br /><br /><br />When I execute this query in DB xcc, pMA automatically changes DB to st_forum. It shouldn't do this. It also causes the query to fail if the xcc. prefix isn't present (although the current DB is xcc).
+
+select member_id, uid from st_forum.invision_members m left join xcc.xwi_serials s on member_id = uid where uid is null]]></content:encoded>
+      <pubDate>Tue, 25 Jan 2011 22:11:17 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3165562&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3164338 - (ok 3.4.0-beta3) Exporting database to PDF incomplete]]></title>
+      <author>madhuracj@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3164338&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3164338&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) Exporting database to PDF incomplete]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Madhura Jayaratne<br />Submitted Date: 2011-01-23 17:07<br />Assigned To: Madhura Jayaratne<br /><br />Status: Open<br />Priority: 1<br />Category: PDF<br /><br /><br />Exporting a database to PDF only exports the final table on the database. 
+Expected behavior is that all the tables in the database should be exported to the PDF.]]></content:encoded>
+      <pubDate>Sun, 23 Jan 2011 17:07:03 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3164338&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3163331 - (ok 3.4.0-beta3) Grid not adjusted to paper size/orientation]]></title>
+      <author>madhuracj@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163331&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163331&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) Grid not adjusted to paper size/orientation]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Madhura Jayaratne<br />Submitted Date: 2011-01-21 12:46<br />Assigned To: Madhura Jayaratne<br /><br />Status: Open<br />Priority: 1<br />Category: PDF<br /><br /><br />The grid drawn when schema is exported to Pdf does not get adjusted according to the selected paper size and orientation.]]></content:encoded>
+      <pubDate>Fri, 21 Jan 2011 12:46:30 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163331&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3163260 - (ok 3.4.0-beta3) Database copy: Error hides too quickly]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163260&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163260&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) Database copy: Error hides too quickly]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2011-01-21 10:11<br />Assigned To: Michal Čihař<br /><br />Status: Open<br />Priority: 1<br />Category: AJAX<br /><br /><br />When copying database, the first error is show for some time and disappears. I see this as first problem as the error should be displayed permanently waiting for user action.
+
+What is even worse is that after submitting the form again, the message just flashes and there is no chance to read it.]]></content:encoded>
+      <pubDate>Fri, 21 Jan 2011 10:11:15 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163260&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3163256 - (ok 3.4.0-beta3) AJAX copy database does not refresh db list]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163256&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163256&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) AJAX copy database does not refresh db list]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2011-01-21 10:08<br />Assigned To: Michal Čihař<br /><br />Status: Open<br />Priority: 1<br />Category: AJAX<br /><br /><br />When copying database using AJAX, the database list in left frame is not updated. It works in 3.3 branch.]]></content:encoded>
+      <pubDate>Fri, 21 Jan 2011 10:08:20 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3163256&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3159801 - chrome logout problem]]></title>
+      <author>p4cket@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3159801&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3159801&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[chrome logout problem]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: packet<br />Submitted Date: 2011-01-17 08:12<br />Assigned To: packet<br /><br />Status: Pending<br />Priority: 5<br />Category: Navigation/Usability<br /><br /><br />hey,
+in google chrome (lastet windows/linux/mac-os) on apache/lighttpd/ideawebserwer when you set auth_type=http you cannot logout. 
+No webserwer error no js errors (using chromium). After press logout/exit button i got redirect to:
+
+http://host/phpmyadmin_dir/index.php?token=66847059958075a73dbc35812d482935&amp;amp;old_usr=old_username
+but i stay still login.]]></content:encoded>
+      <pubDate>Mon, 17 Jan 2011 08:12:40 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3159801&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3159661 - pmadb magicly gets sets]]></title>
+      <author>scotepi@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3159661&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3159661&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[pmadb magicly gets sets]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Scott Peters<br />Submitted Date: 2011-01-17 05:06<br />Assigned To: Scott Peters<br /><br />Status: Deleted<br />Priority: 5<br />Category: Configuration<br /><br /><br />I don't know if this is because my shared hose already has a phpmyadmin table or what, but I don't have $cfg['Servers'][$i]['pmadb'] set in my config file however when I go to a database I get the error, "#1142 - SELECT command denied to user 'someuser'@'myshared.host.com' for table 'pma_column_info' " and looking at the query that it runs I see "FROM `phpmyadmin`.`pma_column_info`"
+
+I have tried setting the pmadb option to my own database witch has the tables in it 'someuser_pmadb' however it seams to be ignored too.]]></content:encoded>
+      <pubDate>Mon, 17 Jan 2011 05:06:21 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3159661&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3156485 - (ok 3.4.0-beta3)Unable to add a new user using Google Chrome]]></title>
+      <author>madhuracj@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3156485&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3156485&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3)Unable to add a new user using Google Chrome]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Madhura Jayaratne<br />Submitted Date: 2011-01-12 18:36<br />Assigned To: Madhura Jayaratne<br /><br />Status: Open<br />Priority: 1<br />Category: Browser/W3C/JS compatibility<br /><br /><br />'Add a new user' dialog is a long one and you have to scroll down to fill in some of the details as well as to click the 'ok' button. But the vertical scroll bar is locked when tried with Google Chrome and it makes it unable to add a new user.
+MySQL - 5.1
+PHP - 5.3
+Browser - Google Chrome 8.0.552.224]]></content:encoded>
+      <pubDate>Wed, 12 Jan 2011 18:36:22 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3156485&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3156378 - (ok 3.4.0-beta3) datepicker returns date in wrong format]]></title>
+      <author>martinsettle@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3156378&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3156378&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) datepicker returns date in wrong format]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Martin Settle<br />Submitted Date: 2011-01-12 15:38<br />Assigned To: Martin Settle<br /><br />Status: Open<br />Priority: 1<br />Category: Interface<br /><br /><br />The javascript date picker in the Search window returns the date (on my Firefox 3.2 on WinXP) in M/D/YYYY format, rather than in the mysql compliant YYYY-MM-DD.  Comparators do not then act as expected.  The date needs to be typed in for the search to perform correctly]]></content:encoded>
+      <pubDate>Wed, 12 Jan 2011 15:38:10 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3156378&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3155842 - (ok 3.3.10) Edit relational page and page number]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3155842&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3155842&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.10) Edit relational page and page number]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2011-01-11 20:57<br />Assigned To: Marc Delisle<br /><br />Status: Open<br />Priority: 1<br />Category: PDF<br /><br /><br />If tracking is available, the last insert id of created relational page is lost, so the automatic layout of foreign keys does not work.]]></content:encoded>
+      <pubDate>Tue, 11 Jan 2011 20:57:03 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3155842&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3155735 - (ok 3.4.0-beta3) Column headers not aligned]]></title>
+      <author>madhuracj@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3155735&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3155735&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) Column headers not aligned]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Madhura Jayaratne<br />Submitted Date: 2011-01-11 18:13<br />Assigned To: Madhura Jayaratne<br /><br />Status: Open<br />Priority: 1<br />Category: Displaying results<br /><br /><br />When the columns headers are set to appear within long list of query results, they are wrongly aligned. See the attached image.
+
+MySQL - 5.1
+PHP - 5.3
+Browsers - Chrome and Firefox]]></content:encoded>
+      <pubDate>Tue, 11 Jan 2011 18:13:42 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3155735&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3154464 - (ok 3.4.0-beta3) User prefs and validate_upper_bound]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3154464&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3154464&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) User prefs and validate_upper_bound]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2011-01-10 17:55<br />Assigned To: Marc Delisle<br /><br />Status: Open<br />Priority: 1<br />Category: Configuration<br /><br /><br />In some parameters, for example Features/General/Maximum databases, if a user has changed the preference and saved, the upper bound is not verified against the value from the config file but against the new saved value.
+
+In libraries/config/validate.lib.php, PMA_config_get_validators(), the mechanism for fetching values from the config file does not work (at
+least for me).
+
+if (substr($uv[$i], 0, 6) == 'value:') {
+    $uv[$i] = PMA_array_read(substr($uv[$i], 6), $GLOBALS['cfg']);
+}
+
+At this point, $GLOBALS['cfg'] already contains the values from user prefs so we cannot use it to get the max value.
+
+]]></content:encoded>
+      <pubDate>Mon, 10 Jan 2011 17:55:58 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3154464&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3153832 - Untracked tables display problem with LeftFrameTableSeparato]]></title>
+      <author>hanut@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3153832&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3153832&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Untracked tables display problem with LeftFrameTableSeparato]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Victor Volkov<br />Submitted Date: 2011-01-09 22:03<br />Assigned To: Victor Volkov<br /><br />Status: Open<br />Priority: 5<br />Category: Displaying results<br /><br /><br />The Problem tested in phpMyAdmin 3.4 and 3.3.9.
+
+Create a couple of tables with underscore as prefix separator and add configuration LeftFrameTableSeparator with underscore.
+$cfg['LeftFrameTableSeparator']= '_';
+
+Select DB in the left frame and try to go to the Traking page. Rows containing Tables with separator in it's names will be empty.
+
+The Problem part of the code is in the file db_tracking.php on line 152, where we trying to parse multidimentional array.
+
+$table_list = PMA_getTableList($GLOBALS['db']);
+
+foreach ($table_list as $key =&amp;gt; $value) {
+    if (PMA_Tracker::getVersion($GLOBALS['db'], $value['Name']) == -1) {
+        $my_tables[] = $value['Name'];
+    }
+}]]></content:encoded>
+      <pubDate>Sun, 09 Jan 2011 22:03:41 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3153832&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3153409 - (ok 3.3.10) 0 row(s) affected]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3153409&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3153409&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.10) 0 row(s) affected]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2011-01-08 18:26<br />Assigned To: Marc Delisle<br /><br />Status: Open<br />Priority: 1<br />Category: None<br /><br /><br />When no control user is defined but the pma_tracking mechanism is defined, the number of rows affected by an UPDATE (for example), is displayed as 0.]]></content:encoded>
+      <pubDate>Sat, 08 Jan 2011 18:26:30 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3153409&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3152958 - missing space after AUTO_INCREMENT]]></title>
+      <author>@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3152958&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3152958&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[missing space after AUTO_INCREMENT]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Ortreum<br />Submitted Date: 2011-01-07 15:48<br />Assigned To: Ortreum<br /><br />Status: Deleted<br />Priority: 5<br />Category: Data Export<br /><br /><br />If I try to copy a larger table including their structure for testing then I allways must do this in 2 steps because the CREATE TABLE statemant is incorrect in the end.
+waypoints:
+- selecting table abc
+- click operation
+- enter new table name
+- press ok in the copy block
+- than this error message
+#1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '12595DEFAULT CHARSET  = utf8 COLLATE  = utf8_unicode_ci' at line 97
+
+CREATE TABLE abc { [ ... some columns ... ] } ENGINE = MYISAM AUTO_INCREMENT = 12595DEFAULT CHARSET = utf8 COLLATE = utf8_unicode_ci
+
+The error message points on the next ID "12595DEFAULT". This routine works for smaler tables because the is a space between ID and DEFAULT. But this doesnt work if you have more than 10.000 entries. This error is really old but I allways hoped somebody will notice that over the years.
+
+Thx]]></content:encoded>
+      <pubDate>Fri, 07 Jan 2011 15:48:17 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3152958&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3152931 - ENUM and SET cannot have "Binary" option]]></title>
+      <author>sharpened@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3152931&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3152931&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[ENUM and SET cannot have "Binary" option]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: sharpened<br />Submitted Date: 2011-01-07 14:52<br />Assigned To: sharpened<br /><br />Status: Pending<br />Priority: 5<br />Category: Data insertion/extraction/manipulation<br /><br /><br />The 3.3.8.1 update seems to have introduced the following bug:
+
+If you have an ENUM or SET field with a 'Binary' option in the list, the selected value will not display on the phpMyAdmin insert/edit page.  This is true no matter what ENUM or SET option(s) are selected.  The field data value shows up correctly on the browse page, but when you edit a record using the insert/edit page, no option is selected.  If you don't reselect the option in the ENUM or SET field when you update a record, the data is erased for that field.
+
+For now, this issue can be fixed by changing the 'Binary' option to something else.]]></content:encoded>
+      <pubDate>Fri, 07 Jan 2011 14:52:26 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3152931&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3151925 - (ok 3.4.0-beta3) Page selector dropdown broken with ORDER BY]]></title>
+      <author>adrianbj@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3151925&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3151925&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta3) Page selector dropdown broken with ORDER BY]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: adrianbj<br />Submitted Date: 2011-01-05 16:56<br />Assigned To: adrianbj<br /><br />Status: Open<br />Priority: 1<br />Category: Navigation/Usability<br /><br /><br />Run a custom SQL query that includes an ORDER BY and then try to select a page number from the dropdown. Note that page forward, back, frst and last still work.]]></content:encoded>
+      <pubDate>Wed, 05 Jan 2011 16:56:12 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3151925&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3147884 - (ok 3.3.10) Database structure: order by size desc wrong]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3147884&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3147884&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.10) Database structure: order by size desc wrong]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-12-30 00:13<br />Assigned To: Olaf van der Spek<br /><br />Status: Open<br />Priority: 1<br />Category: Displaying results<br /><br /><br />When I order the tables by size, it's like this:
+1.6 g
+2.1 g
+264.7 m...]]></content:encoded>
+      <pubDate>Thu, 30 Dec 2010 00:13:38 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3147884&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3147129 - error 1045 in FireFox Only]]></title>
+      <author>whitestarm@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3147129&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3147129&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[error 1045 in FireFox Only]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: WhiteStar Magic<br />Submitted Date: 2010-12-28 16:27<br />Assigned To: WhiteStar Magic<br /><br />Status: Open<br />Priority: 5<br />Category: Security / Restrictions<br /><br /><br />#1045 Cannot log in to the MySQL server
+I am presently using MariaDB, with phpMyAdmin 3.4.0-Beta-1 using localhost mode only. Platform: Windows-7/64, XAMPP 1.7.2 with Maria DB 5.2 On the same workstation, I can login with phpMyAdmin using Windows MSIE 8 but not Firefox 3.16.13 This had been running fine until just today, I only installed Firefox &amp;lt; 48 hours ago but I never had issues with IE . 
+
+It works with MS Internet Explorer 8 without issue but not FireFox.  
+
+The FireFox error console spews out a lot of warnings, yet no errors:
+Samples:
+Warning: Unknown property 'box-shadow'.  Declaration dropped.
+Source File: http://localhost/phpmyadmin/phpmyadmin.css.php?server=1&amp;amp;token=aec9e3ec8791ffa4c5311bbfe535bf7f&amp;amp;js_frame=right&amp;amp;nocache=3878478059
+Line: 691
+Warning: Error in parsing value for 'filter'.  Declaration dropped.
+Source File: http://localhost/phpmyadmin/themes/original/jquery/jquery-ui-1.8.custom.css
+Line: 18
+Plus many more at launch of above with various lines.  
+
+@ login attempt:
+Warning: Unknown property 'box-shadow'.  Declaration dropped.
+Source File: http://localhost/phpmyadmin/phpmyadmin.css.php?server=1&amp;amp;token=aec9e3ec8791ffa4c5311bbfe535bf7f&amp;amp;js_frame=right&amp;amp;nocache=3878478059
+Line: 691
+
+NOTE:  hosts file has 127.0.0.1 localhost as well as ::1 localhost
+
+]]></content:encoded>
+      <pubDate>Tue, 28 Dec 2010 16:27:08 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3147129&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3142251 - FAQ 1.42 FIX]]></title>
+      <author>ispbrasil@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3142251&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3142251&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[FAQ 1.42 FIX]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Itamar Reis Peixoto<br />Submitted Date: 2010-12-23 01:24<br />Assigned To: Itamar Reis Peixoto<br /><br />Status: Open<br />Priority: 5<br />Category: None<br /><br /><br />about 
+
+http://wiki.phpmyadmin.net/pma/FAQ_1.42
+
+why you don`t use 
+
+require_once dirname(__FILE__).'/lib/server.inc';
+
+like drupal does, take a look
+
+http://drupal.org/node/180510
+
+example here -&amp;gt; 
+
+require_once dirname(__FILE__).'./libraries/common.inc.php';
+]]></content:encoded>
+      <pubDate>Thu, 23 Dec 2010 01:24:11 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3142251&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3141350 - Theme pmahomme-1.0 makes phpmyadmin unusable]]></title>
+      <author>thermoman2@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141350&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141350&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Theme pmahomme-1.0 makes phpmyadmin unusable]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: thermoman<br />Submitted Date: 2010-12-21 17:52<br />Assigned To: thermoman<br /><br />Status: Closed<br />Priority: 1<br />Category: PHP errors<br /><br /><br />Using latest stable version phpMyAdmin 3.3.8.1 with pmahomme-1.0 theme from http://www.phpmyadmin.net/home_page/themes.php#pma_3_3 results in unusable web interface.
+
+Short version:
+
+Vanilla phpMyAdmin 3.3.8.1 works like a charm but as soon as you drop contents of pmahomme-1.0.zip file into the themes/ folder web interface gets cluttered with garbage and no CSS.
+
+You don't have to activate theme pmahomme - it is just enough to extract the zip file to themes folder.
+
+Results:
+
+CSS is broken because phpmyadmin.css.php returns Content-Type Header "text/html" instead of "text/plain" (see attachment).
+Garbage after closing &amp;lt;/html&amp;gt; Tag on navigation and main frame (see attachment).
+
+Logfiles:
+
+No entries in webserver error log regarding this issue.
+
+Reproducible: yes, 100%
+
+Workaround:
+
+rm -rf ./themes/pmahomme-1.0/
+
+System:
+
+Debian lenny 32bit running PHP via mod_fcgid.
+
+% dpkg -l | grep -E 'php5-cgi|apache2-mpm|fcgi|mysql-server'
+ii  apache2-mpm-worker                2.2.9-10+lenny8            Apache HTTP Server - high speed threaded model
+ii  libapache2-mod-fcgid              1:2.2-1                    an alternative module compat with mod_fastcgi
+ii  mysql-server                      5.0.51a-24+lenny4          MySQL database server (metapackage depending on the latest ver
+ii  mysql-server-5.0                  5.0.51a-24+lenny4          MySQL database server binaries
+ii  php5-cgi                          5.2.6.dfsg.1-1+lenny9      server-side, HTML-embedded scripting language (CGI binary)]]></content:encoded>
+      <pubDate>Tue, 21 Dec 2010 17:52:08 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141350&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3141344 - Redundant Foreign Keys not supported]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141344&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141344&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Redundant Foreign Keys not supported]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-12-21 17:30<br />Assigned To: Olaf van der Spek<br /><br />Status: Open<br />Priority: 5<br />Category: Relations,Comments,History,...<br /><br /><br />I've got one table with multiple constraints (by accident):
+CONSTRAINT `xbt_files_users_ibfk_4` FOREIGN KEY (`uid`) REFERENCES `xbt_users` (`uid`) ON DELETE CASCADE,
+CONSTRAINT `xbt_files_users_ibfk_1` FOREIGN KEY (`fid`) REFERENCES `xbt_files` (`fid`) ON DELETE CASCADE,
+CONSTRAINT `xbt_files_users_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `xbt_users` (`uid`) ON DELETE CASCADE,
+CONSTRAINT `xbt_files_users_ibfk_3` FOREIGN KEY (`fid`) REFERENCES `xbt_files` (`fid`) ON DELETE CASCADE
+
+pMA doesn't show this and it doesn't allow me to delete the redundant constraints.]]></content:encoded>
+      <pubDate>Tue, 21 Dec 2010 17:30:50 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141344&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3141327 - (ok 3.4) Foreign Key Input Options]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141327&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141327&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4) Foreign Key Input Options]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-12-21 17:01<br />Assigned To: Olaf van der Spek<br /><br />Status: Open<br />Priority: 1<br />Category: Data insertion/extraction/manipulation<br /><br /><br />A foreign key input field shows this when only one key is available (1):
+
+          &amp;lt;option value=""&amp;gt;&amp;amp;nbsp;&amp;lt;/option&amp;gt;
+                &amp;lt;option value="1"&amp;gt;&amp;amp;nbsp;-&amp;amp;nbsp;1&amp;lt;/option&amp;gt;
+                &amp;lt;option value=""&amp;gt;&amp;amp;nbsp;&amp;lt;/option&amp;gt;
+                &amp;lt;option value=""&amp;gt;&amp;amp;nbsp;&amp;lt;/option&amp;gt;
+                &amp;lt;option value="1"&amp;gt;1&amp;amp;nbsp;-&amp;amp;nbsp;&amp;lt;/option&amp;gt;
+]]></content:encoded>
+      <pubDate>Tue, 21 Dec 2010 17:01:15 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141327&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3141321 - (ok 3.4.0-beta2) Action text]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141321&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141321&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta2) Action text]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-12-21 16:53<br />Assigned To: Olaf van der Spek<br /><br />Status: Closed<br />Priority: 1<br />Category: Interface<br /><br /><br />I don't like the text besides the icon, it wastes space. The More dropdown has actions like Primary, Unique, Index, etc. I assume this is Add Primary? This should be clarified.]]></content:encoded>
+      <pubDate>Tue, 21 Dec 2010 16:53:07 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141321&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3141319 - (ok 3.4.0-beta2) Query execution time disappears]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141319&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141319&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta2) Query execution time disappears]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-12-21 16:50<br />Assigned To: Olaf van der Spek<br /><br />Status: Closed<br />Priority: 1<br />Category: AJAX<br /><br /><br />After executing a query, query time is displayed in a 'slide down'. The query time changes, however. Why?
+Also, why is a 'slide down' used?
+
+Firefox also froze due to a script, but I don't know the cause yet.]]></content:encoded>
+      <pubDate>Tue, 21 Dec 2010 16:50:46 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3141319&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3140614 - #1064 bug in the SQL parser]]></title>
+      <author>yonatanp@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3140614&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3140614&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[#1064 bug in the SQL parser]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Yonatan P<br />Submitted Date: 2010-12-20 09:03<br />Assigned To: Yonatan P<br /><br />Status: Open<br />Priority: 7<br />Category: Data Import<br /><br /><br />Steps done: 
+1. databases export + gzipped
+2. database import
+what happened:
+the import have failed with the following:
+
+Error
+There is a chance that you may have found a bug in the SQL parser. Please examine your query closely, and check that the quotes are correct and not mis-matched. Other possible failure causes may be that you are uploading a file with binary outside of a quoted text area. You can also try your query on the MySQL command line interface. The MySQL server error output below, if there is any, may also help you in diagnosing the problem. If you still have problems or if the parser fails where the command line interface succeeds, please reduce your SQL query input to the single query that causes problems, and submit a bug report with the data chunk in the CUT section below:
+----BEGIN CUT----
+eNpzDQryD7JScDZUcDZS8HH1s1IwUDBUMDE25woOAYrLc3EFhwEFVTxTVLh8K4MDfawUTPUM9EwN
+E3WT83NzS/MySyp1c/LTuUKDgxT8g3UUHN1d/UJ0FMJcgbrDM/MUPF0VLPQMuAJ8Ha0UjPWM9Sz0
+DLkCPAJACnT8g0GmGekZmij4ZOaVVnD5OPq5Wymk5umWlqTpWnCBrZPv5mAAA+Y3f2/PSjs+UZbj
+3vXgP4dqjqqENh74ttl6VMGoAuoqAABkZj5d
+----END CUT----
+----BEGIN RAW----
+
+ERROR: C1 C2 LEN: 0 1 437
+STR: 
+
+SVN: $Id$
+MySQL: 5.0.51a-community-log
+USR OS, AGENT, VER: Win IE 8.0
+PMA: 3.3.8.1
+PHP VER,OS: 5.2.14 Linux
+LANG: en-utf-8
+SQL: ���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;���ۚfǑ��S��|�$U����;----END RAW----
+
+
+SQL query: 
+
+���ۚfǑ��S��|�$U����; 
+
+MySQL said:  
+
+#1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '‹' at line 1
+
+-----
+while this is going on from phpMyAdmin , i was able to create and restore a gzipped database manually.
+
+-----
+Plaintext restore works correctly.
+-----
+php.ini settings:
+
+max_execution_time = 60     ; Maximum execution time of each script, in seconds
+max_input_time = 120    ; Maximum amount of time each script may spend parsing request data
+;max_input_nesting_level = 64 ; Maximum input variable nesting level
+memory_limit = 196M      ; Maximum amount of memory a script may consume (128MB)
+
+apache is set to keepalive on
+
+what can be done to resolve this situation and to get phpmyadmin work with gzipped  importing.
+
+Thank you for any suggestions!
+]]></content:encoded>
+      <pubDate>Mon, 20 Dec 2010 09:03:12 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3140614&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3138572 - (ok 3.4.0-beta2) "Continue insertion" problems]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3138572&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3138572&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta2) "Continue insertion" problems]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2010-12-16 13:42<br />Assigned To: Marc Delisle<br /><br />Status: Closed<br />Priority: 1<br />Category: Data insertion/extraction/manipulation<br /><br /><br />Data entered in some kinds of input fields, for example a dropdown containing foreign keys, produces SQL errors.]]></content:encoded>
+      <pubDate>Thu, 16 Dec 2010 13:42:33 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3138572&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3137351 - (ok 3.4.0-beta2) User preferences and hide_db]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3137351&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3137351&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta2) User preferences and hide_db]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2010-12-14 17:21<br />Assigned To: Marc Delisle<br /><br />Status: Closed<br />Priority: 1<br />Category: Interface<br /><br /><br />A database name entered in the user preferences "Hide databases" dialog gives an error.]]></content:encoded>
+      <pubDate>Tue, 14 Dec 2010 17:21:41 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3137351&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3136771 - newline before table name alias]]></title>
+      <author>julianladisch@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136771&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136771&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[newline before table name alias]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Julian Ladisch<br />Submitted Date: 2010-12-13 21:03<br />Assigned To: Julian Ladisch<br /><br />Status: Open<br />Priority: 5<br />Category: MySQL Parser<br /><br /><br />create table t1 (a int);
+insert into t1 values (1);
+
+Using the SQL tab with
+select * from t1 t
+yields the correct result row with number 1.
+Using the SQL tab with
+select * from t1
+t
+(note the newline before the table name alias t) results
+in the server's phpMyAdmin start screen for phpMyAdmin 3.4.0-beta1 and 3.3.8.1,
+and results in redisplaying the SQL tab for 2.11.11.1. The expected result row with number 1 is missing.]]></content:encoded>
+      <pubDate>Mon, 13 Dec 2010 21:03:04 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136771&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3136658 - (ok 3.5)  XML export : functions should be exported first]]></title>
+      <author>ruleant@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136658&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136658&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.5)  XML export : functions should be exported first]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Dieter Adriaenssens<br />Submitted Date: 2010-12-13 17:31<br />Assigned To: Dieter Adriaenssens<br /><br />Status: Open<br />Priority: 1<br />Category: Data Export<br /><br /><br />cfr. bug #3062455 : functions/routines should be exported before tables/views]]></content:encoded>
+      <pubDate>Mon, 13 Dec 2010 17:31:32 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136658&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3136655 - XML import view of view fails]]></title>
+      <author>ruleant@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136655&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136655&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[XML import view of view fails]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Dieter Adriaenssens<br />Submitted Date: 2010-12-13 17:29<br />Assigned To: Dieter Adriaenssens<br /><br />Status: Open<br />Priority: 5<br />Category: Data Import<br /><br /><br />cfr. bugs #1762306, #1672099]]></content:encoded>
+      <pubDate>Mon, 13 Dec 2010 17:29:52 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3136655&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3134495 - data containing single quotes prevents synchronization]]></title>
+      <author>@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3134495&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3134495&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[data containing single quotes prevents synchronization]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: jviewer<br />Submitted Date: 2010-12-10 17:56<br />Assigned To: jviewer<br /><br />Status: Open<br />Priority: 5<br />Category: Synchronize<br /><br /><br />if a row in the source table contains data containing single quotes, it will not be synchronized.
+
+e.g, the following statement is displayed, but not executed:
+INSERT INTO ... (..., organization, ...) VALUES(... ,'Universita' degli Studi di Udine' ,...);]]></content:encoded>
+      <pubDate>Fri, 10 Dec 2010 17:56:27 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3134495&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3130886 - Export in JSON]]></title>
+      <author>semtiko@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3130886&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3130886&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Export in JSON]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Semtiko<br />Submitted Date: 2010-12-07 00:44<br />Assigned To: Semtiko<br /><br />Status: Deleted<br />Priority: 5<br />Category: Data Export<br /><br /><br />If i want Export my database, i have a message "Fatal error: Call to undefined function _() in D:\SERVER\www\pma\libraries\export\json.php on line 26"
+Sorry my english!]]></content:encoded>
+      <pubDate>Tue, 07 Dec 2010 00:44:18 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3130886&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3130630 - No db table entry for users with table_priv only and no host]]></title>
+      <author>@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3130630&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3130630&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[No db table entry for users with table_priv only and no host]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Moritz<br />Submitted Date: 2010-12-06 19:17<br />Assigned To: Moritz<br /><br />Status: Open<br />Priority: 5<br />Category: Privileges<br /><br /><br />When creating or updating a user using phpMyAdmin which has no entry in the host field, as the host table should be used, and further has no db privileges but only table specific privileges, phpMyAdmin is not inserting a row into MySQL's "db" table with "Host" being empty and all privileges set to "N". This needs to be done as otherwise MySQL does not realize that this user has any privileges for tables inside that DB and therefore the DB can not be selected.]]></content:encoded>
+      <pubDate>Mon, 06 Dec 2010 19:17:42 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3130630&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3127904 - (ok 3.3.9) Unclosed bracket Bug]]></title>
+      <author>tom-slawik@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3127904&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3127904&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.9) Unclosed bracket Bug]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Tom Slawik<br />Submitted Date: 2010-12-05 10:32<br />Assigned To: Tom Slawik<br /><br />Status: Closed<br />Priority: 1<br />Category: Interface<br /><br /><br />If we want to execute a query with an unclosed bracket, the whole phpMyAdmin interface moves into a frame...
+
+Video:
+http://www.youtube.com/watch?v=iv_OvQOku2Q]]></content:encoded>
+      <pubDate>Sun, 05 Dec 2010 10:32:10 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3127904&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3125624 - (ok 3.4.0-alpha3) Inline editing fails when just one row]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3125624&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3125624&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-alpha3) Inline editing fails when just one row]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-12-02 16:26<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 1<br />Category: AJAX<br /><br /><br />When I try to inline edit following table, I get a SQL error:
+
+#1064 - You have an error in your SQL syntax; check the manual that
+corresponds to your MySQL server version for the right syntax to use near
+'='345' WHERE `idbtest`.`id` = 3' at line 1
+
+There seems to be missing column name.
+
+Table to reproduce (test.idbtest on demo server):
+
+
+CREATE TABLE IF NOT EXISTS `idbtest` (
+  `id` int(11) NOT NULL,
+  `jmeno` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+INSERT INTO `idbtest` (`id`, `jmeno`) VALUES
+(3, 'asfddfas');]]></content:encoded>
+      <pubDate>Thu, 02 Dec 2010 16:26:20 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3125624&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3125606 - (ok 3.3.9) query for table "level" causes strange display]]></title>
+      <author>kai-schaetzl@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3125606&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3125606&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.9) query for table "level" causes strange display]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Kai Schätzl<br />Submitted Date: 2010-12-02 16:13<br />Assigned To: Kai Schätzl<br /><br />Status: Closed<br />Priority: 1<br />Category: Displaying results<br /><br /><br />When omitting backticks around the table name "level" in the sql query box the results page displays different than in case you surrounded the table name with backticks. Example: compare SELECT * FROM level with SELECT * FROM `level`. The results page of the backtick query contains the default 30 results per page, a button to display everything and you can walk thru the table page-by-page. The results page of the non-backtick query pretends to contain the 30 default results, but actually shows *all* results. There are buttons to walk thru the "other" pages, but this is faked as well, they actually show the same content again and again. And the "display all" button is missing from the page (which makes sense as it *is* displaying all).
+I first thought it might happen in all cases where I omit backticks, but it really seems to occur only if the table name is "level". I checked the reserved words list for MySQL and "level" is not on it.]]></content:encoded>
+      <pubDate>Thu, 02 Dec 2010 16:13:19 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3125606&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3124680 - (var)char displayed as binary]]></title>
+      <author>kai-schaetzl@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3124680&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3124680&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(var)char displayed as binary]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Kai Schätzl<br />Submitted Date: 2010-12-01 15:58<br />Assigned To: Kai Schätzl<br /><br />Status: Closed<br />Priority: 5<br />Category: Displaying results<br /><br /><br />I've just started to work with PHPMyAdmin 3 and stumbled over a change in display that is wrong in my eyes. It is probably related to this patch that asked for display of binary fields in binary by default:
+https://sourceforge.net/tracker/index.php?func=detail&amp;amp;aid=2308632&amp;amp;group_id=23067&amp;amp;atid=377410
+However, it seems this default setting is also applied to (var)char fields that have some sort of binary collation. This produces very inconsistent (and in my eyes wrong) results.
+Example:
+I have the following three fields:
+
+LangID type binary(2)
+ar type varchar(40) collation utf8_bin
+de type varchar(20) collation utf8_bin
+
+The content in these fields is displayed as follows.
+
+table display:
+LangID de
+ar d8a3d984d985d8a7d986d98a
+de Deutsch
+
+edit record display:
+LangID UNHEX(6465)
+ar "content in Arabic"
+de Deutsch
+
+So, LangID is displayed non-binary although it is a binary field. However, when editing it suddenly is displayed in binary. (And I don't understand why this would have to be unhexed when submitting to the db.)
+On the other hand, of the varchar fields one is displayed in binary, the other isn't. But when editing both are displayed with the string content.
+
+1. Whatever "display mode" may seem to be correct, a mix is surely not correct. 
+2. I think the varchar binary fields should not be displayed in binary by default. According to http://dev.mysql.com/doc/refman/5.1/en/binary-varbinary.html: The BINARY and VARBINARY data types are distinct from the CHAR BINARY and VARCHAR BINARY data types. For the latter types, the BINARY attribute does not cause the column to be treated as a binary string column. Instead, it causes the binary collation for the column character set to be used, and the column itself contains nonbinary character strings rather than binary byte strings.
+
+As a workaround I have set $cfg['DisplayBinaryAsHex'] to FALSE. This seems to give the desired results for both display and edit. But I think this should get corrected as the current behavior is very unexpected for the binary collation fields. I'm neither convinced that the binary display of binary fields by default is a good idea as this is a change to the version 2 default. Deducing from the patch mentioned above only a single person asked for that since the time this setting got introduced (the changelog doesn't mention this variable, so I couldn't check when it got introduced).]]></content:encoded>
+      <pubDate>Wed, 01 Dec 2010 15:58:08 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3124680&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3124511 - Inline query causes phpMyAdmin to log out over the network]]></title>
+      <author>soloincc@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3124511&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3124511&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Inline query causes phpMyAdmin to log out over the network]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: tver3305<br />Submitted Date: 2010-12-01 11:36<br />Assigned To: tver3305<br /><br />Status: Closed<br />Priority: 5<br />Category: Usability<br /><br /><br />First the Inline functionality is an excellent idea. It works when working on databases hosted locally. It however causes phpMyAdmin to be logged out if querying a network database. The normal query works on the network database, but the inline one does not.
+
+My system details are:
+phpMyAdmin3.4 
+Ubuntu 10.04
+Chromium Browser 7.0.517.44 and FF v3.6.3
+MySQL Ver 14.14 Distrib 5.1.41, for debian-linux-gnu (x86_64) using readline 6.1]]></content:encoded>
+      <pubDate>Wed, 01 Dec 2010 11:36:35 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3124511&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3123508 - Synchronize not working with empty tables]]></title>
+      <author>soloincc@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123508&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123508&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Synchronize not working with empty tables]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: tver3305<br />Submitted Date: 2010-11-30 14:14<br />Assigned To: tver3305<br /><br />Status: Open<br />Priority: 5<br />Category: Synchronize<br /><br /><br />When attempting to synchronize a source database with empty tables and a target database with no tables, The synchronizer correctly identifies that new tables need to be created and attempts to create them, only it does not synchronize them.
+
+My system details are:
+phpMyAdmin3.4 and phpMyAdmin3.3 -- Tested on both
+Ubuntu 10.04
+Chromium Browser 7.0.517.44
+MySQL Ver 14.14 Distrib 5.1.41, for debian-linux-gnu (x86_64) using readline 6.1]]></content:encoded>
+      <pubDate>Tue, 30 Nov 2010 14:14:43 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123508&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3123433 - (ok 3.4) &amp; in SQL error message gets converted to entitiy]]></title>
+      <author>kai-schaetzl@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123433&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123433&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4) &amp;amp; in SQL error message gets converted to entitiy]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Kai Schätzl<br />Submitted Date: 2010-11-30 12:24<br />Assigned To: Kai Schätzl<br /><br />Status: Open<br />Priority: 1<br />Category: Displaying results<br /><br /><br />Not sure if "Displaying results" is the appropriate category. I entered a query containing a bitwise AND (&amp;amp;) yesterday via the SQL query box. There was some error in my SQL syntax, anyway, so I got a SQL error back. Unfortunately, that SQL error showed the "&amp;amp;" converted to "&amp;amp;amp;", so my first assumption was that PHPMyAdmin was submitting the "&amp;amp;" as "&amp;amp;amp;". Only later it became clear that it submitted correct and only the error contained the converted "&amp;amp;amp;".
+I believe the error should display "as is" to avoid any ambiguity.
+To reproduce simply enter a "&amp;amp;" in the sql query box and submit. This will throw the following error: 
+"#1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '&amp;amp;amp;' at line 1"
+The error should display as:
+"#1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '&amp;amp;' at line 1"
+The same happens with "&amp;lt;" and "&amp;gt;" in queries.
+]]></content:encoded>
+      <pubDate>Tue, 30 Nov 2010 12:24:39 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123433&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3123185 - Editing search results doesn't "Go back to previous page"]]></title>
+      <author>mno@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123185&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123185&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Editing search results doesn't "Go back to previous page"]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Max Nokhrin<br />Submitted Date: 2010-11-30 06:57<br />Assigned To: Max Nokhrin<br /><br />Status: Closed<br />Priority: 5<br />Category: Navigation/Usability<br /><br /><br />Doing a search (using the Search tab) and then Editing any of the results doesn't "Go back to the previous page" once Go is clicked. The AJAX status notification appears and says Update is successful, but I'm left on the Edit form.]]></content:encoded>
+      <pubDate>Tue, 30 Nov 2010 06:57:12 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3123185&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3122106 - (ok 3.4.0-alpha3) Return to previous page on insert]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3122106&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3122106&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-alpha3) Return to previous page on insert]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-11-29 09:38<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 1<br />Category: AJAX<br /><br /><br />While inserting new row, the Return to previous choice does not work when using AJAX, it still stays on the same page.]]></content:encoded>
+      <pubDate>Mon, 29 Nov 2010 09:38:43 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3122106&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3119937 - (ok 3.4.0-alpha3) cannot upload into a BLOB]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119937&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119937&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-alpha3) cannot upload into a BLOB]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2010-11-26 19:11<br />Assigned To: Marc Delisle<br /><br />Status: Closed<br />Priority: 1<br />Category: AJAX<br /><br /><br />The AJAX mechanism does not handle the fields_upload_XXX.]]></content:encoded>
+      <pubDate>Fri, 26 Nov 2010 19:11:46 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119937&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3119884 - (ok alpha2) path not found: ./locale/]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119884&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119884&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok alpha2) path not found: ./locale/]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-11-26 18:17<br />Assigned To: Olaf van der Spek<br /><br />Status: Closed<br />Priority: 1<br />Category: None<br /><br /><br />Just installed the alpha, it's showing this error on the main page.]]></content:encoded>
+      <pubDate>Fri, 26 Nov 2010 18:17:26 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119884&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3119882 - (ok 3.4.0-alpha3) Status page takes 15 secs to generate]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119882&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119882&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-alpha3) Status page takes 15 secs to generate]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-11-26 18:14<br />Assigned To: Olaf van der Spek<br /><br />Status: Closed<br />Priority: 1<br />Category: None<br /><br /><br />The status page takes 15 secs to generate, that's way too long.
+I also don't need any graphs in there.]]></content:encoded>
+      <pubDate>Fri, 26 Nov 2010 18:14:46 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119882&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3119874 - (ok 3.4.0-alpha3) Ints shouldn't show .0 suffix]]></title>
+      <author>olafvdspek@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119874&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119874&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-alpha3) Ints shouldn't show .0 suffix]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Olaf van der Spek<br />Submitted Date: 2010-11-26 18:04<br />Assigned To: Olaf van der Spek<br /><br />Status: Closed<br />Priority: 1<br />Category: Displaying results<br /><br /><br />The status page says I've got 3.0 threads. This should be just 3 without suffix.]]></content:encoded>
+      <pubDate>Fri, 26 Nov 2010 18:04:35 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3119874&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3115158 - Duplicate README file on case-insensitive file system]]></title>
+      <author>rimyxp@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3115158&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3115158&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Duplicate README file on case-insensitive file system]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: shanyan baishui<br />Submitted Date: 2010-11-22 07:19<br />Assigned To: shanyan baishui<br /><br />Status: Closed<br />Priority: 5<br />Category: None<br /><br /><br />When git pull got following error just now
+
+Updating 0132e33..95ca092
+error: Untracked working tree file 'readme' would be overwritten by merge.  Aborting]]></content:encoded>
+      <pubDate>Mon, 22 Nov 2010 07:19:29 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3115158&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3112614 - (ok 3.3.9) Scratchboard  for PDF pages not working]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3112614&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3112614&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.9) Scratchboard  for PDF pages not working]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-11-19 13:23<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 1<br />Category: Relations,Comments,History,...<br /><br /><br />Moving of object is graphical designer of PDF pages seems to have no effect on it's coordinates in text field and thus is not saved.]]></content:encoded>
+      <pubDate>Fri, 19 Nov 2010 13:23:33 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3112614&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3110047 - URLScan blocking certain actions]]></title>
+      <author>jim-wc@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3110047&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3110047&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[URLScan blocking certain actions]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Jim Mead<br />Submitted Date: 2010-11-16 10:47<br />Assigned To: Jim Mead<br /><br />Status: Closed<br />Priority: 5<br />Category: Security / Restrictions<br /><br /><br />Hi,
+We are running PHPMyAdmin 3.3.8 on a Windows server running IIS6 and are having problems when performing certain actions due to the page being blocked by URLScan (see attached file for our configuration).
+The latest problem occurs when performing a search on a table (searching for records newer than a certain date with a specific text string on another field), this returns the required result set, however when clicking the  "Full Texts" button we get blocked by URLScan, doing it the other way works fine (clicking options, full texts, go).
+It doesn’t happen very often, and we can work around it, but it can be a little annoying when it does happen.
+
+This is a sample log item from the URLScan log
+2010-11-16 09:48:41 92.27.96.94 280165349 GET /sql.php?db=databasename&amp;amp;table=tablename&amp;amp;sql_query=SELECT+%2A++FROM+%60tablename%60+WHERE+%60ErrorTime%60+%3E%3D+%272010-11-14+09%3A47%3A32%27+AND+%60SiteReference%60+%3D+%27www.domainname.com%27&amp;amp;goto=sql.php%3Fdb%3Ddatabasename%26amp%3Btable%3Dtablename%26amp%3Btoken%3De9b0d6579ecfcd15300b018bf56e4cf3%26amp%3Bsql_query%3DSELECT%2B%252A%2B%2BFROM%2B%2560tablename%2560%2BWHERE%2B%2560ErrorTime%2560%2B%253E%253D%2B%25272010-11-14%2B09%253A47%253A32%2527%2BAND%2B%2560SiteReference%2560%2B%253D%2B%2527www.domainname.com%2527&amp;amp;display_options_form=1&amp;amp;display_text=F&amp;amp;token=e9b0d6579ecfcd15300b018bf56e4cf3 Rejected disallowed+query+string+sequence query+string - &amp;gt;
+
+Thanks
+Jim]]></content:encoded>
+      <pubDate>Tue, 16 Nov 2010 10:47:50 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3110047&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3105278 - Browser continues to show error even after the error fixed]]></title>
+      <author>jiliu@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3105278&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3105278&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Browser continues to show error even after the error fixed]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Yuryu<br />Submitted Date: 2010-11-08 14:19<br />Assigned To: Yuryu<br /><br />Status: Open<br />Priority: 5<br />Category: Browser/W3C/JS compatibility<br /><br /><br />Browser version: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12
+phpMyAdmin version: 3.3.8-all-languages
+
+I installed phpMyAdmin on my ubuntu server.
+First I forgot to install php5-mysql (php mysql extension) so I got error 'cannot load mysql extension'.
+Then I installed mysql extension but the browser kept showing the same error even after reloading the /phpMyAdmin/ root page.
+
+In my access log, there was something like this:
+122.xxx.xxx.xxx - - [08/Nov/2010:12:08:10 +0000] "GET /phpMyAdmin/ HTTP/1.1" 304 1850 "-" "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12"
+122.xxx.xxx.xxx - - [08/Nov/2010:12:08:10 +0000] "GET /phpMyAdmin/error.php?lang=ja&amp;amp;dir=ltr&amp;amp;type=%E3%82%A8%E3%83%A9%E3%83%BC&amp;amp;error=%5Ba%40http%3A%2F%2Fphp.net%2Fmysql%40Documentation%5D%5Bem%5Dmysql%5B%2Fem%5D%5B%2Fa%5D+%E6%8B%A1%E5%BC%B5%E3%82%92%E3%83%AD%E3%83%BC%E3%83%89%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%9B%E3%82%93%E3%80%82PHP+%E3%81%AE%E8%A8%AD%E5%AE%9A%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%97%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84+-+%5Ba%40.%2FDocumentation.html%23faqmysql%40documentation%5D%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88%5B%2Fa%5D HTTP/1.1" 200 1092 "-" "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12"
+
+The server returned error code 304 Not Modified and the browser was redirected to the error page, reading a cached redirect from disk.
+To display a new page, I had to restart my web browser.
+
+Because it was redirected to different error page, I could not force-reload the root page.
+
+A similar issue also happens after setting up phpMyAdmin, without pma linked-tables infrastructure.
+I got some error about pma tables, created tables and fixed config.inc.php, reloaded the main page but kept getting the same error.
+
+This behavior of handling If-Modified-Since is not I expected.
+I wanted not get redirected after fixing configuration error.
+]]></content:encoded>
+      <pubDate>Mon, 08 Nov 2010 14:19:03 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3105278&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3103853 - (ok 3.3.9) Duble quote]]></title>
+      <author>gufo_rosso@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3103853&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3103853&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.9) Duble quote]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Gufo Rosso<br />Submitted Date: 2010-11-05 21:26<br />Assigned To: Gufo Rosso<br /><br />Status: Closed<br />Priority: 1<br />Category: Internationalization<br /><br /><br />$strForeignKeyRelationAdded = 'Relazione "FOREIGN KEY" aggiunta';
+
+CHANGE in
+
+$strForeignKeyRelationAdded = 'Relazione FOREIGN KEY aggiunta';
+
+
+Translate in any language NOT use doubble quote o fix \" this error is present in JAVASCRIPT DESIGNER and not save
+
+
+]]></content:encoded>
+      <pubDate>Fri, 05 Nov 2010 21:26:33 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3103853&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3103658 - (ok 3.4) more errors on chromium]]></title>
+      <author>flokli@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3103658&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3103658&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4) more errors on chromium]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: flokli<br />Submitted Date: 2010-11-05 14:59<br />Assigned To: flokli<br /><br />Status: Closed<br />Priority: 1<br />Category: Browser/W3C/JS compatibility<br /><br /><br />I found more errors when using Chrom(e|ium) (at least) under Linux. I think most of them are related to the "frame problem" as seen in bug 3084745.
+
+(1) Trying to create a table inside hostname-&amp;gt;database:
+     Fill in a table name, click "Go":
+     The overlay/popup window shows, but there is the error   "Uncaught TypeError: Cannot read property 'document' of undefined  /js/common.js:284"
+     I don't know which effect this error has, but I could cause strange bugs (code has something to do with checking which database we are at)
+
+     This error also occurs on many other pages, but here you can surely reproduce it.
+
+(2)  Change your password at the "welcome screen" in the "General Settings" section doesn't work.
+      No error show in javascript console, and i can see in the resources monitor that user_password.php?token=...&amp;amp;ajax_request=true gets requested, but the popup doesn't show.
+
+(3)  Sometimes the "Database selector dropdown" in the sidebar gets "stuck" and throws the same error as in (1), but in line 104.
+(4)  There is also something in line 440 (same file which caues the same error message to appear when you want to see the contents of a table.
+
+I will of course do further testing if needed.]]></content:encoded>
+      <pubDate>Fri, 05 Nov 2010 14:59:03 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3103658&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3100780 - (ok 3.4.0-beta2) Designer export can be confusing]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3100780&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3100780&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0-beta2) Designer export can be confusing]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-11-01 13:51<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 1<br />Category: Usability<br /><br /><br />Currently on designer export/import to PDF, there is a dialog for creating a new page. I would expect it to create new PDF page and export the schema to it. However it only creates new page. I really don't see need for separate creating of new page, it should also export current schema there as well.]]></content:encoded>
+      <pubDate>Mon, 01 Nov 2010 13:51:43 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3100780&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3090523 - Blank Page after Login on Windows 2008 Server IIS7 or IIS7.5]]></title>
+      <author>jonebersole@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3090523&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3090523&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Blank Page after Login on Windows 2008 Server IIS7 or IIS7.5]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: JonE<br />Submitted Date: 2010-10-19 13:29<br />Assigned To: JonE<br /><br />Status: Open<br />Priority: 5<br />Category: Navigation/Usability<br /><br /><br />2010-09-30 11:33:04 EDT
+I've seen this problem posted a lot with the index.php page being blank after you login to phpMyAdmin.  I'm getting this error on IE browsers.  The formatting in Firefox is horrible, but at least after you login it works.  None of the solutions have worked for me, except this work around...
+
+After logging in and getting to the blank index.php page, remove 'index.php' and type 'main.php?lang=en-utf-8&amp;amp;server=1'.  I've also added variations of these to my config and nothing works...
+$cfg['PmaAbsoluteUri'] = ''; and $cfg['PmaAbsoluteUri'] = 'http://mydomain.com/'; (it is its own website, so no trailing folder)
+$cfg['Lang'] = 'en-utf-8'; and $cfg['DefaultLang'] = 'en-utf-8';
+
+I also tried commenting out the ::1: in the lmhosts file on the Windows 2008 servers.  I have a web server that phpMyAdmin is on and a dedicated MySQL server, so I made this setting on both servers... no luck.
+
+Someone also posted that if i login using the method above with adding the main.php, you should be able to set your theme and then it works.  That didn't work for me either.  I'm using IE7 and IE8 with no luck.  Again, Firefox really messes up the page layout with those frames, so who knows what it is or isnt doing.
+
+- We are using version 3.3.7 of phpMyAdmin.
+- index.php is defined and the page does load, but it is blank.  It displays phpMyAdmin 3.3.7 in the title bar, but the background screen is grey with nothing on it.
+- On the W2K8 Server I gave IUSR full control of the folder that holds the phpmyadmin software.
+]]></content:encoded>
+      <pubDate>Tue, 19 Oct 2010 13:29:57 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3090523&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3087682 - (ok 3.4)extras empty space in UI when database begins with _]]></title>
+      <author>@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3087682&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3087682&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4)extras empty space in UI when database begins with _]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Andrej A Antonov<br />Submitted Date: 2010-10-14 21:23<br />Assigned To: Andrej A Antonov<br /><br />Status: Open<br />Priority: 1<br />Category: Interface<br /><br /><br />extras empty space in UI when &amp;lt;database-name&amp;gt; begins with _character
+
+see &amp;lt;screenshot-file: http://j.mp/dmSYXg , http://j.mp/93Q2C3 &amp;gt;
+
+
+thanks!]]></content:encoded>
+      <pubDate>Thu, 14 Oct 2010 21:23:26 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3087682&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3087314 - (ok 3.4) Usbility bug in 3.3.1]]></title>
+      <author>realtebo@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3087314&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3087314&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4) Usbility bug in 3.3.1]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Mirko Tebaldi<br />Submitted Date: 2010-10-14 10:26<br />Assigned To: Mirko Tebaldi<br /><br />Status: Open<br />Priority: 1<br />Category: Navigation/Usability<br /><br /><br />If you DROP a table using the menu, and accidentally you reclick on same menu you can DROP DB !!!
+
+Yes, PHP MyAdmin alert you, bud it could be safer if after a drop the breadcumb will jump back to db structure (because showing the droppe table name could tell me to reclick on Drop menu... )
+
+Or... simply leavfe breadcumb in this state, but DISABLE drop ]]></content:encoded>
+      <pubDate>Thu, 14 Oct 2010 10:26:40 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3087314&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3085455 - Syntax Errors in PHPExcel Memcache.php]]></title>
+      <author>jameno123@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3085455&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3085455&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Syntax Errors in PHPExcel Memcache.php]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: James Reno<br />Submitted Date: 2010-10-11 19:41<br />Assigned To: James Reno<br /><br />Status: Closed<br />Priority: 5<br />Category: PHP errors<br /><br /><br />When upgrading our phpMyAdmin install we detected two syntax errors (thanks to our SVN server checking syntax on php files when committing). During commit of the latest phpMysqlAdmin we detected that a source file has two errors in the file: phpMyAdmin-3.3.7-all-languages/libraries/PHPExcel/PHPExcel/CachedObjectStorage/Memcache.php
+
+Line 186 is missing a ')'
+Line 200 is missing a '.'
+
+Patch attached.]]></content:encoded>
+      <pubDate>Mon, 11 Oct 2010 19:41:21 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3085455&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3084745 - most overlay/ajax stuff doesn't work in chrome / chromium]]></title>
+      <author>flokli@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3084745&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3084745&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[most overlay/ajax stuff doesn't work in chrome / chromium]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: flokli<br />Submitted Date: 2010-10-10 15:22<br />Assigned To: flokli<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />When trying phpmyadmin HEAD, most overlays and ajax stuff doesn't work:
+
+Example: Privileges-&amp;gt;User Overview: 
+Edit Privileges of an existing user works, but adding a new one throws an error in javascript console:
+Uncaught TypeError: Cannot read property 'PMA_messages' of undefined                 js/server_privileges.js:211
+
+Then I see errors like:
+Uncaught TypeError: Cannot read property 'document' of undefined                         /js/common.js:440
+
+When I try to edit a row in a table (not direct edit) and want to submit:
+
+When I did't change something: I see in the "notification area" "Error in Processing Request : undefined"  (however I except to get back to the table). 
+
+When I changed something: I see "1 row affected", but also don't get back to tables, I see the "UPDATE...." query and the edit form, but with old values before the change...
+
+I'm sure there are more bugs when using chrome/chromium...
+
+Is this behaviour a known problem?
+
+Tested with various new Chromiums, will provide more info if needed.]]></content:encoded>
+      <pubDate>Sun, 10 Oct 2010 15:22:08 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3084745&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3083663 - Edit after joined select fails]]></title>
+      <author>axelge@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3083663&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3083663&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Edit after joined select fails]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Axel Gebauer<br />Submitted Date: 2010-10-08 11:07<br />Assigned To: Axel Gebauer<br /><br />Status: Open<br />Priority: 5<br />Category: MySQL Parser<br /><br /><br />After select of this kind
+ SELECT a.* FROM Article AS a, Tag AS t, Tag2Object AS t2o 
+WHERE t.name = 'Foo'
+AND t.id = t2o.tagId
+AND t2o.parentObjId = a.id
+links to edit each row are given. Clicks on them fail with the message: 
+ SELECT * FROM `ArticleJW` WHERE `a`.`id` =1877;
+ #1054 - Unknown column 'a.id' in 'where clause' 
+The solution seems to be just cut the alias "a" off which is only defined in the first SQL statement.
+Many thanks in advance,
+]]></content:encoded>
+      <pubDate>Fri, 08 Oct 2010 11:07:53 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3083663&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3081099 - (ok 3.4.0) left frame is not updated after copy/create db]]></title>
+      <author>ruleant@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3081099&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3081099&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4.0) left frame is not updated after copy/create db]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Dieter Adriaenssens<br />Submitted Date: 2010-10-04 19:44<br />Assigned To: Dieter Adriaenssens<br /><br />Status: Closed<br />Priority: 1<br />Category: Interface<br /><br /><br />In master (3.4-dev), when copying/creating a DB, the db list in the left frame is not updated anymore (in QA_3_3, 3.3.8-dev) this still works.
+When removing (DROP) a DB, the list is updated.]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2010 19:44:25 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3081099&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3077463 - (ok 3.3.9) events are not copied with db]]></title>
+      <author>ruleant@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077463&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077463&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.9) events are not copied with db]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Dieter Adriaenssens<br />Submitted Date: 2010-09-28 18:12<br />Assigned To: Dieter Adriaenssens<br /><br />Status: Closed<br />Priority: 1<br />Category: Data insertion/extraction/manipulation<br /><br /><br />When copying/renaming a db, events are not copied.]]></content:encoded>
+      <pubDate>Tue, 28 Sep 2010 18:12:40 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077463&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3077454 - copying database doesn't work]]></title>
+      <author>ruleant@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077454&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077454&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[copying database doesn't work]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Dieter Adriaenssens<br />Submitted Date: 2010-09-28 18:02<br />Assigned To: Dieter Adriaenssens<br /><br />Status: Closed<br />Priority: 5<br />Category: Data insertion/extraction/manipulation<br /><br /><br />When copying a database in master (3.4-dev), I get the following error (both with JS enabled and disabled):
+
+There seems to be an error in your SQL query. The MySQL server error output below, if there is any, may also help you in diagnosing the problem
+
+ERROR: Unknown Punctuation String @ 184
+STR: &amp;lt;/
+SQL: &amp;lt;span class="inner_sql"&amp;gt; CREATE  TABLE  `test4`.`Commentaar` (  `ID` int( 3  )  default NULL ,
+ `Commentaar` varchar( 53  )  default NULL  ) ENGINE  =  MyISAM  DEFAULT CHARSET  = utf8&amp;lt;/span&amp;gt;
+
+
+SQL query: 
+
+&amp;lt;span class="inner_sql"&amp;gt; CREATE TABLE `test4`.`Commentaar` ( `ID` int( 3 ) default NULL , `Commentaar` varchar( 53 ) default NULL ) ENGINE = MyISAM DEFAULT CHARSET = utf8&amp;lt;/span&amp;gt;
+
+MySQL said: Documentation
+#1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '&amp;amp;lt;span class=&amp;amp;quot;inner_sql&amp;amp;quot;&amp;amp;gt; CREATE  TABLE  `test4`.`Commentaar` (  `ID` int( 3  )  ' at line 1 ]]></content:encoded>
+      <pubDate>Tue, 28 Sep 2010 18:02:52 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077454&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3077115 - phpMyAdmin doesn't work with PHP 5.3.3]]></title>
+      <author>ma_boehm@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077115&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077115&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[phpMyAdmin doesn't work with PHP 5.3.3]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Matthias Böhm<br />Submitted Date: 2010-09-28 10:03<br />Assigned To: Matthias Böhm<br /><br />Status: Closed<br />Priority: 5<br />Category: None<br /><br /><br />Hello!
+
+I tried to install phpMyAdmin with Apache 2.2 and PHP 5.3.3, but the following error occured: When I try to log in on the index.php page, after pressing Go, I eventually only get a HTTP 500 error (internal server error) after some time. Sometimes even the index.php page doesn't show. Then I installed PHP from the 5.2 branch, version 5.2.14, and phpMyAdmin works flawlessly. So it seems that phpMyAdmin is incompatible with PHP 5.3.3!
+Greetings, 
+Matthias Böhm]]></content:encoded>
+      <pubDate>Tue, 28 Sep 2010 10:03:44 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077115&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3077083 - Selection multiple and edition]]></title>
+      <author>@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077083&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077083&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Selection multiple and edition]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: https://www.google.com/accounts<br />Submitted Date: 2010-09-28 09:09<br />Assigned To: https://www.google.com/accounts<br /><br />Status: Closed<br />Priority: 5<br />Category: Navigation/Usability<br /><br /><br />Hi
+When i want to edit few rows in the same time, i check some checkbox and click on the pencil.
+Sometimes, phpMyAfmin says to me : "Aucune ligne n'a été sélectionnée" in French
+Strange !!!!
+
+Sometimes I can edit my rows, but when I want to save , only the first dans the second line are save !!!!
+Borring !!!!
+
+I do the same thing with some old version without any problem.
+
+regards,
+JFL
+]]></content:encoded>
+      <pubDate>Tue, 28 Sep 2010 09:09:01 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3077083&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3076692 - events are not exported when using xml]]></title>
+      <author>ruleant@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3076692&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3076692&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[events are not exported when using xml]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Dieter Adriaenssens<br />Submitted Date: 2010-09-27 17:18<br />Assigned To: Dieter Adriaenssens<br /><br />Status: Open<br />Priority: 5<br />Category: Data Export<br /><br /><br />When exporting as xml, events are not exported.]]></content:encoded>
+      <pubDate>Mon, 27 Sep 2010 17:18:22 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3076692&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3076425 - Link Mime-transformation output isn't escaped]]></title>
+      <author>ss23@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3076425&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3076425&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Link Mime-transformation output isn't escaped]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Stephen Shkardoon<br />Submitted Date: 2010-09-27 09:32<br />Assigned To: Stephen Shkardoon<br /><br />Status: Closed<br />Priority: 5<br />Category: MIME-transformations<br /><br /><br />Insert a row with a value of "&amp;lt;script&amp;gt;while(1==1){console.log("lol");}&amp;lt;/script&amp;gt;". Set the MIME-transformation of that field to HTML. That JS will now be executed.
+Works with any HTML/JS, as it's not being escaped at all.
+Perhaps it can be said that values here should be run through htmlspecialchars first, but my instinct is to only escape on output.
+
+Have tested on 2.11.11, which this still exists.]]></content:encoded>
+      <pubDate>Mon, 27 Sep 2010 09:32:46 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3076425&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072516 - QBE ignores internal relations on InnoDB tables]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072516&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072516&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[QBE ignores internal relations on InnoDB tables]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 09:20<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: Data insertion/extraction/manipulation<br /><br /><br />Once table type is InnoDB, the QBE completely ignores internal relations. Maybe it is intentional, but I was surprised by such behavior.]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 09:20:42 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072516&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072515 - QBE generates wrong query]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072515&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072515&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[QBE generates wrong query]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 09:19<br />Assigned To: Michal Čihař<br /><br />Status: Open<br />Priority: 5<br />Category: Data insertion/extraction/manipulation<br /><br /><br />When there are three tables in QBE, two of them have relations and one does not, QBE generates following query:
+
+SELECT `extra` . * , `master` . * , `slave` . *
+FROM `slave` , `extra`
+LEFT JOIN `qbetest`.`master` ON `slave`.`master_id` = `master`.`id`;
+
+While it should generate:
+
+SELECT `extra`.*, `master`.*, `slave`.*
+FROM `extra`,  `slave`
+ LEFT JOIN `qbetest`.`master` ON `slave`.`master_id` = `master`.`id` ;
+
+Tables to reproduce:
+
+CREATE TABLE IF NOT EXISTS `extra` (
+  `id` int(11) NOT NULL,
+  `data` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `master` (
+  `id` int(11) NOT NULL,
+  `data` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `slave` (
+  `id` int(11) NOT NULL,
+  `master_id` int(11) NOT NULL,
+  `data` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `master_id` (`master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `slave`
+  ADD CONSTRAINT `slave_ibfk_1` FOREIGN KEY (`master_id`) REFERENCES `master` (`id`);
+
+To reproduce just do a QBE and select extra.*, master.*, slave.* and check display for all of these.]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 09:19:42 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072515&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072505 - Adding field to create table does not work]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072505&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072505&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Adding field to create table does not work]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 09:10<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />Select "New table" from navigation frame and try to add new field. "Loading..." flashes, but nothing changes.]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 09:10:32 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072505&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072502 - Text not shown for icons after creating table]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072502&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072502&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Text not shown for icons after creating table]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 09:08<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />When creating new table using AJAX, the list of tables on database page is updated, however the newly created rows lack textual descriptions as they should have based on $cfg['PropertiesIconic']]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 09:08:56 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072502&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072498 - Creating table does not give any feedback]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072498&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072498&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Creating table does not give any feedback]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 09:06<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />Create empty database -&amp;gt; create new table -&amp;gt; submit AJAX popup and nothing happens. I would expect both frames to reload to show new table.]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 09:06:18 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072498&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072495 - Creating new database on Databases tab messes layout]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072495&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072495&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Creating new database on Databases tab messes layout]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 09:03<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />When creating new database on Databases tab, the replication column is not added, so the newly created row for new database misses one column.
+
+When the stats are enabled, all columns are missing, so it leads to even worse looking result.]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 09:03:39 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072495&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072492 - Error for wrong SQL disappears]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072492&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072492&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Error for wrong SQL disappears]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 08:58<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />When typing invalid SQL and submitting it by AJAX, the error shortly disappears giving no indication whether query succeeded or failed.]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 08:58:03 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072492&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3072468 - PHP error on manipulation with privileges]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072468&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072468&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[PHP error on manipulation with privileges]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-21 08:22<br />Assigned To: Michal Čihař<br /><br />Status: Open<br />Priority: 5<br />Category: Privileges<br /><br /><br />Unfortunately I was not able to dig what is causing this, this is just taken from demo server logs.
+
+On POSTrequest on server_privileges.php, I got following error:
+
+PHP Fatal error:  Call to a member function isSuccess() on a non-object in server_privileges.php on line 1439#012]]></content:encoded>
+      <pubDate>Tue, 21 Sep 2010 08:22:44 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3072468&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3071722 - phpMyAdmin cuts Extra entries at the first occurrence of ;]]></title>
+      <author>@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3071722&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3071722&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[phpMyAdmin cuts Extra entries at the first occurrence of ;]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: PowerPaul86<br />Submitted Date: 2010-09-20 07:51<br />Assigned To: PowerPaul86<br /><br />Status: Closed<br />Priority: 3<br />Category: Displaying results<br /><br /><br />When I enter my explain SELECT statement at a mysql shell I get the following output:
++----+--------------------+-------+------+---------------+------+---------+----------------------------------+------+----------------------------------------------+
+| id | select_type        | table | type | possible_keys | key  | key_len | ref                              | rows | Extra                                        |
++----+--------------------+-------+------+---------------+------+---------+----------------------------------+------+----------------------------------------------+
+|  1 | PRIMARY            | main  | ref  | idx1          | idx1 | 52      | const,const                      |    1 | Using where; Using temporary; Using filesort |
+
+Notice the multiple entries in the Extra column.
+This is what I get when I enter the same statement in phpMyAdmin 3.3.5:
+http://www.image-upload.net/images/wp8revfnn09x8egy873.png]]></content:encoded>
+      <pubDate>Mon, 20 Sep 2010 07:51:43 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3071722&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3064963 - tabindex wrong for generated insert rows]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3064963&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3064963&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[tabindex wrong for generated insert rows]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2010-09-12 23:13<br />Assigned To: Marc Delisle<br /><br />Status: Closed<br />Priority: 5<br />Category: Interface<br /><br /><br />The tabindex for fields in the last series of rows is duplicated in the generated insert rows.]]></content:encoded>
+      <pubDate>Sun, 12 Sep 2010 23:13:42 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3064963&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3062455 - (ok 3.3.8) Functions/Procedures should come first in export]]></title>
+      <author>fisharebest@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062455&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062455&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.8) Functions/Procedures should come first in export]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Greg Roach<br />Submitted Date: 2010-09-09 07:58<br />Assigned To: Greg Roach<br /><br />Status: Closed<br />Priority: 1<br />Category: Data Export<br /><br /><br />CREATE DATABASE test;
+USE test;
+CREATE FUNCTION fish() RETURNS TEXT RETURN 'are best';
+CREATE VIEW fishy AS SELECT fish();
+
+Use the database "export" function, and tick the box to include functions.
+
+The export order is (1) tables/view, (2) functions/procedures.
+
+You can create a function that refers to non-existent tables/views/functions.
+
+You CANNOT create a view that refers to non-existent functions.
+
+Hence this export file cannot be reimported without manually editing it first
+
+Suggestion: export the routines first.]]></content:encoded>
+      <pubDate>Thu, 09 Sep 2010 07:58:32 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062455&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3062454 - (ok 3.3.8) Routines invisible when no tables]]></title>
+      <author>fisharebest@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062454&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062454&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.8) Routines invisible when no tables]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Greg Roach<br />Submitted Date: 2010-09-09 07:55<br />Assigned To: Greg Roach<br /><br />Status: Closed<br />Priority: 1<br />Category: Interface<br /><br /><br />CREATE DATABASE test;
+USE test;
+CREATE FUNCTION fish() RETURNS TEXT RETURN 'are best';
+
+The functions and stored procedures are not displayed.  In order to see them, it is necessary to create at least one table/view.]]></content:encoded>
+      <pubDate>Thu, 09 Sep 2010 07:55:08 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3062454&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3061002 - Adding more fields when adding table field broken with AJAX]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3061002&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3061002&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Adding more fields when adding table field broken with AJAX]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-07 08:39<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />Adding more fields on tbl_addfield.php just shows processing message and does not actually do anything. No javascript errors shown.]]></content:encoded>
+      <pubDate>Tue, 07 Sep 2010 08:39:21 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3061002&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3060972 - Pasword generation not available with AJAX]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3060972&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3060972&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Pasword generation not available with AJAX]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-07 07:57<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />When adding new user over AJAX (with popup dialog), the button for generating password is not shown, while it is when using separate page.]]></content:encoded>
+      <pubDate>Tue, 07 Sep 2010 07:57:15 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3060972&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3059806 - Supporting running from CIFS/Samba shares]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3059806&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3059806&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Supporting running from CIFS/Samba shares]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2010-09-05 12:41<br />Assigned To: Marc Delisle<br /><br />Status: Open<br />Priority: 5<br />Category: None<br /><br /><br />See https://sourceforge.net/projects/phpmyadmin/forums/forum/72909/topic/3832980 for the issue and suggestion.]]></content:encoded>
+      <pubDate>Sun, 05 Sep 2010 12:41:38 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3059806&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3059311 - [ok 3.3.8] Big number import creates wrong column type]]></title>
+      <author>gieltje@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3059311&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3059311&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[[ok 3.3.8] Big number import creates wrong column type]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michiel Hazelhof<br />Submitted Date: 2010-09-04 12:02<br />Assigned To: Michiel Hazelhof<br /><br />Status: Closed<br />Priority: 1<br />Category: Data Import<br /><br /><br />When importing a csv with big numbers (e.g. EAN13) it creates a int(13) column instead of a BIGINT(13).
+
+Example:
+8712121001423
+8712121001430
+8712121001447
+8712121001461
+
+Mysql: 5.1.43-1
+PHP: 5.2.6-1+lenny9 + suhosin
+Phpmyadmin: 3.3.6]]></content:encoded>
+      <pubDate>Sat, 04 Sep 2010 12:02:07 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3059311&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3058722 - Relation view on a table omits showing existing foreign keys]]></title>
+      <author>kwutzke2@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058722&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058722&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Relation view on a table omits showing existing foreign keys]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Ka Wu<br />Submitted Date: 2010-09-03 11:22<br />Assigned To: Ka Wu<br /><br />Status: Closed<br />Priority: 7<br />Category: Displaying results<br /><br /><br />Create a new database, here called "geoinfo". Take the attached DDL script. It will create 6 tables without data. (should be type InnoDB)
+
+Now click on the DB, click the 'cities' table. The "Structure" tab should show two indexes correctly: 'PRIMARY' on all columns, 'cities_states_fk' on country_code and state_code (FK to 'states'). Now click "Relation view" somewhere in the middle. This doesn't show any foreign keys at all!
+
+To confirm, click the SQL tab and issue an 'SHOW CREATE TABLE cities'. This will show one row with the 'Create Table' cell showing the correct SQL:
+
+CREATE TABLE `cities` (
+ `country_code` char(2) NOT NULL,
+ `state_code` varchar(5) NOT NULL,
+ `name` varchar(100) NOT NULL,
+ PRIMARY KEY (`country_code`,`state_code`,`name`),
+ KEY `cities_states_fk` (`country_code`,`state_code`),
+ CONSTRAINT `cities_states_fk` FOREIGN KEY (`country_code`, `state_code`) REFERENCES `states` (`country_code`, `code`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+As you can see, the foreign key exists, but phpMyAdmin doesn't show it in the relation view. THIS CAN BE EXTREMELY CONFUSING! I thought something with my DDL or the server was wrong. Please fix this ASAP.
+
+This is for v3.3.6, but v3.2.3 also exposed this behavior.]]></content:encoded>
+      <pubDate>Fri, 03 Sep 2010 11:22:22 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058722&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3058617 - Editing does not work (unselecting NOW)]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058617&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058617&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Editing does not work (unselecting NOW)]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-03 08:08<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: Data insertion/extraction/manipulation<br /><br /><br />When trying to edit row (standard edit, not inline) with date field and unselect NOW function, I get "Error in Processing Request : undefined"
+
+SQL to create test table:
+
+CREATE TABLE `test` (
+`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+`col2` TIMESTAMP NULL DEFAULT NULL,
+`col3` VARCHAR(50) NULL DEFAULT NULL,
+PRIMARY KEY (`id`)
+)
+COLLATE='latin1_german2_ci'
+ENGINE=MyISAM
+ROW_FORMAT=DEFAULT;
+
+INSERT INTO `test` (`id`, `col2`, `col3`) VALUES (1, '2010-09-02 13:49:53', '1');
+
+Javascript console shows:
+
+Error: dt is undefined
+Source: tbl_change.js?ts=1283335235
+Řádek: 227
+]]></content:encoded>
+      <pubDate>Fri, 03 Sep 2010 08:08:20 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058617&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3058133 - edit timestamp field always updates with now()]]></title>
+      <author>geki007@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058133&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058133&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[edit timestamp field always updates with now()]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: geki007<br />Submitted Date: 2010-09-02 12:00<br />Assigned To: geki007<br /><br />Status: Closed<br />Priority: 7<br />Category: Data insertion/extraction/manipulation<br /><br /><br />Edit a row of a table with a timestamp field (-&amp;gt;see function listbox -&amp;gt; now() is checked). Change a other field or the timestamp field -&amp;gt; save -&amp;gt; timestamp is not updated to the new value it's updated to now() ... think this shouldn't be the default value.
+
+i think the only bug is that the listbox is set to now() on edit if the field is a timestamp. with datetime field it works correct.
+tested in 3.3.5.1deb1(debian package) and 3.3.1(normal ftp install)
+
+Testtable and data:
+
+CREATE TABLE `test` (
+`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+`col2` TIMESTAMP NULL DEFAULT NULL,
+`col3` VARCHAR(50) NULL DEFAULT NULL,
+PRIMARY KEY (`id`)
+)
+COLLATE='latin1_german2_ci'
+ENGINE=MyISAM
+ROW_FORMAT=DEFAULT
+
+INSERT INTO `test` (`id`, `col2`, `col3`) VALUES (1, '2010-09-02 13:49:53', '1');]]></content:encoded>
+      <pubDate>Thu, 02 Sep 2010 12:00:39 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058133&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3058102 - AJAX and adding a column]]></title>
+      <author>lem9@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058102&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058102&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[AJAX and adding a column]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Marc Delisle<br />Submitted Date: 2010-09-02 10:34<br />Assigned To: Marc Delisle<br /><br />Status: Closed<br />Priority: 5<br />Category: AJAX<br /><br /><br />After adding a column and clicking on save, it stays on the same page; also if I tried to add an existing column I get no feedback.]]></content:encoded>
+      <pubDate>Thu, 02 Sep 2010 10:34:13 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3058102&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3057481 - Unchecking ignore does not work for duplicated insert rows]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057481&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057481&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Unchecking ignore does not work for duplicated insert rows]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-01 13:54<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: Interface<br /><br /><br />When man changes value of row to insert, the Ignore checkbox is unchecked. However this does not work for javascript added rows, they all try to uncheck second insert row.]]></content:encoded>
+      <pubDate>Wed, 01 Sep 2010 13:54:41 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057481&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3057479 - Wrong number of rows to insert]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057479&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057479&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Wrong number of rows to insert]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-01 13:53<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: Interface<br /><br /><br />When changing the number of rows on insert page, the result is sometimes not what would be expected.
+
+For example changing from 2 (default) to 10 and then back to 2 gives me just 1 row to insert.
+
+No javascript errors shown in browser, can be reproduced on http://demo.phpmyadmin.net/trunk-config/tbl_change.php?db=world&amp;amp;table=City]]></content:encoded>
+      <pubDate>Wed, 01 Sep 2010 13:53:20 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057479&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3057469 - Adding more rows in insert duplicates last one]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057469&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057469&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Adding more rows in insert duplicates last one]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-09-01 13:49<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: Interface<br /><br /><br />When adding more rows in insert page, the new ones are created as duplicates of the last one copying their content. I think the new forms rather should be created empty.]]></content:encoded>
+      <pubDate>Wed, 01 Sep 2010 13:49:55 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3057469&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3056712 - Inline edit links problems]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056712&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056712&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Inline edit links problems]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-08-31 11:57<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: Interface<br /><br /><br />When browsing pma_bookmark table, there are two "Inline edit" links, both with two icon.
+
+Can be seen here: http://demo.phpmyadmin.net/trunk-config/sql.php?db=phpmyadmin&amp;amp;table=pma_bookmark]]></content:encoded>
+      <pubDate>Tue, 31 Aug 2010 11:57:43 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056712&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3056649 - Changing password using AJAX broken]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056649&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056649&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Changing password using AJAX broken]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-08-31 10:01<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 7<br />Category: Privileges<br /><br /><br />When I change password for some user using AJAX, only "Loading..." flushes for some time and nothing else changes on the screen. I'd really expect to see some confirmation or error what has happened.]]></content:encoded>
+      <pubDate>Tue, 31 Aug 2010 10:01:07 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056649&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3056610 - (ok 3.4) Modify options for  information_schema ]]></title>
+      <author>helmo@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056610&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056610&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.4) Modify options for  information_schema ]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Herman van Rink<br />Submitted Date: 2010-08-31 08:18<br />Assigned To: Herman van Rink<br /><br />Status: Open<br />Priority: 1<br />Category: Interface<br /><br /><br />In the db_structure.php page we have a pulldown menu with several options (e.g. drop, repair, export)
+
+For the information_schema database these make no sense, therefor I opt to use the $db_is_information_schema boolean.
+
+The easiest fix for this groups the export and print options together, and introduce an if statement.
+
+The question is how thought out the current sort order is. It's not alphabetically. ]]></content:encoded>
+      <pubDate>Tue, 31 Aug 2010 08:18:25 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056610&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3056023 - (ok 3.3.8) USE query not working]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056023&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056023&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[(ok 3.3.8) USE query not working]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-08-30 12:40<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 1<br />Category: Interface<br /><br /><br />Running USE test; query with AJAX does not have expected results - database is not changed as it used to.
+
+Also when running "USE fdasfasdfas;" (or any non existing database name), the error messages just quickly flashes on the screen and nothing happens.]]></content:encoded>
+      <pubDate>Mon, 30 Aug 2010 12:40:50 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056023&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3056017 - Error on ODS import]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056017&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056017&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Error on ODS import]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-08-30 12:27<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 1<br />Category: Data Import<br /><br /><br />Notice in ./libraries/import/ods.php#93
+Undefined index: ods_col_names
+
+Backtrace
+
+./import.php#374: require(./libraries/import/ods.php)]]></content:encoded>
+      <pubDate>Mon, 30 Aug 2010 12:27:13 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3056017&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3055906 - Error when running SQL query over AJAX]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055906&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055906&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Error when running SQL query over AJAX]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-08-30 08:45<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 5<br />Category: PHP errors<br /><br /><br />Notice in ./libraries/display_tbl.lib.php#2105
+Undefined index: url_query
+
+Backtrace
+
+./sql.php#809: PMA_displayTable(
+object,
+string urdr111111,
+array,
+)
+./import.php#458: require(./sql.php)]]></content:encoded>
+      <pubDate>Mon, 30 Aug 2010 08:45:14 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055906&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3055899 - SQL query fails]]></title>
+      <author>nijel@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055899&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055899&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[SQL query fails]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Michal Čihař<br />Submitted Date: 2010-08-30 08:30<br />Assigned To: Michal Čihař<br /><br />Status: Closed<br />Priority: 1<br />Category: Interface<br /><br /><br />Running SQL query on database fails, there is a javascript error:
+
+Error: $ is not defined
+Source fie: http://demo.phpmyadmin.net/trunk-config/js/sql.js?ts=1282947478
+Row: 184
+
+And the page never loads]]></content:encoded>
+      <pubDate>Mon, 30 Aug 2010 08:30:22 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055899&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <item>
+      <title><![CDATA[3055411 - Phpmyadmin wont load depening on windows HOSTS file contents]]></title>
+      <author>stevenmartin99@users.sourceforge.net</author>
+      <link>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055411&amp;group_id=23067&amp;atid=377408</link>
+      <guid>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055411&amp;group_id=23067&amp;atid=377408</guid>
+      <description><![CDATA[Phpmyadmin wont load depening on windows HOSTS file contents]]></description>
+      <content:encoded><![CDATA[<br />Submitted By: Steven Martin<br />Submitted Date: 2010-08-29 11:19<br />Assigned To: Steven Martin<br /><br />Status: Open<br />Priority: 5<br />Category: Compatibility<br /><br /><br />I have tested this as mush as possible and there is nothing i can see that is casuing this.. but 
+
+When the   C:/windows/system32/etc/hosts  file  contains the default (shipped with  VISTA AND 7)
+
+127.0.0.1       localhost
+::1 localhost
+
+Phpmyadmin will not load. The page enventually ends up blank.  The Setup Script Loads fine.. Errors load fine.  But the index.php will not load.
+
+
+Changing only the hosts file (to default for what was shipped with XP)
+
+127.0.0.1       localhost   
+
+Now PHPmyadmin loads fine.
+
+This was tested using WAMPSERVER 2.0  using a range of PHP MYSQL APACHE VERSIONS)  all the same results.s
+
+]]></content:encoded>
+      <pubDate>Sun, 29 Aug 2010 11:19:25 +0000</pubDate>
+      <comments>http://sourceforge.net/tracker/index.php?func=detail&amp;aid=3055411&amp;group_id=23067&amp;atid=377408</comments>
+    </item>
+    <doap:Project xmlns:doap="http://usefulinc.com/ns/doap#"><doap:name>phpMyAdmin</doap:name><doap:description>phpMyAdmin is a tool written in PHP intended to handle the administration of MySQL over the Web. Currently it can create and drop databases, create/drop/alter tables, delete/edit/add fields, execute any SQL statement, manage keys on fields.</doap:description></doap:Project>
+    <sf:next xmlns:sf="http://sourceforge.net/api/sfelements.rdf#">/api/artifact/index/tracker-id/377408/limit/100/offset/100/rss</sf:next>
+  </channel>
+</rss>

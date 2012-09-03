@@ -1,0 +1,2106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+            "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<script id="before-content" type="text/javascript">
+var pageload = {
+	pagemark: '676417377324477671',
+	before_content: (new Date).getTime()
+};
+function pageload_done( $, console, maybe ){
+	pageload.after_readycode	= (new Date).getTime();
+	pageload.content_ready_time	= pageload.content_ready - pageload.before_content;
+	pageload.script_ready_time	= pageload.after_readycode - pageload.content_ready;
+	pageload.ready_time		= pageload.after_readycode - pageload.before_content;
+	// Only report 1% of cases.
+	maybe || (Math.random()>0.01) || $.ajax({ data: {
+		op: 'page_profile',
+		pagemark: pageload.pagemark,
+		dom: pageload.content_ready_time,
+		js: pageload.script_ready_time
+	} });
+}
+</script>
+
+<title>Slashdot Hardware Story | XBMC Discontinues Xbox Support</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="description" content="Xistic writes with news that the XB in XBMC won't mean Xbox any more. Quoting the project's own web site: &#34;The last official release for the XBOX by the XBMC team was Atlantis, over 18 months ago. Since then, one brave soul (Arnova) has been merging code from the main codebase into the XBOX branch i...">
+
+<meta property="fb:admins" content="100000696822412">
+<meta property="fb:page_id" content="267995220856">
+
+
+
+
+<link rel="image_src" href="//a.fsdn.com/sd/topics/topicmediaall.gif">
+
+
+<link rel="stylesheet" rev="stylesheet" href="//a.fsdn.com/sd/idlecore-tidied.css?T_2_5_0_298" media="screen">
+<link rel="stylesheet" rev="stylesheet" href="//a.fsdn.com/sd/print.css?T_2_5_0_298" media="print">
+
+
+
+<!--  -->
+
+
+
+
+
+
+
+<link rel="stylesheet" type="text/css" media="screen, projection" href="//a.fsdn.com/sd/yui_hardware.css?T_2_5_0_298" class="data-skin">
+
+<!--[if IE 7]><link rel="stylesheet" type="text/css" media="screen" href="//a.fsdn.com/sd/ie7-idle.css?T_2_5_0_298" /><![endif]-->
+<!--[if lt IE 7]><link rel="stylesheet" type="text/css" media="screen" href="//a.fsdn.com/sd/ie6-idle.css?T_2_5_0_298" /><![endif]-->
+<!--[if gte IE 8]><link rel="stylesheet" type="text/css" media="screen" href="//a.fsdn.com/sd/ie8-idle.css?T_2_5_0_298" /><![endif]-->
+
+
+
+<script src="//a.fsdn.com/sd/all-minified.js?T_2_5_0_298" type="text/javascript"></script>
+<script id="after-jquery" type="text/javascript">
+(function( $, pageload, pageload_done, console ){
+$ && pageload && $(function(){
+	pageload.content_ready = (new Date).getTime();
+	pageload_done && $(function(){ pageload_done($, console, 'maybe'); });
+});
+})(window.jQuery, window.pageload, window.pageload_done, window.console);
+</script>
+<script type="text/javascript">
+(function(){
+var regexp=/\s*(?:\d+|many)\s+more\s*/i;
+
+	
+	var auto_more_count = 2;
+
+	function auto_more(){
+		var $more_link = $('#more-experiment a');
+		$more_link.each(function(){
+			var $lastitem = $('#firehoselist>div.fhitem:visible:last');
+			if ( Bounds.intersect(window, $lastitem) ) {
+				// _any_ click can trigger, but click-specific ad will win
+				//setTimeout(function(){ inlineAdFirehose($lastitem, 1); }, 0);
+				setFirehoseAction();
+				$more_link.click();
+				!--auto_more_count && (auto_more=undefined);
+				// don't allow a call till the next paginate gets built and |more_possible|
+				$(document).unbind('scroll', call_auto_more);
+			}
+		});
+	};
+
+	function call_auto_more(){ auto_more && auto_more(); }
+	
+
+
+	
+
+
+$('#more-experiment a').
+	live('more-possible', function( event ){
+		var $more_link=$(this);
+		if ( regexp.test($more_link.text()) ) {
+		
+		
+			$(document).bind('scroll', call_auto_more);
+		} else {
+			$(document).unbind('scroll', call_auto_more);
+		
+		}
+	});
+})();
+</script>
+
+
+<script type="text/javascript">
+var suggestions_for_context = {
+	nod: 'fresh funny insightful interesting maybe ',
+	nix: 'binspam dupe notthebest offtopic slownewsday stale stupid ',
+
+	tagnod: 'descriptive',
+	feedback: 'typo dupe error',
+	metanod: 'insightful interesting informative funny underrated',
+	metanix: 'offtopic flamebait troll redundant overrated'
+};
+
+</script>
+
+
+<script id="lazyload-script" type="text/javascript">
+      $(function() {          
+         // $("img[src*='images.slashdot.org']").lazyload({ threshold   : 150 });
+      });
+</script><link rel="top"       title="News for nerds, stuff that matters" href="//slashdot.org/" >
+<link rel="search"    title="Search Slashdot" href="//hardware.slashdot.org/search.pl">
+<link rel="alternate" title="Slashdot RSS" href="http://rss.slashdot.org/Slashdot/slashdotHardware" type="application/rss+xml">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<!-- DoubleClick Random Number -->
+<script type="text/javascript">
+   dfp_ord=Math.random()*10000000000000000;
+   dfp_tile = 1;
+</script>
+<!-- End DoubleClick Random Number -->
+
+
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-32013-5");
+pageTracker._setDomainName("slashdot.org");
+pageTracker._initData();
+
+</script>
+
+</head>
+<body>
+
+
+
+<div id="top_parent"></div>
+
+<div id="jump">
+        <a href="#main-articles">Stories</a>
+        <br>
+        <a href="#blocks">Slash Boxes</a>
+        <br>
+        <a href="#comments">Comments</a>
+</div>
+<a name="topothepage"></a>
+<div id="doc3" class="yui-t6 index2 hardware ac   ">
+	<div id="hd" >
+		<div id="logo" >
+
+			
+			
+			<h1><a href="//slashdot.org"><span>Slashdot</span></a></h1>
+			<div id="slogan"><h2>News for nerds, stuff that matters</h2></div>
+		</div>
+		<a href="#articles" class="hidden">Jump to articles</a>
+		<div class="nav">
+			<ul>
+			
+				
+                                
+				<li class="submit"><a href="//slashdot.org/submission" title="Submit a story to Slashdot">Submit Story</a> </li>
+                                <li><a href="//slashdot.org/help" title="Frequently asked questions on Slashdot">Help</a></li>
+				<li><a href="//slashdot.org/my/login" class="loginlink" onclick="show_login_box(); return false;">Log In</a></li>
+			
+			</ul>
+		</div>
+	
+		
+
+		
+
+		<div id="fh_picker_search" style="display: block;">
+		<form method="get" action="//hardware.slashdot.org/index2.pl">
+			<fieldset class="mode-filter mode-anon">
+				<legend>Search</legend>
+				
+				
+					
+				
+				<input class="query" type="text" name="fhfilter" value="hardware" id="searchquery">						<input type="button" class="setfhfilter searchfu" value="Filter" id="viewsearch" style="display:none">					<input type="submit" class="setsearchfilter" value="Search" id="fhsearch" style="display:none">
+					<noscript><input type="submit" class="setsearchfilter" value="Search"></noscript>
+					
+					<script type="text/javascript">
+					var slash_search;
+						$(function(){
+							if (has_hose()) {
+							var	$search_text	= $any('searchquery'),
+								$panel			= $search_text.closest('fieldset');
+								$search_buttons	= $('#viewsearch,#fhsearch'),
+								ws				= /\s+/;
+
+							
+
+							// The search buttons set the firehose option named by their class.
+							$search_buttons.
+								click(function(){
+									var which=this.className;
+									$search_text.each(function(){
+										firehose_set_options(which, this.value);
+									});
+									return false;
+								});
+
+							// Provide a globally available function that does whatever clicking the search button would do.
+							slash_search = function( query ){
+								query!==undefined && $search_text.val(query);
+								$search_buttons.filter(':visible:first').click();
+							};
+
+							$search_text.
+								keydown(function( e ){	// ESCAPE restores the filter in-effect.
+									if ( e.which == $.ui.keyCode.ESCAPE ) {
+										$search_text.val(firehose_settings.fhfilter||'');
+										return true;
+									}
+									if ( e.which == $.ui.keyCode.ENTER ) {
+										slash_search();
+										return false;
+									}
+								});
+	
+							$(document).
+								bind('firehose-setting-setfhfilter firehose-setting-setsearchfilter', function( e, new_query ){
+									$('fieldset input[type=text]').each(function(){
+										$(this).blur().val(new_query);
+									});
+								}).
+								bind('set-options.firehose', function( e, data ){
+									data.select_section && $panel.toggleClass('mode-filter', data.id!=='unsaved');
+								});
+						}
+					});
+					</script>
+					
+			</fieldset>
+			
+			<script type="text/javascript">
+			$(document).
+				one('unsaved.firehose', function(){
+					$any('searchquery').closest('fieldset').removeClass('mode-anon');
+				});
+			</script>
+			
+		</form>
+		</div>
+	
+	</div>
+	
+	<div id="bd" ><!-- body begin -->
+
+
+
+
+
+
+	
+
+	<style type="text/css">
+menu, menu * {
+	/*cursor:pointer;*/
+	color:inherit;
+	text-decoration:none;
+	font-family:sans-serif;
+}
+
+menu[type=context] {
+	display:none;
+	position:absolute;
+	z-index:10000;
+	background-color:#dfdfdf;
+	margin:0;
+	padding:2px 0.5em;
+	border-style:solid;
+	border-width:1px;
+	border-color:#eeeeee #aaaaaa #aaaaaa #eeeeee;
+}
+
+menu[type=context] {
+	-moz-border-radius-topright:.7em;
+	-webkit-border-top-right-radius: 0.7em 0.7em;
+}
+
+menu[type=context] > a.slash-hover:first-child {
+	-moz-border-radius-topright:.6em;
+	-webkit-border-top-right-radius: 0.6em 0.6em;
+}
+
+
+/* #tag-menu a, #feedback-menu a  { */
+menu.tag-menu a {
+	display:list-item;
+	list-style:none;
+	text-align:left;
+	font-weight:bold;
+	color:black;
+	padding:0.1em 0.5em;
+	margin:-0.1em -0.5em;
+}
+
+#tag-menu span.var-tag {
+font-weight:normal;
+color:#444444;
+}
+
+
+menu.reasons-menu {
+	display:none;
+	margin:0.5em 0 0 0.75em;
+	padding:0;
+}
+menu.reasons-menu a {
+	display:inline-block;
+	margin:-0.1em -0.25em;
+}
+
+div.fhitem h3 menu.reasons-menu {
+margin:0.25em 0 0;
+}
+
+div.fhitem h3 menu.reasons-menu a.tag {
+font-size:.8em;
+}
+
+#tag-menu a.slash-hover,
+#feedback-menu a.slash-hover,
+
+.tag-display span.tag:hover,
+.tag-display span.tag.trigger {
+	color:white;
+	background-color:rgb(0, 85, 85);
+}
+
+#tag-menu a.slash-hover span.var-tag {
+	color:#eee;
+}
+</style>
+
+<menu id="nix-reasons" style="display:none">
+	<a class="tag">binspam</a><a class="tag">dupe</a><a class="tag">notthebest</a><a class="tag">offtopic</a><a class="tag">slownewsday</a><a class="tag">stale</a><a class="tag">stupid</a>
+</menu>
+<menu id="nod-reasons" style="display:none">
+	<a class="tag">fresh</a><a class="tag">funny</a><a class="tag">insightful</a><a class="tag">interesting</a><a class="tag">maybe</a>
+</menu>
+<menu id="comment-nix-reasons" style="display:none">
+	<a class="tag">offtopic</a><a class="tag">flamebait</a><a class="tag">troll</a><a class="tag">redundant</a><a class="tag">overrated</a>
+</menu>
+<menu id="comment-nod-reasons" style="display:none">
+	<a class="tag">insightful</a><a class="tag">interesting</a><a class="tag">informative</a><a class="tag">funny</a><a class="tag">underrated</a>
+</menu>
+
+<menu id="tag-nod-reasons" style="display:none">
+	<a class="tag">descriptive</a>
+</menu>
+<menu id="feedback-menu" class="tag-menu" type="context">
+	<a class="tag">typo</a><a class="tag">dupe</a><a class="tag">error</a>
+</menu>
+<menu id="tag-menu" class="tag-menu" type="context">
+
+	<a data-op="-">delete <span class="var-tag"></span></a>
+	<a data-op="!">not <span class="var-tag"></span></a>
+	<a data-op="="><span class="var-tag"></span> in <span class="var-view"></span></a>
+</menu>
+
+<script type="text/javascript">
+$(function(){
+var $CURRENT_MENU, $TAG_MENU=$('#tag-menu'), NOTNOT=/^!!/, IE7=/^7\.0/, TAG_PREFIX=/^\/tag\//;
+
+function get_tag_name( $tag ){
+	return ($tag.attr('href') || '').replace(TAG_PREFIX, '') || $tag.text().toLowerCase();
+}
+
+function trigger_menu( e, selector, $menu, menu_content ){
+	var $target=$(original_target(e, selector)), in_use=$target.is('.trigger');
+	if ( $CURRENT_MENU ) {
+		$CURRENT_MENU.menu('cancel', e);
+		$CURRENT_MENU = null;
+	}
+
+	if ( !in_use ) {
+		menu_content && $menu.stop(true, true).hide().html(menu_content);
+		($CURRENT_MENU=$menu).menu('context', e);
+	}
+	return !in_use;
+}
+
+function open_menu( trigger, $menu ){
+	var $trigger=$(trigger), $fhitem=$trigger.closest('.fhitem');
+	$fhitem.length && user_intent('interest', $fhitem[0]);
+
+	$menu.appendTo(document.body).css({ opacity:0 }).show();
+
+	var 	right	= $fhitem.offset().left + $fhitem.width(),
+		global	= $trigger.offset(),
+		local	= $menu.offsetParent().offset();
+
+	// Ugly IE position hack required:
+	$.browser.msie && IE7.test($.browser.version) && (local.top = 0);
+
+	// pin the menu (horizontally) on-screen
+	global.left = Math.min(global.left, right-$menu.width());
+
+	$trigger.addClass('trigger');
+	$menu.css({
+		position:	'absolute',
+		top:		global.top - local.top + $trigger.height(),
+		left:		global.left - local.left,
+		opacity:	1
+	});
+}
+
+function close_menu( trigger, $menu ){
+	$menu.hide();
+	$(trigger).removeClass('trigger');
+	($CURRENT_MENU===$menu) && ($CURRENT_MENU=false);
+}
+
+
+
+/* T2 tag context-menu */
+
+var $TAG_MENU=$('#tag-menu'), NOTNOT=/^!!/;
+$('a[rel=tag]').
+	live('mousedown', function( e ){
+		var unhandled=true;
+		if ( logged_in || $(original_target(e)).is('div.fhitem-editor *') ) {
+			unhandled = trigger_menu(e, 'a[rel=tag]', $TAG_MENU);
+		}
+		return unhandled;
+	}).
+	live('click', function( e ){
+		if ( !logged_in ) {
+			var	target	= original_target(e),
+				tag	= $(target).text();
+			addfhfilter(tag);
+		}
+		e.preventDefault();
+		return false;
+	});
+
+$TAG_MENU.menu({
+	cssNamespace: 'slash',
+	liveTriggers: true,
+	clickDuration: 300,
+
+	start: function( e, ui ){
+		var	$tag	= $(ui.trigger),
+			tag	= get_tag_name($tag),
+			context	= firehose_settings && firehose_settings.viewtitle;
+
+		// Insert the tagname into the menu items where needed.
+		$TAG_MENU.find('span.var-tag').text(tag);
+
+			// non-admins may only delete their own tags
+		$TAG_MENU.find('a:[data-op="-"]').toggle($tag.is('.my'));
+	
+
+		// *tagname* in *viewtitle*
+		$TAG_MENU.find('a:[data-op="="]').toggle(!!context);
+		context && $TAG_MENU.find('span.var-view').text(context);
+
+		open_menu($tag, $TAG_MENU);
+	},
+
+	select: function( e, ui ){
+		var	$tag	= $(ui.trigger),
+			tag	= get_tag_name($tag),
+			op	= $(ui.select).attr('data-op'),
+			fhitem,
+			command;
+
+		// Global for positioning other things.
+		$related_trigger = $tag;
+
+		switch ( op ) {
+			case '=':
+				addfhfilter(tag);
+				break;
+
+			default:
+				fhitem = $tag.closest('div.fhitem')[0];
+				command = (op + tag).replace(NOTNOT, '');
+				try { Tags.submit(fhitem, command); } catch ( err ) {  }
+				break;
+		}
+	},
+
+	stop: function( e, ui ){ close_menu(ui.trigger, $TAG_MENU); }
+});
+
+
+
+
+/* T2 feedback context-menu */
+
+
+
+/* T2 datatype context-menu (admin-only) */
+
+
+
+
+
+
+});
+</script>
+
+	<div class="nav a2">
+			
+			<a id="toggleleftmenu" onclick="return false" href="//slashdot.org/login.pl" class="collapsed" href="//hardware.slashdot.org/faq/UI.shtml#ui700" title="Toggle left menu">Toggle left menu</a>
+			
+			<script type="text/javascript">
+			$(function(){
+				$("#toggleleftmenu").click(function(){
+					
+						show_login_box();
+					
+					return false;
+				});
+			});
+			</script>
+		
+	
+	<ul class="menu" id="fhtablist">
+
+			
+				
+				
+				
+				<script type="text/javascript">
+					$('#viewsearch').
+						val('Stories').
+						show().
+						click(function() {
+							var form = $(this).closest('form');
+							var el = document.createElement("input");
+							el.type = "hidden";
+							el.name = "view";
+							el.value = "stories";
+							form.append(el);
+							form.submit();
+						});
+				</script>
+				
+				
+					
+				
+				
+				<li class="active Stories">
+				
+				
+				
+				
+				<a href="//hardware.slashdot.org/stories" >Stories</a>
+				</li>
+				
+				
+				
+				
+				
+				<li class="Recent">
+				
+				<a href="//hardware.slashdot.org/recent" >Recent</a>
+				</li>
+				
+				
+				
+				
+				
+				<li class="Popular">
+				
+				<a href="//hardware.slashdot.org/popular" >Popular</a>
+				</li>
+				
+				
+				
+				
+				
+				<li class="Search">
+				
+				<a href="//hardware.slashdot.org/search" >Search</a>
+				</li>
+
+		
+	</ul>
+
+<script type="text/javascript">
+$(function(){ // on document ready
+
+$('input[id^=tab-input-]').
+	each(function(){
+		var tab_id = this.id.substr('tab-input-'.length);
+		$(this).
+			blur(function(){
+				firehose_save_tab(tab_id);
+			}).
+			keypress(function(event){
+				var RETURN=13, SPACE=32;
+
+				var $this = $(this);
+				switch ( event.which || event.keyCode ) {
+					case RETURN:
+					case SPACE:
+						firehose_save_tab(tab_id);
+						return false;
+					default:
+						return true;
+				}
+			});
+	})
+
+});
+</script>
+			
+		
+				<div id="fhoptions" class="options">
+
+
+
+
+<ul>
+
+
+
+
+	
+		<li id="pref"><a href="//slashdot.org/my/comments" onclick="show_login_box(); return false" title="Toggle preferences">Preferences</a></li>
+	
+
+
+	<li id="slashboxen">
+		
+		<script type="text/javascript">
+		$(function(){
+			$("#slashboxen a").click(function(){
+				var hide = $(this).setClass(applyMap('expanded', 'collapsed')).is('.collapsed');
+	
+				$('div#yui-main div.yui-b, div#slashboxes, div#topfoot div.rightcontent, div#doc3 div.railad').toggleClass('hideslashboxes', hide);
+				firehose_set_options('noslashboxes', hide, 'global');
+				return false;
+			});
+		});
+		</script>
+	</li>
+
+</ul>
+
+</div>
+	</div>
+		
+			<div class="ad1 advertisement"><!-- placeholder for ad position 1 --></div>
+		
+	<div id="yui-main" class="a2">
+		
+		<div class="yui-b hideleftmenu">
+		
+			
+			
+			<div class="yui-gf" style="position: relative">
+				<div class="yui-u first" id="links">
+					<div class="block" id="links-sections">
+	<div class="title" id="links-sections-title">
+		
+		<h4 >
+			
+				<a class="data-title" href="//slashdot.org" >Slashdot</a>
+				
+				
+				<script type="data">{ color: "", viewname: "stories", filter: "", name: "Main", id: 13 }</script>
+
+			
+		</h4>
+	</div>
+	<div class="content" id="links-sections-content">
+	
+		<ul id="firehose-sections">
+	<script type="data">{ active_id:3, default_id:1 }</script>
+	  		
+			
+			
+		
+		<li class="hide" id="fhsection-45">
+			<a id="fhsectiontitle-45" class="data-title" href="//amd.vendors.slashdot.org">AMD</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "vendor_amd", name: "AMD", id: 45 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-11">
+			<a id="fhsectiontitle-11" class="data-title" href="//apache.slashdot.org">Apache</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "apache", name: "Apache", id: 11 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-53">
+			<a id="fhsectiontitle-53" class="data-title" href="//apple.slashdot.org">Apple</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_apple.css?T_2_5_0_298\" title=\"apple\">", color: "", viewname: "stories", filter: "apple", name: "Apple", id: 53 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-63">
+			<a id="fhsectiontitle-63" class="data-title" href="//ask.slashdot.org">Ask Slashdot</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_askslashdot.css?T_2_5_0_298\" title=\"askslashdot\">", color: "", viewname: "stories", filter: "askslashdot", name: "Ask Slashdot", id: 63 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-31">
+			<a id="fhsectiontitle-31" class="data-title" href="//backslash.slashdot.org">Backslash</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "backslash", name: "Backslash", id: 31 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-49">
+			<a id="fhsectiontitle-49" class="data-title" href="//books.slashdot.org">Book Reviews</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "books", name: "Book Reviews", id: 49 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-5">
+			<a id="fhsectiontitle-5" class="data-title" href="//bsd.slashdot.org">BSD</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "bsd", name: "BSD", id: 5 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-61">
+			<a id="fhsectiontitle-61" class="data-title" href="//developers.slashdot.org">Developers</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_developers.css?T_2_5_0_298\" title=\"developers\">", color: "", viewname: "stories", filter: "developers", name: "Developers", id: 61 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-1">
+			<a id="fhsectiontitle-1" class="data-title" href="//entertainment.slashdot.org">Entertainment</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "entertainment", name: "Entertainment", id: 1 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-55">
+			<a id="fhsectiontitle-55" class="data-title" href="//features.slashdot.org">Features</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "features", name: "Features", id: 55 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-33">
+			<a id="fhsectiontitle-33" class="data-title" href="//games.slashdot.org">Games</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_games.css?T_2_5_0_298\" title=\"games\">", color: "", viewname: "stories", filter: "games", name: "Games", id: 33 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-43">
+			<a id="fhsectiontitle-43" class="data-title" href="//radio.slashdot.org">Geeks in Space</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "radio", name: "Geeks in Space", id: 43 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="active" id="fhsection-3">
+			<a id="fhsectiontitle-3" class="data-title" href="//hardware.slashdot.org">Hardware</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_hardware.css?T_2_5_0_298\" title=\"hardware\">", color: "", viewname: "stories", filter: "hardware", name: "Hardware", id: 3 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-25">
+			<a id="fhsectiontitle-25" class="data-title" href="//idle.slashdot.org">Idle</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_idle.css?T_2_5_0_298\" title=\"idle\">", color: "", viewname: "stories", filter: "idle", name: "Idle", id: 25 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-7">
+			<a id="fhsectiontitle-7" class="data-title" href="//intel.vendors.slashdot.org">Intel</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "vendor_intel", name: "Intel", id: 7 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-39">
+			<a id="fhsectiontitle-39" class="data-title" href="//interviews.slashdot.org">Interviews</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "interviews", name: "Interviews", id: 39 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-15">
+			<a id="fhsectiontitle-15" class="data-title" href="//it.slashdot.org">IT</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_it.css?T_2_5_0_298\" title=\"it\">", color: "", viewname: "stories", filter: "it", name: "IT", id: 15 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-65">
+			<a id="fhsectiontitle-65" class="data-title" href="//linux.slashdot.org">Linux</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_linux.css?T_2_5_0_298\" title=\"linux\">", color: "", viewname: "stories", filter: "linux", name: "Linux", id: 65 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-21">
+			<a id="fhsectiontitle-21" class="data-title" href="//meta.slashdot.org">Meta</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "meta", name: "Meta", id: 21 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-47">
+			<a id="fhsectiontitle-47" class="data-title" href="//mobile.slashdot.org">Mobile</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_mobile.css?T_2_5_0_298\" title=\"mobile\">", color: "", viewname: "stories", filter: "mobile", name: "Mobile", id: 47 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-35">
+			<a id="fhsectiontitle-35" class="data-title" href="//news.slashdot.org">News</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "news", name: "News", id: 35 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-23">
+			<a id="fhsectiontitle-23" class="data-title" href="//oracle.vendors.slashdot.org">Oracle</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "vendor_oracle", name: "Oracle", id: 23 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-27">
+			<a id="fhsectiontitle-27" class="data-title" href="//politics.slashdot.org">Politics</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_politics.css?T_2_5_0_298\" title=\"politics\">", color: "", viewname: "stories", filter: "politics", name: "Politics", id: 27 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-57">
+			<a id="fhsectiontitle-57" class="data-title" href="//polls.slashdot.org">Polls</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "polls", name: "Polls", id: 57 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-29">
+			<a id="fhsectiontitle-29" class="data-title" href="//science.slashdot.org">Science</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "science", name: "Science", id: 29 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-59">
+			<a id="fhsectiontitle-59" class="data-title" href="//search.slashdot.org">Search</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "search", name: "Search", id: 59 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-37">
+			<a id="fhsectiontitle-37" class="data-title" href="slashdot.sourceforge.net">SF.net Auth</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "sfauth", name: "SF.net Auth", id: 37 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-19">
+			<a id="fhsectiontitle-19" class="data-title" href="//slashdot.org">Taco Hell</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "tacohell", name: "Taco Hell", id: 19 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-17">
+			<a id="fhsectiontitle-17" class="data-title" href="//tech.slashdot.org">Technology</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "tech", name: "Technology", id: 17 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-67">
+			<a id="fhsectiontitle-67" class="data-title" href="//slashdot.org">The 2000 Beanies</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "awards", name: "The 2000 Beanies", id: 67 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-51">
+			<a id="fhsectiontitle-51" class="data-title" href="//thinkgeek.shill.slashdot.org">ThinkGeek</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_thinkgeek.css?T_2_5_0_298\" title=\"thinkgeek\">", color: "", viewname: "stories", filter: "thinkgeek", name: "ThinkGeek", id: 51 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="hide" id="fhsection-41">
+			<a id="fhsectiontitle-41" class="data-title" href="//vendors.slashdot.org">Vendors</a>
+			
+		<script type="data">{ color: "", viewname: "stories", filter: "vendors", name: "Vendors", id: 41 }</script>
+		</li>
+	 		
+			
+			
+		
+		<li class="" id="fhsection-9">
+			<a id="fhsectiontitle-9" class="data-title" href="//yro.slashdot.org">YRO</a>
+			
+		<script type="data">{ skin: "<link rel=\"alternate stylesheet\"  type=\"text/css\" media=\"screen, projection\" href=\"//a.fsdn.com/sd/yui_yro.css?T_2_5_0_298\" title=\"yro\">", color: "", viewname: "stories", filter: "yro", name: "YRO", id: 9 }</script>
+		</li>
+	
+</ul>
+	
+	</div>
+	
+</div>
+<div class="block" id="links-help">
+	<div class="title" id="links-help-title">
+		<h4><a href="//slashdot.org/help">Site Info</a></h4>
+	</div>
+	<div class="content" id="links-help-content">
+		<ul>
+			<li><a href="//slashdot.org/faq/">FAQ</a></li>
+			<li><a href="http://sourceforge.net/tracker/?func=add&amp;group_id=4421&amp;atid=104421">Bugs</a></li>
+			<li><a href="//slashdot.org/code.shtml">Code</a></li>
+		</ul>
+	</div>
+</div>
+<div class="block" id="links-stories">
+	<div class="title" id="links-stories-title">
+		<h4>Stories</h4>
+	</div>
+	<div class="content" id="links-stories-content">
+		<ul>
+			<li><a href="//slashdot.org/search.pl">Old Stories</a></li>
+			<li><a href="//polls.slashdot.org/">Old Polls</a></li>
+			<li><a href="//slashdot.org/hof.shtml">Hall of Fame</a></li>
+			<li><a href="//slashdot.org/submission">Submit Story</a></li>
+		</ul>
+	</div>
+</div>
+				</div>
+			</div>
+			
+
+
+								
+								
+
+								
+								
+
+			<div class="yui-u a2 maincol first">
+				
+			
+			
+			
+		<div class="yui-b "> 
+								
+
+
+											<div class="railad"><div class="ad83 advertisement"><!-- ad position 83 -->
+	<!-- DoubleClick Ad Tag -->
+		
+<script type="text/javascript">
+	var ad6 = 'inactive';
+</script>
+		
+
+<div id="fad83">
+		
+			
+	
+	<script type="text/javascript">
+	//<![CDATA[
+
+		var hint   = 'hardware,games,slashdot,entertainment,hardware,media,tv,xbox,news';
+		var parent = 'http://hardware.slashdot.org/hardware/10/05/28/043243.shtml';
+
+		document.write('<script type="text/javascript" src="http://ad.doubleclick.net/adj/ostg.slashdot/servers_p83_medrec;pg=article;sid=10/05/28/043243;logged_in=0;dcopt=ist;tile='+dfp_tile+';tpc=games;tpc=slashdot;tpc=entertainment;tpc=hardware;tpc=media;tpc=tv;tpc=xbox;tpc=news;ord='+dfp_ord+'?"><\/script>');
+		dfp_tile++;
+	//]]>
+	</script>
+			
+		
+</div>
+<!-- End DoubleClick Ad Tag --></div></div>
+
+											<div id="slashboxes" class="yui-b">
+										
+										
+										
+										
+										<div class="block">
+	<div class="title" id="srandblock-title">
+		<h4>
+			Book Reviews
+		</h4>
+	</div>
+	<div class="content" id="srandblock-content">
+		Recent reviews from Slashdot readers:
+
+<ul>
+
+
+<li> <a href="http://www.amazon.com/dp/0195152751/ref=nosim/?tag=slashdot0c-20"><cite>Advanced Excel for Scientific Data Analysis</cite></a> Learn to turn Excel into something that rivals Mathematica using VBA, brains, and a heaping helping of fortitude.(<a href="http://books.slashdot.org/article.pl?sid=08/10/01/1329243">Jack Herrington's review.</a>)</li>
+
+<li> <a
+href="http://www.amazon.com/dp/1597492671/ref=nosim/?tag=slashdot0c-20"><cite>Nagios 3 Enterprise Network Monitoring</cite></a> A great book for anyone using Nagios as more than a casual user.(<a href="http://books.slashdot.org/article.pl?sid=08/10/08/1328247">jgoguen's review.</a>)</li>
+
+
+<li> <a href="http://www.amazon.com/dp/0470395354/ref=nosim/?tag=slashdot0c-20"><cite>Schneier on Security</cite></a> Schneier argues that security is not something you can buy; it is something you must get.(<a href="http://books.slashdot.org/article.pl?sid=08/10/20/1344203">Ben Rothke's review.</a>)</li>
+</ul>
+
+<p><a href="https://slashdot.org/submit.pl">Submitting a review</a> for
+consideration is easy; please first read <a
+href="//slashdot.org/book.review.guidelines.shtml">Slashdot's
+book review guidelines</a>. Updated: 2008114 by samzenpus</p>
+
+	</div>
+</div>
+											</div>
+								
+   </div>
+	<div id="firehose" class="nothumbs">
+		<div id="firehoselist" class="fhroot ">
+			<div id="firehose-12805780" data-fhid="12805780" data-fhtype="story" class="fhitem fhitem-story article usermode thumbs">
+<span class="sd-info-block" style="display: none">
+	<span class="sd-key-firehose-id">12805780</span>
+	<span class="type">story</span>
+	
+</span>
+
+
+
+
+	
+						
+						
+
+
+						<h3 class="story">
+
+
+
+				
+							<span class="vballoon-firehoselist-simple">
+								<span>Comments:</span>
+								<a href="//hardware.slashdot.org/comments.pl?sid=1667646" class="commentcnt-12805780">13</a>
+							</span>
+				
+
+
+
+
+	
+
+	
+
+
+	
+
+
+
+
+
+								<span id="updown-12805780" class="vote">
+	<a href="//hardware.slashdot.org/faq/UI.shtml#ui700" onclick="return false" class="up" title="Vote this item up">+</a>
+	<a href="//hardware.slashdot.org/faq/UI.shtml#ui700" onclick="return false" class="down" title="Vote this item down">-</a>
+</span>
+							
+							
+							
+							<span class="cnin" id="title-12805780"><span class="sodify" onclick="firehose_set_options('color', 'red')" title="Filter Firehose to entries rated red or better" ></span><span class="soda pop1" title="Filter Firehose to entries rated red or better" onclick="firehose_set_options('color', 'red')"><span>&nbsp;</span></span> <a class="skin topic main tag" rel="tag" href="/tag/hardware">Hardware:</a>  <a   href="//hardware.slashdot.org/story/10/05/28/043243/XBMC-Discontinues-Xbox-Support" class="datitle">XBMC Discontinues Xbox Support</a> <span class="date">on Friday May 28, @08:02AM</span> <span class="nickname"></span></span>
+							
+
+
+				
+						</h3>
+
+							<div class="details" id="details-12805780"><small>
+		
+		Posted
+		by 
+	
+	
+		
+			<a href="http://www.monkey.org/~timothy/" rel="nofollow">timothy</a>
+		
+	
+	
+
+	
+	
+	<span id="fhtime-12805780">on Friday May 28, @08:02AM</span>
+	
+	<br>
+	
+		from the technical-difficulties-stand-by-forever dept.
+	
+	</small>
+	</div>
+							<div class="body" id="fhbody-12805780">
+								
+									<div class="media">
+
+
+
+        
+
+        
+                
+                
+
+                
+
+                <div class="maybe-sprite tid-513">
+                        <span class="no-sprite" style="display: none">background: url(//a.fsdn.com/sd/topics/topicmediaall.gif); width:73px; height:59px;</span>
+                        <a style="width:73px; height:59px; display: block; text-indent:-99999px;" href="//hardware.slashdot.org/index2.pl?fhfilter=media" onclick="return addfhfilter('media');" class="media"  >media</a>
+                </div>
+                
+        
+                
+                
+                
+                
+
+                
+
+                <div class="maybe-sprite tid-219">
+                        <span class="no-sprite" style="display: none">background: url(//a.fsdn.com/sd/topics/topicxbox.gif); width:74px; height:56px;</span>
+                        <a style="width:74px; height:56px; display: block; text-indent:-99999px;" href="//hardware.slashdot.org/index2.pl?fhfilter=xbox" onclick="return addfhfilter('xbox');" class="xbox"  >xbox</a>
+                </div>
+                
+        
+                
+                
+
+                
+
+                <div class="maybe-sprite tid-2997">
+                        <span class="no-sprite" style="display: none">background: url(//a.fsdn.com/sd/topics/topictv.gif); width:50px; height:50px;</span>
+                        <a style="width:50px; height:50px; display: block; text-indent:-99999px;" href="//hardware.slashdot.org/index2.pl?fhfilter=tv" onclick="return addfhfilter('tv');" class="tv"  >tv</a>
+                </div>
+                
+        
+                
+                
+
+                
+
+                <div class="maybe-sprite tid-807">
+                        <span class="no-sprite" style="display: none">background: url(//a.fsdn.com/sd/topics/topicentertainment.gif); width:62px; height:44px;</span>
+                        <a style="width:62px; height:44px; display: block; text-indent:-99999px;" href="//hardware.slashdot.org/index2.pl?fhfilter=entertainment" onclick="return addfhfilter('entertainment');" class="entertainment"  >entertainment</a>
+                </div>
+                
+        
+                
+                
+
+                
+
+                <div class="maybe-sprite tid-4">
+                        <span class="no-sprite" style="display: none">background: url(//a.fsdn.com/sd/topics/topichardware.gif); width:64px; height:55px;</span>
+                        <a style="width:64px; height:55px; display: block; text-indent:-99999px;" href="//hardware.slashdot.org/index2.pl?fhfilter=hardware" onclick="return addfhfilter('hardware');" class="hardware"  >hardware</a>
+                </div>
+                
+        
+                
+                
+
+                
+
+                <div class="maybe-sprite tid-64">
+                        <span class="no-sprite" style="display: none">background: url(//a.fsdn.com/sd/topics/topicgames.gif); width:68px; height:77px;</span>
+                        <a style="width:68px; height:77px; display: block; text-indent:-99999px;" href="//hardware.slashdot.org/index2.pl?fhfilter=games" onclick="return addfhfilter('games');" class="games"  >games</a>
+                </div>
+                
+        
+                
+                
+
+
+</div>
+								
+									
+
+										<div id="text-12805780">
+										Xistic writes with news that the XB in <a href="http://en.wikipedia.org/wiki/Xbmc">XBMC</a> <a href="http://xbmc.org/theuni/2010/05/27/farewell-xbox/">won't mean Xbox any more</a>. Quoting the project's own web site: <i>"The last official release for the XBOX by the XBMC team was Atlantis, over 18 months ago. Since then, one brave soul (Arnova) has been merging code from the main codebase into the XBOX branch in our repository. Because there were many users out there that took advantage of these updates, we had no problem with this. But times have changed. The XBOX has hard limits for what it can handle. Some users are satisfied with these limits, and we encourage them to use XBMC there if they are happy. But it is a popular misconception that official XBOX development is still taking place by the team, so we have decided to set it free. We have enough on our plates already, and worrying about a deprecated platform just increases our workload. A few days ago the XBOX branch was finally removed from our subversion repository."</i></div>
+										
+
+									
+
+									
+									<div class="article-foot  a">
+									<span class="reader">
+			
+									
+<span class="viewshare">
+<span class="sharebar">
+<a href="http://www.facebook.com/sharer.php?u=http://hardware.slashdot.org/story/10/05/28/043243/XBMC-Discontinues-Xbox-Support" target="_blank" title="Share on Facebook"><img src="//a.fsdn.com/sd/facebook_icon.png"></a>
+
+
+
+<a href="http://twitter.com/home?status=XBMC+Discontinues+Xbox+Support%3A+http%3A%2F%2Fbit.ly%2Fcb51ld" target="_blank" title="Share on Twitter"><img src="//a.fsdn.com/sd/twitter_icon.png"></a>
+
+</span>
+</span>
+
+									
+									</span>
+									<menu type="toolbar" class="edit-bar">
+	
+	<a class="edit-toggle"><span class="button collapse"></span></a>
+	<input class="tag-entry default" type="text" size="10" style="display:none" value="apply tags">
+
+	<span id="tagbar-12805780" class="tag-bar"><a class="topic main domain tag" rel="tag" href="/tag/slashdot" target="_blank">slashdot</a>
+<a class="popular tag" rel="tag" href="/tag/games" target="_blank">games</a>
+<a class="popular tag" rel="tag" href="/tag/hardware" target="_blank">hardware</a>
+<a class="popular tag" rel="tag" href="/tag/media" target="_blank">media</a>
+<a class="popular tag" rel="tag" href="/tag/tv" target="_blank">tv</a>
+<a class="popular tag" rel="tag" href="/tag/xbox" target="_blank">xbox</a>
+<a class="datatype pseudo-tag" target="_blank">story</a>
+</span>
+
+	<div class="spinner">
+	<span class="tag-server-busy spinner" style="display:none">*</span>
+	</div>
+		
+</menu>
+									</div>
+
+							</div>
+
+
+						<hr>
+<h3 class="related story">Related Stories</h3><div class="details"><div class="briefarticle brieffirehose">
+	<span class="storytitle"><a href="//hardware.slashdot.org/submission/1247856/XBMC-discontinues-Xbox-support">Submission: XBMC discontinues Xbox support</a></span> by <a href="//slashdot.org/~Xistic">Xistic (536149)</a>
+</div></div>
+
+</div>
+		</div>
+		<script id="init-sprites" type="text/javascript">
+sprite_rules({ "tid-3001": ".tid-3001 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -106px; width: 90px; height: 78px; }", "tid-236": ".tid-236 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -782px; width: 60px; height: 49px; }", "tid-350": ".tid-350 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -667px; width: 42px; height: 65px; }", "tid-513": ".tid-513 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -558px; width: 73px; height: 59px; }", "tid-4921": ".tid-4921 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -881px; width: 64px; height: 64px; }", "tid-76": ".tid-76 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -430px; width: 59px; height: 78px; }", "tid-14": ".tid-14 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -342px; width: 104px; height: 38px; }", "tid-61": ".tid-61 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -995px; width: 57px; height: 80px; }", "tid-219": ".tid-219 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px 0px; width: 74px; height: 56px; }", "tid-30": ".tid-30 { background: url(//a.fsdn.com/sd/firehose/012/805/12805780.png?1) no-repeat top left; background-position: 0px -234px; width: 100px; height: 58px; }" });
+use_sprites($dom("firehoselist"));
+$('script:last#init-sprites').remove();
+</script>
+		
+	</div>
+
+		
+
+			<div class="a2commentwrap">
+					<a name="acomments"></a>
+<div class="commentwrap" id="commentwrap">
+
+<div class="commentBox" style="font-size: 120%">
+	<div>
+<span class="escape-link"><a href="//hardware.slashdot.org/story/10/05/28/043243/XBMC-Discontinues-Xbox-Support" title="Back to Article - XBMC Discontinues Xbox Support">XBMC Discontinues Xbox Support</a></span>
+<span class="commentBoxLinks"><a href="#" onclick="D2.ajaxFetchComments(0,1); return false"><span id="more_comments_num_d"></span> More</a>
+
+
+
+	| <a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;op=reply&amp;threshold=1&amp;commentsort=0&amp;mode=thread&amp;pid=" onclick="D2.replyTo(0); return false;">Reply</a>
+
+
+	<a class="login"  href="//hardware.slashdot.org/login.pl" onclick="show_login_box(); return false">Login</a></span>
+	</div>
+</div>
+
+	<div class="commentBoxForm" id="commentControlBox">
+<div></div>
+	<div class="commentBox">
+		<small>
+		<b>The Fine Print:</b> The following comments are owned by whoever posted them.  We are not responsible for them in any way.
+		</small>
+<noscript><br><small>Without JavaScript enabled, you might want to
+use <a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;threshold=1&amp;commentsort=0&amp;mode=thread&amp;no_d2=1&amp;pid=0">the classic discussion system</a> instead.  If you <a href="//hardware.slashdot.org/login.pl">login</a>, you can remember this preference.
+</small></noscript>
+	</div>
+	</div>
+	
+		<div id="d2out" class="horizontal">
+		<div id="d2act" class="hide">
+		<div class="loki" id="gods">
+		<div class="block">
+			<div class="title">
+
+				<h4>
+				
+					<span class="h-inline">
+					<a href="//hardware.slashdot.org/story/10/05/28/043243/XBMC-Discontinues-Xbox-Support" title="Back to Article - XBMC Discontinues Xbox Support">XBMC Discontinues Xbox Support</a></span>
+					<span class="titlecount"><a href="//hardware.slashdot.org/story/10/05/28/043243/XBMC-Discontinues-Xbox-Support#topcomment" title="Back to Top Comment - XBMC Discontinues Xbox Support"><span id="titlecountnum">13</span> <span>Comments</span></a></span>
+				
+		<span class="ccw-header-links"><a href="#" onclick="D2.ajaxFetchComments(0,1); return false"><span id="more_comments_num_b"></span> More</a>
+
+
+
+	| <a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;op=reply&amp;threshold=1&amp;commentsort=0&amp;mode=thread&amp;pid=" onclick="D2.replyTo(0); return false;">Reply</a>
+
+
+	<a class="login"  href="//hardware.slashdot.org/login.pl" onclick="show_login_box(); return false">Login</a></span>
+		<span id="d2toggle" title="Toggle window location" onclick="D2.toggleWidgetRooted(); return false;" class="close">/</span>
+				</h4>
+			</div>
+		</div>
+<script type="text/javascript">
+$(function(){
+	D2.slider = new D2.Slider(
+		D2.user_threshold(),
+		D2.user_highlightthresh(),
+		'x'
+	);
+});
+</script>
+		<div id="bones">
+      <div id="ccw">
+        <div id="ccw-body" class="ccw-core">
+          <div id="ccw-panel-container" class="ccw-core">
+            <div id="ccw-full-panel" class="ccw-panel">
+              <div class="ccw-panel-border"></div>
+              <div id="ccw-full-count-pos" class="ccw-core-pos ccw-count-pos">
+                <span id="ccw-full-count-text" class="ccw-count-text"><span></span><span id="ccw-full-phrase">&nbsp;Full</span></span>
+              </div>
+            </div>
+            <div id="ccw-abbr-panel" class="ccw-panel">
+              <div class="ccw-panel-border"></div>
+              <div id="ccw-abbr-count-pos" class="ccw-core-pos ccw-count-pos">
+                <span id="ccw-abbr-count-text" class="ccw-count-text"><span></span><span id="ccw-abbr-phrase">&nbsp;Abbreviated</span></span>
+              </div>
+            </div>
+            <div id="ccw-hide-panel" class="ccw-panel">
+              <div id="ccw-hide-count-pos" class="ccw-core-pos ccw-count-pos">
+                <span id="ccw-hide-count-text" class="ccw-count-text"><span></span><span id="ccw-hide-phrase">&nbsp;Hidden</span></span>
+              </div>
+            </div>
+          </div>
+    
+          <div id="ccw-control" class="ccw-core">
+            <div id="ccw-centering-rail" class="ccw-core">
+              <div id="ccw-hide-bar-pos" class="ccw-core-pos">
+                <div id="ccw-hide-bar" class="ccw-bar">
+                  <div id="ccw-hide-bar-tab" class="ccw-bar-tab"></div>
+                  <div id="ccw-hide-bar-upzone" class="ccw-upzone" onclick="D2.slider.stepTHT(HIDE_BAR, +1)"></div>
+                  <div id="ccw-hide-bar-downzone" class="ccw-downzone" onclick="D2.slider.stepTHT(HIDE_BAR, -1)"></div>
+                </div>
+              </div>
+              <div id="ccw-abbr-bar-pos" class="ccw-core-pos">
+                <div id="ccw-abbr-bar" class="ccw-bar">
+                  <div id="ccw-abbr-bar-tab" class="ccw-bar-tab"></div>
+                  <div id="ccw-abbr-bar-upzone" class="ccw-upzone" onclick="D2.slider.stepTHT(ABBR_BAR, +1)"></div>
+                  <div id="ccw-abbr-bar-downzone" class="ccw-downzone" onclick="D2.slider.stepTHT(ABBR_BAR, -1)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+		</div>
+		<div class="commentControlFooter"><a href="#" onclick="D2.ajaxFetchComments(0,1); return false"><span id="more_comments_num_c"></span> More</a>
+
+
+
+	| <a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;op=reply&amp;threshold=1&amp;commentsort=0&amp;mode=thread&amp;pid=" onclick="D2.replyTo(0); return false;">Reply</a>
+
+
+	<a class="login"  href="//hardware.slashdot.org/login.pl" onclick="show_login_box(); return false">Login</a><div id="login_cover" style="display:none" onclick="hide_login_box()"></div>
+<div id="login_box" style="display:none">
+<div class="generaltitle" >
+	<div class="title">
+		<h3 >
+			Please Log In to Continue<a href="#" onclick="hide_login_box(); return false" class="close" title="Close this box">x</a>
+			
+		</h3>
+	</div>
+</div>
+<div id="login_box_content">
+<form action="//slashdot.org/login.pl" method="post">
+<fieldset>
+	<legend>Log In</legend>
+	<label>
+		Nickname
+	</label>
+	<input type="text" name="unickname" size="20" value="">
+	<label>
+		Password
+	</label>
+	<input type="hidden" name="returnto" value="//hardware.slashdot.org/comments.pl?sid=1667646">
+	<input type="hidden" name="op" value="userlogin">
+	<input type="password" name="upasswd" size="20">
+	<label class="checkbox">
+		<input type="checkbox" name="login_temp" value="yes">
+		Public Terminal
+	</label>
+	<input type="submit" name="userlogin" value="Log in" class="button">
+	</fieldset>
+</form>
+
+
+
+<hr>
+
+
+<form action="//slashdot.org/login.pl" method="post">
+<fieldset>
+	<input type="hidden" name="slash_returnto" value="//hardware.slashdot.org/comments.pl?sid=1667646">
+	<input type="hidden" name="op" value="claim_openid">
+	<input type="hidden" name="openid_login" value="1">
+	<label for="openid_url" class="openid_url">
+	<input type="text" name="openid_url" value="http://" size="32" maxlength="255">
+	</label>
+	<input type="submit" value="Log in with OpenID" class="button">
+</fieldset>
+</form>
+
+
+<p>
+<b>
+<a href="//slashdot.org/my/newuser">Create Account</a>
+&nbsp;|&nbsp;
+<a href="//slashdot.org/my/mailpassword">Retrieve Password</a>
+</b>
+</p>
+</div></div>
+<script type="text/javascript">logged_in = 0</script></div>
+		<div id="commentControlBoxStatus" class="hide"><b>Loading... please wait.</b></div>
+	</div>
+</div>
+		</div>
+	
+</div>
+<a name="topcomment"></a><script src="//a.fsdn.com/sd/comments-minified.js?T_2_5_0_298" type="text/javascript"></script>
+	<script type="text/javascript">
+<!--
+	D2.d2_keybindings_disable()[191] = 1;
+	D2.boxStatus(1);
+D2.comments({ 32374596: { uid: 826049, pid: 32374514, subject: "Re:Can a nettop that can run media centre software", read: 0, points: 1, kids: [  ], opid: 32374514 }, 32374576: { uid: 591818, pid: 32374478, subject: "Re:the irony of this", read: 0, points: 2, kids: [  ], opid: 32374478 }, 32374478: { uid: 1794636, pid: 0, read: 0, points: 2, kids: [ 32374538, 32374576 ], opid: 0 }, 32374334: { uid: 562418, pid: 0, read: 0, points: -1, kids: [  ], opid: 0 }, 32374400: { uid: 112473, pid: 0, read: 0, points: 2, kids: [  ], opid: 0 }, 32374578: { uid: 197729, pid: 0, read: 0, points: 1, kids: [  ], opid: 0 }, 32374362: { uid: 1223518, pid: 0, read: 0, points: 4, kids: [ 32374514 ], opid: 0 }, 32374556: { uid: 666, pid: 0, read: 0, points: 0, kids: [  ], opid: 0 }, 32374538: { uid: 666, pid: 32374478, subject: "Re:the irony of this", read: 0, points: -1, kids: [  ], opid: 32374478 }, 32374340: { uid: 1750940, pid: 0, read: 0, points: 3, kids: [  ], opid: 0 }, 32374508: { uid: 666, pid: 0, read: 0, points: 0, kids: [  ], opid: 0 }, 32374514: { uid: 894406, pid: 32374362, read: 0, points: 2, kids: [ 32374548, 32374596 ], opid: 32374362 }, 32374548: { uid: 666, pid: 32374514, subject: "Re:Can a nettop that can run media centre software", read: 0, points: 0, kids: [  ], opid: 32374514 } });
+
+D2.thresh_totals({6:{6:{1:13,3:0,2:0}},4:{6:{1:12,3:0,2:1},4:{1:12,3:1,2:0},5:{1:12,3:1,2:0}},1:{6:{1:5,3:0,2:8},4:{1:5,3:2,2:6},1:{1:5,3:8,2:0},3:{1:5,3:4,2:4},2:{1:5,3:7,2:1},5:{1:5,3:1,2:7}},3:{6:{1:11,3:0,2:2},4:{1:11,3:2,2:0},3:{1:11,3:2,2:0},5:{1:11,3:1,2:1}},0:{6:{1:2,3:0,2:11},4:{1:2,3:2,2:9},1:{1:2,3:10,2:1},3:{1:2,3:4,2:7},0:{1:2,3:11,2:0},2:{1:2,3:7,2:4},5:{1:2,3:1,2:10}},2:{6:{1:7,3:0,2:6},4:{1:7,3:2,2:4},3:{1:7,3:4,2:2},2:{1:7,3:6,2:0},5:{1:7,3:1,2:5}},5:{6:{1:13,3:0,2:0},5:{1:13,3:0,2:0}},"-1":{6:{1:0,3:0,2:13},4:{1:0,3:2,2:11},1:{1:0,3:10,2:3},3:{1:0,3:4,2:9},0:{1:0,3:12,2:1},2:{1:0,3:7,2:6},5:{1:0,3:1,2:12},"-1":{1:0,3:13,2:0}}});
+
+D2.root_comment(0);
+D2.root_comments([32374334,32374340,32374362,32374400,32374478,32374508,32374556,32374578]);
+D2.root_comments_hash({32374400:1,32374508:1,32374478:1,32374340:1,32374556:1,32374362:1,32374578:1,32374334:1});
+
+D2.d2_comment_order(0);
+D2.user_uid(666);
+D2.user_is_anon(1);
+D2.user_is_admin(0);
+D2.user_is_subscriber(0);
+D2.user_smallscreen(0);
+D2.user_threshold(1);
+D2.user_highlightthresh(4);
+D2.user_d2asp(0);
+
+D2.discussion_id(1667646);
+
+D2.d2_seen('32374334,6,22,38,78,30,6,24,10,8,20,2,18');
+D2.more_comments_num(0);
+
+
+//-->
+	</script>
+
+
+
+
+	
+	
+	
+	
+		<ul id="commentlisting" class="d2">
+			<li id="tree_32374334" class="comment">
+<div id="comment_status_32374334" class="commentstatus"></div>
+<div id="comment_32374334" class="hidden">
+</div>
+
+<div id="replyto_32374334"></div>
+
+<ul id="group_32374334">
+	<li id="hiddens_32374334" class="hide"></li>
+</ul>
+
+</li><li id="tree_32374340" class="comment contain">
+<div id="comment_status_32374340" class="commentstatus"></div>
+<div id="comment_32374340" class="full">
+	<div id="comment_top_32374340" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374340" name="comment_link_32374340" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374340" onclick="return D2.setFocusComment(32374340)">XBMC4XBOX Lives</a>
+
+
+		 	<span id="comment_score_32374340" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374340); return false">Score:3</a>, Informative)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~TheRealQuestor">TheRealQuestor <span class="uid">(1750940)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374340">		
+		on Friday May 28, @08:06AM (<a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374340">#32374340</a>)
+		<small> </small>
+</span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374340">We have been working on taking over the xbox branch for the last couple of months. <a href="http://www.xbmc4xbox.org/" title="xbmc4xbox.org" rel="nofollow">http://www.xbmc4xbox.org/</a> [xbmc4xbox.org] so if you feel you can help head on over. We still have tons of work to do but it's getting really close to being back on track with continued development.</div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374340">
+<span id="reply_link_32374340" class="nbutton"><p><b><a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;op=Reply&amp;threshold=1&amp;commentsort=0&amp;mode=thread&amp;pid=32374340" onclick="D2.replyTo(32374340); return false;">Reply to This</a></b></p></span>
+</div>
+</div>
+
+<div id="replyto_32374340"></div>
+
+<ul id="group_32374340">
+	<li id="hiddens_32374340" class="hide"></li>
+</ul>
+
+</li><li id="tree_32374362" class="comment contain">
+<div id="comment_status_32374362" class="commentstatus"></div>
+<div id="comment_32374362" class="full">
+	<div id="comment_top_32374362" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374362" name="comment_link_32374362" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374362" onclick="return D2.setFocusComment(32374362)">A pity; but not a huge shock...</a>
+
+
+		 	<span id="comment_score_32374362" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374362); return false">Score:4</a>, Insightful)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~fuzzyfuzzyfungus">fuzzyfuzzyfungus <span class="uid">(1223518)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374362">		
+		on Friday May 28, @08:08AM (<a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374362">#32374362</a>)
+		<small><a href="//slashdot.org/~fuzzyfuzzyfungus/journal/" title="Sunday June 28 2009, @08:15PM" class="user_journal_display">Journal</a> </small>
+</span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374362">In its day, and for a fair while after, the XBOX was an excellent deal for video applications. ~PIII-733 level performance and(rather more importantly) a decent set of video outs, something that was sort of dodgy with the PC graphics cards of the day. They got quite cheap, especially used, as well.<br> <br>
+
+However, at this point, a PIII-733 with, IIRC, 64MB of RAM, just isn't that exciting. Nor, with the proliferation of nettops, is the price delta between a real computer and a used xbox nearly what it used to be. Then there is the fact that, while XMBC as a project has always been legit, actually building it for the xbox has been legally kind of dodgy.</div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374362">
+<span id="reply_link_32374362" class="nbutton"><p><b><a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;op=Reply&amp;threshold=1&amp;commentsort=0&amp;mode=thread&amp;pid=32374362" onclick="D2.replyTo(32374362); return false;">Reply to This</a></b></p></span>
+</div>
+</div>
+
+<div id="replyto_32374362"></div>
+
+<ul id="group_32374362">
+	<li id="hiddens_32374362" class="hide"></li>
+</ul>
+
+<ul id="commtree_32374362"><li id="tree_32374514" class="comment">
+<div id="comment_status_32374514" class="commentstatus"></div>
+<div id="comment_32374514" class="oneline">
+	<div id="comment_top_32374514" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374514" name="comment_link_32374514" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374514" onclick="return D2.setFocusComment(32374514)">Can a nettop that can run media centre software?</a>
+
+
+		 	<span id="comment_score_32374514" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374514); return false">Score:2</a>)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~Chrisq">Chrisq <span class="uid">(894406)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374514"></span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374514">I thought that the XBOX graphics chipset was the reason that it could run. CAn any nettops run media PC stuff reasonably well?</div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374514">
+
+</div>
+</div>
+
+<div id="replyto_32374514"></div>
+
+<ul id="group_32374514">
+	<li id="hiddens_32374514" class="hide"></li>
+</ul>
+
+<ul id="commtree_32374514"><li id="tree_32374548" class="comment">
+<div id="comment_status_32374548" class="commentstatus"></div>
+<div id="comment_32374548" class="hidden">
+</div>
+
+<div id="replyto_32374548"></div>
+
+<ul id="group_32374548">
+	<li id="hiddens_32374548" class="hide"></li>
+</ul>
+
+</li><li id="tree_32374596" class="comment">
+<div id="comment_status_32374596" class="commentstatus"></div>
+<div id="comment_32374596" class="oneline">
+	<div id="comment_top_32374596" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374596" name="comment_link_32374596" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374596" onclick="return D2.setFocusComment(32374596)">Re:</a>
+
+
+		 	<span id="comment_score_32374596" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374596); return false">Score:1</a>)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~GraemeDonaldson">GraemeDonaldson <span class="uid">(826049)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374596"></span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374596">Yes, <a href="http://www.silentpcreview.com/zotac-ion" title="silentpcreview.com" rel="nofollow">Zotac ION</a> [silentpcreview.com] boards do it exceptionally well according to pretty much every review I've read. I'm going to build a HTPC based on one of these.</div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374596">
+
+</div>
+</div>
+
+<div id="replyto_32374596"></div>
+
+<ul id="group_32374596">
+	<li id="hiddens_32374596" class="hide"></li>
+</ul>
+
+</li><li id="hidestring_32374514"><noscript><b><a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;threshold=-1&amp;commentsort=0&amp;mode=thread&amp;pid=32374514">1 reply</a> beneath your current threshold.</b></noscript></li></ul></li></ul></li><li id="tree_32374400" class="comment">
+<div id="comment_status_32374400" class="commentstatus"></div>
+<div id="comment_32374400" class="oneline">
+	<div id="comment_top_32374400" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374400" name="comment_link_32374400" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374400" onclick="return D2.setFocusComment(32374400)">XBMC was the best thing for the Xbox</a>
+
+
+		 	<span id="comment_score_32374400" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374400); return false">Score:2</a>, Insightful)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~Parlett316">Parlett316 <span class="uid">(112473)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374400"></span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374400"><p>That huge black box was the best media center I have had, the WD TV Live only comes close since it can play H.264.</p></div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374400">
+
+</div>
+</div>
+
+<div id="replyto_32374400"></div>
+
+<ul id="group_32374400">
+	<li id="hiddens_32374400" class="hide"></li>
+</ul>
+
+</li><li id="tree_32374478" class="comment">
+<div id="comment_status_32374478" class="commentstatus"></div>
+<div id="comment_32374478" class="oneline">
+	<div id="comment_top_32374478" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374478" name="comment_link_32374478" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374478" onclick="return D2.setFocusComment(32374478)">the irony of this</a>
+
+
+		 	<span id="comment_score_32374478" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374478); return false">Score:2</a>, Insightful)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~batistuta">batistuta <span class="uid">(1794636)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374478"></span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374478"><p>It is kind of funny how history made this package evolve. The XBMC, which abreviates "XBOX Media Center", was originally developed for the XBOX. And now, it supports different platforms and operating systems but not the XBOX any longer. If you don't know its history, you'd find it a joke what XBMC stands for.</p></div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374478">
+
+</div>
+</div>
+
+<div id="replyto_32374478"></div>
+
+<ul id="group_32374478">
+	<li id="hiddens_32374478" class="hide"></li>
+</ul>
+
+<ul id="commtree_32374478"><li id="tree_32374538" class="comment">
+<div id="comment_status_32374538" class="commentstatus"></div>
+<div id="comment_32374538" class="hidden">
+</div>
+
+<div id="replyto_32374538"></div>
+
+<ul id="group_32374538">
+	<li id="hiddens_32374538" class="hide"></li>
+</ul>
+
+</li><li id="tree_32374576" class="comment">
+<div id="comment_status_32374576" class="commentstatus"></div>
+<div id="comment_32374576" class="oneline">
+	<div id="comment_top_32374576" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374576" name="comment_link_32374576" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374576" onclick="return D2.setFocusComment(32374576)">Re:</a>
+
+
+		 	<span id="comment_score_32374576" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374576); return false">Score:2</a>)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~qortra">qortra <span class="uid">(591818)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374576"></span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374576"><p><div class="quote"><p>The XBMC, which abreviates "XBOX Media Center"</p></div><p><div class="quote"><p>If you don't know its history, you'd find it a joke what XBMC stands for.</p></div><p>You might as well just say it. It now stands for "XBMC Media Center". Perhaps it's somewhat funny, but <a href="http://en.wikipedia.org/wiki/Recursive_acronym" title="wikipedia.org">recursive acronyms</a> [wikipedia.org] are hardly new, and they have a long and proud tradition in Free Software. <a href="http://en.wikipedia.org/wiki/GNU" title="wikipedia.org">GNU</a> [wikipedia.org], the name for the userspace tools in most Linux-based operating systems, is among the oldest of currently used recursive acronyms in free software.</p></div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374576">
+
+</div>
+</div>
+
+<div id="replyto_32374576"></div>
+
+<ul id="group_32374576">
+	<li id="hiddens_32374576" class="hide"></li>
+</ul>
+
+</li><li id="hidestring_32374478"><noscript><b><a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;threshold=-1&amp;commentsort=0&amp;mode=thread&amp;pid=32374478">1 reply</a> beneath your current threshold.</b></noscript></li></ul></li><li id="tree_32374508" class="comment">
+<div id="comment_status_32374508" class="commentstatus"></div>
+<div id="comment_32374508" class="hidden">
+</div>
+
+<div id="replyto_32374508"></div>
+
+<ul id="group_32374508">
+	<li id="hiddens_32374508" class="hide"></li>
+</ul>
+
+</li><li id="tree_32374556" class="comment">
+<div id="comment_status_32374556" class="commentstatus"></div>
+<div id="comment_32374556" class="hidden">
+</div>
+
+<div id="replyto_32374556"></div>
+
+<ul id="group_32374556">
+	<li id="hiddens_32374556" class="hide"></li>
+</ul>
+
+</li><li id="tree_32374578" class="comment">
+<div id="comment_status_32374578" class="commentstatus"></div>
+<div id="comment_32374578" class="oneline">
+	<div id="comment_top_32374578" class="commentTop newcomment">
+		<div class="title">
+			<h4><a id="comment_link_32374578" name="comment_link_32374578" href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;cid=32374578" onclick="return D2.setFocusComment(32374578)">Alternatives?</a>
+
+
+		 	<span id="comment_score_32374578" class="score"> (<a href="#" onclick="getModalPrefs('modcommentlog', 'Moderation Comment Log', 32374578); return false">Score:1</a>)</span></h4>
+		</div>
+		<div class="details">
+			<span class="by"><span class="byby">by </span><a href="//slashdot.org/~Tigris666">Tigris666 <span class="uid">(197729)</span></a></span><span class="writes" style="display:none"> writes:</span> 
+			<span class="otherdetails" id="comment_otherdetails_32374578"></span>
+		</div>
+	</div>
+	<div class="commentBody">
+		<div id="comment_body_32374578"><p>Out of curiosity, what are people using instead? I was looking to upgrade from the old noise xbox about 2 years ago because it couldn't play 720p, so I went with the ps3. It suffers because it can't play mkv but has some conversion tools, but still I find many avi files it can't play. Would definitely be interested in alternative hardware to install XBMC onto other than my xbox, so long as it doesn't require me assembling it myself or any crazy linux installs trying to get hdmi and 3d cards to play nicely.</p></div>
+	</div>
+
+	<div class="commentSub" id="comment_sub_32374578">
+
+</div>
+</div>
+
+<div id="replyto_32374578"></div>
+
+<ul id="group_32374578">
+	<li id="hiddens_32374578" class="hide"></li>
+</ul>
+
+</li><li id="hidestring_0"><noscript><b><a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;threshold=-1&amp;commentsort=0&amp;mode=thread&amp;pid=0">3 replies</a> beneath your current threshold.</b></noscript></li>
+			<li id="roothiddens" class="hide"></li>
+		</ul>
+	
+	
+	
+	
+
+
+<div class="newcmnt"><div id="replyto_0"></div></div>
+
+
+<noscript><p><b>There may be more comments in this discussion. Without JavaScript enabled, you might want to <a href="//hardware.slashdot.org/users.pl?op=editcomm">turn on Classic Discussion System</a> in your preferences instead.</b></p></noscript>
+
+<div id="discussion_buttons">
+
+
+<span class="nbutton hide"><p><b><a href="#" onclick="D2.ajaxFetchComments(0,1); return false"><span id="more_comments_num_a" class="hide">Get More Comments</span></a></b></p></span>
+
+
+
+<span class="nbutton"><p><b><a href="//hardware.slashdot.org/comments.pl?sid=1667646&amp;op=reply&amp;threshold=1&amp;commentsort=0&amp;mode=thread&amp;pid=" onclick="D2.replyTo(0); return false;">Reply</a></b></p></span>
+
+
+
+
+
+
+
+</div>
+
+
+
+	<script type="text/javascript">
+<!--
+		D2.currents()['hidden']   = 5;
+		D2.currents()['full']     = 2;
+		D2.currents()['oneline']  = 6;
+		// D2.currents_total(13);
+
+		D2.abbrev_comments({});
+		D2.noshow_comments([32374334,32374548,32374538,32374508,32374556]);
+		D2.pieces_comments([32374514,32374596,32374400,32374478,32374576,32374578]);
+		D2.init_hiddens([32374514,32374478,0]);
+
+		D2.finishLoading();
+
+
+		if (D2.thresh_totals()[6][6][1] == 0) {
+			D2.replyTo(0, 1);
+		}
+
+
+//-->
+	</script>
+			</div>
+
+
+
+
+
+
+
+
+
+
+			</div>
+
+
+			
+
+
+
+
+	</div>	
+	
+
+
+
+
+<script type="text/javascript">
+$(function(){
+
+		
+
+$('#firehose-filter').
+	focus(function(event){
+		gFocusedText = this;
+	}).
+	blur(function(event){
+		if ( gFocusedText === this ) {
+			gFocusedText = null;
+		}
+	});
+
+
+apply_updates_when(		'at-end', true);
+});
+</script>
+
+
+
+<!-- body end --></div>
+<div id="ft" >
+		<div id="topfoot">
+	
+		<div class="search">
+		
+		<form method="get" action="//hardware.slashdot.org/search.pl">
+			<fieldset>
+				<legend>Search</legend>
+				<input type="text" name="query" value="" size="20">
+				<input type="submit" value="Search" class="button">
+			</fieldset>
+		</form>
+		
+		</div>
+	
+		<div class="rightcontent">
+			
+               	        <small>No-one would remember the Good Samaritan if he had only had good
+intentions.  He had money as well.
+		-- Margaret Thatcher</small>
+			
+		</div>	
+		<div id="slug-Bottom" class="slug"></div>
+		</div>
+		<div class="copyright">
+			<p>
+				All trademarks and copyrights on this page are owned by their respective owners. Comments are owned by the Poster. The Rest &copy; 1997-2010 <a href="http://geek.net/">Geeknet, Inc.</a>
+			</p>
+		</div>
+		<div id="login_cover" style="display:none" onclick="hide_login_box()"></div>
+<div id="login_box" style="display:none">
+<div class="generaltitle" >
+	<div class="title">
+		<h3 >
+			Please Log In to Continue<a href="#" onclick="hide_login_box(); return false" class="close" title="Close this box">x</a>
+			
+		</h3>
+	</div>
+</div>
+<div id="login_box_content">
+<form action="//slashdot.org/login.pl" method="post">
+<fieldset>
+	<legend>Log In</legend>
+	<label>
+		Nickname
+	</label>
+	<input type="text" name="unickname" size="20" value="">
+	<label>
+		Password
+	</label>
+	<input type="hidden" name="returnto" value="//hardware.slashdot.org/">
+	<input type="hidden" name="op" value="userlogin">
+	<input type="password" name="upasswd" size="20">
+	<label class="checkbox">
+		<input type="checkbox" name="login_temp" value="yes">
+		Public Terminal
+	</label>
+	<input type="submit" name="userlogin" value="Log in" class="button">
+	</fieldset>
+</form>
+
+
+
+<hr>
+
+
+<form action="//slashdot.org/login.pl" method="post">
+<fieldset>
+	<input type="hidden" name="slash_returnto" value="//hardware.slashdot.org/">
+	<input type="hidden" name="op" value="claim_openid">
+	<input type="hidden" name="openid_login" value="1">
+	<label for="openid_url" class="openid_url">
+	<input type="text" name="openid_url" value="http://" size="32" maxlength="255">
+	</label>
+	<input type="submit" value="Log in with OpenID" class="button">
+</fieldset>
+</form>
+
+
+<p>
+<b>
+<a href="//slashdot.org/my/newuser">Create Account</a>
+&nbsp;|&nbsp;
+<a href="//slashdot.org/my/mailpassword">Retrieve Password</a>
+</b>
+</p>
+</div></div>
+<script type="text/javascript">logged_in = 0</script>
+		<div class="nav">
+			<ul>
+				<li>
+					<a href="//slashdot.org/">home</a> 
+				</li>
+				<li class="submit">
+					<a href="//slashdot.org/submission">submit story</a> 
+				</li>
+				<li>
+					<a href="//slashdot.org/help">help</a> 
+				</li>
+				<li>
+					<a href="http://geek.net/advertising">advertise</a>
+				</li>
+				<li>
+					<a href="http://geek.net/terms.php">terms of service</a> 
+				</li>
+				<li>
+					<a href="http://geek.net/privacy.php">privacy</a> 
+				</li>
+				<li class="rss">
+					<a href="http://rss.slashdot.org/Slashdot/slashdotHardware">rss</a> 
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<a href="#topothepage" class="hidden">Jump to top of page</a> 
+<div id="modal_cover" style="display:none"></div>
+<div id="modal_box" style="display:none">
+        <div class="generaltitle" >
+                <div class="title"><h3><span id="preference_title"></span> <a href="#" onclick="hide_modal_box(); return false">Close</a></h3></div>
+        </div>
+        <div id="modal_box_content"></div>
+</div>
+
+
+
+<script type="text/javascript">
+pageTracker._trackPageview();
+COMSCORE.beacon({
+  c1:2,
+  c2:6035546,
+  c3:"",
+  c4:"",
+  c5:"",
+  c6:"",
+  c15:""
+});
+</script>
+<noscript><img src="http://b.scorecardresearch.com/p?c1=2&amp;c2=6035546&amp;c3=&amp;c4=&amp;c5=&amp;c6=&amp;c15=&amp;cj=1" alt="comScore2"></noscript>
+<script id="after-content" type="text/javascript">
+(function( $, fn, console ){
+	$ && fn && $(function(){ fn($, console); });
+})(window.jQuery, window.pageload_done, window.console);
+</script>
+</body>
+</html>

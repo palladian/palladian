@@ -1,5 +1,6 @@
 \chapter{Installation and Making it Work}
-Palladian depends on Java 1.6. If you are using Linux, make sure to use Sun's proprietary JDK instead of OpenJDK to avoid build problems\footnote{Open a Terminal and enter \texttt{java -version} to check the currently installed Java version. The necessary steps to change your Java version depend on your Linux distribution, for Ubuntu flavours see \url{https://help.ubuntu.com/community/Java}.}. The code base is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see Chapter~\ref{sec:toolkitstructure}). It is build and tested automatically on every commit using \href{http://maven.apache.org/}{Apache Maven} and \href{http://jenkins-ci.org/}{Jenkins CI}. Bugs might be reported using the \href{http://www.redmine.org/}{Redmine bugtracker}. The project encoding is UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
+Palladian depends on Java 1.6. %If you are using Linux, make sure to use Sun's proprietary JDK instead of OpenJDK to avoid build problems\footnote{Open a Terminal and enter \texttt{java -version} to check the currently installed Java version. The necessary steps to change your Java version depend on your Linux distribution, for Ubuntu flavours see \url{https://help.ubuntu.com/community/Java}.}. 
+The code base is managed using Git (see Chapter~\ref{sec:toolkitstructure}). It is build and tested automatically on every commit using Apache Maven\footnote{\url{http://maven.apache.org/}} and Jenkins CI\footnote{\url{http://jenkins-ci.org/}}. Bugs might be reported using on the Bitbucket issue tracker\footnote{\url{https://bitbucket.org/palladian/palladian/issues}}. The project encoding is UTF-8. To support unavailable libraries we manage our own Maven repository using Sonatype Nexus\footnote{\url{http://nexus.sonatype.org/}}. How to use these components is explained in the next sections.
 
 Currently each systems manages its own user base so registration is needed for each one. To start working with the toolkit you should send an E-Mail to a toolkit administrator to get access to the systems. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
 \section{Building Palladian using Apache Maven}
@@ -166,12 +167,6 @@ It is also necessary to tell Eclipse to use Java 1.6 instead of 1.4. To do this 
 \end{figure}
 For the code to work you need copy three files from the config folder in the toolkit project to the config in the source code. These are \texttt{crawler.conf}, \texttt{apikeys.conf} and \texttt{feeds.conf}. You need to copy them to \texttt{src/main/resources/config}. The folder \texttt{src/main/resources} usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
 
-\begin{figure}
-\centering
-\includegraphics[trim=0 250px 600px 0,clip=true,width=\textwidth]{img/ht11.png}
-\caption{\texttt{config/crawler.conf}}
-\label{fig:resource01}
-\end{figure}
 \begin{figure}
 \centering
 \includegraphics[trim=0 850px 600px 0,clip=true,width=\textwidth]{img/ht12.png}

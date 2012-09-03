@@ -1,0 +1,5 @@
+Feed-Anbieter hatte scheinbar 2 Probleme:
+* manchmal wechselnde SessionIDs, die sich im Pfad hinter /f/ verbergen, 
+* scheinbar hat der Anbieter selbst (das Encoding) hin und wieder verhauen, denn die Zeile 
+"1287142740000;"Article post? le vendredi 15 octobre 2010 07:35";"
+kommt in 3 Versionen vor, bei denen sich auch noch der in den Titel integeriete Zeitstempel ändert....

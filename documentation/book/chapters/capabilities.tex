@@ -354,6 +354,27 @@ As we can see, JLangDetect performs very well across all text lengths. Palladian
 
 \section{Extraction}
 
+Palladian includes many algorithms to extract information from different kinds of documents, mostly focused on text. For this purpose Palladian contains two APIs. The direct processing API and the pipeline API. The first should be used if you just need one kind of extraction isolated from other processing steps. The second in contrast should be used to create long processing chains that need to run on a large corpus of documents. Table~\ref{tab:pipelineprocessors} list the classes available for extracting information from documents within Palladian. The following sections explain them in more detail.
+\begin{table}[position specifier]
+\centering
+\begin{tabular}{|c|p{3cm}|l|}
+\hline Class Name & Implementations & Short Description \\
+\hline AbstractSentenceDetector & LingPipeSentenceDetector\newline OpenNlpSentenceDetector\newline PalladianSentenceDetector & Marks sentences in a document.\\
+\hline BasePosTagger & LingPipePosTagger\newline OpenNlpPosTagger\newline PalladianPosTagger\newline TweetNlpPosTagger \newline WebKnoxPosTagger \newline WiktionaryPosTagger & Marks part of speech tags (PoS) inside a document.\\
+\hline CsvWriterProcessor & - & Writes extracted features to a CSV file.\\
+\hline HtmlCleaner & - & Removes/transforms HTML tags and entities from a text.\\
+\hline LowerCaser & - & Transformes the processed document to lower case.\\
+\hline NounAnnotator & - & Marks all nouns in a document.\\
+\hline PalladianQuestionAnnotator & - & Marks sentences as questions using the 5W1H words and question marks as indicator.\\
+\hline RatioExtractor & - & Calculates the ratio between two kinds of annotations extracted by other pipline processors.\\
+\hline RegExTokenizer & - & Marks all matches of some regular expression within a document.\\
+\hline TokenOverlapCalculator & - & Calculates the Jaccard overlap of tokens of two documents \\
+\hline
+\end{tabular}
+\caption{Pipeline processors available within Palladian}
+\label{tab:pipelineprocessors}
+\end{table}
+
 %TODO refactor from "ControlledTagger" to "ControlledKeywordExtractor" or something like that..
 \subsection{Keyword Extraction / Controlled Tagging}
 It is often interesting which words describe a given text most. These words are often called ``keywords'' or ``tags''. Palladian is able to use a weighted, controlled vocabulary and perform tagging of a text using TF-IDF and tag correlations.
