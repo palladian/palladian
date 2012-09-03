@@ -1,0 +1,20 @@
+
+# /
+/dropDDL.sql
+/MyDB.log
+/MyDB.properties
+/MyDB.script
+/createDDL.sql
+/login.properties
+/target
+/temp
+/MyDB.tmp
+/.pmd
+/.checkstyle
+/.project
+/.classpath
+/.settings
+
+# /src/main/java/ws/palladian/iirmodel/
+/src/main/java/ws/palladian/iirmodel/*_.java
+/.settings

@@ -1,0 +1,581 @@
+Status Code:200
+X-Pingback:http://www.spreeblick.com/xmlrpc.php
+Transfer-Encoding:chunked
+Vary:Accept-Encoding,Cookie
+Date:Sun, 22 Jul 2012 14:35:38 GMT
+Content-Encoding:gzip
+Last-Modified:Sun, 22 Jul 2012 13:59:10 GMT
+Keep-Alive:timeout=5, max=100
+Content-Type:text/html; charset=utf-8
+Connection:Keep-Alive
+X-Powered-By:W3 Total Cache/0.9.2.4
+Server:Apache
+
+----------------- End Headers -----------------
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html
+xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="de"><head
+profile="http://gmpg.org/xfn/11"><meta
+http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Die Arbeit an &#8220;Netzgemüse&#8221; | Spreeblick</title><link
+rel="stylesheet" media="screen" href="http://www.spreeblick.com/wp-content/themes/sb07_revamped/style.css" /><link
+rel="shortcut icon" href="http://www.spreeblick.com/favicon.ico"/><link
+rel="image_src" href="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/sbanchor.png" /><link
+rel="alternate" type="application/rss+xml" title="Spreeblick RSS Feed" href="http://www.spreeblick.com/feed/" /><style type="text/css">
+		#logo, #tweetbox { background-color: #B30040; }
+	</style><meta
+name="readability-verification" content="n6DRUJFq6h6n98JTPdHNq5HNRJHDdWG6fcB8XLJX"/><link
+rel="alternate" type="application/rss+xml" title="Spreeblick &raquo; Die Arbeit an &#8220;Netzgemüse&#8221; Comments Feed" href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/feed/" /><link
+rel='stylesheet' id='ecu-css'  href='http://www.spreeblick.com/wp-content/plugins/easy-comment-uploads/style.css?ver=3.3' type='text/css' media='all' /><link
+rel='stylesheet' id='dialog-css'  href='http://www.spreeblick.com/wp-content/plugins/editable-comments/dialog/styles.css?ver=3.3' type='text/css' media='all' /><link
+rel='stylesheet' id='fvcn-default-css'  href='http://www.spreeblick.com/wp-content/plugins/fv-community-news/Public/css/styles.css?ver=2.0.3' type='text/css' media='all' /><link
+rel='stylesheet' id='instapress-css'  href='http://www.spreeblick.com/wp-content/plugins/instapress/instapress.css?ver=3.3' type='text/css' media='all' /><link
+rel='stylesheet' id='fancybox-css'  href='http://www.spreeblick.com/wp-content/plugins/instapress/fancybox/jquery.fancybox.css?ver=1.3.4' type='text/css' media='all' /><link
+rel='stylesheet' id='NextGEN-css'  href='http://www.spreeblick.com/wp-content/plugins/nextgen-gallery/css/nggallery.css?ver=1.0.0' type='text/css' media='screen' /><link
+rel='stylesheet' id='shutter-css'  href='http://www.spreeblick.com/wp-content/plugins/nextgen-gallery/shutter/shutter-reloaded.css?ver=1.3.3' type='text/css' media='screen' /><link
+rel='stylesheet' id='wp-polls-css'  href='http://www.spreeblick.com/wp-content/plugins/wp-polls/polls-css.css?ver=2.50' type='text/css' media='all' /><link
+rel='stylesheet' id='thickbox-css'  href='http://www.spreeblick.com/wp-includes/js/thickbox/thickbox.css?ver=20111117' type='text/css' media='all' /><link
+rel='stylesheet' id='mediaelementjs-styles-css'  href='http://www.spreeblick.com/wp-content/plugins/media-element-html5-video-and-audio-player/mediaelement/mediaelementplayer.css?ver=3.3' type='text/css' media='all' /><script type='text/javascript' src='http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js?ver=1.3.2'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/editable-comments/dialog/dialog.min.js?ver=3.3'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/editable-comments/editable-comments.js?ver=3.3'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/fv-community-news/Public/javascript/add-post.js?ver=2.0.3'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/instapress/fancybox/jquery.fancybox-1.3.4.pack.js?ver=1.3.4'></script><script type='text/javascript'>
+/* <![CDATA[ */
+var shutterSettings = {"msgLoading":"L O A D I N G","msgClose":"Click to Close","imageCount":"1"};
+/* ]]> */
+</script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/nextgen-gallery/shutter/shutter-reloaded.js?ver=1.3.3'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/nextgen-gallery/js/jquery.cycle.all.min.js?ver=2.9995'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/nextgen-gallery/js/ngg.slideshow.min.js?ver=1.05'></script><script type='text/javascript'>
+/* <![CDATA[ */
+var ngg_ajax = {"path":"http:\/\/www.spreeblick.com\/wp-content\/plugins\/nextgen-gallery\/","callback":"http:\/\/www.spreeblick.com\/index.php?callback=ngg-ajax","loading":"loading"};
+/* ]]> */
+</script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/nextgen-gallery/js/ngg.js?ver=2.1'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/media-element-html5-video-and-audio-player/mediaelement/mediaelement-and-player.min.js?ver=2.1.3'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/wordtube/javascript/swfobject.js?ver=2.1'></script><script type='text/javascript' src='http://www.spreeblick.com/index.php?wordtube-js=true&#038;ver=2.0'></script><link
+rel='prev' title='Gestoppt: ACTA' href='http://www.spreeblick.com/2012/07/04/gestoppt-acta/' /><link
+rel='shortlink' href='http://www.spreeblick.com/?p=52633' /><meta
+name="description" content="Netzgemüse: Gliederungsversuch, verworfen. Fertig. Tanja und ich haben nach einem intensiven halben Jahr das Netzgemüse-Manuskript abgegeben. Das" /><meta
+name="keywords" content="netzgemüse,positionen,reflexionen" /><link
+rel="canonical" href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/" /> <style type="text/css">.trolldesc { position: relative; font-size: 10px; font-weight: normal; color: #666; } .trolldesctext { position: absolute; top: 0; left: 0; background: #EEE; border: 1px solid #CCC; width: 250px; display: none; padding: 10px; font: normal 1em/1.5 Arial, Helvetica, sans-serif; color: #666; } .trolldesc:hover .trolldesctext, .trolldesctext:hover { display: block; }</style><script type="text/javascript">
+		var imgLoader = 'http://www.spreeblick.com/wp-content/plugins/editable-comments/dialog/loadingAnimation.gif';
+		jQuery(document).ready(function($){   
+			$('a.editable-deletecomment').click(function(event){
+				var conf = confirm('Confirm you want delete this comment ?');
+				if(!conf) event.preventDefault();
+			});
+		});		
+		</script><link
+rel="alternate" type="application/rss+xml" title="Spreeblick &raquo; FV Community News Feed" href="http://www.spreeblick.com/fv-community-news-rss" /> <style type="text/css">
+.wp-polls .pollbar {
+	margin: 1px;
+	font-size: 7px;
+	line-height: 9px;
+	height: 9px;
+	background: #B70919;
+	border: 1px solid #B70919;
+}
+</style><script type='text/javascript'>/* <![CDATA[ */ var _wpaudio = {url: 'http://www.spreeblick.com/wp-content/plugins/wpaudio-mp3-player', enc: {}, convert_mp3_links: false, style: {text_font:'Sans-serif',text_size:'18px',text_weight:'normal',text_letter_spacing:'normal',text_color:'inherit',link_color:'#24f',link_hover_color:'#02f',bar_base_bg:'#eee',bar_load_bg:'#ccc',bar_position_bg:'#46f',sub_color:'#aaa'}}; /* ]]> */</script><script type="text/javascript" src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_js/jquery.popeye.js"></script><script type="text/javascript" src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_js/jquery.cookie.js"></script><script type="text/javascript">
+		$(document).ready(function () {
+			$('.ppyleft').popeye();
+			$('.ppyright').popeye({direction:'left'});
+
+			if( $.cookie("appeal") != 'foo' ) {
+				$('#appeal').show();
+			}
+				
+			$('#appeal-close').click(function() {
+				$.cookie("appeal", "foo");
+				$('#appeal').hide();
+			});
+		});
+	</script></head><body
+class="single single-post postid-52633 single-format-standard"><script src="http://mpn-analytics.mokonocdn.com/tracking/000/000/815.js" type="text/javascript"></script><div
+id="wrap"><div
+id="header"><h1 id="logo"><a
+href="http://www.spreeblick.com" title="Spreeblick"><span></span>Spreeblick</a></h1><div
+id="tweetbox"><div
+class="tweet"><a
+href="http://twitter.com/spreeblick" title="spreeblick" class="twitter-imagelink">spreeblick </a> @<a
+class=" " href="https://twitter.com/Writing_Grace">Writing_Grace</a> Cool! Und Easy! :)</div></div></div><div
+id="navigation"><ul
+id="mainnavi"><li><a
+href="http://www.spreeblick.com/category/kategorien/pop/">Pop</a></li><li><a
+href="http://www.spreeblick.com/category/kategorien/politik/">Politik</a></li><li><a
+href="http://www.spreeblick.com/category/kategorien/produkte/">Produkte</a></li><li><a
+href="http://www.spreeblick.com/category/kategorien/positionen/">Positionen</a></li></ul><ul
+id="subnavi"><li
+class="page_item page-item-992"><a
+href="http://www.spreeblick.com/archive/" title="Archive">Archive</a></li><li
+class="page_item page-item-1001"><a
+href="http://www.spreeblick.com/hilfe/" title="Hilfe">Hilfe</a></li><li
+class="page_item page-item-1000"><a
+href="http://www.spreeblick.com/impressum/" title="Impressum">Impressum</a></li><li
+class="page_item page-item-7667"><a
+href="http://www.spreeblick.com/shop/" title="Shop">Shop</a></li><li
+class="page_item page-item-992"><a
+href="http://www.spreeblick.com/impressum/#kontakt" title="Kontakt">Kontakt</a></li></ul></div><div
+id="maincontent"><div
+class="post-52633 post type-post status-publish format-standard hentry category-netzgemuse category-positionen category-reflexionen top-post"><div
+class="entry-topmeta"><ul
+class="left"><li><a
+href="http://www.spreeblick.com/category/kategorien/positionen/" title="Positionen" class="category-46">Positionen</a></li></ul> <a
+class="right commentlink" href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/#comments_temp"><span>19</span></a><div
+id='rdbWrapper' style="height: 25px; overflow: hidden;"></div><script type='text/javascript'>
+			(function() {
+		    var s     = document.getElementsByTagName('script')[0],
+        	rdb   = document.createElement('script');
+		    rdb.type  = 'text/javascript';
+		    rdb.async = true;
+		    rdb.src   = document.location.protocol + '//www.readability.com/embed.js';
+		    s.parentNode.insertBefore(rdb, s);
+			})();
+			</script></div><h2 class="entry-title"><a
+href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/" title="Permalink zu 'Die Arbeit an &#8220;Netzgemüse&#8221;'">Die Arbeit an &#8220;Netzgemüse&#8221;</a></h2><div
+class="entry-content"><p><img
+src="http://www.spreeblick.com/wp-content/uploads/2012/07/ng01.jpg" alt="netzgemüse" title="netzgemüse" class="alignleft size-full wp-image-52643" /><br
+/> <small>Netzgemüse: Gliederungsversuch, verworfen.</small></p><p>Fertig. Tanja und ich haben nach einem intensiven halben Jahr das <a
+href="http://www.amazon.de/gp/product/3442157439/ref=as_li_ss_tl?ie=UTF8&#038;camp=1638&#038;creative=19454&#038;creativeASIN=3442157439&#038;linkCode=as2&#038;tag=spreeblick-21&#038;l=as2&#038;o=3&#038;a=3442157439">Netzgemüse</a>-Manuskript abgegeben.</p><p>Das bedeutet natürlich keineswegs, das unsere Arbeit beendet ist, denn noch ist das Werk nicht lektoriert und vielleicht gibt es noch Änderungs- oder Ergänzungsbedarf. Dennoch erlaube ich mir schon jetzt ein paar Gedanken, denn ich habe zum ersten Mal ein Buch geschrieben.<br
+/> <span
+id="more-52633"></span></p><p>Zu Beginn des Schreibprozesses war da diese Angst vor der schieren Text-Menge. 220 Seiten sollten es werden, das entspricht etwa 400.000 Zeichen (inkl. Leerzeichen), und am Anfang habe ich alle paar Minuten die Zeichenanzahl überprüft um dauernd festzustellen, dass ich immer noch nicht mehr als vier Seiten geschrieben habe. Und Tanja ging es nicht anders. Obwohl wir uns die Arbeit teilen konnten, waren wir eine ganze Zeitlang sicher: Das schaffen wir nie. Das bekommen wir nicht voll. Was wir zu sagen haben, können wir auf 60 Seiten sagen.</p><p>Dabei stand uns die Erfahrung des Bloggens sogar ein wenig im Weg. Denn obwohl ich auch gerne mal ausufern kann in meinen Blog-Texten, habe ich mir angewöhnt, nicht auf jedes Detail einzugehen. Dass man bei einem Buch gerade dafür die Zeit – besser: den Raum hat, das musste ich erst lernen und dann zum Besten nutzen. Denn Details brauchte das Buch. Aber welche?</p><p>Die Frage nach dem Kenntnisstand der Leserschaft war nämlich die nächste Herausforderung. Klar war, dass es kein Buch für Internet-Dauernutzerinnen oder Nerds sein wird. Aber auch nicht für komplette Einsteiger, denen man wirklich jeden Begriff erklären muss. Aber für wen dann? Eltern, klar. Aber wie alt sind diese Eltern? Wie viel eigene Erfahrung mit dem Internet haben sie bereits?</p><p><img
+src="http://www.spreeblick.com/wp-content/uploads/2012/07/ng02.jpg" alt="netzgemüse" title="netzgemüse" class="alignleft size-full wp-image-52647" /><br
+/> <small>Als wir mal dachten, man könne an einer Hotelbar Bücher schreiben.</small></p><p>Wir entschieden uns, für Eltern ab etwa Mitte 30 zu schreiben, die selbstverständlich und vielleicht aus beruflicher Notwendigkeit das Netz in seinen Grundfunktionen nutzen, darüber hinaus aber eher mit Sorge auf die Mediennutzung ihrer Kinder schauen. Das hat die Arbeit etwas klarer gemacht. Denn Sorgen wollten wir nehmen.</p><p>Doch auch das war nicht ganz simpel. Wer Kinder hat, der weiß: Man kann den digitalen Medien noch so aufgeschlossen gegenüber stehen, man ist in vielen Bereichen doch einsam und überfordert. Und einfache Antworten auf die vielen Fragen gibt es nicht. Zudem kamen wir uns irgendwann bei den Beschreibungen der Netzbereiche vor, als würden wir die ganze Welt erklären wollen, was wir wiederum nicht einmal auf 22.000 Seiten hätten schaffen können, außerdem wollten und konnten wir aber auch keinen Erziehungsratgeber schreiben, denn Ratgeber sind sowieso Mist und passen nie fürs eigene Kind und meine Güte, das steht doch im Grunde genommen alles schon im Netz, sollen die doch selbst einfach mal …</p><p>… es war sehr kompliziert. Unzählige Gliederungen und Stichwortsammlungen später, nach der achtzehnten Revision des Facebook-Kapitels und nachdem wir feststellen mussten, dass wir uns die Arbeit zwar teilten, genau das aber oft genug dazu führte, dass wir Dinge doppelt geschrieben hatten und alles wieder umstellen mussten, beschlossen wir, im Grunde eine Art Manifest zu schreiben mit einer nicht im Buch auftauchenden Überschrift, die heißen könnte: The Kids are alright.</p><p>Überhaupt, das Schreiben zu zweit. Anfangs war es leicht: Du machst YouTube, ich mach Facebook. Und dann tauschen wir das aus und lektorieren uns gegenseitig. Und damit begannen die stundenlangen Diskussionen. Was schreibst du denn da für Unsinn? Wieso bist du jetzt seitenweise auf Smartphones eingegangen, das habe ich doch schon gemacht? Das ist gähnend langweilig, was du da die die letzten zwei Wochen getippt hast, das will doch keine Sau lesen! So siehst du das? Darüber müssen wir aber noch mal reden!</p><p>Ein Problem war auch, dass wir beide sehr unterschiedlich schreiben. Ich schreibe schneller und mehr, aber Tanja schreibt um Längen besser und hat für fast jeden Punkt sowohl kluge als auch richtige und wohl formulierte Vergleiche, die bei mir immer doof sind und die ich daher gleich weglasse, was dann schnell langweilig wird. Dass wir – hoffentlich – beide Stile und Herangehensweisen in einem Buch zusammen bekommen haben, ohne dass die Leserin oder der Leser den Eindruck bekommt, zwei verschiedene Bücher vor sich zu haben – das ist vielleicht unser eigentlicher persönlicher Erfolg.</p><p>Wir haben uns ordentlich gefetzt während der Arbeit, aber auf eine gute Art, meistens mit positiven Resultaten und immer mit dem Ziel: Es soll ein gutes Buch werden.</p><p><img
+src="http://www.spreeblick.com/wp-content/uploads/2012/07/ng03.jpg" alt="Netzgemüse" title="Netzgemüse" class="alignleft size-full wp-image-52648" /><br
+/> <small>Sehr frühe Stichwortsammlung. Teilweise hilfreich.</small></p><p>Wir wussten ab einem bestimmten Zeitpunkt, dass es nicht darum gehen konnte, Antworten auf alle Fragen zu liefern. Wir wussten, dass wir niemanden von der Großartigkeit des Netzes überzeugen würden, dessen Leben zum Großteil aus Sorge und Angst besteht. Stattdessen haben wir eine positive Sicht auf die digitalen Dinge gewagt, haben einen Gegenentwurf zu Horror und Paranoia geschrieben, der sich der Gefahren und Herausforderungen bewusst ist, aber sich von ihnen nicht den Spaß verderben lässt.</p><p>Denn im Verlauf der Recherche und Arbeit wurde uns immer klarer: Es geht im Kern und bei fast allen Themen, über die man nachdenken und schreiben kann, immer um die individuelle Lebenseinstellung, die wir mit einem Buch nicht ändern werden. Sehen wir in erster Linie das Gute in neuen Technologien und Möglichkeiten, dann können wir auch mit ihrer Hilfe die Welt verbessern und voran schreiten. Sehen wir vor allem das Schlechte, werden wir Verbote und Restriktionen fordern und ewig darauf hoffen, dass sich die Zeit zurück bewegt.</p><p>Dass dies nicht passieren wird, das haben in unser Buch geschrieben. Und außerdem, warum manche Videogames so großartig sind; was für wahnsinnig tolle Familien-Abende man mit YouTube haben kann; warum man Kinder nicht bestrafen sollte, wenn man Pornografie im Browser-Verlauf gefunden hat; dass Foren, in denen es um Gewalt geht, keineswegs voller Sadisten sein müssen; warum unserer Meinung nach Kinder und Jugendliche so oft das Virtuelle dem Körperlichen bevorzugen; warum die aktuelle Medienerziehung keine ist und uns daher tierisch auf den Senkel geht … und vieles mehr. Auch, dass das Internet Bielefeld ist.</p><p>275 Seiten sind es geworden (ob es alle ins endgültige Buch schaffen, steht noch in den Sternen), unsere Angst vor der Zeichenmenge war also unbegründet, denn letztendlich haben wir uns selbst oft genug gekürzt.</p><p>Wir haben viel gelernt während der Arbeit an diesem Buch. Auch, dass sich viele Probleme, die das Netz in Sachen Erziehung und Kinder nicht wegdiskutieren lassen und jede Menge Fragen offen bleiben. Das wird auch bei unserem Buch so sein, das garantiert und hoffentlich auch jede Menge Haue bekommt. Denn wirklich erfolgreich wäre es, wenn es einen Ansatz zur öffentlichen Debatte jenseits von medialer Panikmache liefern könnte.</p><p>Wir sind gespannt, aufgeregt, erleichtert und ziemlich fertig. Und auch ein bisschen stolz.</p><p>Als nächstes setzt vermutlich die Panik ein, dass wir totalen Scheiß geschrieben haben könnten, alle das Buch blöd finden und es niemand kauft oder liest. Aber vorher machen wir Ferien. Gemeinsam mit unseren äußerst geduldigen und hilfreichen Kindern, die in den letzten Wochen (erstaunlicherweise ohne viel Beschwerden) zu Minecraft-Experten geworden sind. Während wir das Kapitel &#8222;Spielregeln&#8220; fertig geschrieben haben …</p><p><small>Es wird natürlich ein eigenes Blog zum Buch geben, wir sagen dann Bescheid.</small></p></div><div
+class="entry-footer"><div
+class="left"><a
+href="http://www.spreeblick.com/category/kategorien/produkte/netzgemuse/" title="View all posts in Netzgemüse" rel="category tag">Netzgemüse</a> <a
+href="http://www.spreeblick.com/category/kategorien/positionen/" title="View all posts in Positionen" rel="category tag">Positionen</a> <a
+href="http://www.spreeblick.com/category/kategorien/positionen/reflexionen/" title="View all posts in Reflexionen" rel="category tag">Reflexionen</a></div><div
+class="right"><span>Johnny Haeusler </span> | 18.07.2012 um 23:39</div><div
+class="entry-subfooter"> <a
+class="FlattrButton" style="display:none;" href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/" title="Die Arbeit an &amp;#8220;Netzgemüse&amp;#8221;" rev="flattr;uid:7956;language:de_DE;category:text;button:compact;"> Netzgemüse: Gliederungsversuch, verworfen.Fertig. Tanja und ich haben nach einem intensiven halben Jahr das Netzgemüse-Manuskript abgegeben.Das bedeutet natürlich keineswegs, das unsere Arbeit beendet ist, denn noch ist das Werk nicht lektoriert und vielleicht gibt es noch Änderungs- oder Ergänzungsbedarf. Dennoch erlaube ich mir schon jetzt ein paar Gedanken, denn ich habe zum ersten Mal ...</a> <a
+class="twitter-share-button" href="https://twitter.com/share?url=http%3A%2F%2Fwww.spreeblick.com%2F2012%2F07%2F18%2Fdie-arbeit-an-netzgemuse%2F&text=Die+Arbeit+an+%26%238220%3BNetzgem%C3%BCse%26%238221%3B&amp;via=spreeblick" target="_blank"><img
+src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/smicon-twitter.jpg" /></a> <a
+class="facebook-share-button" href="http://www.facebook.com/sharer.php?u=http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/&t=Die+Arbeit+an+%26%238220%3BNetzgem%C3%BCse%26%238221%3B"><img
+src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/smicon-fb.jpg" /></a></div></div></div><div
+class="entry-content"><p
+style="margin-bottom:50px;margin-top:30px;"><a
+href="http://www.amazon.de/gp/product/B006MGTO5S/ref=as_li_ss_tl?ie=UTF8&tag=spreeblick-21&linkCode=as2&camp=1638&creative=19454&creativeASIN=B006MGTO5S"><img
+src="http://www.spreeblick.com/wp-content/uploads/2011/12/ilivebytheriver_small.jpg" alt="I live by the river!" title="I live by the river!" class="alignleft size-full wp-image-51561" /></a><small><em>- Werbung in eigener Sache -</em></small><br
+/> Es gibt das Spreeblick-eBook "I live by the river!" mit 15 Krachern der Unterhaltungsliteratur für l&auml;cherliche 99 Cent bei <a
+href="http://www.amazon.de/gp/product/B006MGTO5S/ref=as_li_ss_tl?ie=UTF8&tag=spreeblick-21&linkCode=as2&camp=1638&creative=19454&creativeASIN=B006MGTO5S">Amazon</a>, <a
+href="http://www.beam-ebooks.de/ebook/23858">Beam</a> und <a
+href="http://bit.ly/rVD0gX">als iBook in iTunes</a>! Infos dazu gibt es auch <a
+href="http://www.spreeblick.com/2011/12/16/i-live-by-the-river-15-geschichten">hier</a>.<br
+/> <small><em>- Ende der Werbung in eigener Sache -</em></small><p></div><div
+style="width:300px;margin:15px auto 0;"> <script type="text/javascript">
+	sr_adspace_id = 1000008354507;
+	sr_adspace_width = 300;
+	sr_adspace_height = 250;
+	sr_ad_new_window = true;
+	sr_adspace_type = "graphic";
+</script><script type="text/javascript" src="http://ad.afy11.net/srad.js?azId=1000008354507">
+</script></div><div
+id="comments"><h3>19 Kommentare</h3><ol
+id="commentlist"><li
+id="comment-807131" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>01</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://twitter.com/delay1' rel='external nofollow' class='url'>Matthias Delay</a></div><div
+class="comment-text"><p>Herzlichen Glückwunsch erstmal zur (vorläufigen) Fertigstellung. Alles Gute für die nächsten Schritte. Und letztendlich viel Erfolg. Ich werde es auf jeden Fall bestellen, natürlich nicht für mich, sondern zum Verschenken!</p></div><div
+class="comment_meta"><a
+href="#comment-807131">19.07.2012 um 00:06</a> | <a
+href="javascript:publicReply('807131');">Antworten</a></div></div></li><li
+id="comment-807132" class="comment odd alt thread-odd thread-alt depth-1"><div
+class="comment_counter"><span>02</span></div><div
+class="comment_content"><div
+class="comment_author">Meee</div><div
+class="comment-text"><p>&#8220;Wir entschieden uns, für Eltern ab etwa Mitte 30 zu schreiben, die (&#8230;)&#8221;</p><p>Hihi&#8230; Volltreffer! Auch wenn ich mich eher zu den Heavyusern zählen würde, werde ich auf jeden Fall einmal einen Blick in Euer Werk werfen (zu dessen &#8216;Fertigstellung&#8217; ich Euch herzlich gratuliere)!</p><p>Freue mich schon darauf und bin sehr gespannt, was Ihr zum Thema Porn zu sagen habt. Denn gut heißen kann ich den Konsum für unsere heranwachsende Jungs nicht. Blocken macht wohl auch keinen Sinn, da finden sich andere Mittel, Wege und Quellen. Und dann ist da ja auch noch die Sache mit &#8216;Wasser predigen und Wein trinken&#8230;&#8217;. Aber ich bin ja auch nicht mehr heranwachsend, gelle?</p><p>Viel Glück mit Euerm jüngsten &#8216;Baby&#8217;&#8230;<br
+/> Meee</p></div><div
+class="comment_meta"><a
+href="#comment-807132">19.07.2012 um 00:15</a> | <a
+href="javascript:publicReply('807132');">Antworten</a></div></div></li><li
+id="comment-807133" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>03</span></div><div
+class="comment_content"><div
+class="comment_author">Robert</div><div
+class="comment-text"><p>Alter Tiefstapler &#8230; vielen Dank für dieses Making Of und ebenfalls Glückwunsch zur vorläufigen Vollendung.</p></div><div
+class="comment_meta"><a
+href="#comment-807133">19.07.2012 um 00:15</a> | <a
+href="javascript:publicReply('807133');">Antworten</a></div></div></li><li
+id="comment-807134" class="comment odd alt thread-odd thread-alt depth-1"><div
+class="comment_counter"><span>04</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.spreeblick.com/2012/01/26/andy-singt/' rel='external nofollow' class='url'>Ändy</a></div><div
+class="comment-text"><p><a
+class="ptLink" href="#comment-807143">@ Johnny</a> und Tanja &#8220;The Kids are alright&#8221; (Alter Titel von The Who leider nicht auf der time line gefunden <a
+href="http://www.youtube.com/watch?v=PVglLs3uA8Y&#038;feature=related" rel="nofollow">http://www.youtube.com/watch?v=PVglLs3uA8Y&#038;feature=related</a>). Vielleicht hättet ihr eure Kids in den Autorenkreis miteinbeziehen sollen ;-) Das Buch richtet sich schließlich an Eltern und handelt von Kindern und ihrer Rezeption des Internet. Ein Buch schreiben ist immer ein Prozess des Verstehens, schließlich leistet Mensch als Autor, dieses Verstehen zu Teilen vorweg, das die Leser_innen nachvollziehen werden.<br
+/> Die eigentliche Leistung bringen eh die Rezipienten eines Textes. Die Autoren geben lediglich Hilfestellung.<br
+/> Aber es ist ein gutes Gefühl, wenn man weiß, dass &#8216;mein&#8217; Buch z. B. in ganz vielen Bibliotheken steht und von ganz unterschiedlichen Menschen gelesen wird. In diesem Sinne toi, toi für euer Buch.</p></div><div
+class="comment_meta"><a
+href="#comment-807134">19.07.2012 um 00:25</a> | <a
+href="javascript:publicReply('807134');">Antworten</a></div></div></li><li
+id="comment-807135" class="comment byuser comment-author-johnny-2 bypostauthor even thread-even depth-1 spreeblickauthor"><div
+class="comment_counter"><span>05</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.spreeblick.com' rel='external nofollow' class='url'>Johnny Haeusler</a></div><div
+class="comment-text"><p>Danke für die Glückwünsche!</p><p><a
+class="ptLink" href="#comment-807132">@Meee</a>: Ganz, ganz schwieriges Thema, ja. Absolut. Unter anderem, weil es Eltern zwingt, mit Kindern in einem Alter darüber zu reden, in denen die das alles selbst eigentlich noch gar nicht wissen wollen (und auch nicht wollen bräuchten). Sexualerziehung findet übers Netz statt, aber gelehrt wird nur Sexismus. Absolut nicht so leicht, wie sich manch einer das machen mag (&#8220;Da müssen sich halt die Eltern kümmern …&#8221;).</p></div><div
+class="comment_meta"><a
+href="#comment-807135">19.07.2012 um 00:28</a> | <a
+href="javascript:publicReply('807135');">Antworten</a></div></div></li><li
+id="comment-807136" class="comment byuser comment-author-johnny-2 bypostauthor odd alt thread-odd thread-alt depth-1 spreeblickauthor"><div
+class="comment_counter"><span>06</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.spreeblick.com' rel='external nofollow' class='url'>Johnny Haeusler</a></div><div
+class="comment-text"><p><a
+class="ptLink" href="#comment-807134">@Ändy</a>: Danke auch dir sehr. Und die Kinder haben natürlich mehr mitgeschrieben, als sie selbst denken. :) Ohne sie hätte ich keine Ahnung von einigen Netz-Themen.</p></div><div
+class="comment_meta"><a
+href="#comment-807136">19.07.2012 um 00:30</a> | <a
+href="javascript:publicReply('807136');">Antworten</a></div></div></li><li
+id="comment-807137" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>07</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.rammblog.de' rel='external nofollow' class='url'>andI611</a></div><div
+class="comment-text"><p>Ich bin gespannt und freue mich sehr auf das Buch. Glückwunsch zumindest also erstmal zur Fertigstellung.<br
+/> Das Thema Content-Filterung bzw. -kontrolle oder alles mit Aufklärung hinbekommen zu wollen ist schon sehr spannend und sau schwer, finde ich. Ich probiere mit ein paar Tools mit &#8220;Jugendschutzfilter&#8221; herum, aber das Wahre ist das auch nicht, auch wenn es bei unter 10-jährigen sicher helfen kann. Bin mal gespannt auf Eure Vorschläge. :)</p></div><div
+class="comment_meta"><a
+href="#comment-807137">19.07.2012 um 01:06</a> | <a
+href="javascript:publicReply('807137');">Antworten</a></div></div></li><li
+id="comment-807138" class="comment odd alt thread-odd thread-alt depth-1"><div
+class="comment_counter"><span>08</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.blogwinkel.de' rel='external nofollow' class='url'>Peter/Blogwinkel</a></div><div
+class="comment-text"><p>Gratulation zur Manuskriptabgabe und dem, was ihr geleistet habt &#8211; wird sicher gut weitergehen.<br
+/> Da hier im Hause ja auch zu zweit geschreiben wird, musst ich mehrmals grinsen. Am meisten vielleicht darüber, das unsere Jungs mal wieder parallel laufen: hier werden auch seit mehreren Wochen Schlösser mit U-Bahnanschluss gebaut und MC Mods installiert.<br
+/> Gruß aus FFM</p></div><div
+class="comment_meta"><a
+href="#comment-807138">19.07.2012 um 07:44</a> | <a
+href="javascript:publicReply('807138');">Antworten</a></div></div></li><li
+id="comment-807140" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>09</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.denkding.de' rel='external nofollow' class='url'>frauziefle</a></div><div
+class="comment-text"><p>Ich gratuliere Euch beiden sehr! Beim Lesen des Artikels habe ich mit Euch gelitten &#8211; das nächste Buch kann ein Buch über das Schreiben werden :))<br
+/> Wann kommts raus?<br
+/> (und die eigentliche Panik kommt erst, wenns in der Druckerei ist und man kann nichts mehr, aber auch garnichts mehr ändern&#8230;.)</p></div><div
+class="comment_meta"><a
+href="#comment-807140">19.07.2012 um 10:48</a> | <a
+href="javascript:publicReply('807140');">Antworten</a></div></div></li><li
+id="comment-807141" class="comment odd alt thread-odd thread-alt depth-1"><div
+class="comment_counter"><span>10</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://korruppin@web.de' rel='external nofollow' class='url'>neuruppiner</a></div><div
+class="comment-text"><p>wann wart ihr denn in neuruppin ? :)</p></div><div
+class="comment_meta"><a
+href="#comment-807141">19.07.2012 um 12:04</a> | <a
+href="javascript:publicReply('807141');">Antworten</a></div></div></li><li
+id="comment-807142" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>11</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.beyond-vanity.com' rel='external nofollow' class='url'>ruedi</a></div><div
+class="comment-text"><p>toll, ich bin sehr gespannt!</p></div><div
+class="comment_meta"><a
+href="#comment-807142">19.07.2012 um 12:39</a> | <a
+href="javascript:publicReply('807142');">Antworten</a></div></div></li><li
+id="comment-807143" class="comment byuser comment-author-johnny-2 bypostauthor odd alt thread-odd thread-alt depth-1 spreeblickauthor"><div
+class="comment_counter"><span>12</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://www.spreeblick.com' rel='external nofollow' class='url'>Johnny Haeusler</a></div><div
+class="comment-text"><p><a
+class="ptLink" href="#comment-807141">@neuruppiner</a>: Irgendwann vor ca. drei Monaten. Du hättest mich u.a. beim Brillenladen treffen können, die haben meine kaputte Brille exzellent repariert! :)</p></div><div
+class="comment_meta"><a
+href="#comment-807143">19.07.2012 um 15:07</a> | <a
+href="javascript:publicReply('807143');">Antworten</a></div></div></li><li
+id="comment-807145" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>13</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://quadratmeter.wordpress.com' rel='external nofollow' class='url'>quadratmeter</a></div><div
+class="comment-text"><p>Spannende Ein- und Ausblicke. Ich bin gespannt!! :)</p></div><div
+class="comment_meta"><a
+href="#comment-807145">19.07.2012 um 20:09</a> | <a
+href="javascript:publicReply('807145');">Antworten</a></div></div></li><li
+id="comment-807148" class="comment odd alt thread-odd thread-alt depth-1"><div
+class="comment_counter"><span>14</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://wilson3d.blogger.de/' rel='external nofollow' class='url'>wilson</a></div><div
+class="comment-text"><p>Glückwunsch. Selbst wenn Ihr nicht jede Bergetappe gewonnen habt, ist die Ziellinie doch bereits in Sichtweite.</p><p>Für mich, Jahrgang 1963, kommt das Buch leider einige Jahre zu spät. Die Tochter ist – und das ist gelegentlich ein befreiendes Gefühl – seit vier Jahren für alles, was sie im Netz oder sonst wo so treibt, selbst verantwortlich.</p><p>Aus dem Gemüse werden irgendwann reife Früchtchen. Gut so.</p></div><div
+class="comment_meta"><a
+href="#comment-807148">19.07.2012 um 21:51</a> | <a
+href="javascript:publicReply('807148');">Antworten</a></div></div></li><li
+id="comment-807150" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>15</span></div><div
+class="comment_content"><div
+class="comment_author">Lea</div><div
+class="comment-text"><p>&#8220;Herzl. Glückwunsch&#8221;, &#8220;Ich gratuliere&#8221;. Diese leeren, harmonisch-deutschtümlisch-leeren Floskeln.</p></div><div
+class="comment_meta"><a
+href="#comment-807150">20.07.2012 um 02:03</a> | <a
+href="javascript:publicReply('807150');">Antworten</a></div></div></li><li
+id="comment-807154" class="comment odd alt thread-odd thread-alt depth-1"><div
+class="comment_counter"><span>16</span></div><div
+class="comment_content"><div
+class="comment_author">jochen</div><div
+class="comment-text"><p>urlaub &#8230; auch schoen!<br
+/> glueckwunsch zur gemeinschaftsleistung und gute erholung :)</p></div><div
+class="comment_meta"><a
+href="#comment-807154">20.07.2012 um 12:19</a> | <a
+href="javascript:publicReply('807154');">Antworten</a></div></div></li><li
+id="comment-807159" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>17</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://GUCKSTDU.TV' rel='external nofollow' class='url'>PiPi</a></div><div
+class="comment-text"><p>Nörgeln kann ich.<br
+/> Lesen kann ich auch.<br
+/> Das mit dem verstehen ist so lala&#8230;</p><p>-<br
+/> Ich brauche Action wie bei dem Kurzfilm<br
+/> &#8216;PUNISHER Dirty Laundry&#8217;<br
+/> -<br
+/> Wünsche den Autoren viel Erfolg.</p><p>PiPi</p></div><div
+class="comment_meta"><a
+href="#comment-807159">20.07.2012 um 20:12</a> | <a
+href="javascript:publicReply('807159');">Antworten</a></div></div></li><li
+id="comment-807166" class="comment odd alt thread-odd thread-alt depth-1"><div
+class="comment_counter"><span>18</span></div><div
+class="comment_content"><div
+class="comment_author">flubutjan</div><div
+class="comment-text"><p>Die aufgezählten Inhalte/Themen klingen wirklich ganz interessant. &#8220;Bonne chance!&#8221; (wie wir Alt-Ruppiner gerne mal so ganz &#8220;undeutschtümlich&#8221; jemandem zurufen.)</p></div><div
+class="comment_meta"><a
+href="#comment-807166">21.07.2012 um 19:14</a> | <a
+href="javascript:publicReply('807166');">Antworten</a></div></div></li><li
+id="comment-807167" class="comment even thread-even depth-1"><div
+class="comment_counter"><span>19</span></div><div
+class="comment_content"><div
+class="comment_author"><a
+href='http://GUCKSTDU.TV' rel='external nofollow' class='url'>PiPi</a></div><div
+class="comment-text"><p>Netzgemüse Positionen Reflexionen</p><p>Tanja und Johnny haben bereits bewiesen sich artikulieren zu können.<br
+/> Anstatt ein auf gedrucktes Papier (Zellulose) könnte der Inhalt auch<br
+/> ganz einfach als Hörbuch erzählt werden. Was den Blinden u. sonstig<br
+/> beeinträchtigten Menschen es ermöglicht zumindest tlw.  Probleme zu<br
+/> verstehen worüber sich andere emotional echauffieren (kümmern).</p><p>Mein ja nur.</p><p>Alles Gute</p></div><div
+class="comment_meta"><a
+href="#comment-807167">21.07.2012 um 22:13</a> | <a
+href="javascript:publicReply('807167');">Antworten</a></div></div></li></ol><div
+id="respond"><h3>Diesen Artikel kommentieren</h3><form
+action="http://www.spreeblick.com/wp-comments-post.php" method="post" id="commentform"><p><input
+type="text" name="author" id="author" value="" size="22" tabindex="1" aria-required='true' /> <label
+for="author"><small>Name (muss sein)</small></label></p><p><input
+type="text" name="email" id="email" value="" size="22" tabindex="2" aria-required='true' /> <label
+for="email"><small>Mail (zeigen wir nicht) (muss aber sein)</small></label></p><p><input
+type="text" name="url" id="url" value="" size="22" tabindex="3" /> <label
+for="url"><small>Website</small></label></p><p><textarea name="comment" id="comment" cols="58" rows="10" tabindex="4"></textarea></p><p><input
+name="submit" type="submit" id="submit" tabindex="5" value="Absenden" /> <input
+type='hidden' name='comment_post_ID' value='52633' id='comment_post_ID' /> <input
+type='hidden' name='comment_parent' id='comment_parent' value='0' /></p><p
+style="display: none;"><input
+type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="6c5c7e78ee" /></p><p
+style="clear: both;" class="subscribe-to-comments"> <input
+type="checkbox" name="subscribe" id="subscribe" value="subscribe" style="width: auto;" /> <label
+for="subscribe">E-Mail-Benachrichtigung bei neuen Kommentaren</label></p></form></div></div><div
+style="width:300px;margin:15px auto 0;"> <script type="text/javascript">
+	sr_adspace_id = 1000007936207;
+	sr_adspace_width = 300;
+	sr_adspace_height = 250;
+	sr_ad_new_window = true;
+	sr_adspace_type = "graphic";
+</script><script type="text/javascript" src="http://ad.afy11.net/srad.js?azId=1000007936207">
+</script></div></div><div
+class="sidebar" id="sidebar1"><div
+class="widget"><h3>Letzte Features</h3><ul><li><a
+href="http://www.spreeblick.com/2012/06/23/gema-die-unendliche-geschichte/" title="GEMA: Die unendliche Geschichte">GEMA: Die unendliche Geschichte </a></li><li><a
+href="http://www.spreeblick.com/2012/04/19/plan-b-coming-back-for-more/" title="Plan B: Coming back for more! (Update: Weitere Gigs)">Plan B: Coming back for more! (Update: Weitere Gigs) </a></li><li><a
+href="http://www.spreeblick.com/2012/04/14/ich-heb-dann-mal-ur/" title="Ich heb dann mal ur">Ich heb dann mal ur </a></li><li><a
+href="http://www.spreeblick.com/2012/03/26/get-the-balance-right/" title="Get the balance right">Get the balance right </a></li><li><a
+href="http://www.spreeblick.com/2012/03/07/kony2012-und-invisible-children/" title="KONY2012 und Invisible Children">KONY2012 und Invisible Children </a></li><li><a
+href="http://www.spreeblick.com/2012/02/28/its-the-end-of-the-net-as-we-know-it/" title="It&#8217;s the end of the &#8216;net as we know it">It&#8217;s the end of the &#8216;net as we know it </a></li><li><a
+href="http://www.spreeblick.com/2011/12/16/i-live-by-the-river-15-geschichten/" title="I live by the river! &#8211; 15 Geschichten">I live by the river! &#8211; 15 Geschichten </a></li><li><a
+href="http://www.spreeblick.com/2011/11/25/youtube-gema-ein-appell-mit-bitte-um-unterstutzung/" title="YouTube &amp; GEMA: Ein Appell mit Bitte um Unterstützung">YouTube &#038; GEMA: Ein Appell mit Bitte um Unterstützung </a></li><li><a
+href="http://www.spreeblick.com/2011/11/17/1992-angela-merkel-und-ich-im-tv/" title="1992: Angela Merkel und ich im TV">1992: Angela Merkel und ich im TV </a></li><li><a
+href="http://www.spreeblick.com/2011/11/10/urheberrechtsdebatte-offener-brief-von-mark-chung-an-berthold-seliger/" title="Urheberrechtsdebatte: Offener Brief von Mark Chung an Berthold Seliger">Urheberrechtsdebatte: Offener Brief von Mark Chung an Berthold Seliger </a></li></ul></div><div
+class="widget"><h3>Frischer Spreeblick</h3><ul><li><a
+href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/" title="Die Arbeit an &#8220;Netzgemüse&#8221;">Die Arbeit an &#8220;Netzgemüse&#8221;</a></li><li><a
+href="http://www.spreeblick.com/2012/07/04/gestoppt-acta/" title="Gestoppt: ACTA">Gestoppt: ACTA</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/datenschutzlos-gemeldet/" title="Datenschutzlos gemeldet">Datenschutzlos gemeldet</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/verlosung-tickets-fur-regina-spektor-in-berlin/" title="Verlosung: Tickets für Regina Spektor in Berlin">Verlosung: Tickets für Regina Spektor in Berlin</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/verlosung-cro-raop-cd-shirts/" title="Verlosung: Cro &#8211; Raop CD &amp; Shirts">Verlosung: Cro &#8211; Raop CD &#038; Shirts</a></li><li><a
+href="http://www.spreeblick.com/2012/06/23/gema-die-unendliche-geschichte/" title="GEMA: Die unendliche Geschichte">GEMA: Die unendliche Geschichte</a></li><li><a
+href="http://www.spreeblick.com/2012/06/12/podcast-326-ukraine-gegen-sabine/" title="Podcast 326: Ukraine gegen Sabine">Podcast 326: Ukraine gegen Sabine</a></li><li><a
+href="http://www.spreeblick.com/2012/06/09/plan-b-feat-anne-de-wolff-the-big-screen-waltz/" title="Plan B feat. Anne de Wolff: The Big Screen Waltz">Plan B feat. Anne de Wolff: The Big Screen Waltz</a></li><li><a
+href="http://www.spreeblick.com/2012/06/08/vreitagsvers-der-funfzigste/" title="Vreitagsvers, der fünfzigste">Vreitagsvers, der fünfzigste</a></li><li><a
+href="http://www.spreeblick.com/2012/06/01/podcast-325-sexy-boys/" title="Podcast 325: Sexy Boys">Podcast 325: Sexy Boys</a></li></ul></div></div><div
+class="sidebar" id="sidebar2"><div
+id="flattr"><script type="text/javascript">
+            var flattr_url = 'http://spreeblick.com';
+            var flattr_uid = '7956';
+            var flattr_btn = 'compact';
+            var flattr_lng = 'de_DE';
+            var flattr_cat = 'text';
+            var flattr_tle = 'Spreeblick';
+            var flattr_dsc = '';
+        </script><script src="http://api.flattr.com/button/load.js" type="text/javascript"></script><p>Mit <a
+href="http://www.flattr.com">flattr</a> mal für Spreeblick zahlen: <a
+href="http://www.spreeblick.com/flattr/">So geht es</a>.</p></div><form
+id="searchform" method="get" action="http://www.spreeblick.com"><fieldset> <label
+for="s">Suche</label> <input
+type="text" name="s" id="s" /> <input
+type="submit" value="Suchen" id="searchsubmit" /></fieldset></form><a
+href="http://www.populis.com/de" target="_blank"><img
+alt="" src="http://analytics.mpn.mokonocdn.com/adnation/lang_hell.png" /></a><br
+/><br
+/><a
+href="http://www.thomann.de/index.html?partner_id=93795&page=de/thomann_gitarren_set_g13.htm"><img
+src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/thomann_banner_2.jpg" alt="Thomann – Music is our passion" /></a><br
+/><br
+/><script type="text/javascript">
+	sr_adspace_id = 1000007936307;
+	sr_adspace_width = 160;
+	sr_adspace_height = 600;
+	sr_ad_new_window = true;
+	sr_adspace_type = "graphic";
+</script><script type="text/javascript" src="http://ad.afy11.net/srad.js?azId=1000007936307">
+</script><br
+/><br
+/><p><a
+style="line-height:18px;padding-left:0px;font-family:verdana,arial,sans-serif;font-size:10px;color:#9C0101;text-decoration:underline;font-weight:bold;" href="http://www.topgutscheincode.de/gutschein/zalando.de" name="Zalando Gutschein" title="Zalando Gutschein bei topgutscheincode.de" target="_blank">Zalando Gutschein bei www.topgutscheincode.de</a></p><p><a
+target="_new" style="line-height:18px;padding-left:0px;font-family:verdana,arial,sans-serif;font-size:10px;color:#9C0101;text-decoration:underline;" href="http://www.sonneundstrand.de" title="Viele Ferienh&auml;user in D&auml;nemark" rel="nofollow">Ferienh&auml;user D&auml;nemark</a></p><p><a
+target="_new" style="line-height:18px;padding-left:0px;font-family:verdana,arial,sans-serif;font-size:10px;color:#9C0101;text-decoration:underline;" href="http://www.ferienhaus-urlaub-danemark.de/ferienhaeuser-daenemark.aspx" title="Ferienhaus D&auml;nemark" rel="nofollow">Ferienhaus Dänemark buchen</a></p><br
+/><br
+/><a
+href="https://www.facebook.com/planb.berlin" target="_TOP" style="font-family: &quot;lucida grande&quot;,tahoma,verdana,arial,sans-serif; font-size: 11px; font-variant: normal; font-style: normal; font-weight: normal; color: #3B5998; text-decoration: none;" title="Plan B">Plan B</a><br/><a
+href="https://www.facebook.com/planb.berlin" target="_TOP" title="Plan B"><img
+src="https://badge.facebook.com/badge/223731504358453.2199.556547311.png" style="border: 0px;" /></a> <br
+/><br
+/> <iframe
+src="http://rcm-de.amazon.de/e/cm?t=spreeblick-21&o=3&p=8&l=as1&asins=B006MGTO5S&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe> <br
+/><br
+/> <iframe
+src="http://rcm-de.amazon.de/e/cm?t=spreeblick-21&o=3&p=8&l=as1&asins=B003DZ1Y7M&ref=tf_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe> <br
+/><br
+/> <iframe
+src="http://rcm-de.amazon.de/e/cm?t=spreeblick-21&o=3&p=8&l=as1&asins=B0051QVF7A&ref=tf_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe> <br
+/><br
+/><ul
+id="followsb"><li><a
+class="link-rss" href="http://www.spreeblick.com/feed/">RSS Feed</a></li><li><a
+class="link-twitter" href="http://twitter.com/spreeblick">Spreeblick bei Twitter</a></li><li><a
+class="link-fb" href="https://www.facebook.com/spreeblick">Spreeblick bei Facebook</a></li><li><a
+class="link-fb" href="https://www.facebook.com/johnnyhaeusler">Johnny bei Facebook</a></li><li><a
+class="link-gplus" href="https://plus.google.com/108610056059491923585/">Johnny bei Google+</a></li></ul></ul></div><div
+id="footer"><h3 id="footerheader">Archiv</h3><div
+class="largecol"><h4>Neuste Artikel</h4><div
+id="recentposts"><h4 class="category-43"><a
+href="http://www.spreeblick.com/category/kategorien/pop/"><span></span>Pop</a></h4><ul><li><a
+href="http://www.spreeblick.com/2012/07/03/verlosung-tickets-fur-regina-spektor-in-berlin/" title="Verlosung: Tickets für Regina Spektor in Berlin">Verlosung: Tickets für Regina Spektor in Berlin</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/verlosung-cro-raop-cd-shirts/" title="Verlosung: Cro &#8211; Raop CD &#038; Shirts">Verlosung: Cro &#8211; Raop CD &#038; Shirts</a></li><li><a
+href="http://www.spreeblick.com/2012/06/23/gema-die-unendliche-geschichte/" title="GEMA: Die unendliche Geschichte">GEMA: Die unendliche Geschichte</a></li><li><a
+href="http://www.spreeblick.com/2012/06/09/plan-b-feat-anne-de-wolff-the-big-screen-waltz/" title="Plan B feat. Anne de Wolff: The Big Screen Waltz">Plan B feat. Anne de Wolff: The Big Screen Waltz</a></li><li><a
+href="http://www.spreeblick.com/2012/06/08/vreitagsvers-der-funfzigste/" title="Vreitagsvers, der fünfzigste">Vreitagsvers, der fünfzigste</a></li></ul><h4 class="category-44"><a
+href="http://www.spreeblick.com/category/kategorien/politik/"><span></span>Politik</a></h4><ul><li><a
+href="http://www.spreeblick.com/2012/07/04/gestoppt-acta/" title="Gestoppt: ACTA">Gestoppt: ACTA</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/datenschutzlos-gemeldet/" title="Datenschutzlos gemeldet">Datenschutzlos gemeldet</a></li><li><a
+href="http://www.spreeblick.com/2012/05/31/geh-ma-gema/" title="Geh&#8217; ma&#8217;, GEMA [Update]">Geh&#8217; ma&#8217;, GEMA [Update]</a></li><li><a
+href="http://www.spreeblick.com/2012/04/14/ich-heb-dann-mal-ur/" title="Ich heb dann mal ur">Ich heb dann mal ur</a></li><li><a
+href="http://www.spreeblick.com/2012/03/29/neues-aus-der-bunten-welt-der-internet-musik-industrie/" title="Neues aus der bunten Welt der Internet-Musik-Industrie">Neues aus der bunten Welt der Internet-Musik-Industrie</a></li></ul><h4 class="category-45"><a
+href="http://www.spreeblick.com/category/kategorien/produkte/"><span></span>Produkte</a></h4><ul><li><a
+href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/" title="Die Arbeit an &#8220;Netzgemüse&#8221;">Die Arbeit an &#8220;Netzgemüse&#8221;</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/datenschutzlos-gemeldet/" title="Datenschutzlos gemeldet">Datenschutzlos gemeldet</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/verlosung-tickets-fur-regina-spektor-in-berlin/" title="Verlosung: Tickets für Regina Spektor in Berlin">Verlosung: Tickets für Regina Spektor in Berlin</a></li><li><a
+href="http://www.spreeblick.com/2012/07/03/verlosung-cro-raop-cd-shirts/" title="Verlosung: Cro &#8211; Raop CD &#038; Shirts">Verlosung: Cro &#8211; Raop CD &#038; Shirts</a></li><li><a
+href="http://www.spreeblick.com/2012/05/23/analoge-twitterwall-rp12/" title="Analoge Twitterwall #rp12">Analoge Twitterwall #rp12</a></li></ul><h4 class="category-46"><a
+href="http://www.spreeblick.com/category/kategorien/positionen/"><span></span>Positionen</a></h4><ul><li><a
+href="http://www.spreeblick.com/2012/07/18/die-arbeit-an-netzgemuse/" title="Die Arbeit an &#8220;Netzgemüse&#8221;">Die Arbeit an &#8220;Netzgemüse&#8221;</a></li><li><a
+href="http://www.spreeblick.com/2012/06/23/gema-die-unendliche-geschichte/" title="GEMA: Die unendliche Geschichte">GEMA: Die unendliche Geschichte</a></li><li><a
+href="http://www.spreeblick.com/2012/06/12/podcast-326-ukraine-gegen-sabine/" title="Podcast 326: Ukraine gegen Sabine">Podcast 326: Ukraine gegen Sabine</a></li><li><a
+href="http://www.spreeblick.com/2012/06/01/podcast-325-sexy-boys/" title="Podcast 325: Sexy Boys">Podcast 325: Sexy Boys</a></li><li><a
+href="http://www.spreeblick.com/2012/05/23/podcast-324-summertime/" title="Podcast 324: Summertime!">Podcast 324: Summertime!</a></li></ul></div></div><div
+class="largecol"><h4>Meistkommentiert</h4><ul><li><a
+href="http://www.spreeblick.com/2010/01/28/sexueller-missbrauch-am-canisius-kolleg-berlin/" title="Sexueller Missbrauch am Canisius-Kolleg Berlin">Sexueller Missbrauch am Canisius-Kolleg Berlin</a></li><li><a
+href="http://www.spreeblick.com/2005/11/22/one-more-time-du-bist-deutschland/" title="One more time: Du bist Deutschland">One more time: Du bist Deutschland</a></li><li><a
+href="http://www.spreeblick.com/2010/03/08/der-berliner-szenemensch/" title="Der Berliner Szenemensch">Der Berliner Szenemensch</a></li><li><a
+href="http://www.spreeblick.com/2009/06/16/auf-nimmerwiedersehen-spd/" title="Auf Nimmerwiedersehen, SPD!">Auf Nimmerwiedersehen, SPD!</a></li><li><a
+href="http://www.spreeblick.com/2005/09/26/du-bist-deutschland-ich-mach-mit/" title="Du bist Deutschland &#8211; Ich mach&#8217; mit!">Du bist Deutschland &#8211; Ich mach&#8217; mit!</a></li><li><a
+href="http://www.spreeblick.com/2004/12/12/jamba-kurs/" title="Jamba Kurs">Jamba Kurs</a></li><li><a
+href="http://www.spreeblick.com/2009/09/17/und-alle-so-wtf/" title="Und alle so: WTF? [Update] [2]">Und alle so: WTF? [Update] [2]</a></li><li><a
+href="http://www.spreeblick.com/2005/07/12/erfolgreich-bloggen-so-gehts/" title="Erfolgreich bloggen &#8211; so geht&#8217;s!">Erfolgreich bloggen &#8211; so geht&#8217;s!</a></li><li><a
+href="http://www.spreeblick.com/2009/01/22/bundesprufstelle-indiziert-blog/" title="Bundesprüfstelle indiziert Blog">Bundesprüfstelle indiziert Blog</a></li><li><a
+href="http://www.spreeblick.com/2009/05/14/post-von-frau-von-der-leyen/" title="Post von Frau von der Leyen (Update)">Post von Frau von der Leyen (Update)</a></li><li><a
+href="http://www.spreeblick.com/2007/03/16/peter-alexa-ein-ehemaliger-unterstutzer-der-raf/" title="Peter Alexa &#8211; Ein ehemaliger Unterstützer der RAF">Peter Alexa &#8211; Ein ehemaliger Unterstützer der RAF</a></li><li><a
+href="http://www.spreeblick.com/2010/07/14/homoophobie-die-placebo-debatte/" title="Homöophobie: Die Placebo-Debatte">Homöophobie: Die Placebo-Debatte</a></li><li><a
+href="http://www.spreeblick.com/2006/06/02/grimme-fur-spreeblick/" title="Grimme für Spreeblick!">Grimme für Spreeblick!</a></li><li><a
+href="http://www.spreeblick.com/2009/09/15/piraten-auf-kurssuche/" title="Piraten auf Kurssuche">Piraten auf Kurssuche</a></li><li><a
+href="http://www.spreeblick.com/2009/08/17/bundestagswahl-2009-wen-soll-ich-nur-wahlen/" title="Bundestagswahl 2009: Wen soll ich nur wählen?">Bundestagswahl 2009: Wen soll ich nur wählen?</a></li><li><a
+href="http://www.spreeblick.com/2005/05/07/ihr-nicht-ich/" title="Ihr, nicht ich!">Ihr, nicht ich!</a></li><li><a
+href="http://www.spreeblick.com/2007/05/29/politically-incorrect-die-etwas-andere-sicht-der-dinge/" title="Politically Incorrect &#8211; Die etwas andere Sicht der Dinge">Politically Incorrect &#8211; Die etwas andere Sicht der Dinge</a></li><li><a
+href="http://www.spreeblick.com/2006/04/02/du-opfer/" title="Du Opfer!">Du Opfer!</a></li><li><a
+href="http://www.spreeblick.com/2011/02/25/tickets-foo-fighters-in-koln/" title="Tickets: Foo Fighters in Köln">Tickets: Foo Fighters in Köln</a></li><li><a
+href="http://www.spreeblick.com/2009/11/30/zur-anti-minarett-initiative-in-der-schweiz/" title="Zur Anti-Minarett-Initiative in der Schweiz">Zur Anti-Minarett-Initiative in der Schweiz</a></li></ul></div><div
+class="largecol"></div><div
+class="smallcol"><h4>Feeds</h4><ul
+id="feeds"><li><a
+href="http://www.spreeblick.com/feed/" title="Spreeblick Beitr&auml;ge Feed">Alle Beitr&auml;ge</a></li><li><a
+href="http://www.spreeblick.com/comments/feed/" title="Spreeblick Kommentare Feed">Alle Kommentare</a></li><li><a
+href="http://www.spreeblick.com/category/kategorien/positionen/podcast/feed/rss2" title="Spreeblick Podcasts">Podcasts</a></li><li><a
+href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewPodcast?id=80157878&s=143443" title="Spreeblick Podcasts bei iTunes">Podcast in iTunes</a></li></ul><h4>Partner & Awards</h4><div
+id="sponsoren"> <a
+href="http://www.thomann.de/partner_redirect.html?partner_id=93795"><img
+src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/thomann.png" alt="Thomann – Music is our passion" /></a> <a
+href="http://www.spreeblick.com/2006/06/02/grimme-fur-spreeblick/"><img
+src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/grimme.jpg" alt="Grimme Online Award '06" /></a> <a
+href="http://www.hosteurope.de/"><img
+src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/hosteurope.jpg" alt="Webhosting, Webspace und Hosting-L&ouml;sungen von Host Europe" title="hosted by Host Europe"/></a> <a
+href="http://www.onlinestar.de/"><img
+src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_img/onlinestar.png" alt="" title=""/></a></div><p
+id="poweredby">Spreeblick is powered by <a
+href="http://www.wordpress.org">WordPress</a></p></div><div
+class="clear"></div></div></div><script type='text/javascript' src='http://api.flattr.com/js/0.6/load.js?mode=auto&#038;ver=0.6'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-includes/js/tw-sack.js?ver=1.6.1'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/instapress/instapress.js?ver=1.4.8'></script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/wpaudio-mp3-player/wpaudio.min.js?ver=3.1'></script><script type='text/javascript'>
+/* <![CDATA[ */
+var pollsL10n = {"ajax_url":"http:\/\/www.spreeblick.com\/wp-content\/plugins\/wp-polls\/wp-polls.php","text_wait":"Your last request is still being processed. Please wait a while ...","text_valid":"Please choose a valid poll answer.","text_multiple":"Maximum number of choices allowed: ","show_loading":"0","show_fading":"1"};
+/* ]]> */
+</script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/wp-polls/polls-js.js?ver=2.50'></script><script type='text/javascript'>
+/* <![CDATA[ */
+var ratingsL10n = {"plugin_url":"http:\/\/www.spreeblick.com\/wp-content\/plugins\/wp-postratings","ajax_url":"http:\/\/www.spreeblick.com\/wp-content\/plugins\/wp-postratings\/wp-postratings.php","text_wait":"Please rate only 1 post at a time.","image":"stars","image_ext":"gif","max":"5","show_loading":"1","show_fading":"1","custom":"0"};
+var ratings_mouseover_image=new Image();ratings_mouseover_image.src=ratingsL10n.plugin_url+"/images/"+ratingsL10n.image+"/rating_over."+ratingsL10n.image_ext;
+/* ]]> */
+</script><script type='text/javascript' src='http://www.spreeblick.com/wp-content/plugins/wp-postratings/postratings-js.js?ver=1.50'></script><script type='text/javascript'>
+/* <![CDATA[ */
+var thickboxL10n = {"next":"Next >","prev":"< Prev","image":"Image","of":"of","close":"Close","noiframes":"This feature requires inline frames. You have iframes disabled or your browser does not support them.","loadingAnimation":"http:\/\/www.spreeblick.com\/wp-includes\/js\/thickbox\/loadingAnimation.gif","closeImage":"http:\/\/www.spreeblick.com\/wp-includes\/js\/thickbox\/tb-close.png"};
+/* ]]> */
+</script><script type='text/javascript' src='http://www.spreeblick.com/wp-includes/js/thickbox/thickbox.js?ver=3.1-20111117'></script><script type="text/javascript">
+$(document).ready(function() {
+	$('body').addClass('loaded'); 
+});
+</script><script type="text/javascript" src="http://www.spreeblick.com/wp-content/themes/sb07_revamped/_js/spreeblick.js"></script><script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-11339025-1");
+//_gat.anonymizeIP();
+pageTracker._trackPageview();
+} catch(err) {}</script><script src="/mint/?js" type="text/javascript"></script><a
+href="http://www.blogoscoop.net/blog/319"><img
+src="http://stats.blogoscoop.net/319/4.gif" alt="blogoscoop" border="0" width="1" height="1" /></a><div
+id="fb-root"></div><script>
+	jQuery('.activate-sm').click( function() {
+		jQuery('.entry-subfooter-activate').hide();
+		jQuery('.entry-subfooter').show();
+		
+		(function(d, s) {
+		  var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+			if (d.getElementById(id)) {return;}
+			js = d.createElement(s); js.src = url; js.id = id;
+			fjs.parentNode.insertBefore(js, fjs);
+		  };
+		  load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk');
+		  load('https://apis.google.com/js/plusone.js', 'gplus1js');
+		  load('//platform.twitter.com/widgets.js', 'tweetjs');
+		}(document, 'script'));
+		
+		return false;
+	});
+</script></body></html>
+<!-- Performance optimized by W3 Total Cache. Learn more: http://www.w3-edge.com/wordpress-plugins/
+
+Minified using disk: basic
+Page Caching using disk: basic
+Database Caching 38/51 queries in 0.059 seconds using disk: basic
+
+Served from: www.spreeblick.com @ 2012-07-22 15:59:10 -->

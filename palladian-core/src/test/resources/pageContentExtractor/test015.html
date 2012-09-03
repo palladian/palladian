@@ -1,0 +1,1175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+ 
+<html> 
+ 
+<head> 
+<script type="text/javascript" src="http://static.typepad.com/.shared:v25.4:typepad:en_us/js/yui/yahoo-dom-event.js,/js/sixatrack-loader.js"></script>
+<title>Coding Horror: On Working Remotely</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<link rel="stylesheet" href="http://www.codinghorror.com/blog/styles-site.css" type="text/css" /> 
+<link rel="stylesheet" href="http://www.codinghorror.com/blog/styles-site-mobile.css" type="text/css" media="handheld" /> 
+<link rel="stylesheet" href="http://www.codinghorror.com/blog/styles-site-print.css" type="text/css" media="print" /> 
+<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/codinghorror/" /> 
+<link rel="start" href="/blog/" title="Home" /> 
+
+
+<link rel="prev" href="http://www.codinghorror.com/blog/2010/04/whats-wrong-with-css.html" title="What's Wrong With CSS" />
+
+
+
+
+<script type="text/javascript"> 
+var TPApp = {};
+TPApp.app_uri = "http://www.typepad.com/";
+</script> 
+<script type="text/javascript" src="http://static.typepad.com/.shared:v25.4:typepad:en_us/js/yui/yahoo-dom-event.js"></script> 
+<script type="text/javascript" src="http://static.typepad.com/.shared:v25.4:typepad:en_us/js/app/thumbnail-gallery-min.js"></script> 
+<script type="text/javascript" src="http://static.typepad.com/.shared:v25.4:typepad:en_us/js/app/flyouts.js"></script>
+
+<link rel="shortcut icon" href="/favicon.ico" /> 
+
+</head>
+
+<body>
+	
+
+<div class="blog"> 
+
+<div style="float:left; "> 
+<a href="http://www.codinghorror.com/blog/"><img src="http://www.codinghorror.com/blog/images/coding-horror-official-logo-small.png" alt="I &lt;3 Steve McConnell" border="0" height="91" width="100"></a>*
+</div> 
+<div style="float:left; margin-top:10px;"> 
+<a href="http://www.codinghorror.com/blog/"><img alt="Coding Horror" src="http://www.codinghorror.com/blog/images/coding-horror-text.png" border="0" height="25" width="275"></a><br/> 
+<span class="description">programming and human factors<br/>by Jeff Atwood</span> 
+</div> 
+
+
+<div style="float:right; margin-top:20px;" id="searchbox"> 
+<form method="get" action="http://www.google.com/custom" target="_top"> 
+<input type="hidden" name="domains" value="www.codinghorror.com"></input> 
+<label for="sbi" style="display: none">Enter your search terms</label> 
+<input type="text" name="q" size="31" maxlength="255" value="" id="sbi"></input> 
+<label for="sbb" style="display: none">Submit search form</label> 
+<input type="submit" name="sa" value="Search" id="sbb"></input><br/> 
+<input type="radio" name="sitesearch" value="" id="ss0"></input> 
+<label for="ss0" title="Search the Web">Web</label></td> 
+<input type="radio" name="sitesearch" value="www.codinghorror.com" checked id="ss1"></input> 
+<label for="ss1" title="Search www.codinghorror.com">Coding Horror</label> 
+<input type="hidden" name="client" value="pub-6424649804324178"></input> 
+<input type="hidden" name="forid" value="1"></input> 
+<input type="hidden" name="ie" value="ISO-8859-1"></input> 
+<input type="hidden" name="oe" value="ISO-8859-1"></input> 
+<input type="hidden" name="safe" value="active"></input> 
+<input type="hidden" name="cof" value="GALT:#0066CC;GL:1;DIV:#FFFFFF;VLC:A2427C;AH:center;BGC:FFFFFF;LBGC:FFFFFF;ALC:666666;LC:666666;T:000000;GFNT:0066CC;GIMP:0066CC;LH:50;LW:344;L:http://www.codinghorror.com/blog/images/codinghorror-search-logo1.png;S:http://www.codinghorror.com/blog/;FORID:1"></input> 
+<input type="hidden" name="hl" value="en"></input> 
+</form> 
+</div> 
+
+</div> 
+<br clear="all"> 
+
+<div id="container"> 
+ 
+<div class="blog"> 
+
+<h2 class="date">May  6, 2010</h2> 
+
+<div class="blogbody"> 
+
+<h3 class="title"><a href="http://www.codinghorror.com/blog/2010/05/on-working-remotely.html" class="title-link">On Working Remotely</a></h3> 
+
+<p>
+When I first <a href="http://www.codinghorror.com/blog/2008/03/choosing-your-own-adventure.html">chose my own adventure</a>, I didn't know what working remotely from home was going to be like. I had never done it before. As <i>programmers</i> go, I'm fairly social. Which still means I'm a borderline sociopath by normal standards. All the same, I was worried that I'd go stir-crazy with no division between my work life and my home life.
+<p>
+Well, I haven't gone stir-crazy yet. I think. But in building Stack Overflow, I have learned a few things about what it means to work remotely -- at least when it comes to programming. Our current team encompasses 5 people, distributed all over the USA, along with the team in NYC.
+<p>
+<img alt="Usa-stack-overflow-team-map" title="Usa-stack-overflow-team-map" src="http://www.codinghorror.com/.a/6a0120a85dcdae970b0133ed51b2e9970b-800wi" border="0"  />
+<p>
+My first mistake was <a href="http://www.codinghorror.com/blog/2007/06/in-programming-one-is-the-loneliest-number.html">attempting to program alone</a>. I had weekly calls with my business partner, <a href="http://www.joelonsoftware.com/">Joel Spolsky</a>, which were quite productive in terms of figuring out what it was we were trying to do together -- but he wasn't writing code. I was coding alone. Really alone. One guy working all by yourself alone. This didn't work <i>at all</i> for me. I was unmoored, directionless, suffering from analysis paralysis, and barely able to get motivated enough to write even a few lines of code. I rapidly realized that I'd made a huge mistake in not <a href="http://www.codinghorror.com/blog/2009/02/whos-your-coding-buddy.html">having a coding buddy</a> to work with.
+<p>
+That situation <a href="http://www.codinghorror.com/blog/2010/01/cultivate-teams-not-ideas.html">rectified itself soon enough</a>, as I was fortunate enough to find one of my favorite old coding buddies was available. Even though Jarrod was in North Carolina and I was in California, the shared source code was the mutual glue that stuck us together, motivated us, and kept us moving forward. To be fair, we also had the considerable advantage of prior history, because we had worked together at a previous job. But the minimum bar to work remotely is to find <b>someone who loves code as much as you do</b>. It's &hellip; enough. Anything else on top of that -- old friendships, new friendships, a good working relationship -- is icing that makes working together all the sweeter. I eventually expanded the team in the same way by adding another old coding buddy, Geoff, who lives in Oregon. And again by adding Kevin, who I didn't know, but had built amazing stuff for us <i>without even being asked to</i>, from Texas. And again by adding Robert, in Florida, who I also didn't know, but spent so much time on every single part of our sites that I felt he had been running alongside our team the whole way, there all along.
+<p>
+The reason remote development worked for us, in retrospect, wasn't just shared love of code. I picked developers who I knew -- I had incontrovertible <i>proof</i> -- were amazing programmers. I'm not saying they're perfect, far from it, merely that they were top programmers by any metric you'd care to measure. <i>That's</i> why they were able to work remotely. Newbie programmers, or competent programmers who are phoning it in, are absolutely not going to have the moxie necessary to get things done remotely -- at least, not without a pointy haired manager, or grumpy old team lead, breathing down their neck. Don't even <i>think</i> about working remotely with anyone who doesn't freakin' <i>bleed</i> ones and zeros, and has a proven track record of getting things done.
+<p>
+While Joel certainly had a lot of high level input into what Stack Overflow eventually became, I only talked to him once a week, at best (these calls were <a href="http://itc.conversationsnetwork.org/series/stackoverflow.html">the genesis of our weekly podcast series</a>). <b>I had a strong, clear vision of what I wanted Stack Overflow to be, and how I wanted it to work.</b> Whenever there was a question about functionality or implementation, my team was able to rally around me and collectively make decisions we liked, and that I personally felt were in tune with this vision. And if you know me at all, you know <a href="http://www.codinghorror.com/blog/2004/10/just-say-no.html">I'm not shy about saying no</a>, either. We were able to build exactly what we wanted, exactly how we wanted.
+<p>
+Bottom line, we were <a href="http://www.youtube.com/results?search_query=we're+on+a+mission+from+god">on a mission from God</a>. And we still are.
+<p>
+So, there are a few basic ground rules for remote development, at least as I've seen it work:
+<p>
+<ul>
+<li>The minimum remote team size is two. Always have a buddy, even if your buddy is on another continent halfway across the world.
+<li>Only grizzled veterans who absolutely <i>love</i> to code need apply for remote development positions. Mentoring of newbies or casual programmers simply doesn't work at all remotely.
+<li>To be effective, remote teams need full autonomy and a leader (PM, if you will) who has a strong vision <i>and</i> the power to fully execute on that vision.
+</ul>
+<p>
+This is all well and good when you have a remote team size of <i>three</i>, as we did for the bulk of Stack Overflow development. And all in the same country. <a href="http://blog.stackoverflow.com/2010/05/announcing-our-series-a/">Now we need to grow the company</a>, and I'd like to grow it in distributed fashion, by hiring other amazing developers from around the world, many of whom I have met through Stack Overflow itself. <p>
+<b>But how do you scale remote development?</b> Joel had some deep seated concerns about this, so I tapped one of my heroes, Miguel de Icaza -- who I'm proud to note is on <a href="http://stackoverflow.com/about/management#advisors">our all-star board of advisors</a> -- and he was generous enough to give us some personal advice based on his experience running the <a href="http://www.mono-project.com/">Mono project</a>, which has dozens of developers distributed all over the world.
+<p>
+<img alt="Time-zone-differences" title="Time-zone-differences" src="http://www.codinghorror.com/.a/6a0120a85dcdae970b0133ed51a674970b-800wi" border="0"  />
+<p>
+At the risk of summarizing mercilessly (and perhaps too much), I'll boil down Miguel's advice the best I can. There are three tools you'll need in place if you plan to grow a large-ish and still functional remote team:
+<p>
+<ol>
+<li><b>Real time chat</b><br>
+<br>
+When your team member lives in Brazil, you can't exactly walk by his desk to ask him a quick question, or bug him about something in his recent checkin. Nope. You need a way to <i>casually</i> ping your fellow remote team members and get a response back quickly. This should be low friction and available to all remote developers at all times. IM, IRC, some web based tool, laser beams, smoke signals, carrier pigeon, two tin cans and a string: whatever. As long as everyone really <i>uses</i> it. <br>
+<p>
+We're currently experimenting with <a href="http://campfirenow.com/">Campfire</a>, but whatever floats your boat and you can get your team to consistently <i>use</i>, will work. Chat is the most essential and omnipresent form of communication you have when working remotely, so you need to make absolutely sure it's functioning before going any further.
+<p>
+<li><b>Persistent mailing list</b><br>
+<br>
+Sure, your remote team may know the details of <i>their</i> project, but what about all the other work going on? How do they find out about that stuff or even know it exists in the first place? You need a virtual bulletin board: a place for announcements, weekly team reports, and meeting summaries. This is where a classic old-school mailing list comes in handy.
+<p>
+We're using <a href="http://groups.google.com/">Google Groups</a> and although it's old school in spades, it works plenty well for this. You can get the emails as they arrive, or view the archived list via the web interface. One word of caution, however. Every time you see something arrive in your inbox from the mailing list you better believe, in your heart of hearts, that it contains useful information. The minute the mailing list becomes just another "whenever I have time to read that stuff", noise engine, or distraction from work &hellip; you've let someone cry wolf too much, and ruined it. So be very careful. Noisy, argumentative, or useless things posted to the mailing list should be punishable by death. Or noogies.
+<p>
+<li><b>Voice and video chat</b><br>
+<p>
+As much as I love ASCII, sometimes faceless ASCII characters just aren't enough to capture the full intentions and feelings of the human being behind them. When you find yourself sending kilobytes of ASCII back and forth, and still are unsatisfied that you're <i>communicating</i>, you should instill a reflexive habit of "going voice" on your team.
+<p>
+Never underestimate the power of actually <i>talking</i> to another human being. I know, I know, the whole reason we got into this programming thing was to <i>avoid</i> talking to other people, but bear with me here. You can't be face to face on a remote team without flying 6 plus hours, and who the heck has that kind of time? I've got work I need to get done! Well, the next best thing to hopping on a plane is to fire up <a href="http://www.skype.com/">Skype</a> and have a little voice chat. Easy peasy. All that human nuance which is totally lost in faceless ASCII characters (yes, even with our old pal <a href="http://en.wikipedia.org/wiki/Emoticon">*&lt;:-)</a>) will come roaring back if you <i>regularly</i> schedule voice chats. I recommend at least once a week at an absolute minimum; they don't have to be long meetings, but it sure helps in understanding the human being behind all those awesome checkins.
+<br>
+</ol>
+<p>
+Nobody hates meetings and process claptrap more than I do, but there is a certain amount of process you'll need to keep a bunch of loosely connected remote teams and developers in sync.
+<p>
+<ol>
+<li><b>Monday team status reports</b><br>
+<p>
+Every Monday, as in <a href="http://www.youtube.com/results?search_query=somebody's+got+a+case+of+the+mondays">somebody's-got-a-case-of-the</a>, each team should produce a brief, summarized rundown of:
+<p>
+<ul>
+<li>What we did <u>last week</u>
+<li>What we're planning to do <u>this week</u>
+<li>Anything that is <u>blocking</u> us or we are <u>concerned</u> about
+</ul>
+<p>
+This doesn't have to be (and in fact <i>shouldn't</i> be) a long report. The briefer the better, but do try to capture all the useful highlights. Mail this to the mailing list every Monday like clockwork. Now, how many "teams" you have is up to you; I don't think this needs to be done at the individual developer level, but you could.
+<p>
+<li><b>Meeting minutes</b><br>
+<p>
+Any time you conduct what you would consider to be a "meeting" with someone else, <u>take minutes</u>! That is, write down what happened in bullet point form, so those remote team members who couldn't be there can benefit from -- or at least hear about -- whatever happened.
+<p>
+Again, this doesn't have to be long, and if you find taking meeting minutes onerous then you're probably doing it wrong. A simple bulleted list of sentences should suffice. We don't need to know every little detail, just the big picture stuff: <u>who</u> was there? What <u>topics</u> were discussed? What <u>decisions</u> were made? What are the <u>next steps</u>?
+</ol>
+<p>
+Both of the above should, of course, be mailed out to the mailing list as they are completed so everyone can be notified. You do have a mailing list, right? Of course you do!
+<p>
+If this seems like a lot of jibba-jabba, well, that's because <b>remote development is hard</b>. It takes discipline to make it all work, certainly more discipline than piling a bunch of programmers into the same cubicle farm. But when you imagine what this kind of intellectual work -- not just programming, but anything where you're working in mostly thought-stuff -- will be like in ten, twenty, even thirty years &hellip; don't you think it will look a lot like what happens every day <i>right now</i> on Stack Overflow? That is, a programmer in Brazil helping a programmer in New Jersey solve a problem?
+<p>
+If I have learned anything from Stack Overflow it is that the world of programming is <a href="http://www.codinghorror.com/blog/2009/03/the-ugly-american-programmer.html">truly global</a>. I am honored to meet these brilliant programmers from every corner of the world, even if only in a small way through a website. Nothing is more exciting for me than the prospect of adding international members to the Stack Overflow team. The development of Stack Overflow should be reflective of what Stack Overflow <i>is</i>: an international effort of like-minded -- and dare I say <i>totally awesome</i> -- programmers. I wish I could hire each and every one of you. OK, maybe I'm a little biased. But to me, that's how awesome the Stack Overflow community is.
+<p>
+I believe <b>remote development represents the future of work</b>. If we have to spend a little time figuring out how this stuff works, and maybe even make some mistakes along the way, it's worth it. As far as I'm concerned, the future is now. Why wait?
+<p>
+<table> 
+<tr><td class="welovecodinghorror"> 
+[advertisement] <a href="http://www.atlassian.com/starter-day/?utm_source=Coding%2BHorror&utm_medium=Text%2BAd&utm_campaign=Starter%2BDay" rel="nofollow">Atlassian Starter Day</a> - Learn how startups like Boxee and Pandora broke through. <a href="http://www.atlassian.com/starter-day/?utm_source=Coding%2BHorror&utm_medium=Text%2BAd&utm_campaign=Starter%2BDay" rel="nofollow">Sign-up today »</a> 
+</td></tr> 
+</table> 
+<p>
+
+
+
+ 
+ 
+<div class="posted">Posted by Jeff Atwood &nbsp;&nbsp; <script src="http://technorati.com/linkcount" type="text/javascript"></script><a class="tr-linkcount" href="http://technorati.com/search/http://www.codinghorror.com/blog/2010/05/on-working-remotely.html?sub=nscosmos">View blog reactions</a></div> 
+ 
+
+<div style="float:left;">&laquo; <a href="http://www.codinghorror.com/blog/2010/04/whats-wrong-with-css.html">What's Wrong With CSS</a></div> 
+
+
+
+
+</div> 
+
+
+
+
+<div class="comments-head"><a name="comments"></a>Comments</div> 
+
+
+
+<div class="comments-body m1ek"> 
+<p>Future of work. Yeah, right. Right as our very industry has gotten on the scrumtrain - you know, the one that says that people must work face-to-face, in open office environments, and have a meeting every single morning at the right time, and should use sticky notes instead of electronic tools.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/mdahmus" href="http://profile.typepad.com/mdahmus">M1EK</a> on May  6, 2010  6:49 AM</span> 
+</div> 
+
+
+
+<div class="comments-body mheusser"> 
+<p>Hey Jeff, I&#39;ve been working remote for about two and a half years now, and I generally agree.  A couple of ideas:</p>
+
+<p>- Pair Programming.  Yes, you can do it remote; use GNU Screen, and you&#39;ll find the latency of just pushing ASCII text is actually pretty good.  (You are using Linux/Unix/Mac right?)</p>
+
+<p>- Set up an Asterisk server so VOIP is free, then do pair programming with VOIP ALL THE TIME,</p>
+
+<p>- Use VNC for screen sharing when you need to debug an issue</p>
+
+<p><br />
+If you&#39;re doing fancy javascript and have cross-browser compatibility issues, you&#39;ll likely want to start getting to testers to help out, and those guys don&#39;t have to have code coming out of their ears.  Likewise product management folks and graphic design.  But for coders, sure, hard-core is good.</p>
+
+<p>I wish you the best man; sounds like you&#39;re doing it, and doing it well.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/mheusser" href="http://profile.typepad.com/mheusser">Mheusser</a> on May  6, 2010  6:51 AM</span> 
+</div> 
+
+
+
+<div class="comments-body joss_delage"> 
+<p>Jeff - How material are the benefits?  Do you think productivity goes up?</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/jossdelage" href="http://profile.typepad.com/jossdelage">Joss Delage</a> on May  6, 2010  6:59 AM</span> 
+</div> 
+
+
+
+<div class="comments-body wvdominick"> 
+<p>I suggest recording some meetings and make them available to the new people when they join the group. It really helps them gain some context and learn the thought processes that went into how you got to where you are now.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/wvdominick" href="http://profile.typepad.com/wvdominick">WVDominick</a> on May  6, 2010  7:06 AM</span> 
+</div> 
+
+
+
+<div class="comments-body johncoder"> 
+<p>I think you hit the nail on the head.  Remote work is about the chemistry of the team.  If you don&#39;t have at least 1 person that is your coding buddy, then you&#39;re generally not going to be great at working remotely (this concept doesn&#39;t seem to be unique to remote...).  Any difficulties I&#39;ve previously had with remote work boils down to some lack of teamwork among coworkers that makes it completely unproductive.</p>
+
+<p>Personally, I long to be a part of an exceptional distributed team.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/johncoder" href="http://profile.typepad.com/johncoder">Johncoder</a> on May  6, 2010  7:07 AM</span> 
+</div> 
+
+
+
+<div class="comments-body jonathan_sampson"> 
+<p>I work as a 1-man team. So all of those issues you mentioned with working alone, remotely, I experience on a day-to-day basis. It&#39;s tough, really tough. My last job consisted of 8 developers, so I was able to quickly discuss problems, solutions, or ideas in general with 2 or 3 others pretty quickly. You don&#39;t fully appreciate the value of that until you&#39;re not able to do it any longer.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/jonathansampson" href="http://profile.typepad.com/jonathansampson">Jonathan Sampson</a> on May  6, 2010  7:19 AM</span> 
+</div> 
+
+
+
+<div class="comments-body stefano_borini"> 
+<p>I hear your point. I&#39;m programming in academia, totally and completely alone. It takes a lot of discipline to make things happen. Programming is a collaborative effort. If you take that away, it&#39;s rather dull, because you don&#39;t learn anything. it&#39;s just you, your problems, and your documentation. On this regard, StackOverflow had another great advantage: it made me feel less alone in my work. As a developer with a problem, not having any colleague to talk with, but having the SO community at a quick click of a button was precious.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/stefanoborini" href="http://profile.typepad.com/stefanoborini">Stefano Borini</a> on May  6, 2010  7:33 AM</span> 
+</div> 
+
+
+
+<div class="comments-body numbsafari"> 
+<p>Hey Jeff,</p>
+
+<p>When it comes to team and individual status reports, I highly recommend using blogs or a wiki. There are a ton of tools you can leverage to do this. The nice thing is that they become backed up, searchable and even subscribable via RSS.</p>
+
+<p>This is also something Google Wave looks very promising for, though I haven&#39;t personally tried with that. I&#39;ve definitely had good results with blogs and wikis though.</p>
+
+<p>Also, it goes without saying in most cases, but remote development DEMANDS that you follow all your tried-and-true, software engineering practices like using source control, automated testing, continuous integration, etc.</p>
+
+<p>I generally like to keep tabs on teams like Apache, Spring and OpenBSD for guidance in these practice areas. They are truly effective at doing this stuff.</p>
+
+<p>Good luck!</p>
+
+<p>Sam Wilson</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/numbsafari" href="http://profile.typepad.com/numbsafari">Numbsafari</a> on May  6, 2010  7:34 AM</span> 
+</div> 
+
+
+
+<div class="comments-body carl_furrow"> 
+<p>I work in Michigan for a company in San Francisco on a team of 4 developers. I am the only remote dev, and it can definitely have its pluses and minuses. You did a decent job highlighting what comes along with having remote teams.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/carlfurrow" href="http://profile.typepad.com/carlfurrow">Carl_furrow</a> on May  6, 2010  7:35 AM</span> 
+</div> 
+
+
+
+<div class="comments-body codeanthem"> 
+<p>I have worked remotely in a couple of different settings and personally love it.  It definitely works for me, even without a coding buddy, and saves me tons of time in commute and stress from not having to look at cubicle walls or sit up straight all day.  </p>
+
+<p><i>&quot;Only grizzled veterans who absolutely love to code need apply for remote development positions. Mentoring of newbies or casual programmers simply doesn&#39;t work at all remotely.&quot;</i></p>
+
+<p>This sounds like the typical yet completely wrong advice that &quot;agile is only for companies that are ok with risk&quot;.  The reality is that agile is for ALL companies and helps manage risk better, but since it <b>exposes</b> the inherent risks in development, then people conclude it causes it.  </p>
+
+<p>The reality in this case is that &quot;only grizzled veterans who absolutely love to code&quot; make a ridiculously large and valuable contribution to <b>any</b> software development team, way out of proportion with a newbie or competent programmer.  That is not as obvious when we all sit together in a room and code for 40-50 hours but becomes much MORE obvious in a distributed environment.  A newbie who would not be able to successfully contribute much in a distributed environment would not be able to do much in a co-working environment either, but since they show up for the same amount of time, somehow our brains just don&#39;t notice or care.</p>
+
+<p>I&#39;m not making the case NOT to hire a newbie or barely competent programmer, as there are many benefits to having them (at least the newbie ones).  You get a fresh perspective, you can build loyalty and grow a great programmer (if you play it right), etc.  But for too long managers and companies have ignored the massive productivity differences in programmers of different skills.  I am making the case to make those as transparent as possible, and working remotely (among many other benefits) is one way to do that.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/codeanthem" href="http://profile.typepad.com/codeanthem">Codeanthem</a> on May  6, 2010  7:52 AM</span> 
+</div> 
+
+
+
+<div class="comments-body matthewcford"> 
+<p>Some good tips in here, we run a fully distributed team and had overcome similar challenges.</p>
+
+<p>One tip I would add is pair-programming on complex parts or sticking points through screen and vim, we have an ec2 instance dedicated for pairing which everyone has access to.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/matthewcford" href="http://profile.typepad.com/matthewcford">Matthewcford</a> on May  6, 2010  7:53 AM</span> 
+</div> 
+
+
+
+<div class="comments-body matthewcford"> 
+<p>Some good tips in here, we run a fully distributed team and had overcome similar challenges.</p>
+
+<p>One tip I would add is pair-programming on complex parts or sticking points through screen and vim, we have an ec2 instance dedicated for pairing which everyone has access to.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/matthewcford" href="http://profile.typepad.com/matthewcford">Matthewcford</a> on May  6, 2010  7:55 AM</span> 
+</div> 
+
+
+
+<div class="comments-body green_parrots_software"> 
+<p>Hello Jeff,</p>
+
+<p>You can replace this:</p>
+
+<p><img src="http://www.codinghorror.com/.a/6a0120a85dcdae970b0133ed51a674970b-800wi"></p>
+
+<p>By our <a href="http://www.1stclock.com/world-clock.php" rel="nofollow">world clock replacement of the taskbar clock: 1st Clock</a> ($30):</p>
+
+<p><img src="http://www.1stclock.com/images/time-zones-on-taskbar-win7.png"></p>
+
+<p>So you will see the time in all required places right on the taskbar, all the time!</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/gpsoft" href="http://profile.typepad.com/gpsoft">Green Parrots Software</a> on May  6, 2010  8:00 AM</span> 
+</div> 
+
+
+
+<div class="comments-body numbsafari"> 
+<p>Hey Jeff,</p>
+
+<p>Another thought... when it comes to pair programming, sometimes it&#39;s possible to utilize screen-sharing or other tools, but if you&#39;ve got timezone issues, that can be problematic. </p>
+
+<p>One thing I&#39;ve done in the past that was pretty effective, was to basically  require all code check-ins to be peer reviewed. This did a number of things. First, and most obviously, it meant that code reviews were being done on a regular and ongoing basis. Second, it meant that at least one other person was cross trained on your code. Third, it forced us to keep our code check-ins relatively small and discreet. Big, ungainly check-ins made the peer review process difficult. So, best to keep things small and manageable.</p>
+
+<p>Most importantly, it fits nicely into the distributed, disconnected nature of working in a remote environment.</p>
+
+<p>Sam</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/numbsafari" href="http://profile.typepad.com/numbsafari">Numbsafari</a> on May  6, 2010  8:06 AM</span> 
+</div> 
+
+
+
+<div class="comments-body louis_russo"> 
+<p>I found out some of these things the hard way. My first programming job that moved from in office to remote led to a zombie-like state where I couldn&#39;t keep track of days, or even weeks. Now I make sure any remote work is done with another programmer elsewhere and with improved organizational skills it is quite enjoyable and easily managed.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/russolouis" href="http://profile.typepad.com/russolouis">Louis Russo</a> on May  6, 2010  8:07 AM</span> 
+</div> 
+
+
+
+<div class="comments-body kev"> 
+<p>The company I work for doesn&#39;t have an office as such, we all work from home. I&#39;ve worked from home since early 2003 and would find it very strange to go back to working in an office full time again.</p>
+
+<p>What is also important is that your remote team members are provided with separate business telephones, broadband and computer(s). This provides a ring fenced work environment within the home office and the mental flag that &quot;this is work stuff&quot;. You also don&#39;t get hard feelings where folk feel they are providing a freebie to the business of their own phone, connectivity and hardware.</p>
+
+<p>One of the things I do miss is white boarding sessions in person with other devs and general office banter. But that said, we&#39;re still a fairly sociable lot over MSN and the phone anyway.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/kevinkenny" href="http://profile.typepad.com/kevinkenny">Kev</a> on May  6, 2010  8:09 AM</span> 
+</div> 
+
+
+
+<div class="comments-body william_furr"> 
+<p>&quot;If this seems like a lot of jibba-jabba&quot; - actually, it sounds like a *lot* less jibba-jabba than I just sat through in my software engineering class in my Master&#39;s program in Computer Science at a top-tier university.</p>
+
+<p>The main things I learned from that class are that colleges can&#39;t teach software engineering, the type and size of process needed varies wildly among projects, and I now have a list of buzzwords to listen for during interviews, upon the hearing of which I shall run screaming from the room.</p>
+
+<p>This article was fantastic and well-timed.  I&#39;m programming alone on a research project, and I&#39;ve felt many of the issues you&#39;ve pointed out (on top of which I&#39;m a novice programmer, as these things go: only three years of actual experience and that with a giant pile of legacy code).</p>
+
+<p>Some of this isn&#39;t exactly what I wanted to hear:  I like the idea of working remotely, but I don&#39;t think I&#39;m ready for it.  I need more experience working on good and bad teams (hopefully more good than bad) first.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/williamfurr" href="http://profile.typepad.com/williamfurr">William Furr</a> on May  6, 2010  8:11 AM</span> 
+</div> 
+
+
+
+<div class="comments-body brian_cottingham"> 
+<p>How do I know if I&#39;m good enough to work remotely? Compared to my college peers I&#39;m a better-than-average programmer but, being a college student, I haven&#39;t had many opportunities to compare my skills and productivity with professionals. How can I tell if I&#39;m cut out for remote work without spending a decade in the workplace becoming a &quot;grizzled veteran&quot; first?</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/briancottingham" href="http://profile.typepad.com/briancottingham">Brian Cottingham</a> on May  6, 2010  8:12 AM</span> 
+</div> 
+
+
+
+<div class="comments-body jason_kester"> 
+<p>At the risk of plugging my own thing on somebody&#39;s blog, this situation is the reason we built Twiddla, so I&#39;d recommend you check it out.</p>
+
+<p>Mostly it was to deal with communicating little graphical changes to the site to remote designers without resorting to MS Paint and email, but it does chat and voice too, so it pretty much wraps up your whole &quot;tools you need&quot; section in one thing.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/jasonkester" href="http://profile.typepad.com/jasonkester">Jason Kester</a> on May  6, 2010  8:14 AM</span> 
+</div> 
+
+
+
+<div class="comments-body olli_lehtola"> 
+<p>What little professional experience(couple of years) I have,  I&#39;ve been largely working remotely. I wouldn&#39;t recommend it to anyone just starting out as a software developer. There just are too many things that are too easy to miss out on. Like, you know, the whole social aspect of working. Early on in your career the job itself is enough of a learning experience not to burden yourself with working remotely. YMMV.</p>
+
+<p>Another thing: working remotely as a part of team is definately easier and more pleasurable than working remotely as a lone wolf. Especially if you are the lone developer of the company, then it is pretty tough even if the work itself is pretty simple. </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/illotus" href="http://profile.typepad.com/illotus">Olli Lehtola</a> on May  6, 2010  8:30 AM</span> 
+</div> 
+
+
+
+<div class="comments-body cesy"> 
+<p>We&#39;ve managed to work remotely with newbie developers just fine. We haven&#39;t needed voice or video chat, either. But then again, we&#39;re also very experience with working on tasks remotely in a way that most programmers aren&#39;t.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/cesy" href="http://profile.typepad.com/cesy">Cesy</a> on May  6, 2010  8:49 AM</span> 
+</div> 
+
+
+
+<div class="comments-body silvercode"> 
+<p>Analysis paralysis? You talk first about coding, then about analysis paralysis. That is not possible. When you program, you already have specifications. If not, then you make them. So you cannot have analysis paralysis while programming, because if you program, you have specs. If you don&#39;t have specs, you don&#39;t program.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/silvercode" href="http://profile.typepad.com/silvercode">Silvercode</a> on May  6, 2010  9:07 AM</span> 
+</div> 
+
+
+
+<div class="comments-body robert_p"> 
+<p>Jeff, you may have inadvertently stumbled upon a big secret:</p>
+
+<p>Everything you described there applies 100% directly to traditional offices too.  Every.  Single.  Point.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/pepkaro" href="http://profile.typepad.com/pepkaro">Robert P</a> on May  6, 2010  9:39 AM</span> 
+</div> 
+
+
+
+<div class="comments-body tim_m"> 
+<p><i>&quot;The minimum remote team size is two&quot;</i></p>
+
+<p>Nah.  If you&#39;ve got a decent work ethic, you can go it on your own.  I&#39;ve been working 2 development jobs from home for over 3 years now, both of which are on a development team of 1.  Works just fine for me.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/6p0133ed52d234970b" href="http://profile.typepad.com/6p0133ed52d234970b">Tim M</a> on May  6, 2010  9:59 AM</span> 
+</div> 
+
+
+
+<div class="comments-body cnagele"> 
+<p>We&#39;ve been doing this at Wildbit for almost 10 years. It&#39;s been a lot of trial and error and the tools are much better now, but overall it always comes down to two things:</p>
+
+<p>1. Each person must be a natural contributor <br />
+2. The team as a whole shares the same goals and are aligned. </p>
+
+<p>It&#39;s not any different from a team in an office, but the issues amplify and are harder to figure out. A problem team member might not become apparent until things start to get bad. I&#39;ve become pretty good at reading emotions over IM in the past several years :)</p>
+
+<p>I wrote a post about this on Vitamin a while back:<br />
+  <a href="http://carsonified.com/blog/business/building-and-managing-virtual-teams/" rel="nofollow">http://carsonified.com/blog/business/building-and-managing-virtual-teams/</a></p>
+
+<p>We tend to take retreats once or twice a year. It helps nail down strategy and just hang out and have fun as a team, something that really lacks from a virtual team. You can only mess around in Campfire so much. Usually after each retreat the team is on fire with productivity and ideas.</p>
+
+<p>Really great post. It&#39;s nice to see that more and more teams are thinking this way.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/cnagele1" href="http://profile.typepad.com/cnagele1">Cnagele</a> on May  6, 2010 10:06 AM</span> 
+</div> 
+
+
+
+<div class="comments-body frederick_ross"> 
+<p>My mother has been working like this as a medical writer and editor back to the days when she had to mail floppy disks back and forth to people to move files around (we were the first ones with Internet in our area, for obvious reasons).  She long ago told everyone she didn&#39;t travel for work, or not without them dumping an obscene amount of money on her.  My father worked with her as a typesetter, and also as an engineer, also from home.  As a result, I grew up thinking that this was the *normal* way to work, and I still regard offices and hours are kind of odd.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/frederickross" href="http://profile.typepad.com/frederickross">Frederick Ross</a> on May  6, 2010 10:21 AM</span> 
+</div> 
+
+
+
+<div class="comments-body vikrant_yagnick"> 
+<p>I too think working from home is the future of all businesses that can be made to work remotely. Besides, the obvious features like being able to tap into talent, lack of office overhead etc. etc, there is a fundamental economic benefit if remote working became accepted more widely. By, shifting people away from major cities back to cheaper country or smaller cities areas, people can live a better quality of life without having to spend huge amounts on mortgages etc. It is a choice which people should have. I have explored this aspect of remote working in the following post, if people are interested:</p>
+
+<p><a href="http://technocures.blogspot.com/2009/08/how-to-use-space-time-continuum-to.html" rel="nofollow">http://technocures.blogspot.com/2009/08/how-to-use-space-time-continuum-to.html</a><br />
+</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/yagnick" href="http://profile.typepad.com/yagnick">Vikrant Yagnick</a> on May  6, 2010 10:47 AM</span> 
+</div> 
+
+
+
+<div class="comments-body shvedsky"> 
+<p>Don&#39;t you even *dare* saying anything about &quot;really global&quot; when your hiring statement for StackExchange contains the requirement &quot;Permanent legal right to work in the US&quot;.</p>
+
+<p>--<br />
+Pavel Shved, 10k SO user.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/shvedsky" href="http://profile.typepad.com/shvedsky">Shvedsky</a> on May  6, 2010 11:14 AM</span> 
+</div> 
+
+
+
+<div class="comments-body quux"> 
+<p>Jeff, you said <i>&quot;Newbie programmers, or competent programmers who are phoning it in, are absolutely not going to have the moxie necessary to get things done remotely -- at least, not without a pointy haired manager, or grumpy old team lead, breathing down their neck. <b>Don&#39;t even think</b> about working remotely with anyone who doesn&#39;t freakin&#39; bleed ones and zeros, and has a proven track record of getting things done.&quot;</i></p>
+
+<p>(I added bolding.)</p>
+
+<p>I think this is pretty scary advice to be giving, especially from your pulpit, which is not a small one. Have you tried remote development with newbie coders? Have you tried it with <i>enough</i> newbies to feel you&#39;ve gotten a good sample? If you haven&#39;t, then where do you get the experience to add so much emphasis to this point?</p>
+
+<p>I haven&#39;t seriously tried it either - in fact I&#39;m a newbie coder at best (since my actual experience is more of the sysadmin kind). But I have a suspicion that I&#39;d be at least an OK newbie coder to have on a remote dev team, as long as other sufficient motivations existed. Which is to say that I have dicked around with hobby things, and they tend to move forward in fits and jerks. But that&#39;s because motivation is spotty, not because capability is lacking.</p>
+
+<p>I could be wrong, but I suspect that with the <i>right</i> newbie coder, remote dev would work alright. I suspect what you are saying here is that <b>you</b> have the luxury of working with great coders and since you have it, you&#39;re going to take advantage of it. And yup, if a person has that luxury, why would they voluntarily give it up? But to suggest that a person without that luxury should simply fold tents and give up is, I think, not such a good thing to do.</p>
+
+<p>I&#39;&#39;m just sayin&#39;!<br />
+</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/quux" href="http://profile.typepad.com/quux">quux</a> on May  6, 2010 12:05 PM</span> 
+</div> 
+
+
+
+<div class="comments-body neebz"> 
+<p>Can you hire me? I am very good ;)</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/neebz" href="http://profile.typepad.com/neebz">NEEbz</a> on May  6, 2010 12:07 PM</span> 
+</div> 
+
+
+
+<div class="comments-body pythonwiseblogspotcom"> 
+<p>We (Sauce Labs) found out that Skype don&#39;t scale well for meetings with a lot of people (that&#39;s how we do the daily standup). We&#39;ve switched to TeamSpeak and never looked back.</p>
+
+<p>We do some of the pair programming using Skype and it&#39;s screen sharing, works well.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/pythonwiseblogspotcom" href="http://profile.typepad.com/pythonwiseblogspotcom">Pythonwise.blogspot.com</a> on May  6, 2010 12:20 PM</span> 
+</div> 
+
+
+
+<div class="comments-body dclegg"> 
+<p>I&#39;m a developer based in New Zealand, and have been working remotely for  a US based company for a few years now (Embarcadero Technologies, www.embarcadero.com). I would consider Skype to be our most valuable tool without a doubt. We have an ongoing team chat window always open, and make regular voice calls to combat the ASCII fatigue you mention.</p>
+
+<p>I don&#39;t know if you necessarily have to be the type of programmer that bleeds 1s and 0s to make this work, but you definitely need to be self-motivated, and know when to ask your team for help if you hit a stumbling block. </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/dclegg" href="http://profile.typepad.com/dclegg">Dclegg</a> on May  6, 2010  1:45 PM</span> 
+</div> 
+
+
+
+<div class="comments-body lmorchard"> 
+<p>I&#39;ve worked from my home in MI for Mozilla in CA for a little over 2 years now, and it&#39;s been great.  </p>
+
+<p>The main things I&#39;ve found useful are basically what you call out here: synchronous constant communication over many channels (eg. IM, IRC, VoIP, email to some degree); asynchronous comm with lots of recordkeeping and documentation; and a lot of self-motivation and initiative.</p>
+
+<p>That last point is really the crucial thing for a newbie or a junior developer - some can do it, while some need lots of guidance and mentoring up front.  If you have a history of getting things done without a lot of micromanagement, you might be ready for remote work.  </p>
+
+<p>If you don&#39;t have such a history, you *could* be ready but it would take a lot of faith from an employer to rely on you.  This is where things like writing a book or contributing to an OSS project in your free time can help prove your ability to work remotely.</p>
+
+<p>Also, getting the team physically together about once a quarter is worth the travel for the value of the in-person touch-points.  Try to make it a mini-conference, give lightning talks to each other and leave time for hallway conversations.  Have a bar night or drive go-carts.</p>
+
+<p>One more thing: I&#39;d be curious to see how coders with World of Warcraft raiding experience would do.  When you need to huddle around a project sprint occasionally, it can have a lot in common with a TeamSpeak / Ventrilo session to take down a boss.  The main thing would be whether a WoW player could get away from the game and transfer the habits to billable work.  I&#39;m sure Joi Ito would have something to say about this. :)</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/decafbad1" href="http://profile.typepad.com/decafbad1">l.m.orchard</a> on May  6, 2010  3:05 PM</span> 
+</div> 
+
+
+
+<div class="comments-body don_park"> 
+<p>Unfortunately, it&#39;s considerably harder for part of an existing F2F team to work remotely. Most difficult part is weaning off habit of having ad hoc discussions and making decisions in the hallway which leaves remote workers unaware and out of decision making process.</p>
+
+<p>The best situation for working remotely is &quot;everyone, from the start&quot;, like StackOverflow. The next best is, of course, &quot;Rambo vs. Red Army&quot;.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/parkdon" href="http://profile.typepad.com/parkdon">Don Park</a> on May  6, 2010  3:12 PM</span> 
+</div> 
+
+
+
+<div class="comments-body david_konecny"> 
+<p>I must be one those guys who hate meetings even more than you do. :-) One thing which I found very useful to keep a team of remote people (let say 10 members) in sync without regular meetings: create a dedicated channel on something like www.jaiku.com per team or per big chunk of work and ask each member of the team to post once/twice a day what #1) they were/are/will be working on and #2) how well/bad it is going and #3) how they feel about it. And forbid posts of anything not related to these &quot;status updates&quot;. I was really surprised how easy it was to adopt and how practical it is. For multiple teams I guess you do need some weekly reports which are not that fine grained.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/konecny" href="http://profile.typepad.com/konecny">David Konecny</a> on May  6, 2010  4:14 PM</span> 
+</div> 
+
+
+
+<div class="comments-body tr"> 
+<p><i>Only grizzled veterans who absolutely love to code need apply for remote development positions. Mentoring of newbies or casual programmers simply doesn&#39;t work at all remotely.</i></p>
+
+<p>This is a good reason why sites that provide remote developers (oDesk etc.) don&#39;t provide quality work. Most of the people I&#39;ve tried are either newbies or casual programmers.</p>
+
+<p>If remote development is the future there are a few issues:<br />
+* Unfortunately putting together a team of veterans has a cost associated to it. <br />
+* Good quality new developers often have clever or innovative ideas. If you are just code monkeys then this is fine, if you want ideas then you may be narrowing your options.<br />
+* Where would new developers go to cut their teeth? Veterans were newbies at one point. Heaven forbid we send them to one of those remote only marketplace sites to learn how to write decent code.</p>
+
+<p>Thanks for another great article.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/radnidge" href="http://profile.typepad.com/radnidge">TR</a> on May  6, 2010  4:26 PM</span> 
+</div> 
+
+
+
+<div class="comments-body ben_hughes"> 
+<p>Doesn&#39;t this fly directly in the face of Joel&#39;s repeated statements that the SO/SE team being build from the VC funding will be in NYC only (other that don&#39;t-call-us-we&#39;ll-call-you)?</p>
+
+<p>I do agree though - I&#39;ve worked semi-remotely and as part of a distributed team and it really is difficult to maintain the discipline. One thing that makes it harder is if you have a co-located group and then other people spread around the place - the co-located group naturally forgets to include the others. When everyone&#39;s distributed I imagine that&#39;s less of a problem.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/benrhughes" href="http://profile.typepad.com/benrhughes">Ben Hughes</a> on May  6, 2010  4:32 PM</span> 
+</div> 
+
+
+
+<div class="comments-body coleman_brumley"> 
+<p>Ben,</p>
+
+<p>I was thinking about that the WHOLE time I reading this article.  Joel posted that they need to hire people but they absolutely, without a friggin&#39; doubt have to be in NYC and (presumably) work at the FogCreek offices.  </p>
+
+<p>But, yet, here&#39;s Jeff saying he wants to build a totally virtual team.  Say wha now?  </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/colemanbrumley" href="http://profile.typepad.com/colemanbrumley">Coleman Brumley</a> on May  6, 2010  4:39 PM</span> 
+</div> 
+
+
+
+<div class="comments-body scott"> 
+<p>Hey Jeff, this is great information and comes at perfect timing for me.  I&#39;m moving from Los Angeles in a month back to my home state in a small town because I want to be near family and miss the country living (Quality of life).  I moved to LA 7 years ago to start my business and gain some well needed development experience on some teams.  Now that my business is growing I&#39;m looking to grow my team and I know the talent I would need will not be near the town I&#39;ll be living in.  Remote teams are the way to go.  I&#39;m glad that I&#39;m not the only one out there thinking this!  It is the way of the future!</p>
+
+<p>Thanks for the information and I&#39;ll be applying things from your post and also some from the comments.</p>
+
+<p>It would be great for you to do a follow-up on what you do for your team members.  Like paying for internet, providing hardware and software, etc.</p>
+
+<p>Thanks</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/scott22" href="http://profile.typepad.com/scott22">Scott</a> on May  6, 2010  5:13 PM</span> 
+</div> 
+
+
+
+<div class="comments-body nocivus"> 
+<p>Thanks for sharing your thoughts on this.</p>
+
+<p>As someone who has been working remotely for the past 3 months i can say that it works if the people involved want it to work. I have been doing scrum, with 2 week sprints and daily standup meetings via Skype, plus any required planning/retrospective meetings also via VOIP and it just works.</p>
+
+<p>Whenever i need to talk to a colleague i do it via email, IM, or Skype, depending on the severity/level of understanding of the issue and so far it has been pretty much the same as being there, apart from missing the work-environment-typically-awesome sarcastic jokes, that is :)</p>
+
+<p>The greatest challenge, IMHO, is to find people who can make the system work :)</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/nocivus" href="http://profile.typepad.com/nocivus">Nocivus</a> on May  7, 2010  3:11 AM</span> 
+</div> 
+
+
+
+<div class="comments-body yaten"> 
+<p>I&#39;m currently working remotely, with a team of people that are fluent and think in different languages, and so to communicate my thoughts to specific person I usually use specific language. I don&#39;t think it&#39;s taken into account here. Using IRC-like things like Campfire in such group, or Google Groups, or writing memos wouldn&#39;t be of much use, unless it&#39;s done for every language group separately. Yet it all seems to work well for us with one-to-one communication.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/yaten" href="http://profile.typepad.com/yaten">Yaten</a> on May  7, 2010  3:30 AM</span> 
+</div> 
+
+
+
+<div class="comments-body stefan_siebel"> 
+<p>I think it&#39;s more important that remote co-workers have the ability of &quot;getting things done&quot;. seniority comes after that.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/siebel" href="http://profile.typepad.com/siebel">Stefan Siebel</a> on May  7, 2010  4:36 AM</span> 
+</div> 
+
+
+
+<div class="comments-body fabrizio"> 
+<p>I also suggest Google Docs. It&#39;s very easy to share documents and you can edit the same doc with more than one editor. It&#39;s realtime: you see your modifications and the ones from others. Try it. It&#39;s fantastic.</p>
+
+<p>fabrizio</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/fhtino" href="http://profile.typepad.com/fhtino">Fabrizio</a> on May  7, 2010  5:34 AM</span> 
+</div> 
+
+
+
+<div class="comments-body phat"> 
+<p>The LAST thing I want to have is a chat session open during my programming day.  Its bad enough that the telephone ringing makes me cringe but CHAT is even worse.  Its instant gratification at its best.  I can not code and be disrupted like that.  I do not know how others do it.  I will not work at a company that requires me to have an instant messenger open in the corner of my screen.  Its proven to be a complete failure for me.  I cant get up and take a dump without a 1/2 dozen people asking WHY I am &quot;unavailable&quot;.  In that example, having become enrgaged as to why they were even ASKING me about my &quot;unavailable&quot; status, I simply replied to everyone on the list with &quot;I was taking a shit.  Do you want to see pictures of the wipe next time?&quot;. I presented my 2 week notice later that day.  Cant deal with chat.  Email is about as disruptive as I want my day to get.  I even turn off the phone most of the time.  What I cant stand about the phone is people calling and not leaving messages EXPECTING that I should call back.  Uh, if you didnt leave a message then it wasnt important.  And, similarly, when I leave a message, what MOST people do is just call me back and not listen to my message!  That is quite arrogant.  I simply tell them to listen to the voice mail and then call me back, and then I nicely end the call.  Even though we&#39;ve got more and more &quot;instant&quot; methods, communications between people have become rude if not horrendous.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/6p01310ff5ab0e970c" href="http://profile.typepad.com/6p01310ff5ab0e970c">Phat</a> on May  7, 2010  6:49 AM</span> 
+</div> 
+
+
+
+<div class="comments-body phat"> 
+<p>@Shvedsky: Sorry, but, we have more than enough illegal workers in the United States.  That coupled with out of control outsourcing has destroyed the US&#39; economy.  You wouldnt hire anyone in YOUR nation if they werent legal?  No other nation hires illegals like the US does.  Stop the whining.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/6p01310ff5ab0e970c" href="http://profile.typepad.com/6p01310ff5ab0e970c">Phat</a> on May  7, 2010  6:54 AM</span> 
+</div> 
+
+
+
+<div class="comments-body shvedsky"> 
+<p>@Phat, that&#39;s not about that.  Just the statements about &quot;global&quot; coupled with a map of the US only sound... (I&#39;m not from US, so I can&#39;t pick a proper adjective) like *lies*.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/shvedsky" href="http://profile.typepad.com/shvedsky">Shvedsky</a> on May  7, 2010 12:20 PM</span> 
+</div> 
+
+
+
+<div class="comments-body phat"> 
+<p>@Shvedsky: Its not lies, its policy.  Every nation has its labor policies.  I can not just waltz into another nation and expect to find work at the expense of those who live there and pay taxes there.  There are far, far too many people already working in the USA that do not pay taxes here and for that our cities, our states... our infrastructure is beginning to suffer.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/6p01310ff5ab0e970c" href="http://profile.typepad.com/6p01310ff5ab0e970c">Phat</a> on May  7, 2010  3:04 PM</span> 
+</div> 
+
+
+
+<div class="comments-body bart"> 
+<p>Skype includes a decent chat program, so using it you can kill 2 birds with one stone.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/bartl" href="http://profile.typepad.com/bartl">Bart</a> on May  8, 2010  6:39 AM</span> 
+</div> 
+
+
+
+<div class="comments-body radek_slupik"> 
+<p>Nice post, but I want to add one more thing:</p>
+
+<p>Google Wave is one of THE  MOST AWESOME services you can use for this ^^</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/slupik" href="http://profile.typepad.com/slupik">Radek Slupik</a> on May  8, 2010 10:32 AM</span> 
+</div> 
+
+
+
+<div class="comments-body leetdoodsnonexistentramblingsblogspotcom"> 
+<p>Jeff, have you ever considered running a MOO for this? you can have any features you want to add to a MOO- mailing lists, tasks, and so on. All it takes is a moo server and learning moocode.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/leetdoodsnonexistentramblingsblogspotcom" href="http://profile.typepad.com/leetdoodsnonexistentramblingsblogspotcom">Leetdoodsnonexistentramblings.blogspot.com</a> on May  9, 2010  2:52 PM</span> 
+</div> 
+
+
+
+<div class="comments-body mikko_puonti"> 
+<p>Have you thought about using virtual world environments like opensimulator.org in your remote working environment? You could create virtual work room with text and voice chat.  </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/puonti" href="http://profile.typepad.com/puonti">Mikko Puonti</a> on May  9, 2010  9:29 PM</span> 
+</div> 
+
+
+
+<div class="comments-body craig_truzzi"> 
+<p>Does your group use any specific tool for minutes? I always try to cram to much information in because I don&#39;t want those who missed meetings to make the same argument about a certain aspect of design that someone else did and we already discussed the pro&#39;s and cons of it.<br />
+How do you suggest someone actually become &quot;remote working&quot; capable since newer people you say should not do it but it seems that if its a Non-Profit project that those who are new to the industry (myself included) can learn in these types of environments better then making small scale projects by themselves. </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/truzzi" href="http://profile.typepad.com/truzzi">Craig Truzzi</a> on May 10, 2010  9:45 AM</span> 
+</div> 
+
+
+
+<div class="comments-body merijn_vogel"> 
+<p>In this quite lengthy blog-post there is a great section on remote pair-programming that may relate to distributed teamwork presented above:</p>
+
+<p><a href="http://blog.xebia.com/2010/05/09/practical-styles-of-pair-programming/" rel="nofollow">http://blog.xebia.com/2010/05/09/practical-styles-of-pair-programming/</a></p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/merijn" href="http://profile.typepad.com/merijn">Merijn Vogel</a> on May 10, 2010  2:42 PM</span> 
+</div> 
+
+
+
+<div class="comments-body neil_murphy"> 
+<p>&quot;Tim M wrote:  (on top of which I&#39;m a novice programmer, as these things go: only three years of actual experience and that with a giant pile of legacy code).&quot;</p>
+
+<p>3 years shoud make you more than novice.  And working with legacy code is an essential skill to any programmer - debugging other people&#39;s code - good and bad - teaches you many lessons.</p>
+
+<p>Generally:  There are some great commercial and open source tools now to support remote and distributed working.  I have used webex and similar for oline collaborative working; IM; Skype;  Google docs for document sharing and various others.  Thoughtworks have some great tools and they are now looking to integrate those with Google Wave, which should be interesting.</p>
+
+<p>Distributed VCS is now available, automated test management tools from unit to system (Junit, Selenim et al), online PM tools for agile project management and the plethora of wikis, blogs, facebook type apps and so on.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/neilmurphy" href="http://profile.typepad.com/neilmurphy">Neil Murphy</a> on May 11, 2010  4:20 AM</span> 
+</div> 
+
+
+
+<div class="comments-body clutchdude"> 
+<p>For those working out of Eclipse, the Eclipse Communication Framework would be a boon. </p>
+
+<p>Combined with an XMPP(S) server, such as openfire, you can have a controlled IM system, chatrooms and shared editor, allowing both of you to edit an individuals local copy of the code in realtime while keeping your copy clean. </p>
+
+<p>Along with this is of course basic file &amp; screen shot sending utilities. </p>
+
+<p>You can of course keep chat logs, but there are better tools for meetings and doc sharing, especially for collaboration. </p>
+
+<p>A googlewave plug in for eclipse would be a killer feature. </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/clutchdude" href="http://profile.typepad.com/clutchdude">ClutchDude</a> on May 11, 2010 10:06 AM</span> 
+</div> 
+
+
+
+<div class="comments-body rhubarb"> 
+<p>Amen Jeff.<br />
+I&#39;ve been doing this for a decade now - working in a small team in a big company from across the world. My current team has had up to 5 timezones in 3 countries at time. I&#39;ve often considered blogging about it, but my first post would have read just like yours:</p>
+
+<p>IM is crucial (didn&#39;t have it when I started) as a replacement for over-the-cubicle-wall chatter. </p>
+
+<p>I would add that with the right attitude you can be hugely more productive when not constantly interrupted by general meetings, birthdays, wanderer&#39;s by and so on. I miss all that to some extent true - but on those rare occasions when I fly in and visit the mother ship, and spend some time in a cube, I start to wonder how anyone gets anything done (or how I did back then)</p>
+
+<p>I agree there are times when being there is very beneficial, however overall this loss is outweighed by the productivity gained by working alone.</p>
+
+<p>On a technology note: If the advent of IM was a real boon to this way of working, the advent of VPNs around 1999 was an absolutely essential part of making this possible - if you&#39;re doing it for a big company. </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/rhubarb1" href="http://profile.typepad.com/rhubarb1">Rhubarb</a> on May 11, 2010 11:12 AM</span> 
+</div> 
+
+
+
+<div class="comments-body malcolm_mcmartin"> 
+<p>Blanket statements tend to over generalize to a startling degree.</p>
+
+<p><i><br />
+ Newbie programmers, or competent programmers who are phoning it in, are absolutely not going to have the moxie necessary to get things done remotely -- at least, not without a pointy haired manager, or grumpy old team lead, breathing down their neck. Don&#39;t even think about working remotely with anyone who doesn&#39;t freakin&#39; bleed ones and zeros, and has a proven track record of getting things done. </i></p>
+
+<p>The only important part of this sentence is &quot;gettings things done&quot;. I&#39;ve been working in the office four days a week and one day a week remotely largely doing development work for the last four years and it doesn&#39;t really matter where I am working. If you have the experience, creativity and drive you will get things done. </p>
+
+<p>Malcolm<br />
+</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/malcolmmcmartin" href="http://profile.typepad.com/malcolmmcmartin">Malcolm McMartin</a> on May 12, 2010  9:43 AM</span> 
+</div> 
+
+
+
+<div class="comments-body robert_straw"> 
+<p>You say that mentoring remotely shouldn&#39;t even be considered... but don&#39;t projects like [Google/Ruby] Summer of Code rely heavily on remote interaction between the student and mentor?</p>
+
+<p>I understand that mentoring in a production environment would be far more stressful than mentoring a low risk project, i.e GSoC; but to flat out say &quot;mentoring of newbies or casual programmers simply doesn&#39;t work at all remotely&quot; is wrong.</p>
+
+<p>I for one would kill to just watch a remote-desktop stream of someone working on StackOverflow&#39;s unicorn-backend and give my feedback over a VoIP program like Ventrilo.</p>
+
+<p>If working remotely is truly the future of work, then it should be the future of mentoring as well. Unless it&#39;s high-time we got rid of on the job training?</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/robertstraw" href="http://profile.typepad.com/robertstraw">Robert Straw</a> on May 12, 2010 11:54 AM</span> 
+</div> 
+
+
+
+<div class="comments-body bernard_duffy"> 
+<p>I disagree with your positon re: newbies. What you really need to succeed in a remote or any isolated work environment is a strong work ethic. </p>
+
+<p>The recipe for success is to find smart people that are motivated to work hard, maintain social connections and get things done, and add some good leadership. If you can attract and retain top performers in their craft, that&#39;s great, but isn&#39;t really relevant to remote work.</p>
+
+<p>I&#39;ve worked with a few folks that I would consider absolutely brilliant in various roles who would wither in a remote work environment -- especially in an org with more than a dozen people. They need that social contact. Conversely, I&#39;ve worked with folks who as a programmer or engineer weren&#39;t at the top of the heap, but had the people/social skills to thrive in any environment -- they would still be contributing if their connection to the rest of the team was morse code over shortwave radio.</p>
+
+<p>Most people lie in the middle, obviously.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/bernardduffy" href="http://profile.typepad.com/bernardduffy">Bernard Duffy</a> on May 13, 2010  5:37 AM</span> 
+</div> 
+
+
+
+<div class="comments-body dustin_boswell"> 
+<p>For quick remote pair-programming sessions, I second the nomination of GNU screen + Google voice chat.</p>
+
+<p>If you haven&#39;t used screen, here are basic instructions to get multi-user working:<br />
+<a href="http://dustwell.com/screen_command_to_pair_program.html" rel="nofollow">http://dustwell.com/screen_command_to_pair_program.html</a></p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/dustinboswell" href="http://profile.typepad.com/dustinboswell">Dustin Boswell</a> on May 16, 2010  9:20 PM</span> 
+</div> 
+
+
+
+<div class="comments-body clinton_blackmore"> 
+<p>I&#39;m curious about Leetdoodsnonexistentramblings.blogspot.com&#39;s assertion that using a MOO would help with collaboration -- and even <a href="http://superuser.com/questions/142571/use-a-moo-mud-mush-for-project-collaboration" rel="nofollow">asked a question on SuperUser about it</a>.  Does anyone have any thoughts on how this would facilitate collaboration?</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/clintonblackmore" href="http://profile.typepad.com/clintonblackmore">Clinton Blackmore</a> on May 18, 2010  1:02 PM</span> 
+</div> 
+
+
+
+<div class="comments-body thejeshgn"> 
+<p>I have been working with teams that are spread across countries (USA, India (Bangalore and Chennai) and europe). It has its own advantages but there are pain points to if teams are not ready to cooperate.</p>
+
+<p>I agree. Future is in global teams. </p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/thejeshgn" href="http://profile.typepad.com/thejeshgn">Thejeshgn</a> on May 19, 2010 10:24 PM</span> 
+</div> 
+
+
+
+<div class="comments-body m1ek"> 
+<p>The other problem is that once you&#39;re senior enough to merit working from home, you are quite likely to be expected to mentor more junior people - who don&#39;t, can&#39;t, or aren&#39;t trusted to work from home. Oops.</p>
+
+<p>Again, this kind of thing is a fantasy - vastly oversold - in my other hobbyist field (transportation); most people will never and can never telecommute for more than a trivial number of days per year, period.</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/mdahmus" href="http://profile.typepad.com/mdahmus">M1EK</a> on May 21, 2010  3:30 PM</span> 
+</div> 
+
+
+
+<div class="comments-body bob_benedict"> 
+<p>FINALLY!  Someone willing to say remote development is hard and that it takes time to get it right.  Great job!  We just merged with our development partner in Costa Rica and we do nothing but remote development.  I think we&#39;re pretty good at it but that&#39;s because we spent the time to do that, to understand what type of engineer it takes and how you manage the project.  Here&#39;s what I would add:</p>
+
+<p>- You should always hire awesome developers remote or not.  The bar should be high even if you sit together.</p>
+
+<p>- The best engineers we have found for remote dev are the ones who know how to ask questions back.  The product owner is counting on you 100% to see when the product is not coming together and to escalate that up.  Like when you spoke with Joel, he is counting on you to know what needs to be discussed most of the time.</p>
+
+<p>- Remote with only 1 guy?  Really tough to do well.  Plus, most guys who are good enough to create killer products alone don&#39;t touch the ground between jobs.  </p>
+
+<p>Bob Benedict<br />
+Avantica Technologies<br />
+</p>
+<span class="comments-post" style="margin-left:20px"><a rel="nofollow" target="_blank" title="http://profile.typepad.com/benedictbob" href="http://profile.typepad.com/benedictbob">Bob Benedict</a> on May 28, 2010  2:09 PM</span> 
+</div> 
+
+
+	
+
+
+
+
+<a name="endcomments"></a> 
+
+
+
+<style>
+textarea {
+ 	width : 600px;
+	font-size : 14px;
+	}
+#comment-author,
+#comment-email,
+#comment-url {
+	font-size : 14px;
+	padding : 3px;
+	width : 350px;
+	}
+</style>
+
+
+<!-- comment form -->
+<div id="atp-comments">
+	<div id="comment-preview" class="hiddenBox">
+		<h3 id="header-verify-comment" class="comments-header hiddenBox">Verify your Comment</h3>
+		<h3 id="header-preview-comment" class="comments-header hiddenBox">Previewing your Comment</h3>
+		<div class="comments-content">
+			<div class="comment">
+				<div id="comment-preview-content" class="comment-content">
+				</div>
+				<p class="comment-footer">
+					Posted by:
+					<span id="comment-preview-author"></span>&nbsp;|&nbsp;<span id="comment-preview-datetime"></span>
+				</p>
+			</div>
+		</div>
+	</div>
+	<div id="comment-preview-confirmation" class="hiddenBox yellowBox">
+		<p>This is only a preview. Your comment has not yet been posted.</p>
+		<form id="comment-preview-form"
+			method="post"
+			onsubmit="atpComments.interceptPost(commentFormNum); return false;">
+			<input type="submit" name="post" id="comment-confirm-post" value="&nbsp;Post&nbsp;" onclick="atpComments.interceptPost(commentFormNum); return false;"/>
+			<input type="submit" name="edit" id="comment-edit" value="&nbsp;&nbsp;Edit&nbsp;&nbsp;" onclick="atpComments.previewOnly(commentFormNum, 2); return false;"/>
+			<span id="previewFormSpinner" class="hiddenBox"><img src="/.shared/images/spinner.gif" alt="Working..." /></span>
+		</form>
+	</div>
+	<div id="comment-error" class="hiddenBox redBox">
+		Your comment could not be posted. Error type: <span id="comment-error-msg"></span>
+	</div>
+	<div id="comment-complete" class="hiddenBox yellowGreenBox">
+		Your comment has been posted. <a href="javascript:void 0;" onclick="window.location.hash='#comment-form';window.location.reload(false)">Post another comment</a>
+	</div>
+	<div id="comment-captcha" class="hiddenBox yellowBox">
+		<div id="captchaText">
+			<p id="captchaFailMsg" class="captchaErrorText hiddenBox">The letters and numbers you entered did not match the image. Please try again.</p>
+			<p>As a final step before posting your comment, enter the letters and numbers you see in the image below. This prevents automated programs from posting comments.</p>
+			<p><span id="comment-captcha-viewalt">Having trouble reading this image? <a href="#comment-captcha" onClick="atpComments.generateCaptcha(commentFormNum);">View an alternate.</a></span></p>
+		</div>
+		<p class=""><img id="captchaImg" /></p>
+		<form id="comment-captcha-form"
+			method="post"
+			onsubmit="atpComments.submitWithCaptcha(commentFormNum); return false;">
+			<input type="hidden" name="captcha_chal" id="comment-captcha-chal" value="" />
+			<p>
+				<input id="comment-captcha-text" name="captcha_text" size="10" />
+			</p>
+			<p>
+				<input type="submit" name="continue" id="captcha-continue" value="&nbsp;Continue&nbsp;" />
+				<span id="captchaFormSpinner" class="commentSpinner hiddenBox"><img src="/.shared/images/spinner.gif" alt="Working..." /></span>
+			</p>
+		</form>
+	</div>
+	<div id="primary-comment-form" class="comment-form">
+		<form id="comment-form"
+			method="post">
+			<input type="hidden" name="entry_xid" id="comment-entry-xid" value="6a0120a85dcdae970b01348084eb9b970c" />
+			<div class="comments-open">
+				<h2 class="comments-open-header" id="comment-title">Post a comment</h2>
+				<div id="comments-open-content" class="comments-open-content">
+					
+
+					
+						<p id="comments-open-login" style="display: none;">
+							
+								To comment, please <a href="https://www.typekey.com/t/typekey/login?v=1.0&t=4d9926635ec20d5b7aafcaf5870fb775baadcb79&lang=en_US&_return=http%3A%2F%2Fwww.codinghorror.com%2Fblog%2F2010%2F05%2Fon-working-remotely.html&_portal=typepad">sign in</a> using TypePad, Twitter, Facebook or OpenID.
+							
+							
+						</p>
+
+						<p id="comments-open-logout" style="display: none;">
+							You are currently signed in as
+							<span id="commenter-name">(nobody)</span>.
+							<a href="http://www.codinghorror.com/.services/sitelogout?to=https%3A%2F%2Fwww.typekey.com%2Ft%2Ftypekey%2F%3F__mode%3Dlogout%26_return%3Dhttp%253A%252F%252Fwww.codinghorror.com%252Fblog%252F2010%252F05%252Fon-working-remotely.html">Sign Out</a>
+						</p>
+					
+						<div id="comments-open-text" style="display:none;">
+							<textarea id="comment-text" name="text" rows="10" cols="30" onkeyup="atpComments.maxTextArea(this, 64000);"></textarea>
+							<p class="comments-open-subtext">
+								(You can use HTML tags like &lt;b&gt; &lt;i&gt; and &lt;ul&gt; to style your text.URLs automatically linked.)
+							</p>
+						</div>
+						<div id="comments-open-data" style="display:none;">
+							<p>Your Information</p>
+							<p>
+							
+								(Name is required. Email address will not be displayed with the comment.)
+							
+							
+							</p>
+							<p>
+								<input id="comment-author" at:default="Name" name="author" size="30" value="Name" onfocus="if(this.value==this.getAttribute('at:default')) this.value='';"  onBlur="if(this.value=='') this.value=this.getAttribute('at:default');" class="grayText"/>
+								<label for="comment-author" id="comment-author-error" class="comment-error hiddenBox">Name is required to post a comment</label>
+							</p>
+							<p>
+								<input id="comment-email" at:default="Email Address" name="email" size="30" value="Email Address" onfocus="if(this.value==this.getAttribute('at:default')) this.value='';"  onBlur="if(this.value=='') this.value=this.getAttribute('at:default');" class="grayText"/>
+								<label for="comment-email" id="comment-email-error" class="comment-error hiddenBox">Please enter a valid email address</label>
+							</p>
+							<p>
+								<input id="comment-url" at:default="Web Site URL" name="url" size="30" value="Web Site URL" onfocus="if(this.value==this.getAttribute('at:default')) this.value='';"  onBlur="if(this.value=='') this.value=this.getAttribute('at:default');" class="grayText"/>
+								<label for="comment-url" id="comment-url-error" class="comment-error hiddenBox">Invalid URL</label>
+							</p>
+						</div>
+				</div>
+				<div id="comments-open-footer" class="comments-open-footer" style="display:none;">
+					<input type="submit" name="post" id="comment-post-button" value="&nbsp;Post&nbsp;" onclick="atpComments.interceptPost(commentFormNum); return false;" disabled="true" />
+					<input type="submit" name="preview" id="comment-preview-button" value="&nbsp;Preview&nbsp;" onclick="atpComments.previewOnly(commentFormNum, 1); return false;" disabled="true" />
+					<span id="commentEntryFormSpinner" class="commentSpinner hiddenBox"><img src="/.shared/images/spinner.gif" alt="Working..." /></span>
+				</div>
+			</div>
+		</form>
+		<noscript>
+			
+			<p>This weblog only allows comments from registered TypeKey users. To comment, please enable JavaScript so you can sign into TypeKey.</p>
+			
+			
+		</noscript>
+	</div>
+</div>
+
+
+
+
+
+
+
+
+</div> 
+ 
+<table width="100%"> 
+<tr> 
+<td align="left" width=50> 
+</td> 
+<td align="right" width="*"><span style="font-size:70%">Content (c) 2009 <A href="http://www.codinghorror.com/blog/archives/000021.html">Jeff Atwood</A>. Logo image used with permission of the author. (c) 1993 Steven C. McConnell. All Rights Reserved.</span></td></tr> 
+</table> 
+ 
+</div> 
+
+<div id="links"> 
+ 
+
+
+
+
+<div class="sidetitle">&laquo; Older</div> 
+<div class="side">
+<a href="http://www.codinghorror.com/blog/2010/04/whats-wrong-with-css.html">What's Wrong With CSS</a>
+</div> 
+
+ 
+<p></p> 
+<p></p> 
+<p></p> 
+<div class="side"> 
+<a href="http://www.codinghorror.com/blog/">Home</a> 
+<p></p> 
+<p></p> 
+<a href="http://www.codinghorror.com/blog/archives.html">Browse All Posts</a> 
+<p></p> 
+<p></p> 
+<p></p> 
+
+ 
+
+<div class="welovecodinghorror"> 
+[ad] Is your application eating a lot of RAM? – Find out what's holding your objects in memory. <a href="http://www.red-gate.com/products/ants_memory_profiler/find_memory_leaks_fast.htm?utm_source=codinghorr&utm_medium=textad&utm_term=3229&utm_content=findmemleaksfast&utm_campaign=antsmemoryprofiler" rel="nofollow">Find memory leaks fast</a>.
+</div> 
+ 
+<div class="welovecodinghorror"> 
+[ad] Tired of endless code review emails? Ditch the emails - try peer code review with <a href="http://codecollab.com/" rel="nofollow">Code Collaborator</a>. Also learn tips and tricks with <a href="http://www.codereviewbook.com/?howheard=Coding+Horror" rel="nofollow">this free book</a>.
+</div> 
+ 
+<div class="welovecodinghorror"> 
+[ad] You've maxed out your machine. Now upgrade your career. <a href="http://careers.stackoverflow.com/">Stack Overflow Careers</a> helps the world's top developers get noticed by the world's top employers.
+</div>
+
+<!-- [ad] Got a cool product for developers? Advertise it on Coding Horror! mailto:jatwood@codinghorror.com?subject=Advertising Contact me for rates. --> 
+
+
+<div class="sidetitle">Resources</div> 
+<div class="side"> 
+<b><a href="/blog/2004/02/recommended-reading-for-developers.html">Recommended Reading</a></b><br /> 
+<b><a href="http://stackoverflow.com">stackoverflow.com</a></b><br/> 
+<b><a href="http://serverfault.com">serverfault.com</a></b><br/> 
+<b><a href="http://superuser.com">superuser.com</a></b><br/> 
+<img src="/favicon.ico" width="16" height="16" style="vertical-align:middle;border:0">&nbsp;&nbsp;<a href="/blog/2004/02/about-me.html">About Me</a> 
+</div> 
+
+
+
+<div class="syndicate"> 
+<img src="http://feeds.feedburner.com/~fc/codinghorror?bg=EEEEEE&amp;fg=111111&amp;anim=0" height="26" width="88" style="border:0" alt="Count of RSS readers" /> 
+<br/> 
+<a href="http://my.statcounter.com/project/standard/stats.php?project_id=2600027&guest=1">Traffic Stats</a> 
+<br/> 
+<br/> 
+<a href="http://feeds.feedburner.com/codinghorror" rel="alternate" type="application/rss+xml"><img src="http://www.feedburner.com/fb/images/pub/feed-icon16x16.png" width=16 height=16 alt="" style="vertical-align:middle;border:0"/>&nbsp;Subscribe in a reader</a> 
+<br/> 
+<a href="http://www.feedburner.com/fb/a/emailverifySubmit?feedId=74729"><img src="/blog/images/mail.png" width=16 height=16 alt="" style="vertical-align:middle;border:0"/>&nbsp;Subscribe via email</a> 
+</div> 
+
+
+
+</div> 
+</div> 
+ 
+<script> 
+x=window.document.getElementsByTagName('div'); for(var i = 0; i < x.length; i++) { if (x[i].className == "comments-body") { if (x[i].innerHTML.search(/jeff atwood<\/a>/i) != -1) { x[i].style.backgroundColor = "#FFECC7"; } } }
+</script> 
+ 
+<script type="text/javascript" language="javascript"> 
+var sc_project=2600027; 
+var sc_invisible=0; 
+var sc_partition=25; 
+var sc_security="dcff5548"; 
+</script> 
+ 
+<script type="text/javascript" language="javascript" src="http://www.statcounter.com/counter/counter.js"></script> 
+<noscript><a href="http://www.statcounter.com/" target="_blank"><img  src="http://c26.statcounter.com/counter.php?sc_project=2600027&java=0&security=dcff5548&invisible=0" alt="web metrics" border="0"></a> </noscript> 
+ 
+<!-- Start Quantcast tag -->
+<script type="text/javascript" src="http://edge.quantserve.com/quant.js"></script>
+<script type="text/javascript">_qoptions = { tags:"typepad.extended" }; _qacct="p-fcYWUmj5YbYKM"; quantserve();</script>
+<noscript>
+<a href="http://www.quantcast.com/p-fcYWUmj5YbYKM" target="_blank"><img src="http://pixel.quantserve.com/pixel/p-fcYWUmj5YbYKM.gif?tags=typepad.extended" style="display: none" border="0" height="1" width="1" alt="Quantcast"/></a>
+</noscript>
+<!-- End Quantcast tag -->
+</body> 
+</html>
+
+<script type="text/javascript">
+var captchaImgAttempts = 0;
+var allowAnonComments = '0';
+var registrationRequired = 1;
+var registrationOptional = 0;
+var emailRequired = 0;
+var useAvatars = 0;
+
+var showSignInMessaging = 0;
+var jsonURL = "/.services/json-rpc";
+
+var captchaSrc = "/.services/captcha?code_encrypted=";
+var alertCommentCannotBeBlank = "You can not leave an empty comment. Please enter some text in the Comment field.";
+var alertEditingExpired = "Sorry, you're no longer allowed to edit this comment. You may have taken too much time before submitting your edit or someone may have already replied to it.";
+
+var alertAuthorCannotBeBlank = "Name must not be blank.";
+var alertEmailCannotBeBlank = "Email Address must not be blank.";
+var alertAuthorAndEmailCannotBeBlank = "Name and email address are both required!";
+var alertEmailIsInvalid = "The Email Address you entered is invalid. Please enter a valid email address.";
+var alertUnauthorizedAction = "The comments on this post are closed.";
+var msgPostReplyTo = "Reply to ";  
+var msgInReplyTo = "In reply to ";
+var msgPostAComment = "Post a comment ";
+var atpCommentsPath = "/.shared/js/atpcomments_yui.js?v=5";
+var hasChanged = 0;
+var hostName = ".codinghorror.com";
+var tp_comment_token = "1275152190-32110043db7f7539055a699a48443e9088c7bf06:pnzCGAzAS5NH4bhE";
+
+var isPage = 0;
+var blog_xid = "6a0120a85dcdae970b0128776faab5970c";
+var xid = "";
+var injectCode = '<div id=\"comment-preview\" class=\"hiddenBox\">\n\t<h3 id=\"header-verify-comment\" class=\"comments-header hiddenBox\">Verify your Comment<\/h3>\n    <h3 id=\"header-preview-comment\" class=\"comments-header hiddenBox\">Previewing your Comment<\/h3>\n\t<div class=\"comments-content\">\n\t\t<div class=\"comment\">\n\t\t\t<div id=\"comment-preview-content\" class=\"comment-content\">\n\t\t\t<\/div>\n\t\t\t<p class=\"comment-footer\">\n\t\t\t\tPosted by: \n\t\t\t\t<span id=\"comment-preview-author\"><\/span>&nbsp;|&nbsp;<span id=\"comment-preview-datetime\"><\/span>\n\t\t\t<\/p>\n\t\t<\/div>\n\t<\/div>\n<\/div>\n<div id=\"comment-preview-confirmation\" class=\"hiddenBox yellowBox\">\n    <p>This is only a preview. Your comment has not yet been posted.<\/p>\n   \t<form id=\"comment-preview-form\"\n   \t\tmethod=\"post\"\n   \t\tonsubmit=\"atpComments.interceptPost(); return false;\">\n\t\t<input type=\"submit\" name=\"post\" id=\"comment-confirm-post\" value=\"&nbsp;Post&nbsp;\" onclick=\"atpComments.interceptPost(); return false;\"/>\t\t    \n\t\t<input type=\"submit\" name=\"edit\" id=\"comment-edit\" value=\"&nbsp;&nbsp;Edit&nbsp;&nbsp;\" onclick=\"atpComments.previewOnly(2); return false;\"/>\n        <span id=\"previewFormSpinner\" class=\"hiddenBox\"><img src=\"/.shared/images/spinner.gif\" alt=\"Working...\" /><\/span>\n\t<\/form>\n<\/div>\n<div id=\"comment-error\" class=\"hiddenBox redBox\">\t    \n   Your comment could not be posted. Error type: <span id=\"comment-error-msg\"><\/span> \n<\/div>\t\n<div id=\"comment-complete\" class=\"hiddenBox yellowGreenBox\">\n    Your comment has been posted. <a href=\"javascript:void 0;\" onclick=\"window.location.hash=\'#comment-form\';window.location.reload(false)\">Post another comment<\/a>\n<\/div>\t\n<div id=\"comment-captcha\" class=\"hiddenBox yellowBox\">\t\n    <div id=\"captchaText\">\n\t    <p id=\"captchaFailMsg\" class=\"captchaErrorText hiddenBox\">The letters and numbers you entered did not match the image. Please try again.<\/p>\t    \t        \n\t    <p>As a final step before posting your comment, enter the letters and numbers you see in the image below. This prevents automated programs from posting comments.<\/p>\n\t    <p><span id=\"comment-captcha-viewalt\">Having trouble reading this image? <a href=\"#comment-captcha\" onClick=\"atpComments.generateCaptcha();\">View an alternate.<\/a><\/span><\/p>\n    <\/div>\n    <p class=\"\"><img id=\"captchaImg\" /><\/p>\t\t\n    <form id=\"comment-captcha-form\" \n\t\t  method=\"post\"\n\t\t  onsubmit=\"atpComments.submitWithCaptcha(); return false;\">\n\t\t<input type=\"hidden\" name=\"captcha_chal\" id=\"comment-captcha-chal\" value=\"\" />\n        <p>\n\t        <input id=\"comment-captcha-text\" name=\"captcha_text\" size=\"10\" />\n        <\/p>\n        <p>\n            <input type=\"submit\" name=\"continue\" id=\"captcha-continue\" value=\"&nbsp;Continue&nbsp;\" />\n            <span id=\"captchaFormSpinner\" class=\"commentSpinner hiddenBox\"><img src=\"/.shared/images/spinner.gif\" alt=\"Working...\" /><\/span>\n        <\/p>\n    <\/form>\n<\/div>\n'; 
+var entryPermalink = "http://www.codinghorror.com/blog/2010/05/on-working-remotely.html";
+var inlineReply = document.createElement("div");
+var commentFooterLinks;
+var commentHeader;
+var commentReplyXID;
+var commentReplyAuthor;
+var commentReplyComplete;
+var inlineReplyLoaded = 0;
+var commentFormNum = undefined; /* Deprecated but still exists in advanced template sets, so must be defined */
+
+function xidToCommentPermalink (entryUrl, xid) {
+    return entryUrl + "?cid=" + xid + "#comment-" + xid;
+}
+
+
+/* Deprecated advanced template functions */
+function handleSubmit() { return true; };
+function handleChange() { return true; };
+</script>
+<script type="text/javascript" src="/.shared/js/yui/yuiloader-beta-min.js"></script>
+<script type="text/javascript" src="/.shared/js/atpcomments.js?v=5"></script>
+
+
+
+ 
+
+<!-- Blogside Toolbar -->
+<script type="text/javascript">
+    var TPToolbar = {
+        src:   "http://www.typepad.com/services/toolbar?blog_id=6a0120a85dcdae970b0128776faab5970c&asset_id=6a0120a85dcdae970b01348084eb9b970c&atype=Individual&to=http%3A%2F%2Fwww.codinghorror.com%2Fblog%2F2010%2F05%2Fon-working-remotely.html&autofollowed=0",
+        asset_xid: "6a0120a85dcdae970b01348084eb9b970c",
+    
+        bookmarklet_uri: "http://static.typepad.com/.shared/js/qp/loader-combined-min.js"
+    };
+    var TYPEPAD___bookmarklet_domain = "http://www.typepad.com/";
+</script>
+<script type="text/javascript" src="/.shared/js/toolbar/blogside-toolbar-combined-min.js"></script>
+<!-- End Blogside Toolbar -->
+<!-- ph=1 -->
+<!-- nhm:from_kauri -->

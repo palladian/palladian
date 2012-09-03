@@ -1,0 +1,160 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>ws.palladian</groupId>
+		<artifactId>palladian</artifactId>
+		<version>0.1.7-SNAPSHOT</version>
+	</parent>
+	<artifactId>palladian-core</artifactId>
+	<name>Palladian: Core</name>
+	<description>Core Palladian functionality</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<configLocation>${project.parent.basedir}/dev/checkstyle_config.xml</configLocation>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian-retrieval</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian-processing-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.tartarus.snowball</groupId>
+			<artifactId>snowball</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.media</groupId>
+			<artifactId>jai-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.media</groupId>
+			<artifactId>jai-codec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-maxent</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-tools</artifactId>
+		</dependency>
+		<!-- dependency>
+			<groupId>com.uea.stemmer</groupId>
+			<artifactId>UEALite</artifactId>
+		</dependency -->
+		<dependency>
+			<groupId>tud.iir.external</groupId>
+			<artifactId>juliener</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.aliasi</groupId>
+			<artifactId>lingpipe</artifactId>
+		</dependency>
+		<!-- dependency>
+			<groupId>edu.illinois</groupId>
+			<artifactId>lbj2library</artifactId>
+		</dependency -->
+		<dependency>
+			<groupId>edu.stanford</groupId>
+			<artifactId>stanfordner</artifactId>
+		</dependency>
+		<!-- dependency>
+			<groupId>trove</groupId>
+			<artifactId>trove</artifactId>
+		</dependency -->
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>uk.ac.shef.wit.simmetrics</groupId>
+			<artifactId>similaritymetrics</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.lingway.ld</groupId>
+			<artifactId>JLangDetect</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.l3s.boilerpipe</groupId>
+			<artifactId>boilerpipe</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+		</dependency -->
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+		</dependency>
+		<!-- 
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers</artifactId>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-queries</artifactId>
+		</dependency>
+		<!--
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-memory</artifactId>
+		</dependency>
+		-->
+		<!--
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-similarity</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+		</dependency>
+		<!-- dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+		</dependency -->
+		<dependency>
+			<groupId>quickdt</groupId>
+			<artifactId>quickdt</artifactId>
+			<version>0.0.4</version>
+		</dependency>
+	</dependencies>
+</project>
+

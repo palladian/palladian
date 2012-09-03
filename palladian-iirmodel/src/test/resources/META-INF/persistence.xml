@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="hibernate" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>ws.palladian.iirmodel.Item</class>
+		<class>ws.palladian.iirmodel.StreamSource</class>
+		<class>ws.palladian.iirmodel.ItemStream</class>
+		<class>ws.palladian.iirmodel.StreamGroup</class>
+		<class>ws.palladian.iirmodel.Author</class>
+		<class>ws.palladian.iirmodel.ItemRelation</class>
+		<class>ws.palladian.iirmodel.DirectedItemRelation</class>
+		<class>ws.palladian.iirmodel.UndirectedItemRelation</class>
+		<class>ws.palladian.iirmodel.RelationType</class>
+		<class>ws.palladian.iirmodel.Label</class>
+		<class>ws.palladian.iirmodel.LabelType</class>
+		<class>ws.palladian.iirmodel.Labeler</class>
+		<properties>
+			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+			<property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver" />
+			<property name="hibernate.connection.username" value="sa" />
+			<property name="hibernate.connection.password" value="" />
+			<property name="hibernate.connection.url" value="jdbc:hsqldb:mem:testdb" />
+			<property name="hibernate.show_sql" value="false" />
+			<property name="hibernate.connection.provider_class"
+				value="org.hibernate.connection.C3P0ConnectionProvider" />
+			<property name="hibernate.c3p0.min_size" value="0" />
+			<property name="hibernate.c3p0.max_size" value="30" />
+			<property name="hibernate.c3p0.timeout" value="600" />
+			<property name="hibernate.c3p0.max_statements" value="0" />
+			<property name="hibernate.c3p0.acquire_increment" value="1" />
+			<property name="hibernate.c3p0.idle_test_period" value="60" />
+		</properties>
+	</persistence-unit>
+</persistence>

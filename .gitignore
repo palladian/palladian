@@ -1,6 +1,21 @@
+# general pattern for ignoring binary and Eclipse specific files and directories;
+# no explicitly specified path means that these pattern matches, wherever the items are located.
+target/
+.settings/
+.classpath
+.project
+bin
+.pmd
 
-# /
-/.settings
+# LaTeX specific files which are created during typesetting.
+*.log
+*.out
+*.aux
+*.bbl
+*.blg
+*.synctex.gz
+*.toc
+*.fdb_latexmk
 
 # /data/
 /data/datasets
@@ -15,22 +30,12 @@
 # /data/evaluation/
 /data/evaluation/feedPaper
 
-# /documentation/book/
-*.log
-*.out
-*.aux
-*.bbl
-*.blg
-*.synctex.gz
-*.toc
-*.fdb_latexmk
-
 # /src/main/resources/
 /src/main/resources/palladian.properties
 /src/main/resources/log4j.properties
 
-/target
-/.classpath
 /test_dictionary.h2.db
 /test_dictionary.trace.db
-.pmd
+
+**/data/temp
+**/data/test

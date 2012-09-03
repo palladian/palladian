@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ResultSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:yahoo:srch" xsi:schemaLocation="urn:yahoo:srch http://api.search.yahoo.com/WebSearchService/V1/WebSearchResponse.xsd" type="web" totalResultsAvailable="10100000" totalResultsReturned="1" firstResultPosition="1" moreSearch="/WebSearchService/V1/webSearch?query=linkdomain%3Awww.engadget.com+-site%3Awww.engadget.com&amp;appid=Isx7uavV34E_iKMIuvEZB0pCUQPuBmxBttBxyXX3UtXNtl7uYkoDAKbFa6c-&amp;region=us&amp;adult_ok=1">
-<Result><Title>Roy Tanck's weblog - Fascinated by new technology</Title><Summary>Not all HTC Desire car holders are created equal it seems. I'd been using a cheap generic solution for little over half a year when it broke. ...</Summary><Url>http://www.roytanck.com/</Url><ClickUrl>http://www.roytanck.com/</ClickUrl><DisplayUrl>www.roytanck.com/</DisplayUrl><ModificationDate>1297756800</ModificationDate><MimeType>text/html</MimeType>
-<Cache><Url>http://uk.wrs.yahoo.com/_ylt=A0WTecEhaFpNWikBchrdmMwF;_ylu=X3oDMTBwOHA5a2tvBGNvbG8DdwRwb3MDMQRzZWMDc3IEdnRpZAM-/SIG=18sf1rpld/EXP=1297856929/**http%3A//66.218.69.11/search/cache%3Fei=UTF-8%26results=1%26appid=Isx7uavV34E_iKMIuvEZB0pCUQPuBmxBttBxyXX3UtXNtl7uYkoDAKbFa6c-%26adult_ok=1%26query=linkdomain%253Awww.engadget.com%2B-site%253Awww.engadget.com%26u=www.roytanck.com/%26d=cpycMvbJWUhW%26icp=1%26.intl=us</Url><Size>58734</Size></Cache>
-</Result>
-</ResultSet>
-<!-- ws10.ydn.ac4.yahoo.com uncompressed Tue Feb 15 03:48:48 PST 2011 -->
