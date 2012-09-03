@@ -53,7 +53,7 @@ public class DateInstanceFactory {
         String keyDiff = String.valueOf(date.getKeyDiff());
 
         String simpleTag = date.getSimpleTag() + ".0";
-        String hTag = date.gethTag() + ".0";
+        String hTag = date.getHTag() + ".0";
         String tagName = tagNameString;
 
         String hasStructureDate = date.hasStrucutreDate() ? "1.0" : "0.0";
