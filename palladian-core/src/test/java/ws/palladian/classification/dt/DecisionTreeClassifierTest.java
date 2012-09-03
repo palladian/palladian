@@ -8,8 +8,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance2;
-import ws.palladian.classification.Predictor;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -20,9 +19,9 @@ public class DecisionTreeClassifierTest {
     public void testDecisionTreeClassifier() {
 
         // sample data taken from https://github.com/sanity/quickdt
-        List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
+        List<NominalInstance> instances = new ArrayList<NominalInstance>();
 
-        Instance2<String> instance = new Instance2<String>();
+        NominalInstance instance = new NominalInstance();
         FeatureVector fv = new FeatureVector();
         fv.add(new NumericFeature("height", 55.));
         fv.add(new NumericFeature("weight", 168.));
@@ -31,7 +30,7 @@ public class DecisionTreeClassifierTest {
         instance.target = "overweight";
         instances.add(instance);
 
-        instance = new Instance2<String>();
+        instance = new NominalInstance();
         fv = new FeatureVector();
         fv.add(new NumericFeature("height", 75.));
         fv.add(new NumericFeature("weight", 168.));
@@ -40,7 +39,7 @@ public class DecisionTreeClassifierTest {
         instance.target = "healthy";
         instances.add(instance);
 
-        instance = new Instance2<String>();
+        instance = new NominalInstance();
         fv = new FeatureVector();
         fv.add(new NumericFeature("height", 74.));
         fv.add(new NumericFeature("weight", 143.));
@@ -49,7 +48,7 @@ public class DecisionTreeClassifierTest {
         instance.target = "underweight";
         instances.add(instance);
 
-        instance = new Instance2<String>();
+        instance = new NominalInstance();
         fv = new FeatureVector();
         fv.add(new NumericFeature("height", 49.));
         fv.add(new NumericFeature("weight", 144.));
@@ -58,7 +57,7 @@ public class DecisionTreeClassifierTest {
         instance.target = "underweight";
         instances.add(instance);
 
-        instance = new Instance2<String>();
+        instance = new NominalInstance();
         fv = new FeatureVector();
         fv.add(new NumericFeature("height", 83.));
         fv.add(new NumericFeature("weight", 223.));
@@ -67,14 +66,14 @@ public class DecisionTreeClassifierTest {
         instance.target = "healthy";
         instances.add(instance);
 
-        Predictor<String> classifier = new DecisionTreeClassifier();
-        classifier.learn(instances);
+        DecisionTreeClassifier classifier = new DecisionTreeClassifier();
+        DecisionTreeModel model = classifier.learn(instances);
 
         FeatureVector featureVector2 = new FeatureVector();
         featureVector2.add(new NumericFeature("height", 62.));
         featureVector2.add(new NumericFeature("weight", 201.));
         featureVector2.add(new NominalFeature("gender", "female"));
-        CategoryEntries prediction = classifier.predict(featureVector2);
+        CategoryEntries prediction = classifier.predict(featureVector2, model);
 
         assertEquals(1., prediction.getMostLikelyCategoryEntry().getRelevance(), 0);
         assertEquals("underweight", prediction.getMostLikelyCategoryEntry().getCategory().getName());

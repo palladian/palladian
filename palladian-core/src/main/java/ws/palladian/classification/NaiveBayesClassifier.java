@@ -1,110 +1,42 @@
 package ws.palladian.classification;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.bag.HashBag;
 
 import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.Tensor;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
  * A simple implementation of the Bayes Classifier. This classifier supports nominal and numeric input. The output is
- * nominal.
- * </p>
- * 
- * <p>
- * More information about Naive Bayes can be found here:
- * http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf
+ * nominal. More information about Naive Bayes can be found <a
+ * href="http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf">here</a>.
  * </p>
  * 
  * @author David Urbansky
- * 
  */
-public class NaiveBayesClassifier extends Classifier<UniversalInstance> implements Predictor<String> {
-
-    /** The serialize version ID. */
-    private static final long serialVersionUID = 6975099985734139052L;
-
-    /** The logger for this class. */
-    protected static final Logger LOGGER = Logger.getLogger(NaiveBayesClassifier.class);
-
-    /**
-     * <p>
-     * A table holding the learned probabilities for each feature and class:<br>
-     * Integer (feature index) | class1 (value1,value2,...,valueN), class2, ... , classN
-     * </p>
-     * 
-     * <pre>
-     * 1 | 0.3 (...), 0.6, ... , 0.1
-     * x = featureIndex
-     * y = classValue
-     * z = featureValue
-     * </pre>
-     * */
-    private Tensor bayesProbabilityTensor;
-
-    /**
-     * <p>
-     * The Bayes classifier is capable of classifying instances with numeric features too. For all learned numeric
-     * features we need to store the mean and standard deviation. The probability tensor holds the index of this list in
-     * the field for the numeric feature. We then need to lookup this list to find the mean in the first entry and the
-     * standard deviation in the second entry of the array at the given index.
-     * </p>
-     */
-    private List<Double[]> meansAndStandardDeviations = new ArrayList<Double[]>();
-
-    /**
-     * FIXME this needs to go into BaseClassifier
-     * @param fv
-     * @return
-     */
-    public final CategoryEntries classify(FeatureVector fv) {
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
-        
-        UniversalInstance universalInstance = createUniversalInstnace(fv, instances);
-        
-        classify(universalInstance);
-        
-        return universalInstance.getAssignedCategoryEntries();
-    }
-
-    private UniversalInstance createUniversalInstnace(FeatureVector fv, Instances<UniversalInstance> instances) {
-        UniversalInstance universalInstance = new UniversalInstance(instances);
-        
-        //Collection<Feature<Double>> numericFeatures = fv.getNumericFeatures();
-        Collection<Feature<Number>> numericFeatures = fv.getAll(Number.class);
-        
-        // add numeric features
-        for (Feature<Number> numericFeature : numericFeatures) {            
-            universalInstance.getNumericFeatures().add(numericFeature.getValue().doubleValue());            
-        }
-        
-        //Collection<Feature<String>> nominalFeatures = fv.getNominalFeatures();
-        Collection<Feature<String>> nominalFeatures = fv.getAll(String.class);
-        
-        // add nominal features
-        for (Feature<String> nominalFeature : nominalFeatures) {            
-            universalInstance.getNominalFeatures().add(nominalFeature.getValue());            
-        }
-        return universalInstance;
-    }
+public class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
     
     /**
      * Build the bayesProbabilityMap for nominal and numeric features.
      */
-    public final void train() {
+    @Override
+    public NaiveBayesModel learn(List<NominalInstance> instances) {
 
-        bayesProbabilityTensor = new Tensor();
+        Tensor bayesProbabilityTensor = new Tensor();
+        
+        List<Double[]> meansAndStandardDeviations = new ArrayList<Double[]>();
+//        Categories categories = new Categories();
+        Bag<String> categories = new HashBag<String>();
 
         // this is the index of the first numeric attribute, we need this to
         // distinguish between the calculation of
@@ -113,39 +45,41 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
 
         // first we count how many times each feature value occurs with a class
         int c = 1;
-        for (UniversalInstance instance : getTrainingInstances()) {
+        for (NominalInstance instance : instances) {
 
             int featureIndex = 0;
-            Category classValue = instance.getInstanceCategory();
+            String target = instance.target;
+//            categories.add(new Category(target));
+            categories.add(target);
 
             // add the counts of the values of the nominal features to the tensor
-            List<String> nominalFeatures = instance.getNominalFeatures();
+            List<Feature<String>> nominalFeatures = instance.featureVector.getAll(String.class);
 
-            for (String nominalFeatureValue : nominalFeatures) {
+            for (Feature<String> nominalFeatureValue : nominalFeatures) {
 
-                Double currentCount = (Double) bayesProbabilityTensor.get(featureIndex, classValue.getName(),
-                        nominalFeatureValue);
+                Double currentCount = (Double) bayesProbabilityTensor.get(featureIndex, target,
+                        nominalFeatureValue.getValue());
                 if (currentCount == null) {
                     currentCount = 1.0;
                 } else {
                     currentCount++;
                 }
-                bayesProbabilityTensor.set(featureIndex, classValue.getName(), nominalFeatureValue, currentCount);
+                bayesProbabilityTensor.set(featureIndex, target, nominalFeatureValue, currentCount);
 
                 featureIndex++;
             }
 
             // add the counts of the values of the numeric features to the tensor
-            List<Double> numericFeatures = instance.getNumericFeatures();
+            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
 
             firstNumericFeatureIndex = featureIndex;
-            for (Double numericFeatureValue : numericFeatures) {
+            for (Feature<Double> numericFeatureValue : numericFeatures) {
 
-                Double currentCount = (Double) bayesProbabilityTensor.get(featureIndex, classValue.getName(),
-                        numericFeatureValue);
+                Double currentCount = (Double) bayesProbabilityTensor.get(featureIndex, target,
+                        numericFeatureValue.getValue());
                 if (currentCount == null) {
                     currentCount = 1.0;
-                    bayesProbabilityTensor.set(featureIndex, classValue.getName(), numericFeatureValue, currentCount);
+                    bayesProbabilityTensor.set(featureIndex, target, numericFeatureValue, currentCount);
                 } else {
                     currentCount++;
                 }
@@ -153,7 +87,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
                 featureIndex++;
             }
 
-            ProgressHelper.showProgress(c++, getTrainingInstances().size(), 1);
+            ProgressHelper.showProgress(c++, instances.size(), 1);
         }
 
         // now we can transform the counts to actual probabilities for nominal values or pointers to mean and standard
@@ -187,7 +121,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
                     int totalCount = 0;
                     int totalValues = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
-                        totalCount += (Double)valueAxis.getKey() * (Double)valueAxis.getValue();
+                        totalCount += ((NumericFeature)valueAxis.getKey()).getValue() * (Double)valueAxis.getValue();
                         totalValues++;
                     }
 
@@ -196,7 +130,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
                     // calculate the standard deviation
                     double squaredSum = 0;
                     for (Entry<Object, Object> valueAxis : classAxis.getValue().entrySet()) {
-                        squaredSum += Math.pow((((Double)valueAxis.getKey() * (Double)valueAxis.getValue()) - mean), 2);
+                        squaredSum += Math.pow(((((NumericFeature)valueAxis.getKey()).getValue() * (Double)valueAxis.getValue()) - mean), 2);
                     }
 
                     double standardDeviation = Math.sqrt(squaredSum / totalValues);
@@ -224,105 +158,56 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
             }
 
         }
+        
+//        categories.calculatePriors();
+        
+        return new NaiveBayesModel(bayesProbabilityTensor, meansAndStandardDeviations, categories);
 
+
+//        Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
+//        for (NominalInstance instance : instances) {
+//            UniversalInstance universalInstance = createUniversalInstnace(instance.featureVector, trainingInstances);
+//            trainingInstances.add(universalInstance);
+//            universalInstance.setInstanceCategory(instance.target);
+//        }
     }
 
-    // public Instances<UniversalInstance> getTrainingInstances() {
-    // return trainingInstances;
-    // }
-    //
-    // public void setTrainingInstances(Instances<UniversalInstance>
-    // trainingInstances) {
-    // this.trainingInstances = trainingInstances;
-    // }
-    //
-    // public Instances<UniversalInstance> getTestInstances() {
-    // return testInstances;
-    // }
-    //
-    // public void setTestInstances(Instances<UniversalInstance> testInstances)
-    // {
-    // this.testInstances = testInstances;
-    // }
+    @Override
+    public CategoryEntries predict(FeatureVector vector, NaiveBayesModel model) {
+//        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        
+//        UniversalInstance universalInstance = createUniversalInstnace(vector, instances);
 
-    /**
-     * Fill the vector space with known instances. The instances must be given
-     * in a CSV file in the following format:<br>
-     * feature1;..;featureN;NominalClass<br>
-     * All features must be real values and the class must be nominal. Each line
-     * is one training instance.
-     */
-    public final void trainFromCSV(String trainingFilePath, String separator) {
-        setTrainingInstances(createInstances(trainingFilePath, separator));
-    }
+//        if (categories == null) {
+//            // FIX this is a problem since training instances are transient and after loading the model it will crash
+//            // here, training instances should be transient though
+//            getPossibleCategories(getTrainingInstances());
+//        }
 
-    /**
-     * Create instances from a file. The instances must be given in a CSV file
-     * in the following format:<br>
-     * feature1;..;featureN;NominalClass<br>
-     * All features must be nominal values and the class must be nominal. Each
-     * line is one training instance.
-     */
-    public Instances<UniversalInstance> createInstances(String filePath, String separator) {
-        List<String> trainingLines = FileHelper.readFileToArray(filePath);
-
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
-        UniversalInstance instance = null;
-        List<String> features = null;
-
-        for (String trainingLine : trainingLines) {
-            String[] parts = trainingLine.split(separator);
-
-            instance = new UniversalInstance(instances);
-            features = new ArrayList<String>();
-
-            for (int f = 0; f < parts.length - 1; f++) {
-                features.add(parts[f]);
-            }
-
-            instance.setNominalFeatures(features);
-
-            instance.setInstanceCategory(parts[parts.length - 1]);
-            instances.add(instance);
-        }
-
-        return instances;
-    }
-
-    public final void classify(UniversalInstance instance) {
-
-        StopWatch sw = new StopWatch();
-
-        if (categories == null) {
-            // FIX this is a problem since training instances are transient and after loading the model it will crash
-            // here, training instances should be transient though
-            getPossibleCategories(getTrainingInstances());
-        }
-
-        int classType = getClassificationType();
+//        int classType = getClassificationType();
 
         // calculate the probability for each class given the feature values
 
         // category-probability map
-        Map<Category, Double> probabilities = new HashMap<Category, Double>();
+        Map<String, Double> probabilities = CollectionHelper.newHashMap();
 
         // fill map with prior probabilities
-        Categories categories = getCategories();
-        for (Category category : categories) {
-            probabilities.put(category, category.getPrior());
+        Bag<String> categories = model.getCategories();
+        for (String category : categories.uniqueSet()) {
+            probabilities.put(category, (double) categories.getCount(category)/categories.size());
         }
 
         // // multiply the probabilities from the probability/density tensor
 
         // do this for nominal features
-        List<String> nominalFeatures = instance.getNominalFeatures();
+        List<Feature<String>> nominalFeatures = vector.getAll(String.class);
 
         int featureIndex = 0;
-        for (String nominalFeatureValue : nominalFeatures) {
+        for (Feature<String> nominalFeatureValue : nominalFeatures) {
 
-            for (Category category : categories) {
-                Double prob = (Double) bayesProbabilityTensor
-                        .get(featureIndex, category.getName(), nominalFeatureValue);
+            for (String category : categories.uniqueSet()) {
+                Double prob = (Double) model.getBayesProbabilityTensor()
+                        .get(featureIndex, category, nominalFeatureValue.getValue());
 
                 // if there was nothing learned for the featureValue class combination, we set the probability to 0
                 if (prob == null) {
@@ -337,15 +222,15 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
         }
 
         // do this for numeric features
-        List<Double> numericFeatures = instance.getNumericFeatures();
+        List<Feature<Double>> numericFeatures = vector.getAll(Double.class);
 
-        for (Double numericFeatureValue : numericFeatures) {
+        for (Feature<Double> numericFeatureValue : numericFeatures) {
 
-            for (Category category : categories) {
+            for (String category : categories.uniqueSet()) {
                 // get the index to the mean and standard deviation that is stored for the feature class combination
-                int index = (Integer)bayesProbabilityTensor.get(featureIndex, category.getName(), 0);
+                int index = (Integer)model.getBayesProbabilityTensor().get(featureIndex, category, 0);
 
-                Double[] entry = meansAndStandardDeviations.get(index);
+                Double[] entry = model.getMeansAndStandardDeviations().get(index);
 
                 // ignore if there was nothing learned for the featureValue class combination
                 if (entry == null) {
@@ -359,7 +244,7 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
                 double densityFunctionValue = 1
                         / (Math.sqrt(2 * Math.PI) * standardDeviation)
                         * Math.pow(Math.E,
-                                -(Math.pow(numericFeatureValue - mean, 2) / (2 * Math.pow(standardDeviation, 2))));
+                                -(Math.pow(numericFeatureValue.getValue() - mean, 2) / (2 * Math.pow(standardDeviation, 2))));
 
                 // avoid zero probabilities -> XXX how can la place smoothing be applied here?
                 if (densityFunctionValue > 0.0) {
@@ -373,62 +258,20 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
 
         // create category entries
         CategoryEntries assignedEntries = new CategoryEntries();
-        for (Category category : categories) {
-            assignedEntries.add(new CategoryEntry(assignedEntries, category, probabilities.get(category)));
+        for (String category : categories.uniqueSet()) {
+            CategoryEntry categoryEntry = new CategoryEntry(assignedEntries, new Category(category), probabilities.get(category));
+            assignedEntries.add(categoryEntry);
         }
 
-        instance.assignCategoryEntries(assignedEntries);
+//        instance.assignCategoryEntries(assignedEntries);
 
-        LOGGER.debug("classified document (classType " + classType + ") in " + sw.getElapsedTimeString() + " " + " ("
-                + instance.getAssignedCategoryEntriesByRelevance(classType) + ")");
-    }
-
-    @Override
-    public final void save(String classifierPath) {
-        FileHelper.serialize(this, classifierPath + getName() + ".gz");
-    }
-
-    public static NaiveBayesClassifier load(String classifierPath) {
-        LOGGER.info("deserialzing classifier from " + classifierPath);
-
-        NaiveBayesClassifier classifier = (NaiveBayesClassifier) FileHelper.deserialize(classifierPath);
-
-        return classifier;
-    }
-
-    public static void main(String[] args) {
-        NaiveBayesClassifier bc = new NaiveBayesClassifier();
-        bc.trainFromCSV("data/train.txt", " ");
-        bc.train();
-
-        int correct = 0;
-        Instances<UniversalInstance> testInstances = bc.createInstances("data/test.txt", " ");
-        for (UniversalInstance universalInstance : testInstances) {
-            bc.classify(universalInstance);
-            if (universalInstance.getMainCategoryEntry().getCategory().getName()
-                    .equalsIgnoreCase(universalInstance.getInstanceCategoryName())) {
-                correct++;
-            }
-        }
-        System.out.println(correct / (double)testInstances.size());
-
-        System.exit(0);
-    }
-
-    @Override
-    public void learn(List<Instance2<String>> instances) {
-        Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
-        for (Instance2<String> instance : instances) {
-            UniversalInstance universalInstance = createUniversalInstnace(instance.featureVector, trainingInstances);
-            trainingInstances.add(universalInstance);
-            universalInstance.setInstanceCategory(instance.target);
-        }
-        addTrainingInstances(trainingInstances);
-        train();
-    }
-
-    @Override
-    public CategoryEntries predict(FeatureVector vector) {
-        return classify(vector);
+//        LOGGER.debug("classified document (classType " + classType + ") in " + sw.getElapsedTimeString() + " " + " ("
+//                + instance.getAssignedCategoryEntriesByRelevance(classType) + ")");
+        
+        
+//        return universalInstance.getAssignedCategoryEntries();
+        
+        return assignedEntries;
+        
     }
 }
