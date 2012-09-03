@@ -55,15 +55,6 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
         this.relevancesInPercent = relevancesInPercent;
     }
 
-    /**
-     * This method calculates the percentage for every category in the ArrayList. The sum of percentages of all categories must be 100% (+-1% round).
-     * 
-     * @parameter spread If true, percentages get spread.
-     */
-    public void transformRelevancesInPercent(boolean spread) {
-
-    }
-
     @Override
     /**
      * If a CategoryEntry is entered, the relative relevances are not up to date anymore.
