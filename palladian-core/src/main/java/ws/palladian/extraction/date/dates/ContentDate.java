@@ -59,13 +59,7 @@ public final class ContentDate extends AbstractBodyDate {
 	private String isKeyClass2 = "0";
 	private String isKeyClass3 = "0";
     
-    
-    /**
-     * Related Structure-Date for this Content-Date.
-     */
-    private StructureDate structureDate = null;
-    
-    private boolean hasStrucutreDate = false;
+    private boolean hasStructureDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
    
@@ -149,24 +143,13 @@ public final class ContentDate extends AbstractBodyDate {
         }
 
     }
+    
+    public void setHasStructureDate(boolean hasStructureDate) {
+        this.hasStructureDate = hasStructureDate;
+    }
 
-	public void setStructureDate(StructureDate structureDate) {
-		this.structureDate = structureDate;
-		if(structureDate != null){
-			this.hasStrucutreDate = true;
-		}
-	}
-
-	public StructureDate getStructureDate() {
-		return structureDate;
-	}
-
-	public void setHasStrucutreDate(boolean hasStrucutreDate) {
-		this.hasStrucutreDate = hasStrucutreDate;
-	}
-
-	public boolean hasStrucutreDate() {
-		return hasStrucutreDate;
+	public boolean hasStructureDate() {
+		return hasStructureDate;
 	}
 
 	public void setInMetaDates(boolean inMetaDates) {

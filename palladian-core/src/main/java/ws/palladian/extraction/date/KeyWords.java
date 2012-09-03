@@ -1,8 +1,5 @@
 package ws.palladian.extraction.date;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import ws.palladian.extraction.date.dates.KeywordDate;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -128,17 +125,14 @@ public final class KeyWords {
      * @return the found keyword.
      */
     public static String searchKeyword(String text, String[] keys) {
-        String keyword = null;
-        // FIXME this implementations looks horribly inefficient
+        text = text.toLowerCase();
         for (String key : keys) {
-            Pattern pattern = Pattern.compile(key.toLowerCase());
-            Matcher matcher = pattern.matcher(text.toLowerCase());
-            if (matcher.find()) {
-                keyword = key;
-                break;
+            if (text.contains(key.toLowerCase())) {
+                return key;
             }
         }
-        return keyword;
+        return null;
+        
     }
     
     /**
