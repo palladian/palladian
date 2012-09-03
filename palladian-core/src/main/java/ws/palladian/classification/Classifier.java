@@ -12,6 +12,7 @@ public abstract class Classifier<T> implements Serializable {
     private static final long serialVersionUID = -7017462894898815981L;
 
     /** A classifier has a name. */
+    //why???
     private String name = "";
 
     /** A classifier has training documents. */
