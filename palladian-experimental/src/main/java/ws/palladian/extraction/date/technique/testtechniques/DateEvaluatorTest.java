@@ -354,8 +354,8 @@ public class DateEvaluatorTest {
                         DateExactness.DAY);
             }
             for (RatedDate<ContentDate> cDate : tempContentDates) {
-                String cDateTag = cDate.getDate().getTagNode();
-                String eTag = structureDates.get(i).getDate().getTagNode();
+                String cDateTag = cDate.getDate().getTag();
+                String eTag = structureDates.get(i).getDate().getTag();
                 if (cDateTag.equalsIgnoreCase(eTag)) {
                     double structRate = structureWeights.get(structureDates.get(i));
                     double newRate = (1 - cDate.getRate()) * structRate + cDate.getRate();

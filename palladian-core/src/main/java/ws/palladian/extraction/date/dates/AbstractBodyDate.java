@@ -22,11 +22,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
      */
     private int structuralDepth = -1;
 
-    /**
-     * Tag.
-     */
-    private String tagNode = null;
-
     public AbstractBodyDate(ExtractedDate date) {
         super(date);
     }
@@ -83,26 +78,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
         }
 
     }
-
-    /**
-     * Tag-node is the string representation of a HTML-node, the date is found.
-     * 
-     * @param tagNode
-     */
-    public void setTagNode(String tagNode) {
-        this.tagNode = tagNode;
-    }
-
-    /**
-     * Tag-node is the string representation of a HTML-node, the date is found.
-     * 
-     * @return
-     * @deprecated This is not set any longer, use {@link #getTag()} instead.
-     */
-    @Deprecated
-    public String getTagNode() {
-        return tagNode;
-    }
     
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
@@ -115,8 +90,6 @@ public abstract class AbstractBodyDate extends KeywordDate {
         builder.append(tag);
         builder.append(", structuralDepth=");
         builder.append(structuralDepth);
-        builder.append(", tagNode=");
-        builder.append(tagNode);
         return builder.toString();
     }
     

@@ -241,11 +241,11 @@ public final class ContentDate extends AbstractBodyDate {
 		return simpleTag;
 	}
 
-	public void sethTag(String hTag) {
+	public void setHTag(String hTag) {
 		this.hTag = hTag;
 	}
 
-	public String gethTag() {
+	public String getHTag() {
 		return hTag;
 	}
 

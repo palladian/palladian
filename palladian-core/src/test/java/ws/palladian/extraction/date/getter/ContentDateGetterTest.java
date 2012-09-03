@@ -83,7 +83,7 @@ public class ContentDateGetterTest {
         assertEquals("0", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.059, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -115,7 +115,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -147,7 +147,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -179,7 +179,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -211,7 +211,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -243,7 +243,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -275,7 +275,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -307,7 +307,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -339,7 +339,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -371,7 +371,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -403,7 +403,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -435,7 +435,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.118, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -467,7 +467,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.118, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -499,7 +499,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -532,7 +532,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -564,7 +564,7 @@ public class ContentDateGetterTest {
         assertEquals("1", date.getKeyLoc());
         assertEquals(0.0, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.765, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(-1, date.getDistPosBefore(), 0.0001);
@@ -595,7 +595,7 @@ public class ContentDateGetterTest {
         assertEquals("2", date.getKeyLoc());
         assertEquals(0.46699999999999997, date.getKeyDiff(), 0.0001);
         assertEquals("0", date.getSimpleTag());
-        assertEquals("0", date.gethTag());
+        assertEquals("0", date.getHTag());
         assertEquals(0.059, date.getRelCntSame(), 0.0001);
         assertEquals(0.058823529411764705, date.getRelSize(), 0.0001);
         assertEquals(12749, date.getDistPosBefore(), 0.0001);
