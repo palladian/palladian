@@ -32,11 +32,6 @@ public abstract class Instance<T> implements Serializable {
 
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
-        assignedCategoryEntries.transformRelevancesInPercent(true);
-    }
-
-    public CategoryEntries getAssignedCategoryEntries() {
-        return assignedCategoryEntries;
     }
 
     /**
@@ -45,10 +40,7 @@ public abstract class Instance<T> implements Serializable {
      * @param relevancesInPercent If true then the relevance will be output in percent.
      * @return All categories.
      */
-    public CategoryEntries getAssignedCategoryEntries(boolean relevancesInPercent) {
-        if (relevancesInPercent) {
-            assignedCategoryEntries.transformRelevancesInPercent(true);
-        }
+    public CategoryEntries getAssignedCategoryEntries() {
         return assignedCategoryEntries;
     }
 
@@ -117,6 +109,12 @@ public abstract class Instance<T> implements Serializable {
         return instances;
     }
 
+    /**
+     * Get the category that is most relevant to this document.
+     * 
+     * @param relevanceInPercent If true then the relevance will be output in percent.
+     * @return The most relevant category.
+     */
     public CategoryEntry getMainCategoryEntry() {
         CategoryEntry highestMatch = null;
 
@@ -144,19 +142,6 @@ public abstract class Instance<T> implements Serializable {
         }
 
         return highestMatch;
-    }
-
-    /**
-     * Get the category that is most relevant to this document.
-     * 
-     * @param relevanceInPercent If true then the relevance will be output in percent.
-     * @return The most relevant category.
-     */
-    public CategoryEntry getMainCategoryEntry(boolean relevanceInPercent) {
-        if (relevanceInPercent) {
-            assignedCategoryEntries.transformRelevancesInPercent(true);
-        }
-        return getMainCategoryEntry();
     }
 
     /**
