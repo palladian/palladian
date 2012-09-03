@@ -220,6 +220,6 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.1.7-SNAPSHOT</version>
+		<version>0.1.8-SNAPSHOT</version>
 	</parent>
 </project>
