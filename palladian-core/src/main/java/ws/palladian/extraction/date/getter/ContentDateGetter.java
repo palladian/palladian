@@ -166,23 +166,12 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             parent = parent.getParentNode();
         }
 
-        List<ContentDate> result = CollectionHelper.newArrayList();
-        List<String> textSplit = CollectionHelper.newArrayList();
-        for (int i = 0, beginIndex; (beginIndex = i * 10000) < text.length(); i++) {
-            int endIndex = Math.min(beginIndex + 10000, text.length());
-            textSplit.add(text.substring(beginIndex, endIndex));
-        }
-
-        List<ContentDate> dateList = CollectionHelper.newArrayList();
-        for (String textPart : textSplit) {
-            dateList.addAll(findAllDates(textPart));
-        }
-
-        if (dateList.size() > 0) {
+        List<ContentDate> dates = findAllDates(text);
+        if (dates.size() > 0) {
             index = documentString.indexOf(text);
         }
 
-        for (ContentDate date : dateList) {
+        for (ContentDate date : dates) {
 
             boolean hasStructureDate = StructureDateGetter.getDate(tag) != null;
             if (!hasStructureDate && tag != parent) {
@@ -241,10 +230,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                         break;
                 }
             }
-
-            result.add(date);
         }
-        return result;
+        return dates;
     }
 
     /**
