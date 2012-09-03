@@ -67,27 +67,6 @@ public final class ContentDate extends AbstractBodyDate {
         super(date);
     }
 
-    /**
-     * Returns location of found keyword as readable string.<br>
-     * Field <b>keywordLocation</b> should be set.
-     * To set location or get it as int, use get() and set() methods.
-     * 
-     * @return Attribute or Content if location is set. -1 for undefined location.
-     */
-    public String getKeyLocToString() {
-        String keyPos = String.valueOf(keywordLocation);
-        switch (keywordLocation) {
-            case KEY_LOC_ATTR:
-                keyPos = "Attribute";
-                break;
-            case KEY_LOC_CONTENT:
-                keyPos = "Content";
-                break;
-
-        }
-        return keyPos;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -95,7 +74,7 @@ public final class ContentDate extends AbstractBodyDate {
         builder.append(", positionInDocument=").append(positionInDocument);
         builder.append(", positionInTagtext=").append(positionInTagtext);
         builder.append(", distanceToContext=").append(distanceToContext);
-        builder.append(", keyLoc=").append(getKeyLocToString());
+        builder.append(", keyLoc=").append(keywordLocation);
         return builder.toString();
     }
 
