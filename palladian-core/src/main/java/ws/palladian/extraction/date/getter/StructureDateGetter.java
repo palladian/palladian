@@ -90,7 +90,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * @param node The {@link Node} to check, not <code>null</code>.
      * @return A {@link StructureDate} if one could be extracted, <code>null</code> otherwise.
      */
-    private StructureDate getDate(Node node) {
+    public static StructureDate getDate(Node node) {
 
         // node has no attributes, return
         NamedNodeMap attributes = node.getAttributes();

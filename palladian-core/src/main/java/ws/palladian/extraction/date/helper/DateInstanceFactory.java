@@ -56,7 +56,7 @@ public class DateInstanceFactory {
         String hTag = date.getHTag() + ".0";
         String tagName = tagNameString;
 
-        String hasStructureDate = date.hasStrucutreDate() ? "1.0" : "0.0";
+        String hasStructureDate = date.hasStructureDate() ? "1.0" : "0.0";
         String inMetaDates = date.isInMetaDates() ? "1.0" : "0.0";
         String inUrl = date.isInUrl() ? "1.0" : "0.0";
 
