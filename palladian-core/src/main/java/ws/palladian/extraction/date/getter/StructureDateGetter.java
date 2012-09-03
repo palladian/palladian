@@ -20,8 +20,13 @@ import ws.palladian.helper.html.XPathHelper;
 /**
  * <p>
  * This {@link TechniqueDateGetter} extracts {@link StructureDate}s out of the structure of an HTML document. Dates
- * inside the <code>body</code> section of the document are considered.
+ * inside the <code>body</code> section of the document are considered. Example for such a {@link StructureDate} within
+ * a HTML {@link Document}:
  * </p>
+ * 
+ * <pre>
+ * &lt;div id="spShortDate" itemprop="datePublished"  content="2010-07-18T11:32:01+0200"&gt; […] &lt/div&gt;
+ * </pre>
  * 
  * @author Martin Gregor
  * @author Philipp Katz
@@ -75,13 +80,12 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
     }
 
     /**
-     * Looks up in a <a title=" E.g.: <a content=''date'' property=''2010-07-14''>"> <u>TAG</u> </a> for <a
-     * title=" E.g.: property=''2010-07-14''"> <u>ATTRIBUTES</u> </a>. <br>
-     * Trays to find dates in the attributes. <br>
-     * If a date is found, looks for a date-keywords in the other attributes. <br>
-     * If one is found, we got the context for the date, otherwise we use attribute-name for context.<br>
-     * <br>
-     * The "href"-attribute will not be checked, because we will do this in "links-out-technique" with getURLDate().
+     * <p>
+     * Look for a {@link StructureDate} in a {@link Node}'s attributes. If a date was found try to retrieve date
+     * keywords from other attributes of the Node. If such a date keyword can be found, it is set as context for the
+     * date, else wise the attribute name is considered as context. The <code>href</code> attribute is not checked, as
+     * this task is carried out by {@link ReferenceDateGetter}.
+     * </p>
      * 
      * @param node The {@link Node} to check, not <code>null</code>.
      * @return A {@link StructureDate} if one could be extracted, <code>null</code> otherwise.
