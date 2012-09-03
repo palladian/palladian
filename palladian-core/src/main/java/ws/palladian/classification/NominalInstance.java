@@ -2,10 +2,11 @@ package ws.palladian.classification;
 
 import ws.palladian.processing.features.FeatureVector;
 
-public class Instance2<T> {
+public class NominalInstance {
 
     public FeatureVector featureVector;
-    public T target;
+    public String target;
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
@@ -19,8 +20,5 @@ public class Instance2<T> {
         builder.append("]");
         return builder.toString();
     }
-    
-    
-    
     
 }
