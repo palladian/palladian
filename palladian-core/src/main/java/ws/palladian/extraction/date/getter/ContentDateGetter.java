@@ -131,26 +131,31 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @return List of dates.
      */
     private List<ContentDate> getContentDates(Document document) {
+        
         List<ContentDate> dates = CollectionHelper.newArrayList();
-        List<Node> nodeList = XPathHelper.getNodes(document, "//text()");
+        List<Node> textNodes = XPathHelper.getNodes(document, "//text()");
+        
+        if (textNodes.isEmpty()) {
+            return dates;
+        }
 
-        if (!nodeList.isEmpty()) {
-            NodeList body = document.getElementsByTagName("body");
-            // TODO: Check if an element is visible
-            // checkVisiblityOfAllNodes(body.item(0));
-            // Get webpage as text (for finding position).
-            this.doc = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper.documentToReadableText(body
-                    .item(0))));
+        Node bodyNode = XPathHelper.getXhtmlNode(document, "//body");
+        doc = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper.documentToReadableText(bodyNode)));
+        //NodeList body = document.getElementsByTagName("body");
+        // TODO: Check if an element is visible
+        // checkVisiblityOfAllNodes(body.item(0));
+        // Get webpage as text (for finding position).
+//        this.doc = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper.documentToReadableText(body
+//                .item(0))));
 
-            setDocKeywords();
+        setDocKeywords();
 
-            for (Node node : nodeList) {
-                if (node.getNodeType() == Node.TEXT_NODE) {
-                    Node parent = node.getParentNode();
-                    if (parent.getNodeType() != Node.COMMENT_NODE && !parent.getNodeName().equalsIgnoreCase("script")
-                            && !parent.getNodeName().equalsIgnoreCase("style")) {
-                        dates.addAll(checkTextnode((Text)node));
-                    }
+        for (Node textNode : textNodes) {
+            if (textNode.getNodeType() == Node.TEXT_NODE) {
+                Node parent = textNode.getParentNode();
+                if (parent.getNodeType() != Node.COMMENT_NODE && !parent.getNodeName().equalsIgnoreCase("script")
+                        && !parent.getNodeName().equalsIgnoreCase("style")) {
+                    dates.addAll(checkTextnode((Text)textNode));
                 }
             }
         }
