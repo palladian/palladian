@@ -24,26 +24,6 @@ public abstract class NumericClassifier extends Classifier<UniversalInstance> {
     /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(NumericClassifier.class);
 
-    // /** A classifier has training documents. */
-    // private transient Instances<NumericInstance> trainingInstances = new Instances<NumericInstance>();
-    //
-    // /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
-    // private transient Instances<NumericInstance> testInstances = new Instances<NumericInstance>();
-
-    /**
-     * The constructor, initiate members.
-     */
-    public NumericClassifier() {
-        reset();
-    }
-
-    /**
-     * Reset the classifier.
-     */
-    public void reset() {
-        // categories = new Categories();
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
