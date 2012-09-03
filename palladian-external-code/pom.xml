@@ -2,6 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>palladian-external-code</artifactId>
+	<version>0.1.7</version>
 	<name>Palladian: External Code</name>
 	<description>External modified source code that is used by Palladian.</description>
 	<build>
@@ -201,7 +202,7 @@
 		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-core</artifactId>
-			<version>0.1.7-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<properties>
@@ -220,6 +221,6 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.1.7-SNAPSHOT</version>
+		<version>0.1.7</version>
 	</parent>
 </project>
