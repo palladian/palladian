@@ -1,5 +1,6 @@
 package ws.palladian.processing.features;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,12 @@ import java.util.TreeMap;
  * @author Philipp Katz
  */
 public class FeatureVector implements Iterable<Feature<?>> {
+    /**
+     * <p>
+     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
+     * </p>
+     */
+    private static final long serialVersionUID = -1873151817193636793L;
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -123,10 +130,10 @@ public class FeatureVector implements Iterable<Feature<?>> {
      */
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
         Feature<?> feature = features.get(descriptor.getIdentifier());
-        if(feature==null) {
-        	return null;
+        if (feature == null) {
+            return null;
         } else {
-        return descriptor.getType().cast(feature);
+            return descriptor.getType().cast(feature);
         }
     }
 
