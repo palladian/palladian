@@ -80,82 +80,83 @@ public class KnnClassifier implements Predictor<KnnModel> {
 
 	@Override
 	public KnnModel learn(List<NominalInstance> instances) {
-		List<NominalInstance> normalizedInstances = normalize(instances);
-		KnnModel model = new KnnModel(normalizedInstances);
+//		List<NominalInstance> normalizedInstances = normalize(instances);
+//		KnnModel model = new KnnModel(normalizedInstances);
+		KnnModel model = new KnnModel(instances);
 		return model;
 	}
 
-	private List<NominalInstance> normalize(List<NominalInstance> instances) {
-        // hold the min value of each feature <featureIndex, minValue>
-        Map<Integer, Double> featureMinValueMap = new HashMap<Integer, Double>();
-
-        // hold the max value of each feature <featureIndex, maxValue>
-        Map<Integer, Double> featureMaxValueMap = new HashMap<Integer, Double>();
-
-        // find the min and max values
-        for (NominalInstance instance :instances) {
-
-//            UniversalInstance nInstance = (UniversalInstance)instance;
-            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
-
-            for (int i = 0; i < numericFeatures.size(); i++) {
-
-                double featureValue = numericFeatures.get(i).getValue();
-
-                // check min value
-                if (featureMinValueMap.get(i) != null) {
-                    double currentMin = featureMinValueMap.get(i);
-                    if (currentMin > featureValue) {
-                        featureMinValueMap.put(i, featureValue);
-                    }
-                } else {
-                    featureMinValueMap.put(i, featureValue);
-                }
-
-                // check max value
-                if (featureMaxValueMap.get(i) != null) {
-                    double currentMax = featureMaxValueMap.get(i);
-                    if (currentMax < featureValue) {
-                        featureMaxValueMap.put(i, featureValue);
-                    }
-                } else {
-                    featureMaxValueMap.put(i, featureValue);
-                }
-
-            }
-        }
-
-        // normalize the feature values
-        MinMaxNormalization minMaxNormalization = new MinMaxNormalization();
-        Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
-        List<NominalInstance> normalizedInstances = new ArrayList<NominalInstance>(instances.size());
-        for (NominalInstance instance : instances) {
-        	NominalInstance normalizedInstance = new NominalInstance();
-        	normalizedInstance.target = instance.target;
-        	normalizedInstance.featureVector = new FeatureVector();
-        	
-//            UniversalInstance nInstance = (UniversalInstance)instance;
-            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
-
-            for (int i = 0; i < numericFeatures.size(); i++) {
-
-                double max_minus_min = featureMaxValueMap.get(i) - featureMinValueMap.get(i);
-                Feature<Double> currentFeature = numericFeatures.get(i);
-				double featureValue = currentFeature.getValue();
-                double normalizedValue = (featureValue - featureMinValueMap.get(i)) / max_minus_min;
-
-                normalizedInstance.featureVector.add(new NumericFeature(FeatureDescriptorBuilder.build(currentFeature.getName(), NumericFeature.class), normalizedValue));
-
-                normalizationMap.put(i, max_minus_min);
-                minMaxNormalization.getMinValueMap().put(i, featureMinValueMap.get(i));
-            }
-            normalizedInstances.add(normalizedInstance);
-
-        }
-
-        minMaxNormalization.setNormalizationMap(normalizationMap);
-        return normalizedInstances;
-	}
+//	private List<NominalInstance> normalize(List<NominalInstance> instances) {
+//        // hold the min value of each feature <featureIndex, minValue>
+//        Map<Integer, Double> featureMinValueMap = new HashMap<Integer, Double>();
+//
+//        // hold the max value of each feature <featureIndex, maxValue>
+//        Map<Integer, Double> featureMaxValueMap = new HashMap<Integer, Double>();
+//
+//        // find the min and max values
+//        for (NominalInstance instance :instances) {
+//
+////            UniversalInstance nInstance = (UniversalInstance)instance;
+//            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
+//
+//            for (int i = 0; i < numericFeatures.size(); i++) {
+//
+//                double featureValue = numericFeatures.get(i).getValue();
+//
+//                // check min value
+//                if (featureMinValueMap.get(i) != null) {
+//                    double currentMin = featureMinValueMap.get(i);
+//                    if (currentMin > featureValue) {
+//                        featureMinValueMap.put(i, featureValue);
+//                    }
+//                } else {
+//                    featureMinValueMap.put(i, featureValue);
+//                }
+//
+//                // check max value
+//                if (featureMaxValueMap.get(i) != null) {
+//                    double currentMax = featureMaxValueMap.get(i);
+//                    if (currentMax < featureValue) {
+//                        featureMaxValueMap.put(i, featureValue);
+//                    }
+//                } else {
+//                    featureMaxValueMap.put(i, featureValue);
+//                }
+//
+//            }
+//        }
+//
+//        // normalize the feature values
+////        MinMaxNormalization minMaxNormalization = new MinMaxNormalization();
+////        Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
+//        List<NominalInstance> normalizedInstances = new ArrayList<NominalInstance>(instances.size());
+//        for (NominalInstance instance : instances) {
+//        	NominalInstance normalizedInstance = new NominalInstance();
+//        	normalizedInstance.target = instance.target;
+//        	normalizedInstance.featureVector = new FeatureVector();
+//        	
+////            UniversalInstance nInstance = (UniversalInstance)instance;
+//            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
+//
+//            for (int i = 0; i < numericFeatures.size(); i++) {
+//
+//                double max_minus_min = featureMaxValueMap.get(i) - featureMinValueMap.get(i);
+//                Feature<Double> currentFeature = numericFeatures.get(i);
+//				double featureValue = currentFeature.getValue();
+//                double normalizedValue = (featureValue - featureMinValueMap.get(i)) / max_minus_min;
+//
+//                normalizedInstance.featureVector.add(new NumericFeature(FeatureDescriptorBuilder.build(currentFeature.getName(), NumericFeature.class), normalizedValue));
+//
+////                normalizationMap.put(i, max_minus_min);
+////                minMaxNormalization.getMinValueMap().put(i, featureMinValueMap.get(i));
+//            }
+//            normalizedInstances.add(normalizedInstance);
+//
+//        }
+//
+////        minMaxNormalization.setNormalizationMap(normalizationMap);
+//        return normalizedInstances;
+//	}
 
 	/**
 	 * Classify a given {@link FeatureVector} using the provided
@@ -190,17 +191,17 @@ public class KnnClassifier implements Predictor<KnnModel> {
 		}
 
 		// find k nearest neighbors, compare instance to every known instance
-		Map<String, Double> neighbors = new HashMap<String, Double>();
+		Map<NominalInstance, Double> neighbors = new HashMap<NominalInstance, Double>();
 		for (NominalInstance knownInstance : model.getTrainingInstances()) {
 			double distance = getDistanceBetween(vector,
 					knownInstance.featureVector);
-			neighbors.put(knownInstance.target, distance);
+			neighbors.put(knownInstance, distance);
 		}
 
 		// CollectionHelper.print(neighbors, 10);
 
 		// sort near neighbor map by distance
-		Map<String, Double> sortedList = CollectionHelper
+		Map<NominalInstance, Double> sortedList = CollectionHelper
 				.sortByValue(neighbors);
 
 		// CollectionHelper.print(sortedList, 10);
@@ -214,22 +215,22 @@ public class KnnClassifier implements Predictor<KnnModel> {
 		// them into the voting, k might get bigger
 		// in those cases
 		double lastDistance = -1;
-		for (Entry<String, Double> entry : sortedList.entrySet()) {
+		for (Entry<NominalInstance, Double> neighbour : sortedList.entrySet()) {
 
-			if (ck >= k && entry.getValue() != lastDistance) {
+			if (ck >= k && neighbour.getValue() != lastDistance) {
 				break;
 			}
 
-			String categoryName = entry.getKey();
+			String categoryName = neighbour.getKey().target;
 			if (votes.containsKey(categoryName)) {
 				votes.put(categoryName,
 						votes.get(categoryName) + 1.0
-								/ (entry.getValue() + 0.000000001));
+								/ (neighbour.getValue() + 0.000000001));
 			} else {
-				votes.put(categoryName, 1.0 / (entry.getValue() + 0.000000001));
+				votes.put(categoryName, 1.0 / (neighbour.getValue() + 0.000000001));
 			}
 
-			lastDistance = entry.getValue();
+			lastDistance = neighbour.getValue();
 			++ck;
 		}
 
@@ -288,7 +289,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
 		double squaredSum = 0;
 
 		List<Feature<Double>> instanceFeatures = vector.getAll(Double.class);
-		List<Feature<Double>> knownInstanceFeatures = vector
+		List<Feature<Double>> knownInstanceFeatures = featureVector
 				.getAll(Double.class);
 
 		for (int i = 0; i < instanceFeatures.size(); i++) {
