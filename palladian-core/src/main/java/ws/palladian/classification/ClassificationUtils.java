@@ -1,5 +1,6 @@
 package ws.palladian.classification;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,9 @@ public final class ClassificationUtils {
      */
     public static List<NominalInstance> createInstances(String filePath, final boolean readHeader) {
         
-        // TODO check if file exists and is readable!
+        if (!new File(filePath).canRead()) {
+            throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
+        }
 
         final List<NominalInstance> instances = CollectionHelper.newArrayList();
 

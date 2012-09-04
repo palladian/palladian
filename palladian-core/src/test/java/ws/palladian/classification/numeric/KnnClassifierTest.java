@@ -2,25 +2,20 @@ package ws.palladian.classification.numeric;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.ClassificationUtils;
-import ws.palladian.classification.Instances;
+import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.NominalInstance;
-import ws.palladian.classification.UniversalInstance;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -44,53 +39,24 @@ public class KnnClassifierTest {
 	@Test
 	public void testKnnClassifier() {
 
-		// create some instances for the vector space
-		List<NominalInstance> trainingInstances = new ArrayList<NominalInstance>(
-				3);
+        // create some instances for the vector space
+        List<NominalInstance> trainingInstances = CollectionHelper.newArrayList();
 
-		NominalInstance trainingInstance1 = new NominalInstance();
-		trainingInstance1.targetClass = "A";
-		FeatureVector vector1 = new FeatureVector();
-		vector1.add(new NumericFeature("f1", 3d));
-		vector1.add(new NumericFeature("f2", 4d));
-		vector1.add(new NumericFeature("f3", 5d));
-		trainingInstance1.featureVector = vector1;
-		trainingInstances.add(trainingInstance1);
+        trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 4d).set("f3", 5d).create("A"));
+        trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 6d).set("f3", 6d).create("A"));
+        trainingInstances.add(new InstanceBuilder().set("f1", 4d).set("f2", 4d).set("f3", 4d).create("B"));
 
-		NominalInstance trainingInstance2 = new NominalInstance();
-		trainingInstance2.targetClass = "A";
-		FeatureVector vector2 = new FeatureVector();
-		vector2.add(new NumericFeature("f1", 3d));
-		vector2.add(new NumericFeature("f2", 6d));
-		vector2.add(new NumericFeature("f3", 6d));
-		trainingInstance2.featureVector = vector2;
-		trainingInstances.add(trainingInstance2);
+        // create the KNN classifier and add the training instances
+        KnnClassifier knn = new KnnClassifier();
+        KnnModel model = knn.learn(trainingInstances);
 
-		NominalInstance trainingInstance3 = new NominalInstance();
-		trainingInstance3.targetClass = "B";
-		FeatureVector vector3 = new FeatureVector();
-		vector3.add(new NumericFeature("f1", 4d));
-		vector3.add(new NumericFeature("f2", 4d));
-		vector3.add(new NumericFeature("f3", 4d));
-		trainingInstance3.featureVector = vector3;
-		trainingInstances.add(trainingInstance3);
+        FeatureVector featureVector = new InstanceBuilder().set("f1", 1d).set("f2", 2d).set("f3", 3d).create();
 
-		// create the KNN classifier and add the training instances
-		KnnClassifier knn = new KnnClassifier();
-		KnnModel model = knn.learn(trainingInstances);
+        // classify
+        CategoryEntries result = knn.predict(featureVector, model);
 
-		FeatureVector newInstance = new FeatureVector();
-		newInstance.add(new NumericFeature("f1", 1d));
-		newInstance.add(new NumericFeature("f2", 2d));
-		newInstance.add(new NumericFeature("f3", 3d));
-
-		// classify
-		CategoryEntries result = knn.predict(newInstance, model);
-
-		assertEquals(0.4743704726540487, ClassificationUtils
-				.getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0);
-		assertEquals("A", ClassificationUtils
-				.getSingleBestCategoryEntry(result).getCategory().getName());
+        assertEquals(0.474, ClassificationUtils.getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0.001);
+        assertEquals("A", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory().getName());
 	}
 
 	/**
@@ -107,31 +73,32 @@ public class KnnClassifierTest {
 
 		// create the KNN classifier and add the training instances
 		KnnClassifier knn = new KnnClassifier(3);
-		KnnModel model = knn.learn(ClassificationUtils
-				.createInstances(ResourceHelper
-						.getResourcePath("/classifier/wineData.txt"),false));
+        List<NominalInstance> instances = ClassificationUtils.createInstances(
+                ResourceHelper.getResourcePath("/classifier/wineData.txt"), false);
+        KnnModel model = knn.learn(instances);
 
 		// create an instance to classify
 		// 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 =>
 		// this is an actual instance from the
 		// training data and should therefore also be classified as "1"
-		FeatureVector newInstance = new FeatureVector();
-		newInstance.add(new NumericFeature("0", 13.82));
-		newInstance.add(new NumericFeature("1", 1.75));
-		newInstance.add(new NumericFeature("2", 2.42));
-		newInstance.add(new NumericFeature("3", 14d));
-		newInstance.add(new NumericFeature("4", 111d));
-		newInstance.add(new NumericFeature("5", 3.88));
-		newInstance.add(new NumericFeature("6", 3.74));
-		newInstance.add(new NumericFeature("7", .32));
-		newInstance.add(new NumericFeature("8", 1.87));
-		newInstance.add(new NumericFeature("9", 7.05));
-		newInstance.add(new NumericFeature("10", 1.01));
-		newInstance.add(new NumericFeature("11", 3.26));
-		newInstance.add(new NumericFeature("12", 1190d));
+        InstanceBuilder instanceBuilder = new InstanceBuilder();
+        instanceBuilder.set("0", 13.82);
+        instanceBuilder.set("1", 1.75);
+        instanceBuilder.set("2", 2.42);
+        instanceBuilder.set("3", 14d);
+        instanceBuilder.set("4", 111d);
+        instanceBuilder.set("5", 3.88);
+        instanceBuilder.set("6", 3.74);
+        instanceBuilder.set("7", .32);
+        instanceBuilder.set("8", 1.87);
+        instanceBuilder.set("9", 7.05);
+        instanceBuilder.set("10", 1.01);
+        instanceBuilder.set("11", 3.26);
+        instanceBuilder.set("12", 1190d);
+        FeatureVector featureVector = instanceBuilder.create();
 
 		// classify
-		CategoryEntries result = knn.predict(newInstance, model);
+		CategoryEntries result = knn.predict(featureVector, model);
 
 		assertEquals(1.0000000001339825E9, ClassificationUtils
 				.getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0);
@@ -139,19 +106,17 @@ public class KnnClassifierTest {
 				.getSingleBestCategoryEntry(result).getCategory().getName());
 	}
 
-	@Test
-	public void testKnnClassifierLoadFromFileNormalize()
-			throws IOException {
+    @Test
+    public void testKnnClassifierLoadFromFileNormalize() throws IOException {
 
 		// create the KNN classifier and add the training instances
 		KnnClassifier knn = new KnnClassifier(3);
-		KnnModel model = knn.learn(ClassificationUtils
-				.createInstances("/home/muthmann/git/palladian/palladian-core/src/test/resources/classifier/wineData.txt", false));
-//		knn.getTrainingInstances().normalize();
+		String testDataPath = ResourceHelper.getResourcePath("/classifier/wineData.txt");
+        KnnModel model = knn.learn(ClassificationUtils.createInstances(testDataPath, false));
 		model.normalize();
 
         String tempDir = System.getProperty("java.io.tmpdir");
-		FileHelper.serialize(model, tempDir+"/testKNN.gz");
+        FileHelper.serialize(model, tempDir + "/testKNN.gz");
 
 		KnnModel loadedModel = FileHelper.deserialize(tempDir + "/testKNN.gz");
 
