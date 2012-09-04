@@ -24,7 +24,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -376,23 +375,21 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                 + DateHelper.getCurrentDatetime() + ".txt");
 
         // see EvaluationResult for explanation of that field
-        Map<String, CountMap> assignments = new HashMap<String, CountMap>();
+        Map<String, CountMap<String>> assignments = new HashMap<String, CountMap<String>>();
 
         // create count maps for each possible tag (for gold standard and annotation because both could have different
         // tags)
         for (Annotation goldStandardAnnotation : goldStandard) {
             String tagName = goldStandardAnnotation.getInstanceCategoryName();
             if (assignments.get(tagName) == null) {
-                CountMap cm = new CountMap();
-                assignments.put(tagName, cm);
+                assignments.put(tagName, CountMap.<String>create());
             }
             assignments.get(tagName).add(EvaluationResult.POSSIBLE);
         }
         for (Annotation nerAnnotation : nerAnnotations) {
             String tagName = nerAnnotation.getMostLikelyTagName();
             if (assignments.get(tagName) == null) {
-                CountMap cm = new CountMap();
-                assignments.put(tagName, cm);
+                assignments.put(tagName, CountMap.<String>create());
             }
         }
 
@@ -585,9 +582,9 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         results.append("#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
 
         int totalTagAssignments = 0;
-        for (Entry<String, CountMap> tagEntry : evaluationResult.getAssignments().entrySet()) {
+        for (Entry<String, CountMap<String>> tagEntry : evaluationResult.getAssignments().entrySet()) {
 
-            CountMap cm = tagEntry.getValue();
+            CountMap<String> cm = tagEntry.getValue();
 
             int totalNumber = 0;
 
@@ -620,7 +617,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         results.append("ALL TAGS;");
         for (String tagName : tagOrder) {
             int totalAssignments = 0;
-            for (CountMap countMap : evaluationResult.getAssignments().values()) {
+            for (CountMap<String> countMap : evaluationResult.getAssignments().values()) {
                 totalAssignments += countMap.get(tagName);
             }
             results.append(totalAssignments).append(";");
@@ -677,9 +674,9 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
             results.append(errorTypeEntry.getValue());
             results.append(" (total: ").append(annotationErrors.get(errorTypeEntry.getKey()).size()).append("):\n\n");
 
-            CountMap cm = getAnnotationCountForTag(annotationErrors.get(errorTypeEntry.getKey()));
-            for (Entry<Object, Integer> entry : cm.entrySet()) {
-                results.append(entry.getKey()).append(":; ").append(entry.getValue()).append("\n");
+            CountMap<String> cm = getAnnotationCountForTag(annotationErrors.get(errorTypeEntry.getKey()));
+            for (String item : cm) {
+                results.append(item).append(":; ").append(cm.get(item)).append("\n");
             }
             results.append("\n");
             for (Annotation annotation : annotationErrors.get(errorTypeEntry.getKey())) {
@@ -694,8 +691,8 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         return results;
     }
 
-    private static CountMap getAnnotationCountForTag(Annotations annotations) {
-        CountMap cm = new CountMap();
+    private static CountMap<String> getAnnotationCountForTag(Annotations annotations) {
+        CountMap<String> cm = CountMap.create();
         for (Annotation annotation : annotations) {
             if (annotation instanceof EvaluationAnnotation) {
                 cm.add(annotation.getInstanceCategoryName());
