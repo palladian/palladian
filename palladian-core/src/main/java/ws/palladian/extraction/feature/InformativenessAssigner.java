@@ -84,7 +84,7 @@ public class InformativenessAssigner {
                 List<String> tokens = Tokenizer.tokenize(text);
 
                 for (String token : tokens) {
-                    tokenFrequencyMap.increment(token);
+                    tokenFrequencyMap.add(token);
                 }
 
                 totalTokens += tokens.size();
@@ -161,7 +161,7 @@ public class InformativenessAssigner {
         // count the occurrences of the tokens
         CountMap<String> cm = CountMap.create();
         for (String token : tokens) {
-            cm.increment(token);
+            cm.add(token);
         }
 
         // normalize frequency using the token with the highest frequency as upper cap = 1

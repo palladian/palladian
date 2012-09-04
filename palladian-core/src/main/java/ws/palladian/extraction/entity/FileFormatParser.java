@@ -679,7 +679,7 @@ public class FileFormatParser {
                     && !entitySet.contains(annotation.getEntity())) {
                 annotations.add(annotation);
                 entitySet.add(annotation.getEntity());
-                conceptSeedCount.increment(conceptName);
+                conceptSeedCount.add(conceptName);
             }
 
         }

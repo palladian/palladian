@@ -72,7 +72,7 @@ public class CoOccurrenceStatistics {
     }
 
     public void addCoOccurrence(String searcherName, String source) {
-        coOccurrences.increment(searcherName);
+        coOccurrences.add(searcherName);
 
         Collection<String> collection = coOccurrenceSources.get(searcherName);
         if (collection == null) {

@@ -1133,7 +1133,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 if (matches == null) {
                     matchingPatternMap.set((String) string, 0);
                 } else {
-                    matchingPatternMap.increment((String) string, matches);
+                    matchingPatternMap.add((String) string, matches);
                     sumOfMatchingPatterns += matches;
                 }
 
@@ -1279,24 +1279,24 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             }
 
             // add the left contexts to the map
-            contextMap.get(tag).increment(leftContexts[0]);
-            contextMap.get(tag).increment(leftContexts[1]);
-            contextMap.get(tag).increment(leftContexts[2]);
+            contextMap.get(tag).add(leftContexts[0]);
+            contextMap.get(tag).add(leftContexts[1]);
+            contextMap.get(tag).add(leftContexts[2]);
 
-            leftContextMapCountMap.increment(leftContexts[0]);
-            leftContextMapCountMap.increment(leftContexts[1]);
-            leftContextMapCountMap.increment(leftContexts[2]);
+            leftContextMapCountMap.add(leftContexts[0]);
+            leftContextMapCountMap.add(leftContexts[1]);
+            leftContextMapCountMap.add(leftContexts[2]);
 
             // add the right contexts to the map
-            contextMap.get(tag).increment(rightContexts[0]);
-            contextMap.get(tag).increment(rightContexts[1]);
-            contextMap.get(tag).increment(rightContexts[2]);
+            contextMap.get(tag).add(rightContexts[0]);
+            contextMap.get(tag).add(rightContexts[1]);
+            contextMap.get(tag).add(rightContexts[2]);
 
             // rightContextMap.get(tag).increment(rightContexts[0]);
             // rightContextMap.get(tag).increment(rightContexts[1]);
             // rightContextMap.get(tag).increment(rightContexts[2]);
 
-            tagCounts.increment(tag);
+            tagCounts.add(tag);
 
             UniversalInstance trainingInstance = new UniversalInstance(trainingInstances);
             trainingInstance.setTextFeature(annotation.getLeftContext() + "__" + annotation.getRightContext());

@@ -5,13 +5,13 @@ package ws.palladian.classification;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -24,6 +24,8 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  */
 public final class ClassificationUtils {
+    
+    private static final String SEPARATOR = ";";
 
 	/**
 	 * <p>
@@ -73,48 +75,62 @@ public final class ClassificationUtils {
 		return limitedCategories;
 	}
 
-	/**
-	 * <p>
-	 * Create instances from a file. The instances must be given in a CSV file
-	 * in the following format:<br>
-	 * feature1;..;featureN;NominalClass
-	 * </p>
-	 * <p>
-	 * All features must be real values and the class must be nominal. Each line
-	 * is one training instance.
-	 * </p>
-	 * 
-	 * @param The
-	 *            path to the CSV file to load either specified as path on the
-	 *            file system or as Java resource path.
-	 */
-	public static List<NominalInstance> createInstances(String filePath) {
-		List<NominalInstance> instances = new LinkedList<NominalInstance>();
-		File csvFile = new File(filePath);
-		if(!csvFile.exists()) {
-			URL fileUrl = ClassificationUtils.class.getResource(filePath);
-			csvFile = fileUrl==null ? csvFile : new File(fileUrl.getFile());
-		}
-		List<String> trainingLines = FileHelper.readFileToArray(csvFile);
+    /**
+     * <p>
+     * Create instances from a file. The instances must be given in a CSV file in the following format:
+     * <code>feature1;..;featureN;NominalClass</code>. Each line is one training instance.
+     * </p>
+     * 
+     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+     *            path.
+     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
+     *            (column names are generated automatically).
+     */
+    public static List<NominalInstance> createInstances(String filePath, final boolean readHeader) {
+        File csvFile = new File(filePath);
+        if (!csvFile.exists()) {
+            URL fileUrl = ClassificationUtils.class.getResource(filePath);
+            csvFile = fileUrl == null ? csvFile : new File(fileUrl.getFile());
+        }
 
-		NominalInstance instance = null;
+        final List<NominalInstance> instances = CollectionHelper.newArrayList();
 
-		for (String trainingLine : trainingLines) {
-			String[] parts = trainingLine.split(";");
+        FileHelper.performActionOnEveryLine(csvFile.getAbsolutePath(), new LineAction() {
 
-			instance = new NominalInstance();// (instances);
-			instance.featureVector = new FeatureVector();
+            String[] headNames;
 
-			for (int f = 0; f < parts.length - 1; f++) {
-				instance.featureVector.add(new NumericFeature(
-						String.valueOf(f), Double.valueOf(parts[f])));
-			}
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] parts = line.split(SEPARATOR);
 
-			instance.target = parts[parts.length - 1];
-			instances.add(instance);
-		}
+                if (readHeader && lineNumber == 0) {
+                    headNames = parts;
+                    return;
+                }
 
-		return instances;
-	}
+                NominalInstance instance = new NominalInstance();
+                instance.featureVector = new FeatureVector();
+
+                for (int f = 0; f < parts.length - 1; f++) {
+                    String name = headNames == null ? "col" + f : headNames[f];
+                    String value = parts[f];
+                    Double doubleValue;
+                    // FIXME make better.
+                    try {
+                        doubleValue = Double.valueOf(value);
+                        instance.featureVector.add(new NumericFeature(name, doubleValue));
+                    } catch (NumberFormatException e) {
+                        instance.featureVector.add(new NominalFeature(name, value));
+                    }
+
+                }
+
+                instance.target = parts[parts.length - 1];
+                instances.add(instance);
+            }
+        });
+
+        return instances;
+    }
 
 }

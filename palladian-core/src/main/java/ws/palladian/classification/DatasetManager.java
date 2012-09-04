@@ -130,7 +130,7 @@ public class DatasetManager {
                     LOGGER.error(e.getMessage());
                 }
 
-                cm.increment(parts[parts.length - 1]);
+                cm.add(parts[parts.length - 1]);
             }
 
         };
@@ -508,7 +508,7 @@ public class DatasetManager {
                     return;
                 }
 
-                classCounts.increment(parts[parts.length - 1]);
+                classCounts.add(parts[parts.length - 1]);
             }
 
         };
