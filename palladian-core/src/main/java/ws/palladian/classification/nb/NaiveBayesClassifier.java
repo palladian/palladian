@@ -32,13 +32,16 @@ import ws.palladian.processing.features.NumericFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
+public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
 
     @Override
     public NaiveBayesModel learn(List<NominalInstance> instances) {
 
-        CountMap<Triplet<String, String, String>> nominalCounts = CountMap.create();
+        // store the counts of different categories
         CountMap<String> categories = CountMap.create();
+        // store the counts of nominal features
+        CountMap<Triplet<String, String, String>> nominalCounts = CountMap.create();
+        // store mean and standard deviation for numeric features
         Map<Pair<String, String>, Stats> stats = LazyMap.create(new Factory<Stats>() {
             @Override
             public Stats create() {
@@ -88,32 +91,21 @@ public class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
             }
         });
 
-        for (String category : model.getCategories().uniqueItems()) {
+        for (String category : model.getCategoryNames()) {
 
             for (Feature<?> feature : vector) {
 
+                String featureName = feature.getName();
+
                 if (feature instanceof NominalFeature) {
                     NominalFeature nominalFeature = (NominalFeature)feature;
-                    int count = model.getNominalCounts()
-                            .get(new Triplet<String, String, String>(feature.getName(), nominalFeature.getValue(),
-                                    category));
-                    double probability = (double)count / (model.getCategories().get(category) + 1);
+                    double probability = model.getProbability(featureName, nominalFeature.getValue(), category);
                     probabilities.put(category, probabilities.get(category) * probability);
                 }
 
                 if (feature instanceof NumericFeature) {
                     NumericFeature numericFeature = (NumericFeature)feature;
-                    double standardDeviation = model.getStandardDeviations().get(
-                            new Pair<String, String>(feature.getName(), category));
-                    double mean = model.getSampleMeans().get(new Pair<String, String>(feature.getName(), category));
-
-                    double density = (double)1
-                            / (Math.sqrt(2 * Math.PI) * standardDeviation)
-                            * Math.pow(
-                                    Math.E,
-                                    -Math.pow(numericFeature.getValue() - mean, 2)
-                                            / (2 * Math.pow(standardDeviation, 2)));
-
+                    double density = model.getDensity(featureName, numericFeature.getValue(), category);
                     probabilities.put(category, probabilities.get(category) * density);
                 }
             }
@@ -121,7 +113,7 @@ public class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
 
         // multiply with prior probabilities, determine sum for normalization
         double sum = 0;
-        for (String category : model.getCategories().uniqueItems()) {
+        for (String category : model.getCategoryNames()) {
             double probability = probabilities.get(category) * model.getPrior(category);
             sum += probability;
             probabilities.put(category, probability);
