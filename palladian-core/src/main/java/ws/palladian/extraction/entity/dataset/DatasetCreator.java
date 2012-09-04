@@ -240,7 +240,7 @@ public class DatasetCreator {
                     Matcher matcher = pattern.matcher(fileContent);
 
                     while (matcher.find()) {
-                        countMap.increment(seedEntity);
+                        countMap.add(seedEntity);
                     }
                 }
             }

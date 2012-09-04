@@ -3,8 +3,6 @@ package ws.palladian.extraction.keyphrase.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
@@ -12,7 +10,7 @@ import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.collection.BagHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
@@ -102,15 +100,15 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
     }
 
     static double getUniqueCharacterPercentage(String value) {
-        Bag<Character> characters = new HashBag<Character>();
+        CountMap<Character> characters = CountMap.create();
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
             characters.add(c);
         }
-        if (characters.uniqueSet().size() == 1) {
+        if (characters.uniqueSize() == 1) {
             return 0;
         }
-        return (double)(characters.uniqueSet().size()) / value.length();
+        return (double)(characters.uniqueSize()) / value.length();
     }
 
     static double getPunctuationPercentage(String value) {
@@ -159,13 +157,13 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
         allAnnotations.add(annotation);
         allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
 
-        Bag<String> signatures = new HashBag<String>();
+        CountMap<String> signatures = CountMap.create();
         for (Annotation<String> current : allAnnotations) {
             String caseSignature = StringHelper.getCaseSignature(current
                     .getFeature(StemmerAnnotator.UNSTEM).getValue());
             signatures.add(caseSignature);
         }
-        return BagHelper.getHighest(signatures);
+        return signatures.getHighest();
     }
 
     private double getStartsUppercase(Annotation<String> annotation) {
