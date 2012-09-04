@@ -132,6 +132,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
         for (NominalInstance instance : instances) {
         	NominalInstance normalizedInstance = new NominalInstance();
         	normalizedInstance.target = instance.target;
+        	normalizedInstance.featureVector = new FeatureVector();
         	
 //            UniversalInstance nInstance = (UniversalInstance)instance;
             List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
@@ -143,12 +144,12 @@ public class KnnClassifier implements Predictor<KnnModel> {
 				double featureValue = currentFeature.getValue();
                 double normalizedValue = (featureValue - featureMinValueMap.get(i)) / max_minus_min;
 
-                normalizedInstance.featureVector = new FeatureVector();
                 normalizedInstance.featureVector.add(new NumericFeature(FeatureDescriptorBuilder.build(currentFeature.getName(), NumericFeature.class), normalizedValue));
 
                 normalizationMap.put(i, max_minus_min);
                 minMaxNormalization.getMinValueMap().put(i, featureMinValueMap.get(i));
             }
+            normalizedInstances.add(normalizedInstance);
 
         }
 
