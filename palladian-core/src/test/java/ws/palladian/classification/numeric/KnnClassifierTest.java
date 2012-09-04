@@ -16,7 +16,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -125,23 +124,23 @@ public class KnnClassifierTest {
 		// this is an actual instance from the
 		// training data and should therefore also be classified as "1"
 		// UniversalInstance newInstance = new UniversalInstance(null);
-		FeatureVector vector = new FeatureVector();
-		vector.add(new NumericFeature("f1", 13.82));
-		vector.add(new NumericFeature("f2", 1.75));
-		vector.add(new NumericFeature("f3", 2.42));
-		vector.add(new NumericFeature("f4", 14d));
-		vector.add(new NumericFeature("f5", 111d));
-		vector.add(new NumericFeature("f6", 3.88));
-		vector.add(new NumericFeature("f7", 3.74));
-		vector.add(new NumericFeature("f8", .32));
-		vector.add(new NumericFeature("f9", 1.87));
-		vector.add(new NumericFeature("f10", 7.05));
-		vector.add(new NumericFeature("f11", 1.01));
-		vector.add(new NumericFeature("f12", 3.26));
-		vector.add(new NumericFeature("f13", 1190d));
+		InstanceBuilder instanceBuilder = new InstanceBuilder();
+		instanceBuilder.set("0", 13.82);
+		instanceBuilder.set("1", 1.75);
+		instanceBuilder.set("2", 2.42);
+		instanceBuilder.set("3", 14d);
+		instanceBuilder.set("4", 111d);
+		instanceBuilder.set("5", 3.88);
+		instanceBuilder.set("6", 3.74);
+		instanceBuilder.set("7", .32);
+		instanceBuilder.set("8", 1.87);
+		instanceBuilder.set("9", 7.05);
+		instanceBuilder.set("10", 1.01);
+		instanceBuilder.set("11", 3.26);
+		instanceBuilder.set("12", 1190d);
 
 		// classify
-		CategoryEntries result = knn.predict(vector, loadedModel);
+		CategoryEntries result = knn.predict(instanceBuilder.create(), loadedModel);
 
 		assertEquals(1.0000000054326154E9, ClassificationUtils
 				.getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0);
