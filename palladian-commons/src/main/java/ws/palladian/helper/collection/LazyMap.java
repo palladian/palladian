@@ -22,13 +22,17 @@ public final class LazyMap<K, V> implements Map<K, V> {
     private final Map<K, V> map;
     private final Factory<V> factory;
 
-    private LazyMap(Factory<V> factory) {
-        this.map = new HashMap<K, V>();
+    private LazyMap(Map<K,V> map, Factory<V> factory) {
+        this.map = map;
         this.factory = factory;
     }
 
     public static <K, V> LazyMap<K, V> create(Factory<V> factory) {
-        return new LazyMap<K, V>(factory);
+        return new LazyMap<K, V>(new HashMap<K, V>(), factory);
+    }
+    
+    public static <K, V> LazyMap<K, V> create(Map<K,V> map, Factory<V> factory) {
+        return new LazyMap<K, V>(map, factory);
     }
 
     /**

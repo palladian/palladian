@@ -3,7 +3,6 @@ package ws.palladian.classification.numeric;
 import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -68,7 +67,7 @@ public class KnnClassifierTest {
 	 *             If the input data could not be found.
 	 */
 	@Test
-	public void testKnnClassifierLoadFromFile() throws FileNotFoundException {
+	public void testKnnClassifierLoadFromFile() throws Exception {
 
 		// create the KNN classifier and add the training instances
 		KnnClassifier knn = new KnnClassifier(3);
@@ -106,7 +105,7 @@ public class KnnClassifierTest {
 	}
 
     @Test
-    public void testKnnClassifierLoadFromFileNormalize() throws IOException {
+    public void testKnnClassifierLoadFromFileNormalize() throws Exception {
 
 		// create the KNN classifier and add the training instances
 		KnnClassifier knn = new KnnClassifier(3);
