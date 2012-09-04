@@ -23,50 +23,35 @@ import ws.palladian.processing.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public class BaggedDecisionTreeClassifier implements Predictor<BaggedDecisionTreeModel> {
-
-    private static final long serialVersionUID = 1L;
+public final class BaggedDecisionTreeClassifier implements Predictor<BaggedDecisionTreeModel> {
     
-    // private final List<Predictor<String>> predictors;
-    private transient final int numClassifiers;
-    private transient final Random random;
+    /** The default number of classifiers to create, in case it is not specified explicitly. */
+    public static final int DEFAULT_NUM_CLASSIFIERS = 10;
 
-    /**
-     * <p>
-     * Create a new {@link BaggedDecisionTreeClassifier} with the specified number of decision trees.
-     * </p>
-     * 
-     * @param numClassifiers The number of decision trees to use, must be greater than zero.
-     */
-    public BaggedDecisionTreeClassifier(int numClassifiers) {
+    public BaggedDecisionTreeModel learn(List<NominalInstance> instances, int numClassifiers) {
         Validate.isTrue(numClassifiers > 0, "numClassifiers must be greater than zero.");
-        // this.predictors = new ArrayList<Predictor<String>>();
-        this.numClassifiers = numClassifiers;
-        this.random = new Random();
+        Random random = new Random();
+        List<DecisionTreeModel> decisionTreeModels = CollectionHelper.newArrayList();
+        for (int i = 0; i < numClassifiers; i++) {
+            List<NominalInstance> sampling = getBagging(instances, random);
+            DecisionTreeClassifier newClassifier = new DecisionTreeClassifier();
+            DecisionTreeModel model = newClassifier.learn(sampling);
+            decisionTreeModels.add(model);
+        }
+        return new BaggedDecisionTreeModel(decisionTreeModels);
     }
 
     @Override
     public BaggedDecisionTreeModel learn(List<NominalInstance> instances) {
-        List<DecisionTreeModel> classifiers = CollectionHelper.newArrayList();
-        BaggedDecisionTreeModel model = new BaggedDecisionTreeModel(classifiers);
-        
-        for (int i = 0; i < numClassifiers; i++) {
-            List<NominalInstance> sampling = getBagging(instances);
-            DecisionTreeClassifier newClassifier = new DecisionTreeClassifier();
-            DecisionTreeModel model2 = newClassifier.learn(sampling);
-            classifiers.add(model2);
-        }
-        
-        return model;
-        
+        return learn(instances, DEFAULT_NUM_CLASSIFIERS);
     }
 
     @Override
     public CategoryEntries predict(FeatureVector vector, BaggedDecisionTreeModel model) {
         DecisionTreeClassifier classifier = new DecisionTreeClassifier();
         Bag<String> categories = new HashBag<String>();
-        for (DecisionTreeModel predictor : model.getClassifiers()) {
-            CategoryEntries entriesResult = classifier.predict(vector, predictor);
+        for (DecisionTreeModel decisionTreeModel : model.getModels()) {
+            CategoryEntries entriesResult = classifier.predict(vector, decisionTreeModel);
             CategoryEntry categoryResult = entriesResult.get(0);
             String category = categoryResult.getCategory().getName();
             categories.add(category);
@@ -86,9 +71,10 @@ public class BaggedDecisionTreeClassifier implements Predictor<BaggedDecisionTre
      * </p>
      * 
      * @param instances
+     * @param random
      * @return
      */
-    private List<NominalInstance> getBagging(List<NominalInstance> instances) {
+    private List<NominalInstance> getBagging(List<NominalInstance> instances, Random random) {
         List<NominalInstance> result = CollectionHelper.newArrayList();
         for (int i = 0; i < instances.size(); i++) {
             int sample = random.nextInt(instances.size());
@@ -96,18 +82,5 @@ public class BaggedDecisionTreeClassifier implements Predictor<BaggedDecisionTre
         }
         return result;
     }
-    
-//    @Override
-//    public String toString() {
-//        StringBuilder buildToString = new StringBuilder();
-//        buildToString.append("BaggedDecisionTreeClassifier").append('\n');
-//        buildToString.append("# classifiers: ").append(predictors.size()).append('\n'); 
-//        for (int i = 0; i < predictors.size(); i++) {
-//            buildToString.append("classifier ").append(i).append(":").append('\n');
-//            buildToString.append(predictors.get(i));
-//            buildToString.append('\n');
-//        }
-//        return buildToString.toString();
-//    }
 
 }

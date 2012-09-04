@@ -9,8 +9,9 @@ import java.util.zip.GZIPInputStream;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance2;
-import ws.palladian.classification.Predictor;
+import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -38,22 +39,22 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     private static final String CLASSIFIER_MODEL_PUB = "/dates_pub_model.gz";
     private static final String CLASSIFIER_MODEL_MOD = "/dates_mod_model.gz";
 
-    private Predictor<String> classifier;
+    private final BaggedDecisionTreeModel model;
+    private final BaggedDecisionTreeClassifier predictor;
 
     public ContentDateRater(PageDateType dateType) {
         super(dateType);
         if (dateType == PageDateType.PUBLISH) {
-            loadClassifier(CLASSIFIER_MODEL_PUB);
+            model = loadModel(CLASSIFIER_MODEL_PUB);
         } else {
-            loadClassifier(CLASSIFIER_MODEL_MOD);
+            model = loadModel(CLASSIFIER_MODEL_MOD);
         }
+        this.predictor = new BaggedDecisionTreeClassifier();
     }
 
-    @SuppressWarnings("unchecked")
-    private void loadClassifier(String classifierModel) {
-        classifier = (Predictor<String>)Cache.getInstance().getDataObject(classifierModel);
-        if (classifier == null) {
-
+    private BaggedDecisionTreeModel loadModel(String classifierModel) {
+        BaggedDecisionTreeModel model = (BaggedDecisionTreeModel) Cache.getInstance().getDataObject(classifierModel);
+        if (model == null) {
             InputStream inputStream = this.getClass().getResourceAsStream(CLASSIFIER_MODEL_PUB);
             if (inputStream == null) {
                 throw new IllegalStateException("Could not load model file \"" + classifierModel + "\"");
@@ -61,8 +62,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
             try {
                 ObjectInputStream objectInputStream = new ObjectInputStream(new GZIPInputStream(inputStream));
-                classifier = (Predictor<String>)objectInputStream.readObject();
-                Cache.getInstance().putDataObject(classifierModel, classifier);
+                model = (BaggedDecisionTreeModel)objectInputStream.readObject();
+                Cache.getInstance().putDataObject(classifierModel, model);
             } catch (IOException e) {
                 throw new IllegalStateException("Error loading the model file \"" + classifierModel + "\": "
                         + e.getMessage(), e);
@@ -71,6 +72,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
                         + e.getMessage(), e);
             }
         }
+        return model;
     }
 
     @Override
@@ -81,9 +83,9 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             if (this.dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
                 result.add(RatedDate.create(date, 1.0));
             } else {
-                Instance2<String> instance = DateInstanceFactory.createInstance(date);
+                NominalInstance instance = DateInstanceFactory.createInstance(date);
                 try {
-                    CategoryEntries dbl = classifier.predict(instance.featureVector);
+                    CategoryEntries dbl = predictor.predict(instance.featureVector, model);
                     result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getRelevance()));
                 } catch (Exception e) {
                     LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
