@@ -12,22 +12,22 @@ public class MinMaxNormalization implements Serializable {
 
     private static final long serialVersionUID = 7227377881428315427L;
 
-    private Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
-    private Map<Integer, Double> minValueMap = new HashMap<Integer, Double>();
+    private Map<String, Double> normalizationMap = new HashMap<String, Double>();
+    private Map<String, Double> minValueMap = new HashMap<String, Double>();
 
-    public Map<Integer, Double> getNormalizationMap() {
+    public Map<String, Double> getNormalizationMap() {
         return normalizationMap;
     }
 
-    public void setNormalizationMap(Map<Integer, Double> normalizationMap) {
+    public void setNormalizationMap(Map<String, Double> normalizationMap) {
         this.normalizationMap = normalizationMap;
     }
 
-    public void setMinValueMap(Map<Integer, Double> minValueMap) {
+    public void setMinValueMap(Map<String, Double> minValueMap) {
         this.minValueMap = minValueMap;
     }
 
-    public Map<Integer, Double> getMinValueMap() {
+    public Map<String, Double> getMinValueMap() {
         return minValueMap;
     }
 
