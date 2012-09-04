@@ -9,7 +9,7 @@ public class CountMapTest {
     @Test
     public void testCountMap() {
 
-        CountMap countMap = new CountMap();
+        CountMap<String> countMap = CountMap.create();
         countMap.increment("one");
         countMap.increment("one");
         countMap.increment("one");
@@ -21,11 +21,12 @@ public class CountMapTest {
         countMap.increment("three");
         countMap.increment("three");
 
-        assertEquals(3, (int) countMap.get("one"));
-        assertEquals(5, (int) countMap.get("two"));
-        assertEquals(2, (int) countMap.get("three"));
+        assertEquals(3, countMap.get("one"));
+        assertEquals(5, countMap.get("two"));
+        assertEquals(2, countMap.get("three"));
+        assertEquals(0, countMap.get("four"));
 
-        assertEquals(3, countMap.size());
+        assertEquals(3, countMap.uniqueSize());
         assertEquals(10, countMap.totalSize());
 
     }

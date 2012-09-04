@@ -60,9 +60,9 @@ public class Category implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     // public Double getRelevance() {
     // return relevance;
@@ -104,15 +104,15 @@ public class Category implements Serializable {
         this.prior = prior;
     }
 
-    /**
-     * The prior can be indexed and read from the index. Instead of calculating
-     * it via Categories.calculatePriors(), it can be set using this method.
-     * 
-     * @param prior
-     */
-    public void setIndexedPrior(double prior) {
-        this.prior = prior;
-    }
+//    /**
+//     * The prior can be indexed and read from the index. Instead of calculating
+//     * it via Categories.calculatePriors(), it can be set using this method.
+//     * 
+//     * @param prior
+//     */
+//    public void setIndexedPrior(double prior) {
+//        this.prior = prior;
+//    }
 
     /**
      * <p>
@@ -123,7 +123,7 @@ public class Category implements Serializable {
      * @param totalDocuments
      *            The count of total documents on this corpus.
      */
-    public void calculatePrior(int totalDocuments) {
+    void calculatePrior(int totalDocuments) {
         setPrior((double)frequency / (double)totalDocuments);
     }
 
@@ -195,7 +195,7 @@ public class Category implements Serializable {
         return totalTermWeight;
     }
 
-    public void resetFrequency() {
+    void resetFrequency() {
         this.frequency = 0;
     }
 }

@@ -31,7 +31,7 @@ public class CsvInstanceReader {
         List<NominalInstance> train = instances.subList(0, instances.size() / 2);
         List<NominalInstance> test = instances.subList(instances.size() / 2, instances.size() - 1);
 //        
-        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier(10);
+        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
         BaggedDecisionTreeModel model = classifier.learn(instances);
         FileHelper.serialize(model, "/Users/pk/Desktop/dates_mod_model.gz");
         System.exit(0);

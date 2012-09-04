@@ -21,7 +21,7 @@ public class CategoryEntry implements Serializable {
     private double absoluteRelevance;
     private double relativeRelevance = -1.0;
     public double bayesRelevance = 1.0;
-    private double trust = -1.0;
+//    private double trust = -1.0;
 
     public CategoryEntry(CategoryEntries categoryEntries, Category category, double absoluteRelevance) {
         super();
@@ -39,7 +39,7 @@ public class CategoryEntry implements Serializable {
         return category;
     }
 
-    public void setCategory(Category category) {
+    private void setCategory(Category category) {
         this.category = category;
     }
 
@@ -58,7 +58,7 @@ public class CategoryEntry implements Serializable {
     }
 
     public double getTrust() {
-        double trust = -1.0;
+        // double trust = -1.0;
 
         // CountMap avgPos = (CountMap)Cache.getInstance().getDataObject("posAvg");
         // if (avgPos == null) {
@@ -104,7 +104,7 @@ public class CategoryEntry implements Serializable {
         this.categoryEntries.setRelevancesUpToDate(false);
     }
 
-    protected void setRelativeRelevance(double relevance) {
+    void setRelativeRelevance(double relevance) {
         this.relativeRelevance = relevance;
     }
 
@@ -118,9 +118,9 @@ public class CategoryEntry implements Serializable {
         this.categoryEntries.setRelevancesUpToDate(false);
     }
 
-    public CategoryEntries getCategoryEntries() {
-        return categoryEntries;
-    }
+//    public CategoryEntries getCategoryEntries() {
+//        return categoryEntries;
+//    }
 
     public void setCategoryEntries(CategoryEntries categoryEntries) {
         this.categoryEntries = categoryEntries;
