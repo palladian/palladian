@@ -293,13 +293,22 @@ public class KnnClassifier implements Predictor<KnnModel> {
 		List<Feature<Double>> knownInstanceFeatures = featureVector
 				.getAll(Double.class);
 
-		for (int i = 0; i < instanceFeatures.size(); i++) {
-			squaredSum += Math.pow(instanceFeatures.get(i).getValue()
-					- knownInstanceFeatures.get(i).getValue(), 2);
+		for (Feature<Double>instanceFeature:instanceFeatures) {
+			squaredSum += Math.pow(instanceFeature.getValue()
+					- getFeatureFromList(instanceFeature.getName(),knownInstanceFeatures).getValue(), 2);
 		}
 
 		distance = Math.sqrt(squaredSum);
 
 		return distance;
 	}
+
+    private Feature<Double> getFeatureFromList(String name, List<Feature<Double>> features) {
+        for(Feature<Double> feature:features) {
+            if(feature.getName().equals(name)) {
+                return feature;
+            }
+        }
+        return null;
+    }
 }
