@@ -19,12 +19,13 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
             return false;
         }
 
+        category.increaseFrequency();
         if (contains(category)) {
             // this.getCategoryByName(category.getName()).addRelevance(category.getRelevance());
             return false;
+        } else {
+        	return super.add(category);
         }
-
-        return super.add(category);
     }
 
     @Override
@@ -106,7 +107,6 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
     public void resetFrequencies() {
         for (Category category : this) {
             category.resetFrequency();
-            ;
         }
     }
 
