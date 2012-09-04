@@ -6,6 +6,8 @@ import ws.palladian.processing.features.NumericFeature;
 
 public class InstanceBuilder {
     
+    // TODO auto-generate feature names if not explicitly given.
+    
     private final FeatureVector featureVector;
 
     public InstanceBuilder() {

@@ -107,7 +107,7 @@ public final class ClassificationUtils {
                 instance.featureVector = new FeatureVector();
 
                 for (int f = 0; f < parts.length - 1; f++) {
-                    String name = headNames == null ? "col" + f : headNames[f];
+                    String name = headNames == null ? String.valueOf(f) : headNames[f];
                     String value = parts[f];
                     Double doubleValue;
                     // FIXME make better.
