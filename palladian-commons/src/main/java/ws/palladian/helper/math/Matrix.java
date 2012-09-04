@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+// FIXME make generic.
 public class Matrix implements Serializable {
 
     /** The serial version id. */

@@ -26,7 +26,7 @@ public class CoOccurrenceStatistics {
     /**
      * The number of co-occurrences for each searcher used. The key is the name of the searcher.
      */
-    private CountMap coOccurrences;
+    private CountMap<String> coOccurrences;
     
     /** The actual sources of the co-occurrence. */
     private Map<String, Collection<String>> coOccurrenceSources;
@@ -34,7 +34,7 @@ public class CoOccurrenceStatistics {
     public CoOccurrenceStatistics(String term1, String term2) {
         this.term1 = term1;
         this.term2 = term2;
-        coOccurrences = new CountMap();
+        coOccurrences = CountMap.create();
 
         coOccurrenceSources = new HashMap<String, Collection<String>>();
     }
@@ -84,14 +84,9 @@ public class CoOccurrenceStatistics {
     }
 
     public int getTotalCoOccurrenceCount() {
+        
+        return coOccurrences.totalSize();
 
-        int total = 0;
-
-        for (Integer count : coOccurrences.values()) {
-            total += count;
-        }
-
-        return total;
     }
 
     @Override

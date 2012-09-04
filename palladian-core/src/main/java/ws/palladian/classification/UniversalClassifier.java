@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.numeric.KnnClassifier;
 import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.classification.page.DictionaryClassifier;
@@ -45,7 +46,7 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
     private double[] weights = new double[3];
 
     private CountMap2D correctlyClassified2 = new CountMap2D();
-    private Map<String, Double> weights2 = new HashMap<String, Double>();
+    // private Map<String, Double> weights2 = new HashMap<String, Double>();
 
     public UniversalClassifier() {
 
