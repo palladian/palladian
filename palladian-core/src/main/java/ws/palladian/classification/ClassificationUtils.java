@@ -82,6 +82,8 @@ public final class ClassificationUtils {
      *            (column names are generated automatically).
      */
     public static List<NominalInstance> createInstances(String filePath, final boolean readHeader) {
+        
+        // TODO check if file exists and is readable!
 
         final List<NominalInstance> instances = CollectionHelper.newArrayList();
 

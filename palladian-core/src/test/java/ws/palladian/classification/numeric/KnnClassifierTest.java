@@ -109,7 +109,7 @@ public class KnnClassifierTest {
 		KnnClassifier knn = new KnnClassifier(3);
 		KnnModel model = knn.learn(ClassificationUtils
 				.createInstances(ResourceHelper
-						.getResourcePath("/classifier/wineData.txt")));
+						.getResourcePath("/classifier/wineData.txt"),false));
 
 		// create an instance to classify
 		// 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 =>
@@ -146,7 +146,7 @@ public class KnnClassifierTest {
 		// create the KNN classifier and add the training instances
 		KnnClassifier knn = new KnnClassifier(3);
 		KnnModel model = knn.learn(ClassificationUtils
-				.createInstances("/home/muthmann/git/palladian/palladian-core/src/test/resources/classifier/wineData.txt"));
+				.createInstances("/home/muthmann/git/palladian/palladian-core/src/test/resources/classifier/wineData.txt", false));
 //		knn.getTrainingInstances().normalize();
 		model.normalize();
 
