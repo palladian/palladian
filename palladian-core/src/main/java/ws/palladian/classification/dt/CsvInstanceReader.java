@@ -6,11 +6,10 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instance2;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -27,22 +26,22 @@ public class CsvInstanceReader {
 //        
 //        System.exit(0);
 //        
-        List<Instance2<String>> instances = readInstances("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv");
+        List<NominalInstance> instances = readInstances("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv");
         
-        List<Instance2<String>> train = instances.subList(0, instances.size() / 2);
-        List<Instance2<String>> test = instances.subList(instances.size() / 2, instances.size() - 1);
+        List<NominalInstance> train = instances.subList(0, instances.size() / 2);
+        List<NominalInstance> test = instances.subList(instances.size() / 2, instances.size() - 1);
 //        
         BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier(10);
-        classifier.learn(instances);
-        FileHelper.serialize(classifier, "/Users/pk/Desktop/dates_mod_model.gz");
+        BaggedDecisionTreeModel model = classifier.learn(instances);
+        FileHelper.serialize(model, "/Users/pk/Desktop/dates_mod_model.gz");
         System.exit(0);
 //        
 //        classifier = null;
 //        classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
         
         int correct = 0;
-        for (Instance2<String> testInstance : test) {
-            CategoryEntries predict = classifier.predict(testInstance.featureVector);
+        for (NominalInstance testInstance : test) {
+            CategoryEntries predict = classifier.predict(testInstance.featureVector, model);
             CategoryEntry mostLikelyCategoryEntry = predict.getMostLikelyCategoryEntry();
             String name = predict.getMostLikelyCategoryEntry().getCategory().getName();
 //            System.out.println("prediction: " + name + ":" + mostLikelyCategoryEntry.getRelevance());
@@ -54,12 +53,12 @@ public class CsvInstanceReader {
         
     }
 
-    public static List<Instance2<String>> readInstances(String fileName) {
+    public static List<NominalInstance> readInstances(String fileName) {
         
         // accuracy: 0.9816410256410256
 
         
-        final List<Instance2<String>> instances = CollectionHelper.newArrayList();
+        final List<NominalInstance> instances = CollectionHelper.newArrayList();
 
         FileHelper.performActionOnEveryLine(fileName, new LineAction() {
             String[] names;
@@ -71,14 +70,14 @@ public class CsvInstanceReader {
                     return;
                 }
 
-                Instance2<String> instance = readLine(line, names);
+                NominalInstance instance = readLine(line, names);
                 instances.add(instance);
             }
         });
         return instances;
     }
 
-    public static Instance2<String> readLine(String line, String[] names) {
+    public static NominalInstance readLine(String line, String[] names) {
         Validate.notNull(names, "names must not be null");
         
         String[] split = line.split(SEPARATOR);
@@ -96,7 +95,7 @@ public class CsvInstanceReader {
                 fv.add(new NominalFeature(name, column));
             }
         }
-        Instance2<String> instance = new Instance2<String>();
+        NominalInstance instance = new NominalInstance();
         instance.featureVector = fv;
         instance.target = split[split.length - 1];
         return instance;
