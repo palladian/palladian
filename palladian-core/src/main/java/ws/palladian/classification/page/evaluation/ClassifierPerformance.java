@@ -158,7 +158,7 @@ public class ClassifierPerformance implements Serializable {
         
         double highestPrior = -1.0;
         
-        CountMap countMap = new CountMap();
+        CountMap<String> countMap = CountMap.create();
         for (TextInstance document : getTestDocuments()) {
             countMap.increment(document.getFirstRealCategory().getName());
         }
