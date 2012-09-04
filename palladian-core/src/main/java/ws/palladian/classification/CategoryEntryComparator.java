@@ -3,7 +3,7 @@ package ws.palladian.classification;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class CategoryEntryComparator implements Comparator<CategoryEntry>, Serializable {
+class CategoryEntryComparator implements Comparator<CategoryEntry>, Serializable {
 
     /** The serial version id. */
     private static final long serialVersionUID = -4240727604739212045L;

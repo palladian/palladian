@@ -28,8 +28,6 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel> {
 
-    private static final long serialVersionUID = 1L;
-
     private final int maxDepth;
 
     private final double minProbability;
@@ -58,20 +56,13 @@ public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel
 
     @Override
     public DecisionTreeModel learn(List<NominalInstance> instances) {
-        
         Set<Instance> trainingInstances = CollectionHelper.newHashSet();
-        
-        for (NominalInstance instance2 : instances) {
-            trainingInstances.add(createTrainingInstance(instance2));
+        for (NominalInstance instance : instances) {
+            Serializable[] input = getInput(instance.featureVector);
+            trainingInstances.add(Attributes.create(input).classification(instance.target));
         }
-
         Node tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
         return new DecisionTreeModel(tree);
-    }
-
-    private Instance createTrainingInstance(NominalInstance instance) {
-        Serializable[] input = getInput(instance.featureVector);
-        return Attributes.create(input).classification(instance.target);
     }
 
     private Serializable[] getInput(FeatureVector featureVector) {
@@ -79,16 +70,6 @@ public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel
         for (Feature<?> feature : featureVector.toArray()) {
             String featureName = feature.getName();
             Serializable featureValue = (Serializable)feature.getValue();
-            
-            if (featureName == null) {
-                System.err.println("feature name null");
-                System.exit(0);
-            }
-            if (featureValue == null) {
-                System.err.println("feature value null");
-                System.exit(0);
-            }
-            
             inputs.add(featureName);
             inputs.add(featureValue);
         }
@@ -104,13 +85,5 @@ public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel
         categoryEntries.add(categoryEntry);
         return categoryEntries;
     }
-
-//    @Override
-//    public String toString() {
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        PrintStream printStream = new PrintStream(out);
-//        tree.dump(printStream);
-//        return out.toString();
-//    }
 
 }
