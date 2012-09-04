@@ -206,7 +206,7 @@ public class JRCCorpusConverter {
                     LOGGER.error(e.getMessage());
                 }
 
-                ((CountMap<String>) obj[1]).increment(parts[1]);
+                ((CountMap<String>) obj[1]).add(parts[1]);
             }
 
         };

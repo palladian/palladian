@@ -386,7 +386,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                 CountMap cm = new CountMap();
                 assignments.put(tagName, cm);
             }
-            assignments.get(tagName).increment(EvaluationResult.POSSIBLE);
+            assignments.get(tagName).add(EvaluationResult.POSSIBLE);
         }
         for (Annotation nerAnnotation : nerAnnotations) {
             String tagName = nerAnnotation.getMostLikelyTagName();
@@ -442,11 +442,11 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                     if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
 
                         // correct tag (no error)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.CORRECT);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.CORRECT);
                         annotationsErrors.get(EvaluationResult.CORRECT).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
                                 goldStandardAnnotation.getInstanceCategoryName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -456,12 +456,12 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                     } else {
 
                         // wrong tag (error3)
-                        assignments.get(goldStandardAnnotation.getInstanceCategoryName()).increment(
+                        assignments.get(goldStandardAnnotation.getInstanceCategoryName()).add(
                                 EvaluationResult.ERROR3);
                         annotationsErrors.get(EvaluationResult.ERROR3).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
                                 goldStandardAnnotation.getInstanceCategoryName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -476,11 +476,11 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                     if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
 
                         // correct tag (error4)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR4);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR4);
                         annotationsErrors.get(EvaluationResult.ERROR4).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
                                 goldStandardAnnotation.getInstanceCategoryName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -490,11 +490,11 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                     } else {
 
                         // wrong tag (error5)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR5);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR5);
                         annotationsErrors.get(EvaluationResult.ERROR5).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
                                 goldStandardAnnotation.getInstanceCategoryName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -514,12 +514,12 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                         // }
 
                         // tagged something that should not have been tagged (error1)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR1);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR1);
                         annotationsErrors.get(EvaluationResult.ERROR1).add(nerAnnotation);
 
                         // in confusion matrix add count to "other" since NER tagged something that should not have been
                         // tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
                                 EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
                     }
 
@@ -539,7 +539,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         // check which gold standard annotations have not been found by the NER (error2)
         for (Annotation goldStandardAnnotation : goldStandard) {
             if (!((EvaluationAnnotation) goldStandardAnnotation).isTagged()) {
-                assignments.get(goldStandardAnnotation.getInstanceCategoryName()).increment(EvaluationResult.ERROR2);
+                assignments.get(goldStandardAnnotation.getInstanceCategoryName()).add(EvaluationResult.ERROR2);
                 annotationsErrors.get(EvaluationResult.ERROR2).add(goldStandardAnnotation);
             }
         }
@@ -698,9 +698,9 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         CountMap cm = new CountMap();
         for (Annotation annotation : annotations) {
             if (annotation instanceof EvaluationAnnotation) {
-                cm.increment(annotation.getInstanceCategoryName());
+                cm.add(annotation.getInstanceCategoryName());
             } else {
-                cm.increment(annotation.getMostLikelyTagName());
+                cm.add(annotation.getMostLikelyTagName());
             }
         }
         return cm;

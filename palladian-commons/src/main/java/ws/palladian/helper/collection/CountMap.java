@@ -1,7 +1,9 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,7 +17,7 @@ import org.apache.commons.lang3.Validate;
  * @author Philipp Katz
  * @param <T>
  */
-public class CountMap<T> implements Serializable {
+public class CountMap<T> implements Collection<T>, Serializable {
 
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
@@ -41,6 +43,14 @@ public class CountMap<T> implements Serializable {
         return new CountMap<T>();
     }
 
+    public static <T> CountMap<T> create(Collection<T> collection) {
+        CountMap<T> countMap = new CountMap<T>();
+        for (T item : collection) {
+            countMap.add(item);
+        }
+        return countMap;
+    }
+
     /** Private constructor, use {@link #create()} instead. */
     private CountMap() {
 
@@ -53,13 +63,15 @@ public class CountMap<T> implements Serializable {
      * 
      * @param item The item which count that should be incremented, not <code>null</code>.
      */
-    public void increment(T item) {
+    @Override
+    public boolean add(T item) {
         Validate.notNull(map, "map must not be null");
 
         Integer count = get(item);
         int counter = count.intValue();
         counter++;
         map.put(item, counter);
+        return true;
     }
 
     /**
@@ -70,13 +82,21 @@ public class CountMap<T> implements Serializable {
      * @param item The item which count should be incremented, not <code>null</code>.
      * @param increment The count by which to increment (negative values decrement).
      */
-    public void increment(T item, int increment) {
+    public void add(T item, int increment) {
         Validate.notNull(map, "map must not be null");
 
         Integer count = get(item);
         int counter = count.intValue();
         counter += increment;
         map.put(item, counter);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        for (T item : c) {
+            add(item);
+        }
+        return true;
     }
 
     /**
@@ -105,12 +125,7 @@ public class CountMap<T> implements Serializable {
         Validate.notNull(map, "map must not be null");
 
         Integer count = map.get(item);
-
-        if (count == null) {
-            count = 0;
-        }
-
-        return count;
+        return count == null ? 0 : count;
     }
 
     /**
@@ -187,6 +202,86 @@ public class CountMap<T> implements Serializable {
         }
 
         return validCountSet;
+    }
+
+    public T getHighest() {
+        int highest = 0;
+        T result = null;
+        for (T item : uniqueItems()) {
+            int current = get(item);
+            if (current > highest) {
+                result = item;
+                highest = current;
+            }
+        }
+        return result;
+    }
+
+    public CountMap<T> getHighest(int num) {
+        LinkedHashMap<T, Integer> descendingItems = getSortedMapDescending();
+        CountMap<T> result = CountMap.create();
+        for (Entry<T, Integer> entry : descendingItems.entrySet()) {
+            result.add(entry.getKey(), entry.getValue());
+            if (result.uniqueItems().size() == num) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void clear() {
+        map.clear();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return map.containsKey(o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return map.keySet().containsAll(c);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return map.keySet().iterator();
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return map.remove(o) != null;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return map.entrySet().removeAll(c);
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return map.entrySet().retainAll(c);
+    }
+
+    @Override
+    public int size() {
+        return totalSize();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return map.entrySet().toArray();
+    }
+
+    @Override
+    public <A> A[] toArray(A[] a) {
+        return map.entrySet().toArray(a);
     }
 
 }
