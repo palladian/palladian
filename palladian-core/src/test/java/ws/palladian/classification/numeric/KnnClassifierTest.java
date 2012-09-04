@@ -109,7 +109,7 @@ public class KnnClassifierTest {
 		KnnClassifier knn = new KnnClassifier(3);
 		KnnModel model = knn.learn(ClassificationUtils
 				.createInstances(ResourceHelper
-						.getResourcePath("/classifier/wineData.txt")));
+						.getResourcePath("/classifier/wineData.txt"),false));
 
 		// create an instance to classify
 		// 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 =>
@@ -146,8 +146,7 @@ public class KnnClassifierTest {
 		// create the KNN classifier and add the training instances
 		KnnClassifier knn = new KnnClassifier(3);
 		KnnModel model = knn.learn(ClassificationUtils
-				.createInstances(ResourceHelper
-                        .getResourcePath("/classifier/wineData.txt")));
+				.createInstances("/home/muthmann/git/palladian/palladian-core/src/test/resources/classifier/wineData.txt"));
 //		knn.getTrainingInstances().normalize();
 		model.normalize();
 
@@ -162,19 +161,19 @@ public class KnnClassifierTest {
 		// training data and should therefore also be classified as "1"
 		// UniversalInstance newInstance = new UniversalInstance(null);
 		FeatureVector vector = new FeatureVector();
-		vector.add(new NumericFeature("0", 13.82));
-		vector.add(new NumericFeature("1", 1.75));
-		vector.add(new NumericFeature("2", 2.42));
-		vector.add(new NumericFeature("3", 14d));
-		vector.add(new NumericFeature("4", 111d));
-		vector.add(new NumericFeature("5", 3.88));
-		vector.add(new NumericFeature("6", 3.74));
-		vector.add(new NumericFeature("7", .32));
-		vector.add(new NumericFeature("8", 1.87));
-		vector.add(new NumericFeature("9", 7.05));
-		vector.add(new NumericFeature("10", 1.01));
-		vector.add(new NumericFeature("11", 3.26));
-		vector.add(new NumericFeature("12", 1190d));
+		vector.add(new NumericFeature("f1", 13.82));
+		vector.add(new NumericFeature("f2", 1.75));
+		vector.add(new NumericFeature("f3", 2.42));
+		vector.add(new NumericFeature("f4", 14d));
+		vector.add(new NumericFeature("f5", 111d));
+		vector.add(new NumericFeature("f6", 3.88));
+		vector.add(new NumericFeature("f7", 3.74));
+		vector.add(new NumericFeature("f8", .32));
+		vector.add(new NumericFeature("f9", 1.87));
+		vector.add(new NumericFeature("f10", 7.05));
+		vector.add(new NumericFeature("f11", 1.01));
+		vector.add(new NumericFeature("f12", 3.26));
+		vector.add(new NumericFeature("f13", 1190d));
 
 		// classify
 		CategoryEntries result = knn.predict(vector, loadedModel);

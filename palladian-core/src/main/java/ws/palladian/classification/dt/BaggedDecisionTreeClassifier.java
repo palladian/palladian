@@ -3,8 +3,6 @@ package ws.palladian.classification.dt;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.Category;
@@ -13,6 +11,7 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.NominalInstance;
 import ws.palladian.classification.Predictor;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -49,7 +48,7 @@ public final class BaggedDecisionTreeClassifier implements Predictor<BaggedDecis
     @Override
     public CategoryEntries predict(FeatureVector vector, BaggedDecisionTreeModel model) {
         DecisionTreeClassifier classifier = new DecisionTreeClassifier();
-        Bag<String> categories = new HashBag<String>();
+        CountMap<String> categories = CountMap.create();
         for (DecisionTreeModel decisionTreeModel : model.getModels()) {
             CategoryEntries entriesResult = classifier.predict(vector, decisionTreeModel);
             CategoryEntry categoryResult = entriesResult.get(0);
@@ -58,8 +57,8 @@ public final class BaggedDecisionTreeClassifier implements Predictor<BaggedDecis
         }
 
         CategoryEntries result = new CategoryEntries();
-        for (String categoryName : categories.uniqueSet()) {
-            double confidence = (double)categories.getCount(categoryName) / categories.size();
+        for (String categoryName : categories.uniqueItems()) {
+            double confidence = (double)categories.get(categoryName) / categories.totalSize();;
             result.add(new CategoryEntry(result, new Category(categoryName), confidence));
         }
         return result;

@@ -77,6 +77,7 @@ public final class NaiveBayesModel implements Model {
 
     public double getProbability(String featureName, String featureValue, String category) {
         int count = nominalCounts.get(new Triplet<String, String, String>(featureName, featureValue, category));
+        // La Place smoothing
         return (double)count / (categories.get(category) + 1);
     }
 
@@ -137,7 +138,7 @@ public final class NaiveBayesModel implements Model {
         StringBuilder builder = new StringBuilder();
         builder.append("NaiveBayesModel [nominalCounts=");
         builder.append(nominalCounts);
-        builder.append(", targets=");
+        builder.append(", categories=");
         builder.append(categories);
         builder.append(", sampleMeans=");
         builder.append(sampleMeans);

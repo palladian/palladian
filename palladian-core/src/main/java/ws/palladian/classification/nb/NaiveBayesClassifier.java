@@ -39,9 +39,9 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
 
         // store the counts of different categories
         CountMap<String> categories = CountMap.create();
-        // store the counts of nominal features
+        // store the counts of nominal features (name, value, category)
         CountMap<Triplet<String, String, String>> nominalCounts = CountMap.create();
-        // store mean and standard deviation for numeric features
+        // store mean and standard deviation for numeric features (name, category)
         Map<Pair<String, String>, Stats> stats = LazyMap.create(new Factory<Stats>() {
             @Override
             public Stats create() {
@@ -51,14 +51,14 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
 
         for (NominalInstance instance : instances) {
             String category = instance.target;
-            categories.increment(category);
+            categories.add(category);
 
             for (Feature<?> feature : instance.featureVector) {
                 String featureName = feature.getName();
 
                 if (feature instanceof NominalFeature) {
                     String nominalValue = ((NominalFeature)feature).getValue();
-                    nominalCounts.increment(new Triplet<String, String, String>(featureName, nominalValue, category));
+                    nominalCounts.add(new Triplet<String, String, String>(featureName, nominalValue, category));
                 }
 
                 if (feature instanceof NumericFeature) {

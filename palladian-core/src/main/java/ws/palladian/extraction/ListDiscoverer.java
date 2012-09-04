@@ -295,7 +295,7 @@ public class ListDiscoverer {
     private void filterPaginationUrls() {
         CountMap<Integer> countMap = CountMap.create();
         for (String url : paginationURLs) {
-            countMap.increment(url.length());
+            countMap.add(url.length());
         }
 
         if (countMap.uniqueSize() == 0) {

@@ -160,7 +160,7 @@ public class ClassifierPerformance implements Serializable {
         
         CountMap<String> countMap = CountMap.create();
         for (TextInstance document : getTestDocuments()) {
-            countMap.increment(document.getFirstRealCategory().getName());
+            countMap.add(document.getFirstRealCategory().getName());
         }
 
         Integer highestClassCount = countMap.getSortedMapDescending().values().iterator().next();

@@ -9,6 +9,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.NominalInstance;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
@@ -19,6 +20,7 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.helper.DateInstanceFactory;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -94,5 +96,20 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
         }
         return result;
+    }
+    
+    public static void main(String[] args) {
+        
+        String filePath = "/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv";
+        List<NominalInstance> instances = ClassificationUtils.createInstances(filePath, true);
+        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+        BaggedDecisionTreeModel model = classifier.learn(instances);
+        FileHelper.serialize(model, "/Users/pk/Desktop/dates_mod_model.gz");
+        
+        filePath = "/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_pub.csv";
+        instances = ClassificationUtils.createInstances(filePath, true);
+        model = classifier.learn(instances);
+        FileHelper.serialize(model, "/Users/pk/Desktop/dates_pub_model.gz");
+
     }
 }

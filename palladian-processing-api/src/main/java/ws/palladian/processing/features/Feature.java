@@ -1,6 +1,5 @@
 package ws.palladian.processing.features;
 
-import java.io.Serializable;
 
 /**
  * <p>
