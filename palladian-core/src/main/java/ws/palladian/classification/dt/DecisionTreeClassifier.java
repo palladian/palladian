@@ -59,7 +59,7 @@ public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel
         Set<Instance> trainingInstances = CollectionHelper.newHashSet();
         for (NominalInstance instance : instances) {
             Serializable[] input = getInput(instance.featureVector);
-            trainingInstances.add(Attributes.create(input).classification(instance.target));
+            trainingInstances.add(Attributes.create(input).classification(instance.targetClass));
         }
         Node tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
         return new DecisionTreeModel(tree);

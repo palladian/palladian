@@ -45,7 +45,7 @@ public class CsvInstanceReader {
             CategoryEntry mostLikelyCategoryEntry = predict.getMostLikelyCategoryEntry();
             String name = predict.getMostLikelyCategoryEntry().getCategory().getName();
 //            System.out.println("prediction: " + name + ":" + mostLikelyCategoryEntry.getRelevance());
-            if (testInstance.target.equals(name)) {
+            if (testInstance.targetClass.equals(name)) {
                 correct++;
             }
         }
@@ -97,7 +97,7 @@ public class CsvInstanceReader {
         }
         NominalInstance instance = new NominalInstance();
         instance.featureVector = fv;
-        instance.target = split[split.length - 1];
+        instance.targetClass = split[split.length - 1];
         return instance;
     }
 

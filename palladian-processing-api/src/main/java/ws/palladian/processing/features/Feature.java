@@ -1,5 +1,7 @@
 package ws.palladian.processing.features;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * The base class for all features used by different Information Retrieval and Extraction components inside Palladian. A
@@ -13,6 +15,7 @@ package ws.palladian.processing.features;
  * @param <T> The data type used to represent this {@code Feature}'s value.
  */
 public class Feature<T> {
+
     /**
      * <p>
      * The {@link FeatureVector} wide unique identifier of this {@code Feature}.
@@ -123,7 +126,8 @@ public class Feature<T> {
         return FeatureDescriptorBuilder.build(getName(), this.getClass());
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -135,7 +139,8 @@ public class Feature<T> {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -166,7 +171,5 @@ public class Feature<T> {
         }
         return true;
     }
-    
-    
 
 }
