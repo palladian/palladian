@@ -16,12 +16,6 @@ public class Instances<T> extends ArrayList<T> {
     private Categories categories = new Categories();
 
     /**
-     * This stores the max - min differences for each feature of the training instances. We need these values to
-     * normalize test or unseen data. <featureIndex, max-min>
-     */
-    private MinMaxNormalization minMaxNormalization;
-
-    /**
      * Get the number of documents that have been assigned to given category.
      * 
      * @param categoryName The name of the category.
@@ -117,7 +111,7 @@ public class Instances<T> extends ArrayList<T> {
         }
 
         // normalize the feature values
-        minMaxNormalization = new MinMaxNormalization();
+        MinMaxNormalization minMaxNormalization = new MinMaxNormalization();
         Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
         for (Instance instance : (Instances<Instance>) this) {
 
@@ -147,14 +141,6 @@ public class Instances<T> extends ArrayList<T> {
 
     public void setNormalized(boolean normalized) {
         this.normalized = normalized;
-    }
-
-    public MinMaxNormalization getMinMaxNormalization() {
-        return minMaxNormalization;
-    }
-
-    public void setMinMaxNormalization(MinMaxNormalization minMaxNormalization) {
-        this.minMaxNormalization = minMaxNormalization;
     }
 
     public void setCategories(Categories categories) {
