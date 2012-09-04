@@ -1,5 +1,7 @@
 package ws.palladian.classification;
 
-public interface Model {
+import java.io.Serializable;
+
+public interface Model extends Serializable {
 
 }
