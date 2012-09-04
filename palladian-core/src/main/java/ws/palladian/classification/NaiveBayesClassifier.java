@@ -48,7 +48,7 @@ public class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
         for (NominalInstance instance : instances) {
 
             int featureIndex = 0;
-            String target = instance.target;
+            String target = instance.targetClass;
 //            categories.add(new Category(target));
             categories.add(target);
 

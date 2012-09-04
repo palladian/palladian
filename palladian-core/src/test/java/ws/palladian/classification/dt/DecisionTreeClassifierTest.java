@@ -27,7 +27,7 @@ public class DecisionTreeClassifierTest {
         fv.add(new NumericFeature("weight", 168.));
         fv.add(new NominalFeature("gender", "male"));
         instance.featureVector = fv;
-        instance.target = "overweight";
+        instance.targetClass = "overweight";
         instances.add(instance);
 
         instance = new NominalInstance();
@@ -36,7 +36,7 @@ public class DecisionTreeClassifierTest {
         fv.add(new NumericFeature("weight", 168.));
         fv.add(new NominalFeature("gender", "female"));
         instance.featureVector = fv;
-        instance.target = "healthy";
+        instance.targetClass = "healthy";
         instances.add(instance);
 
         instance = new NominalInstance();
@@ -45,7 +45,7 @@ public class DecisionTreeClassifierTest {
         fv.add(new NumericFeature("weight", 143.));
         fv.add(new NominalFeature("gender", "male"));
         instance.featureVector = fv;
-        instance.target = "underweight";
+        instance.targetClass = "underweight";
         instances.add(instance);
 
         instance = new NominalInstance();
@@ -54,7 +54,7 @@ public class DecisionTreeClassifierTest {
         fv.add(new NumericFeature("weight", 144.));
         fv.add(new NominalFeature("gender", "female"));
         instance.featureVector = fv;
-        instance.target = "underweight";
+        instance.targetClass = "underweight";
         instances.add(instance);
 
         instance = new NominalInstance();
@@ -63,7 +63,7 @@ public class DecisionTreeClassifierTest {
         fv.add(new NumericFeature("weight", 223.));
         fv.add(new NominalFeature("gender", "male"));
         instance.featureVector = fv;
-        instance.target = "healthy";
+        instance.targetClass = "healthy";
         instances.add(instance);
 
         DecisionTreeClassifier classifier = new DecisionTreeClassifier();

@@ -136,42 +136,42 @@ public class NaiveBayesClassifierTest {
         FeatureVector featureVector = new FeatureVector();
         featureVector.add(new NumericFeature("f", 3.0));
         instance.featureVector = featureVector;
-        instance.target = "Case";
+        instance.targetClass = "Case";
         instances.add(instance);
         
         instance = new NominalInstance();
         featureVector = new FeatureVector();
         featureVector.add(new NumericFeature("f", 6.0));
         instance.featureVector = featureVector;
-        instance.target = "Case";
+        instance.targetClass = "Case";
         instances.add(instance);
         
         instance = new NominalInstance();
         featureVector = new FeatureVector();
         featureVector.add(new NumericFeature("f", 20.));
         instance.featureVector = featureVector;
-        instance.target = "Case";
+        instance.targetClass = "Case";
         instances.add(instance);
         
         instance = new NominalInstance();
         featureVector = new FeatureVector();
         featureVector.add(new NumericFeature("f", 18.));
         instance.featureVector = featureVector;
-        instance.target = "Phone";
+        instance.targetClass = "Phone";
         instances.add(instance);
         
         instance = new NominalInstance();
         featureVector = new FeatureVector();
         featureVector.add(new NumericFeature("f", 66.));
         instance.featureVector = featureVector;
-        instance.target = "Phone";
+        instance.targetClass = "Phone";
         instances.add(instance);
         
         instance = new NominalInstance();
         featureVector = new FeatureVector();
         featureVector.add(new NumericFeature("f", 290.));
         instance.featureVector = featureVector;
-        instance.target = "Phone";
+        instance.targetClass = "Phone";
         instances.add(instance);
         
         NaiveBayesModel model = bc.learn(instances);
