@@ -1,4 +1,4 @@
-package ws.palladian.classification;
+package ws.palladian.classification.nb;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,8 +6,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.nb.NaiveBayesClassifier;
-import ws.palladian.classification.nb.NaiveBayesModel;
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.features.FeatureVector;
