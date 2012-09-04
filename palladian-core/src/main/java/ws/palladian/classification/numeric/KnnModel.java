@@ -139,13 +139,13 @@ public final class KnnModel implements Model, Serializable {
 
         List<Feature<Double>> features = vector.getAll(Double.class);
 
-        for (int i = 0; i < features.size(); i++) {
+        for (Feature<Double> feature:features) {
+            String featureName = feature.getName();
+            double featureValue = feature.getValue();
+            double normalizedValue = (featureValue - normalizationInformation.getMinValueMap().get(featureName))
+                    / normalizationInformation.getNormalizationMap().get(featureName);
 
-            double featureValue = features.get(i).getValue();
-            double normalizedValue = (featureValue - normalizationInformation.getMinValueMap().get(i))
-                    / normalizationInformation.getNormalizationMap().get(i);
-
-            features.get(i).setValue(normalizedValue);
+            feature.setValue(normalizedValue);
         }
 
     }
