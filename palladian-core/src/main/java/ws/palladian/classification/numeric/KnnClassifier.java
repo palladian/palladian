@@ -11,6 +11,7 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.Model;
@@ -177,9 +178,9 @@ public class KnnClassifier implements Predictor<KnnModel> {
 
 //		// we need to normalize the new instance if the training instances were
 //		// also normalized
-//		if (getTrainingInstances().areNormalized()) {
-//			instance.normalize(getTrainingInstances().getMinMaxNormalization());
-//		}
+		if (model.isNormalized()) {
+			model.normalize(vector);
+		}
 //		List<NominalInstance> normalizedInstances = normalize(model.getTrainingInstances());
 
 		CategoryEntries bestFitList = new CategoryEntries();
@@ -221,7 +222,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
 				break;
 			}
 
-			String categoryName = neighbour.getKey().target;
+			String categoryName = neighbour.getKey().targetClass;
 			if (votes.containsKey(categoryName)) {
 				votes.put(categoryName,
 						votes.get(categoryName) + 1.0
@@ -261,7 +262,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
 	protected Categories getPossibleCategories(List<NominalInstance> instances) {
 		Categories categories = new Categories();
 		for (NominalInstance instance : instances) {
-			categories.add(new Category(instance.target));
+			categories.add(new Category(instance.targetClass));
 		}
 		categories.calculatePriors();
 		return categories;

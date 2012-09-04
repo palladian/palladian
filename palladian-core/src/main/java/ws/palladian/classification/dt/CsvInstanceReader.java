@@ -1,13 +1,8 @@
 package ws.palladian.classification.dt;
 
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.NominalInstance;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -50,6 +45,7 @@ public class CsvInstanceReader {
 //        System.out.println("accuracy: " + (double) correct / test.size());
 //        
 //    }
+
 
 //    public static List<NominalInstance> readInstances(String fileName) {
 //        
@@ -95,7 +91,7 @@ public class CsvInstanceReader {
         }
         NominalInstance instance = new NominalInstance();
         instance.featureVector = fv;
-        instance.target = split[split.length - 1];
+        instance.targetClass = split[split.length - 1];
         return instance;
     }
 
