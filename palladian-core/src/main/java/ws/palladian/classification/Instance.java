@@ -6,10 +6,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 
-// Klemens: Eine Instanz ist also ein Dokument? Dann ist die Klase Instances also die Dokumentenmenge.
-public abstract class Instance<T> implements Serializable {
-
-    private static final long serialVersionUID = -3259696661191824716L;
+public abstract class Instance<T> {
 
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
