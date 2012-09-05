@@ -9,11 +9,15 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.ClassifierPerformanceResult;
 import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.Instances;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
+import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.TextInstance;
@@ -23,6 +27,9 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
 
 public class ClassifierEvaluator {
 
@@ -466,53 +473,48 @@ public class ClassifierEvaluator {
 
     public void testNB() {
 
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        List<NominalInstance> instances = new ArrayList<NominalInstance>();
 
         List<String> lines = FileHelper.readFileToArray("mjtrain.csv");
         for (String line : lines) {
-            UniversalInstance instance = new UniversalInstance(instances);
+            NominalInstance instance = new NominalInstance();
 
             String[] parts = line.split("<###>");
             String[] words = parts[0].split("\\s");
+            instance.targetClass = parts[1];
+            instance.featureVector = new FeatureVector();
 
-            List<String> nominalFeatures = new ArrayList<String>();
             if (words.length > 10) {
                 for (int i = 0; i < 10; i++) {
-                    nominalFeatures.add(words[i]);
+                    instance.featureVector.add(new NominalFeature(FeatureDescriptorBuilder.build(String.valueOf(i), NominalFeature.class), words[i]));
                 }
             }
 
-            instance.setInstanceCategory(parts[1]);
-            instance.setNominalFeatures(nominalFeatures);
             instances.add(instance);
         }
 
         NaiveBayesClassifier nbc = new NaiveBayesClassifier();
-        nbc.setTrainingInstances(instances);
-        nbc.train();
+        NaiveBayesModel model = nbc.learn(instances);
 
         int correct = 0;
         int t = 0;
         lines = FileHelper.readFileToArray("mjtest.csv");
         for (String line : lines) {
-            UniversalInstance instance = new UniversalInstance(instances);
+            FeatureVector instance = new FeatureVector();
 
             String[] parts = line.split("<###>");
             String[] words = parts[0].split("\\s");
 
-            List<String> nominalFeatures = new ArrayList<String>();
             if (words.length > 10) {
                 for (int i = 0; i < 10; i++) {
-                    nominalFeatures.add(words[i]);
+                    instance.add(new NominalFeature(FeatureDescriptorBuilder.build(String.valueOf(i), NominalFeature.class),words[i]));
                 }
                 t++;
             }
 
-            instance.setNominalFeatures(nominalFeatures);
+            CategoryEntries entries = nbc.predict(instance, model);
 
-            nbc.classify(instance);
-
-            if (instance.getMainCategoryEntry().getCategory().getName().equalsIgnoreCase(parts[1])) {
+            if (ClassificationUtils.getSingleBestCategoryEntry(entries).getCategory().getName().equalsIgnoreCase(parts[1])) {
                 correct++;
             }
         }
