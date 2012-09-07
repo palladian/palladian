@@ -91,8 +91,13 @@ public final class NaiveBayesModel implements Model {
         Validate.notNull(category, "category must not be null");
 
         int count = nominalCounts.get(new Triplet<String, String, String>(featureName, featureValue, category));
-        // La Place smoothing
-        return (double)count / (categories.get(category) + 1);
+        
+        // Laplace smoothing:
+        // pretend we have seen each result once more than we actually did;
+        // therefore, we must also add the number of categories to the denominator:
+        // P(X = i) = n_i / N becomes P(X = i) = (n_i + 1) / (N + K)
+        
+        return (double)(count + 1) / (categories.get(category) + categories.uniqueSize());
     }
 
     /**

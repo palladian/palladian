@@ -84,7 +84,7 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
 
         Map<String, Double> probabilities = CollectionHelper.newHashMap();
 
-        // for normalization, so that category probabilities sum up to one at the end 
+        // for normalization, so that category probabilities sum up to one at the end
         double evidence = 0;
         for (String category : model.getCategoryNames()) {
 
@@ -112,8 +112,8 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
         // create the result with normalized probabilities
         CategoryEntries categoryEntries = new CategoryEntries();
         for (Entry<String, Double> entry : probabilities.entrySet()) {
-            categoryEntries
-                    .add(new CategoryEntry(categoryEntries, new Category(entry.getKey()), entry.getValue() / evidence));
+            categoryEntries.add(new CategoryEntry(categoryEntries, new Category(entry.getKey()), entry.getValue()
+                    / evidence));
         }
 
         return categoryEntries;
