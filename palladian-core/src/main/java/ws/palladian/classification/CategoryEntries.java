@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  * @author David Urbansky
  * 
  */
-public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implements Serializable {
+public class CategoryEntries extends ArrayList<CategoryEntry> implements Serializable {
 
 	/** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(CategoryEntries.class);
@@ -213,7 +214,8 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (CategoryEntry ce : this) {
-            sb.append(ce).append("\n");
+            // sb.append(ce).append("\n");
+            sb.append(ce).append(",");
         }
         return sb.toString();
     }

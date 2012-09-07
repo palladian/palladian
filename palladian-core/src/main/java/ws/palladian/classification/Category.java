@@ -116,7 +116,7 @@ public class Category implements Serializable {
 
     /**
      * <p>
-     * Calculates the prior for this category, which is the ratio between this categories frequency to all documents in
+     * Calculates the prior for this category, which is the ratio between this category's frequency to all documents in
      * the corpus.
      * </p>
      * 
