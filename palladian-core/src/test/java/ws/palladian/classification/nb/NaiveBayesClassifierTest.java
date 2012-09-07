@@ -49,10 +49,10 @@ public class NaiveBayesClassifierTest {
         assertEquals(0.262, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
         assertEquals(0.738, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
 
-        featureVector = new InstanceBuilder().set("outlook", "overcase").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
+        featureVector = new InstanceBuilder().set("outlook", "overcast").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         categoryEntries = bayesClassifier.predict(featureVector, model);
-        assertEquals(0.321, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
-        assertEquals(0.679, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.703, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.297, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
 
         // missing values
         featureVector = new InstanceBuilder().set("temp", "cool").set("humidity", "high").set("windy", "true").create();
