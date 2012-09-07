@@ -1,6 +1,5 @@
 package ws.palladian.classification.nb;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,7 +24,7 @@ import ws.palladian.processing.features.NumericFeature;
 /**
  * <p>
  * A simple implementation of the Naive Bayes Classifier. This classifier supports nominal and numeric input. The output
- * is nominal. More information about Naive Bayes can be found <a
+ * (prediction) is nominal. More information about Naive Bayes can be found <a
  * href="http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf">here</a>.
  * </p>
  * 
@@ -83,47 +82,38 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
     @Override
     public CategoryEntries predict(FeatureVector vector, NaiveBayesModel model) {
 
-        // set all category probabilities to one initially
-        Map<String, Double> probabilities = LazyMap.create(new Factory<Double>() {
-            @Override
-            public Double create() {
-                return 1.;
-            }
-        });
+        Map<String, Double> probabilities = CollectionHelper.newHashMap();
 
+        // for normalization, so that category probabilities sum up to one at the end 
+        double evidence = 0;
         for (String category : model.getCategoryNames()) {
 
-            for (Feature<?> feature : vector) {
+            // initially set all category probabilities to their priors
+            double probability = model.getPrior(category);
 
+            for (Feature<?> feature : vector) {
                 String featureName = feature.getName();
 
                 if (feature instanceof NominalFeature) {
                     NominalFeature nominalFeature = (NominalFeature)feature;
-                    double probability = model.getProbability(featureName, nominalFeature.getValue(), category);
-                    probabilities.put(category, probabilities.get(category) * probability);
+                    probability *= model.getProbability(featureName, nominalFeature.getValue(), category);
                 }
 
                 if (feature instanceof NumericFeature) {
                     NumericFeature numericFeature = (NumericFeature)feature;
-                    double density = model.getDensity(featureName, numericFeature.getValue(), category);
-                    probabilities.put(category, probabilities.get(category) * density);
+                    probability *= model.getDensity(featureName, numericFeature.getValue(), category);
                 }
             }
-        }
 
-        // multiply with prior probabilities, determine sum for normalization
-        double sum = 0;
-        for (String category : model.getCategoryNames()) {
-            double probability = probabilities.get(category) * model.getPrior(category);
-            sum += probability;
             probabilities.put(category, probability);
+            evidence += probability;
         }
 
         // create the result with normalized probabilities
         CategoryEntries categoryEntries = new CategoryEntries();
         for (Entry<String, Double> entry : probabilities.entrySet()) {
             categoryEntries
-                    .add(new CategoryEntry(categoryEntries, new Category(entry.getKey()), entry.getValue() / sum));
+                    .add(new CategoryEntry(categoryEntries, new Category(entry.getKey()), entry.getValue() / evidence));
         }
 
         return categoryEntries;
@@ -141,7 +131,7 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
         private final List<Double> values;
 
         public Stats() {
-            this.values = new ArrayList<Double>();
+            this.values = CollectionHelper.newArrayList();
         }
 
         public void add(Double value) {

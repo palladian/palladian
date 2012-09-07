@@ -288,6 +288,6 @@ public class UniversalClassifier extends Classifier<UniversalInstance> /* implem
         nominalInstance.featureVector  =featureVector;
         CategoryEntries result = classify(nominalInstance, false);
         result.sortByRelevance();
-        universalInstance.setAssignedCategoryEntries(result);
+        universalInstance.assignCategoryEntries(result);
     }
 }

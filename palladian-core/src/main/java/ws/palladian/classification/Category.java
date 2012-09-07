@@ -76,7 +76,7 @@ public class Category implements Serializable {
     // this.relevance += relevance;
     // }
 
-    public int getFrequency() {
+    int getFrequency() {
         return this.frequency;
     }
 
@@ -84,9 +84,9 @@ public class Category implements Serializable {
         this.frequency++;
     }
 
-    public void decreaseFrequency() {
-        this.frequency--;
-    }
+//    public void decreaseFrequency() {
+//        this.frequency--;
+//    }
 
     /**
      * The prior probability of this category. Set after learning.
@@ -191,7 +191,7 @@ public class Category implements Serializable {
         this.totalTermWeight += totalTermWeight;
     }
 
-    public double getTotalTermWeight() {
+    double getTotalTermWeight() {
         return totalTermWeight;
     }
 

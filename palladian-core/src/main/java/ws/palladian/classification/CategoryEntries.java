@@ -31,11 +31,11 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     /** Comparator to sort categories by relevance. */
     private Comparator<CategoryEntry> comparator = new CategoryEntryComparator();
 
-    public boolean isRelevancesUpToDate() {
+    boolean isRelevancesUpToDate() {
         return relevancesUpToDate;
     }
 
-    public void setRelevancesUpToDate(boolean relevancesUpToDate) {
+    void setRelevancesUpToDate(boolean relevancesUpToDate) {
         this.relevancesUpToDate = relevancesUpToDate;
     }
 
@@ -135,7 +135,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
      * The relevance for a category entry is a sum of absolute relevance scores so far. To normalize the relevance to a value between 0 and 1 we need to divide
      * it by the total absolute relevances of all category entries that are in the same category entries group.
      */
-    public void calculateRelativeRelevances() {
+    void calculateRelativeRelevances() {
 
         Logger.getRootLogger().debug("recalculate category entries relevances");
 
@@ -197,7 +197,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         return entriesWeights / category.getTotalTermWeight();
     }
 
-    public boolean hasEntryWithCategory(Category category) {
+    private boolean hasEntryWithCategory(Category category) {
         boolean hasEntry = false;
 
         for (CategoryEntry ce : this) {
