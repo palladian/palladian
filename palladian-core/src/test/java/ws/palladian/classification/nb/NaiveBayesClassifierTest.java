@@ -44,14 +44,21 @@ public class NaiveBayesClassifierTest {
         
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
         NaiveBayesModel model = bayesClassifier.learn(instances);
-        
-        CategoryEntries categoryEntries = bayesClassifier.predict(new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create(), model);
-        System.out.println(categoryEntries);
-        // assertEquals(0.205, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
-        // assertEquals(0.795, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
-        assertEquals(0.259, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
-        assertEquals(0.741, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
-        
+        FeatureVector featureVector = new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
+        CategoryEntries categoryEntries = bayesClassifier.predict(featureVector, model);
+        assertEquals(0.262, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.738, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
+
+        featureVector = new InstanceBuilder().set("outlook", "overcase").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
+        categoryEntries = bayesClassifier.predict(featureVector, model);
+        assertEquals(0.321, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.679, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
+
+        // missing values
+        featureVector = new InstanceBuilder().set("temp", "cool").set("humidity", "high").set("windy", "true").create();
+        categoryEntries = bayesClassifier.predict(featureVector, model);
+        assertEquals(0.426, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.574, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
     }
     
     @Test
