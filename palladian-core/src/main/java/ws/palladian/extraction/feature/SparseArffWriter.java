@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections15.BidiMap;
-import org.apache.commons.collections15.bidimap.DualHashBidiMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
@@ -29,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.extraction.patterns.SequentialPatternsFeature;
+import ws.palladian.helper.collection.BidiMap;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
@@ -225,7 +224,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         Validate.notNull(modelArffFile, "fileName must not be null");
         Validate.notEmpty(featureDescriptors, "featureDescriptors must not be empty");
 
-        featureTypes = new DualHashBidiMap<String, Integer>();
+        featureTypes = new BidiMap<String, Integer>();
         instances = new LinkedList<List<Pair<Integer, String>>>();
         nominalPossibleValues = new HashMap<Integer, Set<String>>();
         featuresAdded = 0;

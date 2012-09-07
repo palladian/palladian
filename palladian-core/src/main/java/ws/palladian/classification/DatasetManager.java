@@ -109,7 +109,7 @@ public class DatasetManager {
         final FileWriter indexFile = new FileWriter(indexFilename);
 
         // number of instances for each class
-        final CountMap cm = new CountMap();
+        final CountMap cm = CountMap.create();
 
         LineAction la = new LineAction() {
 
@@ -498,7 +498,7 @@ public class DatasetManager {
      */
     public CountMap calculateClassDistribution(final Dataset dataset, String csvPath) {
 
-        final CountMap classCounts = new CountMap();
+        final CountMap classCounts = CountMap.create();
         LineAction la = new LineAction() {
 
             @Override
@@ -516,8 +516,8 @@ public class DatasetManager {
         FileHelper.performActionOnEveryLine(dataset.getPath(), la);
         
         StringBuilder csv = new StringBuilder();
-        for (Entry<Object, Integer> entry : classCounts.entrySet()) {
-            csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
+        for (Object entry : classCounts) {
+            csv.append(entry).append(";").append(classCounts.get(entry)).append("\n");
         }
         
         FileHelper.writeToFile(csvPath, csv);
