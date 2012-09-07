@@ -18,7 +18,7 @@ import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
- * Tests whether the numerical Knn Classifier works correctly or not.
+ * Tests for the numerical KNN classifier.
  * </p>
  * 
  * @author David Urbansky

@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.numeric.KnnClassifier;
-import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextInstance;
 import ws.palladian.helper.ProgressHelper;
@@ -19,7 +18,7 @@ import ws.palladian.processing.features.NominalFeature;
 
 
 // FIXME remove inheritance from Classifier
-public class UniversalClassifier extends Classifier<UniversalInstance> {
+public class UniversalClassifier extends Classifier<UniversalInstance> /* implements Predictor<UniversalClassifierModel>  */{
 
     /** The serialize version ID. */
     private static final long serialVersionUID = 6434885229397022001L;
@@ -289,8 +288,6 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         nominalInstance.featureVector  =featureVector;
         CategoryEntries result = classify(nominalInstance, false);
         result.sortByRelevance();
-        universalInstance.setCategoryEntries(result);
-        // universalInstance.getAssignedCategoryEntries().clear();
-        // universalInstance.getAssignedCategoryEntries().addAll(result);
+        universalInstance.setAssignedCategoryEntries(result);
     }
 }

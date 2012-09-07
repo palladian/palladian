@@ -7,8 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -29,7 +27,7 @@ import org.apache.lucene.util.Version;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.helper.collection.BagHelper;
+import ws.palladian.helper.collection.CountMap;
 
 public class SimExtractor extends KeyphraseExtractor {
 
@@ -78,7 +76,7 @@ public class SimExtractor extends KeyphraseExtractor {
             moreLikeThis.setFieldNames(new String[] {"text"});
             Query query = moreLikeThis.like(new StringReader(inputText), "text");
             TopDocs searchResult = searcher.search(query, NUM_SIMILAR_DOCS);
-            Bag<String> retrievedKeyphrases = new HashBag<String>();
+            CountMap<String> retrievedKeyphrases = CountMap.create();
             for (int i = 0; i < searchResult.scoreDocs.length; i++) {
                 ScoreDoc scoreDoc = searchResult.scoreDocs[i];
                 Document document = searcher.doc(scoreDoc.doc);
@@ -88,8 +86,8 @@ public class SimExtractor extends KeyphraseExtractor {
                     retrievedKeyphrases.addAll(Arrays.asList(split));
                 }
             }
-            Bag<String> topKeyphrases = BagHelper.getHighest(retrievedKeyphrases, getKeyphraseCount());
-            for (String keyphraseValue : topKeyphrases.uniqueSet()) {
+            CountMap<String> topKeyphrases = retrievedKeyphrases.getHighest(getKeyphraseCount());
+            for (String keyphraseValue : topKeyphrases.uniqueItems()) {
                 ret.add(new Keyphrase(keyphraseValue));
             }
         } catch (IOException e) {

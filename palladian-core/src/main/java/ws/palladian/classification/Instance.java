@@ -30,6 +30,10 @@ public abstract class Instance<T> {
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
     }
+    
+    void setAssignedCategoryEntries(CategoryEntries assignedCategoryEntries) {
+        this.assignedCategoryEntries = assignedCategoryEntries;
+    }
 
     /**
      * Get all categories for the document.

@@ -20,13 +20,15 @@ public class Categories extends ArrayList<Category> implements Serializable {
             return false;
         }
 
+        // XXX it would make more sense to increment the frequency here.
+        
         if (contains(category)) {
             // this.getCategoryByName(category.getName()).addRelevance(category.getRelevance());
-        	Category existingCategory = this.getCategoryByName(category.getName());
-        	existingCategory.increaseFrequency();
+        	// Category existingCategory = this.getCategoryByName(category.getName());
+        	// existingCategory.increaseFrequency();
             return false;
         } else {
-        	category.increaseFrequency();
+        	// category.increaseFrequency();
         	return super.add(category);
         }
     }
@@ -70,6 +72,12 @@ public class Categories extends ArrayList<Category> implements Serializable {
      */
     @Override
     public boolean contains(Object obj) {
+        
+        if  (!(obj instanceof Category)) {
+            return false;
+        }
+        
+        
         String categoryName = ((Category)obj).getName();
 
         for (Category c : this) {

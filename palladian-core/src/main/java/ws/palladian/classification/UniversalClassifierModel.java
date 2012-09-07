@@ -8,30 +8,31 @@ import ws.palladian.classification.page.TextClassifier;
 public class UniversalClassifierModel implements Model {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final NaiveBayesModel bayesModel;
     private final KnnModel knnModel;
-    private final TextClassifier textClassifier;
-    
-    public UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, TextClassifier textClassifier) {
+    private final DictionaryClassifier textClassifier;
+
+    public UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, DictionaryClassifier textClassifier) {
         this.bayesModel = bayesModel;
         this.knnModel = knnModel;
         this.textClassifier = textClassifier;
     }
-    
+
     public NaiveBayesModel getBayesModel() {
         return bayesModel;
     }
-    
+
     public KnnModel getKnnModel() {
         return knnModel;
     }
-    
-    public TextClassifier getTextClassifier() {
+
+    public DictionaryClassifier getTextClassifier() {
         return textClassifier;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
@@ -43,11 +44,8 @@ public class UniversalClassifierModel implements Model {
         builder.append(knnModel);
         builder.append(", textClassifier=");
         builder.append(textClassifier);
-        if (textClassifier instanceof DictionaryClassifier) {
-            DictionaryClassifier dictionaryClassifier = (DictionaryClassifier)textClassifier;
-            builder.append(", dictionary#documents=").append(dictionaryClassifier.getDictionary().getNumberOfDocuments());
-            builder.append(", dictionary#entries=").append(dictionaryClassifier.getDictionary().size());
-        }
+        builder.append(", dictionary#documents=").append(textClassifier.getDictionary().getNumberOfDocuments());
+        builder.append(", dictionary#entries=").append(textClassifier.getDictionary().size());
         builder.append("]");
         return builder.toString();
     }
