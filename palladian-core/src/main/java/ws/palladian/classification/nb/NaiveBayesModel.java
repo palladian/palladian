@@ -75,7 +75,21 @@ public final class NaiveBayesModel implements Model {
         return (double)categories.get(category) / categories.totalSize();
     }
 
+    /**
+     * <p>
+     * Get the probability for a nominal feature.
+     * </p>
+     * 
+     * @param featureName The name of the nominal feature, not <code>null</code>.
+     * @param featureValue The value of the nominal feature, not <code>null</code>.
+     * @param category The category for which to determine the probability.
+     * @return The probability value for the specified feature/name in the specified category.
+     */
     public double getProbability(String featureName, String featureValue, String category) {
+        Validate.notNull(featureName, "featureName must not be null");
+        Validate.notNull(featureValue, "featureValue must not be null");
+        Validate.notNull(category, "category must not be null");
+
         int count = nominalCounts.get(new Triplet<String, String, String>(featureName, featureValue, category));
         // La Place smoothing
         return (double)count / (categories.get(category) + 1);

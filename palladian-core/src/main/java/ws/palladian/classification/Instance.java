@@ -1,7 +1,5 @@
 package ws.palladian.classification;
 
-import java.io.Serializable;
-
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
@@ -29,10 +27,6 @@ public abstract class Instance<T> {
 
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
-    }
-    
-    void setAssignedCategoryEntries(CategoryEntries assignedCategoryEntries) {
-        this.assignedCategoryEntries = assignedCategoryEntries;
     }
 
     /**
@@ -62,23 +56,23 @@ public abstract class Instance<T> {
         return nameList.substring(0, Math.max(0, nameList.length() - 1));
     }
 
-    public CategoryEntry getCategoryEntry(String categoryName) {
-        CategoryEntry ceMatch = null;
-
-        for (CategoryEntry ce : this.assignedCategoryEntries) {
-
-            if (ce == null) {
-                continue;
-            }
-
-            if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
-                ceMatch = ce;
-                break;
-            }
-        }
-
-        return ceMatch;
-    }
+//    public CategoryEntry getCategoryEntry(String categoryName) {
+//        CategoryEntry ceMatch = null;
+//
+//        for (CategoryEntry ce : this.assignedCategoryEntries) {
+//
+//            if (ce == null) {
+//                continue;
+//            }
+//
+//            if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
+//                ceMatch = ce;
+//                break;
+//            }
+//        }
+//
+//        return ceMatch;
+//    }
 
     public int getClassifiedAs() {
         return classifiedAs;
@@ -106,9 +100,9 @@ public abstract class Instance<T> {
         return instanceCategory.getName();
     }
 
-    public Instances<Instance<T>> getInstances() {
-        return instances;
-    }
+//    public Instances<Instance<T>> getInstances() {
+//        return instances;
+//    }
 
     /**
      * Get the category that is most relevant to this document.
@@ -182,7 +176,7 @@ public abstract class Instance<T> {
         this.instanceCategory = category;
     }
 
-    public void setInstances(Instances<Instance<T>> instances) {
+    protected void setInstances(Instances<Instance<T>> instances) {
         this.instances = instances;
     }
 
