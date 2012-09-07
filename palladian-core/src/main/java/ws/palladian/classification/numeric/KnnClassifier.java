@@ -1,6 +1,5 @@
 package ws.palladian.classification.numeric;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,19 +10,12 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.Instances;
-import ws.palladian.classification.Model;
 import ws.palladian.classification.NominalInstance;
 import ws.palladian.classification.Predictor;
-import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -262,7 +254,9 @@ public class KnnClassifier implements Predictor<KnnModel> {
 	protected Categories getPossibleCategories(List<NominalInstance> instances) {
 		Categories categories = new Categories();
 		for (NominalInstance instance : instances) {
-			categories.add(new Category(instance.targetClass));
+			Category category = new Category(instance.targetClass);
+			category.increaseFrequency();
+            categories.add(category);
 		}
 		categories.calculatePriors();
 		return categories;
