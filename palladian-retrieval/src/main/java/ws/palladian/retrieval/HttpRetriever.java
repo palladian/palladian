@@ -443,10 +443,13 @@ public class HttpRetriever {
             throw new HttpException(e);
         } catch (IOException e) {
             throw new HttpException(e);
+        } catch (NumberFormatException e) {
+            throw new HttpException(e);
         } finally {
             IOUtils.closeQuietly(in);
             request.abort();
         }
+
         return result;
     }
 
