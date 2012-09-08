@@ -109,10 +109,14 @@ public final class ClassificationUtils {
                 for (int f = 0; f < parts.length - 1; f++) {
                     String name = headNames == null ? String.valueOf(f) : headNames[f];
                     String value = parts[f];
-                    Double doubleValue;
                     // FIXME make better.
+                    if (value.equals("?")) {
+                        // missing value, TODO maybe rethink what to do here and how
+                        // to handle missing values in general.
+                        continue;
+                    }
                     try {
-                        doubleValue = Double.valueOf(value);
+                        Double doubleValue = Double.valueOf(value);
                         instance.featureVector.add(new NumericFeature(name, doubleValue));
                     } catch (NumberFormatException e) {
                         instance.featureVector.add(new NominalFeature(name, value));
