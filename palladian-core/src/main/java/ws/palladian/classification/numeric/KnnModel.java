@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
@@ -25,7 +22,7 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  * @author Klemens Muthmann
  */
-public final class KnnModel implements Model, Serializable {
+public final class KnnModel implements Model {
 
     /**
      * <p>
@@ -68,18 +65,18 @@ public final class KnnModel implements Model, Serializable {
         this.isNormalized = false;
     }
 
-    private List<TrainingInstance> initTrainingInstances(List<NominalInstance> trainingInstances2) {
-        List<TrainingInstance> ret = new ArrayList<TrainingInstance>(trainingInstances2.size());
-        for(NominalInstance instance: trainingInstances2) {
+    private List<TrainingInstance> initTrainingInstances(List<NominalInstance> instances) {
+        List<TrainingInstance> ret = new ArrayList<TrainingInstance>(instances.size());
+        for (NominalInstance instance : instances) {
             TrainingInstance trainingInstance = new TrainingInstance();
-            
+
             trainingInstance.targetClass = instance.targetClass;
-            trainingInstance.features = new HashMap<String,Double>();
+            trainingInstance.features = new HashMap<String, Double>();
             List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
-            for(Feature<Double> feature:numericFeatures) {
+            for (Feature<Double> feature : numericFeatures) {
                 trainingInstance.features.put(feature.getName(), feature.getValue());
             }
-            
+
             ret.add(trainingInstance);
         }
         return ret;
@@ -94,19 +91,20 @@ public final class KnnModel implements Model, Serializable {
         return convertTrainingInstances(trainingInstances);
     }
 
-    private List<NominalInstance> convertTrainingInstances(List<TrainingInstance> trainingInstances2) {
-        List<NominalInstance> nominalInstances = new ArrayList<NominalInstance>(trainingInstances2.size());
-        
-        for(TrainingInstance trainingInstance:trainingInstances) {
+    private List<NominalInstance> convertTrainingInstances(List<TrainingInstance> instances) {
+        List<NominalInstance> nominalInstances = new ArrayList<NominalInstance>(instances.size());
+
+        for (TrainingInstance instance : trainingInstances) {
             NominalInstance nominalInstance = new NominalInstance();
-            nominalInstance.targetClass = trainingInstance.targetClass;
+            nominalInstance.targetClass = instance.targetClass;
             nominalInstance.featureVector = new FeatureVector();
-            for(Entry<String, Double> feature:trainingInstance.features.entrySet()) {
-                nominalInstance.featureVector.add(new NumericFeature(FeatureDescriptorBuilder.build(feature.getKey(), NumericFeature.class), feature.getValue()));
+            for (Entry<String, Double> feature : instance.features.entrySet()) {
+                nominalInstance.featureVector.add(new NumericFeature(FeatureDescriptorBuilder.build(feature.getKey(),
+                        NumericFeature.class), feature.getValue()));
             }
             nominalInstances.add(nominalInstance);
         }
-        
+
         return nominalInstances;
     }
 
@@ -139,7 +137,7 @@ public final class KnnModel implements Model, Serializable {
 
         List<Feature<Double>> features = vector.getAll(Double.class);
 
-        for (Feature<Double> feature:features) {
+        for (Feature<Double> feature : features) {
             String featureName = feature.getName();
             double featureValue = feature.getValue();
             double normalizedValue = (featureValue - normalizationInformation.getMinValueMap().get(featureName))
@@ -154,15 +152,22 @@ public final class KnnModel implements Model, Serializable {
      * @return {@code true} if this model is normalized; {@code false} otherwise.
      */
     public Boolean isNormalized() {
-        return Boolean.valueOf(isNormalized);
+        return isNormalized;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder toStringBuilder = new StringBuilder();
+        toStringBuilder.append("KnnModel [");
+        toStringBuilder.append("# trainingInstances=").append(trainingInstances.size());
+        toStringBuilder.append(", isNormalized=").append(isNormalized);
+        toStringBuilder.append("]");
+        return toStringBuilder.toString();
     }
 }
 
 class TrainingInstance implements Serializable {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 6007693177447711704L;
     String targetClass;
-    Map<String,Double> features;
+    Map<String, Double> features;
 }

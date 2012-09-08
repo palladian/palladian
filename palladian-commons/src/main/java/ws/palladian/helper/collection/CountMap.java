@@ -284,4 +284,16 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return map.entrySet().toArray(a);
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CountMap [");
+        builder.append(map);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }
