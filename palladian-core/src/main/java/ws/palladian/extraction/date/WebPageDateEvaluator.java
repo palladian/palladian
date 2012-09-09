@@ -1,9 +1,9 @@
 package ws.palladian.extraction.date;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
@@ -12,6 +12,7 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.ContentDateRater;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -44,27 +45,34 @@ public final class WebPageDateEvaluator {
         // helper class, prevent instantiation.
     }
 
-    public static List<RatedDate<? extends ExtractedDate>> getDates(Document document, PageDateType type) {
+    public static List<RatedDate<ExtractedDate>> getDates(Document document, PageDateType type) {
+        Validate.notNull(document, "document must not be null");
+        Validate.notNull(type, "type must not be null");
+        
         ContentDateGetter contentDateGetter = new ContentDateGetter();
         List<ContentDate> dates = contentDateGetter.getDates(document);
 
-        List<RatedDate<? extends ExtractedDate>> ratedDates = rate(dates, type);
+        List<RatedDate<ExtractedDate>> ratedDates = rate(dates, type);
         Collections.sort(ratedDates, new RatedDateComparator());
 
         return ratedDates;
     }
 
-    public static RatedDate<? extends ExtractedDate> getBestDate(Document document, PageDateType type) {
-        RatedDate<? extends ExtractedDate> result = null;
+    public static RatedDate<ExtractedDate> getBestDate(Document document, PageDateType type) {
+        Validate.notNull(document, "document must not be null");
+        Validate.notNull(type, "type must not be null");
 
-        List<RatedDate<? extends ExtractedDate>> dates = getDates(document, type);
+        List<RatedDate<ExtractedDate>> dates = getDates(document, type);
         if (dates.size() > 0) {
-            RatedDate<? extends ExtractedDate> bestRatedDate = dates.get(0);
+            RatedDate<ExtractedDate> bestRatedDate = dates.get(0);
             ExtractedDate bestDate = bestRatedDate.getDate();
             if (bestDate instanceof ContentDate) {
                 ContentDate bestContentDate = (ContentDate)bestDate;
                 double size = 1 / bestContentDate.getRelSize();
                 double limit = 0;
+
+                // XXX are those strange thresholds really necessary?
+
                 if (0 < size && size <= 1) {
                     limit = THRESHOLD_GROUP_1;
                 } else if (1 < size && size <= 2) {
@@ -83,14 +91,17 @@ public final class WebPageDateEvaluator {
                     limit = THRESHOLD_GROUP_8;
                 }
                 if (bestRatedDate.getRate() >= limit) {
-                    result = bestRatedDate;
+                    return bestRatedDate;
                 }
             }
         }
-        return result;
+        return null;
     }
-    
-    public static RatedDate<? extends ExtractedDate> getBestDate(String url, PageDateType type) {
+
+    public static RatedDate<ExtractedDate> getBestDate(String url, PageDateType type) {
+        Validate.notEmpty(url, "url must not be empty");
+        Validate.notNull(type, "type must not be null");
+        
         try {
             HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
             HttpResult httpResult = httpRetriever.httpGet(url);
@@ -103,29 +114,34 @@ public final class WebPageDateEvaluator {
             return null;
         }
     }
-    
-    /**
-     * It rates all date and returns them with their confidence.<br>
-     * In this Version of Kairos, only the ContentDateRater is used.<br>
-     * For future extending add functionality here.
-     * 
-     * @param <T>
-     * @param extractedDates ArrayList of ExtractedDates.
-     * @return HashMap of dates, with rate as value.
-     */
-    public static List<RatedDate<? extends ExtractedDate>> rate(List<? extends ExtractedDate> extractedDates, PageDateType dateType) {
-        List<RatedDate<? extends ExtractedDate>> result = new ArrayList<RatedDate<? extends ExtractedDate>>();
-        
-        ContentDateRater contentDateRater = new ContentDateRater(dateType);
 
-        List<? extends ExtractedDate> dates = DateExtractionHelper.filterByRange(extractedDates);
-        List<ContentDate> contDates = DateExtractionHelper.filter(dates, ContentDate.class);
-        List<ContentDate> contFullDates = DateExtractionHelper.filterFullDate(contDates);
+    /**
+     * <p>
+     * Rate the specified {@link ExtractedDate}s and return a {@link List} with {@link RatedDate}s signifying their
+     * rates. Currently, only {@link ContentDate}s are considered, but this might be extended in the future.
+     * </p>
+     * 
+     * @param extractedDates List with {@link ExtractedDate}s, not <code>null</code>.
+     * @param type The {@link PageDateType} specifying whether to extract publish or creation dates.
+     * @return A List of {@link RatedDate}s.
+     */
+    @SuppressWarnings("unchecked")
+    public static List<RatedDate<ExtractedDate>> rate(List<? extends ExtractedDate> extractedDates, PageDateType type) {
+        Validate.notNull(extractedDates, "extractedDates must not be null");
+        Validate.notNull(type, "type must not be null");
         
-        List<RatedDate<ContentDate>> ratedContentDates = contentDateRater.rate(contFullDates);
+        List<RatedDate<? extends ExtractedDate>> result = CollectionHelper.newArrayList();
+
+        ContentDateRater contentDateRater = new ContentDateRater(type);
+
+        List<? extends ExtractedDate> filtered = DateExtractionHelper.filterByRange(extractedDates);
+        
+        // currently, only ContentDates are considered
+        List<ContentDate> contentDates = DateExtractionHelper.filter(filtered, ContentDate.class);
+        List<ContentDate> fullContentDates = DateExtractionHelper.filterFullDate(contentDates);
+        List<RatedDate<ContentDate>> ratedContentDates = contentDateRater.rate(fullContentDates);
         result.addAll(ratedContentDates);
         
-        return result;
+        return (List<RatedDate<ExtractedDate>>)((List<?>)result);
     }
-
 }
