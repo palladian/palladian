@@ -1,5 +1,7 @@
 package ws.palladian.extraction.date.helper;
 
+import java.util.Arrays;
+
 import ws.palladian.classification.Instance2;
 import ws.palladian.classification.dt.CsvInstanceReader;
 import ws.palladian.extraction.date.KeyWords;
@@ -14,7 +16,11 @@ import ws.palladian.extraction.date.dates.ContentDate;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class DateInstanceFactory {
+public final class DateInstanceFactory {
+    
+    private DateInstanceFactory() {
+        // no instances.
+    }
 
     public static Instance2<String> createInstance(ContentDate date) {
 
@@ -104,7 +110,7 @@ public class DateInstanceFactory {
     }
 
     private static boolean isNormalKeyword(String keyword) {
-        return KeyWords.hasKeyword(keyword, KeyWords.ARFF_KEYWORDS);
+        return Arrays.asList(KeyWords.ARFF_KEYWORDS).contains(keyword.toLowerCase());
     }
 
     private static String getNormalKeyword(String keyword) {
