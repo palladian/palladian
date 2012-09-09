@@ -70,7 +70,7 @@ public class JaroWinklerDistance implements StringSimilarity {
 
         // length of common prefix, up to 4 characters max.
         int l = 0;
-        for (l = 0; l < 4 && s1.charAt(l) == s2.charAt(l); l++) {
+        for (l = 0; l < 4 && l < s1.length() && s1.charAt(l) == s2.charAt(l); l++) {
         }
 
         return jaro + l * 0.1 * (1. - jaro);
