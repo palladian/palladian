@@ -1,7 +1,9 @@
-package ws.palladian.helper.nlp;
+package ws.palladian.semantics;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ws.palladian.helper.nlp.StringHelper;
 
 import edu.smu.tspell.wordnet.NounSynset;
 import edu.smu.tspell.wordnet.Synset;

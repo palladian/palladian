@@ -52,10 +52,6 @@
 			<artifactId>commons-codec</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>edu.smu.tspell</groupId>
-			<artifactId>jaws-bin</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>net.sourceforge.collections</groupId>
 			<artifactId>collections-generic</artifactId>
 		</dependency>
