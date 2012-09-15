@@ -56,10 +56,6 @@
 			<artifactId>collections-generic</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sourceforge.nekohtml</groupId>
-			<artifactId>nekohtml</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
 			<scope>test</scope>

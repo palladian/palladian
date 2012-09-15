@@ -166,7 +166,7 @@ public class WikiPage {
     public final String getPageContentStriped() {
         String stripedText = null;
         if (pageContentHTML != null) {
-            stripedText = HtmlHelper.documentToReadableText(pageContentHTML, false);
+            stripedText = HtmlHelper.stripHtmlTags(pageContentHTML);
         }
         return stripedText;
     }
