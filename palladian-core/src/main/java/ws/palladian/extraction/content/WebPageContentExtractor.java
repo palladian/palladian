@@ -1,6 +1,5 @@
 package ws.palladian.extraction.content;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -76,7 +75,7 @@ public abstract class WebPageContentExtractor {
     public WebPageContentExtractor setDocument(HttpResult httpResult) throws PageContentExtractorException {
         try {
             NekoHtmlParser parser = new NekoHtmlParser();
-            Document document = parser.parse(new ByteArrayInputStream(httpResult.getContent()));
+            Document document = parser.parse(httpResult);
             return setDocument(document);
         } catch (ParserException e) {
             throw new PageContentExtractorException("error parsing the file from " + httpResult.getUrl(), e);
