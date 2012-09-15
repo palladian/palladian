@@ -1,18 +1,22 @@
 package ws.palladian.extraction.content;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * <p>
@@ -23,95 +27,86 @@ import ws.palladian.retrieval.DocumentRetriever;
  */
 public class ReadItLaterContentExtractor extends WebPageContentExtractor {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ReadItLaterContentExtractor.class);
+    /** The API key for accessing the service. */
+    private final String apiKey;
+    /** For performing HTTP requests. */
+    private final HttpRetriever httpRetriever;
+    /** For parsing the result DOM fragment. */
+    private final DocumentParser htmlParser;
 
-    private String mainContentHTML = "";
-    private String mainContentText = "";
-    
-    protected final String apiKey;
-    private DocumentRetriever documentRetriever;
-    private String baseUrl;
-    
+    private String extractedResult;
+    private Document extractedDocument;
+
     public ReadItLaterContentExtractor(String apiKey) {
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing");
-        }
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
-        setup();
+        httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        this.htmlParser = ParserFactory.createHtmlParser();
     }
-    
-    public ReadItLaterContentExtractor() {
-        this.apiKey = ConfigHolder.getInstance().getConfig().getString("api.readitlater.key");
-        setup();
-    }
-    
-    private void setup() {
-        documentRetriever = new DocumentRetriever();
-        baseUrl = "http://text.readitlaterlist.com/v2/text?apikey=" + apiKey + "&url=";
-    }
-    
+
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
-        
-        String url = document.getDocumentURI();
+        String docUrl = document.getDocumentURI();
+        String requestUrl = String.format("http://text.readitlaterlist.com/v2/text?apikey=%s&url=%s", apiKey,
+                UrlHelper.urlEncode(docUrl));
+        HttpResult httpResult;
         try {
-            url = URLEncoder.encode(document.getDocumentURI(),"utf-8");
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
+            httpResult = httpRetriever.httpGet(requestUrl);
+        } catch (HttpException e) {
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + docUrl + "\": "
+                    + e.getMessage(), e);
         }
-        
-        mainContentHTML = documentRetriever.getText(baseUrl+url);
-        mainContentText = HtmlHelper.documentToReadableText(mainContentHTML, false);
-//        http://text.readitlaterlist.com/v2/text?apikey=a62g2W68p36ema12fvTc410Td1A1Na62&url=http://readitlaterlist.com/api/docs
-        
+        extractedResult = HttpHelper.getStringContent(httpResult);
+        try {
+            extractedDocument = htmlParser.parse(httpResult);
+        } catch (ParserException e) {
+            throw new PageContentExtractorException("Error when parsing the result HTML for URL \"" + docUrl + "\": "
+                    + e.getMessage(), e);
+        }
         return this;
     }
+
     @Override
     public Node getResultNode() {
-        // XXX maybe get the node here using the result text?
-        throw new UnsupportedOperationException("ReadItLater does not return the DOM node of the main content.");
+        return extractedDocument;
     }
-    
+
     @Override
     public String getResultText() {
-        return mainContentText;
+        return HtmlHelper.documentToReadableText(extractedDocument);
     }
+
     @Override
     public String getResultTitle() {
+
         // get the first headline as the title
         String title = "";
-        
-        List<String> headlines = new ArrayList<String>();
-        headlines.add("<h1.*?>(.*?)</h1>");
-        headlines.add("<h2.*?>(.*?)</h2>");
-        headlines.add("<h3.*?>(.*?)</h3>");
-        headlines.add("<h4.*?>(.*?)</h4>");
-        headlines.add("<h5.*?>(.*?)</h5>");
-        headlines.add("<h6.*?>(.*?)</h6>");
-        
-        for (String regexp : headlines) {
-            title = StringHelper.getRegexpMatch(regexp, mainContentHTML, true, false);
+
+        for (String hElement : Arrays.asList("h1", "h2", "h3", "h4", "h5", "h6")) {
+            String regexp = String.format("<%s.*?>(.*?)</%s>", hElement, hElement);
+            title = StringHelper.getRegexpMatch(regexp, extractedResult, true, false);
             if (!title.isEmpty()) {
                 break;
             }
         }
-        
-        //title = StringHelper.getRegexpMatch("<b.*?>(.*?)</b>", mainContentHTML, true);
+
         title = HtmlHelper.stripHtmlTags(title);
-        
+
         return title;
     }
+
     @Override
     public String getExtractorName() {
         return "ReadItLater";
     }
 
-    public static void main(String[] bla) {
-        ReadItLaterContentExtractor ce = new ReadItLaterContentExtractor();
+    public static void main(String[] args) {
+        // http://text.readitlaterlist.com/v2/text?apikey=a62g2W68p36ema12fvTc410Td1A1Na62&url=http://readitlaterlist.com/api/docs
+
+        ReadItLaterContentExtractor ce = new ReadItLaterContentExtractor("a62g2W68p36ema12fvTc410Td1A1Na62");
         String resultText = ce.getResultText("http://www.bbc.co.uk/news/world-asia-17116595");
         String title = ce.getResultTitle();
-        
+
         System.out.println("title: " + title);
         System.out.println("text: " + resultText);
     }
