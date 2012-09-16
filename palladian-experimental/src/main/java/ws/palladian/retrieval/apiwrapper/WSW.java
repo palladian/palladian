@@ -17,7 +17,6 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 public class WSW {
@@ -34,7 +33,10 @@ public class WSW {
         List<Node> ws = XPathHelper.getChildNodes(document.getLastChild(), "//profiles/profile[@id=" + profileID + "]/webservices/ws");
 
         for (Node wsn : ws) {
-            wsids.add(StringHelper.toInt(wsn.getAttributes().getNamedItem("id").getTextContent()));
+            try {
+                wsids.add(Integer.valueOf(wsn.getAttributes().getNamedItem("id").getTextContent()));
+            } catch (NumberFormatException e) {
+            }
         }
 
         return wsids;

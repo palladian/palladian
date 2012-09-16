@@ -4,9 +4,8 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -36,12 +35,6 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  * @author Martin Gregor
  */
 public final class StringHelper {
-
-    /** The Constant BRACKETS. A list of bracket types. */
-    private static final char[] BRACKETS = {'(', ')', '{', '}', '[', ']'};
-
-    /** Constant for punctuation characters, i.e. [.,:;?!]. */
-    private static final char[] PUNCTUATION = {'.', ',', ':', ';', '?', '!'};
 
     /** Used to replace a semicolon in a string to store it in csv file that uses semicolon to separate fields. */
     private static final String SEMICOLON_REPLACEMENT = "###putSemicolonHere###";
@@ -95,7 +88,7 @@ public final class StringHelper {
 
     public static String shorten(String string, int maxLength) {
         if (string == null) {
-            return string;
+            return null;
         }
         return string.substring(0, Math.min(string.length(), maxLength));
     }
@@ -184,123 +177,29 @@ public final class StringHelper {
 
     /**
      * <p>
-     * This function wraps the string to integer conversion in order to prevent the exception catching in other
-     * functions.
+     * Get indices of a string within a text. For example, for the text "This is a text" and the search string " ", the
+     * indices [4, 7, 9] are returned, giving the positions of the white spaces.
      * </p>
      * 
-     * @param text The text that is a number.
-     * @return The integer presentation of the text.
+     * @param text The text to check.
+     * @param search The search string for which to get the indices.
+     * @return A {@link List} of positions for the specified search string within the text, or an empty List if the
+     *         search string was not found or empty, or an empty text or <code>null</code> was supplied.
      */
-    public static Integer toInt(String text) {
-        try {
-            return Integer.valueOf(text.trim());
-        } catch (Exception e) {
-            Logger.getRootLogger().error("could not parse string to integer, " + e.getMessage());
+    public static List<Integer> getOccurrenceIndices(String text, String search) {
+        if (text == null || search == null || search.isEmpty()) {
+            return Collections.emptyList();
         }
-
-        return -1;
-    }
-
-    /**
-     * This function wraps the string to long conversion in order to prevent the exception catching in other
-     * functions.
-     * 
-     * @param text The text that is a number.
-     * @return The long presentation of the text or <code>null</code> if there is no number or text was
-     *         <code>null</code>
-     */
-    public static Long toLong(String text) {
-        Long number = null;
-        if (text != null) {
-            try {
-                number = Long.valueOf(text.trim());
-            } catch (Exception e) {
-                Logger.getRootLogger().error("could not parse string to long, " + e.getMessage());
-            }
+        
+        List<Integer> indices = new ArrayList<Integer>();
+        int lastPosition = 0;
+        int position;
+        while ((position = text.indexOf(search, lastPosition)) > -1) {
+            indices.add(position);
+            lastPosition = position + 1;
         }
-        return number;
+        return indices;
     }
-
-    /**
-     * Search for the indices of a search string in a text.<br>
-     * For example given the text "This is a text" and the searchString " ", we would get [4,7,9], the indices of the
-     * white spaces.
-     * 
-     * @param text The text to search in.
-     * @param searchString The search string to find the indices of.
-     * @return A list of indices in the text.
-     */
-    public static List<Integer> getOccurrenceIndices(String text, String searchString) {
-        List<Integer> indexList = new ArrayList<Integer>();
-
-        String subText = text;
-        int position = 0;
-        while (subText.indexOf(searchString) > -1) {
-            int index = subText.indexOf(searchString);
-            indexList.add(index + position);
-            subText = subText.substring(index + 1);
-            position += index + 1;
-        }
-
-        return indexList;
-    }
-
-    /**
-     * This function wraps the string to double conversion in order to prevent the exception catching in other
-     * functions.
-     * 
-     * @param text The text that is a number.
-     * @return The double presentation of the text.
-     */
-    public static Double toDouble(String text) {
-        try {
-            return Double.valueOf(text.trim());
-        } catch (Exception e) {
-            Logger.getRootLogger().error("could not parse string to double, " + e.getMessage());
-        }
-
-        return -1.0;
-    }
-
-    /**
-     * <p>
-     * Transform a name to a camel case variable name. For example: car_speed => carSpeed or CarSpeed.
-     * </p>
-     * <p>
-     * <em>Note: This works for English only!</em>
-     * </p>
-     * 
-     * @param name The name.
-     * @param uppercaseFirst If true, the first letter will be uppercase.
-     * @param toSingular If true, the last part is translated to its singular form.
-     * @return The camel cased name.
-     */
-
-    //
-    // Removed while modularizing Palladian.
-    // If required somewhere, do the Singular transformation first,
-    // then the camelCase transformation. -- Philipp, 2012-03-21
-    //
-
-    // public static String makeCamelCase(String name, boolean uppercaseFirst, boolean toSingular) {
-    // String camelCasedName = "";
-    // String modName = name.replaceAll("\\s", "_");
-    //
-    // String[] parts = modName.split("_");
-    // for (int i = 0; i < parts.length; i++) {
-    // String part = parts[i];
-    // if (i == parts.length - 1 && toSingular) {
-    // part = WordTransformer.wordToSingular(part, Language.ENGLISH);
-    // }
-    // camelCasedName += upperCaseFirstLetter(part);
-    // }
-    //
-    // if (!uppercaseFirst) {
-    // camelCasedName = lowerCaseFirstLetter(camelCasedName);
-    // }
-    //
-    // return camelCasedName;
-    // }
 
     /**
      * Make camel case.
@@ -310,8 +209,6 @@ public final class StringHelper {
      * @return the string
      */
     public static String makeCamelCase(String name, boolean uppercaseFirst) {
-        // return makeCamelCase(name, uppercaseFirst, false);
-
         String camelCasedName = "";
         String modName = name.replaceAll("\\s", "_");
 
@@ -331,28 +228,28 @@ public final class StringHelper {
     /**
      * Make first letter of word upper case.
      * 
-     * @param term The term.
+     * @param string The term.
      * @return The term with an upper case first letter.
      */
-    public static String upperCaseFirstLetter(String term) {
-        if (term.length() == 0) {
-            return term;
+    public static String upperCaseFirstLetter(String string) {
+        if (string == null || string.isEmpty()) {
+            return "";
         }
 
-        return term.substring(0, 1).toUpperCase() + term.substring(1);
+        return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
 
     /**
      * Make first letter of word lower case.
      * 
-     * @param term The term.
+     * @param string The term.
      * @return The term with an lower case first letter.
      */
-    public static String lowerCaseFirstLetter(String term) {
-        if (term.length() == 0) {
-            return term;
+    public static String lowerCaseFirstLetter(String string) {
+        if (string == null || string.isEmpty()) {
+            return "";
         }
-        return term.substring(0, 1).toLowerCase() + term.substring(1);
+        return string.substring(0, 1).toLowerCase() + string.substring(1);
     }
 
     /**
@@ -369,15 +266,12 @@ public final class StringHelper {
     public static String normalizeCapitalization(String name) {
         String normalizedName = "";
 
-        Set<String> noUppercaseSet = new HashSet<String>();
-        noUppercaseSet.add("of");
-        noUppercaseSet.add("and");
-        noUppercaseSet.add("the");
+        List<String> noUppercase = Arrays.asList("of", "and", "the");
 
         String[] parts = name.split("\\s");
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
-            if (i > 0 && noUppercaseSet.contains(part)) {
+            if (i > 0 && noUppercase.contains(part)) {
                 normalizedName += part + " ";
             } else {
                 normalizedName += upperCaseFirstLetter(part) + " ";
@@ -519,16 +413,11 @@ public final class StringHelper {
      * Determine, whether the supplied char is a punctuation character (i.e. one of [.,:;?!]).
      * </p>
      * 
-     * @param c The character to check.
+     * @param character The character to check.
      * @return <code>true</code> if punctuation character, <code>false</code> otherwise.
      */
-    public static boolean isPunctuation(char c) {
-        for (char check : PUNCTUATION) {
-            if (check == c) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean isPunctuation(char character) {
+        return Arrays.asList('.', ',', ':', ';', '?', '!').contains(character);
     }
 
     public static String removeWord(String word, String searchString) {
@@ -588,16 +477,16 @@ public final class StringHelper {
      * @return True if the string contains a numeric value, else false.
      */
     public static boolean containsNumber(String searchString) {
-        Pattern pat = null;
+        Pattern pattern = null;
         try {
-            pat = Pattern.compile(RegExp.NUMBER);
+            pattern = Pattern.compile(RegExp.NUMBER);
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp " + RegExp.NUMBER, e);
             return false;
         }
-        Matcher m = pat.matcher(searchString);
-        return m.find();
+        Matcher matcher = pattern.matcher(searchString);
+        return matcher.find();
     }
 
     /**
@@ -706,13 +595,7 @@ public final class StringHelper {
      * @return True if character is a bracket, else false.
      */
     public static boolean isBracket(char character) {
-        for (char element : BRACKETS) {
-            if (element == character) {
-                return true;
-            }
-
-        }
-        return false;
+        return Arrays.asList('(', ')', '{', '}', '[', ']').contains(character);
     }
 
     /**
@@ -721,8 +604,8 @@ public final class StringHelper {
      * @param ch the ch
      * @return True if string is number, else false.
      */
-    public static boolean isNumber(Character ch) {
-        return isNumber(ch.toString());
+    public static boolean isNumber(char ch) {
+        return isNumber(Character.toString(ch));
     }
 
     /**
@@ -762,11 +645,8 @@ public final class StringHelper {
 
         string = StringHelper.trim(string).toLowerCase();
 
-        Set<String> set = new HashSet<String>();
-        set.addAll(Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-                "eleven", "twelve"));
-
-        return set.contains(string);
+        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+                "twelve").contains(string);
     }
 
     /**
@@ -866,17 +746,48 @@ public final class StringHelper {
     }
 
     /**
-     * Letter number count.
+     * <p>
+     * Count letters and digits in the supplied string.
+     * </p>
      * 
-     * @param string the string
-     * @return the int
+     * @param string The string in which to count.
+     * @return The number of letters and digits, 0 in case the string was empty or <code>null</code>.
      */
-    public static int letterNumberCount(String string) {
+    public static int countLettersDigits(String string) {
+        if (string == null) {
+            return 0;
+        }
         return string.replaceAll("[^a-zA-Z0-9]", "").length();
     }
 
-    public static int numberCount(String string) {
+    /**
+     * <p>
+     * Count digits (0, 1, 2, … 9) in the supplied string.
+     * </p>
+     * 
+     * @param string The string in which to count.
+     * @return The number of digits, 0 in case the string was empty or <code>null</code>.
+     */
+    public static int countDigits(String string) {
+        if (string == null) {
+            return 0;
+        }
         return string.replaceAll("[^0-9]", "").length();
+    }
+
+    /**
+     * <p>
+     * Count upper case letters in the supplied string.
+     * </p>
+     * 
+     * @param string The string in which to count.
+     * @return The number of uppercase letters, 0 in case the string was empty or <code>null</code>.
+     */
+    public static int countUppercaseLetters(String string) {
+        if (string == null) {
+            return 0;
+        }
+        return string.replaceAll("[^A-Z]", "").length();
     }
 
     /**
@@ -898,14 +809,15 @@ public final class StringHelper {
     }
 
     /**
-     * Checks if is vowel.
+     * <p>
+     * Check, if a character is a vowel.
+     * </p>
      * 
-     * @param inputCharacter the input character
-     * @return true, if is vowel
+     * @param character The character to check.
+     * @return <code>true</code> if character is a vowel, <code>false</code> otherwise.
      */
-    public static boolean isVowel(Character inputCharacter) {
-        Character character = Character.toUpperCase(inputCharacter);
-        return (character == 'A' || character == 'E' || character == 'I' || character == 'O' || character == 'U');
+    public static boolean isVowel(char character) {
+        return Arrays.asList('A', 'E', 'I', 'O', 'U').contains(Character.toUpperCase(character));
     }
 
     /**
@@ -1267,29 +1179,6 @@ public final class StringHelper {
     }
 
     /**
-     * Run a regular expression on a string and form a new string with the matched strings separated by the specified
-     * separator.
-     * 
-     * @param inputString The input string for the matching.
-     * @param separator The separator used to separate the matched strings.
-     * @param regularExpression The regular expression that is matched on the input string.
-     * @return the string
-     */
-    public static String concatMatchedString(String inputString, String separator, String regularExpression) {
-        String modInputString = StringEscapeUtils.unescapeHtml(inputString);
-        String string = "";
-        Pattern pattern = Pattern.compile(regularExpression);
-        Matcher matcher = pattern.matcher(modInputString);
-
-        while (matcher.find()) {
-            Logger.getRootLogger().debug(matcher.group());
-            string += matcher.group() + separator;
-        }
-
-        return string.substring(0, Math.max(0, string.length() - separator.length())).trim();
-    }
-
-    /**
      * Transform a given text into a 20 byte sha-1 encoded string.
      * 
      * @param text The text to be encoded.
@@ -1308,13 +1197,13 @@ public final class StringHelper {
             byte[] digest = md.digest();
 
             // will print SHA
-            Logger.getRootLogger().debug("Algorithm used: " + md.getAlgorithm());
+            // Logger.getRootLogger().debug("Algorithm used: " + md.getAlgorithm());
 
             // should be 20 bytes, 160 bits long
-            Logger.getRootLogger().debug("Digest is " + digest.length + " bytes long.");
+            // Logger.getRootLogger().debug("Digest is " + digest.length + " bytes long.");
 
             // dump out the hash
-            Logger.getRootLogger().debug("Digest: ");
+            // Logger.getRootLogger().debug("Digest: ");
             for (byte b : digest) {
                 // print byte as 2 hex digits with lead 0. Separate pairs of
                 // digits with space
@@ -1369,8 +1258,7 @@ public final class StringHelper {
             leftBorderLength = leftBorder.length();
         }
         int rightIndex = 0;
-        int i = 0;
-        for (;;) {
+        for (int i = 0;; i++) {
             int leftIndex = 0;
             if (leftBorder != null) {
                 leftIndex = string.indexOf(leftBorder, rightIndex);
@@ -1385,7 +1273,6 @@ public final class StringHelper {
             } else {
                 break;
             }
-            i++;
         }
 
         return substrings;
@@ -1412,7 +1299,6 @@ public final class StringHelper {
      * @param camelCasedString The String to split.
      * @param separator The separator to insert between the camelCased fragments.
      * @return The separated String.
-     * @author Philipp Katz
      */
     public static String camelCaseToWords(String camelCasedString, String separator) {
         StringBuilder result = new StringBuilder();
@@ -1447,38 +1333,10 @@ public final class StringHelper {
      * 
      * @param camelCasedString The String to split.
      * @return The separated String.
-     * @author Philipp Katz
      */
     public static String camelCaseToWords(String camelCasedString) {
         return camelCaseToWords(camelCasedString, " ");
     }
-
-    // only used in date package -> moved there.
-    //    /**
-    //     * Looks for a regular expression in string. Removes found substring from source-string. <br>
-    //     * Only the first found match will be deleted. <br>
-    //     * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
-    //     *
-    //     * @param string to be cleared.
-    //     * @param regExp A regular expression.
-    //     * @return Cleared string and removed string in an array.
-    //     */
-    //    public static String[] removeFirstStringpart(String string, String regExp) {
-    //        String returnString = null;
-    //        String removedString = null;
-    //        Pattern pattern = Pattern.compile(regExp.toLowerCase());
-    //        Matcher matcher = pattern.matcher(string.toLowerCase());
-    //
-    //        if (matcher.find()) {
-    //            int start = matcher.start();
-    //            int end = matcher.end();
-    //            removedString = string.substring(start, end);
-    //            returnString = string.replace(removedString, " ");
-    //            returnString = returnString.replaceAll("  ", " ");
-    //        }
-    //        String[] result = {returnString, removedString};
-    //        return result;
-    //    }
 
     /**
      * <p>
@@ -1501,7 +1359,7 @@ public final class StringHelper {
      * @return The number of white spaces in the text.
      */
     public static int countWhitespaces(String text) {
-        return countOccurences(text, " ", true);
+        return text.replaceAll("[^ ]", "").length();
     }
 
     /**
@@ -1527,27 +1385,45 @@ public final class StringHelper {
     }
 
     /**
-     * Count number of occurrences of pattern within text.
+     * <p>
+     * Count number of occurrences of a specific string within a text (hint: to count the number of matches for a
+     * regular expression, use {@link #countRegexMatches(String, String)} instead).
+     * </p>
      * 
-     * TODO this will fail if pattern contains RegEx meta characters. Need to escape.
-     * 
-     * @param text
-     * @param pattern
-     * @param ignoreCase
-     * @return
+     * @param text The text which to check for patterns.
+     * @param search The string which to search in the text.
+     * @return The number of occurrences of the specified string in the text, or 0 if string was not found, or the
+     *         supplied pattern and/or text were empty or <code>null</code>.
      */
-    public static int countOccurences(String text, String pattern, boolean ignoreCase) {
-        if (ignoreCase) {
-            text = text.toLowerCase();
-            pattern = pattern.toLowerCase();
+    public static int countOccurrences(String text, String search) {
+        if (text == null || search == null || text.isEmpty() || search.isEmpty()) {
+            return 0;
         }
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(text);
-        int occurs = 0;
-        while (m.find()) {
-            occurs++;
+        return (text.length() - text.replace(search, "").length()) / search.length();
+    }
+
+    /**
+     * <p>
+     * Count number of occurrences of a specific regular expression within a text (hint: to count the number of matches
+     * of an ordinary string, use {@link #countOccurrences(String, String)} instead).
+     * </p>
+     * 
+     * @param text The text which to check for occurrences.
+     * @param pattern The regular expression to search in the text, not <code>null</code>.
+     * @return The number of occurrences of the specified pattern in the text, or 0 if pattern was not found, or the
+     *         supplied text was empty or <code>null</code>.
+     */
+    public static int countRegexMatches(String text, String pattern) {
+        Validate.notNull(pattern, "pattern must not be null");
+        if (text == null || text.isEmpty()) {
+            return 0;
         }
-        return occurs;
+        Matcher matcher = Pattern.compile(pattern).matcher(text);
+        int matches = 0;
+        while (matcher.find()) {
+            matches++;
+        }
+        return matches;
     }
 
     /**
@@ -1559,8 +1435,7 @@ public final class StringHelper {
      */
     public static float getLevenshteinSim(String s1, String s2) {
         int distance = StringUtils.getLevenshteinDistance(s1, s2);
-        float similarity = 1 - (float)distance / Math.max(s1.length(), s2.length());
-        return similarity;
+        return 1 - (float)distance / Math.max(s1.length(), s2.length());
     }
 
     /**
