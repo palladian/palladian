@@ -158,11 +158,11 @@ public class Annotation extends UniversalInstance {
         numericFeatures.add(numberOfChars);
 
         // get the number of digits
-        double numberOfDigits = StringHelper.countOccurences(entity, "[0-9]", true);
+        double numberOfDigits = StringHelper.countDigits(entity);
         numericFeatures.add(numberOfDigits);
 
         // get the number of uppercase chars
-        double numberOfUppercaseChars = StringHelper.countOccurences(entity, "[A-Z]", false);
+        double numberOfUppercaseChars = StringHelper.countUppercaseLetters(entity);
         numericFeatures.add(numberOfUppercaseChars);
 
         // get the number of special chars (no positive effect)

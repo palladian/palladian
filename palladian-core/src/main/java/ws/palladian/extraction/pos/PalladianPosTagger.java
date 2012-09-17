@@ -183,7 +183,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 String.valueOf(word.length() == 3), String.valueOf(word.length()),
                 String.valueOf(StringHelper.isNumberOrNumberWord(word)),
                 String.valueOf(StringHelper.isCompletelyUppercase(word)),
-                String.valueOf(StringHelper.countOccurences(word, "[`'\",.:;*\\(\\)]", true)),
+                String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()),
                 word.substring(word.length() - 1), word.substring(0, 1), lastTwo, word));
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));

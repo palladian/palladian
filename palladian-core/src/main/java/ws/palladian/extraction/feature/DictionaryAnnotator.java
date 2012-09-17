@@ -56,7 +56,8 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String, T
      * @param featureDescriptor The {@link FeatureDescriptor} used to save matching tokens as new {@code Annotation}s.
      * @param dictionary The dictionary to match token agains.
      */
-    public DictionaryAnnotator(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor, final String[] dictionary) {
+    public DictionaryAnnotator(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor,
+            final String[] dictionary) {
         super(featureDescriptor);
 
         Validate.notNull(dictionary, "dictionary must not be null");
@@ -80,7 +81,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String, T
             }
         }
 
-        document.addFeature(new AnnotationFeature<String>(getDescriptor(), matchingToken));
+        document.addFeature(new TextAnnotationFeature(getDescriptor(), matchingToken));
         setDefaultOutput(document);
     }
 
