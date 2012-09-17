@@ -65,7 +65,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Martin Werner
  * @author Sandro Reichert
  */
-public class FileHelper {
+public final class FileHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
@@ -103,6 +103,10 @@ public class FileHelper {
         binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
         BINARY_FILE_EXTENSIONS = Collections.unmodifiableList(binaryFileExtensions);
+    }
+    
+    private FileHelper() {
+        // prevent instantiation.
     }
 
     /**
@@ -651,14 +655,14 @@ public class FileHelper {
 //    }
 
     /**
+     * <p>
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
+     * </p>
      * 
      * @param filePath The file path.
      * @param lines the lines
-     * @author Philipp Katz
-     * @author Sandro Reichert
-     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
-     *         {@link filePath}. See error log for details (Exceptions).
+     * @return <code>false</code> if any error occurred. It is likely that line has not been written, or only parts have
+     *         been written. See error log for details (Exceptions).
      */
     public static boolean writeToFile(String filePath, Collection<?> lines) {
 
@@ -725,19 +729,18 @@ public class FileHelper {
     }
 
     /**
-     * Appends (i. e. inserts a the end) a string to the specified File.
+     * <p>
+     * Appends (i. e. inserts a the end) a string to the specified file. Attention: A new line is <b>not</b> added
+     * automatically!
+     * </p>
      * 
      * @param filePath the file path
      * @param stringToAppend the string to append
-     * @throws IOException Signals that an I/O exception has occurred.
-     * @author Philipp Katz
-     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
+     * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
     public static boolean appendFile(String filePath, CharSequence stringToAppend) {
-
         boolean success = false;
         Writer writer = null;
-
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true), DEFAULT_ENCODING));
             writer.append(stringToAppend);
@@ -747,19 +750,17 @@ public class FileHelper {
         } finally {
             close(writer);
         }
-
         return success;
     }
 
     /**
-     * Appends a line to the specified text file if it does not already exist.
+     * <p>Appends a line to the specified text file if it does not already exist within the file.</p>
      * 
      * @param filePath the file path; file will be created if it does not exist
      * @param stringToAppend the string to append
-     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
+     * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
     public static boolean appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
-
         boolean added = false;
         final boolean[] add = new boolean[] { true };
 
@@ -1196,18 +1197,18 @@ public class FileHelper {
         return file.renameTo(new File(newFile, file.getName()));
     }
 
-    /**
-     * Add a header to all files from a certain folder.
-     * 
-     * @param folderPath The path to the folder.
-     * @param header The header text to append.
-     */
-    public static void addFileHeader(String folderPath, StringBuilder header) {
-        File[] files = getFiles(folderPath);
-        for (File file : files) {
-            appendFile(file.getAbsolutePath(), header + NEWLINE_CHARACTER);
-        }
-    }
+//    /**
+//     * Add a header to all files from a certain folder.
+//     * 
+//     * @param folderPath The path to the folder.
+//     * @param header The header text to append.
+//     */
+//    public static void addFileHeader(String folderPath, StringBuilder header) {
+//        File[] files = getFiles(folderPath);
+//        for (File file : files) {
+//            appendFile(file.getAbsolutePath(), header + NEWLINE_CHARACTER);
+//        }
+//    }
 
     /**
      * Get all files from a certain folder.
@@ -1256,8 +1257,7 @@ public class FileHelper {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
             File[] files = folder.listFiles();
-
-            ArrayList<File> matchingFiles = new ArrayList<File>();
+            List<File> matchingFiles = new ArrayList<File>();
 
             for (File file : files) {
                 if (file.isDirectory()) {
