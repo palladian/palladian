@@ -84,16 +84,6 @@ public final class DecisionTreeClassifier implements Predictor<String> {
         for (Feature<?> feature : featureVector.toArray()) {
             String featureName = feature.getName();
             Serializable featureValue = (Serializable)feature.getValue();
-            
-            if (featureName == null) {
-                System.err.println("feature name null");
-                System.exit(0);
-            }
-            if (featureValue == null) {
-                System.err.println("feature value null");
-                System.exit(0);
-            }
-            
             inputs.add(featureName);
             inputs.add(featureValue);
         }

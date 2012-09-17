@@ -1,5 +1,6 @@
 package ws.palladian.helper;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
@@ -11,9 +12,13 @@ import ws.palladian.helper.math.MathHelper;
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
-public class ProgressHelper {
+public final class ProgressHelper {
+    
+    private ProgressHelper() {
+        // no instances.
+    }
 
     public static String showProgress(long counter, long totalCount, int showEveryPercent) {
         return showProgress(counter, totalCount, showEveryPercent, null, null);
@@ -30,21 +35,19 @@ public class ProgressHelper {
     public static String showProgress(long counter, long totalCount, int showEveryPercent, Logger logger,
             StopWatch stopWatch) {
 
-        String processString = "";
+        StringBuilder processString = new StringBuilder();
         try {
             if (counter % (showEveryPercent * totalCount / 100.0) < 1) {
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
-                processString = percent + "% ("
-                        + (totalCount - counter) + " items remaining";
-
+                processString.append(createProgressBar(percent));
+                processString.append(" (").append(totalCount - counter).append(" items remaining");
                 if (stopWatch != null) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime());
-                    processString += ", iteration time: " + stopWatch.getElapsedTimeString()
-                            + ", est. time remaining: " + DateHelper.getRuntime(0, msRemaining) + ")";
+                    processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
+                    processString.append(", est. time remaining: ").append(DateHelper.getRuntime(0, msRemaining));
                     stopWatch.start();
-                } else {
-                    processString += ")";
                 }
+                processString.append(")");
 
                 if (logger != null) {
                     logger.info(processString);
@@ -56,7 +59,17 @@ public class ProgressHelper {
             // LOGGER.error(e.getMessage());
         }
 
-        return processString;
+        return processString.toString();
+    }
+    
+    private static String createProgressBar(double percent) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append('[');
+        int scaledPercent = (int) Math.round((double) percent / 2);
+        stringBuilder.append(StringUtils.repeat('=', scaledPercent));
+        stringBuilder.append(StringUtils.repeat(' ', 50 - scaledPercent));
+        stringBuilder.append(']');
+        return stringBuilder.toString();
     }
 
     public static void main(String[] args) {

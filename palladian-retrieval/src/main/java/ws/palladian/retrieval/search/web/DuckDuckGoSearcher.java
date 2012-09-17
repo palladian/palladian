@@ -58,7 +58,7 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                         + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
             }
             String content = HttpHelper.getStringContent(httpResult);
-            content = content.replace("if (nrn) nrn('d',", "");
+            content = content.substring(content.indexOf("[{\"a\":"));
             content = content.replace("}]);", "}])");
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
@@ -109,4 +109,5 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
     private static String stripAndUnescape(String html) {
         return HtmlHelper.stripHtmlTags(StringEscapeUtils.unescapeHtml4(html));
     }
+
 }
