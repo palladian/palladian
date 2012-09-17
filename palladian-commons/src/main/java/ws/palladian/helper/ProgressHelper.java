@@ -40,7 +40,8 @@ public final class ProgressHelper {
             if (counter % (showEveryPercent * totalCount / 100.0) < 1) {
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
                 processString.append(createProgressBar(percent));
-                processString.append(" (").append(totalCount - counter).append(" items remaining");
+                processString.append(" => ").append(percent).append("% (").append(totalCount - counter)
+                        .append(" items remaining");
                 if (stopWatch != null) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime());
                     processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
@@ -65,7 +66,7 @@ public final class ProgressHelper {
     private static String createProgressBar(double percent) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
-        int scaledPercent = (int) Math.round((double) percent / 2);
+        int scaledPercent = (int) Math.round(percent / 2);
         stringBuilder.append(StringUtils.repeat('=', scaledPercent));
         stringBuilder.append(StringUtils.repeat(' ', 50 - scaledPercent));
         stringBuilder.append(']');
