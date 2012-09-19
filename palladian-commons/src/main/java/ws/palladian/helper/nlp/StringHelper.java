@@ -190,7 +190,7 @@ public final class StringHelper {
         if (text == null || search == null || search.isEmpty()) {
             return Collections.emptyList();
         }
-        
+
         List<Integer> indices = new ArrayList<Integer>();
         int lastPosition = 0;
         int position;
@@ -1499,18 +1499,44 @@ public final class StringHelper {
         return "";
     }
 
-    public static List<String> getRegexpMatches(String regexp, String text) {
+    /**
+     * <p>
+     * Find matches of the given regular expression in the given text.
+     * </p>
+     * <p>
+     * 
+     * @param regexpPattern The regular expression as a compiled pattern.
+     * @param text The text on which the regular expression should be evaluated.
+     * @return A list of string matches.
+     */
+    public static List<String> getRegexpMatches(Pattern regexpPattern, String text) {
 
         List<String> matches = new ArrayList<String>();
 
-        Pattern p = Pattern.compile(regexp);
-
-        Matcher m = p.matcher(text);
+        Matcher m = regexpPattern.matcher(text);
         while (m.find()) {
             matches.add(m.group());
         }
 
         return matches;
+    }
+
+    /**
+     * <p>
+     * Find matches of the given regular expression in the given text.
+     * </p>
+     * <p>
+     * <b>NOTE: you might want to use the method with a pre-compiled regular expression pattern to speed up the process
+     * since pattern compilation is costly.</b>
+     * </p>
+     * 
+     * @param regexp The regular expression as a text.
+     * @param text The text on which the regular expression should be evaluated.
+     * @return A list of string matches.
+     */
+    public static List<String> getRegexpMatches(String regexp, String text) {
+        Pattern p = Pattern.compile(regexp);
+        return getRegexpMatches(p, text);
     }
 
     /**
