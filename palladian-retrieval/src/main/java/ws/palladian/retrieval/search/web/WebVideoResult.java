@@ -11,6 +11,7 @@ import java.util.Date;
  */
 public class WebVideoResult extends WebResult {
 
+    private final String videoUrl;
     private final Long runTime;
 
     /**
@@ -18,27 +19,27 @@ public class WebVideoResult extends WebResult {
      * Instantiate a new {@link WebVideoResult}.
      * </p>
      * 
-     * @param url The URL linking to the video.
+     * @param url The URL linking to the page containing the video.
+     * @param videoUrl The URL linking to the video file.
      * @param title The title of the video.
      * @param runTime The run time of the video in seconds.
      */
-    public WebVideoResult(String url, String title, Long runTime) {
-        super(url, title);
+    public WebVideoResult(String url, String videoUrl, String title, Long runTime, Date date) {
+        super(url, title, null, date);
+        this.videoUrl = videoUrl;
         this.runTime = runTime;
+        
     }
 
     /**
      * <p>
-     * Instantiate a new {@link WebVideoResult}.
+     * Get the URL linking to the video.
      * </p>
      * 
-     * @param url The URL linking to the video.
-     * @param title The title of the video.
-     * @param date The publish date of the video.
+     * @return The URL linking directly to the video.
      */
-    public WebVideoResult(String url, String title, Date date) {
-        super(url, title, null, date);
-        this.runTime = null;
+    public String getVideoUrl() {
+        return videoUrl;
     }
 
     /**
@@ -61,9 +62,11 @@ public class WebVideoResult extends WebResult {
         StringBuilder builder = new StringBuilder();
         builder.append("WebVideoResult [runTime=");
         builder.append(runTime);
-        builder.append(", getUrl()=");
+        builder.append(", url=");
         builder.append(getUrl());
-        builder.append(", getTitle()=");
+        builder.append(", videoUrl=");
+        builder.append(getVideoUrl());
+        builder.append(", title=");
         builder.append(getTitle());
         builder.append("]");
         return builder.toString();
