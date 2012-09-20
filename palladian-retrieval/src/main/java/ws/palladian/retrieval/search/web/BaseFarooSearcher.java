@@ -94,11 +94,6 @@ abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
 
     protected abstract String getRequestUrl(String query, int resultCount, Language language);
 
-    @Override
-    public String getName() {
-        return "Faroo";
-    }
-
     /**
      * <p>
      * Gets the number of HTTP requests sent to faroo.
