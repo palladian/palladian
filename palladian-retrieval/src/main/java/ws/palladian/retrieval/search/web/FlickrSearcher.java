@@ -72,42 +72,56 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
             Language language) throws SearcherException {
         List<WebImageResult> result = new ArrayList<WebImageResult>();
 
-        // TODO paging currently not implemented.
-        // TODO implement checking for error codes.
+        int resultsPerPage = Math.min(resultCount, 500); // max. 500 per page
+        int neccessaryPages = (int)Math.ceil((double)resultCount / resultsPerPage);
 
-        String requestUrl = buildRequestUrl(query, tags, minUploadDate, 1, language);
-        HttpResult httpResult;
-        try {
-            httpResult = retriever.httpGet(requestUrl);
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage() + ", request URL was \"" + requestUrl + "\"", e);
-        }
-        String jsonString = HttpHelper.getStringContent(httpResult);
-        try {
-            JSONObject resultJson = new JSONObject(jsonString);
-            JSONObject photosJson = resultJson.getJSONObject("photos");
-            JSONArray photoJsonArray = photosJson.getJSONArray("photo");
-            for (int i = 0; i < photoJsonArray.length(); i++) {
-                JSONObject photoJson = photoJsonArray.getJSONObject(i);
-                String title = photoJson.getString("title");
-                String farmId = photoJson.getString("farm");
-                String serverId = photoJson.getString("server");
-                String id = photoJson.getString("id");
-                String secret = photoJson.getString("secret");
-                String userId = photoJson.getString("owner");
-                String imageUrl = buildImageUrl(farmId, serverId, id, secret);
-                String pageUrl = buildPageUrl(id, userId);
-                result.add(new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null, null));
+        for (int p = 0; p < neccessaryPages; p++) {
+            String requestUrl = buildRequestUrl(query, tags, minUploadDate, resultsPerPage, p, language);
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(requestUrl);
+            } catch (HttpException e) {
+                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                        + e.getMessage() + ", request URL was \"" + requestUrl + "\"", e);
             }
-        } catch (JSONException e) {
-            throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
+            // TODO implement checking for error codes.
+            String jsonString = HttpHelper.getStringContent(httpResult);
+            try {
+                JSONObject resultJson = new JSONObject(jsonString);
+                JSONObject photosJson = resultJson.getJSONObject("photos");
+                JSONArray photoJsonArray = photosJson.getJSONArray("photo");
+                for (int i = 0; i < photoJsonArray.length(); i++) {
+                    JSONObject photoJson = photoJsonArray.getJSONObject(i);
+                    String title = photoJson.getString("title");
+                    String farmId = photoJson.getString("farm");
+                    String serverId = photoJson.getString("server");
+                    String id = photoJson.getString("id");
+                    String secret = photoJson.getString("secret");
+                    String userId = photoJson.getString("owner");
+                    String imageUrl = buildImageUrl(farmId, serverId, id, secret);
+                    String pageUrl = buildPageUrl(id, userId);
+                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null, null));
+                }
+            } catch (JSONException e) {
+                throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
+                        + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
+            }
         }
         return result;
     }
 
-    private String buildRequestUrl(String query, String tags, String uploadDate, int page, Language language) {
+    /**
+     * 
+     * @param query
+     * @param tags
+     * @param uploadDate
+     * @param perPage Number of results to return per page.
+     * @param page The page to return.
+     * @param language
+     * @return
+     */
+    private String buildRequestUrl(String query, String tags, String uploadDate, int perPage, int page,
+            Language language) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://api.flickr.com/services/rest/");
         urlBuilder.append("?method=flickr.photos.search");
@@ -121,6 +135,8 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
         if (uploadDate != null) {
             urlBuilder.append("&min_upload_date=").append(uploadDate);
         }
+        urlBuilder.append("&per_page=").append(perPage);
+        urlBuilder.append("&page=").append(page);
         urlBuilder.append("&format=json");
         urlBuilder.append("&nojsoncallback=1");
         return urlBuilder.toString();
