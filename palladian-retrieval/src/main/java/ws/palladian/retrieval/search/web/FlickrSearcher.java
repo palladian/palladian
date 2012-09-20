@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.search.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
@@ -12,9 +15,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>
@@ -95,8 +95,10 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
                 String serverId = photoJson.getString("server");
                 String id = photoJson.getString("id");
                 String secret = photoJson.getString("secret");
-                String url = buildImageUrl(farmId, serverId, id, secret);
-                result.add(new WebImageResult(url, title, -1, -1));
+                String userId = photoJson.getString("owner");
+                String imageUrl = buildImageUrl(farmId, serverId, id, secret);
+                String pageUrl = buildPageUrl(id, userId);
+                result.add(new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null, null));
             }
         } catch (JSONException e) {
             throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName() + ": "
@@ -138,6 +140,19 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
      */
     private String buildImageUrl(String farmId, String serverId, String id, String secret) {
         return String.format("http://farm%s.staticflickr.com/%s/%s_%s.jpg", farmId, serverId, id, secret);
+    }
+
+    /**
+     * <p>
+     * Transforms the given parts to a page URL which gives details about the image.
+     * </p>
+     * 
+     * @param id
+     * @param userId
+     * @return
+     */
+    private String buildPageUrl(String id, String userId) {
+        return String.format("http://www.flickr.com/photos/%s/%s", userId, id);
     }
 
 }

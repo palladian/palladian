@@ -192,7 +192,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
         queryBuilder.append("?Query=%27").append(UrlHelper.urlEncode(query)).append("%27");
         queryBuilder.append("&$top=").append(count);
         if (offset > 0) {
-            queryBuilder.append("$skip=").append(offset);
+            queryBuilder.append("&$skip=").append(offset);
         }
         queryBuilder.append("&$format=JSON");
         if (language != null) {

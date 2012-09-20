@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.web;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 /**
  * <p>
  * Google image search.
@@ -20,11 +19,12 @@ public final class GoogleImageSearcher extends BaseGoogleSearcher<WebImageResult
 
     @Override
     protected WebImageResult parseResult(JSONObject resultData) throws JSONException {
-        String url = resultData.getString("unescapedUrl");
+        String pageUrl = resultData.getString("originalContextUrl");
+        String imageUrl = resultData.getString("unescapedUrl");
         String caption = resultData.getString("content");
         int width = resultData.getInt("width");
         int height = resultData.getInt("height");
-        return new WebImageResult(url, caption, width, height);
+        return new WebImageResult(pageUrl, imageUrl, caption, null, width, height, null, null);
     }
 
     @Override
