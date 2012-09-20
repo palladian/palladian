@@ -84,7 +84,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                     // List<String> urls = UrlHelper.extractUrls(text);
                     // String url = urls.isEmpty() ? null : urls.get(0);
                     String url = createTweetUrl(jsonResult.getString("from_user"), jsonResult.getString("id_str"));
-                    webResults.add(new WebResult(url, null, text, date));
+                    webResults.add(new WebResult(url, text, null, date));
                     if (webResults.size() >= resultCount) {
                         break;
                     }
