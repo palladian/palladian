@@ -115,7 +115,6 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
         List<WebVideoResult> webResults = new ArrayList<WebVideoResult>();
         try {
-            System.out.println(HttpHelper.getStringContent(httpResult));
             JSONObject root = new JSONObject(HttpHelper.getStringContent(httpResult));
             TOTAL_REQUEST_COUNT.incrementAndGet();
             JSONObject feed = root.getJSONObject("feed");
