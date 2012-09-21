@@ -590,6 +590,14 @@ public final class MathHelper {
         return randomNumbers;
     }
 
+    /**
+     * <p>
+     * </p>
+     * 
+     * @param low The minimum number that the random number
+     * @param high
+     * @return
+     */
     public static int getRandomIntBetween(int low, int high) {
         int hl = high - low;
         return (int)Math.round(Math.random() * hl + low);

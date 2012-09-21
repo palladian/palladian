@@ -46,7 +46,7 @@ public class SynonymDictionaryCreator {
                 String[] synonyms = line.split("\\|");
                 for (String synonym : synonyms) {
                     if (!synonym.startsWith("(")) {
-                        dictionary.addSynonym(currentWord.intern(), synonym.intern());
+                        dictionary.addSynonym(currentWord.trim().intern(), synonym.trim().intern());
                     }
 
                 }
@@ -65,11 +65,11 @@ public class SynonymDictionaryCreator {
      * @param args
      */
     public static void main(String[] args) {
-        SynonymDictionaryCreator sfr = new SynonymDictionaryCreator();
-        sfr.createDictionary(new File("dict.dat"), new File("dictionary.gz"));
+        // SynonymDictionaryCreator sfr = new SynonymDictionaryCreator();
+        // sfr.createDictionary(new File("dict.dat"), new File("dictionary.gz"));
 
         SynonymDictionary dictionary = (SynonymDictionary)FileHelper.deserialize("dictionary.gz");
-        CollectionHelper.print(dictionary.get("super"));
+        CollectionHelper.print(dictionary.get("huge"));
     }
 
 }
