@@ -590,6 +590,11 @@ public final class MathHelper {
         return randomNumbers;
     }
 
+    public static int getRandomIntBetween(int low, int high) {
+        int hl = high - low;
+        return (int)Math.round(Math.random() * hl + low);
+    }
+
     /**
      * Calculate the parameters for a regression line. A series of x and y must be given. y = beta * x + alpha
      * TODO multiple regression model:
