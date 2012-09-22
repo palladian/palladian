@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -47,9 +48,10 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> result = CollectionHelper.newArrayList();
+        Set<String> urlDeduplication = CollectionHelper.newHashSet();
 
-        for (int p = 0; p < Math.ceil(resultCount / 100.); p++) {
-            String requestUrl = buildRequestUrl(query, p);
+        for (int page = 0; result.size() < resultCount; page++) {
+            String requestUrl = buildRequestUrl(query, page);
             HttpResult httpResult;
             try {
                 httpResult = retriever.httpGet(requestUrl);
@@ -57,12 +59,12 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
                 throw new SearcherException("Encountered HTTP exception while accessing \"" + requestUrl + "\"", e);
             }
             String jsonString = HttpHelper.getStringContent(httpResult);
-            LOGGER.debug(jsonString);
+            // LOGGER.debug(jsonString);
 
             try {
                 JSONObject jsonResult = new JSONObject(jsonString);
                 JSONArray jsonData = jsonResult.getJSONArray("data");
-                if (jsonData.length() == 0) {
+                if (jsonData.length() == 0 || result.size() == resultCount) {
                     break; // no more results
                 }
 
@@ -74,22 +76,26 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
                     if (url == null) {
                         continue; // ignore entries without URLs for now.
                     }
+                    if (!urlDeduplication.add(url)) {
+                        continue; // we already had this URL.
+                    }
 
                     String title = JsonHelper.getString(jsonEntry, "name");
                     String summary = JsonHelper.getString(jsonEntry, "caption");
                     Date date = parseDate(jsonEntry.getString("created_time"));
 
                     result.add(new WebResult(url, title, summary, date, SEARCHER_NAME));
+
                     if (result.size() == resultCount) {
                         break;
                     }
                 }
+
             } catch (JSONException e) {
                 throw new SearcherException("Error parsing the JSON response from \"" + requestUrl
                         + "\" (result was: \"" + jsonString + "\")", e);
             }
         }
-
         return result;
     }
 
