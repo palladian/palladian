@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -33,33 +34,23 @@ public final class MathHelper {
 
     /**
      * <p>
-     * Calculate the Jaccard similarity between two sets. J(A,B) = A and B / A union B.
+     * Calculate the Jaccard similarity between two sets. <code>J(A, B) = A intersection B / A union B</code>.
      * </p>
      * 
      * @param setA The first set.
      * @param setB The second set.
-     * @return The jaccard similarity in the range [0,1].
+     * @return The Jaccard similarity in the range [0, 1].
      */
-    public static double computeJaccardSimilarity(Set<String> setA, Set<String> setB) {
-        double similarity = -1;
+    public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
+        Set<T> union = CollectionHelper.newHashSet();
+        union.addAll(setA);
+        union.addAll(setB);
 
-        Set<String> aUnionB = new HashSet<String>();
-        aUnionB.addAll(setA);
-        aUnionB.addAll(setB);
+        Set<T> intersection = CollectionHelper.newHashSet();
+        intersection.addAll(setA);
+        intersection.retainAll(setB);
 
-        // check items which are in both sets
-        Set<String> checkSet = new HashSet<String>();
-        checkSet.addAll(setA);
-        int aAndB = 0;
-        for (String itemB : setB) {
-            if (!checkSet.add(itemB)) {
-                aAndB++;
-            }
-        }
-
-        similarity = aAndB / (double)aUnionB.size();
-
-        return similarity;
+        return (double) intersection.size() / union.size();
     }
 
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
