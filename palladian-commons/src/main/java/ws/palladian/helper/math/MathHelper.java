@@ -121,17 +121,6 @@ public final class MathHelper {
         return Math.round(numberFactor * number) / numberFactor;
     }
 
-    @Deprecated
-    public static int getPower(String numberString) {
-        int power = -99999;
-        try {
-            power = (int)Math.floor(Math.log10(Double.valueOf(numberString)));
-        } catch (NumberFormatException e) {
-            Logger.getRootLogger().error(numberString + ", " + e.getMessage());
-        }
-        return power;
-    }
-
     /**
      * <p>
      * Check whether one value is in a certain range of another value. For example, value1: 5 is within the range: 2 of
