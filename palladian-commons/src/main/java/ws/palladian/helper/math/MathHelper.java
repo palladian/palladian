@@ -42,13 +42,18 @@ public final class MathHelper {
      * @return The Jaccard similarity in the range [0, 1].
      */
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
+        Set<T> intersection = CollectionHelper.newHashSet();
+        intersection.addAll(setA);
+        intersection.retainAll(setB);
+        
+        if (intersection.size() == 0) {
+            return 0;
+        }
+        
         Set<T> union = CollectionHelper.newHashSet();
         union.addAll(setA);
         union.addAll(setB);
 
-        Set<T> intersection = CollectionHelper.newHashSet();
-        intersection.addAll(setA);
-        intersection.retainAll(setB);
 
         return (double)intersection.size() / union.size();
     }
