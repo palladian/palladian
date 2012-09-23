@@ -34,7 +34,7 @@ public final class MathHelper {
 
     /**
      * <p>
-     * Calculate the Jaccard similarity between two sets. <code>J(A, B) = A intersection B / A union B</code>.
+     * Calculate the Jaccard similarity between two sets. <code>J(A, B) = |A intersection B| / |A union B|</code>.
      * </p>
      * 
      * @param setA The first set.
@@ -50,19 +50,33 @@ public final class MathHelper {
         intersection.addAll(setA);
         intersection.retainAll(setB);
 
-        return (double) intersection.size() / union.size();
+        return (double)intersection.size() / union.size();
+    }
+
+    /**
+     * <p>
+     * Calculate the overlap coefficient between two sets.
+     * <code>Overlap(A, B) = |A intersection B| / min(|A|, |B|)</code>.
+     * 
+     * @param setA The first set.
+     * @param setB The second set.
+     * @return The overlap coefficient in the range [0, 1].
+     */
+    public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
+        Set<T> intersection = CollectionHelper.newHashSet();
+        intersection.addAll(setA);
+        intersection.retainAll(setB);
+
+        return (double)intersection.size() / Math.min(setA.size(), setB.size());
     }
 
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
-        double similarity = 0.0;
 
         double dotProduct = computeDotProduct(vector1, vector2);
         double magnitude1 = computeMagnitude(vector1);
         double magnitude2 = computeMagnitude(vector2);
 
-        similarity = dotProduct / (magnitude1 * magnitude2);
-
-        return similarity;
+        return dotProduct / (magnitude1 * magnitude2);
     }
 
     public static double computeDotProduct(Double[] vector1, Double[] vector2) {
@@ -111,9 +125,7 @@ public final class MathHelper {
 
         double chosenZ = zValues.get(confidenceLevel);
 
-        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1 - mean) / (samples - 1.0));
-
-        return confidenceInterval;
+        return Math.sqrt(chosenZ * chosenZ * mean * (1 - mean) / (samples - 1.0));
     }
 
     public static double round(double number, int digits) {
@@ -136,11 +148,7 @@ public final class MathHelper {
         double numMin = value2 - range;
         double numMax = value2 + range;
 
-        if (value1 <= numMax && value1 >= numMin) {
-            return true;
-        }
-
-        return false;
+        return value1 <= numMax && value1 >= numMin;
     }
 
     /**
@@ -154,22 +162,14 @@ public final class MathHelper {
      * @return <tt>True</tt>, if value >= min && value <= max, <tt>false</tt> otherwise.
      */
     public static boolean isWithinInterval(double value, double min, double max) {
-        if (value <= max && value >= min) {
-            return true;
-        }
-
-        return false;
+        return value <= max && value >= min;
     }
 
     public static boolean isWithinMargin(double value1, double value2, double margin) {
         double numMin = value1 - margin * value1;
         double numMax = value1 + margin * value1;
 
-        if (value1 < numMax && value1 > numMin) {
-            return true;
-        }
-
-        return false;
+        return value1 < numMax && value1 > numMin;
     }
 
     public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue,
@@ -177,11 +177,7 @@ public final class MathHelper {
         double numMin = correctValue - correctnessMargin * correctValue;
         double numMax = correctValue + correctnessMargin * correctValue;
 
-        if (questionedValue < numMax && questionedValue > numMin) {
-            return true;
-        }
-
-        return false;
+        return questionedValue < numMax && questionedValue > numMin;
     }
 
     public static int faculty(int number) {
@@ -381,16 +377,12 @@ public final class MathHelper {
     }
 
     public static double computeRootMeanSquareError(List<double[]> values) {
-        double rmse = -1.0;
-
         double sum = 0.0;
         for (double[] d : values) {
             sum += Math.pow(d[0] - d[1], 2);
         }
 
-        rmse = Math.sqrt(sum / values.size());
-
-        return rmse;
+        return Math.sqrt(sum / values.size());
     }
 
     /**
@@ -401,8 +393,6 @@ public final class MathHelper {
      * @return The similarity of the two lists.
      */
     public static ListSimilarity computeListSimilarity(List<String> list1, List<String> list2) {
-
-        double similarity = 0;
 
         // get maximum possible distance
         int summedMaxDistance = 0;
@@ -440,7 +430,7 @@ public final class MathHelper {
             position1++;
         }
 
-        similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
+        double similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
         double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
         double rootMeanSquareError = computeRootMeanSquareError(positionValues);
 
@@ -680,7 +670,7 @@ public final class MathHelper {
     }
 
     public static double log2(double num) {
-        return (Math.log(num) / Math.log(2));
+        return Math.log(num) / Math.log(2);
     }
 
     public static long crossTotal(long s) {
