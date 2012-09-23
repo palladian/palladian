@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -552,18 +553,38 @@ public final class MathHelper {
      * @param numbers Number of numbers to generate.
      * @param min The minimum number.
      * @param max The maximum number.
+     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
      * @return A set of random numbers between min and max.
      */
     public static Set<Integer> createRandomNumbers(int numbers, int min, int max) {
+        return createRandomNumbers(numbers, min, max, null);
+    }
+
+    /**
+     * <p>
+     * Create numbers random numbers between [min,max).
+     * </p>
+     * 
+     * @param numbers Number of numbers to generate.
+     * @param min The minimum number.
+     * @param max The maximum number.
+     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
+     * @return A set of random numbers between min and max.
+     */
+    public static Set<Integer> createRandomNumbers(int numbers, int min, int max, Long seed) {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
             Logger.getRootLogger().warn("the range between min and max is not enough to create enough random numbers");
             return randomNumbers;
         }
-
+        Random random = new Random();
+        if (seed != null) {
+            random.setSeed(seed);
+        }
         while (randomNumbers.size() < numbers) {
-            int randomNumber = (int)(Math.random() * max + min);
+            double nd = random.nextDouble();
+            int randomNumber = (int)(nd * max + min);
             randomNumbers.add(randomNumber);
         }
 
