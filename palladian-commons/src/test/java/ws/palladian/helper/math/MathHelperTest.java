@@ -70,16 +70,20 @@ public class MathHelperTest {
     }
 
     @Test
-    public void testCalculateJaccardSimilarity() {
+    public void testCalculateSetSimilarity() {
 
         Set<String> set1 = new HashSet<String>(Arrays.asList("1","2","3","4"));
         Set<String> set2 = new HashSet<String>(Arrays.asList("1","2","3","6"));
         Set<String >set3 = new HashSet<String>(Arrays.asList("1","2","3","4"));
         Set<String> set4 = new HashSet<String>(Arrays.asList("5","6","7","8"));
+        Set<String> set5 = new HashSet<String>(Arrays.asList("1","2","3","4","5","6","7","8","9","10"));
 
         assertEquals(0.6, MathHelper.computeJaccardSimilarity(set1, set2), 0);
         assertEquals(1.0, MathHelper.computeJaccardSimilarity(set1, set3), 0);
         assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, set4), 0);
+        
+        assertEquals(0.75, MathHelper.computeOverlapCoefficient(set1, set2), 0);
+        assertEquals(1, MathHelper.computeOverlapCoefficient(set1, set5), 0);
     }
 
     @Test
