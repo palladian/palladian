@@ -65,11 +65,11 @@ public class SynonymDictionaryCreator {
      * @param args
      */
     public static void main(String[] args) {
-        // SynonymDictionaryCreator sfr = new SynonymDictionaryCreator();
-        // sfr.createDictionary(new File("dict.dat"), new File("dictionary.gz"));
+        SynonymDictionaryCreator sfr = new SynonymDictionaryCreator();
+        sfr.createDictionary(new File("dict.dat"), new File("dictionary.gz"));
 
         SynonymDictionary dictionary = (SynonymDictionary)FileHelper.deserialize("dictionary.gz");
-        CollectionHelper.print(dictionary.get("huge"));
+        CollectionHelper.print(dictionary.get("best"));
     }
 
 }

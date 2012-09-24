@@ -23,7 +23,9 @@ public class SynonymDictionary extends HashMap<String, List<String>> {
             list = new ArrayList<String>();
             put(word, list);
         }
-        list.add(synonym);
+        if (!list.contains(synonym)) {
+            list.add(synonym);
+        }
     }
 
 }
