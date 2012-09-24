@@ -523,6 +523,10 @@ public class ImageHandler {
                 fileExtension = "png";
             }
 
+            if (!savePath.toLowerCase().endsWith(fileExtension.toLowerCase())) {
+                savePath += "." + fileExtension;
+            }
+
             // save image
             LOGGER.debug("write " + savePath + " with " + fileExtension);
             FileHelper.createDirectoriesAndFile(savePath);
