@@ -54,35 +54,57 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
 
         List<WebResult> results = CollectionHelper.newArrayList();
 
-        String requestUrl = String.format("https://www.googleapis.com/plus/v1/activities?query=%s&key=%s",
-                UrlHelper.urlDecode(query), apiKey);
-        HttpResult httpResult;
-        try {
-            httpResult = retriever.httpGet(requestUrl);
-        } catch (HttpException e) {
-            throw new SearcherException("Encountered HTTP error while accessing \"" + requestUrl + "\": "
-                    + e.getMessage(), e);
-        }
+        String nextPageToken = null;
 
-        String jsonString = HttpHelper.getStringContent(httpResult);
-        try {
-            JSONObject jsonResult = new JSONObject(jsonString);
-            JSONArray jsonItems = jsonResult.getJSONArray("items");
-            for (int i = 0; i < jsonItems.length(); i++) {
-                JSONObject jsonItem = jsonItems.getJSONObject(i);
-
-                String url = JsonHelper.getString(jsonItem, "url");
-                String title = JsonHelper.getString(jsonItem, "title");
-                String content = JsonHelper.getString(jsonItem, "content");
-                Date date = getCreationDate(JsonHelper.getString(jsonItem, "published"));
-                results.add(new WebResult(url, title, content, date, SEARCHER_NAME));
-
+        out: for (;;) {
+            String requestUrl = buildUrl(query, nextPageToken);
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(requestUrl);
+            } catch (HttpException e) {
+                throw new SearcherException("Encountered HTTP error while accessing \"" + requestUrl + "\": "
+                        + e.getMessage(), e);
             }
-        } catch (JSONException e) {
-            throw new SearcherException("Error parsing the JSON response from \"" + requestUrl + "\": " + jsonString, e);
+
+            String jsonString = HttpHelper.getStringContent(httpResult);
+            try {
+                JSONObject jsonResult = new JSONObject(jsonString);
+                JSONArray jsonItems = jsonResult.getJSONArray("items");
+                nextPageToken = JsonHelper.getString(jsonResult, "nextPageToken");
+                if (nextPageToken == null) {
+                    break;
+                }
+                for (int i = 0; i < jsonItems.length(); i++) {
+                    JSONObject jsonItem = jsonItems.getJSONObject(i);
+
+                    String url = JsonHelper.getString(jsonItem, "url");
+                    String title = JsonHelper.getString(jsonItem, "title");
+                    String content = JsonHelper.getString(jsonItem, "content");
+                    Date date = getCreationDate(JsonHelper.getString(jsonItem, "published"));
+                    results.add(new WebResult(url, title, content, date, SEARCHER_NAME));
+                    if (results.size() == resultCount) {
+                        break out;
+                    }
+                }
+            } catch (JSONException e) {
+                throw new SearcherException("Error parsing the JSON response from \"" + requestUrl + "\": "
+                        + jsonString, e);
+            }
         }
 
         return results;
+    }
+
+    private String buildUrl(String query, String pageToken) {
+        StringBuilder url = new StringBuilder();
+        url.append("https://www.googleapis.com/plus/v1/activities");
+        url.append("?query=").append(UrlHelper.urlEncode(query));
+        url.append("&key=").append(apiKey);
+        if (pageToken != null) {
+            url.append("&pageToken=").append(pageToken);
+        }
+        url.append("&maxResults=20"); // 20 is maximum
+        return url.toString();
     }
 
     private Date getCreationDate(String dateString) {
@@ -98,7 +120,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
 
     public static void main(String[] args) throws SearcherException {
         GooglePlusSearcher searcher = new GooglePlusSearcher("AIzaSyDPsLByNcOyrAFPlsldd8B2SoBHH3sywmo");
-        List<WebResult> result = searcher.search("cat", 10);
+        List<WebResult> result = searcher.search("cat", 1000);
         CollectionHelper.print(result);
     }
 
