@@ -121,8 +121,8 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
         }
 
         LOGGER.debug("bing requests: " + TOTAL_REQUEST_COUNT.get());
-        return webResults;
 
+        return webResults;
     }
 
     /**
@@ -213,6 +213,8 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
         switch (language) {
             case GERMAN:
                 return "de-de";
+            default:
+                break;
         }
         return "en-us";
     }

@@ -160,6 +160,10 @@ public class HtmlHelper {
     public static String stripHtmlTags(String htmlText, boolean stripTags, boolean stripComments,
             boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
 
+        if (htmlText == null) {
+            return htmlText;
+        }
+
         String regExp = "";
 
         if (joinTagsAndRemoveNewlines) {
@@ -382,50 +386,50 @@ public class HtmlHelper {
         return result;
     }
 
-//    /**
-//     * <p>
-//     * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
-//     * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
-//     * whitespace is handled more correctly than in {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}
-//     * which never worked well for me.
-//     * </p>
-//     * TODO: "namespace not declared errors"
-//     * 
-//     * @param html
-//     * @param oneLine
-//     * @return
-//     * @author Philipp Katz
-//     */
-//    public static String documentToReadableText(String html, boolean oneLine) {
-//
-//        String result;
-//
-//        try {
-//
-//            DOMFragmentParser parser = new DOMFragmentParser();
-//            HTMLDocument document = new HTMLDocumentImpl();
-//
-//            // see http://nekohtml.sourceforge.net/usage.html
-//            DocumentFragment fragment = document.createDocumentFragment();
-//            parser.parse(new InputSource(new StringInputStream(html)), fragment);
-//            result = documentToReadableText(fragment);
-//
-//        } catch (Exception e) {
-//
-//            // parser failed -> fall back, remove tags directly from the string
-//            // without parsing
-//            LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
-//            result = stripHtmlTags(html, true, true, true, false);
-//
-//        }
-//
-//        if (oneLine) {
-//            result = result.replaceAll("\n", " ");
-//            result = result.replaceAll(" {2,}", " ");
-//        }
-//
-//        return result;
-//    }
+    //    /**
+    //     * <p>
+    //     * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
+    //     * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
+    //     * whitespace is handled more correctly than in {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}
+    //     * which never worked well for me.
+    //     * </p>
+    //     * TODO: "namespace not declared errors"
+    //     *
+    //     * @param html
+    //     * @param oneLine
+    //     * @return
+    //     * @author Philipp Katz
+    //     */
+    //    public static String documentToReadableText(String html, boolean oneLine) {
+    //
+    //        String result;
+    //
+    //        try {
+    //
+    //            DOMFragmentParser parser = new DOMFragmentParser();
+    //            HTMLDocument document = new HTMLDocumentImpl();
+    //
+    //            // see http://nekohtml.sourceforge.net/usage.html
+    //            DocumentFragment fragment = document.createDocumentFragment();
+    //            parser.parse(new InputSource(new StringInputStream(html)), fragment);
+    //            result = documentToReadableText(fragment);
+    //
+    //        } catch (Exception e) {
+    //
+    //            // parser failed -> fall back, remove tags directly from the string
+    //            // without parsing
+    //            LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
+    //            result = stripHtmlTags(html, true, true, true, false);
+    //
+    //        }
+    //
+    //        if (oneLine) {
+    //            result = result.replaceAll("\n", " ");
+    //            result = result.replaceAll(" {2,}", " ");
+    //        }
+    //
+    //        return result;
+    //    }
 
     /**
      * <p>
