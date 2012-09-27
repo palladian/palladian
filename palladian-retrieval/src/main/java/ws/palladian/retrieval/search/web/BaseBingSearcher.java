@@ -40,8 +40,8 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
     /** The base URL endpoint of the Bing service. */
     private static final String BASE_SERVICE_URL = "https://api.datamarket.azure.com/Bing/Search/v1/";
 
-    /** Key of the {@link Configuration} key for the API key. */
-    public static final String CONFIG_API_KEY = "api.bing.key";
+    /** Key of the {@link Configuration} key for the account key. */
+    public static final String CONFIG_ACCOUNT_KEY = "api.bing.accountkey";
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
@@ -72,7 +72,7 @@ abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
      *            as string via key <tt>api.bing.key</tt> in the configuration.
      */
     public BaseBingSearcher(Configuration configuration) {
-        this(configuration.getString(CONFIG_API_KEY));
+        this(configuration.getString(CONFIG_ACCOUNT_KEY));
     }
 
     @Override
