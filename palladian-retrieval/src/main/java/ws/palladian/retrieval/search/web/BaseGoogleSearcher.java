@@ -136,6 +136,8 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         switch (language) {
             case GERMAN:
                 return "lang_de";
+            default:
+                break;
         }
         return "lang_en";
     }

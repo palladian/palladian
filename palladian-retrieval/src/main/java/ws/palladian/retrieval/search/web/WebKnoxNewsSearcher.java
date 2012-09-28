@@ -6,11 +6,8 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -75,8 +72,8 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
         return "WebKnox News";
     }
 
-    public static void main(String[] args) throws SearcherException {
-        WebKnoxNewsSearcher webKnoxSearcher = new WebKnoxNewsSearcher(ConfigHolder.getInstance().getConfig());
-        CollectionHelper.print(webKnoxSearcher.search("Nokia Lumia 920", 10));
-    }
+    // public static void main(String[] args) throws SearcherException {
+    // WebKnoxNewsSearcher webKnoxSearcher = new WebKnoxNewsSearcher(ConfigHolder.getInstance().getConfig());
+    // CollectionHelper.print(webKnoxSearcher.search("Nokia Lumia 920", 10));
+    // }
 }
