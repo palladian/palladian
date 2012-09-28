@@ -4,11 +4,8 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -66,9 +63,9 @@ public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebResult> {
         return "WebKnox";
     }
 
-    public static void main(String[] args) throws SearcherException {
-        WebKnoxSearcher webKnoxSearcher = new WebKnoxSearcher(ConfigHolder.getInstance().getConfig());
-        CollectionHelper.print(webKnoxSearcher.search("Conan O'Brien", 10));
-    }
+    // public static void main(String[] args) throws SearcherException {
+    // WebKnoxSearcher webKnoxSearcher = new WebKnoxSearcher(ConfigHolder.getInstance().getConfig());
+    // CollectionHelper.print(webKnoxSearcher.search("Conan O'Brien", 10));
+    // }
 
 }

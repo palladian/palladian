@@ -186,6 +186,8 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                 return "en";
             case GERMAN:
                 return "de";
+            default:
+                break;
         }
         throw new IllegalArgumentException("No code defined for language " + language);
     }

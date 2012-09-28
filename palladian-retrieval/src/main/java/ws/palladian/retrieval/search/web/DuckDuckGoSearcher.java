@@ -69,7 +69,8 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                     JSONObject object = jsonArray.getJSONObject(i);
 
                     if (!urls.add(object.getString("u"))) {
-                        continue;
+                        break paging;
+                        // continue;
                     }
                     String summary = stripAndUnescape(object.getString("a"));
                     String title = stripAndUnescape(object.getString("t"));
