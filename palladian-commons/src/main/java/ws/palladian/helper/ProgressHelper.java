@@ -43,7 +43,7 @@ public final class ProgressHelper {
                 processString.append(" => ").append(percent).append("% (").append(totalCount - counter)
                         .append(" items remaining");
                 if (stopWatch != null) {
-                    long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime());
+                    long msRemaining = (long)((100 / percent) * stopWatch.getElapsedTime());
                     processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
                     processString.append(", est. time remaining: ").append(DateHelper.getRuntime(0, msRemaining));
                     stopWatch.start();
@@ -74,6 +74,14 @@ public final class ProgressHelper {
     }
 
     public static void main(String[] args) {
+
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 1; i <= 10; i++) {
+            ThreadHelper.deepSleep(500);
+            ProgressHelper.showProgress(i, 10, 1, stopWatch);
+        }
+
+        System.exit(0);
 
         int totalCount = 5000;
         int showEvery = 5;
