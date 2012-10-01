@@ -34,11 +34,11 @@ public final class ProgressHelper {
 
     /**
      * 
-     * @param counter
-     * @param totalCount
+     * @param counter Counter for current iteration in a loop.
+     * @param totalCount The total number of iterations.
      * @param showEveryPercent Specify how often to output the progress. Set to zero to output whith each iteration.
-     * @param logger
-     * @param stopWatch
+     * @param logger A {@link Logger} for outputting the progress information. If <code>null</code>, the progress will be sent to {@link System#out}.
+     * @param stopWatch A {@link StopWatch} which allows an approximation of the estimated time until completion.
      * @return
      */
     public static String showProgress(long counter, long totalCount, int showEveryPercent, Logger logger,
@@ -52,7 +52,8 @@ public final class ProgressHelper {
                 processString.append(" => ").append(percent).append("% (").append(totalCount - counter)
                         .append(" items remaining");
                 if (stopWatch != null && percent > 0) {
-                    long msRemaining = (long)(100 * stopWatch.getElapsedTime() / percent);
+                    long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / percent);
+                    processString.append(", elapsed time: ").append(stopWatch.getElapsedTimeString());
                     processString.append(", est. time remaining: ").append(DateHelper.getRuntime(0, msRemaining));
 //                    long msRemaining = (long)((100 / percent) * stopWatch.getElapsedTime());
 //                    processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
