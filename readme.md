@@ -7,6 +7,7 @@ What is it?
 Palladian is a Java-based toolkit which provides functionality to perform typical Internet Information Retrieval tasks. It provides a collection of algorithms for text processing focused on classification, extraction of various types of information, and retrieval. The aim of Palladian is to reuse algorithms that are freely available and build upon them to drive research by providing unified interfaces. This way, new algorithms can be quickly compared to the state-of-the-art allowing other users to create more advanced programs in the future.
 
 More information about the Palladian toolkit is available here: <http://palladian.ws/>
+
 If you have any questions, comments, or problems, we are happy to hear from you: <mail@palladian.ws>
 
 Who made it?
