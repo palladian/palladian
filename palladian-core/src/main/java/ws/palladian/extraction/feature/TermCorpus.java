@@ -38,20 +38,8 @@ public final class TermCorpus {
      * </p>
      */
     public TermCorpus() {
-        this(new HashBag<String>(), 0);
-    }
-
-    /**
-     * <p>
-     * Create a new {@link TermCorpus} with the specified terms and number of documents.
-     * </p>
-     * 
-     * @param terms The terms to add.
-     * @param numDocs The number of documents this corpus contains.
-     */
-    public TermCorpus(Bag<String> terms, int numDocs) {
-        this.numDocs = numDocs;
-        this.terms = terms;
+        this.numDocs = 0;
+        this.terms = new HashBag<String>();
     }
 
     /**
@@ -80,20 +68,6 @@ public final class TermCorpus {
 
     /**
      * <p>
-     * Get the document frequency for the specified term, i.e. the number of documents containing the term at least
-     * once. To avoid returning zero values, the number of documents containing the specified term is incremented by
-     * one.
-     * </p>
-     * 
-     * @param term The term for which to retrieve the document frequency.
-     * @return The document frequenc for the specified term.
-     */
-    public double getDf(String term) {
-        return Math.log10((double)(getCount(term) + 1) / getNumDocs());
-    }
-
-    /**
-     * <p>
      * Get the inverse document frequency for the specified term. To avoid division by zero, the number of documents
      * containing the specified term is incremented by one.
      * </p>
@@ -103,7 +77,8 @@ public final class TermCorpus {
      */
     public double getIdf(String term) {
         // add 1; prevent division by zero
-        return Math.log10((double)getNumDocs() / (getCount(term) + 1));
+        // return Math.log10((double)getNumDocs() / (getCount(term) + 1));
+        return (double)getNumDocs() / (getCount(term) + 1);
     }
 
     /**
