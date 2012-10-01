@@ -32,21 +32,32 @@ public final class ProgressHelper {
         return showProgress(counter, totalCount, showEveryPercent, null, stopWatch);
     }
 
+    /**
+     * 
+     * @param counter
+     * @param totalCount
+     * @param showEveryPercent Specify how often to output the progress. Set to zero to output whith each iteration.
+     * @param logger
+     * @param stopWatch
+     * @return
+     */
     public static String showProgress(long counter, long totalCount, int showEveryPercent, Logger logger,
             StopWatch stopWatch) {
 
         StringBuilder processString = new StringBuilder();
         try {
-            if (counter % (showEveryPercent * totalCount / 100.0) < 1) {
+            if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
                 processString.append(createProgressBar(percent));
                 processString.append(" => ").append(percent).append("% (").append(totalCount - counter)
                         .append(" items remaining");
-                if (stopWatch != null) {
-                    long msRemaining = (long)((100 / percent) * stopWatch.getElapsedTime());
-                    processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
+                if (stopWatch != null && percent > 0) {
+                    long msRemaining = (long)(100 * stopWatch.getElapsedTime() / percent);
                     processString.append(", est. time remaining: ").append(DateHelper.getRuntime(0, msRemaining));
-                    stopWatch.start();
+//                    long msRemaining = (long)((100 / percent) * stopWatch.getElapsedTime());
+//                    processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
+//                    processString.append(", est. time remaining: ").append(DateHelper.getRuntime(0, msRemaining));
+//                    stopWatch.start();
                 }
                 processString.append(")");
 
@@ -77,7 +88,7 @@ public final class ProgressHelper {
 
         StopWatch stopWatch = new StopWatch();
         for (int i = 1; i <= 10; i++) {
-            ThreadHelper.deepSleep(500);
+            ThreadHelper.deepSleep(10000);
             ProgressHelper.showProgress(i, 10, 1, stopWatch);
         }
 
