@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * <p>
  * A class to describe collections of {@code Feature}s extracted from some document. Based on its {@code FeatureVector}
@@ -122,12 +124,19 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *         {@link Feature} exists.
      */
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
+        Validate.notNull(descriptor);
+
         Feature<?> feature = features.get(descriptor.getIdentifier());
-        if(feature==null) {
-        	return null;
+        if (feature == null) {
+            return null;
         } else {
-        return descriptor.getType().cast(feature);
+            return descriptor.getType().cast(feature);
         }
+    }
+
+    public static void main(String[] args) {
+        TextAnnotationFeature feature = new TextAnnotationFeature("test");
+        System.out.println(feature instanceof AnnotationFeature<?>);
     }
 
     @Override
