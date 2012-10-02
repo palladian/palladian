@@ -80,7 +80,7 @@ public class TokenizerTest {
                 .tokenize("The United States of America are often called the USA, the U.S.A., or simply the U.S. The U.N. has its headquarter in N.Y.C. on the east coast.");
         // CollectionHelper.print(tokens);
         assertEquals(30, tokens.size());
-        
+
         // tokens = Tokenizer.tokenize("Text with some link: http://www.example.com.");
         // TODO would be nice to keep URLs.
 
@@ -227,5 +227,36 @@ public class TokenizerTest {
         assertEquals(1, sentences.size());
         assertEquals(inputText, sentences.get(0));
 
+        inputText = "And then he said: \"no way?\" and I said, 'yes way!' and she said 'ha ha.' and 'ho ho'.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals(inputText, sentences.get(0));
+
+        inputText = "And then he said:no way (but why did he say that?) and I said, 'yes way!' (and I meant it!) yes (I really meant it!!!!!!!) 'ho ho' (she likes to laugh.).";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals(inputText, sentences.get(0));
+
+        inputText = "it happened again :) soo coool!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals(inputText, sentences.get(0));
+
+        inputText = "it happened again :). soo coool!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+
+        inputText = "it happened again :( soo mean!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals(inputText, sentences.get(0));
+
+        inputText = "it happened again :(. soo mean!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+
+        inputText = "it happened again ;-(. soo mean!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
     }
 }
