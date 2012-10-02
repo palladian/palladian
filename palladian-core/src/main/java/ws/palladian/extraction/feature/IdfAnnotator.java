@@ -37,7 +37,7 @@ public final class IdfAnnotator extends AbstractTokenProcessor {
 
     @Override
     protected void processToken(Annotation<String> annotation) {
-        double idf = termCorpus.getIdf(annotation.getValue().toLowerCase());
+        double idf = Math.log10(termCorpus.getIdf(annotation.getValue().toLowerCase()));
         annotation.addFeature(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, idf));
     }
 

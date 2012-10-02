@@ -17,7 +17,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
 
 public class AnnotatorTest {
 
-    private final PipelineDocument document = new PipelineDocument("Let's try to stem some tokens in English language.");
+    private final PipelineDocument<String> document = new PipelineDocument<String>("Let's try to stem some tokens in English language.");
 
     @Test(expected = DocumentUnprocessableException.class)
     public void testMissingTokenAnnotations() throws DocumentUnprocessableException {

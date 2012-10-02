@@ -7,12 +7,15 @@ import java.util.Random;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.lang3.Validate;
+import org.apache.log4j.Logger;
 
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance2;
 import ws.palladian.classification.Predictor;
+import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -24,6 +27,9 @@ import ws.palladian.processing.features.FeatureVector;
  * @author Philipp Katz
  */
 public class BaggedDecisionTreeClassifier implements Predictor<String> {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(BaggedDecisionTreeClassifier.class);
 
     private static final long serialVersionUID = 1L;
     
@@ -47,11 +53,13 @@ public class BaggedDecisionTreeClassifier implements Predictor<String> {
 
     @Override
     public void learn(List<Instance2<String>> instances) {
+        StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < numClassifiers; i++) {
             List<Instance2<String>> sampling = getBagging(instances);
             DecisionTreeClassifier newClassifier = new DecisionTreeClassifier();
             newClassifier.learn(sampling);
             predictors.add(newClassifier);
+            ProgressHelper.showProgress(i, numClassifiers, 0, LOGGER, stopWatch);
         }
     }
 
