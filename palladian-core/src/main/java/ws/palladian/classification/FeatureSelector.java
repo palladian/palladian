@@ -4,6 +4,7 @@
 package ws.palladian.classification;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,12 +40,29 @@ public final class FeatureSelector {
 
     public static Map<String, Double> calculateChiSquareValues(NominalFeatureDescriptor descriptor,
             Collection<Instance2<String>> instances) {
-        WordCorrelationMatrix termClassCorrelationMatrix = new WordCorrelationMatrix();
+        Map<String, Map<String, Integer>> termClassCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
+        Map<String, Double> ret = new HashMap<String, Double>();
 
         for (Instance2<String> instance : instances) {
             String value = instance.featureVector.get(descriptor).getValue();
-            termClassCorrelationMatrix.updatePair(value.toString(), instance.target);
+            Map<String, Integer> correlations = termClassCorrelationMatrix.get(value);
+            if (correlations == null) {
+                correlations = new HashMap<String, Integer>();
+            }
+            Integer occurenceCount = correlations.get(instance.target);
+            if (occurenceCount == null) {
+                occurenceCount = 0;
+            }
+            occurenceCount++;
+            correlations.put(instance.target, occurenceCount);
+            termClassCorrelationMatrix.put(value, correlations);
         }
+
+        for (Map.Entry<String, Map<String, Integer>> termOccurence : termClassCorrelationMatrix.entrySet()) {
+            ret.put(termOccurence.getKey(), value);
+        }
+
+        return ret;
     }
 
     // pca funktioniert nur für numerische merkmale
