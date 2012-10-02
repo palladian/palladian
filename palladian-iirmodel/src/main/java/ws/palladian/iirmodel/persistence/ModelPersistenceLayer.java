@@ -1171,6 +1171,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * <p>
      * Saves a non existing {@link Labeler} to the database.
      * </p>
+     * arg0
      * 
      * @param labeler The {@code Labeler} to save.
      */
@@ -1301,6 +1302,29 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
             Query queryObj = getManager().createNativeQuery(query);
             List resultList = queryObj.getResultList();
             return resultList;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * Loads all {@link Item}s not yet labeled by a certain {@link Labeler}.
+     * </p>
+     * 
+     * @param labeler The {@code Labeler} to use as reference to search for non labeled {@code Item}s
+     * @return A list of the {@code Item}s not labeled by the {@code Labeler}.
+     */
+    public List<Item> loadItemsNotLabeledBy(final Labeler labeler) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            TypedQuery<Item> query = getManager()
+                    .createQuery(
+                            "SELECT i FROM Item i WHERE i NOT IN (SELECT labeled FROM Labeler lr JOIN lr.labels l JOIN l.labeledItem labeled WHERE lr=:labeler)",
+                            // "SELECT labeled FROM Labeler lr JOIN lr.labels l JOIN l.labeledItem labeled WHERE lr=:labeler",
+                            Item.class);
+            query.setParameter("labeler", labeler);
+            return query.getResultList();
         } finally {
             commitTransaction(openedTransaction);
         }
