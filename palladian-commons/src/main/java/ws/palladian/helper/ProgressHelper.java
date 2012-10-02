@@ -60,15 +60,15 @@ public final class ProgressHelper {
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
                 processString.append(createProgressBar(percent));
                 processString.append(" => ").append(percent).append("% (").append(totalCount - counter)
-                        .append(" items remaining");
+                .append(" items remaining");
                 if (stopWatch != null && percent > 0) {
-                    long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / percent);
-                    processString.append(", elapsed time: ").append(stopWatch.getElapsedTimeString());
-                    processString.append(", est. time remaining: ").append(DateHelper.getRuntime(0, msRemaining));
-                    // long msRemaining = (long)((100 / percent) * stopWatch.getElapsedTime());
-                    // processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
-                    // processString.append(", est. time remaining: ").append(DateHelper.getRuntime(0, msRemaining));
-                    // stopWatch.start();
+                    long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
+                    // if elapsed not possible (timer started long before progress helper used) =>
+                    // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
+                    processString.append(", elapsed time: ").append(stopWatch.getTotalElapsedTimeString());
+                    processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
+                    processString.append(", ~remaining: ").append(DateHelper.getRuntime(0, msRemaining));
+                    stopWatch.start();
                 }
                 processString.append(")");
 
@@ -99,7 +99,7 @@ public final class ProgressHelper {
 
         StopWatch stopWatch = new StopWatch();
         for (int i = 1; i <= 10; i++) {
-            ThreadHelper.deepSleep(10000);
+            ThreadHelper.deepSleep(1000);
             ProgressHelper.showProgress(i, 10, 1, stopWatch);
         }
 
