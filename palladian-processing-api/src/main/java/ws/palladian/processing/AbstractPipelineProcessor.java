@@ -252,4 +252,9 @@ public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor 
     public void processingFinished() {
         // TODO subclasses can insert their own code here.
     }
+
+    @Override
+    public PipelineDocument<?> getOutput(final String outputPortIdentifier) {
+        return getOutputPort(outputPortIdentifier).getPipelineDocument();
+    }
 }
