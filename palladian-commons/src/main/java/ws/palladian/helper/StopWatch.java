@@ -94,6 +94,17 @@ public class StopWatch {
     }
 
     /**
+     * <p>
+     * Get the total elapsed time since the first start of the stop watch.
+     * </p>
+     * 
+     * @return The number of milliseconds since the timer was started for the first time.
+     */
+    public long getTotalElapsedTime() {
+        return System.currentTimeMillis() - startTime;
+    }
+
+    /**
      * Get the elapsed time in milliseconds.
      * 
      * @return The elapsed time.
