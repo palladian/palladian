@@ -103,6 +103,15 @@ public class AnnotationFeature<T> extends Feature<List<Annotation<T>>> {
         return result;
     }
 
+    public List<? extends Feature<T>> getFeatures(Class<? extends Feature<T>> class1, String identifier) {
+        List features = new ArrayList();
+        for (Annotation<T> current : getValue()) {
+            features.add(current.getFeatureVector().get(class1, identifier));
+        }
+
+        return features;
+    }
+
     /**
      * <p>
      * Get a human-readable list of all contained {@link Annotation}s, separated by new lines.

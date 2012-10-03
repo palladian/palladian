@@ -1,8 +1,6 @@
 package ws.palladian.processing.features;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -13,11 +11,13 @@ import java.util.TreeMap;
  * the document can be processed by Information Retrieval components like classifiers or clusterers.
  * </p>
  * 
+ * TODO iteratable???
+ * 
  * @author Klemens Muthmann
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class FeatureVector implements Iterable<Feature<?>> {
+public class FeatureVector {
     /**
      * <p>
      * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
@@ -31,7 +31,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * type.
      * </p>
      */
-    protected final SortedMap<String, Feature<?>> features;
+    protected final SortedMap<String, List<Feature<?>>> features;
 
     /**
      * <p>
@@ -39,7 +39,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * </p>
      */
     public FeatureVector() {
-        features = new TreeMap<String, Feature<?>>();
+        features = new TreeMap<String, List<Feature<?>>>();
     }
 
     /**
@@ -49,7 +49,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * @param featureVector The feature vector which Features to copy.
      */
     public FeatureVector(FeatureVector featureVector) {
-        features = new TreeMap<String, Feature<?>>(featureVector.features);
+        features = new TreeMap<String, List<Feature<?>>>(featureVector.features);
     }
 
     /**
@@ -66,7 +66,13 @@ public class FeatureVector implements Iterable<Feature<?>> {
      */
     @Deprecated
     public void add(String identifier, Feature<?> newFeature) {
-        features.put(identifier, newFeature);
+        List<Feature<?>> list = features.get(identifier);
+        if (list == null) {
+            list = new ArrayList<Feature<?>>();
+        }
+        list.add(newFeature);
+
+        features.put(identifier, list);
     }
 
     /**
@@ -79,7 +85,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *            The actual {@code Feature} instance containing the value.
      */
     public void add(Feature<?> newFeature) {
-        features.put(newFeature.getName(), newFeature);
+        add(newFeature.getName(), newFeature);
     }
 
     /**
@@ -94,9 +100,38 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *             improves type safety and avoids unnecessary casting.
      */
     @Deprecated
-    public Feature<?> get(String identifier) {
-        return features.get(identifier);
+    public <T, U extends Feature<T>> U getFeature(Class<U> class1, String identifier) {
+        List<U> allFeatures = getAll(class1, identifier);
+        if (allFeatures != null && !allFeatures.isEmpty()) {
+            return allFeatures.get(0);
+        }
+        return null;
     }
+
+    private Feature<?> getFeature(String identifier) {
+        List<Feature<?>> allFeatures = features.get(identifier);
+        if (allFeatures != null && !allFeatures.isEmpty()) {
+            return allFeatures.get(0);
+        }
+        return null;
+    }
+
+    @Deprecated
+    public <T> Feature<T> get(Class<? extends Feature<T>> class1, String identifier) {
+        return class1.cast(getFeature(identifier));
+    }
+
+    @Deprecated
+    public <T extends Feature<?>> List<T> getAll(Class<T> class1, String identifier) {
+        List<Feature<?>> list = features.get(identifier);
+
+        List<T> selectedFeatures = new ArrayList<T>();
+        for (Feature<?> feature : list) {
+            selectedFeatures.add(class1.cast(feature));
+        }
+        return selectedFeatures;
+    }
+
 
     /**
      * <p>
@@ -108,11 +143,13 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *         exist, never <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    public <T> List<Feature<T>> getAll(Class<T> type) {
-        List<Feature<T>> ret = new ArrayList<Feature<T>>();
-        for (Feature<?> feature : features.values()) {
-            if (type.isInstance(feature.getValue())) {
-                ret.add((Feature<T>)feature);
+    public <T, U extends Feature<T>> List<U> getAll(Class<T> type) {
+        List<U> ret = new ArrayList<U>();
+        for (List<Feature<?>> featureList : features.values()) {
+            for (Feature<?> feature : featureList) {
+                if (type.isInstance(feature.getValue())) {
+                    ret.add((U)feature);
+                }
             }
         }
         return ret;
@@ -129,7 +166,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *         {@link Feature} exists.
      */
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
-        Feature<?> feature = features.get(descriptor.getIdentifier());
+        Feature<?> feature = (Feature<?>)features.get(descriptor.getIdentifier());
         if (feature == null) {
             return null;
         } else {
@@ -192,10 +229,6 @@ public class FeatureVector implements Iterable<Feature<?>> {
         return features.remove(featureDescriptor.getIdentifier()) != null;
     }
 
-    @Override
-    public Iterator<Feature<?>> iterator() {
-        return features.values().iterator();
-    }
 
     /**
      * <p>
@@ -204,9 +237,25 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * 
      * @param featureVector The {@code FeatureVector} containing the {@link Feature}s to add.
      */
-    public void addAll(final FeatureVector featureVector) {
-        for (Feature<?> feature : featureVector) {
-            this.add(feature);
+    // public void addAll(final FeatureVector featureVector) {
+    // for (Feature<?> feature : featureVector) {
+    // this.add(feature);
+    // }
+    // }
+
+    public <T> List<? extends Feature<T>> getFeatures(Class<? extends Feature<T>> class1, String featurePath) {
+
+        String[] pathElements = featurePath.split("/");
+
+        for (String pathElement : pathElements) {
+            Feature<?> feature = getFeature(pathElement);
+            if (feature instanceof AnnotationFeature) {
+                return ((AnnotationFeature<T>)feature).getFeatures(class1,
+                        featurePath.substring(featurePath.indexOf("/") + 1));
+            }
+            return getAll(class1, pathElement);
         }
+
+        return null;
     }
 }
