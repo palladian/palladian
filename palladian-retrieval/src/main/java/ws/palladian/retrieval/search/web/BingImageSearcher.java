@@ -34,12 +34,12 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
 
     @Override
     protected WebImageResult parseResult(JSONObject currentResult) throws JSONException {
-        String url = currentResult.getString("MediaUrl");
+        String pageUrl = currentResult.getString("SourceUrl");
+        String imageUrl = currentResult.getString("MediaUrl");
         int width = currentResult.getInt("Width");
         int height = currentResult.getInt("Height");
         String title = currentResult.getString("Title");
-        WebImageResult webResult = new WebImageResult(url, title, width, height);
-        return webResult;
+        return new WebImageResult(pageUrl, imageUrl, title, null, width, height, null, null);
     }
 
     @Override

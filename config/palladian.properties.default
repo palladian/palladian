@@ -1,5 +1,6 @@
-config.version = 19
+config.version = 20
 ### version history:
+### 20: clean up
 ### 19: added youtube and webknox api key
 ### 18: added path to palladian POS model
 ### 17: added MavSync ttl mode
@@ -20,31 +21,17 @@ config.version = 19
 ### 2: added timeouts for DocumentRetriever
 ### 1: initial version
 
-
-######################## Model Paths ########################
-
-models.palladian.date.published = palladian/date/pubClassifierFinal.model
-models.palladian.date.modified =  palladian/date/modClassifierFinal.model
-
 ######################## API keys ########################
 api.alchemy.key = b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5
-api.bing.key = D35DE1803D6F6F03AB5044430997A91924AD347A
-api.google.key = ABQIAAAA7H0y5xnSFd668h5iwC-EqRQUCodsAOOOxFO2WQpCHSyvFhJDHxTj6f5-8hxq9u2Us0fLG1ZqBA6I-g
+api.bing.accountkey = D35DE1803D6F6F03AB5044430997A91924AD347A
 api.google.tranlsate.key = AIzaSyD-fJ-e3c70PMCdqB2q30BI9d_tFty25Lk
 api.hakia.key = ROTDG-43NA1-HDBNF-M3V4O-NCDJ5
 api.opencalais.key = mx2g74ej2qd4xpqdkrmnyny5
-api.yahoo.key = Isx7uavV34E_iKMIuvEZB0pCUQPuBmxBttBxyXX3UtXNtl7uYkoDAKbFa6c-
-api.yahoo_boss.key = R7ZPxa7V34FK8UPp4HFddNFJNdGcZoIHXsyvvlK1.5iPbiJ9cCS39LbWIfs-
 api.bitly.login = qqilihq
 api.bitly.key = R_2f0606b6760dd5e567afdf5e4ddbec2d
-api.mixx.key = uoRkXpXlVZBNgQZfn7VR0w
 api.reddit.username = qqilihq
 api.reddit.password = amcocuymzu
 api.readitlater.key = a62g2W68p36ema12fvTc410Td1A1Na62
-
-# access to Collecta XMPP and REST API
-# see: http://developer.collecta.com/APIindex/
-api.collecta.key = aef13a5bc659dc610cf6ad300da7994e
 
 # TODO I extracted API keys for majestic+compete from "Seo for Firefox" extension
 # http://tools.seobook.com/firefox/seo-for-firefox.html
@@ -52,21 +39,11 @@ api.collecta.key = aef13a5bc659dc610cf6ad300da7994e
 api.majestic.key = 2F85C7EF65
 
 # Rankify API keys
-# use backtweets.com to get number of tweets for a specific url
-api.backtweets.key = 4f2b553e8de8a336a6a7
 # BibSonomy is a bookmark service especially for publications/papers
 api.bibsonomy.login = jumehl
 api.bibsonomy.key = e954a3a053193c36283af8a760918302
-# Google Buzz
-api.google.buzz.key = AIzaSyBBuf8UDOkcq1Dg_NqfqF_Ggpc5F9hv0mM
-# Facebook - Rankify App -> not used
-api.facebook.key = 3e2b3878a8c85aa29b7aad1907f01499
-api.facebook.secret = 6d6208bc31599b44cf856662b28341da
 # Plurk.com - Rankify App
 api.plurk.key = wNvoEnXhJei2IZat8f8YuAKHMDq79mTV
-# Linked.in - Rankify App
-api.linkedin.key = oSuIRh0O-pGFYcxW3pn43JXDygwfLL26-fhu3Y2hEffES9954u7pyuTJbLP8NDnQ
-api.linkedin.secret = wvlBp_3_NOJdi76I4L82MZmArR7HX0O2HydYMHHYFnFOONSNjEELSnf55tE7EoxO
 # ShareThis
 api.sharethis.key = 94d2fab0-cbf6-4798-86ec-11a0fae8d48a
 api.sharethis.secret = 5e06f20138b94a109ac1d079ef59b373
@@ -132,14 +109,3 @@ datasetEvaluator.maxCheckInterval = 1440
 # Choose benchmark mode. Supported values are: 
 # poll, time 
 datasetEvaluator.benchmarkMode = time
-
-
-######################## Threshold Dateextraction ########################
-threshold.group1 = 0.15
-threshold.group2 = 0.24
-threshold.group3 = 0.18
-threshold.group4 = 0.16
-threshold.group5 = 0.14
-threshold.group6 = 0.13
-threshold.group7 = 0.17
-threshold.group8 = 0.26

@@ -56,7 +56,7 @@ public class MathHelperTest {
         assertEquals(0., MathHelper.getMedian(new double[] {0., 0., 0., 1.}), 0);
         assertEquals(3948348538l, MathHelper.getMedian(new long[] {1l, 2l, 3948348538l, 3948348539l, 3948348540l}), 0);
     }
-    
+
     @SuppressWarnings("deprecation")
     @Test
     public void testGetMedianDifference() {
@@ -70,16 +70,20 @@ public class MathHelperTest {
     }
 
     @Test
-    public void testCalculateJaccardSimilarity() {
+    public void testCalculateSetSimilarity() {
 
         Set<String> set1 = new HashSet<String>(Arrays.asList("1","2","3","4"));
         Set<String> set2 = new HashSet<String>(Arrays.asList("1","2","3","6"));
         Set<String >set3 = new HashSet<String>(Arrays.asList("1","2","3","4"));
         Set<String> set4 = new HashSet<String>(Arrays.asList("5","6","7","8"));
-        
+        Set<String> set5 = new HashSet<String>(Arrays.asList("1","2","3","4","5","6","7","8","9","10"));
+
         assertEquals(0.6, MathHelper.computeJaccardSimilarity(set1, set2), 0);
         assertEquals(1.0, MathHelper.computeJaccardSimilarity(set1, set3), 0);
         assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, set4), 0);
+        
+        assertEquals(0.75, MathHelper.computeOverlapCoefficient(set1, set2), 0);
+        assertEquals(1, MathHelper.computeOverlapCoefficient(set1, set5), 0);
     }
 
     @Test
@@ -105,7 +109,7 @@ public class MathHelperTest {
         List<String> list1 = Arrays.asList("a","b","c");
         List<String> list2 = Arrays.asList("c","b","a");
         List<String> list3 = Arrays.asList("a","b","c");
-        
+
         assertEquals(0.0, MathHelper.computeListSimilarity(list1, list2).getShiftSimilarity(), 0);
         assertEquals(1.0, MathHelper.computeListSimilarity(list1, list3).getShiftSimilarity(), 0);
 
@@ -139,7 +143,7 @@ public class MathHelperTest {
 
         // the total number of relevant documents for the query
         int totalNumberRelevantForQuery = 5;
-        
+
         double[][] ap = MathHelper.computeAveragePrecision(rankedList,totalNumberRelevantForQuery);
         int k = rankedList.size() - 1;
         double prAtK = ap[k][0];
@@ -149,7 +153,22 @@ public class MathHelperTest {
         assertEquals((1+2./3+3./4+4./5+5./6)/totalNumberRelevantForQuery, apAtK, 0);
 
     }
-    
+
+    @Test
+    public void testGetRandomIntBetween() {
+        int r = MathHelper.getRandomIntBetween(4, 80);
+        assertTrue(r >= 4 && r <= 80);
+
+        r = MathHelper.getRandomIntBetween(1, 5);
+        assertTrue(r >= 1 && r <= 5);
+
+        r = MathHelper.getRandomIntBetween(10, 11);
+        assertTrue(r >= 10 && r <= 11);
+
+        r = MathHelper.getRandomIntBetween(0, 100);
+        assertTrue(r >= 0 && r <= 100);
+    }
+
     @Test
     public void testGetDistances() {
         assertEquals(0, MathHelper.getDistances(new long[0]).length);
