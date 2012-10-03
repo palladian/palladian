@@ -35,6 +35,7 @@ import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.TreeNode;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateHelper;
@@ -429,10 +430,10 @@ public class ClassifierManager {
     private boolean createDictionaryNGramSearchMode = true;
 
     /** The list of training URLs. */
-    private URLs trainingUrls = new URLs();
+    private List<String[]> trainingUrls = CollectionHelper.newArrayList();
 
     /** The list of test URLs. */
-    private URLs testUrls = new URLs();
+    private List<String[]> testUrls = CollectionHelper.newArrayList();
 
     /** A simple stop watch to measure performance. */
     private StopWatch stopWatch;
@@ -835,10 +836,10 @@ public class ClassifierManager {
         if (forTraining) {
             classifier.setTrainingDocuments(new ClassificationDocuments());
             classifier.setCategories(new Categories());
-            trainingUrls = new URLs();
+            trainingUrls.clear();
         } else {
             classifier.setTestDocuments(new ClassificationDocuments());
-            testUrls = new URLs();
+            testUrls.clear();
         }
 
         // determine last line when we want to break in case we don't want to use all data from the dataset

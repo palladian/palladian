@@ -9,7 +9,6 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
@@ -63,7 +62,7 @@ public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
                 questions.add(createQuestion(sentence));
             }
         }
-        AnnotationFeature<String> questionsFeature = new AnnotationFeature<String>(FEATURE_IDENTIFIER,questions);
+        TextAnnotationFeature questionsFeature = new TextAnnotationFeature(FEATURE_IDENTIFIER,questions);
         document.getFeatureVector().add(questionsFeature);
     }
 
