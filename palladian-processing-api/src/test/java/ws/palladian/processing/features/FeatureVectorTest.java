@@ -74,7 +74,7 @@ public class FeatureVectorTest {
         document.addFeature(documentFeature);
         document.addFeature(annotationFeature);
 
-        NominalFeature feature = document.getFeatureVector().getFeature(NominalFeature.class, "term");
+        NominalFeature feature = document.getFeatureVector().get(NominalFeature.class, "term");
 
         assertEquals("testTerm", feature.getValue());
         
