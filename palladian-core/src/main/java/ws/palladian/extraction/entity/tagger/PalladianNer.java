@@ -1040,7 +1040,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Annotations annotations = new Annotations();
 
         // get the candates, every token is potentially a (part of) an entity
-        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText, Tokenizer.SPLIT_REGEX);
+        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
 
         // classify annotations with the UniversalClassifier
         annotations.addAll(classifyCandidatesLanguageIndependent(entityCandidates));

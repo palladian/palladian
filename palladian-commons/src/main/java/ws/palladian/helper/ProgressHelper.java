@@ -63,6 +63,8 @@ public final class ProgressHelper {
                 .append(" items remaining");
                 if (stopWatch != null && percent > 0) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
+                    // if elapsed not possible (timer started long before progress helper used) =>
+                    // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
                     processString.append(", elapsed time: ").append(stopWatch.getTotalElapsedTimeString());
                     processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
                     processString.append(", ~remaining: ").append(DateHelper.getRuntime(0, msRemaining));
