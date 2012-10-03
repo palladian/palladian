@@ -13,7 +13,7 @@ package ws.palladian.processing.features;
  * @author Philipp Katz
  * @param <T> The data type used to represent this {@code Feature}'s value.
  */
-public class Feature<T> {
+public abstract class Feature<T> {
 
     /**
      * <p>

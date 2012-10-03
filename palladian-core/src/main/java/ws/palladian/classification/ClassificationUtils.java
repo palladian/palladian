@@ -155,7 +155,7 @@ public final class ClassificationUtils {
         // find the min and max values
         for (NominalInstance instance : instances) {
 
-            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
+            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
 
             for (Feature<Double> feature:numericFeatures) {
 
@@ -193,7 +193,7 @@ public final class ClassificationUtils {
             // NominalInstance normalizedInstance = new NominalInstance();
 
             // UniversalInstance nInstance = (UniversalInstance) instance;
-            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
+            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
 
             for (Feature<Double> numericFeature:numericFeatures) {
                 String featureName = numericFeature.getName();

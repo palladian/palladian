@@ -17,7 +17,9 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
- * <p>Test cases for the PageSegmenter.</p>
+ * <p>
+ * Test cases for the PageSegmenter.
+ * </p>
  * 
  * @author Silvio Rabe
  * @author Philipp Katz
