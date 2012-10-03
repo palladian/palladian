@@ -9,6 +9,7 @@ import ws.palladian.extraction.sentence.LingPipeSentenceDetector;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.Feature;
 
 public class QuestionAnnotatorTest {
@@ -23,7 +24,7 @@ public class QuestionAnnotatorTest {
         pipeline.add(objectOfClassUnderTest);
         
         PipelineDocument document = pipeline.process(new PipelineDocument(fixture));
-        Feature<List<Annotation>> questions = (Feature<List<Annotation>>)document.getFeatureVector().get(QuestionAnnotator.FEATURE_IDENTIFIER);
+        Feature<List<Annotation>> questions = document.getFeatureVector().get(AnnotationFeature.class, QuestionAnnotator.FEATURE_IDENTIFIER);
         for(Annotation question:questions.getValue()) {
             System.out.println(question);
         }
