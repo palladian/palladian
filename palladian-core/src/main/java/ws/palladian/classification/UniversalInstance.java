@@ -4,7 +4,6 @@ import java.util.List;
 
 import ws.palladian.classification.numeric.MinMaxNormalization;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -12,7 +11,7 @@ import ws.palladian.processing.features.NumericFeature;
 public class UniversalInstance extends Instance {
 
     /** The serial versionID. */
-    private static final long serialVersionUID = 55203846826273834L;
+    // private static final long serialVersionUID = 55203846826273834L;
 
     // private List<Double> numericFeatures = new ArrayList<Double>();
     // private List<String> nominalFeatures = new ArrayList<String>();
@@ -33,15 +32,15 @@ public class UniversalInstance extends Instance {
     public List<Double> getNumericFeatures() {
         // return numericFeatures;
         List<Double> result = CollectionHelper.newArrayList();
-        List<Feature<Double>> numericFeatures = featureVector.getAll(Double.class);
-        for (Feature<Double> numericFeature : numericFeatures) {
+        List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
+        for (NumericFeature numericFeature : numericFeatures) {
             result.add(numericFeature.getValue());
         }
         return result;
     }
     
-    public List<Feature<Double>> getNumericFeatures2() {
-        return featureVector.getAll(Double.class);
+    public List<NumericFeature> getNumericFeatures2() {
+        return featureVector.getAll(NumericFeature.class);
     }
 
     public void setNumericFeatures(List<Double> numericFeatures) {
@@ -54,8 +53,8 @@ public class UniversalInstance extends Instance {
     public List<String> getNominalFeatures() {
         // return nominalFeatures;
         List<String> result = CollectionHelper.newArrayList();
-        List<Feature<String>> nominalFeatures = featureVector.getAll(String.class);
-        for (Feature<String> nominalFeature : nominalFeatures) {
+        List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
+        for (NominalFeature nominalFeature : nominalFeatures) {
             result.add(nominalFeature.getValue());
         }
         return result;
