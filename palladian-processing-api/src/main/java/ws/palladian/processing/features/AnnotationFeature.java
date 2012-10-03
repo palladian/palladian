@@ -14,7 +14,7 @@ import ws.palladian.processing.PipelineProcessor;
  * 
  * @author Philipp Katz
  */
-public class AnnotationFeature<T> extends Feature<List<Annotation<T>>> {
+public abstract class AnnotationFeature<T> extends Feature<List<Annotation<T>>> {
 
     private static final char NEWLINE = '\n';
 
