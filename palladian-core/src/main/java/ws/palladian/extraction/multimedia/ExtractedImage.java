@@ -3,14 +3,17 @@ package ws.palladian.extraction.multimedia;
 import ws.palladian.retrieval.search.web.WebImageResult;
 
 /**
- * <p>An extracted image.</p>
+ * <p>
+ * An extracted image.
+ * </p>
  * 
  * @author David Urbansky
  */
 public class ExtractedImage extends WebImageResult {
 
     public ExtractedImage(WebImageResult image) {
-        super(image.getUrl(), image.getTitle(), image.getWidth(), image.getHeight(), image.getImageContent());
+        super(image.getUrl(), image.getImageUrl(), image.getTitle(), image.getSummary(), image.getWidth(), image
+                .getHeight(), image.getDate(), image.getImageContent());
     }
 
     private int rankCount = 1;
@@ -41,7 +44,7 @@ public class ExtractedImage extends WebImageResult {
     }
 
     public double getRanking() {
-        double ranking = getDuplicateCount() + (1 / (double) getRankCount());
+        double ranking = getDuplicateCount() + (1 / (double)getRankCount());
         return ranking;
     }
 

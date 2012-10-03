@@ -38,6 +38,11 @@ public final class FarooSearcher extends BaseFarooSearcher {
 
         return urlBuilder.toString();
     }
+    
+    @Override
+    public String getName() {
+        return "Faroo";
+    }
 
     public static void main(String[] args) throws SearcherException {
         CollectionHelper.print(new FarooSearcher().search("conan", 10));

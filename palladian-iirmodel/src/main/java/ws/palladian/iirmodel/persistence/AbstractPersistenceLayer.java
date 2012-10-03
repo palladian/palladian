@@ -37,6 +37,11 @@ public abstract class AbstractPersistenceLayer {
      *            load the correct configuration from the persistence.xml file.
      */
     public AbstractPersistenceLayer(final EntityManager entityManager) {
+        if (entityManager == null) {
+            throw new IllegalArgumentException(
+                    "Trying to create ModelPersistenceLayer with null EntityManager. This is not valid.");
+        }
+
         manager = entityManager;
     }
 

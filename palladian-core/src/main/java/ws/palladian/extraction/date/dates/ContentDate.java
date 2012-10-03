@@ -59,39 +59,12 @@ public final class ContentDate extends AbstractBodyDate {
 	private String isKeyClass2 = "0";
 	private String isKeyClass3 = "0";
     
-    
-    /**
-     * Related Structure-Date for this Content-Date.
-     */
-    private StructureDate structureDate = null;
-    
-    private boolean hasStrucutreDate = false;
+    private boolean hasStructureDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
    
     public ContentDate(ExtractedDate date) {
         super(date);
-    }
-
-    /**
-     * Returns location of found keyword as readable string.<br>
-     * Field <b>keywordLocation</b> should be set.
-     * To set location or get it as int, use get() and set() methods.
-     * 
-     * @return Attribute or Content if location is set. -1 for undefined location.
-     */
-    public String getKeyLocToString() {
-        String keyPos = String.valueOf(keywordLocation);
-        switch (keywordLocation) {
-            case KEY_LOC_ATTR:
-                keyPos = "Attribute";
-                break;
-            case KEY_LOC_CONTENT:
-                keyPos = "Content";
-                break;
-
-        }
-        return keyPos;
     }
 
     @Override
@@ -101,7 +74,7 @@ public final class ContentDate extends AbstractBodyDate {
         builder.append(", positionInDocument=").append(positionInDocument);
         builder.append(", positionInTagtext=").append(positionInTagtext);
         builder.append(", distanceToContext=").append(distanceToContext);
-        builder.append(", keyLoc=").append(getKeyLocToString());
+        builder.append(", keyLoc=").append(keywordLocation);
         return builder.toString();
     }
 
@@ -149,24 +122,13 @@ public final class ContentDate extends AbstractBodyDate {
         }
 
     }
+    
+    public void setHasStructureDate(boolean hasStructureDate) {
+        this.hasStructureDate = hasStructureDate;
+    }
 
-	public void setStructureDate(StructureDate structureDate) {
-		this.structureDate = structureDate;
-		if(structureDate != null){
-			this.hasStrucutreDate = true;
-		}
-	}
-
-	public StructureDate getStructureDate() {
-		return structureDate;
-	}
-
-	public void setHasStrucutreDate(boolean hasStrucutreDate) {
-		this.hasStrucutreDate = hasStrucutreDate;
-	}
-
-	public boolean hasStrucutreDate() {
-		return hasStrucutreDate;
+	public boolean hasStructureDate() {
+		return hasStructureDate;
 	}
 
 	public void setInMetaDates(boolean inMetaDates) {

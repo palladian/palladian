@@ -94,7 +94,7 @@ public class TestHeadDateRater extends HeadDateRater {
         for (int i = 0; i < headDates.size(); i++) {
             double rate;
             MetaDate date = headDates.get(i);
-            byte keywordPriority = KeyWords.getKeywordPriority(date);
+            byte keywordPriority = KeyWords.getKeywordPriority(date.getKeyword());
             if (keywordPriority == hightPriority) {
                 rate = 1;
             } else if (keywordPriority == middlePriority) {

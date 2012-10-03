@@ -68,6 +68,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.FileHelper;
 
 // TODO remove deprecated methods, after dependent code has been adapted
 // TODO completely remove all java.net.* stuff
@@ -443,10 +444,13 @@ public class HttpRetriever {
             throw new HttpException(e);
         } catch (IOException e) {
             throw new HttpException(e);
+        } catch (NumberFormatException e) {
+            throw new HttpException(e);
         } finally {
             IOUtils.closeQuietly(in);
             request.abort();
         }
+
         return result;
     }
 
@@ -668,6 +672,8 @@ public class HttpRetriever {
         OutputStream out = null;
 
         try {
+            FileHelper.createDirectoriesAndFile(filePath);
+
             out = new BufferedOutputStream(new FileOutputStream(filePath));
 
             if (compress) {

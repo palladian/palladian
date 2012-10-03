@@ -118,22 +118,28 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
             JSONObject root = new JSONObject(HttpHelper.getStringContent(httpResult));
             TOTAL_REQUEST_COUNT.incrementAndGet();
             JSONObject feed = root.getJSONObject("feed");
-            JSONArray entries = feed.getJSONArray("entry");
 
-            for (int i = 0; i < entries.length(); i++) {
+            if (feed.has("entry")) {
 
-                JSONObject entry = entries.getJSONObject(i);
-                String published = entry.getJSONObject("published").getString("$t");
+                JSONArray entries = feed.getJSONArray("entry");
 
-                String title = entry.getJSONObject("title").getString("$t");
-                String link = entry.getJSONObject("content").getString("src");
-                Date date = parseDate(published);
+                for (int i = 0; i < entries.length(); i++) {
 
-                WebVideoResult webResult = new WebVideoResult(link, title, date);
-                webResults.add(webResult);
+                    JSONObject entry = entries.getJSONObject(i);
+                    String published = entry.getJSONObject("published").getString("$t");
 
-                if (webResults.size() >= resultCount) {
-                    break;
+                    String title = entry.getJSONObject("title").getString("$t");
+                    String videoLink = entry.getJSONObject("content").getString("src");
+                    Date date = parseDate(published);
+                    String pageLink = getPageLink(entry);
+
+                    WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, null, date);
+                    webResults.add(webResult);
+
+                    if (webResults.size() >= resultCount) {
+                        break;
+                    }
+
                 }
 
             }
@@ -143,6 +149,27 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
         }
         return webResults;
+    }
+
+    /**
+     * <p>
+     * Get the URL linking to the YouTube page where the video is shown.
+     * </p>
+     * 
+     * @param entry
+     * @return The URL, or <code>null</code> if no URL provided.
+     * @throws JSONException
+     */
+    public String getPageLink(JSONObject entry) throws JSONException {
+        JSONArray linkArray = entry.getJSONArray("link");
+        for (int k = 0; k < linkArray.length(); k++) {
+            JSONObject linkObject = linkArray.getJSONObject(k);
+            String rel = linkObject.getString("rel");
+            if (rel.equals("alternate")) {
+                return linkObject.getString("href");
+            }
+        }
+        return null;
     }
 
     private Date parseDate(String dateString) {

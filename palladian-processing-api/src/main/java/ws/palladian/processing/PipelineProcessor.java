@@ -32,7 +32,9 @@ public interface PipelineProcessor extends Serializable {
 
     List<Port<?>> getOutputPorts();
 
-    Port<?> getOutputPort(final String name);
+    Port<?> getOutputPort(final String outputPortIdentifier);
+
+    PipelineDocument<?> getOutput(final String outputPortIdentifier);
 
     Boolean isExecutable();
 

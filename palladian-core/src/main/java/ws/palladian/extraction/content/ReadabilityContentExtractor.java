@@ -90,8 +90,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     /** The original document. */
     private Document document;
 
-//    private DOMParser parser;
-
     /** The filtered and result document. */
     private Document resultNode;
 
@@ -102,35 +100,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     private boolean cleanConditionally;
 
     private boolean writeDump = false;
-
-    public ReadabilityContentExtractor() {
-//        setup();
-    }
-
-//    private void setup() {
-//        LOGGER.trace(">setup");
-//        // set up the NekoHTML parser
-//        try {
-//            parser = new DOMParser(new HTMLConfiguration());
-//
-//            // use the filter to filter out Elements and Attributes which do not
-//            // belong to the default namespace -- elsewise we can get into trouble
-//            // later, when we want to construct the new document
-//            XMLDocumentFilter[] filters = { new PreflightFilter() };
-//            parser.setProperty("http://cyberneko.org/html/properties/filters", filters);
-//
-//            parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-//            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
-//
-//            // crawler = new DocumentRetriever();
-//
-//        } catch (SAXNotSupportedException e) {
-//            LOGGER.error("initialization of DOMParser failed", e);
-//        } catch (SAXNotRecognizedException e) {
-//            LOGGER.error("initialization of DOMParser failed", e);
-//        }
-//        LOGGER.trace("<setup");
-//    }
 
     /* (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.w3c.dom.Document)
@@ -144,30 +113,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         this.resultNode = init(document);
         return this;
     }
-
-    // @Override
-    // public WebPageContentExtractor setDocument(InputSource source) throws PageContentExtractorException {
-    // try {
-    // parser.parse(source);
-    // return setDocument(parser.getDocument());
-    // } catch (Throwable t) {
-    // throw new PageContentExtractorException(t);
-    // }
-    // }
-//
-//    @Override
-//    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
-//        try {
-//            NekoHtmlParser parser = new NekoHtmlParser();
-//            Document document = parser.parse(new InputSource(new FileInputStream(file)));
-//            return setDocument(document);
-//        } catch (FileNotFoundException e) {
-//            throw new PageContentExtractorException("file " + file + " was not found", e);
-//        } catch (ParserException e) {
-//            throw new PageContentExtractorException("error parsing file " + file, e);
-//        }
-//    }
-
 
     /* (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultDocument()
@@ -768,21 +713,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     }
 
     /**
-     * Get the number of times a string s appears in the node e.
-     * 
-     * @param Element
-     * @param string - what to split on. Default is ","
-     * @return number (integer)
-     **/
-    private int getCharCount(Element e) {
-        return getCharCount(e, ",");
-    }
-
-    private int getCharCount(Element e, String s) {
-        return StringHelper.countOccurences(e.getTextContent(), s, true);
-    }
-
-    /**
      * Remove the style attribute on every e and under.
      * 
      * todo: Test if getElementsByTagName(*) is faster.
@@ -946,7 +876,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
             if (weight + contentScore < 0) {
                 element.getParentNode().removeChild(element);
-            } else if (getCharCount(element) < 10) {
+            } else if (StringHelper.countOccurrences(element.getTextContent(), ",") < 10) {
                 /**
                  * If there are not very many commas, and the number of non-paragraph elements is more than paragraphs
                  * or other ominous signs, remove the

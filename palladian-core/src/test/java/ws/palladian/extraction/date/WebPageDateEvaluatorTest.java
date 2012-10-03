@@ -31,7 +31,7 @@ public class WebPageDateEvaluatorTest {
     public void testGetBestRatedDate() throws FileNotFoundException, ParserException {
         File file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm");
         Document document = htmlParser.parse(file);
-        RatedDate<? extends ExtractedDate> date = WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
+        RatedDate<ExtractedDate> date = WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
         // FIXME assertEquals("2010-09-02", wpde.getBestRatedDate().getNormalizedDateString());
         
         file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit1.htm");
@@ -75,7 +75,7 @@ public class WebPageDateEvaluatorTest {
     public void testGetAllDates() throws Exception {
         File file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm");
         Document document = htmlParser.parse(file);
-        List<RatedDate<? extends ExtractedDate>> dates = WebPageDateEvaluator.getDates(document, PageDateType.PUBLISH);
+        List<RatedDate<ExtractedDate>> dates = WebPageDateEvaluator.getDates(document, PageDateType.PUBLISH);
         assertEquals(2, dates.size());
 
         file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit1.htm");

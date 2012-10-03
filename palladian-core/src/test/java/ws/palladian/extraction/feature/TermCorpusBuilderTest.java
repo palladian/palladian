@@ -12,7 +12,7 @@ import ws.palladian.processing.ProcessingPipeline;
 /**
  * @author Philipp Katz
  */
-public class AnnotatorCorpusTest {
+public class TermCorpusBuilderTest {
 
     // sample texts taken from http://lsirwww.epfl.ch/courses/dis/2006ws/exercises/IR/Exercise8.htm
     private static final PipelineDocument<String> doc1 = new PipelineDocument<String>(
@@ -27,13 +27,12 @@ public class AnnotatorCorpusTest {
             "Last week Li has shown you how to make the Sechuan duck. Today we'll be making Chinese dumplings (Jiaozi), a popular dish that I had a chance to try last summer in Beijing. There are many recipies for Jiaozi.");
 
     @Test
-    public void testTfIdfAnnotator() throws DocumentUnprocessableException {
+    public void testTermCorpusBuilder() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         TermCorpus termCorpus = new TermCorpus();
 
         pipeline.add(new LowerCaser());
         pipeline.add(new RegExTokenizer());
-        pipeline.add(new TokenMetricsCalculator());
         pipeline.add(new TermCorpusBuilder(termCorpus));
 
         pipeline.process(doc1);
@@ -46,8 +45,11 @@ public class AnnotatorCorpusTest {
         assertEquals(4, termCorpus.getCount("duck"));
         assertEquals(2, termCorpus.getCount("rabbit"));
 
-        assertEquals(0, termCorpus.getIdf("duck"), 0);
-        assertEquals(Math.log10(5. / 3), termCorpus.getIdf("rabbit"), 0);
-        assertEquals(Math.log10(5. / 1), termCorpus.getIdf("giraffe"), 0);
+        assertEquals(1, termCorpus.getIdf("duck"), 0);
+        assertEquals(5. / 3, termCorpus.getIdf("rabbit"), 0);
+        assertEquals(5. / 1, termCorpus.getIdf("giraffe"), 0);
+//        assertEquals(0, termCorpus.getIdf("duck"), 0);
+//        assertEquals(Math.log10(5. / 3), termCorpus.getIdf("rabbit"), 0);
+//        assertEquals(Math.log10(5. / 1), termCorpus.getIdf("giraffe"), 0);
     }
 }

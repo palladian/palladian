@@ -40,6 +40,7 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.web.DuckDuckGoSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -754,7 +755,7 @@ public class DatasetCreator {
             FileHelper.writeToFile(seedFolderPath + entry.getKey() + ".txt", entry.getValue());
         }
 
-        setWebSearcher(SearcherFactory.createSearcher(BingSearcher.class, ConfigHolder.getInstance().getConfig()));
+        setWebSearcher(SearcherFactory.createSearcher(DuckDuckGoSearcher.class, ConfigHolder.getInstance().getConfig()));
         setMentionsPerEntity(minMentionsPerSeed);
         setSeedsPerConcept(numberOfSeedsPerConcept);
         createDataset(seedFolderPath);

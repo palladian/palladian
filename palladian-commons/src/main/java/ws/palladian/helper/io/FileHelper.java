@@ -22,8 +22,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,12 +38,10 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -69,7 +65,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Martin Werner
  * @author Sandro Reichert
  */
-public class FileHelper {
+public final class FileHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
@@ -107,6 +103,10 @@ public class FileHelper {
         binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
         BINARY_FILE_EXTENSIONS = Collections.unmodifiableList(binaryFileExtensions);
+    }
+    
+    private FileHelper() {
+        // prevent instantiation.
     }
 
     /**
@@ -228,26 +228,26 @@ public class FileHelper {
         return fileType;
     }
 
-    /**
-     * Read HTML file to string.
-     * 
-     * @param path The path to the HTML file.
-     * @param stripTags Whether tags should be stripped.
-     * @return The HTML string from the file.
-     */
-    public static String readHtmlFileToString(String path, boolean stripTags) {
-
-        String contents = readFileToString(path);
-
-        if (stripTags) {
-            contents = StringEscapeUtils.unescapeHtml(contents);
-            contents = HtmlHelper.stripHtmlTags(contents, true, false, false, false); // TODO remove JS, CSS,
-            // comments and merge?
-            return contents;
-        }
-
-        return contents;
-    }
+//    /**
+//     * Read HTML file to string.
+//     * 
+//     * @param path The path to the HTML file.
+//     * @param stripTags Whether tags should be stripped.
+//     * @return The HTML string from the file.
+//     */
+//    public static String readHtmlFileToString(String path, boolean stripTags) {
+//
+//        String contents = readFileToString(path);
+//
+//        if (stripTags) {
+//            contents = StringEscapeUtils.unescapeHtml(contents);
+//            contents = HtmlHelper.stripHtmlTags(contents, true, false, false, false); // TODO remove JS, CSS,
+//            // comments and merge?
+//            return contents;
+//        }
+//
+//        return contents;
+//    }
 
     /**
      * Read file to string.
@@ -256,8 +256,7 @@ public class FileHelper {
      * @return The string content of the file.
      */
     public static String readFileToString(String path) {
-        File contentFile = new File(path);
-        return readFileToString(contentFile);
+        return readFileToString(new File(path));
     }
 
     /**
@@ -323,8 +322,7 @@ public class FileHelper {
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(String path) {
-        File contentFile = new File(path);
-        return readFileToArray(contentFile);
+        return readFileToArray(new File(path));
     }
 
     /**
@@ -337,8 +335,7 @@ public class FileHelper {
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(String path, int numberOfLines) {
-        File contentFile = new File(path);
-        return readFileToArray(contentFile, 0L, numberOfLines);
+        return readFileToArray(new File(path), 0L, numberOfLines);
     }
 
     /**
@@ -352,27 +349,26 @@ public class FileHelper {
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(String path, long startLine, int numberOfLines) {
-        File contentFile = new File(path);
-        return readFileToArray(contentFile, startLine, numberOfLines);
+        return readFileToArray(new File(path), startLine, numberOfLines);
     }
 
-    /**
-     * Create a list with each line of the given file as an element.
-     * 
-     * @param fileURL The file URL which should be read into a string.
-     * @return The list with one line per entry.
-     */
-    public static List<String> readFileToArray(URL fileURL) {
-        File contentFile = null;
-
-        try {
-            contentFile = new File(fileURL.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("File: " + fileURL + " was not accessable!");
-        }
-
-        return readFileToArray(contentFile);
-    }
+//    /**
+//     * Create a list with each line of the given file as an element.
+//     * 
+//     * @param fileURL The file URL which should be read into a string.
+//     * @return The list with one line per entry.
+//     */
+//    public static List<String> readFileToArray(URL fileURL) {
+//        File contentFile = null;
+//
+//        try {
+//            contentFile = new File(fileURL.toURI());
+//        } catch (URISyntaxException e) {
+//            throw new RuntimeException("File: " + fileURL + " was not accessable!");
+//        }
+//
+//        return readFileToArray(contentFile);
+//    }
 
     /**
      * Create a list with each line of the given file as an element.
@@ -393,34 +389,35 @@ public class FileHelper {
      */
     public static List<String> readFileToArray(File contentFile, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
-        BufferedReader reader = null;
+        InputStream inputStream = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(contentFile), DEFAULT_ENCODING));
+            inputStream = new FileInputStream(contentFile);
 
-            list = readFileToArray(reader, startLine, numberOfLines);
+            list = readFileToArray(inputStream, startLine, numberOfLines);
 
         } catch (FileNotFoundException e) {
             LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         } finally {
-            close(reader);
+            close(inputStream);
         }
 
         return list;
     }
 
-    // TODO why does this have to be a *Buffered*Reader?
-    public static List<String> readFileToArray(BufferedReader reader) {
-        return readFileToArray(reader, 0L, -1);
+    public static List<String> readFileToArray(InputStream inputStream) {
+        return readFileToArray(inputStream, 0L, -1);
     }
 
-    // TODO why does this have to be a *Buffered*Reader?
-    public static List<String> readFileToArray(BufferedReader reader, long startLine, int numberOfLines) {
+    public static List<String> readFileToArray(InputStream inputStream, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
+        
+        BufferedReader reader = null;
 
         try {
+            
+            reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
+            
             long lineNumber = 1;
             String line = null;
             while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
@@ -439,30 +436,30 @@ public class FileHelper {
         return list;
     }
 
-    /**
-     * Split the contents of a file into lines.
-     * For example: a, b, c becomes<br>
-     * a<br>
-     * b<br>
-     * c<br>
-     * <br>
-     * when the separator is ",".
-     * 
-     * @param inputFilePath The input file.
-     * @param outputFilePath Where the transformed file should be saved.
-     * @param separator The separator that is used to split.
-     */
-    public static void fileContentToLines(String inputFilePath, String outputFilePath, String separator) {
-        String content = readFileToString(inputFilePath);
-        String[] lines = content.split(separator);
-
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            sb.append(line).append(NEWLINE_CHARACTER);
-        }
-
-        writeToFile(outputFilePath, sb);
-    }
+//    /**
+//     * Split the contents of a file into lines.
+//     * For example: a, b, c becomes<br>
+//     * a<br>
+//     * b<br>
+//     * c<br>
+//     * <br>
+//     * when the separator is ",".
+//     * 
+//     * @param inputFilePath The input file.
+//     * @param outputFilePath Where the transformed file should be saved.
+//     * @param separator The separator that is used to split.
+//     */
+//    public static void fileContentToLines(String inputFilePath, String outputFilePath, String separator) {
+//        String content = readFileToString(inputFilePath);
+//        String[] lines = content.split(separator);
+//
+//        StringBuilder sb = new StringBuilder();
+//        for (String line : lines) {
+//            sb.append(line).append(NEWLINE_CHARACTER);
+//        }
+//
+//        writeToFile(outputFilePath, sb);
+//    }
 
     /**
      * <p>Remove identical lines for the given input file and save it to the output file.</p>
@@ -630,42 +627,42 @@ public class FileHelper {
 //        return performActionOnEveryLine(new StringReader(text), la);
 //    }
 
-    public static File writeToFile(String filePath, InputStream stream) {
-
-        File file = new File(filePath);
-        
-        OutputStream out = null;
-        
-        try {
-            out = new FileOutputStream(file);
-            
-            byte buf[] = new byte[1024];
-            int len;
-            while ((len = stream.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-
-            out.close();
-            stream.close();
-
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            close(out, stream);
-        }
-
-        return file;
-    }
+//    public static File writeToFile(String filePath, InputStream stream) {
+//
+//        File file = new File(filePath);
+//        
+//        OutputStream out = null;
+//        
+//        try {
+//            out = new FileOutputStream(file);
+//            
+//            byte buf[] = new byte[1024];
+//            int len;
+//            while ((len = stream.read(buf)) > 0) {
+//                out.write(buf, 0, len);
+//            }
+//
+//            out.close();
+//            stream.close();
+//
+//        } catch (Exception e) {
+//            LOGGER.error(e.getMessage());
+//        } finally {
+//            close(out, stream);
+//        }
+//
+//        return file;
+//    }
 
     /**
+     * <p>
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
+     * </p>
      * 
      * @param filePath The file path.
      * @param lines the lines
-     * @author Philipp Katz
-     * @author Sandro Reichert
-     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
-     *         {@link filePath}. See error log for details (Exceptions).
+     * @return <code>false</code> if any error occurred. It is likely that line has not been written, or only parts have
+     *         been written. See error log for details (Exceptions).
      */
     public static boolean writeToFile(String filePath, Collection<?> lines) {
 
@@ -732,19 +729,18 @@ public class FileHelper {
     }
 
     /**
-     * Appends (i. e. inserts a the end) a string to the specified File.
+     * <p>
+     * Appends (i. e. inserts a the end) a string to the specified file. Attention: A new line is <b>not</b> added
+     * automatically!
+     * </p>
      * 
      * @param filePath the file path
      * @param stringToAppend the string to append
-     * @throws IOException Signals that an I/O exception has occurred.
-     * @author Philipp Katz
-     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
+     * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
     public static boolean appendFile(String filePath, CharSequence stringToAppend) {
-
         boolean success = false;
         Writer writer = null;
-
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true), DEFAULT_ENCODING));
             writer.append(stringToAppend);
@@ -754,19 +750,17 @@ public class FileHelper {
         } finally {
             close(writer);
         }
-
         return success;
     }
 
     /**
-     * Appends a line to the specified text file if it does not already exist.
+     * <p>Appends a line to the specified text file if it does not already exist within the file.</p>
      * 
      * @param filePath the file path; file will be created if it does not exist
      * @param stringToAppend the string to append
-     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
+     * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
     public static boolean appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
-
         boolean added = false;
         final boolean[] add = new boolean[] { true };
 
@@ -906,7 +900,7 @@ public class FileHelper {
      * @return The deserialized object.
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Serializable> T deserializeCompressed(String filePath) {
+    private static <T extends Serializable> T deserializeCompressed(String filePath) {
 
         ObjectInputStream ois = null;
         T obj = null;
@@ -968,7 +962,7 @@ public class FileHelper {
      * @param obj The obj to serialize and compress.
      * @param filePath The file path where the object should be serialized to.
      */
-    public static void serializeCompress(Serializable obj, String filePath) {
+    private static void serializeCompress(Serializable obj, String filePath) {
         ObjectOutputStream out = null;
         try {
 
@@ -1203,18 +1197,18 @@ public class FileHelper {
         return file.renameTo(new File(newFile, file.getName()));
     }
 
-    /**
-     * Add a header to all files from a certain folder.
-     * 
-     * @param folderPath The path to the folder.
-     * @param header The header text to append.
-     */
-    public static void addFileHeader(String folderPath, StringBuilder header) {
-        File[] files = getFiles(folderPath);
-        for (File file : files) {
-            appendFile(file.getAbsolutePath(), header + NEWLINE_CHARACTER);
-        }
-    }
+//    /**
+//     * Add a header to all files from a certain folder.
+//     * 
+//     * @param folderPath The path to the folder.
+//     * @param header The header text to append.
+//     */
+//    public static void addFileHeader(String folderPath, StringBuilder header) {
+//        File[] files = getFiles(folderPath);
+//        for (File file : files) {
+//            appendFile(file.getAbsolutePath(), header + NEWLINE_CHARACTER);
+//        }
+//    }
 
     /**
      * Get all files from a certain folder.
@@ -1263,8 +1257,7 @@ public class FileHelper {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
             File[] files = folder.listFiles();
-
-            ArrayList<File> matchingFiles = new ArrayList<File>();
+            List<File> matchingFiles = new ArrayList<File>();
 
             for (File file : files) {
                 if (file.isDirectory()) {
