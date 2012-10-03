@@ -3,7 +3,6 @@ package ws.palladian.processing.features;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -23,9 +22,9 @@ public class FeatureVectorTest {
     public void setUp() {
         featureVector = new FeatureVector();
         f1 = new NominalFeature("nominalFeature1", "test");
-        f2 = new Feature<String>("nominalFeature3", "test");
+        f2 = new NominalFeature("nominalFeature3", "test");
         f3 = new NumericFeature("numericFeature1", 2.);
-        f4 = new Feature<Double>("numericFeature2", 3.);
+        f4 = new NumericFeature("numericFeature2", 3.);
         featureVector.add(f1);
         featureVector.add(f2);
         featureVector.add(f3);
@@ -90,11 +89,12 @@ public class FeatureVectorTest {
     @Test
     public void testRetrieveFeaturesByType() {
         assertEquals(4, featureVector.size());
-        List<Feature<String>> stringFeatures = featureVector.getAll(String.class);
-        assertEquals(2, stringFeatures.size());
-        assertTrue(stringFeatures.contains(f1));
-        assertTrue(stringFeatures.contains(f2));
-        List<Feature<Number>> numericFeatures = featureVector.getAll(Number.class);
+        List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
+        assertEquals(2, nominalFeatures.size());
+        assertTrue(nominalFeatures.contains(f1));
+        assertTrue(nominalFeatures.contains(f2));
+        
+        List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
         assertEquals(2, numericFeatures.size());
         assertTrue(numericFeatures.contains(f3));
         assertTrue(numericFeatures.contains(f4));

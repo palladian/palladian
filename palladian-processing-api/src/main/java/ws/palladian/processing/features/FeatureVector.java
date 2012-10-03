@@ -125,12 +125,12 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *         exist, never <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    public <T, U extends Feature<T>> List<U> getAll(Class<T> type) {
-        List<U> ret = new ArrayList<U>();
+    public <T extends Feature<?>> List<T> getAll(Class<T> type) {
+        List<T> ret = new ArrayList<T>();
         for (List<Feature<?>> featureList : features.values()) {
             for (Feature<?> feature : featureList) {
-                if (type.isInstance(feature.getValue())) {
-                    ret.add((U)feature);
+                if (type.isInstance(feature)) {
+                    ret.add((T)feature);
                 }
             }
         }

@@ -3,8 +3,11 @@ package ws.palladian.model.features;
 import java.util.ArrayList;
 import java.util.List;
 
+import ws.palladian.classification.numeric.NumericClassifier;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>A feature vector used for classification tasks.</p>
@@ -12,8 +15,8 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public final class ClassificationFeatureVector extends FeatureVector {
     
-    public List<Feature<String>> getNominalFeatures() {        
-        return getAll(String.class);        
+    public List<NominalFeature> getNominalFeatures() {        
+        return getAll(NominalFeature.class);        
     }
     
     public List<String> getNominalFeatureValues() {        
@@ -26,8 +29,8 @@ public final class ClassificationFeatureVector extends FeatureVector {
         return featureValues;
     }
     
-    public List<Feature<Double>> getNumericFeatures() {        
-        return getAll(Double.class);        
+    public List<NumericFeature> getNumericFeatures() {        
+        return getAll(NumericFeature.class);        
     }
     
     public List<Double> getNumericFeatureValues() {        

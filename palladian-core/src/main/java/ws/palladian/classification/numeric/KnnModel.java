@@ -72,8 +72,8 @@ public final class KnnModel implements Model {
 
             trainingInstance.targetClass = instance.targetClass;
             trainingInstance.features = new HashMap<String, Double>();
-            List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
-            for (Feature<Double> feature : numericFeatures) {
+            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
+            for (NumericFeature feature : numericFeatures) {
                 trainingInstance.features.put(feature.getName(), feature.getValue());
             }
 
@@ -135,7 +135,7 @@ public final class KnnModel implements Model {
                     "Tried calling normalize for an unnormalized model. Please normalize this model before you try this again.");
         }
 
-        List<Feature<Double>> features = vector.getAll(Double.class);
+        List<NumericFeature> features = vector.getAll(NumericFeature.class);
 
         for (Feature<Double> feature : features) {
             String featureName = feature.getName();
