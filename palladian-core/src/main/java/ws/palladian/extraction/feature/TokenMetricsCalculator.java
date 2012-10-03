@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
-
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
@@ -56,7 +54,7 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
         }
         List<Annotation<String>> annotations = annotationFeature.getValue();
-        Bag<String> occurrences = new HashBag<String>();
+        CountMap<String> occurrences = CountMap.create();
         Map<String, Integer> firstOccurrences = new HashMap<String, Integer>();
         Map<String, Integer> lastOccurrences = new HashMap<String, Integer>();
         int lastPosition = 0;
@@ -86,8 +84,8 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
 
         // calculate "normalized term frequency", see "Information Retrieval", Grossman/Frieder, p. 32
         int maxCount = 1;
-        for (String token : occurrences.uniqueSet()) {
-            maxCount = Math.max(maxCount, occurrences.getCount(token));
+        for (String token : occurrences.uniqueItems()) {
+            maxCount = Math.max(maxCount, occurrences.get(token));
         }
 
         for (Annotation<String> annotation : annotations) {
@@ -95,7 +93,7 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
             String value = annotation.getValue().toLowerCase();
             double first = (double)firstOccurrences.get(value) / lastPosition;
             double last = (double)lastOccurrences.get(value) / lastPosition;
-            double count = occurrences.getCount(value);
+            double count = occurrences.get(value);
             double frequency = count / maxCount;
             double spread = last - first;
             double charLength = value.length();

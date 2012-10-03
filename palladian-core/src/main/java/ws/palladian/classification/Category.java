@@ -60,9 +60,9 @@ public class Category implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     // public Double getRelevance() {
     // return relevance;
@@ -76,7 +76,7 @@ public class Category implements Serializable {
     // this.relevance += relevance;
     // }
 
-    public int getFrequency() {
+    int getFrequency() {
         return this.frequency;
     }
 
@@ -84,9 +84,9 @@ public class Category implements Serializable {
         this.frequency++;
     }
 
-    public void decreaseFrequency() {
-        this.frequency--;
-    }
+//    public void decreaseFrequency() {
+//        this.frequency--;
+//    }
 
     /**
      * The prior probability of this category. Set after learning.
@@ -104,27 +104,27 @@ public class Category implements Serializable {
         this.prior = prior;
     }
 
-    /**
-     * The prior can be indexed and read from the index. Instead of calculating
-     * it via Categories.calculatePriors(), it can be set using this method.
-     * 
-     * @param prior
-     */
-    public void setIndexedPrior(double prior) {
-        this.prior = prior;
-    }
+//    /**
+//     * The prior can be indexed and read from the index. Instead of calculating
+//     * it via Categories.calculatePriors(), it can be set using this method.
+//     * 
+//     * @param prior
+//     */
+//    public void setIndexedPrior(double prior) {
+//        this.prior = prior;
+//    }
 
     /**
      * <p>
-     * Calculates the prior for this category, which is the ratio between this categories frequency to all documents in
+     * Calculates the prior for this category, which is the ratio between this category's frequency to all documents in
      * the corpus.
      * </p>
      * 
      * @param totalDocuments
      *            The count of total documents on this corpus.
      */
-    public void calculatePrior(int totalDocuments) {
-        setPrior((double)frequency / (double)totalDocuments);
+    void calculatePrior(int totalDocuments) {
+        setPrior((double)frequency / totalDocuments);
     }
 
     public boolean isMainCategory() {
@@ -147,7 +147,7 @@ public class Category implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + (name == null ? 0 : name.hashCode());
         return result;
     }
 
@@ -162,7 +162,7 @@ public class Category implements Serializable {
             return true;
         }
 
-        if ((obj == null) || (obj.getClass() != this.getClass())) {
+        if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
 
@@ -191,11 +191,11 @@ public class Category implements Serializable {
         this.totalTermWeight += totalTermWeight;
     }
 
-    public double getTotalTermWeight() {
+    double getTotalTermWeight() {
         return totalTermWeight;
     }
 
-    public void resetFrequency() {
+    void resetFrequency() {
         this.frequency = 0;
     }
 }

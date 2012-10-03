@@ -1,16 +1,8 @@
 package ws.palladian.classification.dt;
 
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instance2;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -20,65 +12,66 @@ public class CsvInstanceReader {
     private static final String SEPARATOR = ";";
 
 
-    public static void main(String[] args) {
-        
-//        BaggedDecisionTreeClassifier classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
-//        System.out.println(classifier);
+//    public static void main(String[] args) {
 //        
+////        BaggedDecisionTreeClassifier classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
+////        System.out.println(classifier);
+////        
+////        System.exit(0);
+////        
+//        List<NominalInstance> instances = readInstances("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv");
+//        
+//        List<NominalInstance> train = instances.subList(0, instances.size() / 2);
+//        List<NominalInstance> test = instances.subList(instances.size() / 2, instances.size() - 1);
+////        
+//        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+//        BaggedDecisionTreeModel model = classifier.learn(instances);
+//        FileHelper.serialize(model, "/Users/pk/Desktop/dates_mod_model.gz");
 //        System.exit(0);
+////        
+////        classifier = null;
+////        classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
 //        
-        List<Instance2<String>> instances = readInstances("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv");
-        
-        List<Instance2<String>> train = instances.subList(0, instances.size() / 2);
-        List<Instance2<String>> test = instances.subList(instances.size() / 2, instances.size() - 1);
+//        int correct = 0;
+//        for (NominalInstance testInstance : test) {
+//            CategoryEntries predict = classifier.predict(testInstance.featureVector, model);
+//            CategoryEntry mostLikelyCategoryEntry = predict.getMostLikelyCategoryEntry();
+//            String name = predict.getMostLikelyCategoryEntry().getCategory().getName();
+////            System.out.println("prediction: " + name + ":" + mostLikelyCategoryEntry.getRelevance());
+//            if (testInstance.target.equals(name)) {
+//                correct++;
+//            }
+//        }
+//        System.out.println("accuracy: " + (double) correct / test.size());
 //        
-        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier(10);
-        classifier.learn(instances);
-        FileHelper.serialize(classifier, "/Users/pk/Desktop/dates_mod_model.gz");
-        System.exit(0);
+//    }
+
+
+//    public static List<NominalInstance> readInstances(String fileName) {
 //        
-//        classifier = null;
-//        classifier = FileHelper.deserialize("/Users/pk/Desktop/dates_pub_model.gz");
-        
-        int correct = 0;
-        for (Instance2<String> testInstance : test) {
-            CategoryEntries predict = classifier.predict(testInstance.featureVector);
-            CategoryEntry mostLikelyCategoryEntry = predict.getMostLikelyCategoryEntry();
-            String name = predict.getMostLikelyCategoryEntry().getCategory().getName();
-//            System.out.println("prediction: " + name + ":" + mostLikelyCategoryEntry.getRelevance());
-            if (testInstance.target.equals(name)) {
-                correct++;
-            }
-        }
-        System.out.println("accuracy: " + (double) correct / test.size());
-        
-    }
+//        // accuracy: 0.9816410256410256
+//
+//        
+//        final List<NominalInstance> instances = CollectionHelper.newArrayList();
+//
+//        FileHelper.performActionOnEveryLine(fileName, new LineAction() {
+//            String[] names;
+//
+//            @Override
+//            public void performAction(String line, int lineNumber) {
+//                if (lineNumber == 0) {
+//                    names = line.split(SEPARATOR);
+//                    return;
+//                }
+//
+//                NominalInstance instance = readLine(line, names);
+//                instances.add(instance);
+//            }
+//        });
+//        return instances;
+//    }
 
-    public static List<Instance2<String>> readInstances(String fileName) {
-        
-        // accuracy: 0.9816410256410256
-
-        
-        final List<Instance2<String>> instances = CollectionHelper.newArrayList();
-
-        FileHelper.performActionOnEveryLine(fileName, new LineAction() {
-            String[] names;
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-                if (lineNumber == 0) {
-                    names = line.split(SEPARATOR);
-                    return;
-                }
-
-                Instance2<String> instance = readLine(line, names);
-                instances.add(instance);
-            }
-        });
-        return instances;
-    }
-
-    public static Instance2<String> readLine(String line, String[] names) {
+    public static NominalInstance readLine(String line, String[] names) {
         Validate.notNull(names, "names must not be null");
         
         String[] split = line.split(SEPARATOR);
@@ -96,9 +89,9 @@ public class CsvInstanceReader {
                 fv.add(new NominalFeature(name, column));
             }
         }
-        Instance2<String> instance = new Instance2<String>();
+        NominalInstance instance = new NominalInstance();
         instance.featureVector = fv;
-        instance.target = split[split.length - 1];
+        instance.targetClass = split[split.length - 1];
         return instance;
     }
 

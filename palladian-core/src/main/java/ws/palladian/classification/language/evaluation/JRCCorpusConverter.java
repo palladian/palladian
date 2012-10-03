@@ -182,12 +182,13 @@ public class JRCCorpusConverter {
         obj[0] = indexFile;
 
         // number of instances for each class
-        obj[1] = new CountMap();
+        obj[1] = CountMap.<String>create();
 
         obj[2] = instancesPerClass;
 
         LineAction la = new LineAction(obj) {
 
+            @SuppressWarnings("unchecked")
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split(" ");
@@ -195,7 +196,7 @@ public class JRCCorpusConverter {
                     return;
                 }
 
-                if (((CountMap) obj[1]).get(parts[1]) >= (Integer) obj[2]) {
+                if (((CountMap<String>) obj[1]).get(parts[1]) >= (Integer) obj[2]) {
                     return;
                 }
 
@@ -205,7 +206,7 @@ public class JRCCorpusConverter {
                     LOGGER.error(e.getMessage());
                 }
 
-                ((CountMap) obj[1]).increment(parts[1]);
+                ((CountMap<String>) obj[1]).add(parts[1]);
             }
 
         };

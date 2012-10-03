@@ -1,21 +1,26 @@
 package ws.palladian.classification;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.classification.numeric.MinMaxNormalization;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 public class UniversalInstance extends Instance {
 
     /** The serial versionID. */
-    private static final long serialVersionUID = 55203846826273834L;
+    // private static final long serialVersionUID = 55203846826273834L;
 
-    private List<Double> numericFeatures = new ArrayList<Double>();
-    private List<String> nominalFeatures = new ArrayList<String>();
+    // private List<Double> numericFeatures = new ArrayList<Double>();
+    // private List<String> nominalFeatures = new ArrayList<String>();
+    private FeatureVector featureVector = new FeatureVector();
+    
     private String textFeature = "";
 
     /** The class of the instance. This can be nominal or numeric. */
-    private Object instanceClass;
+    // private Object instanceClass;
 
     /** Whether or not the class of the instance is nominal. */
     private boolean classNominal = false;
@@ -25,19 +30,41 @@ public class UniversalInstance extends Instance {
     }
 
     public List<Double> getNumericFeatures() {
-        return numericFeatures;
+        // return numericFeatures;
+        List<Double> result = CollectionHelper.newArrayList();
+        List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
+        for (NumericFeature numericFeature : numericFeatures) {
+            result.add(numericFeature.getValue());
+        }
+        return result;
+    }
+    
+    public List<NumericFeature> getNumericFeatures2() {
+        return featureVector.getAll(NumericFeature.class);
     }
 
     public void setNumericFeatures(List<Double> numericFeatures) {
-        this.numericFeatures = numericFeatures;
+        // this.numericFeatures = numericFeatures;
+        for (Double numericFeature : numericFeatures) {
+            featureVector.add(new NumericFeature("num" + featureVector.size(), numericFeature));
+        }
     }
 
     public List<String> getNominalFeatures() {
-        return nominalFeatures;
+        // return nominalFeatures;
+        List<String> result = CollectionHelper.newArrayList();
+        List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
+        for (NominalFeature nominalFeature : nominalFeatures) {
+            result.add(nominalFeature.getValue());
+        }
+        return result;
     }
 
     public void setNominalFeatures(List<String> nominalFeatures) {
-        this.nominalFeatures = nominalFeatures;
+        // this.nominalFeatures = nominalFeatures;
+        for (String nominalFeature : nominalFeatures) {
+            featureVector.add(new NominalFeature("nom" + featureVector.size(), nominalFeature));
+        }
     }
 
     public String getTextFeature() {
@@ -81,6 +108,10 @@ public class UniversalInstance extends Instance {
         setNumericFeatures(null);
         setNominalFeatures(null);
         setTextFeature(null);
+    }
+    
+    public FeatureVector getFeatureVector() {
+        return featureVector;
     }
 
 }

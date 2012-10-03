@@ -16,9 +16,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instance2;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.classification.Predictor;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -73,7 +74,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private StemmerAnnotator stemmer;
     private int trainCount;
     private final Map<PipelineDocument<String>, Set<String>> trainDocuments;
-    private Predictor<String> classifier;
+    private BaggedDecisionTreeClassifier classifier;
+    private BaggedDecisionTreeModel model;
 
     public MachineLearningBasedExtractor() {
         termCorpus = new TermCorpus();
@@ -124,8 +126,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     }
 
-    private Predictor<String> createClassifier() {
-        return new BaggedDecisionTreeClassifier(10);
+    private BaggedDecisionTreeClassifier createClassifier() {
+        BaggedDecisionTreeClassifier baggedClassifier = new BaggedDecisionTreeClassifier();
+        return baggedClassifier;
     }
 
     @Override
@@ -190,13 +193,13 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         System.out.println("% sample coverage: " + (double)totallyMarked / totalKeyphrases);
         int posSamples = 0;
         int negSamples = 0;
-        List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
+        List<NominalInstance> instances = new ArrayList<NominalInstance>();
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            Instance2<String> instance = new Instance2<String>();
-            instance.target = featureVector.get(IS_KEYWORD).getValue();
+            NominalInstance instance = new NominalInstance();
+            instance.targetClass = featureVector.get(IS_KEYWORD).getValue();
             FeatureVector cleanedFv = cleanFeatureVector(featureVector);
-            if ("true".equals(instance.target)) {
+            if ("true".equals(instance.targetClass)) {
                 posSamples++;
             } else {
                 negSamples++;
@@ -208,8 +211,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         System.out.println("# positive samples: " + posSamples);
         System.out.println("% positive sample rate: " + (double)posSamples / (negSamples + posSamples));
         System.out.println("building classifier ...");
-        classifier.learn(instances);
-        System.out.println(classifier.toString());
+        this.model = classifier.learn(instances);
+        System.out.println(model.toString());
         System.out.println("... finished building classifier.");
     }
 
@@ -352,7 +355,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         for (Annotation<String> annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
             FeatureVector cleanFv = cleanFeatureVector(featureVector);
-            CategoryEntries predictionResult = classifier.predict(cleanFv);
+            CategoryEntries predictionResult = classifier.predict(cleanFv, model);
             CategoryEntry trueCategory = predictionResult.getCategoryEntry("true");
             if (trueCategory != null) {
                 keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));

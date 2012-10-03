@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -8,27 +9,32 @@ import java.util.Collection;
  * 
  * @author David Urbansky
  */
-public class Categories extends java.util.ArrayList<Category> implements Serializable {
+public class Categories extends ArrayList<Category> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Override
-    public boolean add(final Category category) {
+    public boolean add(Category category) {
 
         if (category == null) {
             return false;
         }
 
+        // XXX it would make more sense to increment the frequency here.
+        
         if (contains(category)) {
             // this.getCategoryByName(category.getName()).addRelevance(category.getRelevance());
+        	// Category existingCategory = this.getCategoryByName(category.getName());
+        	// existingCategory.increaseFrequency();
             return false;
+        } else {
+        	// category.increaseFrequency();
+        	return super.add(category);
         }
-
-        return super.add(category);
     }
 
     @Override
-    public boolean addAll(final Collection<? extends Category> c) {
+    public boolean addAll(Collection<? extends Category> c) {
 
         boolean allAdded = true;
 
@@ -65,7 +71,13 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
      * @return True if the obj is contained, false otherwise.
      */
     @Override
-    public boolean contains(final Object obj) {
+    public boolean contains(Object obj) {
+        
+        if  (!(obj instanceof Category)) {
+            return false;
+        }
+        
+        
         String categoryName = ((Category)obj).getName();
 
         for (Category c : this) {
@@ -77,7 +89,7 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
         return false;
     }
 
-    public boolean containsCategoryName(final String categoryName) {
+    public boolean containsCategoryName(String categoryName) {
 
         for (Category c : this) {
             if (c.getName().equals(categoryName)) {
@@ -94,7 +106,7 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
      * @param categoryName
      * @return category
      */
-    public Category getCategoryByName(final String categoryName) {
+    public Category getCategoryByName(String categoryName) {
         for (Category c : this) {
             if (c.getName().equals(categoryName)) {
                 return c;
@@ -106,7 +118,6 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
     public void resetFrequencies() {
         for (Category category : this) {
             category.resetFrequency();
-            ;
         }
     }
 

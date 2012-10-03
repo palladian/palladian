@@ -49,6 +49,7 @@ public class SparseArffWriterTest {
         // la should be only once in the result ARFF.
         document.addFeature(new ListFeature(listFeatureDescriptor, new String[] {"la", "blah", "da", "la"}));
 
+        @SuppressWarnings("unchecked")
         FeatureDescriptor<Feature<?>>[] featureDescriptors = new FeatureDescriptor[] {nominalFeatureDescriptor,
                 numericFeatureDescriptor, listFeatureDescriptor};
 

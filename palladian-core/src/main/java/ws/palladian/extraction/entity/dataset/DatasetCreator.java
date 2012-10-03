@@ -227,7 +227,7 @@ public class DatasetCreator {
             o[0] = seedFileName;
 
             File[] markedUpFiles = FileHelper.getFiles(getDataSetLocation() + seedFileName);
-            CountMap countMap = new CountMap();
+            CountMap<String> countMap = CountMap.create();
             for (File markedUpFile : markedUpFiles) {
                 if (markedUpFile.isDirectory()) {
                     continue;
@@ -241,18 +241,19 @@ public class DatasetCreator {
                     Matcher matcher = pattern.matcher(fileContent);
 
                     while (matcher.find()) {
-                        countMap.increment(seedEntity);
+                        countMap.add(seedEntity);
                     }
                 }
             }
 
             String entitiesWithFewMentions = "";
             int totalMentions = 0;
-            for (Entry<Object, Integer> entry : countMap.entrySet()) {
-                if (entry.getValue() < getMentionsPerEntity()) {
-                    entitiesWithFewMentions += entry.getKey() + "(" + entry.getValue() + "), ";
+            for (String item : countMap) {
+                int count = countMap.get(item);
+                if (count < getMentionsPerEntity()) {
+                    entitiesWithFewMentions += item + "(" + count + "), ";
                 }
-                totalMentions += entry.getValue();
+                totalMentions += count;
             }
             o[1] = entitiesWithFewMentions;
             o[2] = totalMentions / (double) countMap.size();

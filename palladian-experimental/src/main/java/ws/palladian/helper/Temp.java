@@ -624,9 +624,9 @@ public class Temp {
 
         Collections.shuffle(readFileToArray);
         FileHelper.writeToFile("data/datasets/ner/tud/manuallyPickedSeeds/seedList2.xml", readFileToArray);
-        CountMap countMap = new CountMap();
+        CountMap<String> countMap = CountMap.create();
         for (String string : readFileToArray) {
-            countMap.increment(string.substring(1, string.indexOf(">")));
+            countMap.add(string.substring(1, string.indexOf(">")));
         }
         CollectionHelper.print(countMap);
 

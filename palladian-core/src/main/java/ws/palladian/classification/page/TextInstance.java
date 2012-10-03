@@ -99,9 +99,9 @@ public class TextInstance extends Instance {
         this.weightedTerms = weightedTerms;
     }
 
-    public int getDocumentType() {
-        return documentType;
-    }
+//    public int getDocumentType() {
+//        return documentType;
+//    }
 
     public void setDocumentType(int documentType) {
         this.documentType = documentType;

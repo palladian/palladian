@@ -105,9 +105,7 @@ public class PalladianPosTagger extends BasePosTagger {
         LOGGER.info("start training the tagger");
 
         tagger = new UniversalClassifier();
-        tagger.setUseNumericClassifier(false);
-        // tagger.setUseNominalClassifier(false);
-        // tagger.setUseTextClassifier(false);
+        tagger.switchClassifiers(true, false, true);
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(7);

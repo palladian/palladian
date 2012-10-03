@@ -293,12 +293,12 @@ public class ListDiscoverer {
      * </p>
      */
     private void filterPaginationUrls() {
-        CountMap countMap = new CountMap();
+        CountMap<Integer> countMap = CountMap.create();
         for (String url : paginationURLs) {
-            countMap.increment(url.length());
+            countMap.add(url.length());
         }
 
-        if (countMap.size() == 0) {
+        if (countMap.uniqueSize() == 0) {
             return;
         }
 
