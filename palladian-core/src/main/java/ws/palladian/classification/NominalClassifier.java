@@ -10,8 +10,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap2D;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.model.features.ClassificationFeatureVector;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -49,7 +49,7 @@ public class NominalClassifier extends Classifier<UniversalInstance> {
         LOGGER.info("trained in " + sw.getElapsedTimeString());
     }
 
-    public final CategoryEntries classify(ClassificationFeatureVector fv) {
+    public final CategoryEntries classify(FeatureVector fv) {
         Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
         
         UniversalInstance universalInstance = new UniversalInstance(instances);
