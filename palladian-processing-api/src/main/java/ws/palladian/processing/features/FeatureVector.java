@@ -164,11 +164,14 @@ public class FeatureVector  implements Iterable<Feature<?>>{
      *         {@link Feature} exists.
      */
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
-        Feature<?> feature = (Feature<?>)features.get(descriptor.getIdentifier());
+        List<Feature<?>> feature = (List<Feature<?>>)features.get(descriptor.getIdentifier());
         if (feature == null) {
             return null;
         }
-        return descriptor.getType().cast(feature);
+        if (feature.size() == 0) {
+            return null;
+        }
+        return descriptor.getType().cast(feature.get(0));
     }
 
     @Override
