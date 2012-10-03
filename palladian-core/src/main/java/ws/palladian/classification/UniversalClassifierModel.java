@@ -3,7 +3,6 @@ package ws.palladian.classification;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.page.DictionaryClassifier;
-import ws.palladian.classification.page.TextClassifier;
 
 public class UniversalClassifierModel implements Model {
 

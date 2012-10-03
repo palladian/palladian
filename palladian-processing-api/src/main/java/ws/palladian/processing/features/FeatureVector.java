@@ -86,6 +86,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
     // return null;
     // }
 
+    @Deprecated
     private Feature<?> getFeature(String identifier) {
         List<Feature<?>> allFeatures = features.get(identifier);
         if (allFeatures != null && !allFeatures.isEmpty()) {
@@ -148,7 +149,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *         {@link Feature} exists.
      */
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
-        List<Feature<?>> feature = (List<Feature<?>>)features.get(descriptor.getIdentifier());
+        List<Feature<?>> feature = features.get(descriptor.getIdentifier());
         if (feature == null) {
             return null;
         }

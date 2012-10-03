@@ -10,7 +10,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.TokenFrequencyMap;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.token.Tokenizer;
@@ -26,8 +25,8 @@ public class InformativenessAssigner {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(InformativenessAssigner.class);
 
-    private TokenFrequencyMap tokenFrequencies = new TokenFrequencyMap();
-    private Map<String, Double> normalizedTokenFrequencies = new HashMap<String, Double>();
+    private HashMap<String, Double> tokenFrequencies = CollectionHelper.newHashMap();
+    private Map<String, Double> normalizedTokenFrequencies = CollectionHelper.newHashMap();
 
     private InformativenessAssigner() {
         // loadFrequencyMap();
