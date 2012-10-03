@@ -16,7 +16,9 @@ import java.util.regex.Pattern;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
+import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -31,11 +33,21 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public final class Tokenizer {
 
-    /** The RegExp used for tokenization. */
-    public static final String SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
+    /** The RegExp used for tokenization (terms). */
+    public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
-    /** The compiled pattern used for tokenization, using {@link Tokenizer#SPLIT_REGEX}. */
-    public static final Pattern SPLIT_PATTERN = Pattern.compile(SPLIT_REGEX, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    /** The RegExp used for sentence splitting. */
+    public static final String SENTENCE_SPLIT_REGEX = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+
+    private static final Pattern SENTENCE_SPLIT_PATTERN = Pattern.compile(SENTENCE_SPLIT_REGEX);
+
+    /** The compiled pattern used for tokenization, using {@link Tokenizer#TOKEN_SPLIT_REGEX}. */
+    public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
+            | Pattern.CASE_INSENSITIVE);
+
+    private static UrlTagger urlTagger = new UrlTagger();
+    private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
+    private static SmileyTagger smileyTagger = new SmileyTagger();
 
     private Tokenizer() {
         // prevent instantiation.
@@ -301,7 +313,7 @@ public final class Tokenizer {
      * 
      * @param token The token to n-grammize.
      * @param size The size of the desired n-grams.
-     * @return A {@code List} of n-grams wich are represented as a {@code List} of tokens each.
+     * @return A {@code List} of n-grams which are represented as a {@code List} of tokens each.
      */
     public static List<List<String>> calculateNGrams(String[] token, Integer size) {
         List<List<String>> nGrams = new ArrayList<List<String>>();
@@ -325,7 +337,7 @@ public final class Tokenizer {
 
     /**
      * <p>
-     * Get the sentence that the specified position is in.
+     * Get the sentence in which the specified position is present.
      * </p>
      * 
      * @param string The string.
@@ -346,6 +358,10 @@ public final class Tokenizer {
         return beginning + end;
     }
 
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
+        return getSentences(inputText, onlyRealSentences, SENTENCE_SPLIT_PATTERN);
+    }
+
     /**
      * <p>
      * Get a list of sentences of an input text. Also see <a
@@ -354,12 +370,14 @@ public final class Tokenizer {
      * </p>
      * 
      * @param inputText An input text.
+     * @param onlyRealSentences If true, only sentences that end with a sentence delimiter are considered (headlines in
+     *            texts will likely be discarded)
+     * @param The pattern to use for sentence splitting.
      * @return A list with sentences.
      */
-    public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
 
         // recognize URLs so we don't break them
-        UrlTagger urlTagger = new UrlTagger();
         Annotations taggedUrls = urlTagger.tagUrls(inputText);
         int uCount = 1;
         Map<String, String> urlMapping = new HashMap<String, String>();
@@ -371,7 +389,6 @@ public final class Tokenizer {
         }
 
         // recognize dates so we don't break them
-        DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
         Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
         int dCount = 1;
         Map<String, String> dateMapping = new HashMap<String, String>();
@@ -382,12 +399,20 @@ public final class Tokenizer {
             dCount++;
         }
 
+        // recognize smileys so we don't break them
+        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        int sCount = 1;
+        Map<String, String> smileyMapping = new HashMap<String, String>();
+        for (Annotation annotation : taggedSmileys) {
+            String replacement = "SMILEY" + sCount;
+            inputText = inputText.replace(annotation.getEntity(), replacement);
+            smileyMapping.put(replacement, annotation.getEntity());
+            sCount++;
+        }
+
         List<String> sentences = new ArrayList<String>();
 
         // pattern to find the end of a sentence
-        Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
-
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
 
@@ -442,7 +467,18 @@ public final class Tokenizer {
             }
         }
 
-        return sentencesReplacedDates;
+        // replace smileys back
+        List<String> sentencesReplacedSmileys = new ArrayList<String>();
+        for (String sentence : sentencesReplacedDates) {
+            for (Entry<String, String> entry : smileyMapping.entrySet()) {
+                sentence = sentence.replace(entry.getKey(), entry.getValue());
+            }
+            if (!sentence.isEmpty()) {
+                sentencesReplacedSmileys.add(sentence);
+            }
+        }
+
+        return sentencesReplacedSmileys;
     }
 
     public static List<String> getSentences(String inputText) {
@@ -605,11 +641,14 @@ public final class Tokenizer {
 
     public static void main(String[] args) throws IOException {
 
-        System.out
-                .println(Tokenizer
-                        .getSentence(
-                                "Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.",
-                                5));
+        StopWatch stopWatch = new StopWatch();
+
+        for (int i = 0; i < 1000; i++) {
+            Tokenizer
+            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+
         // System.out.println(Tokenizer.tokenize("schön"));
         // System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
         System.exit(0);
