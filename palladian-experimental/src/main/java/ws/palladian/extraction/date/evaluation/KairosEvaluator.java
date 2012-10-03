@@ -135,16 +135,12 @@ public class KairosEvaluator {
 		String headerLastMod = dbExport.get(DBExport.HEADER_LAST);
 
 		ExtractedDate headerExtrDate = DateParser.findDate(headerDate);
-		// MetaDate headerHttpDate = DateConverter.convert(headerExtrDate,
-		//		DateType.MetaDate);
 		MetaDate headerHttpDate = new MetaDate(headerExtrDate);
 		if (headerHttpDate != null) {
 			headerHttpDate.setKeyword("date");
 		}
 		ExtractedDate headerExtrLastMod = DateParser
 				.findDate(headerLastMod);
-		//MetaDate headerHttpLastMod = DateConverter.convert(headerExtrLastMod,
-		//		DateType.MetaDate);
 		MetaDate headerHttpLastMod = new MetaDate(headerExtrLastMod);
 		if (headerHttpLastMod != null) {
 			headerHttpLastMod.setKeyword("last-modified");

@@ -13,28 +13,32 @@ import java.util.Date;
  */
 public class WebImageResult extends WebResult {
 
+    private final String imageUrl;
     private final int width;
     private final int height;
     private BufferedImage imageContent = null;
 
-    public WebImageResult(String url, String title, String summary, int width, int height, Date date,
+    /**
+     * <p>
+     * Create a new {@link WebImageResult}
+     * </p>
+     * 
+     * @param url The URL to the result. This should usually point to an HTML page on which the image is situated.
+     * @param imageUrl The URL to the image. This should usually point directly to the image file (e.g. JPEG, PNG, etc.)
+     * @param title
+     * @param summary
+     * @param width
+     * @param height
+     * @param date
+     * @param imageContent
+     */
+    public WebImageResult(String url, String imageUrl, String title, String summary, int width, int height, Date date,
             BufferedImage imageContent) {
         super(url, title, summary, date);
+        this.imageUrl = imageUrl;
         this.width = width;
         this.height = height;
         this.imageContent = imageContent;
-    }
-
-    public WebImageResult(String url, String title, String summary, int width, int height) {
-        this(url, title, summary, width, height, null, null);
-    }
-
-    public WebImageResult(String url, String title, int width, int height) {
-        this(url, title, null, width, height, null, null);
-    }
-
-    public WebImageResult(String url, String title, int width, int height, BufferedImage imageContent) {
-        this(url, title, null, width, height, null, imageContent);
     }
 
     /**
@@ -49,6 +53,14 @@ public class WebImageResult extends WebResult {
      */
     public int getHeight() {
         return height;
+    }
+
+    /**
+     * @return The URL of the image. In contrast to {@link #getUrl()}, which links to a (HTML) page surrounding the
+     *         actual image, this URL points directly to the image file.
+     */
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     public double getWidthHeightRatio() {
@@ -74,13 +86,15 @@ public class WebImageResult extends WebResult {
         builder.append(width);
         builder.append(", height=");
         builder.append(height);
-        builder.append(", getUrl()=");
+        builder.append(", url=");
         builder.append(getUrl());
-        builder.append(", getTitle()=");
+        builder.append(", imageUrl=");
+        builder.append(getImageUrl());
+        builder.append(", title=");
         builder.append(getTitle());
-        builder.append(", getSummary()=");
+        builder.append(", summary=");
         builder.append(getSummary());
-        builder.append(", getDate()=");
+        builder.append(", date=");
         builder.append(getDate());
         builder.append("]");
         return builder.toString();
@@ -111,7 +125,7 @@ public class WebImageResult extends WebResult {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        WebImageResult other = (WebImageResult) obj;
+        WebImageResult other = (WebImageResult)obj;
         if (height != other.height)
             return false;
         if (width != other.width)

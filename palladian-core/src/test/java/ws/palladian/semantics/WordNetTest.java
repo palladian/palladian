@@ -1,4 +1,4 @@
-package ws.palladian.helper.nlp;
+package ws.palladian.semantics;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +8,8 @@ import junit.framework.Assert;
 
 import org.junit.Ignore;
 import org.junit.Test;
+
+import ws.palladian.semantics.WordNet;
 
 /**
  * Test for WordNet helper class. Test cases are not executed automatically, as WordNet files need to be installed.
