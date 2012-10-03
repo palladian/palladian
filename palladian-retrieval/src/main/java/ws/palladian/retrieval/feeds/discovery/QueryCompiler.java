@@ -3,9 +3,7 @@ package ws.palladian.retrieval.feeds.discovery;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
-
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -40,7 +38,7 @@ public class QueryCompiler {
      */
     public static List<String> readQueriesFromDmoz(String dmozCatergoriesFile, int minOccurence, final int maxDepth) {
 
-        final Bag<String> items = new HashBag<String>();
+        final CountMap<String> items = CountMap.create();
 
         LineAction la = new LineAction() {
 
@@ -77,9 +75,9 @@ public class QueryCompiler {
 
         List<String> result = new ArrayList<String>();
 
-        for (String item : items.uniqueSet()) {
+        for (String item : items.uniqueItems()) {
             // remove those, which only occur once
-            int numOccur = items.getCount(item);
+            int numOccur = items.get(item);
             if (numOccur > minOccurence) {
                 result.add(item);
             }

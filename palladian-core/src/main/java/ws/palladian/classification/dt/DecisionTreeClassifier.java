@@ -1,10 +1,7 @@
 package ws.palladian.classification.dt;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,8 +13,9 @@ import quickdt.TreeBuilder;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instance2;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.classification.Predictor;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -28,17 +26,11 @@ import ws.palladian.processing.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public final class DecisionTreeClassifier implements Predictor<String> {
-
-    private static final long serialVersionUID = 1L;
+public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel> {
 
     private final int maxDepth;
 
     private final double minProbability;
-
-    private final Set<Instance> trainingInstances;
-
-    private Node tree;
 
     /**
      * <p>
@@ -51,7 +43,6 @@ public final class DecisionTreeClassifier implements Predictor<String> {
     public DecisionTreeClassifier(int maxDepth, double minProbability) {
         this.maxDepth = maxDepth;
         this.minProbability = minProbability;
-        this.trainingInstances = new HashSet<Instance>();
     }
 
     /**
@@ -64,19 +55,14 @@ public final class DecisionTreeClassifier implements Predictor<String> {
     }
 
     @Override
-    public void learn(List<Instance2<String>> instances) {
-        for (Instance2<String> instance2 : instances) {
-            addTrainingInstance(instance2);
+    public DecisionTreeModel learn(List<NominalInstance> instances) {
+        Set<Instance> trainingInstances = CollectionHelper.newHashSet();
+        for (NominalInstance instance : instances) {
+            Serializable[] input = getInput(instance.featureVector);
+            trainingInstances.add(Attributes.create(input).classification(instance.targetClass));
         }
-        build();
-        
-        // added to save memory
-        trainingInstances.clear();
-    }
-
-    private void addTrainingInstance(Instance2<String> instance) {
-        Serializable[] input = getInput(instance.featureVector);
-        trainingInstances.add(Attributes.create(input).classification(instance.target));
+        Node tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
+        return new DecisionTreeModel(tree);
     }
 
     private Serializable[] getInput(FeatureVector featureVector) {
@@ -90,26 +76,14 @@ public final class DecisionTreeClassifier implements Predictor<String> {
         return inputs.toArray(new Serializable[inputs.size()]);
     }
 
-    private void build() {
-        tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
-    }
-
     @Override
-    public CategoryEntries predict(FeatureVector featureVector) {
-        Leaf leaf = tree.getLeaf(Attributes.create(getInput(featureVector)));
+    public CategoryEntries predict(FeatureVector featureVector, DecisionTreeModel decisionTreeModel) {
+        Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(featureVector)));
         CategoryEntries categoryEntries = new CategoryEntries();
         Category category = new Category((String)leaf.classification);
         CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, category, leaf.probability);
         categoryEntries.add(categoryEntry);
         return categoryEntries;
-    }
-
-    @Override
-    public String toString() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(out);
-        tree.dump(printStream);
-        return out.toString();
     }
 
 }

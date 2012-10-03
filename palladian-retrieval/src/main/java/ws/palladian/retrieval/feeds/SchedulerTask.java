@@ -13,8 +13,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
+
+import ws.palladian.helper.collection.CountMap;
 
 /**
  * <p>
@@ -79,7 +80,8 @@ class SchedulerTask extends TimerTask {
 
     private Long lastWakeUpTime = null;
 
-    private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
+    // XXX do we still need this? The content is never read.
+    private final CountMap<FeedTaskResult> feedResults = CountMap.create();
 
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.

@@ -30,7 +30,7 @@ public final class FeatureSelector {
     // chi square test funktioniert nur für nominelle merkmale
     // pca funktioniert nur für numerische merkmale
     public static <T> Map<T, Double> calculateChiSquareValues(ListFeatureDescriptor<T> descriptor,
-            Collection<Instance2<String>> instances) {
+            Collection<NominalInstance> instances) {
         WordCorrelationMatrix termClassCorrelationMatrix = new WordCorrelationMatrix();
 
         for (Instance2<String> instance : instances) {
@@ -39,8 +39,8 @@ public final class FeatureSelector {
         }
     }
 
-    public static Map<String, Double> calculateChiSquareValues(NominalFeatureDescriptor descriptor,
-            Collection<Instance2<String>> instances) {
+    public static Map<String, Double> calculateChiSquareValues(String featureIdentifier,
+            Collection<NominalInstance> instances) {
         Map<String, Map<String, Integer>> termClassCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
         Map<String, Map<String, Integer>> classTermCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
         Map<String, Double> ret = new HashMap<String, Double>();

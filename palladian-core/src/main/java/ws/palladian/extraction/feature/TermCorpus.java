@@ -11,10 +11,9 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.io.IOUtils;
 
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -30,7 +29,7 @@ public final class TermCorpus {
     private static final String SEPARATOR = "#";
 
     private int numDocs;
-    private final Bag<String> terms;
+    private final CountMap<String> terms;
 
     /**
      * <p>
@@ -38,8 +37,20 @@ public final class TermCorpus {
      * </p>
      */
     public TermCorpus() {
-        this.numDocs = 0;
-        this.terms = new HashBag<String>();
+        this(CountMap.<String>create(), 0);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link TermCorpus} with the specified terms and number of documents.
+     * </p>
+     * 
+     * @param terms The terms to add.
+     * @param numDocs The number of documents this corpus contains.
+     */
+    public TermCorpus(CountMap<String> terms, int numDocs) {
+        this.numDocs = numDocs;
+        this.terms = terms;
     }
 
     /**
@@ -63,7 +74,7 @@ public final class TermCorpus {
      * @return The number of documents containing the specified term.
      */
     public int getCount(String term) {
-        return terms.getCount(term);
+        return terms.get(term);
     }
 
     /**
@@ -100,7 +111,7 @@ public final class TermCorpus {
      * @return The total number of terms in this corpus.
      */
     public int getNumTerms() {
-        return terms.size();
+        return terms.totalSize();
     }
 
     /**
@@ -111,12 +122,11 @@ public final class TermCorpus {
      * @return The number of unique terms in this corpus.
      */
     public int getNumUniqueTerms() {
-        return terms.uniqueSet().size();
+        return terms.uniqueSize();
     }
 
     private void setDf(String term, int df) {
-        terms.remove(term, terms.getCount(term));
-        terms.add(term, df);
+        terms.set(term, df);
     }
 
     public void load(String fileName) throws IOException {
@@ -155,8 +165,8 @@ public final class TermCorpus {
             printWriter = new PrintWriter(outputStream);
             printWriter.println("numDocs" + SEPARATOR + getNumDocs());
             printWriter.println();
-            for (String term : terms.uniqueSet()) {
-                int count = terms.getCount(term);
+            for (String term : terms.uniqueItems()) {
+                int count = terms.get(term);
                 String line = term + SEPARATOR + count;
                 printWriter.println(line);
             }
@@ -181,8 +191,8 @@ public final class TermCorpus {
         StringBuilder sb = new StringBuilder();
         sb.append("TermCorpus");
         sb.append(" numDocs=").append(getNumDocs());
-        sb.append(" numUniqueTerms=").append(terms.uniqueSet().size());
-        sb.append(" numTerms=").append(terms.size());
+        sb.append(" numUniqueTerms=").append(terms.uniqueSize());
+        sb.append(" numTerms=").append(terms.totalSize());
         return sb.toString();
     }
 

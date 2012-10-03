@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  * @author David Urbansky
  * 
  */
-public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implements Serializable {
+public class CategoryEntries extends ArrayList<CategoryEntry> implements Serializable {
 
 	/** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(CategoryEntries.class);
@@ -30,11 +31,11 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
     /** Comparator to sort categories by relevance. */
     private Comparator<CategoryEntry> comparator = new CategoryEntryComparator();
 
-    public boolean isRelevancesUpToDate() {
+    boolean isRelevancesUpToDate() {
         return relevancesUpToDate;
     }
 
-    public void setRelevancesUpToDate(boolean relevancesUpToDate) {
+    void setRelevancesUpToDate(boolean relevancesUpToDate) {
         this.relevancesUpToDate = relevancesUpToDate;
     }
 
@@ -53,15 +54,6 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
 
     public void setRelevancesInPercent(boolean relevancesInPercent) {
         this.relevancesInPercent = relevancesInPercent;
-    }
-
-    /**
-     * This method calculates the percentage for every category in the ArrayList. The sum of percentages of all categories must be 100% (+-1% round).
-     * 
-     * @parameter spread If true, percentages get spread.
-     */
-    public void transformRelevancesInPercent(boolean spread) {
-
     }
 
     @Override
@@ -143,7 +135,7 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
      * The relevance for a category entry is a sum of absolute relevance scores so far. To normalize the relevance to a value between 0 and 1 we need to divide
      * it by the total absolute relevances of all category entries that are in the same category entries group.
      */
-    public void calculateRelativeRelevances() {
+    void calculateRelativeRelevances() {
 
         Logger.getRootLogger().debug("recalculate category entries relevances");
 
@@ -205,7 +197,7 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
         return entriesWeights / category.getTotalTermWeight();
     }
 
-    public boolean hasEntryWithCategory(Category category) {
+    private boolean hasEntryWithCategory(Category category) {
         boolean hasEntry = false;
 
         for (CategoryEntry ce : this) {
@@ -222,7 +214,8 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (CategoryEntry ce : this) {
-            sb.append(ce).append("\n");
+            // sb.append(ce).append("\n");
+            sb.append(ce).append(",");
         }
         return sb.toString();
     }

@@ -384,7 +384,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
         for (TextInstance document : testDocuments) {
 
-            Iterator<CategoryEntry> j = document.getAssignedCategoryEntries(true).iterator();
+            Iterator<CategoryEntry> j = document.getAssignedCategoryEntries().iterator();
 
             document.sortCategoriesByRelevance();
 

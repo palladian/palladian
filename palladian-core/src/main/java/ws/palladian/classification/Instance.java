@@ -1,15 +1,10 @@
 package ws.palladian.classification;
 
-import java.io.Serializable;
-
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 
-// Klemens: Eine Instanz ist also ein Dokument? Dann ist die Klase Instances also die Dokumentenmenge.
-public abstract class Instance<T> implements Serializable {
-
-    private static final long serialVersionUID = -3259696661191824716L;
+public abstract class Instance<T> {
 
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
@@ -32,11 +27,6 @@ public abstract class Instance<T> implements Serializable {
 
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
-        assignedCategoryEntries.transformRelevancesInPercent(true);
-    }
-
-    public CategoryEntries getAssignedCategoryEntries() {
-        return assignedCategoryEntries;
     }
 
     /**
@@ -45,10 +35,7 @@ public abstract class Instance<T> implements Serializable {
      * @param relevancesInPercent If true then the relevance will be output in percent.
      * @return All categories.
      */
-    public CategoryEntries getAssignedCategoryEntries(boolean relevancesInPercent) {
-        if (relevancesInPercent) {
-            assignedCategoryEntries.transformRelevancesInPercent(true);
-        }
+    public CategoryEntries getAssignedCategoryEntries() {
         return assignedCategoryEntries;
     }
 
@@ -69,23 +56,23 @@ public abstract class Instance<T> implements Serializable {
         return nameList.substring(0, Math.max(0, nameList.length() - 1));
     }
 
-    public CategoryEntry getCategoryEntry(String categoryName) {
-        CategoryEntry ceMatch = null;
-
-        for (CategoryEntry ce : this.assignedCategoryEntries) {
-
-            if (ce == null) {
-                continue;
-            }
-
-            if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
-                ceMatch = ce;
-                break;
-            }
-        }
-
-        return ceMatch;
-    }
+//    public CategoryEntry getCategoryEntry(String categoryName) {
+//        CategoryEntry ceMatch = null;
+//
+//        for (CategoryEntry ce : this.assignedCategoryEntries) {
+//
+//            if (ce == null) {
+//                continue;
+//            }
+//
+//            if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
+//                ceMatch = ce;
+//                break;
+//            }
+//        }
+//
+//        return ceMatch;
+//    }
 
     public int getClassifiedAs() {
         return classifiedAs;
@@ -113,10 +100,16 @@ public abstract class Instance<T> implements Serializable {
         return instanceCategory.getName();
     }
 
-    public Instances<Instance<T>> getInstances() {
-        return instances;
-    }
+//    public Instances<Instance<T>> getInstances() {
+//        return instances;
+//    }
 
+    /**
+     * Get the category that is most relevant to this document.
+     * 
+     * @param relevanceInPercent If true then the relevance will be output in percent.
+     * @return The most relevant category.
+     */
     public CategoryEntry getMainCategoryEntry() {
         CategoryEntry highestMatch = null;
 
@@ -144,19 +137,6 @@ public abstract class Instance<T> implements Serializable {
         }
 
         return highestMatch;
-    }
-
-    /**
-     * Get the category that is most relevant to this document.
-     * 
-     * @param relevanceInPercent If true then the relevance will be output in percent.
-     * @return The most relevant category.
-     */
-    public CategoryEntry getMainCategoryEntry(boolean relevanceInPercent) {
-        if (relevanceInPercent) {
-            assignedCategoryEntries.transformRelevancesInPercent(true);
-        }
-        return getMainCategoryEntry();
     }
 
     /**
@@ -196,7 +176,7 @@ public abstract class Instance<T> implements Serializable {
         this.instanceCategory = category;
     }
 
-    public void setInstances(Instances<Instance<T>> instances) {
+    protected void setInstances(Instances<Instance<T>> instances) {
         this.instances = instances;
     }
 

@@ -662,7 +662,7 @@ public class FileFormatParser {
         Annotations annotations = new Annotations();
 
         // count the number of collected seeds per concept
-        CountMap conceptSeedCount = new CountMap();
+        CountMap<String> conceptSeedCount = CountMap.create();
 
         // store entities in a set to avoid duplicates
         Set<String> entitySet = new HashSet<String>();
@@ -679,7 +679,7 @@ public class FileFormatParser {
                     && !entitySet.contains(annotation.getEntity())) {
                 annotations.add(annotation);
                 entitySet.add(annotation.getEntity());
-                conceptSeedCount.increment(conceptName);
+                conceptSeedCount.add(conceptName);
             }
 
         }

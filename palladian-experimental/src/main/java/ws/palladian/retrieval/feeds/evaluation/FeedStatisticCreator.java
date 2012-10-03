@@ -914,7 +914,7 @@ public class FeedStatisticCreator {
         colors.add("FF9900");
 
         // count number of feeds in each updateClass
-        CountMap updateClassCounts = new CountMap();
+        CountMap<FeedActivityPattern> updateClassCounts = CountMap.create();
 
         // number of unique domain names
         Set<String> uniqueDomains = new HashSet<String>();
@@ -927,7 +927,7 @@ public class FeedStatisticCreator {
             // updateClassCount++;
             // updateClassCounts.put(feed.getUpdateClass(), updateClassCount);
 
-            updateClassCounts.increment(feed.getActivityPattern());
+            updateClassCounts.add(feed.getActivityPattern());
 
             uniqueDomains.add(UrlHelper.getDomain(feed.getFeedUrl()));
         }
@@ -939,12 +939,12 @@ public class FeedStatisticCreator {
         String chartData = "";
         String chartDataLabels = "";
         String chartColors = "";
-        for (Entry<Object, Integer> o : updateClassCounts.entrySet()) {
-            stats.append("Number of feeds in update class ").append(o.getKey()).append(":").append(o.getValue())
+        for (FeedActivityPattern o : updateClassCounts.uniqueItems()) {
+            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.get(o))
                     .append("\n");
-            chartData += o.getValue().intValue() + ",";
-            chartDataLabels += o.getKey() + "|";
-            chartColors += colors.get((Integer) o.getKey()) + "|";
+            chartData += updateClassCounts.get(o) + ",";
+            chartDataLabels += o + "|";
+            chartColors += colors.get(o.getIdentifier()) + "|";
         }
         chartData = chartData.substring(0, chartData.length() - 1);
         chartDataLabels = chartDataLabels.substring(0, chartDataLabels.length() - 1);

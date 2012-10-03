@@ -1,25 +1,14 @@
 package ws.palladian.classification;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-import ws.palladian.classification.numeric.MinMaxNormalization;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 
 public class Instances<T> extends ArrayList<T> {
 
     private static final long serialVersionUID = 9062002858891518522L;
 
-    private boolean normalized = false;
-
     private Categories categories = new Categories();
-
-    /**
-     * This stores the max - min differences for each feature of the training instances. We need these values to
-     * normalize test or unseen data. <featureIndex, max-min>
-     */
-    private MinMaxNormalization minMaxNormalization;
 
     /**
      * Get the number of documents that have been assigned to given category.
@@ -65,96 +54,6 @@ public class Instances<T> extends ArrayList<T> {
         }
 
         return number;
-    }
-
-    /**
-     * Perform a min-max normalization over the numeric values of the features. All values will between the interval
-     * [0,1] after the
-     * normalization.
-     */
-    public void normalize() {
-
-        if (areNormalized()) {
-            return;
-        }
-
-        // hold the min value of each feature <featureIndex, minValue>
-        Map<Integer, Double> featureMinValueMap = new HashMap<Integer, Double>();
-
-        // hold the max value of each feature <featureIndex, maxValue>
-        Map<Integer, Double> featureMaxValueMap = new HashMap<Integer, Double>();
-
-        // find the min and max values
-        for (Instance instance : (Instances<Instance>) this) {
-
-            UniversalInstance nInstance = (UniversalInstance)instance;
-
-            for (int i = 0; i < nInstance.getNumericFeatures().size(); i++) {
-
-                double featureValue = nInstance.getNumericFeatures().get(i);
-
-                // check min value
-                if (featureMinValueMap.get(i) != null) {
-                    double currentMin = featureMinValueMap.get(i);
-                    if (currentMin > featureValue) {
-                        featureMinValueMap.put(i, featureValue);
-                    }
-                } else {
-                    featureMinValueMap.put(i, featureValue);
-                }
-
-                // check max value
-                if (featureMaxValueMap.get(i) != null) {
-                    double currentMax = featureMaxValueMap.get(i);
-                    if (currentMax < featureValue) {
-                        featureMaxValueMap.put(i, featureValue);
-                    }
-                } else {
-                    featureMaxValueMap.put(i, featureValue);
-                }
-
-            }
-        }
-
-        // normalize the feature values
-        minMaxNormalization = new MinMaxNormalization();
-        Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
-        for (Instance instance : (Instances<Instance>) this) {
-
-            UniversalInstance nInstance = (UniversalInstance)instance;
-
-            for (int i = 0; i < nInstance.getNumericFeatures().size(); i++) {
-
-                double max_minus_min = featureMaxValueMap.get(i) - featureMinValueMap.get(i);
-                double featureValue = nInstance.getNumericFeatures().get(i);
-                double normalizedValue = (featureValue - featureMinValueMap.get(i)) / max_minus_min;
-
-                nInstance.getNumericFeatures().set(i, normalizedValue);
-
-                normalizationMap.put(i, max_minus_min);
-                minMaxNormalization.getMinValueMap().put(i, featureMinValueMap.get(i));
-            }
-
-        }
-
-        minMaxNormalization.setNormalizationMap(normalizationMap);
-        setNormalized(true);
-    }
-
-    public boolean areNormalized() {
-        return normalized;
-    }
-
-    public void setNormalized(boolean normalized) {
-        this.normalized = normalized;
-    }
-
-    public MinMaxNormalization getMinMaxNormalization() {
-        return minMaxNormalization;
-    }
-
-    public void setMinMaxNormalization(MinMaxNormalization minMaxNormalization) {
-        this.minMaxNormalization = minMaxNormalization;
     }
 
     public void setCategories(Categories categories) {

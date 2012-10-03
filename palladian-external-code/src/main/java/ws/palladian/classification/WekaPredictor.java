@@ -30,7 +30,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public final class WekaPredictor implements Predictor<String> {
+public final class WekaPredictor implements Predictor<WekaModel> {
 
     private final Classifier classifier;
     private FastVector featureVector;
@@ -49,15 +49,15 @@ public final class WekaPredictor implements Predictor<String> {
     }
 
     @Override
-    public void learn(List<Instance2<String>> instances) {
+    public WekaModel learn(List<NominalInstance> instances) {
         if (instances.size() > 0) {
             featureVector = declareFeatureVector(instances);
             trainInstances = new Instances("rel", featureVector, instances.size());
             // last is classindex
             trainInstances.setClassIndex(instances.get(0).featureVector.size());
 
-            for (Instance2<String> instance2 : instances) {
-                Instance wekaInstance = makeWekaInstance(featureVector, instance2.featureVector, instance2.target);
+            for (NominalInstance instance : instances) {
+                Instance wekaInstance = makeWekaInstance(featureVector, instance.featureVector, instance.targetClass);
                 trainInstances.add(wekaInstance);
             }
             try {
@@ -67,6 +67,7 @@ public final class WekaPredictor implements Predictor<String> {
                         + e.getMessage(), e);
             }
         }
+        return new WekaModel(classifier);
     }
 
     private Instance makeWekaInstance(FastVector featureVector, FeatureVector fv, String target) {
@@ -91,7 +92,7 @@ public final class WekaPredictor implements Predictor<String> {
         return wekaInstance;
     }
 
-    private FastVector declareFeatureVector(List<Instance2<String>> instances) {
+    private FastVector declareFeatureVector(List<NominalInstance> instances) {
         FeatureVector featureVector = instances.get(0).featureVector;
         FastVector ret = new FastVector(featureVector.size() + 1);
         for (Feature<?> feature : featureVector.toArray()) {
@@ -112,15 +113,15 @@ public final class WekaPredictor implements Predictor<String> {
         return ret;
     }
 
-    private FastVector getValues(String name, List<Instance2<String>> instances) {
+    // get domain for nominal feature, i.e. possible values
+    private FastVector getValues(String name, List<NominalInstance> instances) {
         Set<String> nominalValues = new HashSet<String>();
-        for (Instance2<String> instance : instances) {
+        for (NominalInstance instance : instances) {
             @SuppressWarnings("deprecation")
-            Feature<?> feature2 = instance.featureVector.get(name);
-            if (feature2 == null) {
+            NominalFeature feature = instance.featureVector.get(NominalFeature.class, name);
+            if (feature == null) {
                 continue;
             }
-            NominalFeature feature = (NominalFeature)feature2;
             nominalValues.add(feature.getValue());
         }
         FastVector fvNominalValues = new FastVector(nominalValues.size());
@@ -131,7 +132,7 @@ public final class WekaPredictor implements Predictor<String> {
     }
 
     @Override
-    public CategoryEntries predict(FeatureVector vector) {
+    public CategoryEntries predict(FeatureVector vector, WekaModel model) {
         CategoryEntries ret = new CategoryEntries();
         Instance instance = makeWekaInstance(featureVector, vector, null);
         instance.setDataset(trainInstances);

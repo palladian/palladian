@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 
-import junit.framework.Assert;
-
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import ws.palladian.classification.Categories;
@@ -36,7 +33,7 @@ public class ClassifierTest {
      * The logger for objects of this class.
      * </p>
      */
-    private static final Logger LOGGER = Logger.getLogger(ClassifierTest.class);
+    // private static final Logger LOGGER = Logger.getLogger(ClassifierTest.class);
 
     /**
      * <p>
@@ -106,19 +103,19 @@ public class ClassifierTest {
         TextInstance classifiedDocument;
 
         classifiedDocument = classifier.classify("a");
-        Assert.assertEquals("1.0", classifiedDocument.getMainCategoryEntry().getCategory().getName());
+        assertEquals("1.0", classifiedDocument.getMainCategoryEntry().getCategory().getName());
 
         classifiedDocument = classifier.classify("b");
-        Assert.assertEquals("5.5", classifiedDocument.getMainCategoryEntry().getCategory().getName());
+        assertEquals("5.5", classifiedDocument.getMainCategoryEntry().getCategory().getName());
 
         // 1/3 * 1 + 1/3 * 4 + 1/3 * 10 = 5
         classifiedDocument = classifier.classify("c");
-        Assert.assertEquals("5.0", classifiedDocument.getMainCategoryEntry().getCategory().getName());
+        assertEquals("5.0", classifiedDocument.getMainCategoryEntry().getCategory().getName());
 
         // that is kind of experimental since the calculation uses squared relevances that might not apply for
         // regression
         classifiedDocument = classifier.classify("a c");
-        Assert.assertEquals("1.9999999999999996", classifiedDocument.getMainCategoryEntry().getCategory().getName());
+        assertEquals("1.9999999999999996", classifiedDocument.getMainCategoryEntry().getCategory().getName());
     }
 
     @Test
@@ -142,7 +139,7 @@ public class ClassifierTest {
         assertEquals(0.75, c1.getPrior(), 0);
         assertEquals(0.25, c2.getPrior(), 0);
 
-        LOGGER.info(categories);
+        // LOGGER.info(categories);
 
         Term word1 = new Term("word1");
         Term word2 = new Term("word2");
@@ -157,7 +154,7 @@ public class ClassifierTest {
         ces1.add(ce1);
         ces1.add(ce2);
 
-        LOGGER.info(ces1);
+        // LOGGER.info(ces1);
 
         // test a dictionary
         // word c1 c2
@@ -206,7 +203,7 @@ public class ClassifierTest {
         assertEquals(1.0, dictionary.get(word1).getCategoryEntry("category1").getRelevance(), 0);
         assertEquals(66.0, dictionary.get(word1).getCategoryEntry("category1").getAbsoluteRelevance(), 0);
 
-        LOGGER.info(dictionary);
+        // LOGGER.info(dictionary);
 
     }
 }
