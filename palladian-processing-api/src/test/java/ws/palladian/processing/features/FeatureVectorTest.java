@@ -50,39 +50,40 @@ public class FeatureVectorTest {
     @Test
     public void testRetrieveFeaturesByPath() {
 
-        List<Annotation<String>> annotations = new ArrayList<Annotation<String>>();
+        PipelineDocument<String> document = new PipelineDocument<String>("hello world");
+        
+        
+        PositionAnnotation annotation1 = new PositionAnnotation(document, 0, 5);
+        PositionAnnotation annotation2 = new PositionAnnotation(document, 6, 11);
+        
+        // features for terms
+        NominalFeature feature1 = new NominalFeature("feature1", "value1");
+        annotation1.addFeature(feature1);
+        
+        NominalFeature feature2 = new NominalFeature("feature1", "value2");
+        annotation2.addFeature(feature2);
+        
+        TextAnnotationFeature annotationFeature = new TextAnnotationFeature("terms");
+        annotationFeature.add(annotation1);
+        annotationFeature.add(annotation2);
 
-        PipelineDocument<String> document = new PipelineDocument<String>("tet");
+        // feature for document
+        NominalFeature documentFeature = new NominalFeature("term", "testTerm");
 
-        Feature tf1 = new NominalFeature("pos", "testTerm1");
-        PositionAnnotation wordAnnotation1 = new PositionAnnotation(document, 0, 1);
-        wordAnnotation1.addFeature(tf1);
+        // add features
+        document.addFeature(documentFeature);
+        document.addFeature(annotationFeature);
 
-        PositionAnnotation wordAnnotation2 = new PositionAnnotation(document, 0, 1);
-        Feature tf2 = new NominalFeature("pos", "testTerm2");
-        wordAnnotation2.addFeature(tf2);
-
-        annotations.add(wordAnnotation1);
-        annotations.add(wordAnnotation2);
-
-        FeatureVector featureVector = new FeatureVector();
-
-        Feature f1 = new NominalFeature("term", "testTerm");
-        TextAnnotationFeature af1 = new TextAnnotationFeature("terms", annotations);
-
-        featureVector.add(f1);
-        featureVector.add(af1);
-
-        document.setFeatureVector(featureVector);
-
-        NominalFeature feature = featureVector.getFeature(NominalFeature.class, "term");
+        NominalFeature feature = document.getFeatureVector().getFeature(NominalFeature.class, "term");
 
         assertEquals("testTerm", feature.getValue());
+        
+        System.out.println(document.getFeatureVector());
 
-        List<? extends Feature<String>> features = featureVector.getFeatures(NominalFeature.class, "terms/pos");
-        for (Feature<String> featureEntry : features) {
-            assertTrue(featureEntry.getValue().contains("testTerm"));
-        }
+        List<? extends Feature<String>> features = document.getFeatureVector().getFeatures(NominalFeature.class, "terms/feature1");
+        assertEquals(2, features.size());
+        assertEquals("value1", features.get(0).getValue());
+        assertEquals("value2", features.get(1).getValue());
 
     }
 

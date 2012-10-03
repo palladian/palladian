@@ -1,7 +1,10 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -17,13 +20,8 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class FeatureVector {
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -1873151817193636793L;
+public class FeatureVector  implements Iterable<Feature<?>>{
+
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -117,7 +115,7 @@ public class FeatureVector {
     }
 
     @Deprecated
-    public <T> Feature<T> get(Class<? extends Feature<T>> class1, String identifier) {
+    public <T extends Feature<?>> T get(Class<T> class1, String identifier) {
         return class1.cast(getFeature(identifier));
     }
 
@@ -169,9 +167,8 @@ public class FeatureVector {
         Feature<?> feature = (Feature<?>)features.get(descriptor.getIdentifier());
         if (feature == null) {
             return null;
-        } else {
-            return descriptor.getType().cast(feature);
         }
+        return descriptor.getType().cast(feature);
     }
 
     @Override
@@ -187,7 +184,8 @@ public class FeatureVector {
      * @return The vector as array.
      */
     public Feature<?>[] toArray() {
-        return features.values().toArray(new Feature[features.size()]);
+        // return features.values().toArray(new Feature[features.size()]);
+        return getFlat().toArray(new Feature[0]);
     }
 
     /**
@@ -242,6 +240,17 @@ public class FeatureVector {
     // this.add(feature);
     // }
     // }
+    
+    public List<Feature<?>> getFlat() {
+        List<Feature<?>> result = new ArrayList<Feature<?>>();
+        
+        Set<Entry<String, List<Feature<?>>>> entrySet = features.entrySet();
+        for (Entry<String, List<Feature<?>>> entry : entrySet) {
+            result.addAll(entry.getValue());
+        }
+        
+        return result;
+    }
 
     public <T> List<? extends Feature<T>> getFeatures(Class<? extends Feature<T>> class1, String featurePath) {
 
@@ -257,5 +266,10 @@ public class FeatureVector {
         }
 
         return null;
+    }
+
+    @Override
+    public Iterator<Feature<?>> iterator() {
+        return getFlat().iterator();
     }
 }
