@@ -1,20 +1,18 @@
 package ws.palladian.preprocessing.segmentation;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * The SimilarityCalculator provides functions to calculate the similarity between texts, DOM-nodes
@@ -24,7 +22,7 @@ import ws.palladian.helper.html.XPathHelper;
  * 
  */
 public class SimilarityCalculator {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(SimilarityCalculator.class);
 
@@ -35,26 +33,26 @@ public class SimilarityCalculator {
      * @param page2 Map of q-grams of the document to compare.
      * @return The similarity value between 0 and 1.
      */
-    public static double calculateSimilarity(Bag<String> page1, Bag<String> page2) {
+    public static double calculateSimilarity(CountMap<String> page1, CountMap<String> page2) {
 
         double result = 0;
         List<Double> variance = new ArrayList<Double>();
 
-        for (String qGram : page1.uniqueSet()) {
+        for (String qGram : page1.uniqueItems()) {
             // If both maps contain same key, exermine if there is a difference in the value
             if (page2.contains(qGram)) {
                 // Calculate the difference in the value
-                if (page2.getCount(qGram) == page1.getCount(qGram)) {
+                if (page2.get(qGram) == page1.get(qGram)) {
                     variance.add(new Double(0));
                 } else {
-                    Integer value = page1.getCount(qGram);
-                    Integer value2 = page2.getCount(qGram);
+                    Integer value = page1.get(qGram);
+                    Integer value2 = page2.get(qGram);
 
                     double d = 0;
                     if (value > value2)
-                        d = (double) value2 / value;
+                        d = (double)value2 / value;
                     if (value < value2)
-                        d = (double) value / value2;
+                        d = (double)value / value2;
                     d = 1 - d;
                     variance.add(d);
                 }
@@ -78,35 +76,6 @@ public class SimilarityCalculator {
     }
 
     /**
-     * Calculates the Jaccard value for two documents by comparing their tags.
-     * 
-     * @param page1 The given document.
-     * @param page2 The document to compare.
-     * @return The Jaccard value between 0 and 1.
-     */
-    public static double calculateJaccard(Bag<String> page1, Bag<String> page2) {
-        double result = 0;
-
-        Set<String> helperSet = new HashSet<String>();
-        helperSet.addAll(page1.uniqueSet());
-
-        helperSet.retainAll(page2.uniqueSet());
-
-        int z1= helperSet.size();
-
-        Set<String> s1 = new HashSet<String>(page1.uniqueSet());
-        Set<String> s2 = new HashSet<String>(page2.uniqueSet());
-
-        s1.addAll(s2);
-
-        int z2 = s1.size();
-
-        result = (double) z1 / z2;
-
-        return result;
-    }
-
-    /**
      * Calculates a similarity value for a specific node based on its difference in several
      * documents. It takes the node out of all documents and compares each node with each
      * other node. The comparison is based on the jaccard similarity over the content of
@@ -118,13 +87,13 @@ public class SimilarityCalculator {
      */
     public static double calculateSimilarityForNode(List<Document> list, String xPath) {
         double result = 0.0;
-        List<Bag<String>> listOfNodeLines = new ArrayList<Bag<String>>();
+        List<CountMap<String>> listOfNodeLines = new ArrayList<CountMap<String>>();
 
         for (Document doc : list) {
 
             String simNode = HtmlHelper.documentToReadableText(XPathHelper.getXhtmlNode(doc, xPath));
 
-            Bag<String> nodeLines = new HashBag<String>();
+            CountMap<String> nodeLines = CountMap.create();
             StringTokenizer st = new StringTokenizer(simNode, "\n");
 
             while (st.hasMoreTokens()) {
@@ -136,15 +105,16 @@ public class SimilarityCalculator {
 
         List<Double> allJaccAverage = new ArrayList<Double>();
         for (int i = 0; i < listOfNodeLines.size(); i++) {
-            Bag<String> currentNodeLines = listOfNodeLines.get(i);
+            CountMap<String> currentNodeLines = listOfNodeLines.get(i);
             List<Double> jaccArray = new ArrayList<Double>();
             double jaccAverage = 0.0;
 
             for (int j = 0; j < listOfNodeLines.size(); j++) {
-                Bag<String> compareNodeLines = listOfNodeLines.get(j);
+                CountMap<String> compareNodeLines = listOfNodeLines.get(j);
 
                 if (currentNodeLines != compareNodeLines) {
-                    Double jacc = calculateJaccard(currentNodeLines, compareNodeLines);
+                    Double jacc = MathHelper.computeJaccardSimilarity(currentNodeLines.uniqueItems(),
+                            compareNodeLines.uniqueItems());
                     if (jacc.isNaN())
                         jacc = 0.0;
                     jaccArray.add(jacc);
