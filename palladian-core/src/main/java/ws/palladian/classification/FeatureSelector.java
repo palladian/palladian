@@ -28,6 +28,7 @@ public final class FeatureSelector {
     }
 
     // chi square test funktioniert nur für nominelle merkmale
+    // pca funktioniert nur für numerische merkmale
     public static <T> Map<T, Double> calculateChiSquareValues(ListFeatureDescriptor<T> descriptor,
             Collection<Instance2<String>> instances) {
         WordCorrelationMatrix termClassCorrelationMatrix = new WordCorrelationMatrix();
@@ -41,30 +42,76 @@ public final class FeatureSelector {
     public static Map<String, Double> calculateChiSquareValues(NominalFeatureDescriptor descriptor,
             Collection<Instance2<String>> instances) {
         Map<String, Map<String, Integer>> termClassCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
+        Map<String, Map<String, Integer>> classTermCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
         Map<String, Double> ret = new HashMap<String, Double>();
 
         for (Instance2<String> instance : instances) {
             String value = instance.featureVector.get(descriptor).getValue();
-            Map<String, Integer> correlations = termClassCorrelationMatrix.get(value);
-            if (correlations == null) {
-                correlations = new HashMap<String, Integer>();
-            }
-            Integer occurenceCount = correlations.get(instance.target);
-            if (occurenceCount == null) {
-                occurenceCount = 0;
-            }
-            occurenceCount++;
-            correlations.put(instance.target, occurenceCount);
-            termClassCorrelationMatrix.put(value, correlations);
+            addCooccurence(value, instance.target, termClassCorrelationMatrix);
+            addCooccurence(instance.target, value, classTermCorrelationMatrix);
         }
 
+        // The following variables are uppercase because that is the way they are used in the literature.
         for (Map.Entry<String, Map<String, Integer>> termOccurence : termClassCorrelationMatrix.entrySet()) {
-            ret.put(termOccurence.getKey(), value);
+            int N = instances.size();
+            for (Map.Entry<String, Integer> classOccurence : termOccurence.getValue().entrySet()) {
+                int N_11 = classOccurence.getValue();
+                int N_10 = sumOfRowExceptOne(termOccurence.getKey(), classOccurence.getKey(),
+                        termClassCorrelationMatrix);
+                int N_01 = sumOfRowExceptOne(classOccurence.getKey(), termOccurence.getKey(),
+                        classTermCorrelationMatrix);
+                int N_00 = N - (N_10 + N_01);
+
+                double chiSquare = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2)
+                        / ((N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00));
+                ret.put(termOccurence.getKey(), chiSquare);
+            }
         }
 
         return ret;
     }
 
-    // pca funktioniert nur für numerische merkmale
+    /**
+     * <p>
+     * Sums up a row of a matrix leaving one column out. This is required to calculate N01 and N10 for Chi² test. N01 is
+     * the amount of documents of a class without a certain term, while N10 is the amount of documents with a certain
+     * term but not of the specified class.
+     * </p>
+     * 
+     * @param rowValue The value of the row to create the sum for.
+     * @param exception The column to leave out of the summation.
+     * @param correlationMatrix A matrix where cells are the counts of
+     *            how often a the row value and the column value occur together.
+     * @return The sum of the class occurrence without the term.
+     */
+    private static int sumOfRowExceptOne(String rowValue, String exception,
+            Map<String, Map<String, Integer>> correlationMatrix) {
+        Map<String, Integer> occurencesOfClass = correlationMatrix.get(rowValue);
+        // add up all occurences of the current class
+        int ret = 0;
+        for (Map.Entry<String, Integer> occurence : occurencesOfClass.entrySet()) {
+            if (!occurence.getKey().equals(exception)) {
+                ret += occurence.getValue();
+            }
+        }
+        return ret;
+    }
+
+    private static void addCooccurence(String row, String column, Map<String, Map<String, Integer>> correlationMatrix) {
+        Map<String, Integer> correlations = correlationMatrix.get(row);
+        if (correlations == null) {
+            correlations = new HashMap<String, Integer>();
+        }
+        Integer occurenceCount = correlations.get(column);
+        if (occurenceCount == null) {
+            occurenceCount = 0;
+        }
+        occurenceCount++;
+        correlations.put(column, occurenceCount);
+        correlationMatrix.put(row, correlations);
+
+    }
+    
+    class SetOfTerms 
 
 }
