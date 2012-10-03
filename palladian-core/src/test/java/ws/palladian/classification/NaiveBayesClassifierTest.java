@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.classification.dt.CsvInstanceReader;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.features.FeatureVector;
@@ -21,14 +23,13 @@ public class NaiveBayesClassifierTest {
         // create training instances from the "Play Dataset", see here on page 34
         // http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf
         // nominal features are: Outlook, Temp, Humidity, and Windy, nominal class is Play (true or false)
-        List<String> nominalFeatures = null;
 
         NaiveBayesClassifier bc = new NaiveBayesClassifier();
         bc.trainFromCSV(ResourceHelper.getResourcePath("/classifier/playData.txt"), ";");
 
         // create an instance to classify
         UniversalInstance newInstance = new UniversalInstance(null);
-        nominalFeatures = new ArrayList<String>();
+        List<String> nominalFeatures = new ArrayList<String>();
         nominalFeatures.add("Sunny");
         nominalFeatures.add("Cool");
         nominalFeatures.add("High");
@@ -189,6 +190,54 @@ public class NaiveBayesClassifierTest {
         
         assertEquals(0.944, MathHelper.round(prediction.getMostLikelyCategoryEntry().getRelevance(), 3), 0);
         assertEquals("Case", prediction.getMostLikelyCategoryEntry().getCategory().getName());
+    }
+    
+    @Test
+    public void testNaiveBayesCombined() throws FileNotFoundException {
+        NaiveBayesClassifier bc = new NaiveBayesClassifier();
+
+        List<Instance2<String>> instances = CsvInstanceReader.readInstances(ResourceHelper.getResourcePath("/classifier/adultData.txt"));
+        
+        List<Instance2<String>> train = instances.subList(0, instances.size() / 2);
+        List<Instance2<String>> test = instances.subList(instances.size() / 2, instances.size() - 1);
+        
+        bc.learn(train);
+        int correctlyClassified = 0;
+        for (Instance2<String> testInstance : test) {
+            CategoryEntries prediction = bc.predict(testInstance.featureVector);
+            String categoryName = prediction.getMostLikelyCategoryEntry().getCategory().getName();
+            if (categoryName.equals(testInstance.target)) {
+                correctlyClassified++;
+            }
+        }
+        double accuracy = (double) correctlyClassified / test.size();
+        System.out.println("accuracy: " + accuracy);
+        assertTrue(accuracy > 0.73);
+        
+    }
+    
+    @Test
+    public void testNaiveBayesClassifierNumeric() throws FileNotFoundException {
+        NaiveBayesClassifier bc = new NaiveBayesClassifier();
+        
+        List<Instance2<String>> instances = CsvInstanceReader.readInstances(ResourceHelper.getResourcePath("/classifier/diabetesData.txt"));
+        
+        List<Instance2<String>> train = instances.subList(0, instances.size() / 2);
+        List<Instance2<String>> test = instances.subList(instances.size() / 2, instances.size() - 1);
+
+        bc.learn(train);
+        int correctlyClassified = 0;
+        for (Instance2<String> testInstance : test) {
+            CategoryEntries prediction = bc.predict(testInstance.featureVector);
+            String categoryName = prediction.getMostLikelyCategoryEntry().getCategory().getName();
+            if (categoryName.equals(testInstance.target)) {
+                correctlyClassified++;
+            }
+        }
+        double accuracy = (double) correctlyClassified / test.size();
+        System.out.println("accuracy: " + accuracy);
+        assertTrue(accuracy > 0.69);
+        
     }
 
 }
