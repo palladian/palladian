@@ -23,9 +23,10 @@ public class QuestionAnnotatorTest {
         pipeline.add(sentenceDetector);
         pipeline.add(objectOfClassUnderTest);
         
-        PipelineDocument document = pipeline.process(new PipelineDocument(fixture));
-        Feature<List<Annotation>> questions = document.getFeatureVector().get(AnnotationFeature.class, QuestionAnnotator.FEATURE_IDENTIFIER);
-        for(Annotation question:questions.getValue()) {
+        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>(fixture));
+        @SuppressWarnings("unchecked")
+        Feature<List<Annotation<String>>> questions = document.getFeatureVector().get(AnnotationFeature.class, QuestionAnnotator.FEATURE_IDENTIFIER);
+        for(Annotation<String> question:questions.getValue()) {
             System.out.println(question);
         }
     }

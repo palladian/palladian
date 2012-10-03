@@ -2,7 +2,7 @@ package ws.palladian.classification;
 
 import java.util.Comparator;
 
-public class WordCorrelationComparator implements Comparator<WordCorrelation> {
+class WordCorrelationComparator implements Comparator<WordCorrelation> {
 
     @Override
     public int compare(WordCorrelation o1, WordCorrelation o2) {
