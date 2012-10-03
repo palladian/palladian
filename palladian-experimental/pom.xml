@@ -95,7 +95,7 @@
 		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-core</artifactId>
-			<version>0.1.7-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

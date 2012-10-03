@@ -38,8 +38,9 @@ public class PalladianContentExtractorTest {
         Assert.assertEquals(2, images.size());
         Assert.assertEquals(0, images.get(0).getWidth());
 
-        extractor.analyzeImages();
-        Assert.assertEquals(640, images.get(0).getWidth());
+        // TODO this should not access the web
+        // extractor.analyzeImages();
+        // Assert.assertEquals(640, images.get(0).getWidth());
 
         // => http://www.bbc.co.uk/news/science-environment-14254856
         extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test020.html"));

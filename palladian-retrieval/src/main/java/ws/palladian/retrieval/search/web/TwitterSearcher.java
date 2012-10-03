@@ -80,10 +80,11 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                     String text = StringEscapeUtils.unescapeHtml4(jsonResult.getString("text"));
                     String dateString = jsonResult.getString("created_at");
                     Date date = parseDate(dateString);
-                    List<String> urls = UrlHelper.extractUrls(text);
                     // take the first URL from the tweet, if present.
-                    String url = urls.isEmpty() ? null : urls.get(0);
-                    webResults.add(new WebResult(url, null, text, date));
+                    // List<String> urls = UrlHelper.extractUrls(text);
+                    // String url = urls.isEmpty() ? null : urls.get(0);
+                    String url = createTweetUrl(jsonResult.getString("from_user"), jsonResult.getString("id_str"));
+                    webResults.add(new WebResult(url, text, null, date));
                     if (webResults.size() >= resultCount) {
                         break;
                     }
@@ -99,6 +100,24 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
 
         LOGGER.debug("twitter requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
+    }
+
+    /**
+     * <p>
+     * Build URL linking to the Tweet, which is of the form
+     * <code>http://twitter.com/{twitter-user-id}/status/{tweet-status-id}</code>.
+     * </p>
+     * 
+     * @param userId The Twitter user id.
+     * @param statusId The Twitter status id.
+     * @return The URL linking to the Twitter webpage for showing the Tweet, or <code>null</code> in case any of the
+     *         both parameters was <code>null</code>.
+     */
+    private String createTweetUrl(String userId, String statusId) {
+        if (userId == null | statusId == null) {
+            return null;
+        }
+        return String.format("http://twitter.com/%s/status/%s", userId, statusId);
     }
 
     @Override
@@ -167,6 +186,8 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                 return "en";
             case GERMAN:
                 return "de";
+            default:
+                break;
         }
         throw new IllegalArgumentException("No code defined for language " + language);
     }

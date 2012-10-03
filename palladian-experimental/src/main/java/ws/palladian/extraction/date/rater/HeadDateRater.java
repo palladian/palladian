@@ -63,7 +63,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
         for (int i = 0; i < metaDates.size(); i++) {
             double rate;
             MetaDate date = metaDates.get(i);
-            byte keywordPriority = KeyWords.getKeywordPriority(date);
+            byte keywordPriority = KeyWords.getKeywordPriority(date.getKeyword());
             if (keywordPriority == hightPriority) {
                 rate = 1;
             } else if (keywordPriority == middlePriority) {

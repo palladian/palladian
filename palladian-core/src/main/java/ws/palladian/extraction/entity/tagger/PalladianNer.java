@@ -1040,7 +1040,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Annotations annotations = new Annotations();
 
         // get the candates, every token is potentially a (part of) an entity
-        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText, Tokenizer.SPLIT_REGEX);
+        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
 
         // classify annotations with the UniversalClassifier
         annotations.addAll(classifyCandidatesLanguageIndependent(entityCandidates));
@@ -1212,20 +1212,20 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             int textLength = text.length();
 
             // for example "Apr John Hiatt"
-            if (StringHelper.countOccurences(text, "^" + regExp + " ", false) > 0) {
+            if (StringHelper.countRegexMatches(text, "^" + regExp + " ") > 0) {
                 text = text.replaceAll("^" + regExp + " ", "").trim();
                 offsetChange += textLength - text.length();
             }
-            if (StringHelper.countOccurences(text, " " + regExp + "$", false) > 0) {
+            if (StringHelper.countRegexMatches(text, " " + regExp + "$") > 0) {
                 text = text.replaceAll(" " + regExp + "$", "").trim();
             }
 
             // for example "Apr. John Hiatt"
-            if (StringHelper.countOccurences(text, "^" + regExp + "\\. ", false) > 0) {
+            if (StringHelper.countRegexMatches(text, "^" + regExp + "\\. ") > 0) {
                 text = text.replaceAll("^" + regExp + "\\. ", "").trim();
                 offsetChange += textLength - text.length();
             }
-            if (StringHelper.countOccurences(text, " " + regExp + "\\.$", false) > 0) {
+            if (StringHelper.countRegexMatches(text, " " + regExp + "\\.$") > 0) {
                 text = text.replaceAll(" " + regExp + "\\.$", "").trim();
             }
         }
