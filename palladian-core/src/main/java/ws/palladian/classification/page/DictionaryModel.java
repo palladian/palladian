@@ -38,4 +38,13 @@ public final class DictionaryModel implements Model {
         return categories;
     }
 
+    @Override
+    public String toString() {
+        return "DictionaryModel [dictionarySize=" + dictionary.size() + ", categories=" + categories + "]";
+    }
+
+    public String toDictionaryCsv() {
+        return dictionary.toCsv();
+    }
+
 }
