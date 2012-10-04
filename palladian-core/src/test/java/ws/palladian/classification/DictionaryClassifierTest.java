@@ -41,11 +41,11 @@ public class DictionaryClassifierTest {
 
         FileHelper.writeToFile("dictCharJrc_ref.csv", model.toDictionaryCsv());
 
-        double accuracy = evaluate(model, dataset2);
+        double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
         System.out.println("accuracy char jrc: " + accuracy);
 
-        assertTrue(accuracy >= 0.983); // 0.978
+        assertTrue(accuracy >= 0.983);
     }
 
     @Test
@@ -72,10 +72,10 @@ public class DictionaryClassifierTest {
 
         FileHelper.writeToFile("dictWordJrc_ref.csv", model.toDictionaryCsv());
 
-        double accuracy = evaluate(model, dataset2);
+        double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
         System.out.println("accuracy word jrc: " + accuracy);
-        assertTrue(accuracy >= 0.725); // 0.309
+        assertTrue(accuracy >= 0.725);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class DictionaryClassifierTest {
 
         FileHelper.writeToFile("dictCharNg_ref.csv", model.toDictionaryCsv());
 
-        double accuracy = evaluate(model, dataset2);
+        double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
         System.out.println("accuracy char ng: " + accuracy);
         assertTrue(accuracy >= 0.8894952251023193); // 0.8882825526754585
@@ -133,15 +133,14 @@ public class DictionaryClassifierTest {
 
         FileHelper.writeToFile("dictWordNg_ref.csv", model.toDictionaryCsv());
 
-        double accuracy = evaluate(model, dataset2);
+        double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
         System.out.println("accuracy word ng: " + accuracy);
         assertTrue(accuracy >= 0.6030013642564802); // 0.17735334242837653
     }
 
-    private double evaluate(DictionaryModel model, Dataset dataset) {
+    private double evaluate(DictionaryClassifier dc, DictionaryModel model, Dataset dataset) {
         int correct = 0;
-        DictionaryClassifier dc = new DictionaryClassifier();
         List<NominalInstance> testInstances = dc.createInstances(dataset);
         for (NominalInstance nominalInstance : testInstances) {
             CategoryEntries categoryEntries = dc.predict(nominalInstance.featureVector, model);
