@@ -385,6 +385,8 @@ public class DictionaryClassifier extends TextClassifier {
 
         long t1 = System.currentTimeMillis();
 
+        int matches = 0;
+
         if (loadDictionary) {
             loadDictionary(classType);
         } else {
@@ -426,6 +428,7 @@ public class DictionaryClassifier extends TextClassifier {
 
             if (!dictionaryCategoryEntries.isEmpty()) {
 
+                matches++;
                 /**
                  * XXX Attention: The following loop will create *loads* of
                  * CategoryEntry instances, filling up the memory in no time. We
@@ -659,7 +662,7 @@ public class DictionaryClassifier extends TextClassifier {
         else if (classType == ClassificationTypeSetting.TAG) {
             document.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
                     classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
-                            .getClassificationTypeTagSetting().getTagConfidenceThreshold());
+                    .getClassificationTypeTagSetting().getTagConfidenceThreshold());
         }
 
         // keep only top category for single mode
@@ -688,6 +691,8 @@ public class DictionaryClassifier extends TextClassifier {
         }
 
         document.setClassifiedAs(classType);
+
+        System.out.println("matches: " + matches);
 
         LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
                 + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
