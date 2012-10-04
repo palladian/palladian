@@ -96,7 +96,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
     }
 
     @Deprecated
-    public <T extends Feature<?>> T get(Class<T> class1, String identifier) {
+    public <T extends Feature<?>> T getFeature(Class<T> class1, String identifier) {
         List<T> allFeatures = getAll(class1, identifier);
         if (allFeatures != null && !allFeatures.isEmpty()) {
             return allFeatures.get(0);

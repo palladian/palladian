@@ -1,18 +1,10 @@
 package ws.palladian.classification;
 
-import java.io.Serializable;
-
 import ws.palladian.processing.features.FeatureVector;
 
-public class NominalInstance implements Serializable {
+public class NominalInstance {
 
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -317834925209130296L;
-    public FeatureVector featureVector;
+    public FeatureVector featureVector = new FeatureVector();
     public String targetClass;
 
     /*

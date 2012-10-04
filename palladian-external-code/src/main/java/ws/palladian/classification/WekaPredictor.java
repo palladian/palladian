@@ -118,7 +118,7 @@ public final class WekaPredictor implements Predictor<WekaModel> {
         Set<String> nominalValues = new HashSet<String>();
         for (NominalInstance instance : instances) {
             @SuppressWarnings("deprecation")
-            NominalFeature feature = instance.featureVector.get(NominalFeature.class, name);
+            NominalFeature feature = instance.featureVector.getFeature(NominalFeature.class, name);
             if (feature == null) {
                 continue;
             }
