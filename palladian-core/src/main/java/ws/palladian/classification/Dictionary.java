@@ -437,16 +437,7 @@ public class Dictionary extends HashMap<String, CategoryEntries> implements Seri
         this.numberOfDocuments++;
     }
 
-    /**
-     * Save the constructed context map to a csv file.
-     */
-    public void saveAsCSV() {
-
-        if (categories == null) {
-            Logger.getRootLogger().error("no categories assigned");
-            return;
-        }
-
+    public String toCsv() {
         StringBuilder dictionaryString = new StringBuilder("");
 
         // add some meta information
@@ -479,6 +470,21 @@ public class Dictionary extends HashMap<String, CategoryEntries> implements Seri
             }
             dictionaryString.append("\n");
         }
+
+        return dictionaryString.toString();
+    }
+
+    /**
+     * Save the constructed context map to a csv file.
+     */
+    public void saveAsCSV() {
+
+        if (categories == null) {
+            Logger.getRootLogger().error("no categories assigned");
+            return;
+        }
+
+        String dictionaryString = toCsv();
 
         Logger.getRootLogger().debug("save dictionary...");
         FileHelper.writeToFile(
