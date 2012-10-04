@@ -86,8 +86,6 @@ public class DictionaryClassifier implements Predictor<DictionaryModel> {
 
         long t1 = System.currentTimeMillis();
 
-        int matches = 0;
-
         // make a look up in the context map for every single term
         CategoryEntries bestFitList = new CategoryEntries();
 
@@ -106,8 +104,6 @@ public class DictionaryClassifier implements Predictor<DictionaryModel> {
             CategoryEntries dictionaryCategoryEntries = model.get(termFeature.getValue());
 
             if (dictionaryCategoryEntries != null) {
-
-                matches++;
 
                 // iterate through all categories in the dictionary for the weighted term
                 for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
@@ -150,8 +146,6 @@ public class DictionaryClassifier implements Predictor<DictionaryModel> {
         // CategoryEntry defaultCE = new CategoryEntry(bestFitList, unassignedCategory, 1);
         // bestFitList.add(defaultCE);
         // }
-
-        System.out.println("matches: " + matches);
 
         LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
                 + bestFitList.getMostLikelyCategoryEntry() + ")");
