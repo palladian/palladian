@@ -23,7 +23,7 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  */
 public final class ClassificationUtils {
-    
+
     private static final String SEPARATOR = ";";
 
     /**
@@ -70,7 +70,7 @@ public final class ClassificationUtils {
         }
         return limitedCategories;
     }
-    
+
     /**
      * <p>
      * Create instances from a file. The instances must be given in a CSV file in the following format:
@@ -83,7 +83,7 @@ public final class ClassificationUtils {
      *            (column names are generated automatically).
      */
     public static List<NominalInstance> createInstances(String filePath, final boolean readHeader) {
-        
+
         if (!new File(filePath).canRead()) {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
@@ -127,9 +127,9 @@ public final class ClassificationUtils {
                 instance.targetClass = parts[parts.length - 1];
                 instances.add(instance);
             }
-            
+
         });
-        
+
         return instances;
     }
 
@@ -157,7 +157,7 @@ public final class ClassificationUtils {
 
             List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
 
-            for (Feature<Double> feature:numericFeatures) {
+            for (Feature<Double> feature : numericFeatures) {
 
                 double featureValue = feature.getValue();
 
@@ -195,7 +195,7 @@ public final class ClassificationUtils {
             // UniversalInstance nInstance = (UniversalInstance) instance;
             List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
 
-            for (Feature<Double> numericFeature:numericFeatures) {
+            for (Feature<Double> numericFeature : numericFeatures) {
                 String featureName = numericFeature.getName();
                 Double minValue = featureMinValueMap.get(featureName);
                 Double maxValue = featureMaxValueMap.get(featureName);
@@ -224,5 +224,4 @@ public final class ClassificationUtils {
         // setNormalized(true);
         return minMaxNormalization;
     }
-
 }
