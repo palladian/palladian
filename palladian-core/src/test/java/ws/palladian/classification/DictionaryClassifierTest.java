@@ -12,6 +12,7 @@ import ws.palladian.classification.page.TextInstance;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.helper.io.FileHelper;
 
 public class DictionaryClassifierTest {
 
@@ -37,6 +38,8 @@ public class DictionaryClassifierTest {
         dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
 
         dictionaryClassifier1.train(dataset);
+
+        FileHelper.writeToFile("dictCharJrc.csv", dictionaryClassifier1.getDictionary().toCsv());
 
         double accuracy = evaluate(dictionaryClassifier1, dictionaryClassifier1.readTestData(dataset2));
 
@@ -67,6 +70,8 @@ public class DictionaryClassifierTest {
 
         dictionaryClassifier1.train(dataset);
 
+        FileHelper.writeToFile("dictWordJrc.csv", dictionaryClassifier1.getDictionary().toCsv());
+
         double accuracy = evaluate(dictionaryClassifier1, dictionaryClassifier1.readTestData(dataset2));
 
         System.out.println("accuracy word jrc: " + accuracy);
@@ -96,6 +101,8 @@ public class DictionaryClassifierTest {
 
         dictionaryClassifier1.train(dataset);
 
+        FileHelper.writeToFile("dictCharNg.csv", dictionaryClassifier1.getDictionary().toCsv());
+
         double accuracy = evaluate(dictionaryClassifier1, dictionaryClassifier1.readTestData(dataset2));
 
         System.out.println("accuracy char ng: " + accuracy);
@@ -124,6 +131,8 @@ public class DictionaryClassifierTest {
         dataset2.setPath("C:\\Workspace\\data\\20newsgroups-18828\\index_split2.txt");
 
         dictionaryClassifier1.train(dataset);
+
+        FileHelper.writeToFile("dictWordNg.csv", dictionaryClassifier1.getDictionary().toCsv());
 
         double accuracy = evaluate(dictionaryClassifier1, dictionaryClassifier1.readTestData(dataset2));
 
