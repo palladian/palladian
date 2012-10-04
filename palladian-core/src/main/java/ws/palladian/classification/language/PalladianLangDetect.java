@@ -2,22 +2,17 @@ package ws.palladian.classification.language;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.ClassifierManager;
 import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
 import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.page.evaluation.ClassifierPerformance;
 import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.EvaluationSetting;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
@@ -54,88 +49,6 @@ public class PalladianLangDetect extends LanguageClassifier {
 
     public void setPossibleClasses(Set<String> possibleClasses) {
         this.possibleClasses = possibleClasses;
-    }
-
-    public ClassifierPerformance test(Dataset dataset) {
-        ClassifierManager cm = new ClassifierManager();
-        ClassifierPerformance cp = cm.testClassifier(dataset, palladianClassifier);
-        LOGGER.info("Average Accuracy: " + cp.getAverageAccuracy(false));
-        return cp;
-    }
-
-    public void evaluateBestSetting() {
-        ClassifierManager classifierManager = new ClassifierManager();
-
-        // build a set of classification type settings to evaluate
-        List<ClassificationTypeSetting> classificationTypeSettings = new ArrayList<ClassificationTypeSetting>();
-        ClassificationTypeSetting cts = new ClassificationTypeSetting();
-        cts.setClassificationType(ClassificationTypeSetting.SINGLE);
-        cts.setSerializeClassifier(false);
-        classificationTypeSettings.add(cts);
-
-        // build a set of classifiers to evaluate
-        List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
-        TextClassifier classifier = null;
-        classifier = new DictionaryClassifier();
-        classifiers.add(classifier);
-
-        // build a set of feature settings for evaluation
-        List<FeatureSetting> featureSettings = new ArrayList<FeatureSetting>();
-        FeatureSetting fs = null;
-        fs = new FeatureSetting();
-        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        fs.setMinNGramLength(1);
-        fs.setMaxNGramLength(3);
-        featureSettings.add(fs);
-
-        fs = new FeatureSetting();
-        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        fs.setMinNGramLength(1);
-        fs.setMaxNGramLength(7);
-        featureSettings.add(fs);
-
-        fs = new FeatureSetting();
-        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        fs.setMinNGramLength(4);
-        fs.setMaxNGramLength(7);
-        featureSettings.add(fs);
-
-        fs = new FeatureSetting();
-        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        fs.setMinNGramLength(3);
-        fs.setMaxNGramLength(8);
-        featureSettings.add(fs);
-
-        fs = new FeatureSetting();
-        fs.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
-        fs.setMinNGramLength(1);
-        fs.setMaxNGramLength(3);
-        featureSettings.add(fs);
-
-        // build a set of datasets that should be used for evaluation
-        Set<Dataset> datasets = new HashSet<Dataset>();
-        Dataset dataset = new Dataset();
-        dataset.setPath("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc1000.txt");
-        dataset.setFirstFieldLink(true);
-        dataset.setSeparationString(" ");
-        datasets.add(dataset);
-
-        // set evaluation settings
-        EvaluationSetting evaluationSetting = new EvaluationSetting();
-        evaluationSetting.setTrainingPercentageMin(20);
-        evaluationSetting.setTrainingPercentageMax(50);
-        evaluationSetting.setTrainingPercentageStep(10);
-        evaluationSetting.setkFolds(3);
-        evaluationSetting.addDataset(dataset);
-
-        // train and test all classifiers in all combinations
-        StopWatch stopWatch = new StopWatch();
-
-        // train + test
-        classifierManager.learnBestClassifier(classificationTypeSettings, classifiers, featureSettings,
-                evaluationSetting);
-
-        LOGGER.info("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
     }
 
     public void train(UniversalInstance instance) {

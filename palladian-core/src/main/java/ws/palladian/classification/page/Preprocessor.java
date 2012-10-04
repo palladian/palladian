@@ -38,7 +38,7 @@ public final class Preprocessor implements Serializable {
      * the classifier that this preprocessor belongs to, the classifier holds
      * the feature settings which are needed here
      */
-    private final TextClassifier classifier;
+    private final DictionaryClassifier classifier;
 
     /**
      * Global map of terms, all documents that are processed by this
@@ -53,7 +53,7 @@ public final class Preprocessor implements Serializable {
     /** The term x weight map. */
     private transient Map<Term, Double> map;
 
-    public Preprocessor(TextClassifier classifier) {
+    public Preprocessor(DictionaryClassifier classifier) {
         this.classifier = classifier;
     }
 
@@ -63,67 +63,67 @@ public final class Preprocessor implements Serializable {
      * @param classifier
      * @param preprocessor
      */
-    public Preprocessor(TextClassifier classifier, Preprocessor preprocessor) {
+    public Preprocessor(DictionaryClassifier classifier, Preprocessor preprocessor) {
         super();
         this.classifier = classifier;
-        
-//        try {
-//            PropertyUtils.copyProperties(this, preprocessor);
-//        } catch (IllegalAccessException e) {
-//            Logger.getRootLogger().error(e);
-//        } catch (InvocationTargetException e) {
-//            Logger.getRootLogger().error(e);
-//        } catch (NoSuchMethodException e) {
-//            Logger.getRootLogger().error(e);
-//        }
-        
+
+        //        try {
+        //            PropertyUtils.copyProperties(this, preprocessor);
+        //        } catch (IllegalAccessException e) {
+        //            Logger.getRootLogger().error(e);
+        //        } catch (InvocationTargetException e) {
+        //            Logger.getRootLogger().error(e);
+        //        } catch (NoSuchMethodException e) {
+        //            Logger.getRootLogger().error(e);
+        //        }
+
         this.map = new HashMap<Term, Double>(preprocessor.map);
     }
 
-//    /**
-//     * Extract terms from keywords of a web page, given in the meta tag
-//     * "keywords".
-//     * 
-//     * @param pageString
-//     *            The website contents.
-//     */
-//    private void extractKeywords(org.w3c.dom.Document webPage) {
-//        List<String> keywords = PageAnalyzer.extractKeywords(webPage);
-//        for (String term : keywords) {
-//            String[] keywordTerms = term.split("\\s");
-//            for (String keywordTerm : keywordTerms) {
-//                addToTermMap(keywordTerm, WEIGHT_KEYWORD_TERM);
-//            }
-//        }
-//    }
+    //    /**
+    //     * Extract terms from keywords of a web page, given in the meta tag
+    //     * "keywords".
+    //     *
+    //     * @param pageString
+    //     *            The website contents.
+    //     */
+    //    private void extractKeywords(org.w3c.dom.Document webPage) {
+    //        List<String> keywords = PageAnalyzer.extractKeywords(webPage);
+    //        for (String term : keywords) {
+    //            String[] keywordTerms = term.split("\\s");
+    //            for (String keywordTerm : keywordTerms) {
+    //                addToTermMap(keywordTerm, WEIGHT_KEYWORD_TERM);
+    //            }
+    //        }
+    //    }
 
-//    /**
-//     * Extract terms from the meta description of a web page, given in the meta
-//     * tag "description".
-//     * 
-//     * @param pageString
-//     *            The website contents.
-//     */
-//    private void extractMetaDescription(org.w3c.dom.Document webPage) {
-//        List<String> keywords = PageAnalyzer.extractDescription(webPage);
-//        for (String term : keywords) {
-//            addToTermMap(term, WEIGHT_META_TERM);
-//        }
-//    }
+    //    /**
+    //     * Extract terms from the meta description of a web page, given in the meta
+    //     * tag "description".
+    //     *
+    //     * @param pageString
+    //     *            The website contents.
+    //     */
+    //    private void extractMetaDescription(org.w3c.dom.Document webPage) {
+    //        List<String> keywords = PageAnalyzer.extractDescription(webPage);
+    //        for (String term : keywords) {
+    //            addToTermMap(term, WEIGHT_META_TERM);
+    //        }
+    //    }
 
-//    /**
-//     * Extract terms from the title of a web page, given in the title tag.
-//     * 
-//     * @param pageString
-//     *            The website contents.
-//     */
-//    private void extractTitle(org.w3c.dom.Document webPage) {
-//        String title = PageAnalyzer.extractTitle(webPage);
-//        String[] titleWords = title.split("\\s");
-//        for (String term : titleWords) {
-//            addToTermMap(term, WEIGHT_TITLE_TERM);
-//        }
-//    }
+    //    /**
+    //     * Extract terms from the title of a web page, given in the title tag.
+    //     *
+    //     * @param pageString
+    //     *            The website contents.
+    //     */
+    //    private void extractTitle(org.w3c.dom.Document webPage) {
+    //        String title = PageAnalyzer.extractTitle(webPage);
+    //        String[] titleWords = title.split("\\s");
+    //        for (String term : titleWords) {
+    //            addToTermMap(term, WEIGHT_TITLE_TERM);
+    //        }
+    //    }
 
     /**
      * Add a term to the term x weight map. Terms will all be made lowercase.
@@ -139,7 +139,7 @@ public final class Preprocessor implements Serializable {
                 && getFeatureSetting().getMaxNGramLength() == 1
                 && (termString.length() < getFeatureSetting().getMinimumTermLength() || termString.length() > getFeatureSetting()
                         .getMaximumTermLength()) || map.size() >= getFeatureSetting().getMaxTerms()
-                || isStopWord(termString)) {
+                        || isStopWord(termString)) {
             return;
         }
 
@@ -231,95 +231,95 @@ public final class Preprocessor implements Serializable {
         return preProcessDocument(url, new TextInstance());
     }
 
-//    /**
-//     * Preprocess a string (such as a URL) and create a classification document.
-//     * A map of n-grams is created for the document and added to it. If a n-gram
-//     * term exists, it will be taken from the n-gram index.
-//     * 
-//     * @deprecated consider using preprocess document
-//     * 
-//     * @param inputString
-//     *            The input string.
-//     * @param classificationDocument
-//     *            The classification document.
-//     * @return The classification document with the n-gram map.
-//     */
-//    @Deprecated
-//    public TextInstance preProcessString(String inputString, TextInstance classificationDocument) {
-//
-//        // create a new term map for the classification document
-//        map = new HashMap<Term, Double>();
-//
-//        // remove http(s): and www from URL
-//        inputString = UrlHelper.getCleanUrl(inputString);
-//
-//        Set<String> ngrams = Tokenizer.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
-//                getFeatureSetting().getMaxNGramLength());
-//
-//        // build the map
-//        for (String ngram : ngrams) {
-//
-//            // do not add ngrams with some special chars or if it is only
-//            // numbers
-//            if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
-//                    || StringHelper.isNumber(ngram)) {
-//                continue;
-//            }
-//
-//            addToTermMap(ngram, 1.0);
-//        }
-//
-//        classificationDocument.getWeightedTerms().putAll(map);
-//
-//        return classificationDocument;
-//    }
+    //    /**
+    //     * Preprocess a string (such as a URL) and create a classification document.
+    //     * A map of n-grams is created for the document and added to it. If a n-gram
+    //     * term exists, it will be taken from the n-gram index.
+    //     *
+    //     * @deprecated consider using preprocess document
+    //     *
+    //     * @param inputString
+    //     *            The input string.
+    //     * @param classificationDocument
+    //     *            The classification document.
+    //     * @return The classification document with the n-gram map.
+    //     */
+    //    @Deprecated
+    //    public TextInstance preProcessString(String inputString, TextInstance classificationDocument) {
+    //
+    //        // create a new term map for the classification document
+    //        map = new HashMap<Term, Double>();
+    //
+    //        // remove http(s): and www from URL
+    //        inputString = UrlHelper.getCleanUrl(inputString);
+    //
+    //        Set<String> ngrams = Tokenizer.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+    //                getFeatureSetting().getMaxNGramLength());
+    //
+    //        // build the map
+    //        for (String ngram : ngrams) {
+    //
+    //            // do not add ngrams with some special chars or if it is only
+    //            // numbers
+    //            if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
+    //                    || StringHelper.isNumber(ngram)) {
+    //                continue;
+    //            }
+    //
+    //            addToTermMap(ngram, 1.0);
+    //        }
+    //
+    //        classificationDocument.getWeightedTerms().putAll(map);
+    //
+    //        return classificationDocument;
+    //    }
 
-//    /**
-//     * Preprocesses a long string of text similar to {@link #preProcessPage(String, TextInstance)}, but the text content
-//     * is
-//     * not downloaded from the web but passed via the url parameter. XXX This is
-//     * a quick and dirty hack to allow classification of text content and should
-//     * be refactored somehow in the future.
-//     * 
-//     * @deprecated consider using preprocess document
-//     * 
-//     * @author Philipp Katz
-//     * 
-//     * @param text
-//     *            the text to be preProcessed
-//     * @param classificationDocument
-//     * @return
-//     */
-//    @Deprecated
-//    public TextInstance preProcessText(String text, TextInstance classificationDocument) {
-//
-//        map = new HashMap<Term, Double>();
-//
-//        // remove stop words
-//        text = stripStopWords(text);
-//
-//        // get an array of terms
-//        String[] termArray = text.split("\\s");
-//
-//        // build the map, weight 1 for all for now
-//        for (String term : termArray) {
-//            addToTermMap(term, 1.0);
-//        }
-//
-//        classificationDocument.getWeightedTerms().putAll(map);
-//
-//        return classificationDocument;
-//    }
+    //    /**
+    //     * Preprocesses a long string of text similar to {@link #preProcessPage(String, TextInstance)}, but the text content
+    //     * is
+    //     * not downloaded from the web but passed via the url parameter. XXX This is
+    //     * a quick and dirty hack to allow classification of text content and should
+    //     * be refactored somehow in the future.
+    //     *
+    //     * @deprecated consider using preprocess document
+    //     *
+    //     * @author Philipp Katz
+    //     *
+    //     * @param text
+    //     *            the text to be preProcessed
+    //     * @param classificationDocument
+    //     * @return
+    //     */
+    //    @Deprecated
+    //    public TextInstance preProcessText(String text, TextInstance classificationDocument) {
+    //
+    //        map = new HashMap<Term, Double>();
+    //
+    //        // remove stop words
+    //        text = stripStopWords(text);
+    //
+    //        // get an array of terms
+    //        String[] termArray = text.split("\\s");
+    //
+    //        // build the map, weight 1 for all for now
+    //        for (String term : termArray) {
+    //            addToTermMap(term, 1.0);
+    //        }
+    //
+    //        classificationDocument.getWeightedTerms().putAll(map);
+    //
+    //        return classificationDocument;
+    //    }
 
-//    /**
-//     * @deprecated consider using preprocess document
-//     * @param text
-//     * @return
-//     */
-//    @Deprecated
-//    public TextInstance preProcessText(String text) {
-//        return preProcessText(text, new TextInstance());
-//    }
+    //    /**
+    //     * @deprecated consider using preprocess document
+    //     * @param text
+    //     * @return
+    //     */
+    //    @Deprecated
+    //    public TextInstance preProcessText(String text) {
+    //        return preProcessText(text, new TextInstance());
+    //    }
 
     /**
      * Get rid of characters that are not useful for classification purposes.
@@ -334,19 +334,19 @@ public final class Preprocessor implements Serializable {
      * term.replaceAll(illegalTermCharacters[j], ""); } return term; }
      */
 
-//    /**
-//     * Strip stop words.
-//     * 
-//     * @param words
-//     * @return a string without words from the stop word list
-//     */
-//    private String stripStopWords(String words) {
-//        for (String stopWord : getFeatureSetting().getStopWords()) {
-//            words = words.replaceAll("\\s" + stopWord + "\\s", " ");
-//        }
-//
-//        return words;
-//    }
+    //    /**
+    //     * Strip stop words.
+    //     *
+    //     * @param words
+    //     * @return a string without words from the stop word list
+    //     */
+    //    private String stripStopWords(String words) {
+    //        for (String stopWord : getFeatureSetting().getStopWords()) {
+    //            words = words.replaceAll("\\s" + stopWord + "\\s", " ");
+    //        }
+    //
+    //        return words;
+    //    }
 
     private boolean isStopWord(String word) {
         word = word.toLowerCase().trim();
