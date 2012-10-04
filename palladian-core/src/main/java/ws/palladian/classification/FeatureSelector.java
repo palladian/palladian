@@ -39,16 +39,18 @@ public final class FeatureSelector {
         }
     }
 
-    public static Map<String, Double> calculateChiSquareValues(String featureIdentifier,
+    public static Map<String, Double> calculateChiSquareValues(String featurePath, Class<?> featureType,
             Collection<NominalInstance> instances) {
         Map<String, Map<String, Integer>> termClassCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
         Map<String, Map<String, Integer>> classTermCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
         Map<String, Double> ret = new HashMap<String, Double>();
 
-        for (Instance2<String> instance : instances) {
-            String value = instance.featureVector.get(descriptor).getValue();
-            addCooccurence(value, instance.target, termClassCorrelationMatrix);
-            addCooccurence(instance.target, value, classTermCorrelationMatrix);
+        for (NominalInstance instance : instances) {
+            Collection features = instance.featureVector.getFeatures(featureType, featurePath);
+            for(Object value:features) {
+            addCooccurence(value.toString(), instance.targetClass, termClassCorrelationMatrix);
+            addCooccurence(instance.targetClass, value.toString(), classTermCorrelationMatrix);
+            }
         }
 
         // The following variables are uppercase because that is the way they are used in the literature.
