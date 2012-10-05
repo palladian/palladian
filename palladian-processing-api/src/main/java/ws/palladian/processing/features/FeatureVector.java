@@ -1,9 +1,11 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -230,6 +232,10 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         }
 
         return null;
+    }
+
+    public <T extends Feature<?>> Set<T> getFeatureBag(Class<T> featureClass, String featurePath) {
+        return new HashSet<T>(getFeatures(featureClass, featurePath));
     }
 
     @Override
