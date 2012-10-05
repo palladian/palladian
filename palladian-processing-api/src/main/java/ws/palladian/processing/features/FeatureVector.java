@@ -40,6 +40,7 @@ public final class FeatureVector implements Iterable<Feature<?>> {
     /**
      * <p>
      * Creates a new {@link FeatureVector} from the provided FeatureVector, i.e. a copy with all {@link Feature}s.
+     * </p>
      * 
      * @param featureVector The feature vector which Features to copy.
      */
@@ -66,28 +67,27 @@ public final class FeatureVector implements Iterable<Feature<?>> {
 
     @Deprecated
     private Feature<?> getFeature(String name) {
-        List<Feature<?>> allFeatures = features.get(name);
-        if (allFeatures != null && !allFeatures.isEmpty()) {
-            return allFeatures.get(0);
+        List<Feature<?>> selectedFeatures = features.get(name);
+        if (selectedFeatures == null || selectedFeatures.isEmpty()) {
+            return null;
         }
-        return null;
+        return selectedFeatures.get(0);
     }
 
     @Deprecated
     public <T extends Feature<?>> T getFeature(Class<T> type, String name) {
-        List<T> allFeatures = getAll(type, name);
-        if (allFeatures != null && !allFeatures.isEmpty()) {
-            return allFeatures.get(0);
+        List<T> selectedFeatures = getAll(type, name);
+        if (selectedFeatures.isEmpty()) {
+            return null;
         }
-        return null;
+        return selectedFeatures.get(0);
     }
 
     @Deprecated
     public <T extends Feature<?>> List<T> getAll(Class<T> type, String name) {
         List<T> selectedFeatures = new ArrayList<T>();
-        List<Feature<?>> list = features.get(name);
-        if (list != null) {
-            for (Feature<?> feature : list) {
+        for (Feature<?> feature : getAll(type)) {
+            if (feature.getName().equals(name)) {
                 selectedFeatures.add(type.cast(feature));
             }
         }
@@ -104,15 +104,15 @@ public final class FeatureVector implements Iterable<Feature<?>> {
      *         exist, never <code>null</code>.
      */
     public <T extends Feature<?>> List<T> getAll(Class<T> type) {
-        List<T> ret = new ArrayList<T>();
-        for (List<Feature<?>> featureList : features.values()) {
-            for (Feature<?> feature : featureList) {
+        List<T> selectedFeatures = new ArrayList<T>();
+        for (List<Feature<?>> list : features.values()) {
+            for (Feature<?> feature : list) {
                 if (type.isInstance(feature)) {
-                    ret.add(type.cast(feature));
+                    selectedFeatures.add(type.cast(feature));
                 }
             }
         }
-        return ret;
+        return selectedFeatures;
     }
 
     /**
@@ -128,14 +128,7 @@ public final class FeatureVector implements Iterable<Feature<?>> {
      */
     @Deprecated
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
-        List<Feature<?>> feature = features.get(descriptor.getIdentifier());
-        if (feature == null) {
-            return null;
-        }
-        if (feature.size() == 0) {
-            return null;
-        }
-        return descriptor.getType().cast(feature.get(0));
+        return getFeature(descriptor.getType(), descriptor.getIdentifier());
     }
 
     @Override

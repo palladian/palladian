@@ -1,35 +1,16 @@
 package ws.palladian.processing.features;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.processing.PipelineDocument;
 
 public class FeatureVectorTest {
-
-    private FeatureVector featureVector;
-    private NominalFeature f1;
-    private Feature<String> f2;
-    private NumericFeature f3;
-    private Feature<Double> f4;
-
-    @Before
-    public void setUp() {
-        featureVector = new FeatureVector();
-        f1 = new NominalFeature("nominalFeature1", "test");
-        f2 = new NominalFeature("nominalFeature3", "test");
-        f3 = new NumericFeature("numericFeature1", 2.);
-        f4 = new NumericFeature("numericFeature2", 3.);
-        featureVector.add(f1);
-        featureVector.add(f2);
-        featureVector.add(f3);
-        featureVector.add(f4);
-    }
 
     @Test
     public void testRetrieveFeaturesByDescriptor() {
@@ -79,7 +60,7 @@ public class FeatureVectorTest {
         
         System.out.println(document.getFeatureVector());
 
-        List<? extends Feature<String>> features = document.getFeatureVector().getFeatures(NominalFeature.class, "terms/feature1");
+        List<NominalFeature> features = document.getFeatureVector().getFeatures(NominalFeature.class, "terms/feature1");
         assertEquals(2, features.size());
         assertEquals("value1", features.get(0).getValue());
         assertEquals("value2", features.get(1).getValue());
@@ -88,7 +69,18 @@ public class FeatureVectorTest {
 
     @Test
     public void testRetrieveFeaturesByType() {
+        FeatureVector featureVector = new FeatureVector();
+        NominalFeature f1 = new NominalFeature("nominalFeature1", "test");
+        Feature<String> f2 = new NominalFeature("nominalFeature3", "test");
+        NumericFeature f3 = new NumericFeature("numericFeature1", 2.);
+        Feature<Double> f4 = new NumericFeature("numericFeature2", 3.);
+        featureVector.add(f1);
+        featureVector.add(f2);
+        featureVector.add(f3);
+        featureVector.add(f4);
+        
         assertEquals(4, featureVector.size());
+        
         List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
         assertEquals(2, nominalFeatures.size());
         assertTrue(nominalFeatures.contains(f1));
@@ -98,6 +90,9 @@ public class FeatureVectorTest {
         assertEquals(2, numericFeatures.size());
         assertTrue(numericFeatures.contains(f3));
         assertTrue(numericFeatures.contains(f4));
+        
+        // try to retrieve a NumericFeature, which is actually a NominalFeature
+        assertNull(featureVector.getFeature(NominalFeature.class, "numericFeature1"));
     }
 
     // @Test
