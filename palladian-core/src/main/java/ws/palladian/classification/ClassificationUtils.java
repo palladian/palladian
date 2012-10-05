@@ -1,7 +1,6 @@
 package ws.palladian.classification;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,11 +37,10 @@ public final class ClassificationUtils {
 
     public static CategoryEntry getSingleBestCategoryEntry(CategoryEntries entries) {
         CategoryEntries limitedCategories = limitCategories(entries, 1, 0.0);
-        if (!limitedCategories.isEmpty()) {
-            return limitedCategories.get(0);
-        } else {
+        if (limitedCategories.isEmpty()) {
             return null;
         }
+        return limitedCategories.get(0);
     }
 
     /**
@@ -147,10 +145,10 @@ public final class ClassificationUtils {
     public static MinMaxNormalization minMaxNormalize(List<Instance> instances) {
 
         // hold the min value of each feature <featureName, minValue>
-        Map<String, Double> featureMinValueMap = new HashMap<String, Double>();
+        Map<String, Double> featureMinValueMap = CollectionHelper.newHashMap();
 
         // hold the max value of each feature <featureIndex, maxValue>
-        Map<String, Double> featureMaxValueMap = new HashMap<String, Double>();
+        Map<String, Double> featureMaxValueMap = CollectionHelper.newHashMap();
 
         // find the min and max values
         for (Instance instance : instances) {
@@ -159,70 +157,52 @@ public final class ClassificationUtils {
 
             for (Feature<Double> feature:numericFeatures) {
 
+                String featureName = feature.getName();
                 double featureValue = feature.getValue();
 
                 // check min value
-                if (featureMinValueMap.get(feature.getName()) != null) {
-                    double currentMin = featureMinValueMap.get(feature.getName());
+                if (featureMinValueMap.get(featureName) != null) {
+                    double currentMin = featureMinValueMap.get(featureName);
                     if (currentMin > featureValue) {
-                        featureMinValueMap.put(feature.getName(), featureValue);
+                        featureMinValueMap.put(featureName, featureValue);
                     }
                 } else {
-                    featureMinValueMap.put(feature.getName(), featureValue);
+                    featureMinValueMap.put(featureName, featureValue);
                 }
 
                 // check max value
-                if (featureMaxValueMap.get(feature.getName()) != null) {
-                    double currentMax = featureMaxValueMap.get(feature.getName());
+                if (featureMaxValueMap.get(featureName) != null) {
+                    double currentMax = featureMaxValueMap.get(featureName);
                     if (currentMax < featureValue) {
-                        featureMaxValueMap.put(feature.getName(), featureValue);
+                        featureMaxValueMap.put(featureName, featureValue);
                     }
                 } else {
-                    featureMaxValueMap.put(feature.getName(), featureValue);
+                    featureMaxValueMap.put(featureName, featureValue);
                 }
 
             }
         }
 
         // normalize the feature values
-        MinMaxNormalization minMaxNormalization = new MinMaxNormalization();
-        Map<String, Double> normalizationMap = new HashMap<String, Double>();
-        // List<NominalInstance> normalizedInstances = new
-        // ArrayList<NominalInstance>();
+        Map<String, Double> normalizationMap = CollectionHelper.newHashMap();
+        Map<String, Double> minValueMap = CollectionHelper.newHashMap();
         for (Instance instance : instances) {
-            // NominalInstance normalizedInstance = new NominalInstance();
-
-            // UniversalInstance nInstance = (UniversalInstance) instance;
             List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
 
-            for (Feature<Double> numericFeature:numericFeatures) {
+            for (NumericFeature numericFeature : numericFeatures) {
                 String featureName = numericFeature.getName();
                 Double minValue = featureMinValueMap.get(featureName);
                 Double maxValue = featureMaxValueMap.get(featureName);
-                double max_minus_min = maxValue - minValue;
+                double maxMinDifference = maxValue - minValue;
                 double featureValue = numericFeature.getValue();
-                double normalizedValue = (featureValue - minValue) / max_minus_min;
+                double normalizedValue = (featureValue - minValue) / maxMinDifference;
                 numericFeature.setValue(normalizedValue);
-
-                // nInstance.getNumericFeatures().set(i, normalizedValue);
-                // normalizedInstance.featureVector
-                // .add(new NumericFeature(
-                // FeatureDescriptorBuilder.build(
-                // numericFeature.getName(),
-                // NumericFeature.class), normalizedValue));
-
-                normalizationMap.put(featureName, max_minus_min);
-                minMaxNormalization.getMinValueMap().put(featureName, minValue);
+                normalizationMap.put(featureName, maxMinDifference);
+                minValueMap.put(featureName, minValue);
             }
-            // normalizedInstances.add(normalizedInstance);
 
         }
-
-        // return normalizedInstances;
-
-        minMaxNormalization.setNormalizationMap(normalizationMap);
-        // setNormalized(true);
-        return minMaxNormalization;
+        return new MinMaxNormalization(normalizationMap, minValueMap);
     }
 
 }

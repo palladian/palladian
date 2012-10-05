@@ -37,7 +37,7 @@ public class KnnClassifier implements Classifier<KnnModel> {
      * the same distance they will all be considered for voting, k might
      * increase in these cases.
      */
-    private int k = 3;
+    private final int k;
 
     /**
      * <p>
@@ -50,8 +50,6 @@ public class KnnClassifier implements Classifier<KnnModel> {
      *            classification.
      */
     public KnnClassifier(Integer k) {
-        super();
-
         this.k = k;
     }
 
@@ -62,17 +60,12 @@ public class KnnClassifier implements Classifier<KnnModel> {
      * </p>
      */
     public KnnClassifier() {
-        super();
-
-        this.k = 3;
+        this(3);
     }
 
     @Override
     public KnnModel train(List<Instance> instances) {
-        // List<NominalInstance> normalizedInstances = normalize(instances);
-        // KnnModel model = new KnnModel(normalizedInstances);
-        KnnModel model = new KnnModel(instances);
-        return model;
+        return new KnnModel(instances);
     }
 
     // private List<NominalInstance> normalize(List<NominalInstance> instances) {
@@ -268,31 +261,17 @@ public class KnnClassifier implements Classifier<KnnModel> {
      */
     private Double getDistanceBetween(FeatureVector vector, FeatureVector featureVector) {
 
-        double distance = Double.MAX_VALUE;
-
         double squaredSum = 0;
 
         List<NumericFeature> instanceFeatures = vector.getAll(NumericFeature.class);
-        List<NumericFeature> knownInstanceFeatures = featureVector.getAll(NumericFeature.class);
 
         for (NumericFeature instanceFeature : instanceFeatures) {
             squaredSum += Math.pow(
                     instanceFeature.getValue()
-                    - getFeatureFromList(instanceFeature.getName(), knownInstanceFeatures).getValue(), 2);
+                            - featureVector.getFeature(NumericFeature.class, instanceFeature.getName()).getValue(), 2);
         }
 
-        distance = Math.sqrt(squaredSum);
-
-        return distance;
-    }
-
-    private NumericFeature getFeatureFromList(String name, List<NumericFeature> features) {
-        for (NumericFeature feature : features) {
-            if (feature.getName().equals(name)) {
-                return feature;
-            }
-        }
-        return null;
+        return Math.sqrt(squaredSum);
     }
 
     @Override

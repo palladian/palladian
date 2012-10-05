@@ -74,8 +74,8 @@ public final class FeatureVector implements Iterable<Feature<?>> {
     }
 
     @Deprecated
-    public <T extends Feature<?>> T getFeature(Class<T> class1, String identifier) {
-        List<T> allFeatures = getAll(class1, identifier);
+    public <T extends Feature<?>> T getFeature(Class<T> type, String name) {
+        List<T> allFeatures = getAll(type, name);
         if (allFeatures != null && !allFeatures.isEmpty()) {
             return allFeatures.get(0);
         }
@@ -103,13 +103,12 @@ public final class FeatureVector implements Iterable<Feature<?>> {
      * @return A {@link List} of {@link Feature}s for the specified type or an empty List of no such {@link Feature}s
      *         exist, never <code>null</code>.
      */
-    @SuppressWarnings("unchecked")
     public <T extends Feature<?>> List<T> getAll(Class<T> type) {
         List<T> ret = new ArrayList<T>();
         for (List<Feature<?>> featureList : features.values()) {
             for (Feature<?> feature : featureList) {
                 if (type.isInstance(feature)) {
-                    ret.add((T)feature);
+                    ret.add(type.cast(feature));
                 }
             }
         }
@@ -216,17 +215,16 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return result;
     }
 
-    public <T extends Feature<?>> List<T> getFeatures(Class<T> class1, String featurePath) {
+    public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
 
-        String[] pathElements = featurePath.split("/");
+        String[] pathElements = path.split("/");
 
         for (String pathElement : pathElements) {
             Feature<?> feature = getFeature(pathElement);
             if (feature instanceof AnnotationFeature) {
-                return ((AnnotationFeature)feature).getFeatures(class1,
-                        featurePath.substring(featurePath.indexOf("/") + 1));
+                return ((AnnotationFeature)feature).getFeatures(type, path.substring(path.indexOf("/") + 1));
             }
-            return getAll(class1, pathElement);
+            return getAll(type, pathElement);
         }
 
         return null;
