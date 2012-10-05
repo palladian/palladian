@@ -1,12 +1,12 @@
-package ws.palladian.classification.page;
+package ws.palladian.classification.text;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.Term;
 
 /**
  * The document representation.
@@ -33,7 +33,7 @@ public class TextInstance extends Instance {
     private String content = "";
 
     /** The weighted terms with term,weight representation. */
-    private HashMap<Term, Double> weightedTerms;
+    private Map<String, Double> weightedTerms;
 
     /** The type of the document (TEST, TRAINING or unknown). */
     private int documentType = UNCLASSIFIED;
@@ -43,7 +43,7 @@ public class TextInstance extends Instance {
      * The constructor.
      */
     public TextInstance() {
-        weightedTerms = new HashMap<Term, Double>();
+        weightedTerms = new HashMap<String, Double>();
         assignedCategoryEntries = new CategoryEntries();
     }
 
@@ -91,17 +91,17 @@ public class TextInstance extends Instance {
         this.content = content;
     }
 
-    public HashMap<Term, Double> getWeightedTerms() {
+    public Map<String, Double> getWeightedTerms() {
         return weightedTerms;
     }
 
-    public void setWeightedTerms(HashMap<Term, Double> weightedTerms) {
+    public void setWeightedTerms(Map<String, Double> weightedTerms) {
         this.weightedTerms = weightedTerms;
     }
 
-//    public int getDocumentType() {
-//        return documentType;
-//    }
+    //    public int getDocumentType() {
+    //        return documentType;
+    //    }
 
     public void setDocumentType(int documentType) {
         this.documentType = documentType;

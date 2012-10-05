@@ -13,8 +13,9 @@ import quickdt.TreeBuilder;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Classifier;
 import ws.palladian.classification.NominalInstance;
-import ws.palladian.classification.Predictor;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
@@ -26,7 +27,7 @@ import ws.palladian.processing.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel> {
+public final class DecisionTreeClassifier implements Classifier<DecisionTreeModel> {
 
     private final int maxDepth;
 
@@ -55,7 +56,7 @@ public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel
     }
 
     @Override
-    public DecisionTreeModel learn(List<NominalInstance> instances) {
+    public DecisionTreeModel train(List<NominalInstance> instances) {
         Set<Instance> trainingInstances = CollectionHelper.newHashSet();
         for (NominalInstance instance : instances) {
             Serializable[] input = getInput(instance.featureVector);
@@ -77,13 +78,19 @@ public final class DecisionTreeClassifier implements Predictor<DecisionTreeModel
     }
 
     @Override
-    public CategoryEntries predict(FeatureVector featureVector, DecisionTreeModel decisionTreeModel) {
+    public CategoryEntries classify(FeatureVector featureVector, DecisionTreeModel decisionTreeModel) {
         Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(featureVector)));
         CategoryEntries categoryEntries = new CategoryEntries();
         Category category = new Category((String)leaf.classification);
         CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, category, leaf.probability);
         categoryEntries.add(categoryEntry);
         return categoryEntries;
+    }
+
+    @Override
+    public DecisionTreeModel train(Dataset dataset) {
+        // FIXME
+        return null;
     }
 
 }

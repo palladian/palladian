@@ -10,8 +10,9 @@ import org.javatuples.Triplet;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Classifier;
 import ws.palladian.classification.NominalInstance;
-import ws.palladian.classification.Predictor;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.Factory;
@@ -31,10 +32,10 @@ import ws.palladian.processing.features.NumericFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
+public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
     @Override
-    public NaiveBayesModel learn(List<NominalInstance> instances) {
+    public NaiveBayesModel train(List<NominalInstance> instances) {
 
         // store the counts of different categories
         CountMap<String> categories = CountMap.create();
@@ -80,7 +81,7 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
     }
 
     @Override
-    public CategoryEntries predict(FeatureVector vector, NaiveBayesModel model) {
+    public CategoryEntries classify(FeatureVector vector, NaiveBayesModel model) {
 
         Map<String, Double> probabilities = CollectionHelper.newHashMap();
 
@@ -158,4 +159,11 @@ public final class NaiveBayesClassifier implements Predictor<NaiveBayesModel> {
         }
 
     }
+
+    @Override
+    public NaiveBayesModel train(Dataset dataset) {
+        // FIXME
+        return null;
+    }
+
 }

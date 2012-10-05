@@ -1,4 +1,4 @@
-package ws.palladian.classification.page.evaluation;
+package ws.palladian.classification.text.evaluation;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

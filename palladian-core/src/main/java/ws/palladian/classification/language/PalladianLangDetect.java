@@ -7,13 +7,11 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.DictionaryClassifier;
-import ws.palladian.classification.page.TextClassifier;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.classification.page.evaluation.ClassifierPerformance;
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -30,17 +28,18 @@ public class PalladianLangDetect extends LanguageClassifier {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianLangDetect.class);
 
-    private final TextClassifier palladianClassifier;
+    private final PalladianTextClassifier palladianClassifier;
 
     /** We can specify which classes are possible and discard all others for the classification task. */
     private Set<String> possibleClasses = null;
 
     public PalladianLangDetect(String modelPath) {
-        palladianClassifier = (TextClassifier)Cache.getInstance().getDataObject(modelPath, new File(modelPath));
+        palladianClassifier = (PalladianTextClassifier)Cache.getInstance().getDataObject(modelPath, new File(modelPath));
     }
 
     public PalladianLangDetect() {
-        palladianClassifier = DictionaryClassifier.load("data/models/palladianLanguageJRC/palladianLanguageJRC.ser");
+        palladianClassifier = new PalladianTextClassifier();
+        palladianClassifier.loadModel("data/models/palladianLanguageJRC/palladianLanguageJrc.gz");
     }
 
     public Set<String> getPossibleClasses() {
@@ -51,13 +50,11 @@ public class PalladianLangDetect extends LanguageClassifier {
         this.possibleClasses = possibleClasses;
     }
 
-    public void train(UniversalInstance instance) {
-        palladianClassifier.train(instance);
-    }
-
-    public ClassifierPerformance evaluate(Dataset dataset) {
-        return palladianClassifier.evaluate(dataset);
-    }
+    // public ClassifierPerformance evaluate(Dataset dataset) {
+    // FIXME!!!
+    // return ClassifierEvaluator.evaluate(palladianClassifier, dataset);
+    // return palladianClassifier.evaluate(dataset);
+    // }
 
     /**
      * Train the language detector on a dataset.
@@ -80,7 +77,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         // ClassifierManager classifierManager = new ClassifierManager();
 
         // create a text classifier by giving a name and a path where it should be saved to
-        TextClassifier classifier = new DictionaryClassifier(classifierName, classifierPath + classifierName + "/");
+        PalladianTextClassifier classifier = new PalladianTextClassifier();
         // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
 
         // specify the settings for the classification
@@ -111,16 +108,12 @@ public class PalladianLangDetect extends LanguageClassifier {
             featureSetting.setMaxNGramLength(7);
         }
 
-        // we assign the settings to our classifier
-        classifier.setClassificationTypeSetting(classificationTypeSetting);
-        classifier.setFeatureSetting(featureSetting);
-
         // now we can train the classifier using the given dataset
         // classifier.train(dataset);
         // classifier.save(classifierPath);
         // classifierManager.trainClassifier(dataset, classifier);
 
-        classifier.train(dataset);
+        DictionaryModel trainedModel = classifier.train(dataset, classificationTypeSetting, featureSetting);
 
         // test the classifier
         // Dataset testDataset = new Dataset();
@@ -133,18 +126,19 @@ public class PalladianLangDetect extends LanguageClassifier {
         //
         // System.out.println(classifier.evaluate(testDataset));
 
-        FileHelper.serialize(classifier, classifierPath + classifierName + ".gz");
+        FileHelper.serialize(trainedModel, classifierPath + classifierName + ".gz");
 
         LOGGER.info("finished training classifier in " + stopWatch.getElapsedTimeString());
     }
 
     @Override
     public String classify(String text) {
-        return palladianClassifier.classify(text, getPossibleClasses()).getAssignedCategoryEntryNames();
+        return palladianClassifier.classify(text, getPossibleClasses()).getMostLikelyCategoryEntry().getCategory()
+                .getName();
     }
 
     public CategoryEntries classifyAsCategoryEntry(String text) {
-        return palladianClassifier.classify(text, getPossibleClasses()).getAssignedCategoryEntries();
+        return palladianClassifier.classify(text, getPossibleClasses());
     }
 
     public static void main(String[] args) throws IOException {

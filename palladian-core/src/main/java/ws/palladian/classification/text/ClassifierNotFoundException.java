@@ -1,4 +1,4 @@
-package ws.palladian.classification.page;
+package ws.palladian.classification.text;
 
 /**
  * A classifier not found exception, thrown when a classifier cannot be loaded from disk.

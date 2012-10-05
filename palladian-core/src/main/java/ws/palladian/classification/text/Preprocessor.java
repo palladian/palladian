@@ -1,12 +1,11 @@
-package ws.palladian.classification.page;
+package ws.palladian.classification.text;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ws.palladian.classification.Term;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -35,12 +34,6 @@ public final class Preprocessor implements Serializable {
     public static final double WEIGHT_BODY_TERM = 1.0;
 
     /**
-     * the classifier that this preprocessor belongs to, the classifier holds
-     * the feature settings which are needed here
-     */
-    private final DictionaryClassifier classifier;
-
-    /**
      * Global map of terms, all documents that are processed by this
      * preprocessor share this term map, this will save memory since strings do
      * not have to be copied but references to the terms will be kept. XXX this
@@ -51,10 +44,12 @@ public final class Preprocessor implements Serializable {
     // Term>();
 
     /** The term x weight map. */
-    private transient Map<Term, Double> map;
+    private transient Map<String, Double> map;
 
-    public Preprocessor(DictionaryClassifier classifier) {
-        this.classifier = classifier;
+    private FeatureSetting featureSettings;
+
+    public Preprocessor(FeatureSetting featureSettings) {
+        this.featureSettings = featureSettings;
     }
 
     /**
@@ -63,9 +58,8 @@ public final class Preprocessor implements Serializable {
      * @param classifier
      * @param preprocessor
      */
-    public Preprocessor(DictionaryClassifier classifier, Preprocessor preprocessor) {
+    public Preprocessor(PalladianTextClassifier classifier, Preprocessor preprocessor) {
         super();
-        this.classifier = classifier;
 
         //        try {
         //            PropertyUtils.copyProperties(this, preprocessor);
@@ -77,53 +71,8 @@ public final class Preprocessor implements Serializable {
         //            Logger.getRootLogger().error(e);
         //        }
 
-        this.map = new HashMap<Term, Double>(preprocessor.map);
+        this.map = new HashMap<String, Double>(preprocessor.map);
     }
-
-    //    /**
-    //     * Extract terms from keywords of a web page, given in the meta tag
-    //     * "keywords".
-    //     *
-    //     * @param pageString
-    //     *            The website contents.
-    //     */
-    //    private void extractKeywords(org.w3c.dom.Document webPage) {
-    //        List<String> keywords = PageAnalyzer.extractKeywords(webPage);
-    //        for (String term : keywords) {
-    //            String[] keywordTerms = term.split("\\s");
-    //            for (String keywordTerm : keywordTerms) {
-    //                addToTermMap(keywordTerm, WEIGHT_KEYWORD_TERM);
-    //            }
-    //        }
-    //    }
-
-    //    /**
-    //     * Extract terms from the meta description of a web page, given in the meta
-    //     * tag "description".
-    //     *
-    //     * @param pageString
-    //     *            The website contents.
-    //     */
-    //    private void extractMetaDescription(org.w3c.dom.Document webPage) {
-    //        List<String> keywords = PageAnalyzer.extractDescription(webPage);
-    //        for (String term : keywords) {
-    //            addToTermMap(term, WEIGHT_META_TERM);
-    //        }
-    //    }
-
-    //    /**
-    //     * Extract terms from the title of a web page, given in the title tag.
-    //     *
-    //     * @param pageString
-    //     *            The website contents.
-    //     */
-    //    private void extractTitle(org.w3c.dom.Document webPage) {
-    //        String title = PageAnalyzer.extractTitle(webPage);
-    //        String[] titleWords = title.split("\\s");
-    //        for (String term : titleWords) {
-    //            addToTermMap(term, WEIGHT_TITLE_TERM);
-    //        }
-    //    }
 
     /**
      * Add a term to the term x weight map. Terms will all be made lowercase.
@@ -151,19 +100,17 @@ public final class Preprocessor implements Serializable {
         // termMap.put(termString, term);
         // }
 
-        Term term = new Term(termString);
-
-        if (map.containsKey(term)) {
-            double currentWeight = map.get(term);
-            map.put(term, currentWeight + weight);
+        if (map.containsKey(termString)) {
+            double currentWeight = map.get(termString);
+            map.put(termString, currentWeight + weight);
         } else {
-            map.put(term, weight);
+            map.put(termString, weight);
         }
 
     }
 
     private FeatureSetting getFeatureSetting() {
-        return classifier.getFeatureSetting();
+        return featureSettings;
     }
 
     /**
@@ -185,7 +132,7 @@ public final class Preprocessor implements Serializable {
         // }
 
         // create a new term map for the classification document
-        map = new HashMap<Term, Double>();
+        map = new HashMap<String, Double>();
 
         // remove http(s): and www from URL XXX
         inputString = UrlHelper.getCleanUrl(inputString);

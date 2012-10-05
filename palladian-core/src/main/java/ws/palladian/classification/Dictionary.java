@@ -8,11 +8,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.persistence.DictionaryDbIndexH2;
 import ws.palladian.classification.persistence.DictionaryDbIndexMySql;
 import ws.palladian.classification.persistence.DictionaryFileIndex;
 import ws.palladian.classification.persistence.DictionaryIndex;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.TreeNode;
 import ws.palladian.helper.date.DateHelper;

@@ -1,8 +1,6 @@
-package ws.palladian.classification.page.evaluation;
+package ws.palladian.classification.text.evaluation;
 
 import java.io.Serializable;
-
-import ws.palladian.classification.page.TextClassifier;
 
 /**
  * The settings which classification type and which settings for that should be used for a classifier.
