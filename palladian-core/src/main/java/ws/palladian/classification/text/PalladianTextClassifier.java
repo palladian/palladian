@@ -61,10 +61,10 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     @Override
     public DictionaryModel train(List<Instance> instances) {
-        return learn(instances, null, null);
+        return train(instances, null, null);
     }
 
-    public DictionaryModel learn(List<Instance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
+    public DictionaryModel train(List<Instance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
         DictionaryModel dictionaryModel = new DictionaryModel();
 
         if (cts != null) {
@@ -408,7 +408,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     public DictionaryModel train(Dataset dataset, ClassificationTypeSetting cts, FeatureSetting fs) {
         List<Instance> instances = createInstances(dataset, fs);
         LOGGER.info("trained with " + instances.size() + " instances from " + dataset.getPath());
-        return learn(instances, cts, fs);
+        return train(instances, cts, fs);
     }
 
     /** FIXME in classifier utils **/
@@ -445,7 +445,8 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         return instances;
     }
 
-    private FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
+    // FIXME put this somewhere else
+    public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
         FeatureVector featureVector = new FeatureVector();
         Preprocessor preprocessor = new Preprocessor(featureSettings);
         TextInstance preProcessDocument = preprocessor.preProcessDocument(text);
