@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import quickdt.Attributes;
-import quickdt.Instance;
 import quickdt.Leaf;
 import quickdt.Node;
 import quickdt.TreeBuilder;
@@ -14,7 +13,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
@@ -56,9 +55,9 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     }
 
     @Override
-    public DecisionTreeModel train(List<NominalInstance> instances) {
-        Set<Instance> trainingInstances = CollectionHelper.newHashSet();
-        for (NominalInstance instance : instances) {
+    public DecisionTreeModel train(List<Instance> instances) {
+        Set<quickdt.Instance> trainingInstances = CollectionHelper.newHashSet();
+        for (Instance instance : instances) {
             Serializable[] input = getInput(instance.featureVector);
             trainingInstances.add(Attributes.create(input).classification(instance.targetClass));
         }

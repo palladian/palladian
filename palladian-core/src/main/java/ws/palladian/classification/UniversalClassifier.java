@@ -66,7 +66,7 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
 
     }
 
-    public void learnClassifierWeights(List<NominalInstance> instances) {
+    public void learnClassifierWeights(List<Instance> instances) {
 
         correctlyClassified = new int[3];
         correctlyClassified[0] = 0;
@@ -76,7 +76,7 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
         weights = new double[3];
 
         int c = 1;
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
             classify(instance, true);
             ProgressHelper.showProgress(c++, instances.size(), 1);
         }
@@ -91,23 +91,23 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
 
     }
 
-    public void learnClassifierWeightsByCategory(Instances<NominalInstance> instances) {
+    public void learnClassifierWeightsByCategory(Instances<Instance> instances) {
 
         correctlyClassified2 = new CountMap2D();
 
         int c = 1;
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
             classify(instance, true);
             ProgressHelper.showProgress(c++, instances.size(), 1);
         }
 
     }
 
-    public void classify(NominalInstance instance) {
+    public void classify(Instance instance) {
         classify(instance, false);
     }
 
-    public CategoryEntries classify(NominalInstance instance, boolean learnWeights) {
+    public CategoryEntries classify(Instance instance, boolean learnWeights) {
 
         // separate instance in feature types
         String textFeature = "";
@@ -281,7 +281,7 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
         NominalFeature textFeature = new NominalFeature(TEXT_FEATURE, textValue);
         FeatureVector featureVector = universalInstance.getFeatureVector();
         featureVector.add(textFeature);
-        NominalInstance nominalInstance = new NominalInstance();
+        Instance nominalInstance = new Instance();
         nominalInstance.featureVector = featureVector;
         CategoryEntries result = classify(nominalInstance, false);
         result.sortByRelevance();
