@@ -42,7 +42,7 @@ public class Category implements Serializable {
     private boolean mainCategory = false;
 
     /**
-     * what classification type does the category belong to? (simple, hiearchy
+     * what classification type does the category belong to? (simple, hierarchy
      * or tag)
      */
     private int classType = ClassificationTypeSetting.SINGLE;
