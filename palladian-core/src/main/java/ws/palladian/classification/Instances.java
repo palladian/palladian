@@ -2,9 +2,10 @@ package ws.palladian.classification;
 
 import java.util.ArrayList;
 
+import ws.palladian.classification.text.TextInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
-public class Instances<T> extends ArrayList<T> {
+public class Instances<NominalInstance> extends ArrayList<NominalInstance> {
 
     private static final long serialVersionUID = 9062002858891518522L;
 
@@ -37,14 +38,14 @@ public class Instances<T> extends ArrayList<T> {
         } else if (category.getClassType() == ClassificationTypeSetting.HIERARCHICAL && category.isMainCategory()
                 || category.getClassType() == ClassificationTypeSetting.SINGLE) {
 
-            for (Instance d : (Instances<Instance>) this) {
+            for (TextInstance d : (Instances<TextInstance>)this) {
                 if (d.getMainCategoryEntry().getCategory().getName().equals(category.getName())) {
                     ++number;
                 }
             }
 
         } else {
-            for (Instance d : (Instances<Instance>) this) {
+            for (TextInstance d : (Instances<TextInstance>)this) {
                 for (CategoryEntry c : d.getAssignedCategoryEntries()) {
                     if (c.getCategory().getName().equals(category.getName())) {
                         ++number;

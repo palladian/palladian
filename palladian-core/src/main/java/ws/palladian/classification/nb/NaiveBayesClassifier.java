@@ -11,7 +11,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -35,7 +35,7 @@ import ws.palladian.processing.features.NumericFeature;
 public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
     @Override
-    public NaiveBayesModel train(List<NominalInstance> instances) {
+    public NaiveBayesModel train(List<Instance> instances) {
 
         // store the counts of different categories
         CountMap<String> categories = CountMap.create();
@@ -49,7 +49,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             }
         });
 
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
             String category = instance.targetClass;
             categories.add(category);
 

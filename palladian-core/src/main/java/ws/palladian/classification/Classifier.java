@@ -17,7 +17,7 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public interface Classifier<M extends Model> {
 
-    M train(List<NominalInstance> instances);
+    M train(List<Instance> instances);
 
     M train(Dataset dataset);
 

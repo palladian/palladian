@@ -2,6 +2,7 @@ package ws.palladian.classification;
 
 import java.io.Serializable;
 
+import ws.palladian.classification.text.TextInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.processing.ProcessingPipeline;
@@ -123,7 +124,7 @@ public abstract class ClassifierOld<T> implements Serializable {
             categories.resetFrequencies();
         }
         for (T instance : instances) {
-            String categoryName = ((Instance) instance).getInstanceCategory().getName();
+            String categoryName = ((TextInstance)instance).getInstanceCategory().getName();
             Category category = getCategories().getCategoryByName(categoryName);
             if (category == null) {
                 category = new Category(categoryName);

@@ -9,7 +9,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.Predictor;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -29,12 +29,12 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
     /** The default number of classifiers to create, in case it is not specified explicitly. */
     public static final int DEFAULT_NUM_CLASSIFIERS = 10;
 
-    public BaggedDecisionTreeModel learn(List<NominalInstance> instances, int numClassifiers) {
+    public BaggedDecisionTreeModel learn(List<Instance> instances, int numClassifiers) {
         Validate.isTrue(numClassifiers > 0, "numClassifiers must be greater than zero.");
         Random random = new Random();
         List<DecisionTreeModel> decisionTreeModels = CollectionHelper.newArrayList();
         for (int i = 0; i < numClassifiers; i++) {
-            List<NominalInstance> sampling = getBagging(instances, random);
+            List<Instance> sampling = getBagging(instances, random);
             DecisionTreeClassifier newClassifier = new DecisionTreeClassifier();
             DecisionTreeModel model = newClassifier.train(sampling);
             decisionTreeModels.add(model);
@@ -43,7 +43,7 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
     }
 
     @Override
-    public BaggedDecisionTreeModel train(List<NominalInstance> instances) {
+    public BaggedDecisionTreeModel train(List<Instance> instances) {
         return learn(instances, DEFAULT_NUM_CLASSIFIERS);
     }
 
@@ -75,8 +75,8 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
      * @param random
      * @return
      */
-    private List<NominalInstance> getBagging(List<NominalInstance> instances, Random random) {
-        List<NominalInstance> result = CollectionHelper.newArrayList();
+    private List<Instance> getBagging(List<Instance> instances, Random random) {
+        List<Instance> result = CollectionHelper.newArrayList();
         for (int i = 0; i < instances.size(); i++) {
             int sample = random.nextInt(instances.size());
             result.add(instances.get(sample));

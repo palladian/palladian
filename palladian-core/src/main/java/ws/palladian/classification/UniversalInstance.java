@@ -3,20 +3,20 @@ package ws.palladian.classification;
 import java.util.List;
 
 import ws.palladian.classification.numeric.MinMaxNormalization;
+import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
-public class UniversalInstance extends Instance {
+public class UniversalInstance extends TextInstance {
 
     /** The serial versionID. */
     // private static final long serialVersionUID = 55203846826273834L;
 
     // private List<Double> numericFeatures = new ArrayList<Double>();
     // private List<String> nominalFeatures = new ArrayList<String>();
-    private FeatureVector featureVector = new FeatureVector();
-    
+
     private String textFeature = "";
 
     /** The class of the instance. This can be nominal or numeric. */
@@ -25,7 +25,7 @@ public class UniversalInstance extends Instance {
     /** Whether or not the class of the instance is nominal. */
     private boolean classNominal = false;
 
-    public <T> UniversalInstance(Instances<T> instances) {
+    public UniversalInstance(Instances instances) {
         setInstances(instances);
     }
 
@@ -38,7 +38,7 @@ public class UniversalInstance extends Instance {
         }
         return result;
     }
-    
+
     public List<NumericFeature> getNumericFeatures2() {
         return featureVector.getAll(NumericFeature.class);
     }
@@ -109,7 +109,7 @@ public class UniversalInstance extends Instance {
         setNominalFeatures(null);
         setTextFeature(null);
     }
-    
+
     public FeatureVector getFeatureVector() {
         return featureVector;
     }

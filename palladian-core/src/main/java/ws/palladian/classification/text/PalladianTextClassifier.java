@@ -11,7 +11,7 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
@@ -60,11 +60,11 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     }
 
     @Override
-    public DictionaryModel train(List<NominalInstance> instances) {
+    public DictionaryModel train(List<Instance> instances) {
         return learn(instances, null, null);
     }
 
-    public DictionaryModel learn(List<NominalInstance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
+    public DictionaryModel learn(List<Instance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
         DictionaryModel dictionaryModel = new DictionaryModel();
 
         if (cts != null) {
@@ -74,14 +74,14 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             dictionaryModel.setFeatureSetting(fs);
         }
 
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
             addToDictionary(dictionaryModel, instance);
         }
 
         return dictionaryModel;
     }
 
-    private void addToDictionary(DictionaryModel model, NominalInstance trainingInstance) {
+    private void addToDictionary(DictionaryModel model, Instance trainingInstance) {
 
         for (NominalFeature termFeature : trainingInstance.featureVector.getFeatures(NominalFeature.class, "term")) {
 
@@ -406,15 +406,15 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     }
 
     public DictionaryModel train(Dataset dataset, ClassificationTypeSetting cts, FeatureSetting fs) {
-        List<NominalInstance> instances = createInstances(dataset, fs);
+        List<Instance> instances = createInstances(dataset, fs);
         LOGGER.info("trained with " + instances.size() + " instances from " + dataset.getPath());
         return learn(instances, cts, fs);
     }
 
     /** FIXME in classifier utils **/
-    public List<NominalInstance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
+    public List<Instance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
 
-        List<NominalInstance> instances = new ArrayList<NominalInstance>();
+        List<Instance> instances = new ArrayList<Instance>();
 
         int added = 1;
         List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
@@ -434,7 +434,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
             String instanceCategory = parts[1];
 
-            NominalInstance instance = new NominalInstance();
+            Instance instance = new Instance();
             instance.targetClass = instanceCategory;
             instance.featureVector = createFeatureVector(learningText, featureSettings);
             instances.add(instance);
