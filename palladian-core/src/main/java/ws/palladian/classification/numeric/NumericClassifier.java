@@ -65,7 +65,7 @@ public abstract class NumericClassifier extends ClassifierOld<UniversalInstance>
             }
 
             instance.setNumericFeatures(features);
-            instance.setClassNominal(true);
+            // instance.setClassNominal(true);
             // instance.setInstanceClass(parts[parts.length - 1]);
             instance.setInstanceCategory(parts[parts.length - 1]);
             instances.add(instance);

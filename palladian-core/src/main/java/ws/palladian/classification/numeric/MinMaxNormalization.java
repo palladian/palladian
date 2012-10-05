@@ -1,7 +1,6 @@
 package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,19 +11,20 @@ public class MinMaxNormalization implements Serializable {
 
     private static final long serialVersionUID = 7227377881428315427L;
 
-    private Map<String, Double> normalizationMap = new HashMap<String, Double>();
-    private Map<String, Double> minValueMap = new HashMap<String, Double>();
+    private final Map<String, Double> normalizationMap;
+    private final Map<String, Double> minValueMap;
+
+    /**
+     * @param normalizationMap
+     * @param minValueMap
+     */
+    public MinMaxNormalization(Map<String, Double> normalizationMap, Map<String, Double> minValueMap) {
+        this.normalizationMap = normalizationMap;
+        this.minValueMap = minValueMap;
+    }
 
     public Map<String, Double> getNormalizationMap() {
         return normalizationMap;
-    }
-
-    public void setNormalizationMap(Map<String, Double> normalizationMap) {
-        this.normalizationMap = normalizationMap;
-    }
-
-    public void setMinValueMap(Map<String, Double> minValueMap) {
-        this.minValueMap = minValueMap;
     }
 
     public Map<String, Double> getMinValueMap() {
