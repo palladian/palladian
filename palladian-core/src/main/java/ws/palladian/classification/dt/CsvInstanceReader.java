@@ -2,7 +2,7 @@ package ws.palladian.classification.dt;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -71,7 +71,7 @@ public class CsvInstanceReader {
 //        return instances;
 //    }
 
-    public static NominalInstance readLine(String line, String[] names) {
+    public static Instance readLine(String line, String[] names) {
         Validate.notNull(names, "names must not be null");
         
         String[] split = line.split(SEPARATOR);
@@ -89,7 +89,7 @@ public class CsvInstanceReader {
                 fv.add(new NominalFeature(name, column));
             }
         }
-        NominalInstance instance = new NominalInstance();
+        Instance instance = new Instance();
         instance.featureVector = fv;
         instance.targetClass = split[split.length - 1];
         return instance;

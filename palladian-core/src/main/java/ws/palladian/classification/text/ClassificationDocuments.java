@@ -1,10 +1,10 @@
-package ws.palladian.classification.page;
+package ws.palladian.classification.text;
 
 import java.util.ArrayList;
 
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
 /**
  * An ArrayList of documents.

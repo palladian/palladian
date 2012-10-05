@@ -1,4 +1,4 @@
-package ws.palladian.classification.page.evaluation;
+package ws.palladian.classification.page;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,8 +10,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.page.ClassifierManager;
-import ws.palladian.classification.page.TextClassifier;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.evaluation.AverageClassifierPerformance;
+import ws.palladian.classification.text.evaluation.ClassifierPerformance;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.EvaluationSetting;
+import ws.palladian.classification.text.evaluation.TrainingDataSeparation;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -69,7 +73,7 @@ public class CrossValidator {
      * @param thStep Value to add to the threshold per loop.
      * @param classType The type of WebPageClassifier to be used, e.g. WebPageClassifier.FIRST.
      */
-    public CrossValidationResult crossValidate(TextClassifier classifier) {
+    public CrossValidationResult crossValidate(PalladianTextClassifier classifier) {
 
         int kFolds = getEvaluationSetting().getkFolds();
         if (!getEvaluationSetting().isRandom()) {
@@ -163,8 +167,8 @@ public class CrossValidator {
 
                 // add the performances to the evaluation maps
                 HashSet<ClassifierPerformance> cfp = performancesFolds
-                .get(dataset.getPath() + "_"
-                        + trainingPercentage);
+                        .get(dataset.getPath() + "_"
+                                + trainingPercentage);
                 if (cfp == null) {
                     cfp = new HashSet<ClassifierPerformance>();
                 }

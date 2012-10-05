@@ -16,7 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.Predictor;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
@@ -193,10 +193,10 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         System.out.println("% sample coverage: " + (double)totallyMarked / totalKeyphrases);
         int posSamples = 0;
         int negSamples = 0;
-        List<NominalInstance> instances = new ArrayList<NominalInstance>();
+        List<Instance> instances = new ArrayList<Instance>();
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            NominalInstance instance = new NominalInstance();
+            Instance instance = new Instance();
             instance.targetClass = featureVector.get(IS_KEYWORD).getValue();
             FeatureVector cleanedFv = cleanFeatureVector(featureVector);
             if ("true".equals(instance.targetClass)) {
@@ -211,7 +211,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         System.out.println("# positive samples: " + posSamples);
         System.out.println("% positive sample rate: " + (double)posSamples / (negSamples + posSamples));
         System.out.println("building classifier ...");
-        this.model = classifier.learn(instances);
+        this.model = classifier.train(instances);
         System.out.println(model.toString());
         System.out.println("... finished building classifier.");
     }
@@ -355,7 +355,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         for (Annotation<String> annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
             FeatureVector cleanFv = cleanFeatureVector(featureVector);
-            CategoryEntries predictionResult = classifier.predict(cleanFv, model);
+            CategoryEntries predictionResult = classifier.classify(cleanFv, model);
             CategoryEntry trueCategory = predictionResult.getCategoryEntry("true");
             if (trueCategory != null) {
                 keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));

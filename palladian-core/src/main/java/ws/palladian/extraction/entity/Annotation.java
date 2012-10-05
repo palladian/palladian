@@ -9,11 +9,9 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Instances;
-import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.DictionaryClassifier;
-import ws.palladian.classification.page.Preprocessor;
-import ws.palladian.classification.page.TextInstance;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
@@ -44,9 +42,9 @@ public class Annotation extends UniversalInstance {
 
     /** The right context of the annotation */
     private String rightContext = "";
-	
-	private List<String> subTypes = null;
-	
+
+    private List<String> subTypes = null;
+
     public Annotation(Annotation annotation) {
         super(null);
         offset = annotation.getOffset();
@@ -182,7 +180,7 @@ public class Annotation extends UniversalInstance {
 
         // is the entity at the start of a sentence? check if there is a period in the immediate left context
         boolean startOfSentence = leftContext.endsWith(".") || leftContext.endsWith("?") || leftContext.endsWith("!")
-        || leftContext.endsWith("-DOCSTART-");
+                || leftContext.endsWith("-DOCSTART-");
         nominalFeatures.add(String.valueOf(startOfSentence));
 
         // is the entity in quotes? ",',´
@@ -320,66 +318,66 @@ public class Annotation extends UniversalInstance {
     }
 
     // yuk. looks like this shouldn't be here.
-//    public String[] getLeftContextsPOS() {
-//
-//        Object o = Cache.getInstance().getDataObject("lpt");
-//        BasePosTagger lpt;
-//
-//        if (o != null) {
-//            lpt = (BasePosTagger) o;
-//        } else {
-//            lpt = new LingPipePosTagger();
-//            Cache.getInstance().putDataObject("lpt", lpt);
-//        }
-//
-//        String[] contexts = new String[3];
-//        contexts[0] = "";
-//        contexts[1] = "";
-//        contexts[2] = "";
-//
-//        String leftContext = getLeftContext();
-//
-//        String posLeftContext = "";
-//        TagAnnotations tas = lpt.tag(leftContext);
-//        for (TagAnnotation ta : tas) {
-//            posLeftContext += ta.getTag() + " ";
-//        }
-//        posLeftContext = posLeftContext.trim();
-//
-//        String[] words = posLeftContext.split(" ");
-//        int wordNumber = 1;
-//        for (int i = words.length - 1; i >= 0; i--) {
-//
-//            String token = words[i];
-//
-//            if (wordNumber == 1) {
-//                contexts[0] = token;
-//                contexts[1] = token;
-//                contexts[2] = token;
-//            }
-//
-//            if (wordNumber == 2) {
-//                contexts[1] = token + " " + contexts[1];
-//                contexts[2] = token + " " + contexts[2];
-//            }
-//
-//            if (wordNumber == 3) {
-//                contexts[2] = token + " " + contexts[2];
-//                break;
-//            }
-//
-//            wordNumber++;
-//        }
-//
-//        if (words.length < 3) {
-//            contexts[2] = "";
-//        }
-//        if (words.length < 2) {
-//            contexts[1] = "";
-//        }
-//
-//        return contexts;
-//    }
+    //    public String[] getLeftContextsPOS() {
+    //
+    //        Object o = Cache.getInstance().getDataObject("lpt");
+    //        BasePosTagger lpt;
+    //
+    //        if (o != null) {
+    //            lpt = (BasePosTagger) o;
+    //        } else {
+    //            lpt = new LingPipePosTagger();
+    //            Cache.getInstance().putDataObject("lpt", lpt);
+    //        }
+    //
+    //        String[] contexts = new String[3];
+    //        contexts[0] = "";
+    //        contexts[1] = "";
+    //        contexts[2] = "";
+    //
+    //        String leftContext = getLeftContext();
+    //
+    //        String posLeftContext = "";
+    //        TagAnnotations tas = lpt.tag(leftContext);
+    //        for (TagAnnotation ta : tas) {
+    //            posLeftContext += ta.getTag() + " ";
+    //        }
+    //        posLeftContext = posLeftContext.trim();
+    //
+    //        String[] words = posLeftContext.split(" ");
+    //        int wordNumber = 1;
+    //        for (int i = words.length - 1; i >= 0; i--) {
+    //
+    //            String token = words[i];
+    //
+    //            if (wordNumber == 1) {
+    //                contexts[0] = token;
+    //                contexts[1] = token;
+    //                contexts[2] = token;
+    //            }
+    //
+    //            if (wordNumber == 2) {
+    //                contexts[1] = token + " " + contexts[1];
+    //                contexts[2] = token + " " + contexts[2];
+    //            }
+    //
+    //            if (wordNumber == 3) {
+    //                contexts[2] = token + " " + contexts[2];
+    //                break;
+    //            }
+    //
+    //            wordNumber++;
+    //        }
+    //
+    //        if (words.length < 3) {
+    //            contexts[2] = "";
+    //        }
+    //        if (words.length < 2) {
+    //            contexts[1] = "";
+    //        }
+    //
+    //        return contexts;
+    //    }
 
     public String[] getRightContexts() {
 
@@ -431,64 +429,64 @@ public class Annotation extends UniversalInstance {
         return contexts;
     }
 
-//    public String[] getRightContextsPOS() {
-//
-//        Object o = Cache.getInstance().getDataObject("lpt");
-//        BasePosTagger lpt;
-//
-//        if (o != null) {
-//            lpt = (BasePosTagger) o;
-//        } else {
-//            lpt = new LingPipePosTagger();
-//            Cache.getInstance().putDataObject("lpt", lpt);
-//        }
-//
-//        String[] contexts = new String[3];
-//        contexts[0] = "";
-//        contexts[1] = "";
-//        contexts[2] = "";
-//
-//        String rightContext = getRightContext();
-//
-//        String posRightContext = "";
-//        TagAnnotations tas = lpt.tag(rightContext);
-//        for (TagAnnotation ta : tas) {
-//            posRightContext += ta.getTag() + " ";
-//        }
-//        posRightContext = posRightContext.trim();
-//
-//        String[] words = posRightContext.split(" ");
-//        int wordNumber = 1;
-//        for (String token : words) {
-//
-//            if (wordNumber == 1) {
-//                contexts[0] = token;
-//                contexts[1] = token;
-//                contexts[2] = token;
-//            }
-//
-//            if (wordNumber == 2) {
-//                contexts[1] = contexts[1] + " " + token;
-//                contexts[2] = contexts[2] + " " + token;
-//            }
-//
-//            if (wordNumber == 3) {
-//                contexts[2] = contexts[2] + " " + token;
-//                break;
-//            }
-//
-//            wordNumber++;
-//        }
-//
-//        if (words.length < 3) {
-//            contexts[2] = "";
-//        }
-//        if (words.length < 2) {
-//            contexts[1] = "";
-//        }
-//
-//        return contexts;
-//    }
+    //    public String[] getRightContextsPOS() {
+    //
+    //        Object o = Cache.getInstance().getDataObject("lpt");
+    //        BasePosTagger lpt;
+    //
+    //        if (o != null) {
+    //            lpt = (BasePosTagger) o;
+    //        } else {
+    //            lpt = new LingPipePosTagger();
+    //            Cache.getInstance().putDataObject("lpt", lpt);
+    //        }
+    //
+    //        String[] contexts = new String[3];
+    //        contexts[0] = "";
+    //        contexts[1] = "";
+    //        contexts[2] = "";
+    //
+    //        String rightContext = getRightContext();
+    //
+    //        String posRightContext = "";
+    //        TagAnnotations tas = lpt.tag(rightContext);
+    //        for (TagAnnotation ta : tas) {
+    //            posRightContext += ta.getTag() + " ";
+    //        }
+    //        posRightContext = posRightContext.trim();
+    //
+    //        String[] words = posRightContext.split(" ");
+    //        int wordNumber = 1;
+    //        for (String token : words) {
+    //
+    //            if (wordNumber == 1) {
+    //                contexts[0] = token;
+    //                contexts[1] = token;
+    //                contexts[2] = token;
+    //            }
+    //
+    //            if (wordNumber == 2) {
+    //                contexts[1] = contexts[1] + " " + token;
+    //                contexts[2] = contexts[2] + " " + token;
+    //            }
+    //
+    //            if (wordNumber == 3) {
+    //                contexts[2] = contexts[2] + " " + token;
+    //                break;
+    //            }
+    //
+    //            wordNumber++;
+    //        }
+    //
+    //        if (words.length < 3) {
+    //            contexts[2] = "";
+    //        }
+    //        if (words.length < 2) {
+    //            contexts[1] = "";
+    //        }
+    //
+    //        return contexts;
+    //    }
 
     public int getLength() {
         return length;
@@ -513,26 +511,26 @@ public class Annotation extends UniversalInstance {
     public CategoryEntries getTags() {
         return getAssignedCategoryEntries();
     }
-	
-	public void addSubTypes(List<String> subTypes){
-	
-		if(this.subTypes == null){
-		
-			this.subTypes = subTypes;
-			
-		}else{
-		
-			this.subTypes.addAll(subTypes);
-		
-		}
-	
-	}
-	
-	public List<String> getSubTypes(){
-	
-		return subTypes;
-	
-	}
+
+    public void addSubTypes(List<String> subTypes){
+
+        if(this.subTypes == null){
+
+            this.subTypes = subTypes;
+
+        }else{
+
+            this.subTypes.addAll(subTypes);
+
+        }
+
+    }
+
+    public List<String> getSubTypes(){
+
+        return subTypes;
+
+    }
 
     public boolean matches(Annotation annotation) {
         if (getOffset() == annotation.getOffset() && getLength() == annotation.getLength()) {
@@ -662,8 +660,8 @@ public class Annotation extends UniversalInstance {
         }
 
         // go through the entity dictionary
-        for (Map.Entry<Term, CategoryEntries> termEntry : entityDictionary.entrySet()) {
-            String word = termEntry.getKey().getText();
+        for (Map.Entry<String, CategoryEntries> termEntry : entityDictionary.entrySet()) {
+            String word = termEntry.getKey();
             if (word.length() < length) {
                 int index = entityName.indexOf(" " + word.toLowerCase() + " ");
                 if (index > -1 && word.length() > 2) {
@@ -694,7 +692,7 @@ public class Annotation extends UniversalInstance {
         return unwrappedAnnotations;
     }
 
-    public Annotations unwrapAnnotations(DictionaryClassifier classifier, Preprocessor preprocessor) {
+    public Annotations unwrapAnnotations(PalladianTextClassifier classifier, Preprocessor preprocessor) {
         Annotations unwrappedAnnotations = new Annotations();
 
         if (getEntity().indexOf(" ") == -1) {
@@ -707,9 +705,9 @@ public class Annotation extends UniversalInstance {
         // classify each word
         for (int i = 0; i < words.length; i++) {
 
-            TextInstance document = preprocessor.preProcessDocument(words[i]);
-            classifier.classify(document, false);
-            tags[i] = document.getMainCategoryEntry().getCategory().getName();
+            tags[i] = classifier.classify(words[i]).getMostLikelyCategoryEntry().getCategory().getName();
+            // TextInstance document = preprocessor.preProcessDocument(words[i]);
+            // tags[i] = document.getMainCategoryEntry().getCategory().getName();
 
         }
 

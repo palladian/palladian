@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
@@ -53,21 +53,21 @@ public final class KnnModel implements Model {
 
     /**
      * <p>
-     * Creates a new unnormalized {@code KnnModel} based on a {@code List} of {@link NominalInstance}s.
+     * Creates a new unnormalized {@code KnnModel} based on a {@code List} of {@link Instance}s.
      * </p>
      * 
-     * @param trainingInstances The {@link NominalInstance}s this model is based on.
+     * @param trainingInstances The {@link Instance}s this model is based on.
      */
-    public KnnModel(List<NominalInstance> trainingInstances) {
+    public KnnModel(List<Instance> trainingInstances) {
         super();
 
         this.trainingInstances = initTrainingInstances(trainingInstances);
         this.isNormalized = false;
     }
 
-    private List<TrainingInstance> initTrainingInstances(List<NominalInstance> instances) {
+    private List<TrainingInstance> initTrainingInstances(List<Instance> instances) {
         List<TrainingInstance> ret = new ArrayList<TrainingInstance>(instances.size());
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
             TrainingInstance trainingInstance = new TrainingInstance();
 
             trainingInstance.targetClass = instance.targetClass;
@@ -87,15 +87,15 @@ public final class KnnModel implements Model {
      *         used by the {@code KnnClassifier} to make a classification
      *         decision.
      */
-    public List<NominalInstance> getTrainingInstances() {
+    public List<Instance> getTrainingInstances() {
         return convertTrainingInstances(trainingInstances);
     }
 
-    private List<NominalInstance> convertTrainingInstances(List<TrainingInstance> instances) {
-        List<NominalInstance> nominalInstances = new ArrayList<NominalInstance>(instances.size());
+    private List<Instance> convertTrainingInstances(List<TrainingInstance> instances) {
+        List<Instance> nominalInstances = new ArrayList<Instance>(instances.size());
 
         for (TrainingInstance instance : trainingInstances) {
-            NominalInstance nominalInstance = new NominalInstance();
+            Instance nominalInstance = new Instance();
             nominalInstance.targetClass = instance.targetClass;
             nominalInstance.featureVector = new FeatureVector();
             for (Entry<String, Double> feature : instance.features.entrySet()) {
@@ -110,11 +110,11 @@ public final class KnnModel implements Model {
 
     /**
      * <p>
-     * Min max normalizes all {@link NominalInstance}s of this model.
+     * Min max normalizes all {@link Instance}s of this model.
      * </p>
      */
     public void normalize() {
-        List<NominalInstance> nominalInstances = convertTrainingInstances(trainingInstances);
+        List<Instance> nominalInstances = convertTrainingInstances(trainingInstances);
         normalizationInformation = ClassificationUtils.minMaxNormalize(nominalInstances);
         trainingInstances = initTrainingInstances(nominalInstances);
         isNormalized = true;
@@ -122,7 +122,7 @@ public final class KnnModel implements Model {
 
     /**
      * <p>
-     * Normalizes a {@link FeatureVector} based on the {@link NominalInstance} within this model. A call to this method
+     * Normalizes a {@link FeatureVector} based on the {@link Instance} within this model. A call to this method
      * makes only sense if the model was previously normalized using {@link #normalize()}. Otherwise it throws an
      * {@code IllegalStateException}.
      * </p>

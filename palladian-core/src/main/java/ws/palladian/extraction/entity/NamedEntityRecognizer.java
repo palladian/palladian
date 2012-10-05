@@ -12,7 +12,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.page.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;

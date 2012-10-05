@@ -2,7 +2,7 @@ package ws.palladian.classification;
 
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnModel;
-import ws.palladian.classification.page.DictionaryClassifier;
+import ws.palladian.classification.text.PalladianTextClassifier;
 
 public class UniversalClassifierModel implements Model {
 
@@ -10,9 +10,9 @@ public class UniversalClassifierModel implements Model {
 
     private final NaiveBayesModel bayesModel;
     private final KnnModel knnModel;
-    private final DictionaryClassifier textClassifier;
+    private final PalladianTextClassifier textClassifier;
 
-    public UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, DictionaryClassifier textClassifier) {
+    public UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, PalladianTextClassifier textClassifier) {
         this.bayesModel = bayesModel;
         this.knnModel = knnModel;
         this.textClassifier = textClassifier;
@@ -26,7 +26,7 @@ public class UniversalClassifierModel implements Model {
         return knnModel;
     }
 
-    public DictionaryClassifier getTextClassifier() {
+    public PalladianTextClassifier getTextClassifier() {
         return textClassifier;
     }
 
@@ -43,8 +43,8 @@ public class UniversalClassifierModel implements Model {
         builder.append(knnModel);
         builder.append(", textClassifier=");
         builder.append(textClassifier);
-        builder.append(", dictionary#documents=").append(textClassifier.getDictionary().getNumberOfDocuments());
-        builder.append(", dictionary#entries=").append(textClassifier.getDictionary().size());
+        // builder.append(", dictionary#documents=").append(textClassifier.getDictionary().getNumberOfDocuments());
+        // builder.append(", dictionary#entries=").append(textClassifier.getDictionary().size());
         builder.append("]");
         return builder.toString();
     }

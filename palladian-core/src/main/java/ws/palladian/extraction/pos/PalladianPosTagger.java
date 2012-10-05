@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalClassifier;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -112,11 +112,6 @@ public class PalladianPosTagger extends BasePosTagger {
         featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
         ClassificationTypeSetting cts = new ClassificationTypeSetting();
         cts.setClassificationType(ClassificationTypeSetting.TAG);
-        // featureSetting.setMinNGramLength(1);
-        // featureSetting.setMaxNGramLength(1);
-        // featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
-        tagger.getTextClassifier().setFeatureSetting(featureSetting);
-        tagger.getTextClassifier().setClassificationTypeSetting(cts);
         Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
 
         int c = 1;
@@ -156,7 +151,7 @@ public class PalladianPosTagger extends BasePosTagger {
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
         tagger.setTrainingInstances(trainingInstances);
-        tagger.trainAll();
+        tagger.trainAll(cts, featureSetting);
 
         // classifier.learnClassifierWeightsByCategory(trainingInstances);
 
@@ -175,14 +170,14 @@ public class PalladianPosTagger extends BasePosTagger {
 
         instance.setTextFeature(word);
         instance.setNominalFeatures(Arrays.asList(/*
-                                                   * previousTag,
-                                                   */String.valueOf(StringHelper.startsUppercase(word)),
-                String.valueOf(word.length() == 1), String.valueOf(word.length() == 2),
-                String.valueOf(word.length() == 3), String.valueOf(word.length()),
-                String.valueOf(StringHelper.isNumberOrNumberWord(word)),
-                String.valueOf(StringHelper.isCompletelyUppercase(word)),
-                String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()),
-                word.substring(word.length() - 1), word.substring(0, 1), lastTwo, word));
+         * previousTag,
+         */String.valueOf(StringHelper.startsUppercase(word)),
+         String.valueOf(word.length() == 1), String.valueOf(word.length() == 2),
+         String.valueOf(word.length() == 3), String.valueOf(word.length()),
+         String.valueOf(StringHelper.isNumberOrNumberWord(word)),
+         String.valueOf(StringHelper.isCompletelyUppercase(word)),
+         String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()),
+         word.substring(word.length() - 1), word.substring(0, 1), lastTwo, word));
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));
 

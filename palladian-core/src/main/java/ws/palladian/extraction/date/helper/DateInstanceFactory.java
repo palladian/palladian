@@ -2,7 +2,7 @@ package ws.palladian.extraction.date.helper;
 
 import java.util.Arrays;
 
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.CsvInstanceReader;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -22,7 +22,7 @@ public final class DateInstanceFactory {
         // no instances.
     }
 
-    public static NominalInstance createInstance(ContentDate date) {
+    public static Instance createInstance(ContentDate date) {
 
         String formatString = date.getFormat();
         if (!isNormalFormat(formatString)) {
@@ -103,7 +103,7 @@ public final class DateInstanceFactory {
         
         
         String[] names = "hour;minute;second;relDocPos;ordDocPos;ordAgePos;keyClass;keyLoc;keyDiff;simpleTag;hTag;tagName;hasStructureDate;inMetaDates;inUrl;relCntSame;relSize;distPosBefore;distPosAfter;distAgeBefore;format;keyword;excatness;keyLoc201;keyLoc202;isKeyClass1;isKeyClass2;isKeyClass3;isPublishedClass".split(";");
-        NominalInstance instance = CsvInstanceReader.readLine(dateString, names);
+        Instance instance = CsvInstanceReader.readLine(dateString, names);
         
         return instance;
 
