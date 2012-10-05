@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.page.DictionaryClassifier;
-import ws.palladian.classification.page.DictionaryModel;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.io.FileHelper;
 
 public class DictionaryClassifierTest {
@@ -19,13 +19,16 @@ public class DictionaryClassifierTest {
     @Test
     public void testDictionaryClassifierCharJrc() throws IOException {
 
-        DictionaryClassifier dictionaryClassifier1 = new DictionaryClassifier();
-        dictionaryClassifier1.getFeatureSetting().setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        dictionaryClassifier1.getFeatureSetting().setMaxTerms(1000);
-        dictionaryClassifier1.getFeatureSetting().setMinNGramLength(3);
-        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(6);
-        dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+        PalladianTextClassifier dictionaryClassifier1 = new PalladianTextClassifier();
 
+        FeatureSetting featureSetting = new FeatureSetting();
+        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        featureSetting.setMaxTerms(1000);
+        featureSetting.setMinNGramLength(3);
+        featureSetting.setMaxNGramLength(6);
+
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
@@ -37,7 +40,7 @@ public class DictionaryClassifierTest {
         dataset2.setSeparationString(" ");
         dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
         FileHelper.writeToFile("dictCharJrc_ref.csv", model.toDictionaryCsv());
 
@@ -51,12 +54,15 @@ public class DictionaryClassifierTest {
     @Test
     public void testDictionaryClassifierWordJrc() throws IOException {
 
-        DictionaryClassifier dictionaryClassifier1 = new DictionaryClassifier();
-        dictionaryClassifier1.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
-        dictionaryClassifier1.getFeatureSetting().setMaxTerms(10);
-        dictionaryClassifier1.getFeatureSetting().setMinNGramLength(1);
-        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(3);
-        dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+        PalladianTextClassifier dictionaryClassifier1 = new PalladianTextClassifier();
+        FeatureSetting featureSetting = new FeatureSetting();
+        featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        featureSetting.setMaxTerms(10);
+        featureSetting.setMinNGramLength(1);
+        featureSetting.setMaxNGramLength(3);
+
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
@@ -68,7 +74,7 @@ public class DictionaryClassifierTest {
         dataset2.setSeparationString(" ");
         dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
         FileHelper.writeToFile("dictWordJrc_ref.csv", model.toDictionaryCsv());
 
@@ -81,12 +87,15 @@ public class DictionaryClassifierTest {
     @Test
     public void testDictionaryClassifierCharNg() throws IOException {
 
-        DictionaryClassifier dictionaryClassifier1 = new DictionaryClassifier();
-        dictionaryClassifier1.getFeatureSetting().setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        dictionaryClassifier1.getFeatureSetting().setMaxTerms(1000);
-        dictionaryClassifier1.getFeatureSetting().setMinNGramLength(3);
-        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(6);
-        dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+        PalladianTextClassifier dictionaryClassifier1 = new PalladianTextClassifier();
+        FeatureSetting featureSetting = new FeatureSetting();
+        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        featureSetting.setMaxTerms(1000);
+        featureSetting.setMinNGramLength(3);
+        featureSetting.setMaxNGramLength(6);
+
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
@@ -99,7 +108,7 @@ public class DictionaryClassifierTest {
         // dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
         dataset2.setPath("C:\\Workspace\\data\\20newsgroups-18828\\index_split2.txt");
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
         FileHelper.writeToFile("dictCharNg_ref.csv", model.toDictionaryCsv());
 
@@ -112,12 +121,15 @@ public class DictionaryClassifierTest {
     @Test
     public void testDictionaryClassifierWordNg() throws IOException {
 
-        DictionaryClassifier dictionaryClassifier1 = new DictionaryClassifier();
-        dictionaryClassifier1.getFeatureSetting().setTextFeatureType(FeatureSetting.WORD_NGRAMS);
-        dictionaryClassifier1.getFeatureSetting().setMaxTerms(10);
-        dictionaryClassifier1.getFeatureSetting().setMinNGramLength(1);
-        dictionaryClassifier1.getFeatureSetting().setMaxNGramLength(3);
-        dictionaryClassifier1.getClassificationTypeSetting().setClassificationType(ClassificationTypeSetting.TAG);
+        PalladianTextClassifier dictionaryClassifier1 = new PalladianTextClassifier();
+        FeatureSetting featureSetting = new FeatureSetting();
+        featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        featureSetting.setMaxTerms(10);
+        featureSetting.setMinNGramLength(1);
+        featureSetting.setMaxNGramLength(3);
+
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
@@ -129,7 +141,7 @@ public class DictionaryClassifierTest {
         dataset2.setSeparationString(" ");
         dataset2.setPath("C:\\Workspace\\data\\20newsgroups-18828\\index_split2.txt");
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
         FileHelper.writeToFile("dictWordNg_ref.csv", model.toDictionaryCsv());
 
@@ -139,11 +151,11 @@ public class DictionaryClassifierTest {
         assertTrue(accuracy >= 0.6030013642564802); // 0.17735334242837653
     }
 
-    private double evaluate(DictionaryClassifier dc, DictionaryModel model, Dataset dataset) {
+    private double evaluate(PalladianTextClassifier dc, DictionaryModel model, Dataset dataset) {
         int correct = 0;
-        List<NominalInstance> testInstances = dc.createInstances(dataset);
-        for (NominalInstance nominalInstance : testInstances) {
-            CategoryEntries categoryEntries = dc.predict(nominalInstance.featureVector, model);
+        List<Instance> testInstances = dc.createInstances(dataset, model.getFeatureSetting());
+        for (Instance nominalInstance : testInstances) {
+            CategoryEntries categoryEntries = dc.classify(nominalInstance.featureVector, model);
 
             if (categoryEntries.getMostLikelyCategoryEntry().getCategory().getName()
                     .equalsIgnoreCase(nominalInstance.targetClass)) {

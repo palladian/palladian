@@ -19,12 +19,12 @@ import org.w3c.dom.Node;
 
 import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.page.ClassifierManager;
-import ws.palladian.classification.page.DictionaryClassifier;
 import ws.palladian.classification.page.TextClassifier;
-import ws.palladian.classification.page.TextInstance;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.TextInstance;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
@@ -184,7 +184,7 @@ public class Temp {
         dataset.setFirstFieldLink(false);
 
         // create a text classifier by giving a name and a path where it should be saved to
-        TextClassifier classifier = new DictionaryClassifier();
+        TextClassifier classifier = new PalladianTextClassifier();
 
         // specify the settings for the classification
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
@@ -420,7 +420,7 @@ public class Temp {
         dataset.setFirstFieldLink(true);
 
         // create a text classifier by giving a name and a path where it should be saved to
-        TextClassifier classifier = new DictionaryClassifier(classifierName, classifierPath + classifierName + "/");
+        TextClassifier classifier = new PalladianTextClassifier(classifierName, classifierPath + classifierName + "/");
         // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
 
         // specify the settings for the classification
@@ -490,7 +490,7 @@ public class Temp {
         // train(dataset, "TopicClassifier", "data/models/");
         // ////////////////////////////////////////////////////////
 
-        DictionaryClassifier classifier = DictionaryClassifier.load("data/models/TopicClassifier/TopicClassifier.gz");
+        PalladianTextClassifier classifier = PalladianTextClassifier.load("data/models/TopicClassifier/TopicClassifier.gz");
 
         // /////////////////////// evaluate //////////////////////
         Dataset testDataset = new Dataset();
