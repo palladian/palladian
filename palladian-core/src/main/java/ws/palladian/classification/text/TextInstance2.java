@@ -1,10 +1,97 @@
-package ws.palladian.classification;
+package ws.palladian.classification.text;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.Categories;
+import ws.palladian.classification.Category;
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.NominalInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
-public abstract class Instance<T> extends NominalInstance {
+/**
+ * The document representation.
+ * 
+ * @author David Urbansky
+ */
+public class TextInstance2 extends NominalInstance {
+
+    /**
+     * The real categories are given for training documents (and test documents that are used to determine the quality
+     * of the classifier).
+     */
+    protected Categories realCategories;
+
+    /** Each document has a unique URL. */
+    private String content = "";
+
+    /** The weighted terms with term,weight representation. */
+    private Map<String, Double> weightedTerms;
+
+    private CategoryEntries assignCategoryEntries;
+
+    /**
+     * The constructor.
+     */
+    public TextInstance2() {
+        weightedTerms = new HashMap<String, Double>();
+        assignCategoryEntries = new CategoryEntries();
+    }
+
+    /**
+     * Set the real categories (mainly for training documents).
+     * 
+     * @param categories The real categories.
+     */
+    public void setRealCategories(Categories categories) {
+        this.realCategories = categories;
+    }
+
+    /**
+     * Get the real categories of the document.
+     * 
+     * @return The real categories.
+     */
+    public Categories getRealCategories() {
+        return realCategories;
+    }
+
+    public String getRealCategoriesString() {
+        StringBuilder sb = new StringBuilder();
+        for (Category c : realCategories) {
+            sb.append(c.getName()).append(",");
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+
+    public Category getFirstRealCategory() {
+        if (realCategories != null && !realCategories.isEmpty()) {
+            return realCategories.get(0);
+        }
+        return null;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public Map<String, Double> getWeightedTerms() {
+        return weightedTerms;
+    }
+
+    public void setWeightedTerms(Map<String, Double> weightedTerms) {
+        this.weightedTerms = weightedTerms;
+    }
 
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
@@ -14,12 +101,6 @@ public abstract class Instance<T> extends NominalInstance {
 
     /** If the class is nominal we have an instance category. */
     private Category instanceCategory;
-
-    /**
-     * The list of instances to which this instance belongs to. This is important so that categories can be set
-     * correctly.
-     */
-    private Instances<Instance<T>> instances;
 
     public void addCategoryEntry(CategoryEntry categoryEntry) {
         this.assignedCategoryEntries.add(categoryEntry);
@@ -56,23 +137,23 @@ public abstract class Instance<T> extends NominalInstance {
         return nameList.substring(0, Math.max(0, nameList.length() - 1));
     }
 
-    //    public CategoryEntry getCategoryEntry(String categoryName) {
-    //        CategoryEntry ceMatch = null;
+    // public CategoryEntry getCategoryEntry(String categoryName) {
+    // CategoryEntry ceMatch = null;
     //
-    //        for (CategoryEntry ce : this.assignedCategoryEntries) {
+    // for (CategoryEntry ce : this.assignedCategoryEntries) {
     //
-    //            if (ce == null) {
-    //                continue;
-    //            }
+    // if (ce == null) {
+    // continue;
+    // }
     //
-    //            if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
-    //                ceMatch = ce;
-    //                break;
-    //            }
-    //        }
+    // if (ce.getCategory().getName().equalsIgnoreCase(categoryName)) {
+    // ceMatch = ce;
+    // break;
+    // }
+    // }
     //
-    //        return ceMatch;
-    //    }
+    // return ceMatch;
+    // }
 
     public int getClassifiedAs() {
         return classifiedAs;
@@ -100,9 +181,9 @@ public abstract class Instance<T> extends NominalInstance {
         return instanceCategory.getName();
     }
 
-    //    public Instances<Instance<T>> getInstances() {
-    //        return instances;
-    //    }
+    // public Instances<Instance<T>> getInstances() {
+    // return instances;
+    // }
 
     /**
      * Get the category that is most relevant to this document.
@@ -165,19 +246,6 @@ public abstract class Instance<T> extends NominalInstance {
 
     public void setInstanceCategory(Category instanceCategory) {
         this.instanceCategory = instanceCategory;
-    }
-
-    public void setInstanceCategory(String categoryName) {
-        Category category = instances.getCategories().getCategoryByName(categoryName);
-        if (category == null) {
-            category = new Category(categoryName);
-            instances.getCategories().add(category);
-        }
-        this.instanceCategory = category;
-    }
-
-    protected void setInstances(Instances<Instance<T>> instances) {
-        this.instances = instances;
     }
 
     public void sortCategoriesByRelevance() {

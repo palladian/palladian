@@ -1,4 +1,4 @@
-package ws.palladian.classification.page;
+package ws.palladian.classification.text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +10,11 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Classifier;
 import ws.palladian.classification.NominalInstance;
-import ws.palladian.classification.Predictor;
-import ws.palladian.classification.Term;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -29,23 +28,51 @@ import ws.palladian.processing.features.NominalFeature;
  * 
  * @author David Urbansky
  */
-public class DictionaryClassifier implements Predictor<DictionaryModel> {
+public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DictionaryClassifier.class);
+    private static final Logger LOGGER = Logger.getLogger(PalladianTextClassifier.class);
+    public static final String UNASSIGNED = "UNASSIGNED";
 
-    /**
-     * Configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},
-     * {@link ClassificationTypeSetting.HIERARCHICAL}, or {@link ClassificationTypeSetting.TAG}).
-     */
-    private ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+    private String name = "no-name";
 
-    /** The feature settings which should be used by the text classifier. */
-    private FeatureSetting featureSetting = new FeatureSetting();
+    private DictionaryModel model;
+
+    public PalladianTextClassifier() {
+    }
+
+    public PalladianTextClassifier(String modelPath) {
+        loadModel(modelPath);
+    }
+
+    public DictionaryModel loadModel(String modelPath) {
+        model = FileHelper.deserialize(modelPath);
+        return model;
+    }
+
+    public void reset() {
+        // FIXME
+    }
+
+    public PalladianTextClassifier copy() {
+        // FIXME
+        return null;
+    }
 
     @Override
-    public DictionaryModel learn(List<NominalInstance> instances) {
+    public DictionaryModel train(List<NominalInstance> instances) {
+        return learn(instances, null, null);
+    }
+
+    public DictionaryModel learn(List<NominalInstance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
         DictionaryModel dictionaryModel = new DictionaryModel();
+
+        if (cts != null) {
+            dictionaryModel.setClassificationTypeSetting(cts);
+        }
+        if (fs != null) {
+            dictionaryModel.setFeatureSetting(fs);
+        }
 
         for (NominalInstance instance : instances) {
             addToDictionary(dictionaryModel, instance);
@@ -71,18 +98,23 @@ public class DictionaryClassifier implements Predictor<DictionaryModel> {
 
     }
 
-    private int getClassificationType() {
-        return classificationTypeSetting.getClassificationType();
+    public CategoryEntries classify(String text) {
+        FeatureVector fv = createFeatureVector(text, getModel().getFeatureSetting());
+        return classify(fv, getModel());
+    }
+    public CategoryEntries classify(String text, Set<String> possibleClasses) {
+        FeatureVector fv = createFeatureVector(text, getModel().getFeatureSetting());
+        return classify(fv, getModel(), possibleClasses);
     }
 
     @Override
-    public CategoryEntries predict(FeatureVector vector, DictionaryModel model) {
+    public CategoryEntries classify(FeatureVector vector, DictionaryModel model) {
         return classify(vector, model, null);
     }
 
     private CategoryEntries classify(FeatureVector vector, DictionaryModel model, Set<String> possibleClasses) {
 
-        int classType = getClassificationType();
+        int classType = model.getClassificationTypeSetting().getClassificationType();
 
         long t1 = System.currentTimeMillis();
 
@@ -153,21 +185,21 @@ public class DictionaryClassifier implements Predictor<DictionaryModel> {
         return bestFitList;
     }
 
-    public ClassificationTypeSetting getClassificationTypeSetting() {
-        return classificationTypeSetting;
-    }
-
-    public void setClassificationTypeSetting(ClassificationTypeSetting classificationTypeSetting) {
-        this.classificationTypeSetting = classificationTypeSetting;
-    }
-
-    public FeatureSetting getFeatureSetting() {
-        return featureSetting;
-    }
-
-    public void setFeatureSetting(FeatureSetting featureSetting) {
-        this.featureSetting = featureSetting;
-    }
+    // public ClassificationTypeSetting getClassificationTypeSetting() {
+    // return classificationTypeSetting;
+    // }
+    //
+    // public void setClassificationTypeSetting(ClassificationTypeSetting classificationTypeSetting) {
+    // this.classificationTypeSetting = classificationTypeSetting;
+    // }
+    //
+    // public FeatureSetting getFeatureSetting() {
+    // return featureSetting;
+    // }
+    //
+    // public void setFeatureSetting(FeatureSetting featureSetting) {
+    // this.featureSetting = featureSetting;
+    // }
 
     // /**
     // * FIXME somewhere else
@@ -368,14 +400,19 @@ public class DictionaryClassifier implements Predictor<DictionaryModel> {
      * 
      * @param dataset The dataset to train from.
      */
+    @Override
     public DictionaryModel train(Dataset dataset) {
-        List<NominalInstance> instances = createInstances(dataset);
+        return train(dataset, null, null);
+    }
+
+    public DictionaryModel train(Dataset dataset, ClassificationTypeSetting cts, FeatureSetting fs) {
+        List<NominalInstance> instances = createInstances(dataset, fs);
         LOGGER.info("trained with " + instances.size() + " instances from " + dataset.getPath());
-        return learn(instances);
+        return learn(instances, cts, fs);
     }
 
     /** FIXME in classifier utils **/
-    public List<NominalInstance> createInstances(Dataset dataset) {
+    public List<NominalInstance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
 
         List<NominalInstance> instances = new ArrayList<NominalInstance>();
 
@@ -399,20 +436,43 @@ public class DictionaryClassifier implements Predictor<DictionaryModel> {
 
             NominalInstance instance = new NominalInstance();
             instance.targetClass = instanceCategory;
-
-            Preprocessor preprocessor = new Preprocessor(this);
-            TextInstance preProcessDocument = preprocessor.preProcessDocument(learningText);
-            for (Entry<Term, Double> entry : preProcessDocument.getWeightedTerms().entrySet()) {
-                NominalFeature textFeature = new NominalFeature("term", entry.getKey().getText());
-                instance.featureVector.add(textFeature);
-            }
-
+            instance.featureVector = createFeatureVector(learningText, featureSettings);
             instances.add(instance);
 
             ProgressHelper.showProgress(added++, trainingArray.size(), 1);
         }
 
         return instances;
+    }
+
+    private FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
+        FeatureVector featureVector = new FeatureVector();
+        Preprocessor preprocessor = new Preprocessor(featureSettings);
+        TextInstance preProcessDocument = preprocessor.preProcessDocument(text);
+        for (Entry<String, Double> entry : preProcessDocument.getWeightedTerms().entrySet()) {
+            NominalFeature textFeature = new NominalFeature("term", entry.getKey());
+            featureVector.add(textFeature);
+        }
+
+        return featureVector;
+    }
+
+
+
+    public DictionaryModel getModel() {
+        return model;
+    }
+
+    public void setModel(DictionaryModel model) {
+        this.model = model;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**

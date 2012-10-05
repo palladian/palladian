@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.page.TextClassifier;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
 /**
  * A category has a name and a relevance for certain resource.
@@ -49,7 +49,7 @@ public class Category implements Serializable {
 
     public Category(String name) {
         if (name == null) {
-            this.name = TextClassifier.UNASSIGNED;
+            this.name = PalladianTextClassifier.UNASSIGNED;
             Logger.getRootLogger().warn("category with NULL as name was created");
         } else {
             this.name = name;
@@ -60,9 +60,9 @@ public class Category implements Serializable {
         return name;
     }
 
-//    public void setName(String name) {
-//        this.name = name;
-//    }
+    //    public void setName(String name) {
+    //        this.name = name;
+    //    }
 
     // public Double getRelevance() {
     // return relevance;
@@ -84,9 +84,9 @@ public class Category implements Serializable {
         this.frequency++;
     }
 
-//    public void decreaseFrequency() {
-//        this.frequency--;
-//    }
+    //    public void decreaseFrequency() {
+    //        this.frequency--;
+    //    }
 
     /**
      * The prior probability of this category. Set after learning.
@@ -104,15 +104,15 @@ public class Category implements Serializable {
         this.prior = prior;
     }
 
-//    /**
-//     * The prior can be indexed and read from the index. Instead of calculating
-//     * it via Categories.calculatePriors(), it can be set using this method.
-//     * 
-//     * @param prior
-//     */
-//    public void setIndexedPrior(double prior) {
-//        this.prior = prior;
-//    }
+    //    /**
+    //     * The prior can be indexed and read from the index. Instead of calculating
+    //     * it via Categories.calculatePriors(), it can be set using this method.
+    //     *
+    //     * @param prior
+    //     */
+    //    public void setIndexedPrior(double prior) {
+    //        this.prior = prior;
+    //    }
 
     /**
      * <p>

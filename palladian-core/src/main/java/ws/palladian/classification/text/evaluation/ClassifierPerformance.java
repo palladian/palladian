@@ -1,4 +1,4 @@
-package ws.palladian.classification.page.evaluation;
+package ws.palladian.classification.text.evaluation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,16 +12,18 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.ClassifierPerformanceResult;
-import ws.palladian.classification.page.ClassificationDocuments;
-import ws.palladian.classification.page.TestDocument;
-import ws.palladian.classification.page.TextClassifier;
-import ws.palladian.classification.page.TextInstance;
+import ws.palladian.classification.text.ClassificationDocuments;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.TestDocument;
+import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
+ * <p>
  * This class calculates scores for a given classifier such as precision, recall, and F1 on one given dataset.
+ * </p>
  * 
  * @author David Urbansky
  * 
@@ -52,11 +54,12 @@ public class ClassifierPerformance implements Serializable {
      * 
      * @param classifier The classifier.
      */
-    public ClassifierPerformance(TextClassifier classifier) {
-        categories = classifier.getCategories();
-        trainingDocuments = classifier.getTrainingDocuments();
-        testDocuments = classifier.getTestDocuments();
-        classificationType = classifier.getClassificationType();
+    public ClassifierPerformance(PalladianTextClassifier classifier, ClassificationDocuments trainingDocuments,
+            ClassificationDocuments testDocuments) {
+        categories = classifier.getModel().getCategories();
+        this.trainingDocuments = trainingDocuments;
+        this.testDocuments = testDocuments;
+        classificationType = classifier.getModel().getClassificationTypeSetting().getClassificationType();
     }
 
     public Categories getCategories() {
@@ -121,8 +124,8 @@ public class ClassifierPerformance implements Serializable {
 
         return number;
     }
-    
-    // XXX this assumes cClassificationTypeSetting.SINGLE
+
+    // FIXME this assumes cClassificationTypeSetting.SINGLE
     public int getNumberOfConfusionsBetween(Category actualCategory, Category classifiedCategory) {
         int number = 0;
 
@@ -130,10 +133,10 @@ public class ClassifierPerformance implements Serializable {
             TestDocument testDocument = (TestDocument) document;
 
             if (testDocument.getFirstRealCategory().getName().equals(actualCategory.getName()) &&
-                document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory.getName())) {
-                
+                    document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory.getName())) {
+
                 number++;
-                
+
             }
 
         }
@@ -149,15 +152,15 @@ public class ClassifierPerformance implements Serializable {
 
         return correctlyClassified / (double) getTestDocuments().size();
     }
-    
+
     /**
      * <p>Get the prior of the most likely category. In a dataset with evenly distributed classes the highest prior should be 1/#classes.</p>
      * @return The highest prior.
      */
     public double getHighestPrior() {
-        
+
         double highestPrior = -1.0;
-        
+
         CountMap<String> countMap = CountMap.create();
         for (TextInstance document : getTestDocuments()) {
             countMap.add(document.getFirstRealCategory().getName());
@@ -167,7 +170,7 @@ public class ClassifierPerformance implements Serializable {
         if (highestClassCount != null && highestClassCount > 0) {
             highestPrior = highestClassCount / (double) getTestDocuments().size();
         }
-    
+
         return highestPrior;
     }
 
@@ -325,7 +328,7 @@ public class ClassifierPerformance implements Serializable {
             }
 
             accuracy = (truePositives + trueNegatives)
-            / (truePositives + trueNegatives + falsePositives + falseNegatives);
+                    / (truePositives + trueNegatives + falsePositives + falseNegatives);
 
         } catch (ArithmeticException e) {
             Logger.getRootLogger().error("ERROR Division By Zero for Accuracy in Category " + category.getName());
@@ -351,7 +354,7 @@ public class ClassifierPerformance implements Serializable {
         try {
             // the number of documents that belong to the given category
             int documentCount = getTestDocuments().getRealNumberOfCategory(category)
-            + getTrainingDocuments().getRealNumberOfCategory(category);
+                    + getTrainingDocuments().getRealNumberOfCategory(category);
 
             // the total number of documents assigned to categories, one document can be assigned to multiple
             // categories!
@@ -365,7 +368,7 @@ public class ClassifierPerformance implements Serializable {
                 }
 
                 totalAssigned += getTestDocuments().getRealNumberOfCategory(c)
-                + getTrainingDocuments().getRealNumberOfCategory(c);
+                        + getTrainingDocuments().getRealNumberOfCategory(c);
             }
 
             // double ratio = (double) documentCount / (double) (testDocuments.size() + trainingDocuments.size());
@@ -703,21 +706,21 @@ public class ClassifierPerformance implements Serializable {
      * @return The confusion matrix.
      */
     public ConfusionMatrix getConfusionMatrix() {
-        
+
         // x = actual category, y = classified category
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
         for (Category actualCategory : categories) {
-            
+
             for (Category classifiedCategory : categories) {
-                
+
                 int count = getNumberOfConfusionsBetween(actualCategory, classifiedCategory);
-                
+
                 confusionMatrix.set(actualCategory.getName(), classifiedCategory.getName(), count);
             }
-            
+
         }
-        
+
         return confusionMatrix;
     }
 
@@ -740,11 +743,11 @@ public class ClassifierPerformance implements Serializable {
         classifierPerformanceResult.setAccuracy(getAverageAccuracy(true));
 
         classifierPerformanceResult.setCorrectlyClassified(getCorrectlyClassified());
-        
+
         classifierPerformanceResult.setSuperiority(getCorrectlyClassified() / getHighestPrior());
 
         classifierPerformanceResult.setConfusionMatrix(getConfusionMatrix());
-        
+
         classifierPerformanceResult.setThresholdBucketMap(getThresholdBucketMap());
         classifierPerformanceResult.setThresholdAccumulativeMap(getThresholdAccumulativeMap());
 
@@ -785,7 +788,7 @@ public class ClassifierPerformance implements Serializable {
      * </p>
      * 
      * <pre>
-     * threshold    | correctly classified % | number of documents >= threshold 
+     * threshold    | correctly classified % | number of documents >= threshold
      * -------------|------------------------|---------------------------------
      * 0.01         |                        |
      * ...          |                        |
@@ -832,7 +835,7 @@ public class ClassifierPerformance implements Serializable {
      * </p>
      * 
      * <pre>
-     * threshold bucket | correctly classified % | number of documents in the bucket 
+     * threshold bucket | correctly classified % | number of documents in the bucket
      * -----------------|------------------------|---------------------------------
      * 0.1-0.2          |                        |
      * ...              |                        |

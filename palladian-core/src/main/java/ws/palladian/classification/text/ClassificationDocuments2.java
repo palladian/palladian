@@ -1,10 +1,10 @@
-package ws.palladian.classification.page;
+package ws.palladian.classification.text;
 
 import java.util.ArrayList;
 
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
 /**
  * An ArrayList of documents.
@@ -12,7 +12,7 @@ import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
  * @author David Urbansky
  * 
  */
-public class ClassificationDocuments extends ArrayList<TextInstance> {
+public class ClassificationDocuments2 extends ArrayList<TextInstance2> {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,14 +43,14 @@ public class ClassificationDocuments extends ArrayList<TextInstance> {
         } else if (category.getClassType() == ClassificationTypeSetting.HIERARCHICAL && category.isMainCategory()
                 || category.getClassType() == ClassificationTypeSetting.SINGLE) {
 
-            for (TextInstance d : this) {
+            for (TextInstance2 d : this) {
                 if (d.getMainCategoryEntry().getCategory().getName().equals(category.getName())) {
                     ++number;
                 }
             }
 
         } else {
-            for (TextInstance d : this) {
+            for (TextInstance2 d : this) {
                 for (CategoryEntry c : d.getAssignedCategoryEntries()) {
                     if (c.getCategory().getName().equals(category.getName())) {
                         ++number;
@@ -81,7 +81,7 @@ public class ClassificationDocuments extends ArrayList<TextInstance> {
     public int getRealNumberOfCategory(Category category) {
         int number = 0;
 
-        for (TextInstance d : this) {
+        for (TextInstance2 d : this) {
             for (Category c : d.getRealCategories()) {
                 if (c.getName().equals(category.getName())) {
                     ++number;

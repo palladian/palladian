@@ -1,14 +1,20 @@
-package ws.palladian.classification;
+package ws.palladian.classification.text;
 
 import java.util.ArrayList;
 
+import ws.palladian.classification.Category;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
-public class Instances<T> extends ArrayList<T> {
+/**
+ * An ArrayList of documents.
+ * 
+ * @author David Urbansky
+ * 
+ */
+public class ClassificationDocuments extends ArrayList<TextInstance> {
 
-    private static final long serialVersionUID = 9062002858891518522L;
-
-    private Categories categories = new Categories();
+    private static final long serialVersionUID = 1L;
 
     /**
      * Get the number of documents that have been assigned to given category.
@@ -37,14 +43,14 @@ public class Instances<T> extends ArrayList<T> {
         } else if (category.getClassType() == ClassificationTypeSetting.HIERARCHICAL && category.isMainCategory()
                 || category.getClassType() == ClassificationTypeSetting.SINGLE) {
 
-            for (Instance d : (Instances<Instance>) this) {
+            for (TextInstance d : this) {
                 if (d.getMainCategoryEntry().getCategory().getName().equals(category.getName())) {
                     ++number;
                 }
             }
 
         } else {
-            for (Instance d : (Instances<Instance>) this) {
+            for (TextInstance d : this) {
                 for (CategoryEntry c : d.getAssignedCategoryEntries()) {
                     if (c.getCategory().getName().equals(category.getName())) {
                         ++number;
@@ -56,11 +62,33 @@ public class Instances<T> extends ArrayList<T> {
         return number;
     }
 
-    public void setCategories(Categories categories) {
-        this.categories = categories;
+    /**
+     * Get the number of documents that actually ARE in the given category.
+     * 
+     * @param categoryName
+     * @return number
+     */
+    public int getRealNumberOfCategory(String categoryName) {
+        return getRealNumberOfCategory(new Category(categoryName));
     }
 
-    public Categories getCategories() {
-        return categories;
+    /**
+     * Get the number of documents that actually ARE in the given category.
+     * 
+     * @param category
+     * @return number
+     */
+    public int getRealNumberOfCategory(Category category) {
+        int number = 0;
+
+        for (TextInstance d : this) {
+            for (Category c : d.getRealCategories()) {
+                if (c.getName().equals(category.getName())) {
+                    ++number;
+                }
+            }
+        }
+
+        return number;
     }
 }

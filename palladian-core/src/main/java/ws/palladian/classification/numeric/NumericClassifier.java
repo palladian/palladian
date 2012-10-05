@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Classifier;
+import ws.palladian.classification.ClassifierOld;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.helper.io.FileHelper;
@@ -16,7 +16,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * @param <T>
  */
-public abstract class NumericClassifier extends Classifier<UniversalInstance> {
+public abstract class NumericClassifier extends ClassifierOld<UniversalInstance> {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = -8370153238631532469L;
