@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -18,7 +17,7 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class FeatureVector implements Iterable<Feature<?>> {
+public final class FeatureVector implements Iterable<Feature<?>> {
 
     /**
      * <p>
@@ -27,7 +26,7 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * type.
      * </p>
      */
-    protected final SortedMap<String, List<Feature<?>>> features;
+    private final SortedMap<String, List<Feature<?>>> features;
 
     /**
      * <p>
@@ -53,42 +52,21 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * Adds a new {@code Feature} to this {@code FeatureVector}.
      * </p>
      * 
-     * @param newFeature
+     * @param feature
      *            The actual {@code Feature} instance containing the value.
      */
-    public void add(Feature<?> newFeature) {
-        List<Feature<?>> list = features.get(newFeature.getName());
+    public void add(Feature<?> feature) {
+        List<Feature<?>> list = features.get(feature.getName());
         if (list == null) {
             list = new ArrayList<Feature<?>>();
+            features.put(feature.getName(), list);
         }
-        list.add(newFeature);
-
-        features.put(newFeature.getName(), list);
+        list.add(feature);
     }
 
-    /**
-     * <p>
-     * Provides a {@code Feature} from this {@code FeatureVector}.
-     * </p>
-     * 
-     * @param identifier
-     *            The {@code FeatureVector} wide unique identifier of the requested {@code Feature}.
-     * @return The {@code Feature} with identifier {@code identifier} or {@code null} if no such {@code Feature} exists.
-     * @deprecated Prefer using {@link #get(FeatureDescriptor)} when a {@link FeatureDescriptor} is available. This
-     *             improves type safety and avoids unnecessary casting.
-     */
-    // @Deprecated
-    // public <T extends Feature<?>> T getFeature(Class<T> class1, String identifier) {
-    // List<T> allFeatures = getAll(class1, identifier);
-    // if (allFeatures != null && !allFeatures.isEmpty()) {
-    // return allFeatures.get(0);
-    // }
-    // return null;
-    // }
-
     @Deprecated
-    private Feature<?> getFeature(String identifier) {
-        List<Feature<?>> allFeatures = features.get(identifier);
+    private Feature<?> getFeature(String name) {
+        List<Feature<?>> allFeatures = features.get(name);
         if (allFeatures != null && !allFeatures.isEmpty()) {
             return allFeatures.get(0);
         }
@@ -102,16 +80,16 @@ public class FeatureVector implements Iterable<Feature<?>> {
             return allFeatures.get(0);
         }
         return null;
-
     }
 
     @Deprecated
-    public <T extends Feature<?>> List<T> getAll(Class<T> class1, String identifier) {
-        List<Feature<?>> list = features.get(identifier);
-
+    public <T extends Feature<?>> List<T> getAll(Class<T> type, String name) {
         List<T> selectedFeatures = new ArrayList<T>();
-        for (Feature<?> feature : list) {
-            selectedFeatures.add(class1.cast(feature));
+        List<Feature<?>> list = features.get(name);
+        if (list != null) {
+            for (Feature<?> feature : list) {
+                selectedFeatures.add(type.cast(feature));
+            }
         }
         return selectedFeatures;
     }
@@ -147,7 +125,9 @@ public class FeatureVector implements Iterable<Feature<?>> {
      *            requested {@link Feature}.
      * @return The {@link Feature} for the specified {@link FeatureDescriptor} or <code>null</code> if no such
      *         {@link Feature} exists.
+     * @deprecated Will be removed in the future.
      */
+    @Deprecated
     public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
         List<Feature<?>> feature = features.get(descriptor.getIdentifier());
         if (feature == null) {
@@ -192,13 +172,13 @@ public class FeatureVector implements Iterable<Feature<?>> {
      * Removes a {@link Feature} from this {@link FeatureVector}.
      * </p>
      * 
-     * @param identifier
+     * @param name
      *            The {@link FeatureVector} wide unique identifier of the {@link Feature} to remove.
      * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
      *         specified identifier to remove.
      */
-    public boolean remove(String identifier) {
-        return features.remove(identifier) != null;
+    public boolean remove(String name) {
+        return features.remove(name) != null;
     }
 
     /**
@@ -228,14 +208,11 @@ public class FeatureVector implements Iterable<Feature<?>> {
     // }
     // }
 
-    public List<Feature<?>> getFlat() {
+    private List<Feature<?>> getFlat() {
         List<Feature<?>> result = new ArrayList<Feature<?>>();
-
-        Set<Entry<String, List<Feature<?>>>> entrySet = features.entrySet();
-        for (Entry<String, List<Feature<?>>> entry : entrySet) {
+        for (Entry<String, List<Feature<?>>> entry : features.entrySet()) {
             result.addAll(entry.getValue());
         }
-
         return result;
     }
 
