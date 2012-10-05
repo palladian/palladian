@@ -1,4 +1,4 @@
-package ws.palladian.classification.page.evaluation;
+package ws.palladian.classification.text.evaluation;
 
 /**
  * This class is a container for the averaged classifier performance.

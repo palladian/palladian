@@ -24,8 +24,8 @@ public class InstanceBuilder {
         return this;
     }
     
-    public NominalInstance create(String target) {
-        NominalInstance instance = new NominalInstance();
+    public Instance create(String target) {
+        Instance instance = new Instance();
         instance.featureVector = featureVector;
         instance.targetClass = target;
         return instance;

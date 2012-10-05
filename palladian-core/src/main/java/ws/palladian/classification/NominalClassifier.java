@@ -15,7 +15,7 @@ import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
-public class NominalClassifier extends Classifier<UniversalInstance> {
+public class NominalClassifier extends ClassifierOld<UniversalInstance> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(NominalClassifier.class);

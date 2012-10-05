@@ -10,14 +10,19 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Classifier;
+import ws.palladian.classification.ClassifierOld;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.classification.page.evaluation.ClassifierPerformance;
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.ClassificationDocuments;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.Preprocessor;
+import ws.palladian.classification.text.TestDocument;
+import ws.palladian.classification.text.TextInstance;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.ClassifierPerformance;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -31,7 +36,7 @@ import ws.palladian.retrieval.PageAnalyzer;
  * 
  * @author David Urbansky
  */
-public abstract class TextClassifier extends Classifier<UniversalInstance> {
+public abstract class TextClassifier extends ClassifierOld<UniversalInstance> {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = -2602257661494177552L;
@@ -81,7 +86,7 @@ public abstract class TextClassifier extends Classifier<UniversalInstance> {
 
     public TextClassifier copy() {
 
-        TextClassifier copyClassifier = new DictionaryClassifier(getName(), "data/temp/");
+        TextClassifier copyClassifier = new PalladianTextClassifier(getName(), "data/temp/");
         copyClassifier.setName(getName());
 
         Preprocessor preprocessorCopy = new Preprocessor(copyClassifier, getPreprocessor());

@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.ClassificationUtils;
-import ws.palladian.classification.NominalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.date.KeyWords;
@@ -85,9 +85,9 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             if (this.dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
                 result.add(RatedDate.create(date, 1.0));
             } else {
-                NominalInstance instance = DateInstanceFactory.createInstance(date);
+                Instance instance = DateInstanceFactory.createInstance(date);
                 try {
-                    CategoryEntries dbl = predictor.predict(instance.featureVector, model);
+                    CategoryEntries dbl = predictor.classify(instance.featureVector, model);
                     result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getRelevance()));
                 } catch (Exception e) {
                     LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
@@ -97,18 +97,18 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         }
         return result;
     }
-    
+
     public static void main(String[] args) {
-        
+
         String filePath = "/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv";
-        List<NominalInstance> instances = ClassificationUtils.createInstances(filePath, true);
+        List<Instance> instances = ClassificationUtils.createInstances(filePath, true);
         BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
-        BaggedDecisionTreeModel model = classifier.learn(instances);
+        BaggedDecisionTreeModel model = classifier.train(instances);
         FileHelper.serialize(model, "/Users/pk/Desktop/dates_mod_model.gz");
-        
+
         filePath = "/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_pub.csv";
         instances = ClassificationUtils.createInstances(filePath, true);
-        model = classifier.learn(instances);
+        model = classifier.train(instances);
         FileHelper.serialize(model, "/Users/pk/Desktop/dates_pub_model.gz");
 
     }

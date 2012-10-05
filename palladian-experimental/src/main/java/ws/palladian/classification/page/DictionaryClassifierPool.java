@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -13,17 +15,17 @@ import ws.palladian.helper.StopWatch;
  */
 public class DictionaryClassifierPool {
 
-    private final LinkedBlockingQueue<DictionaryClassifier> freeClassifiers;
-    private final List<DictionaryClassifier> freeClassifiers2;
+    private final LinkedBlockingQueue<PalladianTextClassifier> freeClassifiers;
+    private final List<PalladianTextClassifier> freeClassifiers2;
 
-    public DictionaryClassifierPool(DictionaryClassifier classifier, int poolSize) {
+    public DictionaryClassifierPool(PalladianTextClassifier classifier, int poolSize) {
         StopWatch stopWatch = new StopWatch();
-        freeClassifiers = new LinkedBlockingQueue<DictionaryClassifier>();
-        freeClassifiers2 = new ArrayList<DictionaryClassifier>();
+        freeClassifiers = new LinkedBlockingQueue<PalladianTextClassifier>();
+        freeClassifiers2 = new ArrayList<PalladianTextClassifier>();
 
         for (int i = 0; i < poolSize; i++) {
 
-            DictionaryClassifier copy = (DictionaryClassifier) classifier.copy();
+            PalladianTextClassifier copy = (PalladianTextClassifier) classifier.copy();
             copy.setDictionary(classifier.getDictionary());
             copy.setName("DC2_"+i);
             freeClassifiers.add(copy);
@@ -34,7 +36,7 @@ public class DictionaryClassifierPool {
         System.out.println("created pool in " + stopWatch.getElapsedTimeString());
     }
 
-    public synchronized DictionaryClassifier get() {
+    public synchronized PalladianTextClassifier get() {
         return freeClassifiers2.remove(0);
 //        try {
 //            return freeClassifiers.take();
@@ -45,7 +47,7 @@ public class DictionaryClassifierPool {
 //        return null;
     }
     
-    public synchronized void release(DictionaryClassifier dc2) {
+    public synchronized void release(PalladianTextClassifier dc2) {
         freeClassifiers2.add(dc2);
     }
     
@@ -53,7 +55,7 @@ public class DictionaryClassifierPool {
 
         TextInstance result = null;
         
-        DictionaryClassifier dc2;
+        PalladianTextClassifier dc2;
         try {
             dc2 = freeClassifiers.take();
             result = dc2.classify(text);

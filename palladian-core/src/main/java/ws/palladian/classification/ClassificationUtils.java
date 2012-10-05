@@ -23,7 +23,7 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  */
 public final class ClassificationUtils {
-
+    
     private static final String SEPARATOR = ";";
 
     /**
@@ -70,7 +70,7 @@ public final class ClassificationUtils {
         }
         return limitedCategories;
     }
-
+    
     /**
      * <p>
      * Create instances from a file. The instances must be given in a CSV file in the following format:
@@ -82,13 +82,13 @@ public final class ClassificationUtils {
      * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
      *            (column names are generated automatically).
      */
-    public static List<NominalInstance> createInstances(String filePath, final boolean readHeader) {
-
+    public static List<Instance> createInstances(String filePath, final boolean readHeader) {
+        
         if (!new File(filePath).canRead()) {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
 
-        final List<NominalInstance> instances = CollectionHelper.newArrayList();
+        final List<Instance> instances = CollectionHelper.newArrayList();
 
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
 
@@ -103,7 +103,7 @@ public final class ClassificationUtils {
                     return;
                 }
 
-                NominalInstance instance = new NominalInstance();
+                Instance instance = new Instance();
                 instance.featureVector = new FeatureVector();
 
                 for (int f = 0; f < parts.length - 1; f++) {
@@ -127,9 +127,9 @@ public final class ClassificationUtils {
                 instance.targetClass = parts[parts.length - 1];
                 instances.add(instance);
             }
-
+            
         });
-
+        
         return instances;
     }
 
@@ -140,11 +140,11 @@ public final class ClassificationUtils {
      * </p>
      * 
      * @param instances
-     *            The {@code List} of {@link NominalInstance}s to normalize.
+     *            The {@code List} of {@link Instance}s to normalize.
      * @return A {@link MinMaxNormalization} object carrying information to
-     *         normalize further {@link NominalInstance}s or {@link FeatureVector}s based on this normalization.
+     *         normalize further {@link Instance}s or {@link FeatureVector}s based on this normalization.
      */
-    public static MinMaxNormalization minMaxNormalize(List<NominalInstance> instances) {
+    public static MinMaxNormalization minMaxNormalize(List<Instance> instances) {
 
         // hold the min value of each feature <featureName, minValue>
         Map<String, Double> featureMinValueMap = new HashMap<String, Double>();
@@ -153,11 +153,11 @@ public final class ClassificationUtils {
         Map<String, Double> featureMaxValueMap = new HashMap<String, Double>();
 
         // find the min and max values
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
 
             List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
 
-            for (Feature<Double> feature : numericFeatures) {
+            for (Feature<Double> feature:numericFeatures) {
 
                 double featureValue = feature.getValue();
 
@@ -189,13 +189,13 @@ public final class ClassificationUtils {
         Map<String, Double> normalizationMap = new HashMap<String, Double>();
         // List<NominalInstance> normalizedInstances = new
         // ArrayList<NominalInstance>();
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
             // NominalInstance normalizedInstance = new NominalInstance();
 
             // UniversalInstance nInstance = (UniversalInstance) instance;
             List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
 
-            for (Feature<Double> numericFeature : numericFeatures) {
+            for (Feature<Double> numericFeature:numericFeatures) {
                 String featureName = numericFeature.getName();
                 Double minValue = featureMinValueMap.get(featureName);
                 Double maxValue = featureMaxValueMap.get(featureName);
@@ -224,4 +224,5 @@ public final class ClassificationUtils {
         // setNormalized(true);
         return minMaxNormalization;
     }
+
 }

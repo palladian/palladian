@@ -8,11 +8,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.persistence.DictionaryDbIndexH2;
 import ws.palladian.classification.persistence.DictionaryDbIndexMySql;
 import ws.palladian.classification.persistence.DictionaryFileIndex;
 import ws.palladian.classification.persistence.DictionaryIndex;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.TreeNode;
 import ws.palladian.helper.date.DateHelper;
@@ -25,7 +25,7 @@ import ws.palladian.helper.math.MathHelper;
  * 
  * @author David Urbansky
  */
-public class Dictionary extends HashMap<Term, CategoryEntries> implements Serializable {
+public class Dictionary extends HashMap<String, CategoryEntries> implements Serializable {
 
     private static final long serialVersionUID = 3309493348334861440L;
 
@@ -86,7 +86,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         super();
         this.name = name;
     }
-    
+
     public Dictionary(String name, int classType) {
         super();
         this.name = name;
@@ -194,14 +194,14 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         }
     }
 
-    public CategoryEntries updateWord(Term word, Category category, double value) {
+    public CategoryEntries updateWord(String word, Category category, double value) {
         return updateWord(word, category.getName(), value);
     }
 
-    public CategoryEntries updateWord(Term word, String categoryName, double value) {
+    public CategoryEntries updateWord(String word, String categoryName, double value) {
 
         if (!isCaseSensitive()) {
-            word.lowerCaseText();
+            word = word.toLowerCase();
         }
 
         Category category = categories.getCategoryByName(categoryName);
@@ -215,7 +215,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             CategoryEntries categoryEntries = new CategoryEntries();
 
             if (isReadFromIndexForUpdate()) {
-                categoryEntries = dictionaryIndex.read(word.getText());
+                categoryEntries = dictionaryIndex.read(word);
             }
 
             if (categoryEntries.size() > 0) {
@@ -236,7 +236,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
                 }
 
                 // dictionaryIndex.update(word, categoryEntries);
-                dictionaryIndex.update(word.getText(), ce);
+                dictionaryIndex.update(word, ce);
 
                 return categoryEntries;
             } else {
@@ -252,7 +252,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
                 category.increaseTotalTermWeight(categoryEntry.getAbsoluteRelevance());
 
                 // dictionaryIndex.write(word, categoryEntries);
-                dictionaryIndex.write(word.getText(), categoryEntry);
+                dictionaryIndex.write(word, categoryEntry);
 
                 return categoryEntries;
             }
@@ -360,7 +360,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
                 bestFitCategoryEntries.put(
                         categoryEntry.getCategory().getName(),
                         bestFitCategoryEntries.get(categoryEntry.getCategory().getName())
-                                + categoryEntry.getRelevance());
+                        + categoryEntry.getRelevance());
             } else {
                 bestFitCategoryEntries.put(categoryEntry.getCategory().getName(), categoryEntry.getRelevance());
                 bestFitCategoryEntries2.put(categoryEntry.getCategory().getName(), categoryEntry);
@@ -437,16 +437,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         this.numberOfDocuments++;
     }
 
-    /**
-     * Save the constructed context map to a csv file.
-     */
-    public void saveAsCSV() {
-
-        if (categories == null) {
-            Logger.getRootLogger().error("no categories assigned");
-            return;
-        }
-
+    public String toCsv() {
         StringBuilder dictionaryString = new StringBuilder("");
 
         // add some meta information
@@ -464,7 +455,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         Logger.getRootLogger().debug("word count " + entrySet().size());
 
         // one word per line with term frequencies per category
-        for (Map.Entry<Term, CategoryEntries> term : entrySet()) {
+        for (Map.Entry<String, CategoryEntries> term : entrySet()) {
 
             dictionaryString.append(term.getKey()).append(",");
 
@@ -479,6 +470,21 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             }
             dictionaryString.append("\n");
         }
+
+        return dictionaryString.toString();
+    }
+
+    /**
+     * Save the constructed context map to a csv file.
+     */
+    public void saveAsCSV() {
+
+        if (categories == null) {
+            Logger.getRootLogger().error("no categories assigned");
+            return;
+        }
+
+        String dictionaryString = toCsv();
 
         Logger.getRootLogger().debug("save dictionary...");
         FileHelper.writeToFile(
@@ -506,14 +512,14 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         // HashSet<String> usedString = new HashSet<String>();
 
         int c = 0;
-        for (Map.Entry<Term, CategoryEntries> dictionaryEntry : entrySet()) {
+        for (Map.Entry<String, CategoryEntries> dictionaryEntry : entrySet()) {
             // Logger.getRootLogger().debug("write: "+dictionaryEntry.getKey() +
             // " : " + dictionaryEntry.getValue());
             // if (!usedString.add(dictionaryEntry.getKey().getText())) {
             // System.out.println("wait " + dictionaryEntry.getKey());
             // }
 
-            dictionaryIndex.write(dictionaryEntry.getKey().getText(), dictionaryEntry.getValue());
+            dictionaryIndex.write(dictionaryEntry.getKey(), dictionaryEntry.getValue());
             if (c % 4000 == 0) {
                 double percent = MathHelper.round(100.0 * c / entrySet().size(), 2);
                 Logger.getRootLogger().info("saving dictionary process: " + percent + "%");
@@ -596,7 +602,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         }
         dictionaryString.append("\n");
 
-        for (Map.Entry<Term, CategoryEntries> term : entrySet()) {
+        for (Map.Entry<String, CategoryEntries> term : entrySet()) {
 
             dictionaryString.append(term.getKey()).append(",");
 

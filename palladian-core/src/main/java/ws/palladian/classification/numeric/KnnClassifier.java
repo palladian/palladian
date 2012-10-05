@@ -10,9 +10,9 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.NominalInstance;
-import ws.palladian.classification.Predictor;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
@@ -30,7 +30,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author David Urbansky
  * @author Klemens Muthmann
  */
-public class KnnClassifier implements Predictor<KnnModel> {
+public class KnnClassifier implements Classifier<KnnModel> {
 
     /**
      * Number of nearest neighbors that are allowed to vote. If neighbors have
@@ -68,7 +68,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
     }
 
     @Override
-    public KnnModel learn(List<NominalInstance> instances) {
+    public KnnModel train(List<Instance> instances) {
         // List<NominalInstance> normalizedInstances = normalize(instances);
         // KnnModel model = new KnnModel(normalizedInstances);
         KnnModel model = new KnnModel(instances);
@@ -155,7 +155,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
      *            The instance to be classified.
      */
     @Override
-    public CategoryEntries predict(FeatureVector vector, KnnModel model) {
+    public CategoryEntries classify(FeatureVector vector, KnnModel model) {
 
         // StopWatch stopWatch = new StopWatch();
 
@@ -179,8 +179,8 @@ public class KnnClassifier implements Predictor<KnnModel> {
         }
 
         // find k nearest neighbors, compare instance to every known instance
-        Map<NominalInstance, Double> neighbors = new HashMap<NominalInstance, Double>();
-        for (NominalInstance knownInstance : model.getTrainingInstances()) {
+        Map<Instance, Double> neighbors = new HashMap<Instance, Double>();
+        for (Instance knownInstance : model.getTrainingInstances()) {
             double distance = getDistanceBetween(vector, knownInstance.featureVector);
             neighbors.put(knownInstance, distance);
         }
@@ -188,7 +188,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
         // CollectionHelper.print(neighbors, 10);
 
         // sort near neighbor map by distance
-        Map<NominalInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
+        Map<Instance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
 
         // CollectionHelper.print(sortedList, 10);
 
@@ -201,7 +201,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
         // them into the voting, k might get bigger
         // in those cases
         double lastDistance = -1;
-        for (Entry<NominalInstance, Double> neighbour : sortedList.entrySet()) {
+        for (Entry<Instance, Double> neighbour : sortedList.entrySet()) {
 
             if (ck >= k && neighbour.getValue() != lastDistance) {
                 break;
@@ -236,15 +236,15 @@ public class KnnClassifier implements Predictor<KnnModel> {
 
     /**
      * <p>
-     * Fetches the possible {@link Categories} from a list of {@link NominalInstance} like to ones making up the typical
+     * Fetches the possible {@link Categories} from a list of {@link Instance} like to ones making up the typical
      * training set.
      * </p>
      * 
      * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
      */
-    protected Categories getPossibleCategories(List<NominalInstance> instances) {
+    protected Categories getPossibleCategories(List<Instance> instances) {
         Categories categories = new Categories();
-        for (NominalInstance instance : instances) {
+        for (Instance instance : instances) {
             Category category = new Category(instance.targetClass);
             category.increaseFrequency();
             categories.add(category);
@@ -278,7 +278,7 @@ public class KnnClassifier implements Predictor<KnnModel> {
         for (NumericFeature instanceFeature : instanceFeatures) {
             squaredSum += Math.pow(
                     instanceFeature.getValue()
-                            - getFeatureFromList(instanceFeature.getName(), knownInstanceFeatures).getValue(), 2);
+                    - getFeatureFromList(instanceFeature.getName(), knownInstanceFeatures).getValue(), 2);
         }
 
         distance = Math.sqrt(squaredSum);
@@ -292,6 +292,12 @@ public class KnnClassifier implements Predictor<KnnModel> {
                 return feature;
             }
         }
+        return null;
+    }
+
+    @Override
+    public KnnModel train(Dataset dataset) {
+        // FIXME
         return null;
     }
 }

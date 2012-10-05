@@ -1,4 +1,4 @@
-package ws.palladian.classification.page.evaluation;
+package ws.palladian.classification.page;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,7 +6,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ws.palladian.classification.page.TextClassifier;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.evaluation.AverageClassifierPerformance;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.ClassifierPerformance;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 
 /**
  * The result of a cross validation for a classifier and given settings.
@@ -17,7 +21,7 @@ import ws.palladian.classification.page.TextClassifier;
 public class CrossValidationResult {
 
     /** The classifier for which the results are gathered. */
-    private TextClassifier classifier;
+    private PalladianTextClassifier classifier;
 
     /**
      * The classification type settings used for the classifier, this needs to be copied and cannot be accessed from the
@@ -40,17 +44,17 @@ public class CrossValidationResult {
     /** Average performances over all folds <Datasetname,trainingpercentage:performances>. */
     private Map<String, HashSet<ClassifierPerformance>> performancesFolds = new HashMap<String, HashSet<ClassifierPerformance>>();
 
-    public CrossValidationResult(TextClassifier classifier) {
+    public CrossValidationResult(PalladianTextClassifier classifier) {
         this.classifier = classifier;
         this.classificationTypeSettings = classifier.getClassificationTypeSetting();
         this.featureSettings = classifier.getFeatureSetting();
     }
 
-    public void setClassifier(TextClassifier classifier) {
+    public void setClassifier(PalladianTextClassifier classifier) {
         this.classifier = classifier;
     }
 
-    public TextClassifier getClassifier() {
+    public PalladianTextClassifier getClassifier() {
         return classifier;
     }
 
