@@ -25,13 +25,16 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Term;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.classification.page.evaluation.ClassifierPerformance;
-import ws.palladian.classification.page.evaluation.CrossValidationResult;
-import ws.palladian.classification.page.evaluation.CrossValidator;
-import ws.palladian.classification.page.evaluation.Dataset;
-import ws.palladian.classification.page.evaluation.EvaluationSetting;
-import ws.palladian.classification.page.evaluation.FeatureSetting;
+import ws.palladian.classification.text.ClassificationDocuments;
+import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.Preprocessor;
+import ws.palladian.classification.text.TestDocument;
+import ws.palladian.classification.text.TextInstance;
+import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.evaluation.ClassifierPerformance;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.EvaluationSetting;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
@@ -84,7 +87,7 @@ public class ClassifierManager {
         dataset.setFirstFieldLink(true);
 
         // load the language classifier
-        TextClassifier classifier = DictionaryClassifier.load(classifierPath);
+        TextClassifier classifier = PalladianTextClassifier.load(classifierPath);
 
         // now we can test the classifier using the given dataset (output is written to the console)
         ClassifierPerformance classifierPerformance = null;
@@ -151,13 +154,13 @@ public class ClassifierManager {
 
             if (cmd.hasOption("name")) {
                 if (cmd.hasOption("trainingFile")) {
-                    classifier = new DictionaryClassifier(cmd.getOptionValue("name"), "");// new KNNClassifier();
+                    classifier = new PalladianTextClassifier(cmd.getOptionValue("name"), "");// new KNNClassifier();
                 } else if (cmd.hasOption("testingFile")) {
-                    classifier = DictionaryClassifier.load(cmd.getOptionValue("name"));
+                    classifier = PalladianTextClassifier.load(cmd.getOptionValue("name"));
                 }
             } else {
-                classifier = new DictionaryClassifier();// new KNNClassifier();
-                ((DictionaryClassifier) classifier).getDictionary().setIndexType(Dictionary.DB_H2);
+                classifier = new PalladianTextClassifier();// new KNNClassifier();
+                ((PalladianTextClassifier) classifier).getDictionary().setIndexType(Dictionary.DB_H2);
             }
 
             if (classifier == null) {
@@ -227,7 +230,7 @@ public class ClassifierManager {
         // build a set of classifiers to evaluate
         List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
         TextClassifier classifier = null;
-        classifier = new DictionaryClassifier();
+        classifier = new PalladianTextClassifier();
         classifiers.add(classifier);
         classifier = new KNNClassifier();
         classifiers.add(classifier);
@@ -285,7 +288,7 @@ public class ClassifierManager {
         // ///////////////////////////// learn classifiers /////////////////////////////////
         classifierManager = new ClassifierManager();
         dataset = new Dataset();
-        classifier = new DictionaryClassifier();// new KNNClassifier();
+        classifier = new PalladianTextClassifier();// new KNNClassifier();
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
         FeatureSetting featureSetting = new FeatureSetting();
         classifier.setClassificationTypeSetting(classificationTypeSetting);
@@ -337,7 +340,7 @@ public class ClassifierManager {
         dataset.setFirstFieldLink(true);
 
         // create a text classifier by giving a name and a path where it should be saved to
-        TextClassifier classifier = new DictionaryClassifier("LanguageClassifier",
+        TextClassifier classifier = new PalladianTextClassifier("LanguageClassifier",
         "data/models/palladianLanguageClassifier/");
 
         // specify the settings for the classification
@@ -387,7 +390,7 @@ public class ClassifierManager {
         String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
 
         // load the language classifier
-        TextClassifier classifier = DictionaryClassifier.load(classifierPath);
+        TextClassifier classifier = PalladianTextClassifier.load(classifierPath);
 
         // create a classification document that holds the result
         TextInstance classifiedDocument = null;
@@ -693,8 +696,8 @@ public class ClassifierManager {
                 preprocessedDocument.setRealCategories(categories);
                 classifier.getTrainingDocuments().add(preprocessedDocument);
 
-                if (addToDictionary && classifier instanceof DictionaryClassifier) {
-                    ((DictionaryClassifier) classifier).addToDictionary(preprocessedDocument, classType);
+                if (addToDictionary && classifier instanceof PalladianTextClassifier) {
+                    ((PalladianTextClassifier) classifier).addToDictionary(preprocessedDocument, classType);
                 }
 
             } else {
@@ -809,7 +812,7 @@ public class ClassifierManager {
                     ces.add(ce);
                 }
             }
-            ((DictionaryClassifier) classifier).addToDictionary(preprocessedDocument, classType);
+            ((PalladianTextClassifier) classifier).addToDictionary(preprocessedDocument, classType);
 
             // give memory free for ith document
             preprocessedDocument.getWeightedTerms().clear();
@@ -891,9 +894,9 @@ public class ClassifierManager {
 
                         TreeNode newNode = new TreeNode(categoryName);
                         if (i == 1) {
-                            ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.addNode(newNode);
+                            ((PalladianTextClassifier) classifier).getDictionary().hierarchyRootNode.addNode(newNode);
                         } else {
-                            ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
+                            ((PalladianTextClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
                                     lastCategoryName).addNode(newNode);
                         }
                     }
@@ -903,8 +906,8 @@ public class ClassifierManager {
                     if (!classifier.getCategories().containsCategoryName(categoryName)) {
                         Category cat = new Category(categoryName);
                         if ((Integer) obj[1] == ClassificationTypeSetting.HIERARCHICAL
-                                && ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
-                                        categoryName).getParent() == ((DictionaryClassifier) classifier)
+                                && ((PalladianTextClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
+                                        categoryName).getParent() == ((PalladianTextClassifier) classifier)
                                         .getDictionary().hierarchyRootNode
                                         || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
                             cat.setMainCategory(true);
@@ -976,12 +979,12 @@ public class ClassifierManager {
 
         LOGGER.info("preprocessed documents in " + sw.getElapsedTimeString());
 
-        if (classifier instanceof DictionaryClassifier) {
-            classifier.setCategories(((DictionaryClassifier) classifier).getCategories());
+        if (classifier instanceof PalladianTextClassifier) {
+            classifier.setCategories(((PalladianTextClassifier) classifier).getCategories());
         }
 
-        if (!classifier.isSerialize() && classifier instanceof DictionaryClassifier) {
-            ((DictionaryClassifier) classifier).classifyTestDocuments(false);
+        if (!classifier.isSerialize() && classifier instanceof PalladianTextClassifier) {
+            ((PalladianTextClassifier) classifier).classifyTestDocuments(false);
         } else {
             classifier.classifyTestDocuments();
         }
@@ -1010,22 +1013,22 @@ public class ClassifierManager {
         if (!(classifier instanceof KNNClassifier)) {
 
             // set index location (lucene or database)
-            ((DictionaryClassifier) classifier).dictionary.setIndexType(dictionaryClassifierIndexType);
+            ((PalladianTextClassifier) classifier).dictionary.setIndexType(dictionaryClassifierIndexType);
 
             // set database type
-            ((DictionaryClassifier) classifier).dictionary.setDatabaseType(dictionaryDatabaseType);
+            ((PalladianTextClassifier) classifier).dictionary.setDatabaseType(dictionaryDatabaseType);
 
             // set class type
-            ((DictionaryClassifier) classifier).dictionary.setClassType(classifier.getClassificationType());
+            ((PalladianTextClassifier) classifier).dictionary.setClassType(classifier.getClassificationType());
 
             // if index should be created iteratively, we do not keep it in memory
             // but write it to disk right away
             if (isCreateDictionaryIteratively()) {
-                ((DictionaryClassifier) classifier).dictionary.useIndex();
+                ((PalladianTextClassifier) classifier).dictionary.useIndex();
 
                 // in training mode, the dictionary will be deleted first
                 if (classifier.isSerialize()) {
-                    ((DictionaryClassifier) classifier).dictionary.emptyIndex();
+                    ((PalladianTextClassifier) classifier).dictionary.emptyIndex();
                 }
             }
         }
@@ -1036,7 +1039,7 @@ public class ClassifierManager {
         // load the text data from the gathered URLs, preprocess the data and create document representations
         if (classifier.isSerialize()) {
 
-            ((DictionaryClassifier) classifier).dictionary.setReadFromIndexForUpdate(!createDictionaryNGramSearchMode);
+            ((PalladianTextClassifier) classifier).dictionary.setReadFromIndexForUpdate(!createDictionaryNGramSearchMode);
             if (createDictionaryNGramSearchMode && isCreateDictionaryIteratively()) {
                 preprocessDocumentsFast(classifier.getClassificationType());
             } else {
@@ -1049,28 +1052,28 @@ public class ClassifierManager {
 
         LOGGER.info("loaded and preprocessed successfully");
 
-        if (classifier instanceof DictionaryClassifier) {
+        if (classifier instanceof PalladianTextClassifier) {
 
             // create the dictionary in one single step
             if (!isCreateDictionaryIteratively() && classifier.isSerialize()) {
-                ((DictionaryClassifier) classifier).buildDictionary(classifier.getClassificationType());
+                ((PalladianTextClassifier) classifier).buildDictionary(classifier.getClassificationType());
             } else {
                 // close the dictionary index writer
-                ((DictionaryClassifier) classifier).dictionary.closeIndexWriter();
+                ((PalladianTextClassifier) classifier).dictionary.closeIndexWriter();
             }
 
         }
 
         // in hierarchy mode we have to tell the dictionary which categories are main categories
         if (classifier.getClassificationType() == ClassificationTypeSetting.HIERARCHICAL) {
-            ((DictionaryClassifier) classifier).getDictionary().setMainCategories(classifier.getCategories());
+            ((PalladianTextClassifier) classifier).getDictionary().setMainCategories(classifier.getCategories());
         }
 
         // save the dictionary (serialize, in-memory dictionary will be deleted at this point)
-        if (classifier instanceof DictionaryClassifier && classifier.isSerialize()) {
+        if (classifier instanceof PalladianTextClassifier && classifier.isSerialize()) {
             // ((DictionaryClassifier) classifier).saveDictionary(((DictionaryClassifier)
             // classifier).getDictionaryPath(),!isCreateDictionaryIteratively(), true);
-            ((DictionaryClassifier) classifier).save(((DictionaryClassifier) classifier).getDictionaryPath(),
+            ((PalladianTextClassifier) classifier).save(((PalladianTextClassifier) classifier).getDictionaryPath(),
                     !isCreateDictionaryIteratively(), true);
 
         }
