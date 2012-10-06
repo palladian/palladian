@@ -171,7 +171,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     protected abstract R parseResult(JSONObject resultData) throws JSONException;
 
     @Override
-    public int getTotalResultCount(String query) throws SearcherException {
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
         int hitCount = 0;
         String responseData = getResponseData(query, null, 0);
         try {
