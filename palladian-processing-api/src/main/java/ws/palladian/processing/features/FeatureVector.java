@@ -1,6 +1,7 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -227,8 +228,12 @@ public final class FeatureVector implements Iterable<Feature<?>> {
             if (feature instanceof AnnotationFeature) {
                 return ((AnnotationFeature)feature).getFeatures(class1,
                         featurePath.substring(featurePath.indexOf("/") + 1));
+            } else if (feature instanceof Collection) {
+                List<T> ret = new ArrayList<T>((Collection<T>)feature);
+                return ret;
+            } else {
+                return getAll(class1, pathElement);
             }
-            return getAll(class1, pathElement);
         }
 
         return null;

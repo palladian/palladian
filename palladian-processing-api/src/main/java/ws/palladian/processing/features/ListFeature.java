@@ -16,12 +16,12 @@ import java.util.List;
  * @version 1.0
  * @since 3.0.0
  */
-public final class ListFeature extends Feature<List<Object>> {
+public final class ListFeature<T> extends Feature<List<T>> {
 
     /**
      * {@inheritDoc #ListFeature(FeatureDescriptor, List)}
      */
-    public ListFeature(FeatureDescriptor<? extends Feature<List<Object>>> descriptor, List<Object> value) {
+    public ListFeature(FeatureDescriptor<? extends Feature<List<T>>> descriptor, List<T> value) {
         super(descriptor, value);
     }
 
@@ -33,14 +33,14 @@ public final class ListFeature extends Feature<List<Object>> {
      * @param descriptor The descriptor identifying the new {@code Feature} within a {@link FeatureVector}.
      * @param value The array containing all the values for the new {@code Feature}.
      */
-    public ListFeature(FeatureDescriptor<? extends Feature<List<Object>>> descriptor, Object[] value) {
+    public ListFeature(FeatureDescriptor<? extends Feature<List<T>>> descriptor, T[] value) {
         super(descriptor, Arrays.asList(value));
     }
 
     /**
      * {@inheritDoc #ListFeature(String, List)}
      */
-    public ListFeature(String name, List<Object> value) {
+    public ListFeature(String name, List<T> value) {
         super(name, value);
     }
 
