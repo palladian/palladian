@@ -24,6 +24,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
@@ -119,7 +120,8 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
         Iterator<Annotation<String>> posTagsIterator = posTags.iterator();
         Iterator<Annotation<String>> markedKeywordsIterator = markedKeywords.iterator();
 
-        Annotation<String> currentMarkedKeyword = markedKeywordsIterator.hasNext() ? markedKeywordsIterator.next() : null;
+        Annotation<String> currentMarkedKeyword = markedKeywordsIterator.hasNext() ? markedKeywordsIterator.next()
+                : null;
         Annotation<String> currentPosTag = posTagsIterator.hasNext() ? posTagsIterator.next() : null;
 
         // create one LSP per sentence in the document.
@@ -156,8 +158,7 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
             String[] arrayOfWholeSentencePattern = sequentialPattern.toArray(new String[sequentialPattern.size()]);
             List<SequentialPattern> extractedPatterns = extractionStrategy.extract(arrayOfWholeSentencePattern,
                     minSequentialPatternSize, maxSequentialPatternSize);
-            SequentialPatternsFeature feature = new SequentialPatternsFeature(PROVIDED_FEATURE_DESCRIPTOR,
-                    extractedPatterns);
+            ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>("lsp", extractedPatterns);
             sentence.addFeature(feature);
         }
     }
