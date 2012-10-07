@@ -22,8 +22,8 @@ public class UniversalInstance extends TextInstance {
     /** The class of the instance. This can be nominal or numeric. */
     // private Object instanceClass;
 
-    /** Whether or not the class of the instance is nominal. */
-    private boolean classNominal = false;
+//    /** Whether or not the class of the instance is nominal. */
+//    private boolean classNominal = false;
 
     public UniversalInstance(Instances instances) {
         setInstances(instances);
@@ -37,10 +37,6 @@ public class UniversalInstance extends TextInstance {
             result.add(numericFeature.getValue());
         }
         return result;
-    }
-
-    public List<NumericFeature> getNumericFeatures2() {
-        return featureVector.getAll(NumericFeature.class);
     }
 
     public void setNumericFeatures(List<Double> numericFeatures) {
@@ -75,28 +71,28 @@ public class UniversalInstance extends TextInstance {
         this.textFeature = textFeature;
     }
 
-    public boolean isClassNominal() {
-        return classNominal;
-    }
+//    public boolean isClassNominal() {
+//        return classNominal;
+//    }
 
-    public void setClassNominal(boolean classNominal) {
-        this.classNominal = classNominal;
-    }
+//    public void setClassNominal(boolean classNominal) {
+//        this.classNominal = classNominal;
+//    }
 
-    public void normalize(MinMaxNormalization normalization) {
-
-        List<Double> features = getNumericFeatures();
-
-        for (int i = 0; i < features.size(); i++) {
-
-            double featureValue = features.get(i);
-            double normalizedValue = (featureValue - normalization.getMinValueMap().get(i))
-                    / normalization.getNormalizationMap().get(i);
-
-            features.set(i, normalizedValue);
-        }
-
-    }
+//    public void normalize(MinMaxNormalization normalization) {
+//
+//        List<Double> features = getNumericFeatures();
+//
+//        for (int i = 0; i < features.size(); i++) {
+//
+//            double featureValue = features.get(i);
+//            double normalizedValue = (featureValue - normalization.getMinValueMap().get(i))
+//                    / normalization.getNormalizationMap().get(i);
+//
+//            features.set(i, normalizedValue);
+//        }
+//
+//    }
 
     /**
      * <p>
