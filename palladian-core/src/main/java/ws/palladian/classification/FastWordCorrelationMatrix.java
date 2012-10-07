@@ -91,7 +91,7 @@ public class FastWordCorrelationMatrix extends WordCorrelationMatrix {
 
     @Override
     protected void createWordCorrelation(String word1, String word2) {
-        WordCorrelation wc = new WordCorrelation(getTerm(word1), getTerm(word2));
+        WordCorrelation wc = new WordCorrelation(word1, word2);
         wc.setAbsoluteCorrelation(1.0);
         putToCorrelationsMap(word1, word2, wc);
         putToCorrelationsMap(word2, word1, wc);
@@ -111,6 +111,11 @@ public class FastWordCorrelationMatrix extends WordCorrelationMatrix {
             termTermCorrelations.put(word1, termCorrelation);
         }
         termCorrelation.put(word2, correlation);
+    }
+    
+    @Override
+    protected Set<String> getAllTerms() {
+        return termTermCorrelations.keySet();
     }
 
 }

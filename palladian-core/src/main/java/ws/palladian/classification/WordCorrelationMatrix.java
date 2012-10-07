@@ -16,11 +16,7 @@ import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
- * Correlation matrix.
- * </p>
- * 
- * <p>
- * See corresponding test case for an example.
+ * Correlation matrix. See corresponding test case for an example.
  * </p>
  * 
  * @author David Urbansky
@@ -37,21 +33,10 @@ public class WordCorrelationMatrix implements Serializable {
     protected static final Logger LOGGER = Logger.getLogger(WordCorrelationMatrix.class);
 
     /** Internal cache for all Terms, to keep the number of instances small. */
-    private Map<String, Term> termMap = new HashMap<String, Term>();
+    // private Map<String, Term> termMap = new HashMap<String, Term>();
 
     /** Map with Term names and a List of their correlations. */
     private Map<String, List<WordCorrelation>> termCorrelations = new HashMap<String, List<WordCorrelation>>();
-
-    /**
-     * Add one to the correlation count of two terms.
-     * The order of the terms does not matter: t1,t2 = t2,t1
-     * 
-     * @param word1 The first term.
-     * @param word2 The second term.
-     */
-    public void updatePair(Term word1, Term word2) {
-        updatePair(word1.getText(), word2.getText());
-    }
 
     /**
      * Add one to the correlation count of two terms.
@@ -87,23 +72,23 @@ public class WordCorrelationMatrix implements Serializable {
         }
     }
 
-    /**
-     * Get Term from termMap if present, elsewise create new Term instance and put it in the Map for caching.
-     * 
-     * @param word
-     * @return
-     */
-    protected Term getTerm(String word) {
-        Term term = termMap.get(word);
-        if (term == null) {
-            term = new Term(word);
-            termMap.put(word, term);
-        }
-        return term;
-    }
+//    /**
+//     * Get Term from termMap if present, elsewise create new Term instance and put it in the Map for caching.
+//     * 
+//     * @param word
+//     * @return
+//     */
+//    protected Term getTerm(String word) {
+//        Term term = termMap.get(word);
+//        if (term == null) {
+//            term = new Term(word);
+//            termMap.put(word, term);
+//        }
+//        return term;
+//    }
 
     protected void createWordCorrelation(String word1, String word2) {
-        WordCorrelation wc = new WordCorrelation(getTerm(word1), getTerm(word2));
+        WordCorrelation wc = new WordCorrelation(word1, word2);
         wc.setAbsoluteCorrelation(1.0);
         putToCorrelationsMap(word1, wc);
         putToCorrelationsMap(word2, wc);
@@ -131,10 +116,10 @@ public class WordCorrelationMatrix implements Serializable {
     public void makeRelativeScores() {
 
         // calculate all the row sums for the Terms in advance
-        Map<Term, Integer> rowSums = new HashMap<Term, Integer>();
+        Map<String, Integer> rowSums = new HashMap<String, Integer>();
 
         StopWatch sw = new StopWatch();
-        for (Term term : termMap.values()) {
+        for (String term : getAllTerms()) {
             int rowSum = getRowSum(term);
             rowSums.put(term, rowSum);
         }
@@ -157,22 +142,21 @@ public class WordCorrelationMatrix implements Serializable {
         LOGGER.trace("calculated relative scores in " + sw.getElapsedTimeString());
     }
 
-    protected int getRowSum(Term term) {
+    protected Set<String> getAllTerms() {
+        return termCorrelations.keySet();
+    }
+
+    protected int getRowSum(String term) {
         int rowSum = 0;
 
-        // List<WordCorrelation> correlations = termCorrelations.get(term.getText());
-        List<WordCorrelation> correlations = getCorrelations(term.getText(), -1);
+        List<WordCorrelation> correlations = getCorrelations(term, -1);
         for (WordCorrelation entry : correlations) {
-            if (entry.getTerm1().getText().equals(term.getText()) || entry.getTerm2().getText().equals(term.getText())) {
+            if (entry.getTerm1().equals(term) || entry.getTerm2().equals(term)) {
                 rowSum += entry.getAbsoluteCorrelation();
             }
         }
 
         return rowSum;
-    }
-
-    public WordCorrelation getCorrelation(Term word1, Term word2) {
-        return getCorrelation(word1.getText(), word2.getText());
     }
 
     public WordCorrelation getCorrelation(String word1, String word2) {
@@ -182,8 +166,8 @@ public class WordCorrelationMatrix implements Serializable {
 
         if (correlations != null) {
             for (WordCorrelation entry : correlations) {
-                if (entry.getTerm1().getText().equals(word1) && entry.getTerm2().getText().equals(word2)
-                        || entry.getTerm1().getText().equals(word2) && entry.getTerm2().getText().equals(word1)) {
+                if (entry.getTerm1().equals(word1) && entry.getTerm2().equals(word2)
+                        || entry.getTerm1().equals(word2) && entry.getTerm2().equals(word1)) {
                     correlation = entry;
                     break;
                 }
@@ -199,7 +183,7 @@ public class WordCorrelationMatrix implements Serializable {
 
         if (toCheck != null) {
             for (WordCorrelation entry : toCheck) {
-                if ((entry.getTerm1().getText().equals(word) || entry.getTerm2().getText().equals(word))
+                if ((entry.getTerm1().equals(word) || entry.getTerm2().equals(word))
                         && entry.getAbsoluteCorrelation() >= minCooccurrences) {
                     correlations.add(entry);
                 }
@@ -246,7 +230,7 @@ public class WordCorrelationMatrix implements Serializable {
      * Clear all correlations.
      */
     public void clear() {
-        termMap.clear();
+        // termMap.clear();
         termCorrelations.clear();
     }
 
@@ -254,7 +238,7 @@ public class WordCorrelationMatrix implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (WordCorrelation entry : getCorrelations()) {
-            sb.append(entry.getTerm1().getText()).append("+").append(entry.getTerm2().getText()).append("=>").append(
+            sb.append(entry.getTerm1()).append("+").append(entry.getTerm2()).append("=>").append(
                     entry.getAbsoluteCorrelation()).append("\n");
         }
         return sb.toString();
