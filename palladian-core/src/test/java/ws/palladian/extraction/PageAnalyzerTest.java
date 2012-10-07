@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Ignore;
@@ -24,6 +25,9 @@ import ws.palladian.retrieval.parser.ParserException;
  * @author Philipp Katz
  */
 public class PageAnalyzerTest {
+    
+    // FIXME PageAnalyzer is in palladian-retrieval, test in palladian-core,
+    // but test resources in palladian-core, so I cannot just move it.
 
     private final NekoHtmlParser parser = new NekoHtmlParser();
 
@@ -213,6 +217,13 @@ public class PageAnalyzerTest {
         doc = parser.parse(ResourceHelper.getResourceFile("/pageContentExtractor/test10.html"));
         assertEquals("http://www.example.com/test.html", HtmlHelper.getLinks(doc, true, true).iterator().next());
 
+    }
+    
+    @Test
+    public void testGetKeywords() throws FileNotFoundException, ParserException {
+        Document doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website1.html"));
+        List<String> keywords = PageAnalyzer.extractKeywords(doc);
+        assertEquals(11, keywords.size());
     }
 
 }
