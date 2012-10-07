@@ -300,16 +300,16 @@ public class Dictionary extends HashMap<String, CategoryEntries> implements Seri
 
     }
 
-    /**
-     * Update the word correlation matrix.
-     * 
-     * @param terms A set of terms that co-occurred
-     */
-    public void updateWCM(Term[] terms) {
-        for (int i = 0; i < terms.length - 1; i++) {
-            wcm.updatePair(terms[i], terms[i + 1]);
-        }
-    }
+//    /**
+//     * Update the word correlation matrix.
+//     * 
+//     * @param terms A set of terms that co-occurred
+//     */
+//    public void updateWCM(String[] terms) {
+//        for (int i = 0; i < terms.length - 1; i++) {
+//            wcm.updatePair(terms[i], terms[i + 1]);
+//        }
+//    }
 
     /**
      * Get the best matching category for a given word.
@@ -550,12 +550,12 @@ public class Dictionary extends HashMap<String, CategoryEntries> implements Seri
      * @param term A term might be a word or any other sequence of characters.
      * @return A list of category entries.
      */
-    public CategoryEntries get(Term term) {
+    public CategoryEntries get(String term) {
 
         CategoryEntries categoryEntries = null;
 
         if (useIndex) {
-            categoryEntries = dictionaryIndex.read(term.getText());
+            categoryEntries = dictionaryIndex.read(term);
         } else {
             categoryEntries = super.get(term);
         }

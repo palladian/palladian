@@ -26,7 +26,6 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Instances;
-import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.persistence.DictionaryDbIndexH2;
 import ws.palladian.classification.text.PalladianTextClassifier;
@@ -879,7 +878,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             for (Annotation annotation : annotations) {
 
                 // CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
-                CategoryEntries ces = entityDictionary.get(new Term(annotation.getEntity()));
+                CategoryEntries ces = entityDictionary.get(annotation.getEntity());
                 if (ces != null && ces.size() > 0) {
                     annotation.assignCategoryEntries(ces);
                     changed++;

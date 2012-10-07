@@ -8,21 +8,22 @@ import java.io.Serializable;
  * </p>
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class WordCorrelation implements Serializable {
 
     private static final long serialVersionUID = -4598016968757300406L;
-    private Term word1;
-    private Term word2;
+    private String word1;
+    private String word2;
     private double absoluteCorrelation = 0.0;
     private double relativeCorrelation = 0.0;
 
-    public WordCorrelation(Term word1, Term word2) {
+    public WordCorrelation(String word1, String word2) {
         this.word1 = word1;
         this.word2 = word2;
     }
 
-    public void setWordPair(Term word1, Term word2) {
+    public void setWordPair(String word1, String word2) {
         this.word1 = word1;
         this.word2 = word2;
     }
@@ -64,11 +65,11 @@ public class WordCorrelation implements Serializable {
         return true;
     }
 
-    public Term getTerm1() {
+    public String getTerm1() {
         return word1;
     }
 
-    public Term getTerm2() {
+    public String getTerm2() {
         return word2;
     }
 
