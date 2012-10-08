@@ -59,7 +59,7 @@ public class PalladianPosTagger extends BasePosTagger {
         String previousTag = "";
         for (Annotation<String> annotation : annotations) {
 
-            UniversalInstance instance = new UniversalInstance(instances);
+            UniversalInstance instance = new UniversalInstance();
             setFeatures(instance, previousTag, annotation.getValue());
 
             tagger.classify(instance);
@@ -137,7 +137,7 @@ public class PalladianPosTagger extends BasePosTagger {
                     continue;
                 }
 
-                UniversalInstance instance = new UniversalInstance(trainingInstances);
+                UniversalInstance instance = new UniversalInstance();
                 setFeatures(instance, previousTag, wordAndTag[0]);
                 instance.setInstanceCategory(normalizeTag(wordAndTag[1]));
 
@@ -222,7 +222,7 @@ public class PalladianPosTagger extends BasePosTagger {
 
                 // TextInstance result = tagger.classify(wordAndTag[0]);
 
-                UniversalInstance instance = new UniversalInstance(instances);
+                UniversalInstance instance = new UniversalInstance();
                 setFeatures(instance, previousTag, wordAndTag[0]);
 
                 tagger.classify(instance);

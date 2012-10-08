@@ -51,9 +51,8 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
     }
 
     public final CategoryEntries classify(FeatureVector fv) {
-        List<UniversalInstance> instances = CollectionHelper.newArrayList();
         
-        UniversalInstance universalInstance = new UniversalInstance(instances);
+        UniversalInstance universalInstance = new UniversalInstance();
         
         List<NumericFeature> numericFeatures = fv.getAll(NumericFeature.class);
         
@@ -140,15 +139,12 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         List<String> trainingLines = FileHelper.readFileToArray(filePath);
 
         List<UniversalInstance> instances = CollectionHelper.newArrayList();
-        UniversalInstance instance = null;
-        List<String> features = null;
 
         for (String trainingLine : trainingLines) {
             String[] parts = trainingLine.split(separator);
 
-            instance = new UniversalInstance(instances);
-            features = new ArrayList<String>();
-
+            UniversalInstance instance = new UniversalInstance();
+            List<String> features = new ArrayList<String>();
             for (int f = 0; f < parts.length - 1; f++) {
                 features.add(parts[f]);
             }
@@ -185,13 +181,13 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         List<String> nominalFeatures = new ArrayList<String>();
 
         // create an instance to classify
-        UniversalInstance newInstance = new UniversalInstance(instances);
+        UniversalInstance newInstance = new UniversalInstance();
         newInstance.setInstanceCategory("A");
         nominalFeatures.add("f1");
         newInstance.setNominalFeatures(nominalFeatures);
         instances.add(newInstance);
         
-        newInstance = new UniversalInstance(instances);
+        newInstance = new UniversalInstance();
         nominalFeatures = new ArrayList<String>();
         newInstance.setInstanceCategory("B");
         nominalFeatures.add("f1");
@@ -199,7 +195,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         instances.add(newInstance);
         instances.add(newInstance);
 
-        newInstance = new UniversalInstance(instances);
+        newInstance = new UniversalInstance();
         nominalFeatures = new ArrayList<String>();
         newInstance.setInstanceCategory("A");
         nominalFeatures.add("f2");
@@ -208,7 +204,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         instances.add(newInstance);
         instances.add(newInstance);
 
-        newInstance = new UniversalInstance(instances);
+        newInstance = new UniversalInstance();
         nominalFeatures = new ArrayList<String>();
         newInstance.setInstanceCategory("B");
         nominalFeatures.add("f2");
@@ -220,7 +216,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
 
         bc.train(instances);
 
-        newInstance = new UniversalInstance(instances);
+        newInstance = new UniversalInstance();
         nominalFeatures = new ArrayList<String>();
         nominalFeatures.add("f2");
         newInstance.setNominalFeatures(nominalFeatures);
