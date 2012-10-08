@@ -91,7 +91,7 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
 
     }
 
-    public void learnClassifierWeightsByCategory(Instances<Instance> instances) {
+    public void learnClassifierWeightsByCategory(List<Instance> instances) {
 
         correctlyClassified2 = new CountMap2D();
 

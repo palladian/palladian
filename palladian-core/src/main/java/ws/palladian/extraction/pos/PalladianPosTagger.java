@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalClassifier;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
@@ -14,6 +13,7 @@ import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
@@ -54,7 +54,7 @@ public class PalladianPosTagger extends BasePosTagger {
     @Override
     public void tag(List<Annotation<String>> annotations) {
 
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        List<UniversalInstance> instances = CollectionHelper.newArrayList();
 
         String previousTag = "";
         for (Annotation<String> annotation : annotations) {
@@ -112,7 +112,7 @@ public class PalladianPosTagger extends BasePosTagger {
         featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
         ClassificationTypeSetting cts = new ClassificationTypeSetting();
         cts.setClassificationType(ClassificationTypeSetting.TAG);
-        Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
+        List<UniversalInstance> trainingInstances = CollectionHelper.newArrayList();
 
         int c = 1;
         File[] trainingFiles = FileHelper.getFiles(folderPath);
@@ -196,7 +196,7 @@ public class PalladianPosTagger extends BasePosTagger {
         int correct = 0;
         int total = 0;
 
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        List<UniversalInstance> instances = CollectionHelper.newArrayList();
 
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {

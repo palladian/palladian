@@ -10,26 +10,13 @@ import ws.palladian.processing.features.NumericFeature;
 
 public class UniversalInstance extends TextInstance {
 
-    /** The serial versionID. */
-    // private static final long serialVersionUID = 55203846826273834L;
-
-    // private List<Double> numericFeatures = new ArrayList<Double>();
-    // private List<String> nominalFeatures = new ArrayList<String>();
-
     private String textFeature = "";
 
-    /** The class of the instance. This can be nominal or numeric. */
-    // private Object instanceClass;
-
-//    /** Whether or not the class of the instance is nominal. */
-//    private boolean classNominal = false;
-
-    public UniversalInstance(Instances instances) {
+    public UniversalInstance(List<? extends UniversalInstance> instances) {
         setInstances(instances);
     }
 
     public List<Double> getNumericFeatures() {
-        // return numericFeatures;
         List<Double> result = CollectionHelper.newArrayList();
         List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
         for (NumericFeature numericFeature : numericFeatures) {
@@ -39,14 +26,12 @@ public class UniversalInstance extends TextInstance {
     }
 
     public void setNumericFeatures(List<Double> numericFeatures) {
-        // this.numericFeatures = numericFeatures;
         for (Double numericFeature : numericFeatures) {
             featureVector.add(new NumericFeature("num" + featureVector.size(), numericFeature));
         }
     }
 
     public List<String> getNominalFeatures() {
-        // return nominalFeatures;
         List<String> result = CollectionHelper.newArrayList();
         List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
         for (NominalFeature nominalFeature : nominalFeatures) {
@@ -56,7 +41,6 @@ public class UniversalInstance extends TextInstance {
     }
 
     public void setNominalFeatures(List<String> nominalFeatures) {
-        // this.nominalFeatures = nominalFeatures;
         for (String nominalFeature : nominalFeatures) {
             featureVector.add(new NominalFeature("nom" + featureVector.size(), nominalFeature));
         }
@@ -69,42 +53,7 @@ public class UniversalInstance extends TextInstance {
     public void setTextFeature(String textFeature) {
         this.textFeature = textFeature;
     }
-
-//    public boolean isClassNominal() {
-//        return classNominal;
-//    }
-
-//    public void setClassNominal(boolean classNominal) {
-//        this.classNominal = classNominal;
-//    }
-
-//    public void normalize(MinMaxNormalization normalization) {
-//
-//        List<Double> features = getNumericFeatures();
-//
-//        for (int i = 0; i < features.size(); i++) {
-//
-//            double featureValue = features.get(i);
-//            double normalizedValue = (featureValue - normalization.getMinValueMap().get(i))
-//                    / normalization.getNormalizationMap().get(i);
-//
-//            features.set(i, normalizedValue);
-//        }
-//
-//    }
-
-    /**
-     * <p>
-     * Free memory
-     * </p>
-     */
-    public void empty() {
-        setInstanceCategory("");
-        setNumericFeatures(null);
-        setNominalFeatures(null);
-        setTextFeature(null);
-    }
-
+    
     public FeatureVector getFeatureVector() {
         return featureVector;
     }

@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.ClassifierOld;
-import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -46,10 +46,10 @@ public abstract class NumericClassifier extends ClassifierOld<UniversalInstance>
      * feature1;..;featureN;NominalClass<br>
      * All features must be real values and the class must be nominal. Each line is one training instance.
      */
-    private Instances<UniversalInstance> createInstances(String filePath) {
+    private List<UniversalInstance> createInstances(String filePath) {
         List<String> trainingLines = FileHelper.readFileToArray(filePath);
 
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        List<UniversalInstance> instances = CollectionHelper.newArrayList();
         UniversalInstance instance = null;
         List<Double> features = null;
 
@@ -84,7 +84,7 @@ public abstract class NumericClassifier extends ClassifierOld<UniversalInstance>
 
     public abstract void classify(UniversalInstance instance);
 
-    public abstract void classify(Instances<UniversalInstance> instances);
+    public abstract void classify(List<UniversalInstance> instances);
 
     @Override
     public abstract void save(String path);
