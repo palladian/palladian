@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -11,7 +10,6 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
 /**
@@ -40,12 +38,6 @@ public class TextInstance extends Instance {
 
     /** If the class is nominal we have an instance category. */
     private Category instanceCategory;
-
-    /**
-     * The list of instances to which this instance belongs to. This is important so that categories can be set
-     * correctly.
-     */
-    private List<? extends UniversalInstance> instances;
 
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
@@ -159,9 +151,9 @@ public class TextInstance extends Instance {
         this.instanceCategory = new Category(categoryName);
     }
 
-    protected void setInstances(List<? extends UniversalInstance> instances) {
-        this.instances = instances;
-    }
+//    protected void setInstances(List<? extends UniversalInstance> instances) {
+//        this.instances = instances;
+//    }
 
     public void sortCategoriesByRelevance() {
         assignedCategoryEntries.sortByRelevance();

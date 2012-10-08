@@ -412,7 +412,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
-            UniversalInstance textInstance = new UniversalInstance(textInstances);
+            UniversalInstance textInstance = new UniversalInstance();
             textInstance.setTextFeature(annotation.getEntity());
             textInstance.setInstanceCategory(annotation.getInstanceCategory());
             textInstances.add(textInstance);
@@ -450,7 +450,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
-            UniversalInstance textInstance = new UniversalInstance(textInstances);
+            UniversalInstance textInstance = new UniversalInstance();
             textInstance.setTextFeature(annotation.getEntity());
             // FIXME only one of the two following lines -> duplicate semantics
             textInstance.setInstanceCategory(annotation.getInstanceCategory());
@@ -546,7 +546,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         LOGGER.info("add additional training annotations");
         int c = 1;
         for (Annotation annotation : annotations) {
-            UniversalInstance textInstance = new UniversalInstance(textInstances);
+            UniversalInstance textInstance = new UniversalInstance();
             textInstance.setTextFeature(annotation.getEntity());
             textInstance.setInstanceCategory(annotation.getInstanceCategory());
             textInstances.add(textInstance);
@@ -595,7 +595,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     }
                 }
 
-                UniversalInstance textInstance = new UniversalInstance(textInstances);
+                UniversalInstance textInstance = new UniversalInstance();
                 textInstance.setTextFeature(wrongAnnotation.getEntity());
                 textInstance.setInstanceCategory(NO_ENTITY);
                 textInstances.add(textInstance);
@@ -1289,7 +1289,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             tagCounts.add(tag);
 
-            UniversalInstance trainingInstance = new UniversalInstance(trainingInstances);
+            UniversalInstance trainingInstance = new UniversalInstance();
             trainingInstance.setTextFeature(annotation.getLeftContext() + "__" + annotation.getRightContext());
             // FIXME only one of the two lines below -> duplicate semantics
             trainingInstance.setInstanceCategory(tag);

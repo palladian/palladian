@@ -45,7 +45,6 @@ public class Annotation extends UniversalInstance {
     private List<String> subTypes = null;
 
     public Annotation(Annotation annotation) {
-        super(null);
         offset = annotation.getOffset();
         length = annotation.getLength();
         entity = annotation.getEntity();
@@ -54,7 +53,6 @@ public class Annotation extends UniversalInstance {
     }
 
     public Annotation(Annotation annotation, List<UniversalInstance> instances) {
-        super(instances);
         offset = annotation.getOffset();
         length = annotation.getLength();
         entity = annotation.getEntity();
@@ -62,15 +60,6 @@ public class Annotation extends UniversalInstance {
     }
 
     public Annotation(int offset, String entityName, CategoryEntries tags) {
-        super(null);
-        this.offset = offset;
-        this.length = entityName.length();
-        entity = entityName;
-        this.assignedCategoryEntries = tags;
-    }
-
-    public Annotation(int offset, String entityName, CategoryEntries tags, List<UniversalInstance> instances) {
-        super(instances);
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
@@ -78,7 +67,6 @@ public class Annotation extends UniversalInstance {
     }
 
     public Annotation(int offset, String entityName, String tagName) {
-        super(null);
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
@@ -86,15 +74,6 @@ public class Annotation extends UniversalInstance {
     }
 
     public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
-        super(annotations);
-        this.offset = offset;
-        this.length = entityName.length();
-        entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
-    }
-
-    public Annotation(int offset, String entityName, String tagName, List<UniversalInstance> instances) {
-        super(instances);
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;

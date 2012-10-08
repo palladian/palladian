@@ -12,10 +12,6 @@ public class UniversalInstance extends TextInstance {
 
     private String textFeature = "";
 
-    public UniversalInstance(List<? extends UniversalInstance> instances) {
-        setInstances(instances);
-    }
-
     public List<Double> getNumericFeatures() {
         List<Double> result = CollectionHelper.newArrayList();
         List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
