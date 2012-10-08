@@ -2,7 +2,6 @@ package ws.palladian.classification;
 
 import java.util.List;
 
-import ws.palladian.classification.numeric.MinMaxNormalization;
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;

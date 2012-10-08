@@ -10,9 +10,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
-import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.ClassifierPerformanceResult;
-import ws.palladian.classification.text.TestDocument;
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
@@ -67,20 +65,10 @@ public class ClassifierPerformance implements Serializable {
         int number = 0;
 
         for (TextInstance document : testDocuments) {
-            TestDocument testDocument = (TestDocument) document;
 
-            if (category.getClassType() == ClassificationTypeSetting.SINGLE) {
-                if (document.getMainCategoryEntry().getCategory().getName().equals(category.getName())
-                        && testDocument.isCorrectClassified()) {
-                    ++number;
-                }
-            } else {
-                for (CategoryEntry c : testDocument.getAssignedCategoryEntries()) {
-                    if (c.getCategory().getName().equals(category.getName()) && testDocument.isCorrectClassified()) {
-                        ++number;
-                        break;
-                    }
-                }
+            if (document.getMainCategoryEntry().getCategory().getName().equals(category.getName())
+                    && isCorrectClassified(document)) {
+                ++number;
             }
 
         }
@@ -88,22 +76,23 @@ public class ClassifierPerformance implements Serializable {
         return number;
     }
 
+    public boolean isCorrectClassified(TextInstance textInstance) {
+        String mcn = textInstance.getMainCategoryEntry().getCategory().getName();
+        return mcn.equals(textInstance.getFirstRealCategory().getName());
+
+    }
+
     // FIXME this assumes cClassificationTypeSetting.SINGLE
     public int getNumberOfConfusionsBetween(Category actualCategory, Category classifiedCategory) {
         int number = 0;
 
         for (TextInstance document : testDocuments) {
-            TestDocument testDocument = (TestDocument) document;
-
-            if (testDocument.getFirstRealCategory().getName().equals(actualCategory.getName()) &&
+            if (document.getFirstRealCategory().getName().equals(actualCategory.getName()) &&
                     document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory.getName())) {
 
                 number++;
-
             }
-
         }
-
         return number;
     }
 
@@ -642,17 +631,15 @@ public class ClassifierPerformance implements Serializable {
             correctThresholds = new ArrayList<Double[]>();
 
             for (TextInstance document : testDocuments) {
-                TestDocument testDocument = (TestDocument)document;
-
                 // pair containing correct (0 or 1) and the threshold [0,1]
                 Double[] pair = new Double[2];
 
                 pair[0] = 0.0;
-                if (testDocument.isCorrectClassified()) {
+                if (isCorrectClassified(document)) {
                     pair[0] = 1.0;
                 }
 
-                pair[1] = testDocument.getMainCategoryEntry().getTrust();
+                pair[1] = document.getMainCategoryEntry().getTrust();
 
                 correctThresholds.add(pair);
             }
