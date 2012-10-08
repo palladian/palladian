@@ -660,7 +660,7 @@ public class Annotation extends UniversalInstance {
         }
 
         // go through the entity dictionary
-        for (Map.Entry<String, CategoryEntries> termEntry : entityDictionary.entrySet()) {
+        for (Map.Entry<String, CategoryEntries> termEntry : entityDictionary.getCategoryEntries().entrySet()) {
             String word = termEntry.getKey();
             if (word.length() < length) {
                 int index = entityName.indexOf(" " + word.toLowerCase() + " ");

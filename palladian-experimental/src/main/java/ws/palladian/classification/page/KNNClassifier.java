@@ -6,10 +6,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.lucene.index.Term;
+
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Term;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
@@ -28,14 +29,6 @@ public class KNNClassifier extends TextClassifier {
 
     /** Number of nearest neighbors that are allowed to vote. */
     private int k = 3;
-
-    /**
-     * The constructor.
-     */
-    public KNNClassifier() {
-        ClassifierManager.log("KNN Classifier created");
-        setName("k-NN");
-    }
 
     @Override
     /**
@@ -137,10 +130,6 @@ public class KNNClassifier extends TextClassifier {
         }
 
         document.setClassifiedAs(classType);
-
-        ClassifierManager.log("classified document (classType " + classType + ") in " + stopWatch.getElapsedTimeString() + " " + " ("
-                + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
-
         return document;
     }
 

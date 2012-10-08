@@ -21,7 +21,7 @@ public final class DictionaryModel implements Model {
     private Dictionary dictionary;
 
     /** A classifier classifies to certain categories. */
-    private Categories categories;
+//    private Categories categories;
 
     /**
      * Configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},
@@ -33,12 +33,11 @@ public final class DictionaryModel implements Model {
     private FeatureSetting featureSetting = new FeatureSetting();
 
     public DictionaryModel() {
-        dictionary = new Dictionary("");
+        dictionary = new Dictionary();
     }
 
     public void updateWord(String key, String name, Double value) {
         dictionary.updateWord(key, name, value);
-        categories = dictionary.getCategories();
     }
 
     public CategoryEntries get(String key) {
@@ -46,7 +45,7 @@ public final class DictionaryModel implements Model {
     }
 
     public Categories getCategories() {
-        return categories;
+        return dictionary.getCategories();
     }
 
     public ClassificationTypeSetting getClassificationTypeSetting() {
@@ -71,7 +70,7 @@ public final class DictionaryModel implements Model {
 
     @Override
     public String toString() {
-        return "DictionaryModel [dictionarySize=" + dictionary.size() + ", categories=" + categories + "]";
+        return "DictionaryModel [dictionarySize=" + dictionary.size() + ", categories=" + dictionary.getCategories() + "]";
     }
 
     public String toDictionaryCsv() {

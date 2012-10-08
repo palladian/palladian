@@ -27,7 +27,6 @@ import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.persistence.DictionaryDbIndexH2;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
@@ -969,7 +968,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                         // search for a known instance in the prefix
                         // go through the entity dictionary
-                        for (Map.Entry<String, CategoryEntries> termEntry : entityDictionary.entrySet()) {
+                        for (Map.Entry<String, CategoryEntries> termEntry : entityDictionary.getCategoryEntries().entrySet()) {
                             String word = termEntry.getKey();
 
                             int indexPrefix = annotation.getEntity().substring(0, index + length).indexOf(word + " ");
@@ -1436,7 +1435,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         final Dictionary dictionary = new Dictionary("entityDictionary");
         dictionary.setCaseSensitive(true);
-        dictionary.setIndexPath("data/models/");
+        // dictionary.setIndexPath("data/models/");
 
         final int totalLines = FileHelper.getNumberOfLines(dictionaryPath);
 
@@ -1459,11 +1458,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 String entity = parts[0];
                 String type = parts[1];
 
-                if (entity.length() > DictionaryDbIndexH2.MAX_WORD_LENGTH || type.length() > 25) {
-                    LOGGER.warn("input too long (max. " + DictionaryDbIndexH2.MAX_WORD_LENGTH
-                            + " characters per field): " + entity + "," + type);
-                    return;
-                }
+                // XXX necessary?
+                
+//                if (entity.length() > DictionaryDbIndexH2.MAX_WORD_LENGTH || type.length() > 25) {
+//                    LOGGER.warn("input too long (max. " + DictionaryDbIndexH2.MAX_WORD_LENGTH
+//                            + " characters per field): " + entity + "," + type);
+//                    return;
+//                }
 
                 dictionary.updateWord(entity, type, 1);
 

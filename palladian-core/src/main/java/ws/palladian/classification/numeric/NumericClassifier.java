@@ -28,7 +28,6 @@ public abstract class NumericClassifier extends ClassifierOld<UniversalInstance>
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("NumericClassifier [name=");
-        builder.append(getName());
         builder.append("]");
         return builder.toString();
     }

@@ -198,7 +198,7 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
 
     @Override
     public void save(String classifierPath) {
-        FileHelper.serialize(this, classifierPath + getName() + ".gz");
+        FileHelper.serialize(this, classifierPath + ".gz");
     }
 
     public static UniversalClassifier load(String classifierPath) {

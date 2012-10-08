@@ -70,10 +70,10 @@
 			<groupId>tud.iir.external</groupId>
 			<artifactId>juliener</artifactId>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-		</dependency>
+		</dependency -->
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
