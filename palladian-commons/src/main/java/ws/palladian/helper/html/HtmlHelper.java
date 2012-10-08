@@ -66,6 +66,14 @@ public class HtmlHelper {
 
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
 
+    /** Thread local caching of TransformerFactories which are not thread-safe, but expensive to create. */
+    private static final ThreadLocal<TransformerFactory> TRANSFORMER_FACTORIES = new ThreadLocal<TransformerFactory>() {
+        @Override
+        protected TransformerFactory initialValue() {
+            return TransformerFactory.newInstance();
+        };
+    };
+
     /** prevent instantiation. */
     private HtmlHelper() {
     }
@@ -327,8 +335,8 @@ public class HtmlHelper {
     public static String documentToReadableText(Node node) {
         final StringBuilder builder = new StringBuilder();
         try {
-            TransformerFactory transFac = TransformerFactory.newInstance();
-            Transformer trans = transFac.newTransformer();
+            TransformerFactory factory = TRANSFORMER_FACTORIES.get();
+            Transformer trans = factory.newTransformer();
             trans.transform(new DOMSource(node), new SAXResult(new DefaultHandler() {
                 boolean ignoreCharacters = false;
 
@@ -386,51 +394,6 @@ public class HtmlHelper {
         return result;
     }
 
-    //    /**
-    //     * <p>
-    //     * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
-    //     * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
-    //     * whitespace is handled more correctly than in {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}
-    //     * which never worked well for me.
-    //     * </p>
-    //     * TODO: "namespace not declared errors"
-    //     *
-    //     * @param html
-    //     * @param oneLine
-    //     * @return
-    //     * @author Philipp Katz
-    //     */
-    //    public static String documentToReadableText(String html, boolean oneLine) {
-    //
-    //        String result;
-    //
-    //        try {
-    //
-    //            DOMFragmentParser parser = new DOMFragmentParser();
-    //            HTMLDocument document = new HTMLDocumentImpl();
-    //
-    //            // see http://nekohtml.sourceforge.net/usage.html
-    //            DocumentFragment fragment = document.createDocumentFragment();
-    //            parser.parse(new InputSource(new StringInputStream(html)), fragment);
-    //            result = documentToReadableText(fragment);
-    //
-    //        } catch (Exception e) {
-    //
-    //            // parser failed -> fall back, remove tags directly from the string
-    //            // without parsing
-    //            LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
-    //            result = stripHtmlTags(html, true, true, true, false);
-    //
-    //        }
-    //
-    //        if (oneLine) {
-    //            result = result.replaceAll("\n", " ");
-    //            result = result.replaceAll(" {2,}", " ");
-    //        }
-    //
-    //        return result;
-    //    }
-
     /**
      * <p>
      * Extract values e.g for: src=, href= or title=
@@ -474,18 +437,12 @@ public class HtmlHelper {
      * @return true if simple, else false.
      */
     public static boolean isSimpleElement(Node node) {
-        boolean value = false;
+        List<String> simpleElements = Arrays.asList("b", "i", "em", "ins", "del", "s", "small", "big", "strong", "u");
         if (node.getNodeType() == Node.ELEMENT_NODE) {
-            String name = node.getNodeName();
-            if (name.equalsIgnoreCase("b") || name.equalsIgnoreCase("i") || name.equalsIgnoreCase("em")
-                    || name.equalsIgnoreCase("ins") || name.equalsIgnoreCase("del") || name.equalsIgnoreCase("s")
-                    || name.equalsIgnoreCase("small") || name.equalsIgnoreCase("big")
-                    || name.equalsIgnoreCase("strong") || name.equalsIgnoreCase("u")) {
-                value = true;
-            }
+            String name = node.getNodeName().toLowerCase();
+            return simpleElements.contains(name);
         }
-        return value;
-
+        return false;
     }
 
     /**
@@ -497,8 +454,7 @@ public class HtmlHelper {
      * @return
      */
     public static boolean isHeadlineTag(String tag) {
-        return (tag.equalsIgnoreCase("h1") || tag.equalsIgnoreCase("h2") || tag.equalsIgnoreCase("h3")
-                || tag.equalsIgnoreCase("h4") || tag.equalsIgnoreCase("h5") || tag.equalsIgnoreCase("h6"));
+        return Arrays.asList("h1", "h2", "h3", "h4", "h5", "h6").contains(tag.toLowerCase());
     }
 
     public static boolean isHeadlineTag(Node tag) {
@@ -546,7 +502,8 @@ public class HtmlHelper {
         Source source = new DOMSource(node);
         Result result = new StreamResult(file);
         try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            TransformerFactory factory = TRANSFORMER_FACTORIES.get();
+            Transformer transformer = factory.newTransformer();
             transformer.transform(source, result);
             success = true;
         } catch (TransformerConfigurationException e) {
@@ -647,8 +604,7 @@ public class HtmlHelper {
     public static Document cloneDocument(Document document) {
         Document result = null;
         try {
-            TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = factory.newTransformer();
+            Transformer transformer = TRANSFORMER_FACTORIES.get().newTransformer();
             DOMSource source = new DOMSource(document);
             DOMResult target = new DOMResult();
             transformer.transform(source, target);
@@ -692,7 +648,7 @@ public class HtmlHelper {
             Source source = new DOMSource(node);
             StringWriter stringWriter = new StringWriter();
             Result result = new StreamResult(stringWriter);
-            TransformerFactory factory = TransformerFactory.newInstance();
+            TransformerFactory factory = TRANSFORMER_FACTORIES.get();
             Transformer transformer = factory.newTransformer();
             if (omitXmlDeclaration) {
                 transformer.setOutputProperty("omit-xml-declaration", "yes");
