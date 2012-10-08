@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap2D;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Feature;
@@ -28,7 +29,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
      * FIXME belongs to BaseClassifier
      * @param instances
      */
-    public final void train(Instances<UniversalInstance> instances) {
+    public final void train(List<UniversalInstance> instances) {
 
         setTrainingInstances(instances);
 
@@ -50,7 +51,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
     }
 
     public final CategoryEntries classify(FeatureVector fv) {
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        List<UniversalInstance> instances = CollectionHelper.newArrayList();
         
         UniversalInstance universalInstance = new UniversalInstance(instances);
         
@@ -135,10 +136,10 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
      * All features must be nominal values and the class must be nominal. Each
      * line is one training instance.
      */
-    private Instances<UniversalInstance> createInstances(String filePath, String separator) {
+    private List<UniversalInstance> createInstances(String filePath, String separator) {
         List<String> trainingLines = FileHelper.readFileToArray(filePath);
 
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        List<UniversalInstance> instances = CollectionHelper.newArrayList();
         UniversalInstance instance = null;
         List<String> features = null;
 
@@ -167,7 +168,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         bc.trainFromCSV("data/train.txt", " ");
 
         int correct = 0;
-        Instances<UniversalInstance> testInstances = bc.createInstances("data/test.txt", " ");
+        List<UniversalInstance> testInstances = bc.createInstances("data/test.txt", " ");
         for (UniversalInstance universalInstance : testInstances) {
             bc.classify(universalInstance);
             if (universalInstance.getMainCategoryEntry().getCategory().getName()
@@ -179,7 +180,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
 
         System.exit(0);
 
-        Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
+        List<UniversalInstance> instances = CollectionHelper.newArrayList();
 
         List<String> nominalFeatures = new ArrayList<String>();
 

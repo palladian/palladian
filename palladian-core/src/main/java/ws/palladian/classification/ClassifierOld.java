@@ -1,10 +1,12 @@
 package ws.palladian.classification;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.helper.collection.CollectionHelper;
 
 @Deprecated
 public abstract class ClassifierOld<T> implements Serializable {
@@ -17,7 +19,7 @@ public abstract class ClassifierOld<T> implements Serializable {
 //    private String name = "";
 
     /** A classifier has training documents. */
-    private transient Instances<T> trainingInstances = new Instances<T>();
+    private transient List<T> trainingInstances = CollectionHelper.newArrayList();
 
 //    /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
 //    private transient Instances<T> testInstances = new Instances<T>();
@@ -64,11 +66,11 @@ public abstract class ClassifierOld<T> implements Serializable {
         return featureSetting;
     }
 
-    public Instances<T> getTrainingInstances() {
+    public List<T> getTrainingInstances() {
         return trainingInstances;
     }
 
-    public void setTrainingInstances(Instances<T> trainingInstances) {
+    public void setTrainingInstances(List<T> trainingInstances) {
         this.trainingInstances = trainingInstances;
         getPossibleCategories(trainingInstances);
     }
@@ -108,7 +110,7 @@ public abstract class ClassifierOld<T> implements Serializable {
      * After training instances have been assigned, we can find out which nominal categories are possible for the
      * classifier to classify.
      */
-    protected void getPossibleCategories(Instances<T> instances) {
+    protected void getPossibleCategories(List<T> instances) {
         if (getCategories() == null) {
             setCategories(new Categories());
         } else {

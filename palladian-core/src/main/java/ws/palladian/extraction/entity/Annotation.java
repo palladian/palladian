@@ -8,7 +8,6 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
-import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.Preprocessor;
@@ -54,7 +53,7 @@ public class Annotation extends UniversalInstance {
         assignedCategoryEntries = annotation.getTags();
     }
 
-    public Annotation(Annotation annotation, Instances<UniversalInstance> instances) {
+    public Annotation(Annotation annotation, List<UniversalInstance> instances) {
         super(instances);
         offset = annotation.getOffset();
         length = annotation.getLength();
@@ -70,7 +69,7 @@ public class Annotation extends UniversalInstance {
         this.assignedCategoryEntries = tags;
     }
 
-    public Annotation(int offset, String entityName, CategoryEntries tags, Instances<UniversalInstance> instances) {
+    public Annotation(int offset, String entityName, CategoryEntries tags, List<UniversalInstance> instances) {
         super(instances);
         this.offset = offset;
         this.length = entityName.length();
@@ -94,7 +93,7 @@ public class Annotation extends UniversalInstance {
         assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
     }
 
-    public Annotation(int offset, String entityName, String tagName, Instances<UniversalInstance> instances) {
+    public Annotation(int offset, String entityName, String tagName, List<UniversalInstance> instances) {
         super(instances);
         this.offset = offset;
         this.length = entityName.length();

@@ -1,11 +1,11 @@
 package ws.palladian.extraction.entity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instances;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.io.FileHelper;
 
@@ -15,7 +15,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * 
  */
-public class Annotations extends Instances<Annotation> {
+public class Annotations extends ArrayList<Annotation> {
 
     private static final long serialVersionUID = -628839540653937643L;
 

@@ -25,7 +25,6 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.Instances;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
@@ -409,7 +408,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     public boolean train(String trainingFilePath, Annotations annotations, String modelFilePath) {
 
         // create instances, instances are annotations
-        Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
+        List<UniversalInstance> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
@@ -447,7 +446,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             String modelFilePath) {
 
         // create instances, instances are annotations
-        Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
+        List<UniversalInstance> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
@@ -472,7 +471,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return true;
     }
 
-    private void trainAnnotationClassifier(Instances<UniversalInstance> textInstances) {
+    private void trainAnnotationClassifier(List<UniversalInstance> textInstances) {
 
         ClassificationTypeSetting cts = new ClassificationTypeSetting();
         cts.setClassificationType(ClassificationTypeSetting.TAG);
@@ -542,7 +541,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         annotations.addAll(additionalTrainingAnnotations);
 
         // create instances with nominal and numeric features
-        Instances<UniversalInstance> textInstances = new Instances<UniversalInstance>();
+        List<UniversalInstance> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("add additional training annotations");
         int c = 1;
@@ -1248,7 +1247,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
-        Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
+        List<UniversalInstance> trainingInstances = CollectionHelper.newArrayList();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
         int c = 1;
@@ -1356,7 +1355,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // FileHelper.writeToFile("data/temp/tagPatternAnalysis.csv", csv);
     }
 
-    private void trainContextClassifier(Instances<UniversalInstance> trainingInstances) {
+    private void trainContextClassifier(List<UniversalInstance> trainingInstances) {
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
         classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
@@ -1369,7 +1368,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 featureSetting);
     }
 
-    private List<Instance> convertInstances(Instances<UniversalInstance> trainingInstances,
+    private List<Instance> convertInstances(List<UniversalInstance> trainingInstances,
             FeatureSetting featureSetting) {
         List<Instance> nominalInstances = new ArrayList<Instance>();
 

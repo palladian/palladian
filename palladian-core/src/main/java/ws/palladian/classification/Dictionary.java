@@ -14,7 +14,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author David Urbansky
  */
-public class Dictionary /* extends HashMap<String, CategoryEntries> */implements Serializable {
+public class Dictionary implements Serializable {
     
     // XXX merge with DictionaryModel
 
