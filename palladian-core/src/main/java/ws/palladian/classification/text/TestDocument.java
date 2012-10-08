@@ -20,7 +20,7 @@ public class TestDocument extends TextInstance {
     private boolean correctClassified = false;
 
     public TestDocument() {
-        setDocumentType(TextInstance.TEST);
+//        setDocumentType(TextInstance.TEST);
     }
 
     public CategoryEntries getCorrectlyAssignedCategoryEntries() {
@@ -37,28 +37,28 @@ public class TestDocument extends TextInstance {
         return correctlyAssignedCategoryEntries;
     }
 
-    public double getPrecisionAt(int rank) {
-        double precision = 0.0;
-        CategoryEntries entries = getAssignedCategoryEntriesByRelevance(getClassifiedAs());
-
-        int correct = 0;
-        int rankCount = 1;
-        for (CategoryEntry ace : entries) {
-            for (Category rc : realCategories) {
-                if (ace.getCategory().getName().equalsIgnoreCase(rc.getName())) {
-                    correct++;
-                }
-            }
-            if (rankCount == rank) {
-                break;
-            }
-            rankCount++;
-        }
-
-        precision = (double) correct / (double) rank;
-
-        return precision;
-    }
+//    public double getPrecisionAt(int rank) {
+//        double precision = 0.0;
+//        CategoryEntries entries = getAssignedCategoryEntriesByRelevance(getClassifiedAs());
+//
+//        int correct = 0;
+//        int rankCount = 1;
+//        for (CategoryEntry ace : entries) {
+//            for (Category rc : realCategories) {
+//                if (ace.getCategory().getName().equalsIgnoreCase(rc.getName())) {
+//                    correct++;
+//                }
+//            }
+//            if (rankCount == rank) {
+//                break;
+//            }
+//            rankCount++;
+//        }
+//
+//        precision = (double) correct / (double) rank;
+//
+//        return precision;
+//    }
 
     /**
      * Returns true if the document is correct classified. Hierarchical classified documents count as correct if main category matches. Tag classified documents
@@ -66,6 +66,7 @@ public class TestDocument extends TextInstance {
      * 
      * @return True if the document is correct classified, false otherwise.
      */
+    // FIXME move to evaluation class.
     public boolean isCorrectClassified() {
         if (checkedClassification) {
             return correctClassified;

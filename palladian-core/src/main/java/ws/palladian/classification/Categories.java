@@ -89,16 +89,16 @@ public class Categories extends ArrayList<Category> implements Serializable {
         return false;
     }
 
-    public boolean containsCategoryName(String categoryName) {
-
-        for (Category c : this) {
-            if (c.getName().equals(categoryName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    public boolean containsCategoryName(String categoryName) {
+//
+//        for (Category c : this) {
+//            if (c.getName().equals(categoryName)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     /**
      * Get a certain category from the list.

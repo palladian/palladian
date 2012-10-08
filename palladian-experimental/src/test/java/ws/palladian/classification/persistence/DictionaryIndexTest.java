@@ -52,7 +52,7 @@ public class DictionaryIndexTest {
 
     @Before
     public void before() {
-        index.setDictionary(new Dictionary("test_dictionary", 1));
+        index.setDictionary(new Dictionary("test_dictionary"));
         index.empty();
         index.openWriter();
     }

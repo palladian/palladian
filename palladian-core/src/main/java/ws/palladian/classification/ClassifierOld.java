@@ -5,27 +5,27 @@ import java.io.Serializable;
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.processing.ProcessingPipeline;
 
+@Deprecated
 public abstract class ClassifierOld<T> implements Serializable {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = -7017462894898815981L;
 
-    /** A classifier has a name. */
-    //why???
-    private String name = "";
+//    /** A classifier has a name. */
+//    //why???
+//    private String name = "";
 
     /** A classifier has training documents. */
     private transient Instances<T> trainingInstances = new Instances<T>();
 
-    /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
-    private transient Instances<T> testInstances = new Instances<T>();
+//    /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
+//    private transient Instances<T> testInstances = new Instances<T>();
 
     /** A classifier classifies to certain categories. */
     protected Categories categories;
 
-    protected ProcessingPipeline processingPipeline = new ProcessingPipeline();
+//    protected ProcessingPipeline processingPipeline = new ProcessingPipeline();
 
     /**
      * Configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},
@@ -35,14 +35,6 @@ public abstract class ClassifierOld<T> implements Serializable {
 
     /** The feature settings which should be used by the text classifier. */
     private FeatureSetting featureSetting = new FeatureSetting();
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public Categories getCategories() {
         return categories;
@@ -81,36 +73,36 @@ public abstract class ClassifierOld<T> implements Serializable {
         getPossibleCategories(trainingInstances);
     }
 
-    /**
-     * <p>
-     * Add a single training instance, consider using {@link addTrainingInstances} because that is <b>a lot</b> faster.
-     * </p>
-     * 
-     * @param instance The instance to add.
-     */
-    public void addTrainingInstance(T instance) {
-        if (this.trainingInstances == null) {
-            this.trainingInstances = new Instances<T>();
-        }
-        this.trainingInstances.add(instance);
-        getPossibleCategories(trainingInstances);
-    }
+//    /**
+//     * <p>
+//     * Add a single training instance, consider using {@link addTrainingInstances} because that is <b>a lot</b> faster.
+//     * </p>
+//     * 
+//     * @param instance The instance to add.
+//     */
+//    public void addTrainingInstance(T instance) {
+//        if (this.trainingInstances == null) {
+//            this.trainingInstances = new Instances<T>();
+//        }
+//        this.trainingInstances.add(instance);
+//        getPossibleCategories(trainingInstances);
+//    }
 
-    public void addTrainingInstances(Instances<T> trainingInstances) {
-        if (this.trainingInstances == null) {
-            this.trainingInstances = new Instances<T>();
-        }
-        this.trainingInstances.addAll(trainingInstances);
-        getPossibleCategories(trainingInstances);
-    }
+//    public void addTrainingInstances(Instances<T> trainingInstances) {
+//        if (this.trainingInstances == null) {
+//            this.trainingInstances = new Instances<T>();
+//        }
+//        this.trainingInstances.addAll(trainingInstances);
+//        getPossibleCategories(trainingInstances);
+//    }
 
-    public Instances<T> getTestInstances() {
-        return testInstances;
-    }
+//    public Instances<T> getTestInstances() {
+//        return testInstances;
+//    }
 
-    public void setTestInstances(Instances<T> testInstances) {
-        this.testInstances = testInstances;
-    }
+//    public void setTestInstances(Instances<T> testInstances) {
+//        this.testInstances = testInstances;
+//    }
 
     /**
      * After training instances have been assigned, we can find out which nominal categories are possible for the
@@ -139,12 +131,12 @@ public abstract class ClassifierOld<T> implements Serializable {
 
     public abstract void save(String classifierPath);
 
-    public void setProcessingPipeline(ProcessingPipeline processingPipeline) {
-        this.processingPipeline = processingPipeline;
-    }
-
-    public ProcessingPipeline getProcessingPipeline() {
-        return processingPipeline;
-    }
+//    public void setProcessingPipeline(ProcessingPipeline processingPipeline) {
+//        this.processingPipeline = processingPipeline;
+//    }
+//
+//    public ProcessingPipeline getProcessingPipeline() {
+//        return processingPipeline;
+//    }
 
 }

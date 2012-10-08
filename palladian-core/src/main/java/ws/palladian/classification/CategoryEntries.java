@@ -22,7 +22,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     
     private static final long serialVersionUID = 4321001999458490582L;
 
-    private boolean relevancesInPercent = false;
+//    private boolean relevancesInPercent = false;
 
     // in order to avoid recalculating all relative relevance scores for each category entry
     // we update them only if new entries were added
@@ -52,9 +52,9 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         return null;
     }
 
-    public void setRelevancesInPercent(boolean relevancesInPercent) {
-        this.relevancesInPercent = relevancesInPercent;
-    }
+//    public void setRelevancesInPercent(boolean relevancesInPercent) {
+//        this.relevancesInPercent = relevancesInPercent;
+//    }
 
     @Override
     /**
