@@ -41,9 +41,9 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     public PalladianTextClassifier() {
     }
 
-    public PalladianTextClassifier(String modelPath) {
-        loadModel(modelPath);
-    }
+//    public PalladianTextClassifier(String modelPath) {
+//        loadModel(modelPath);
+//    }
 
     public DictionaryModel loadModel(String modelPath) {
         model = FileHelper.deserialize(modelPath);
@@ -464,9 +464,9 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         return model;
     }
 
-    public void setModel(DictionaryModel model) {
-        this.model = model;
-    }
+//    public void setModel(DictionaryModel model) {
+//        this.model = model;
+//    }
 
     public String getName() {
         return name;

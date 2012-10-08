@@ -12,7 +12,6 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.ClassifierPerformanceResult;
-import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.TestDocument;
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.collection.CountMap;
@@ -51,43 +50,11 @@ public class ClassifierPerformance implements Serializable {
      * 
      * @param classifier The classifier.
      */
-    public ClassifierPerformance(PalladianTextClassifier classifier, List<TextInstance> trainingDocuments,
+    public ClassifierPerformance(Categories categories, List<TextInstance> trainingDocuments,
             List<TextInstance> testDocuments) {
-        categories = classifier.getModel().getCategories();
+        this.categories = categories;
         this.trainingDocuments = trainingDocuments;
         this.testDocuments = testDocuments;
-    }
-
-    private Categories getCategories() {
-        return categories;
-    }
-
-//    public void setCategories(Categories categories) {
-//        this.categories = categories;
-//    }
-
-//    public void setClassificationType(int classificationType) {
-//        this.classificationType = classificationType;
-//    }
-
-//    public int getClassificationType() {
-//        return classificationType;
-//    }
-
-//    public void setTrainingDocuments(ClassificationDocuments trainingDocuments) {
-//        this.trainingDocuments = trainingDocuments;
-//    }
-
-    public List<TextInstance> getTrainingDocuments() {
-        return trainingDocuments;
-    }
-
-//    public void setTestDocuments(ClassificationDocuments testDocuments) {
-//        this.testDocuments = testDocuments;
-//    }
-
-    private List<TextInstance> getTestDocuments() {
-        return testDocuments;
     }
 
     /**
@@ -99,7 +66,7 @@ public class ClassifierPerformance implements Serializable {
     public int getNumberOfCorrectClassifiedDocumentsInCategory(Category category) {
         int number = 0;
 
-        for (TextInstance document : getTestDocuments()) {
+        for (TextInstance document : testDocuments) {
             TestDocument testDocument = (TestDocument) document;
 
             if (category.getClassType() == ClassificationTypeSetting.SINGLE) {
@@ -125,7 +92,7 @@ public class ClassifierPerformance implements Serializable {
     public int getNumberOfConfusionsBetween(Category actualCategory, Category classifiedCategory) {
         int number = 0;
 
-        for (TextInstance document : getTestDocuments()) {
+        for (TextInstance document : testDocuments) {
             TestDocument testDocument = (TestDocument) document;
 
             if (testDocument.getFirstRealCategory().getName().equals(actualCategory.getName()) &&
@@ -142,11 +109,11 @@ public class ClassifierPerformance implements Serializable {
 
     public double getCorrectlyClassified() {
         int correctlyClassified = 0;
-        for (Category c : getCategories()) {
+        for (Category c : categories) {
             correctlyClassified += getNumberOfCorrectClassifiedDocumentsInCategory(c);
         }
 
-        return correctlyClassified / (double) getTestDocuments().size();
+        return correctlyClassified / (double) testDocuments.size();
     }
 
     /**
@@ -158,13 +125,13 @@ public class ClassifierPerformance implements Serializable {
         double highestPrior = -1.0;
 
         CountMap<String> countMap = CountMap.create();
-        for (TextInstance document : getTestDocuments()) {
+        for (TextInstance document : testDocuments) {
             countMap.add(document.getFirstRealCategory().getName());
         }
 
         Integer highestClassCount = countMap.getSortedMapDescending().values().iterator().next();
         if (highestClassCount != null && highestClassCount > 0) {
-            highestPrior = highestClassCount / (double) getTestDocuments().size();
+            highestPrior = highestClassCount / (double) testDocuments.size();
         }
 
         return highestPrior;
@@ -286,7 +253,7 @@ public class ClassifierPerformance implements Serializable {
 
             double falsePositives = classifiedPositives - truePositives;
             double falseNegatives = realPositives - truePositives;
-            double trueNegatives = getTestDocuments().size() - classifiedPositives - falseNegatives;
+            double trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
             if (trueNegatives + falsePositives == 0) {
                 return -1.0;
@@ -317,7 +284,7 @@ public class ClassifierPerformance implements Serializable {
 
             double falsePositives = classifiedPositives - truePositives;
             double falseNegatives = realPositives - truePositives;
-            double trueNegatives = getTestDocuments().size() - classifiedPositives - falseNegatives;
+            double trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
             if (truePositives + trueNegatives + falsePositives + falseNegatives == 0) {
                 return -1.0;
@@ -355,7 +322,7 @@ public class ClassifierPerformance implements Serializable {
             // the total number of documents assigned to categories, one document can be assigned to multiple
             // categories!
             int totalAssigned = 0;
-            for (Category c : getCategories()) {
+            for (Category c : categories) {
 
                 totalAssigned += getRealNumberOfCategory(testDocuments, c)
                         + getRealNumberOfCategory(trainingDocuments, c);
@@ -383,7 +350,7 @@ public class ClassifierPerformance implements Serializable {
         double count = 0.0;
 
 
-            for (Category c : getCategories()) {
+            for (Category c : categories) {
 
 
                 double pfc = getPrecisionForCategory(c);
@@ -422,7 +389,7 @@ public class ClassifierPerformance implements Serializable {
 
         double count = 0.0;
 
-            for (Category c : getCategories()) {
+            for (Category c : categories) {
 
                 double rfc = getRecallForCategory(c);
                 if (rfc < 0.0) {
@@ -459,7 +426,7 @@ public class ClassifierPerformance implements Serializable {
         double f = 0.0;
 
         double count = 0.0;
-        for (Category c : getCategories()) {
+        for (Category c : categories) {
 
             double ffc = getFForCategory(c, alpha);
 
@@ -497,7 +464,7 @@ public class ClassifierPerformance implements Serializable {
         double sensitivity = 0.0;
 
         double count = 0.0;
-        for (Category c : getCategories()) {
+        for (Category c : categories) {
 
             double sfc = getSensitivityForCategory(c);
 
@@ -535,7 +502,7 @@ public class ClassifierPerformance implements Serializable {
         double specificity = 0.0;
 
         double count = 0.0;
-        for (Category c : getCategories()) {
+        for (Category c : categories) {
 
             double sfc = getSpecificityForCategory(c);
 
@@ -573,7 +540,7 @@ public class ClassifierPerformance implements Serializable {
         double accuracy = 0.0;
 
         double count = 0.0;
-        for (Category c : getCategories()) {
+        for (Category c : categories) {
 
             double afc = getAccuracyForCategory(c);
 
@@ -674,7 +641,7 @@ public class ClassifierPerformance implements Serializable {
 
             correctThresholds = new ArrayList<Double[]>();
 
-            for (TextInstance document : getTestDocuments()) {
+            for (TextInstance document : testDocuments) {
                 TestDocument testDocument = (TestDocument)document;
 
                 // pair containing correct (0 or 1) and the threshold [0,1]
