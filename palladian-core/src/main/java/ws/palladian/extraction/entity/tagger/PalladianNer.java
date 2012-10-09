@@ -23,9 +23,9 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.UniversalInstance;
+import ws.palladian.classification.text.Dictionary;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
@@ -191,11 +191,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         annotationClassifier = new PalladianTextClassifier();
 
         // hold entities in a dictionary that are learned from the training data
-        entityDictionary = new Dictionary("EntityDictionary", ClassificationTypeSetting.SINGLE);
+        entityDictionary = new Dictionary();
         entityDictionary.setCaseSensitive(true);
 
         // keep the case dictionary from the training data
-        caseDictionary = new Dictionary("CaseDictionary", ClassificationTypeSetting.SINGLE);
+        caseDictionary = new Dictionary();
         caseDictionary.setCaseSensitive(false);
 
         // use a context classifier for the left and right context around the annotations
@@ -1432,7 +1432,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         StopWatch stopWatch = new StopWatch();
 
-        final Dictionary dictionary = new Dictionary("entityDictionary");
+        final Dictionary dictionary = new Dictionary();
         dictionary.setCaseSensitive(true);
         // dictionary.setIndexPath("data/models/");
 

@@ -9,27 +9,24 @@ import java.util.Comparator;
 import org.apache.log4j.Logger;
 
 /**
- * Hold a number of category entries. For example, a word could have a list of relevant categories attached. Each category has a certain relevance for the word
- * which is expressed in the CategoryEntry.
+ * <p>
+ * Hold a number of category entries. For example, a word could have a list of relevant categories attached. Each
+ * category has a certain relevance for the word which is expressed in the {@link CategoryEntry}.
+ * </p>
  * 
  * @author David Urbansky
  * 
  */
 public class CategoryEntries extends ArrayList<CategoryEntry> implements Serializable {
 
-	/** The logger for this class. */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(CategoryEntries.class);
-    
-    private static final long serialVersionUID = 4321001999458490582L;
 
-//    private boolean relevancesInPercent = false;
+    private static final long serialVersionUID = 4321001999458490582L;
 
     // in order to avoid recalculating all relative relevance scores for each category entry
     // we update them only if new entries were added
     private boolean relevancesUpToDate = false;
-
-    /** Comparator to sort categories by relevance. */
-    private Comparator<CategoryEntry> comparator = new CategoryEntryComparator();
 
     boolean isRelevancesUpToDate() {
         return relevancesUpToDate;
@@ -52,18 +49,12 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         return null;
     }
 
-//    public void setRelevancesInPercent(boolean relevancesInPercent) {
-//        this.relevancesInPercent = relevancesInPercent;
-//    }
-
     @Override
-    /**
-     * If a CategoryEntry is entered, the relative relevances are not up to date anymore.
-     */
     public boolean add(CategoryEntry e) {
         if (e == null) {
             return false;
         }
+        // If a CategoryEntry is entered, the relative relevances are not up to date anymore.
         setRelevancesUpToDate(false);
         return super.add(e);
     }
@@ -125,19 +116,14 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         return listChanged;
     }
 
-    /*
-     * public boolean addMerge(CategoryEntry e) { if (e == null) { return false; } CategoryEntry c = this.getCategoryEntry(e.getCategory().getName()); if (c ==
-     * null) { add(e); } else { c.addAbsoluteRelevance(e.getAbsoluteRelevance()); } setRelevancesUpToDate(false); if (c == null) { return true; } return false;
-     * //return (c == null) true? false }
-     */
-
     /**
-     * The relevance for a category entry is a sum of absolute relevance scores so far. To normalize the relevance to a value between 0 and 1 we need to divide
+     * The relevance for a category entry is a sum of absolute relevance scores so far. To normalize the relevance to a
+     * value between 0 and 1 we need to divide
      * it by the total absolute relevances of all category entries that are in the same category entries group.
      */
     void calculateRelativeRelevances() {
 
-        Logger.getRootLogger().debug("recalculate category entries relevances");
+        LOGGER.debug("recalculate category entries relevances");
 
         // normalize
         Double totalRelevance = 0.0;
@@ -155,31 +141,30 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
 
         setRelevancesUpToDate(true);
 
-        // spread, often percentages are very close such as 23,24,26,27 (4 categories) but they can be polarized so that the differences are more visible
-        /*
-         * if (spread) { double lowestRelevance = 100; for (Category category : this) { if (category.getRelevance() < lowestRelevance) lowestRelevance =
-         * category.getRelevance(); } double totalPlusRelevance = 0; for (Category category : this) { totalPlusRelevance += category.getRelevance() -
-         * lowestRelevance; } if (totalPlusRelevance > 0) { for (Category category : this) { category.setRelevance((category.getRelevance()-lowestRelevance) /
-         * totalPlusRelevance); } } }
-         */
     }
 
     public void sortByRelevance() {
-        Collections.sort(this, comparator);
+        Collections.sort(this, new Comparator<CategoryEntry>() {
+            @Override
+            public int compare(CategoryEntry o1, CategoryEntry o2) {
+                return ((Comparable<Double>)o2.getRelevance()).compareTo(o1.getRelevance());
+            }
+        });
     }
 
     public CategoryEntry getMostLikelyCategoryEntry() {
         sortByRelevance();
-        //XXX
+        // XXX
         if (size() > 0) {
-        	return get(0);
+            return get(0);
         }
         LOGGER.warn("no most likey category entry found");
         return new CategoryEntry(this, new Category(""), 1);
     }
 
     /**
-     * Get the percentage of all absolute term weights for all category entries in the given category. The percentage tells what ratio of term weights were
+     * Get the percentage of all absolute term weights for all category entries in the given category. The percentage
+     * tells what ratio of term weights were
      * relevant for the given category in this entry set.
      * 
      * @param category The category entry.
@@ -198,23 +183,18 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     }
 
     private boolean hasEntryWithCategory(Category category) {
-        boolean hasEntry = false;
-
         for (CategoryEntry ce : this) {
             if (ce.getCategory().getName().equals(category.getName())) {
-                hasEntry = true;
-                break;
+                return true;
             }
         }
-
-        return hasEntry;
+        return false;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (CategoryEntry ce : this) {
-            // sb.append(ce).append("\n");
             sb.append(ce).append(",");
         }
         return sb.toString();

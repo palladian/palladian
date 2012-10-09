@@ -10,8 +10,7 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Dictionary;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.classification.text.Dictionary;
 
 /**
  * <p>
@@ -160,7 +159,7 @@ public class ClassifierTest {
         // ------------------------------
         // documents 2 3 5 => prior(c1) = 2/5, prior(c2) = 3/5
         // weights 84 19 103 => e.g. cweight(word1,word2,c1) = 66/84, cweight(word1,word3,c1) = 84/84
-        Dictionary dictionary = new Dictionary("testDictionary", ClassificationTypeSetting.SINGLE);
+        Dictionary dictionary = new Dictionary();
         dictionary.updateWord(word1, c1, 12);
         dictionary.updateWord(word2, c2, 2);
         dictionary.updateWord(word1, c1, 54);
