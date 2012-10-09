@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.ClassifierPerformanceResult;
 import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.helper.StopWatch;
@@ -182,7 +181,6 @@ public class ClassifierEvaluator {
     }
 
     private ClassifierPerformanceResult averageClassifierPerformances(List<ClassifierPerformanceResult> performances) {
-        ClassifierPerformanceResult result = new ClassifierPerformanceResult();
 
         double precision = 0.0;
         double recall = 0.0;
@@ -267,16 +265,6 @@ public class ClassifierEvaluator {
         superiority /= performances.size();
         confusionMatrix.divideBy(performances.size());
 
-        result.setPrecision(precision);
-        result.setRecall(recall);
-        result.setF1(f1);
-        result.setSensitivity(sensitivity);
-        result.setSpecificity(specificity);
-        result.setAccuracy(accuracy);
-        result.setCorrectlyClassified(correctness);
-        result.setSuperiority(superiority);
-        result.setConfusionMatrix(confusionMatrix);
-
         for (Entry<Double, Double[]> entry : thresholdBucketMap.entrySet()) {
 
             Double[] values = entry.getValue();
@@ -285,7 +273,6 @@ public class ClassifierEvaluator {
                 values[i] /= (double)performances.size();
             }
         }
-        result.setThresholdBucketMap(thresholdBucketMap);
 
         for (Entry<Double, Double[]> entry : thresholdAccMap.entrySet()) {
 
@@ -295,9 +282,8 @@ public class ClassifierEvaluator {
                 values[i] /= (double)performances.size();
             }
         }
-        result.setThresholdAccumulativeMap(thresholdAccMap);
-
-        return result;
+        return new ClassifierPerformanceResult(precision, recall, f1, sensitivity, specificity, accuracy, correctness,
+                superiority, confusionMatrix, thresholdBucketMap, thresholdAccMap);
     }
 
     public int getCrossValidation() {

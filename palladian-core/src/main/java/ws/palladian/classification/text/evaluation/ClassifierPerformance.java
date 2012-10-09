@@ -6,11 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
-
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
-import ws.palladian.classification.ClassifierPerformanceResult;
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
@@ -133,19 +130,14 @@ public class ClassifierPerformance implements Serializable {
      * @return the precision for a given category
      */
     public double getPrecisionForCategory(Category category) {
-        try {
-            double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double classified = getClassifiedNumberOfCategory(testDocuments, category);
+            int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int classified = getClassifiedNumberOfCategory(testDocuments, category);
 
             if (classified < 1.0) {
                 return -1.0;
             }
 
-            return correct / classified;
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Precision in Category " + category.getName());
-            return -1.0;
-        }
+            return (double) correct / classified;
     }
 
     /**
@@ -155,17 +147,12 @@ public class ClassifierPerformance implements Serializable {
      * @return the recall for a given category
      */
     public double getRecallForCategory(Category category) {
-        try {
-            double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double real = getRealNumberOfCategory(testDocuments, category);
+            int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int real = getRealNumberOfCategory(testDocuments, category);
             if (real < 1.0) {
                 return -1.0;
             }
-            return correct / real;
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Recall in Category " + category.getName());
-            return -1.0;
-        }
+            return (double) correct / real;
     }
 
     /**
@@ -176,7 +163,6 @@ public class ClassifierPerformance implements Serializable {
      * @return F for a given category.
      */
     public double getFForCategory(Category category, double alpha) {
-        try {
             double pfc = getPrecisionForCategory(category);
             double rfc = getRecallForCategory(category);
 
@@ -188,10 +174,6 @@ public class ClassifierPerformance implements Serializable {
             // double alphaSquared = alpha * alpha;
             // return ((1+alphaSquared)*getPrecisionForCategory(category) * getRecallForCategory(category)) /
             // (alphaSquared*getPrecisionForCategory(category)+getRecallForCategory(category));
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for F in Category " + category.getName());
-            return -1.0;
-        }
     }
 
     /**
@@ -203,25 +185,16 @@ public class ClassifierPerformance implements Serializable {
      * @return
      */
     public double getSensitivityForCategory(Category category) {
-        double sensitivity = 0.0;
-        try {
-            double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = getRealNumberOfCategory(testDocuments, category);
+            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int realPositives = getRealNumberOfCategory(testDocuments, category);
 
-            double falseNegatives = realPositives - truePositives;
+            int falseNegatives = realPositives - truePositives;
 
             if (truePositives + falseNegatives == 0) {
                 return -1.0;
             }
 
-            sensitivity = truePositives / (truePositives + falseNegatives);
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Sensitivity in Category " + category.getName());
-            return -1.0;
-        }
-
-        return sensitivity;
+            return (double) truePositives / (truePositives + falseNegatives);
     }
 
     /**
@@ -234,28 +207,19 @@ public class ClassifierPerformance implements Serializable {
      * @return The specificity.
      */
     public double getSpecificityForCategory(Category category) {
-        double specificity = 0.0;
-        try {
-            double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = getRealNumberOfCategory(testDocuments, category);
-            double classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
+            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int realPositives = getRealNumberOfCategory(testDocuments, category);
+            int classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
 
-            double falsePositives = classifiedPositives - truePositives;
-            double falseNegatives = realPositives - truePositives;
-            double trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
+            int falsePositives = classifiedPositives - truePositives;
+            int falseNegatives = realPositives - truePositives;
+            int trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
             if (trueNegatives + falsePositives == 0) {
                 return -1.0;
             }
 
-            specificity = trueNegatives / (trueNegatives + falsePositives);
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Specificity in Category " + category.getName());
-            return -1.0;
-        }
-
-        return specificity;
+            return (double) trueNegatives / (trueNegatives + falsePositives);
     }
 
     /**
@@ -265,29 +229,20 @@ public class ClassifierPerformance implements Serializable {
      * @return The accuracy.
      */
     public double getAccuracyForCategory(Category category) {
-        double accuracy = 0.0;
-        try {
-            double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = getRealNumberOfCategory(testDocuments, category);
-            double classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
+            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int realPositives = getRealNumberOfCategory(testDocuments, category);
+            int classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
 
-            double falsePositives = classifiedPositives - truePositives;
-            double falseNegatives = realPositives - truePositives;
-            double trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
+            int falsePositives = classifiedPositives - truePositives;
+            int falseNegatives = realPositives - truePositives;
+            int trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
             if (truePositives + trueNegatives + falsePositives + falseNegatives == 0) {
                 return -1.0;
             }
 
-            accuracy = (truePositives + trueNegatives)
+            return (double) (truePositives + trueNegatives)
                     / (truePositives + trueNegatives + falsePositives + falseNegatives);
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Accuracy in Category " + category.getName());
-            return -1.0;
-        }
-
-        return accuracy;
     }
 
     /**
@@ -303,7 +258,6 @@ public class ClassifierPerformance implements Serializable {
 //            return category.getTestSetWeight();
 //        }
 
-        try {
             // the number of documents that belong to the given category
             int documentCount = getRealNumberOfCategory(testDocuments, category)
                     + getRealNumberOfCategory(trainingDocuments, category);
@@ -316,16 +270,16 @@ public class ClassifierPerformance implements Serializable {
                 totalAssigned += getRealNumberOfCategory(testDocuments, c)
                         + getRealNumberOfCategory(trainingDocuments, c);
             }
+            
+            if (totalAssigned == 0) {
+                return 0;
+            }
 
             // double ratio = (double) documentCount / (double) (testDocuments.size() + trainingDocuments.size());
-            double weight = (double) documentCount / (double) totalAssigned;
+            return (double) documentCount / totalAssigned;
+            
+            
 //            category.setTestSetWeight(weight);
-            return weight;
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Recall in Category " + category.getName());
-            return 0.0;
-        }
     }
 
     /**
@@ -336,7 +290,7 @@ public class ClassifierPerformance implements Serializable {
     public double getAveragePrecision(boolean weighted) {
         double precision = 0.0;
 
-        double count = 0.0;
+        int count = 0;
 
 
             for (Category c : categories) {
@@ -376,7 +330,7 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageRecall(boolean weighted) {
         double recall = 0.0;
 
-        double count = 0.0;
+        int count = 0;
 
             for (Category c : categories) {
 
@@ -414,7 +368,7 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageF(double alpha, boolean weighted) {
         double f = 0.0;
 
-        double count = 0.0;
+        int count = 0;
         for (Category c : categories) {
 
             double ffc = getFForCategory(c, alpha);
@@ -452,7 +406,7 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageSensitivity(boolean weighted) {
         double sensitivity = 0.0;
 
-        double count = 0.0;
+        int count = 0;
         for (Category c : categories) {
 
             double sfc = getSensitivityForCategory(c);
@@ -490,7 +444,7 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageSpecificity(boolean weighted) {
         double specificity = 0.0;
 
-        double count = 0.0;
+        int count = 0;
         for (Category c : categories) {
 
             double sfc = getSpecificityForCategory(c);
@@ -528,7 +482,7 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageAccuracy(boolean weighted) {
         double accuracy = 0.0;
 
-        double count = 0.0;
+        int count = 0;
         for (Category c : categories) {
 
             double afc = getAccuracyForCategory(c);
@@ -602,26 +556,24 @@ public class ClassifierPerformance implements Serializable {
      */
     public ClassifierPerformanceResult getClassifierPerformanceResult() {
 
-        ClassifierPerformanceResult classifierPerformanceResult = new ClassifierPerformanceResult();
+        double precision = getAveragePrecision(true);
+        double recall = getAverageRecall(true);
+        double fOne = getAverageF(0.5, true);
 
-        classifierPerformanceResult.setPrecision(getAveragePrecision(true));
-        classifierPerformanceResult.setRecall(getAverageRecall(true));
-        classifierPerformanceResult.setF1(getAverageF(0.5, true));
+        double sensitivity = getAverageSensitivity(true);
+        double specificity = getAverageSpecificity(true);
+        double accuracy = getAverageAccuracy(true);
 
-        classifierPerformanceResult.setSensitivity(getAverageSensitivity(true));
-        classifierPerformanceResult.setSpecificity(getAverageSpecificity(true));
-        classifierPerformanceResult.setAccuracy(getAverageAccuracy(true));
+        double correct = getCorrectlyClassified();
 
-        classifierPerformanceResult.setCorrectlyClassified(getCorrectlyClassified());
+        double superiority = getCorrectlyClassified() / getHighestPrior();
 
-        classifierPerformanceResult.setSuperiority(getCorrectlyClassified() / getHighestPrior());
+        ConfusionMatrix confusionMatrix = getConfusionMatrix();
 
-        classifierPerformanceResult.setConfusionMatrix(getConfusionMatrix());
-
-        classifierPerformanceResult.setThresholdBucketMap(getThresholdBucketMap());
-        classifierPerformanceResult.setThresholdAccumulativeMap(getThresholdAccumulativeMap());
-
-        return classifierPerformanceResult;
+        Map<Double, Double[]> thresholdBucketMap = getThresholdBucketMap();
+        Map<Double, Double[]> thresholdAccumulativeMap = getThresholdAccumulativeMap();
+        
+        return new ClassifierPerformanceResult(precision, recall, fOne, sensitivity, specificity, accuracy, correct, superiority, confusionMatrix, thresholdBucketMap, thresholdAccumulativeMap);
     }
 
     private List<Double[]> getCorrectThresholds() {
@@ -821,7 +773,7 @@ public class ClassifierPerformance implements Serializable {
      * @param category
      * @return number
      */
-    public int getRealNumberOfCategory(List<TextInstance> instances, Category category) {
+    private int getRealNumberOfCategory(List<TextInstance> instances, Category category) {
         int number = 0;
 
         for (TextInstance d : instances) {

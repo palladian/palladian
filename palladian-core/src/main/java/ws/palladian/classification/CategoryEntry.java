@@ -20,7 +20,6 @@ public class CategoryEntry implements Serializable {
     private Category category;
     private double absoluteRelevance;
     private double relativeRelevance = -1.0;
-    public double bayesRelevance = 1.0;
 
     public CategoryEntry(CategoryEntries categoryEntries, Category category, double absoluteRelevance) {
         super();
