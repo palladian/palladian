@@ -74,7 +74,6 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return selectedFeatures.get(0);
     }
 
-    @Deprecated
     public <T extends Feature<?>> T getFeature(Class<T> type, String name) {
         List<T> selectedFeatures = getAll(type, name);
         if (selectedFeatures.isEmpty()) {

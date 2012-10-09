@@ -30,5 +30,16 @@ public class MinMaxNormalization implements Serializable {
     public Map<String, Double> getMinValueMap() {
         return minValueMap;
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder toStringBuilder = new StringBuilder();
+        for (String name : normalizationMap.keySet()) {
+            toStringBuilder.append(name).append(";");
+            toStringBuilder.append(normalizationMap.get(name)).append(";");
+            toStringBuilder.append(minValueMap.get(name)).append("\n");
+        }
+        return toStringBuilder.toString();
+    }
 
 }
