@@ -27,11 +27,11 @@ public final class Preprocessor implements Serializable {
     /**
      * The weights for the terms that appear in different areas of the resource.
      */
-    public static final double WEIGHT_DOMAIN_TERM = 8.0;
-    public static final double WEIGHT_TITLE_TERM = 7.0;
-    public static final double WEIGHT_KEYWORD_TERM = 6.0;
-    public static final double WEIGHT_META_TERM = 4.0;
-    public static final double WEIGHT_BODY_TERM = 1.0;
+//    public static final double WEIGHT_DOMAIN_TERM = 8.0;
+//    public static final double WEIGHT_TITLE_TERM = 7.0;
+//    public static final double WEIGHT_KEYWORD_TERM = 6.0;
+//    public static final double WEIGHT_META_TERM = 4.0;
+//    public static final double WEIGHT_BODY_TERM = 1.0;
 
     /**
      * Global map of terms, all documents that are processed by this
@@ -52,27 +52,27 @@ public final class Preprocessor implements Serializable {
         this.featureSettings = featureSettings;
     }
 
-    /**
-     * Copy constructor
-     * 
-     * @param classifier
-     * @param preprocessor
-     */
-    public Preprocessor(PalladianTextClassifier classifier, Preprocessor preprocessor) {
-        super();
-
-        //        try {
-        //            PropertyUtils.copyProperties(this, preprocessor);
-        //        } catch (IllegalAccessException e) {
-        //            Logger.getRootLogger().error(e);
-        //        } catch (InvocationTargetException e) {
-        //            Logger.getRootLogger().error(e);
-        //        } catch (NoSuchMethodException e) {
-        //            Logger.getRootLogger().error(e);
-        //        }
-
-        this.map = new HashMap<String, Double>(preprocessor.map);
-    }
+//    /**
+//     * Copy constructor
+//     * 
+//     * @param classifier
+//     * @param preprocessor
+//     */
+//    public Preprocessor(PalladianTextClassifier classifier, Preprocessor preprocessor) {
+//        super();
+//
+//        //        try {
+//        //            PropertyUtils.copyProperties(this, preprocessor);
+//        //        } catch (IllegalAccessException e) {
+//        //            Logger.getRootLogger().error(e);
+//        //        } catch (InvocationTargetException e) {
+//        //            Logger.getRootLogger().error(e);
+//        //        } catch (NoSuchMethodException e) {
+//        //            Logger.getRootLogger().error(e);
+//        //        }
+//
+//        this.map = new HashMap<String, Double>(preprocessor.map);
+//    }
 
     /**
      * Add a term to the term x weight map. Terms will all be made lowercase.

@@ -2,7 +2,6 @@ package ws.palladian.classification.text;
 
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;

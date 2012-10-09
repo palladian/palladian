@@ -1,4 +1,4 @@
-package ws.palladian.classification;
+package ws.palladian.classification.text;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -6,6 +6,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.Categories;
+import ws.palladian.classification.Category;
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -27,19 +31,6 @@ public class Dictionary implements Serializable {
     private boolean caseSensitive = false;
 
     private final Map<String, CategoryEntries> termCategoryEntries = CollectionHelper.newHashMap();
-
-    public Dictionary() {
-    }
-
-    @Deprecated
-    public Dictionary(String name) {
-        super();
-    }
-
-    @Deprecated
-    public Dictionary(String name, int classType) {
-        super();
-    }
 
     public CategoryEntries updateWord(String word, Category category, double value) {
         return updateWord(word, category.getName(), value);

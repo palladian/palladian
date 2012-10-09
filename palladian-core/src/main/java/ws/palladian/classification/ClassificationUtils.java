@@ -61,7 +61,7 @@ public final class ClassificationUtils {
         for (CategoryEntry c : categories) {
             if (n < number && c.getRelevance() >= relevanceThreshold) {
                 // XXX added by Philipp, lower memory consumption.
-                c.setCategoryEntries(limitedCategories);
+                // c.setCategoryEntries(limitedCategories);
                 limitedCategories.add(c);
             }
             n++;
