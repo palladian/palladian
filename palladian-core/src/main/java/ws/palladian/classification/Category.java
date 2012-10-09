@@ -5,7 +5,6 @@ import java.io.Serializable;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 
 /**
  * A category has a name and a relevance for certain resource.
@@ -18,7 +17,7 @@ public class Category implements Serializable {
     private static final long serialVersionUID = 8831509827509452692L;
 
     /** The name of the category. */
-    private String name = "";
+    private final String name;
 
     /**
      * The frequency of documents belonging to this category, it will be used to
@@ -31,21 +30,6 @@ public class Category implements Serializable {
 
     /** the prior probability of this category */
     private double prior = 0.0;
-
-    /**
-     * weight of the category in test set (used for evaluation purposes), -1
-     * means no weight calculated yet
-     */
-    private double testSetWeight = -1.0;
-
-    /** in hierarchical mode a category can be a root category */
-    private boolean mainCategory = false;
-
-    /**
-     * what classification type does the category belong to? (simple, hierarchy
-     * or tag)
-     */
-    private int classType = ClassificationTypeSetting.SINGLE;
 
     public Category(String name) {
         if (name == null) {
@@ -60,33 +44,13 @@ public class Category implements Serializable {
         return name;
     }
 
-    //    public void setName(String name) {
-    //        this.name = name;
-    //    }
-
-    // public Double getRelevance() {
-    // return relevance;
-    // }
-    //
-    // public void setRelevance(Double relevance) {
-    // this.relevance = relevance;
-    // }
-    //
-    // public void addRelevance(double relevance) {
-    // this.relevance += relevance;
-    // }
-
     int getFrequency() {
-        return this.frequency;
+        return frequency;
     }
 
     public void increaseFrequency() {
-        this.frequency++;
+        frequency++;
     }
-
-    //    public void decreaseFrequency() {
-    //        this.frequency--;
-    //    }
 
     /**
      * The prior probability of this category. Set after learning.
@@ -100,20 +64,6 @@ public class Category implements Serializable {
         return prior;
     }
 
-    private void setPrior(final double prior) {
-        this.prior = prior;
-    }
-
-    //    /**
-    //     * The prior can be indexed and read from the index. Instead of calculating
-    //     * it via Categories.calculatePriors(), it can be set using this method.
-    //     *
-    //     * @param prior
-    //     */
-    //    public void setIndexedPrior(double prior) {
-    //        this.prior = prior;
-    //    }
-
     /**
      * <p>
      * Calculates the prior for this category, which is the ratio between this category's frequency to all documents in
@@ -124,23 +74,7 @@ public class Category implements Serializable {
      *            The count of total documents on this corpus.
      */
     void calculatePrior(int totalDocuments) {
-        setPrior((double)frequency / totalDocuments);
-    }
-
-    public boolean isMainCategory() {
-        return mainCategory;
-    }
-
-    public void setMainCategory(boolean mainCategory) {
-        this.mainCategory = mainCategory;
-    }
-
-    public int getClassType() {
-        return classType;
-    }
-
-    public void setClassType(int classType) {
-        this.classType = classType;
+        prior = (double)frequency / totalDocuments;
     }
 
     @Override
@@ -150,12 +84,7 @@ public class Category implements Serializable {
         result = prime * result + (name == null ? 0 : name.hashCode());
         return result;
     }
-
-    /**
-     * <p>
-     * Equality is checked by category name.
-     * </p>
-     */
+    
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -167,6 +96,7 @@ public class Category implements Serializable {
         }
 
         Category cat = (Category)obj;
+        // Equality is checked by category name.
         return cat.getName().equals(getName());
     }
 
@@ -177,14 +107,6 @@ public class Category implements Serializable {
     @Override
     public String toString() {
         return getName() + "(prior:" + getPrior() + ")";
-    }
-
-    public void setTestSetWeight(double testSetWeight) {
-        this.testSetWeight = testSetWeight;
-    }
-
-    public double getTestSetWeight() {
-        return testSetWeight;
     }
 
     public void increaseTotalTermWeight(double totalTermWeight) {

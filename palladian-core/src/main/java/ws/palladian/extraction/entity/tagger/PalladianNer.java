@@ -191,12 +191,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         annotationClassifier = new PalladianTextClassifier();
 
         // hold entities in a dictionary that are learned from the training data
-        entityDictionary = new Dictionary();
-        entityDictionary.setCaseSensitive(true);
+        entityDictionary = new Dictionary(true);
 
         // keep the case dictionary from the training data
-        caseDictionary = new Dictionary();
-        caseDictionary.setCaseSensitive(false);
+        caseDictionary = new Dictionary(false);
 
         // use a context classifier for the left and right context around the annotations
         contextClassifier = new PalladianTextClassifier();
@@ -1432,8 +1430,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         StopWatch stopWatch = new StopWatch();
 
-        final Dictionary dictionary = new Dictionary();
-        dictionary.setCaseSensitive(true);
+        final Dictionary dictionary = new Dictionary(true);
         // dictionary.setIndexPath("data/models/");
 
         final int totalLines = FileHelper.getNumberOfLines(dictionaryPath);

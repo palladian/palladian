@@ -299,9 +299,9 @@ public class ClassifierPerformance implements Serializable {
      * @return The prior for the category.
      */
     public double getWeightForCategory(Category category) {
-        if (category.getTestSetWeight() > -1) {
-            return category.getTestSetWeight();
-        }
+//        if (category.getTestSetWeight() > -1) {
+//            return category.getTestSetWeight();
+//        }
 
         try {
             // the number of documents that belong to the given category
@@ -319,7 +319,7 @@ public class ClassifierPerformance implements Serializable {
 
             // double ratio = (double) documentCount / (double) (testDocuments.size() + trainingDocuments.size());
             double weight = (double) documentCount / (double) totalAssigned;
-            category.setTestSetWeight(weight);
+//            category.setTestSetWeight(weight);
             return weight;
 
         } catch (ArithmeticException e) {

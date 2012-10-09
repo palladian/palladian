@@ -36,10 +36,6 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         this.relevancesUpToDate = relevancesUpToDate;
     }
 
-    public CategoryEntry getCategoryEntry(Category category) {
-        return getCategoryEntry(category.getName());
-    }
-
     public CategoryEntry getCategoryEntry(String categoryName) {
         for (CategoryEntry ce : this) {
             if (ce.getCategory().getName().equals(categoryName)) {
@@ -66,8 +62,8 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         setRelevancesUpToDate(false);
 
         for (CategoryEntry newCategoryEntry : c) {
-            if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
-                CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
+            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory().getName());
+            if (ce != null) {
                 ce.addAbsoluteRelevance(newCategoryEntry.getAbsoluteRelevance());
             } else {
                 super.add(new CategoryEntry(this, newCategoryEntry.getCategory(), newCategoryEntry
@@ -89,26 +85,15 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         setRelevancesUpToDate(false);
 
         for (CategoryEntry newCategoryEntry : categoryEntries) {
-            if (newCategoryEntry == null) {
-                continue;
-            }
             double relevance = newCategoryEntry.getRelevance();
             if (relevance < 0) {
                 relevance = 0;
             }
-            if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
-                CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
-                if (ce != null) {
-                    ce.addAbsoluteRelevance(coefficient * relevance);
-                } else {
-                    CategoryEntry categoryEntry = new CategoryEntry(this, newCategoryEntry.getCategory(), coefficient
-                            * relevance);
-                    this.add(categoryEntry);
-                }
+            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory().getName());
+            if (ce != null) {
+                ce.addAbsoluteRelevance(coefficient * relevance);
             } else {
-                CategoryEntry newCategoryEntry2 = new CategoryEntry(this, newCategoryEntry.getCategory(), 0);
-                newCategoryEntry2.addAbsoluteRelevance(coefficient * relevance);
-                this.add(newCategoryEntry2);
+                this.add(new CategoryEntry(this, newCategoryEntry.getCategory(), coefficient * relevance));
             }
             listChanged = true;
         }
@@ -163,32 +148,22 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     }
 
     /**
+     * <p>
      * Get the percentage of all absolute term weights for all category entries in the given category. The percentage
-     * tells what ratio of term weights were
-     * relevant for the given category in this entry set.
+     * tells what ratio of term weights were relevant for the given category in this entry set.
+     * </p>
      * 
      * @param category The category entry.
      * @return The percentage.
      */
     public double getTermWeight(Category category) {
-
         double entriesWeights = 0.0;
         for (CategoryEntry e : this) {
             if (e.getCategory().getName().equalsIgnoreCase(category.getName())) {
                 entriesWeights += e.getAbsoluteRelevance();
             }
         }
-
         return entriesWeights / category.getTotalTermWeight();
-    }
-
-    private boolean hasEntryWithCategory(Category category) {
-        for (CategoryEntry ce : this) {
-            if (ce.getCategory().getName().equals(category.getName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
