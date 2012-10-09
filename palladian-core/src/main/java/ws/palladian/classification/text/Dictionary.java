@@ -24,13 +24,19 @@ public class Dictionary implements Serializable {
 
     private static final long serialVersionUID = 3309493348334861440L;
 
-    private int numberOfDocuments = 0;
-
-    private Categories categories = new Categories();
+    private final Categories categories = new Categories();
     
-    private boolean caseSensitive = false;
+    private final boolean caseSensitive;
 
     private final Map<String, CategoryEntries> termCategoryEntries = CollectionHelper.newHashMap();
+    
+    public Dictionary() {
+        this.caseSensitive = false;
+    }
+    
+    public Dictionary(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
 
     public CategoryEntries updateWord(String word, Category category, double value) {
         return updateWord(word, category.getName(), value);
@@ -91,7 +97,6 @@ public class Dictionary implements Serializable {
         StringBuilder dictionaryString = new StringBuilder("");
 
         // add some meta information
-        dictionaryString.append("Files processed,").append(numberOfDocuments).append("\n");
         dictionaryString.append("Words,").append(termCategoryEntries.entrySet().size()).append("\n").append("\n");
 
         // create the file head
@@ -111,7 +116,7 @@ public class Dictionary implements Serializable {
 
             // get word frequency for each category and current term
             for (Category category : categories) {
-                CategoryEntry ce = term.getValue().getCategoryEntry(category);
+                CategoryEntry ce = term.getValue().getCategoryEntry(category.getName());
                 if (ce == null) {
                     dictionaryString.append("0.0,");
                 } else {
@@ -168,7 +173,7 @@ public class Dictionary implements Serializable {
 
             // get word frequency for each category and current term
             for (Category category : categories) {
-                CategoryEntry ce = term.getValue().getCategoryEntry(category);
+                CategoryEntry ce = term.getValue().getCategoryEntry(category.getName());
                 if (ce == null) {
                     dictionaryString.append("0.0,");
                 } else {
@@ -179,10 +184,6 @@ public class Dictionary implements Serializable {
         }
 
         return dictionaryString.toString();
-    }
-
-    public void setCaseSensitive(boolean caseSensitive) {
-        this.caseSensitive = caseSensitive;
     }
 
     public int size() {
