@@ -53,7 +53,11 @@ public final class CollectionHelper {
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        Collections.sort(list, new EntryValueComparator<K, V>(ascending));
+        if (ascending) {
+            Collections.sort(list, EntryValueComparator.<K, V> ascending());
+        } else {
+            Collections.sort(list, EntryValueComparator.<K, V> descending());
+        }
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
