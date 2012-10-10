@@ -20,7 +20,6 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
@@ -362,7 +361,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         if (term == null) {
             entityTermMap.put(en, term);
         }
-        entityDictionary.updateWord(term, annotation.getInstanceCategoryName(), 1);
+        entityDictionary.updateWord(term, annotation.getInstanceCategory(), 1);
     }
 
     /**
@@ -455,7 +454,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             textInstance.setTextFeature(annotation.getEntity());
             // FIXME only one of the two following lines -> duplicate semantics
             textInstance.setInstanceCategory(annotation.getInstanceCategory());
-            textInstance.targetClass = annotation.getInstanceCategoryName();
+            textInstance.targetClass = annotation.getInstanceCategory();
             textInstances.add(textInstance);
         }
 
@@ -623,7 +622,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     private boolean hasAssignedType(CategoryEntries ces) {
-        return !ces.getMostLikelyCategoryEntry().getCategory().getName().equalsIgnoreCase(NO_ENTITY);
+        return !ces.getMostLikelyCategoryEntry().getCategory().equalsIgnoreCase(NO_ENTITY);
     }
 
     /**
@@ -975,7 +974,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                             if (indexPrefix > -1 && word.length() > 2) {
                                 Annotation wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix,
                                         word,
-                                        termEntry.getValue().getMostLikelyCategoryEntry().getCategory().getName(),
+                                        termEntry.getValue().getMostLikelyCategoryEntry().getCategory(),
                                         annotations);
                                 toAdd.add(wrappedAnnotation2);
                                 LOGGER.debug("add from prefix " + wrappedAnnotation2.getEntity());
@@ -1148,7 +1147,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         CategoryEntries ce = new CategoryEntries();
 
         for (Object string : patternProbabilityMatrix.getMatrix().keySet()) {
-            ce.add(new CategoryEntry(ce, new Category((String) string), probabilityMap.get(string)));
+            ce.add(new CategoryEntry(ce, (String) string, probabilityMap.get(string)));
         }
 
         CategoryEntries ce2 = contextClassifier.classify(annotation.getLeftContext() + "__"
@@ -1254,7 +1253,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         int c = 1;
         for (Annotation annotation : annotations) {
 
-            String tag = annotation.getInstanceCategoryName();
+            String tag = annotation.getInstanceCategory();
 
             // the left patterns containing 1-3 words
             String[] leftContexts = annotation.getLeftContexts();

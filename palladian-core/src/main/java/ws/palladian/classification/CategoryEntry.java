@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.text.PalladianTextClassifier;
-
 /**
  * <p>Hold information about how relevant a category is.</p>
  * 
@@ -17,28 +15,21 @@ public class CategoryEntry implements Serializable {
     private static final long serialVersionUID = 2420029642880591759L;
 
     private CategoryEntries categoryEntries;
-    private Category category;
+    private String category;
     private double absoluteRelevance;
     private double relativeRelevance = -1.0;
 
-    public CategoryEntry(CategoryEntries categoryEntries, Category category, double absoluteRelevance) {
-        super();
+    public CategoryEntry(CategoryEntries categoryEntries, String category, double absoluteRelevance) {
         this.categoryEntries = categoryEntries;
-        if (category != null) {
-            setCategory(category);
-        } else {
-            setCategory(new Category(PalladianTextClassifier.UNASSIGNED));
+        this.category = category;
+        if (category == null) {
             Logger.getRootLogger().warn("A category entry was created with NULL as category");
         }
         this.absoluteRelevance = absoluteRelevance;
     }
 
-    public Category getCategory() {
+    public String getCategory() {
         return category;
-    }
-
-    private void setCategory(Category category) {
-        this.category = category;
     }
 
     public double getRelevance() {

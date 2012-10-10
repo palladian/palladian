@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
@@ -39,7 +38,7 @@ public class TextInstance extends Instance {
     protected CategoryEntries assignedCategoryEntries = new CategoryEntries();
 
     /** If the class is nominal we have an instance category. */
-    private Category instanceCategory;
+    private String instanceCategory;
 
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
@@ -109,12 +108,8 @@ public class TextInstance extends Instance {
         return classifiedAs;
     }
 
-    public Category getInstanceCategory() {
+    public String getInstanceCategory() {
         return instanceCategory;
-    }
-
-    public String getInstanceCategoryName() {
-        return instanceCategory.getName();
     }
 
     /**
@@ -144,23 +139,14 @@ public class TextInstance extends Instance {
 
         if (highestMatch == null) {
             Logger.getRootLogger().warn("no assigned category found");
-            return new CategoryEntry(this.assignedCategoryEntries, new Category(null), 0.0);
+            return new CategoryEntry(this.assignedCategoryEntries, null, 0.0);
         }
 
         return highestMatch;
     }
 
-    public void setInstanceCategory(Category instanceCategory) {
+    public void setInstanceCategory(String instanceCategory) {
         this.instanceCategory = instanceCategory;
-    }
-
-    public void setInstanceCategory(String categoryName) {
-//        Category category = instances.getCategories().getCategoryByName(categoryName);
-//        if (category == null) {
-//            category = new Category(categoryName);
-//            instances.getCategories().add(category);
-//        }
-        this.instanceCategory = new Category(categoryName);
     }
 
 //    protected void setInstances(List<? extends UniversalInstance> instances) {

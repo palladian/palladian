@@ -169,8 +169,7 @@ public class PalladianTextClassifierTest {
         for (Instance nominalInstance : testInstances) {
             CategoryEntries categoryEntries = dc.classify(nominalInstance.featureVector, model);
 
-            if (categoryEntries.getMostLikelyCategoryEntry().getCategory().getName()
-                    .equalsIgnoreCase(nominalInstance.targetClass)) {
+            if (categoryEntries.getMostLikelyCategoryEntry().getCategory().equalsIgnoreCase(nominalInstance.targetClass)) {
                 correct++;
             }
 

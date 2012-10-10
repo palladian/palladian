@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.UniversalInstance;
@@ -68,14 +67,14 @@ public class Annotation extends UniversalInstance {
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, tagName, 1));
     }
 
     public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, tagName, 1));
     }
 
     private int containsDateFragment(String text) {
@@ -473,7 +472,7 @@ public class Annotation extends UniversalInstance {
     }
 
     public String getMostLikelyTagName() {
-        return getTags().getMostLikelyCategoryEntry().getCategory().getName();
+        return getTags().getMostLikelyCategoryEntry().getCategory();
     }
 
     public int getOffset() {
@@ -524,8 +523,8 @@ public class Annotation extends UniversalInstance {
     }
 
     public boolean sameTag(Annotation annotation) {
-        if (getMostLikelyTag().getCategory().getName()
-                .equalsIgnoreCase(annotation.getMostLikelyTag().getCategory().getName())) {
+        if (getMostLikelyTag().getCategory()
+                .equalsIgnoreCase(annotation.getMostLikelyTag().getCategory())) {
             return true;
         }
         return false;
@@ -539,8 +538,8 @@ public class Annotation extends UniversalInstance {
      * @return
      */
     public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
-        if (getMostLikelyTag().getCategory().getName()
-                .equalsIgnoreCase(goldStandardAnnotation.getInstanceCategoryName())) {
+        if (getMostLikelyTag().getCategory()
+                .equalsIgnoreCase(goldStandardAnnotation.getInstanceCategory())) {
             return true;
         }
         return false;
@@ -642,7 +641,7 @@ public class Annotation extends UniversalInstance {
                 int index = entityName.indexOf(" " + word.toLowerCase() + " ");
                 if (index > -1 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, termEntry.getValue()
-                            .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
+                            .getMostLikelyCategoryEntry().getCategory(), annotations);
                     wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
@@ -650,7 +649,7 @@ public class Annotation extends UniversalInstance {
                 index = entityName.indexOf(word.toLowerCase() + " ");
                 if (index == 0 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index, word, termEntry.getValue()
-                            .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
+                            .getMostLikelyCategoryEntry().getCategory(), annotations);
                     wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
@@ -658,7 +657,7 @@ public class Annotation extends UniversalInstance {
                 index = entityName.indexOf(" " + word.toLowerCase());
                 if (index == entityName.length() - word.length() - 1 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, termEntry.getValue()
-                            .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
+                            .getMostLikelyCategoryEntry().getCategory(), annotations);
                     wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }

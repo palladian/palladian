@@ -119,7 +119,7 @@ public abstract class ClassifierOld<T> implements Serializable {
 //            categories.resetFrequencies();
 //        }
         for (T instance : instances) {
-            String categoryName = ((TextInstance)instance).getInstanceCategory().getName();
+            String categoryName = ((TextInstance)instance).getInstanceCategory();
 //            Category category = getCategories().getCategoryByName(categoryName);
 //            if (category == null) {
 //                category = new Category(categoryName);

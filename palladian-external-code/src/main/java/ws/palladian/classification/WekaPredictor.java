@@ -138,8 +138,8 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         instance.setDataset(trainInstances);
         try {
             double[] distributionForInstance = classifier.distributionForInstance(instance);
-            ret.add(new CategoryEntry(ret, new Category("true"), distributionForInstance[0]));
-            ret.add(new CategoryEntry(ret, new Category("false"), distributionForInstance[1]));
+            ret.add(new CategoryEntry(ret, "true", distributionForInstance[0]));
+            ret.add(new CategoryEntry(ret, "false", distributionForInstance[1]));
         } catch (Exception e) {
             throw new IllegalStateException("An exception occurred while predicting: " + e.getMessage(), e);
         }

@@ -5,7 +5,6 @@ import java.util.Random;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
@@ -54,14 +53,14 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
         for (DecisionTreeModel decisionTreeModel : model.getModels()) {
             CategoryEntries entriesResult = classifier.classify(vector, decisionTreeModel);
             CategoryEntry categoryResult = entriesResult.get(0);
-            String category = categoryResult.getCategory().getName();
+            String category = categoryResult.getCategory();
             categories.add(category);
         }
 
         CategoryEntries result = new CategoryEntries();
         for (String categoryName : categories.uniqueItems()) {
             double confidence = (double)categories.get(categoryName) / categories.totalSize();;
-            result.add(new CategoryEntry(result, new Category(categoryName), confidence));
+            result.add(new CategoryEntry(result, categoryName, confidence));
         }
         return result;
     }

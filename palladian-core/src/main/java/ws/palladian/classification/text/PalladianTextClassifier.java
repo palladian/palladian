@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
@@ -118,7 +117,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             if (possibleClasses != null && !possibleClasses.contains(category)) {
                 continue;
             }
-            CategoryEntry c = new CategoryEntry(bestFitList, new Category(category), 0);
+            CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
             bestFitList.add(c);
         }
 
@@ -131,7 +130,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
                 // iterate through all categories in the dictionary for the weighted term
                 for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
-                    String categoryName = categoryEntry.getCategory().getName();
+                    String categoryName = categoryEntry.getCategory();
                     CategoryEntry c = bestFitList.getCategoryEntry(categoryName);
                     if (c == null) {
                         continue;
@@ -157,11 +156,11 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             double regressionValue = 0;
             for (CategoryEntry ce : bestFitList) {
                 if (ce.getRelevance() > 0) {
-                    regressionValue += Double.valueOf(ce.getCategory().getName()) * ce.getRelevance();
+                    regressionValue += Double.valueOf(ce.getCategory()) * ce.getRelevance();
                 }
             }
             bestFitList.clear();
-            bestFitList.add(new CategoryEntry(bestFitList, new Category(String.valueOf(regressionValue)), 1));
+            bestFitList.add(new CategoryEntry(bestFitList, String.valueOf(regressionValue), 1));
         }
 
         // if (bestFitList.isEmpty()) {

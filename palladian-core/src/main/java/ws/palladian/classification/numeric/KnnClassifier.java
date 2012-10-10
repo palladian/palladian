@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
@@ -79,7 +78,7 @@ public final class KnnClassifier implements Classifier<KnnModel> {
 
         // create one category entry for every category with relevance 0
         for (String category : categories) {
-            bestFitList.add(new CategoryEntry(bestFitList, new Category(category), 0));
+            bestFitList.add(new CategoryEntry(bestFitList, category, 0));
         }
 
         // find k nearest neighbors, compare instance to every known instance

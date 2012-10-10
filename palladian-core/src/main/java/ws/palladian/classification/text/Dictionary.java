@@ -4,7 +4,6 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Map;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -57,7 +56,7 @@ public class Dictionary implements Serializable {
             CategoryEntry ce = categoryEntries.getCategoryEntry(categoryName);
 
             if (ce == null) {
-                ce = new CategoryEntry(categoryEntries, new Category(categoryName), value);
+                ce = new CategoryEntry(categoryEntries, categoryName, value);
                 categoryEntries.add(ce);
 
                 // the word is new for that category so we need to increase
@@ -70,7 +69,7 @@ public class Dictionary implements Serializable {
 
             CategoryEntries categoryEntries = new CategoryEntries();
 
-            CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, new Category(categoryName), value);
+            CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, categoryName, value);
             categoryEntries.add(categoryEntry);
 
             // a new word was added to the category so we need to increase

@@ -61,7 +61,7 @@ public class ClassifierPerformance implements Serializable {
 
         for (TextInstance document : testDocuments) {
 
-            if (document.getMainCategoryEntry().getCategory().getName().equals(category)
+            if (document.getMainCategoryEntry().getCategory().equals(category)
                     && isCorrectClassified(document)) {
                 ++number;
             }
@@ -72,7 +72,7 @@ public class ClassifierPerformance implements Serializable {
     }
 
     public boolean isCorrectClassified(TextInstance textInstance) {
-        String mcn = textInstance.getMainCategoryEntry().getCategory().getName();
+        String mcn = textInstance.getMainCategoryEntry().getCategory();
         return mcn.equals(textInstance.getFirstRealCategory());
 
     }
@@ -83,7 +83,7 @@ public class ClassifierPerformance implements Serializable {
 
         for (TextInstance document : testDocuments) {
             if (document.getFirstRealCategory().equals(actualCategory) &&
-                    document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory)) {
+                    document.getMainCategoryEntry().getCategory().equals(classifiedCategory)) {
 
                 number++;
             }
@@ -756,7 +756,7 @@ public class ClassifierPerformance implements Serializable {
 
 
             for (TextInstance d : instances) {
-                if (d.getMainCategoryEntry().getCategory().getName().equals(category)) {
+                if (d.getMainCategoryEntry().getCategory().equals(category)) {
                     ++number;
                 }
             }
