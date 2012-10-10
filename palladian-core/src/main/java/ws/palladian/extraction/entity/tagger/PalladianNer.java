@@ -26,6 +26,7 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.Dictionary;
+import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
@@ -103,8 +104,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     /** The classifier to use for classifying the annotations. */
     private PalladianTextClassifier annotationClassifier;
-
     private PalladianTextClassifier contextClassifier;
+    private DictionaryModel annotationModel;
+    private DictionaryModel contextModel;
 
     private CountMap<String> leftContextMap = CountMap.create();
 
@@ -161,6 +163,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     /** The training mode. */
     private TrainingMode trainingMode = TrainingMode.Complete;
+
 
     // /////////////////// Constructors /////////////////////
     public PalladianNer(LanguageMode languageMode) {
@@ -334,12 +337,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
         FileHelper.serialize(this, modelFilePath);
 
-        LOGGER.info("dictionary size: " + annotationClassifier.getModel().size());
+        LOGGER.info("dictionary size: " + annotationModel.size());
 
         // write model meta information
         LOGGER.info("write model meta information");
         StringBuilder supportedConcepts = new StringBuilder();
-        for (Category c : annotationClassifier.getModel().getCategories()) {
+        for (Category c : annotationModel.getCategories()) {
             supportedConcepts.append(c.getName()).append("\n");
         }
         FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
@@ -483,7 +486,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         featureSetting.setMaxNGramLength(8);
 
         LOGGER.info("start training classifiers now...");
-        annotationClassifier.train(convertInstances(textInstances, featureSetting), cts, featureSetting);
+        annotationModel = annotationClassifier.train(convertInstances(textInstances, featureSetting), cts, featureSetting);
     }
 
     /**
@@ -648,7 +651,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     }
                 }
             } else {
-                CategoryEntries results = annotationClassifier.classify(annotation.getEntity());
+                CategoryEntries results = annotationClassifier.classify(annotation.getEntity(), annotationModel);
                 if (hasAssignedType(results)) {
                     annotations.add(annotation);
                 }
@@ -675,7 +678,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         int i = 1;
         for (Annotation annotation : entityCandidates) {
 
-            CategoryEntries results = annotationClassifier.classify(annotation.getEntity());
+            CategoryEntries results = annotationClassifier.classify(annotation.getEntity(), annotationModel);
             if (hasAssignedType(results)) {
                 annotations.add(annotation);
             }
@@ -1149,7 +1152,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
 
         CategoryEntries ce2 = contextClassifier.classify(annotation.getLeftContext() + "__"
-                + annotation.getRightContext());
+                + annotation.getRightContext(), contextModel);
 
         CategoryEntries ceMerge = new CategoryEntries();
         ceMerge.addAllRelative(ce);
@@ -1362,7 +1365,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         featureSetting.setMinNGramLength(4);// 4
         featureSetting.setMaxNGramLength(5);// 6
 
-        contextClassifier.train(convertInstances(trainingInstances, featureSetting), classificationTypeSetting,
+        contextModel = contextClassifier.train(convertInstances(trainingInstances, featureSetting), classificationTypeSetting,
                 featureSetting);
     }
 

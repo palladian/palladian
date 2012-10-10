@@ -1,5 +1,8 @@
 package ws.palladian.classification.text;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
@@ -72,8 +75,8 @@ public final class DictionaryModel implements Model {
         return "DictionaryModel [dictionarySize=" + dictionary.size() + ", categories=" + dictionary.getCategories() + "]";
     }
 
-    public String toDictionaryCsv() {
-        return dictionary.toCsv();
+    public void toDictionaryCsv(PrintStream printStream) {
+        dictionary.toCsv(printStream);
     }
 
 }
