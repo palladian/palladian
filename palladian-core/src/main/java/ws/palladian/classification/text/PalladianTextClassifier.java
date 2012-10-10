@@ -78,7 +78,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             // -- do not use string.intern() unless it is absolutely necessary (i.e. there is a significant memory
             // gain), it slows down performance considerably -- Philipp.
             
-            model.updateWord(termFeature.getValue(), trainingInstance.targetClass, 1.0);
+            model.updateWord(termFeature.getValue(), trainingInstance.targetClass);
 
             // FIXME => trainingInstance.targetClass => there must be multiple classes allowed!!!
             // for (Category realCategory : trainingDocument.getRealCategories()) {

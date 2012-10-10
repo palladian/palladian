@@ -147,25 +147,6 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         return new CategoryEntry(this, new Category(""), 1);
     }
 
-    /**
-     * <p>
-     * Get the percentage of all absolute term weights for all category entries in the given category. The percentage
-     * tells what ratio of term weights were relevant for the given category in this entry set.
-     * </p>
-     * 
-     * @param category The category entry.
-     * @return The percentage.
-     */
-    public double getTermWeight(Category category) {
-        double entriesWeights = 0.0;
-        for (CategoryEntry e : this) {
-            if (e.getCategory().getName().equalsIgnoreCase(category.getName())) {
-                entriesWeights += e.getAbsoluteRelevance();
-            }
-        }
-        return entriesWeights / category.getTotalTermWeight();
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

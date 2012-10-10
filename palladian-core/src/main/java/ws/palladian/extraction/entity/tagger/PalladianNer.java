@@ -325,10 +325,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     protected void saveModel(String modelFilePath) {
 
-        LOGGER.info("entity dictionary contains " + entityDictionary.size() + " entities");
+        LOGGER.info("entity dictionary contains " + entityDictionary.getCategoryEntries().size() + " entities");
         // entityDictionary.saveAsCSV();
 
-        LOGGER.info("case dictionary contains " + caseDictionary.size() + " entities");
+        LOGGER.info("case dictionary contains " + caseDictionary.getCategoryEntries().size() + " entities");
         // caseDictionary.saveAsCSV();
 
         LOGGER.info("serializing Palladian NER to " + modelFilePath);

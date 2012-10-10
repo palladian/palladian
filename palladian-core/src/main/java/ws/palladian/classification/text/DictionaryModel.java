@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
-import java.io.PrintWriter;
 
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.CategoryEntries;
@@ -38,8 +37,8 @@ public final class DictionaryModel implements Model {
         dictionary = new Dictionary();
     }
 
-    public void updateWord(String key, String name, Double value) {
-        dictionary.updateWord(key, name, value);
+    public void updateWord(String key, String name) {
+        dictionary.updateWord(key, name, 1.0);
     }
 
     public CategoryEntries get(String key) {
@@ -67,12 +66,12 @@ public final class DictionaryModel implements Model {
     }
 
     public int size() {
-        return dictionary.size();
+        return dictionary.getCategoryEntries().size();
     }
 
     @Override
     public String toString() {
-        return "DictionaryModel [dictionarySize=" + dictionary.size() + ", categories=" + dictionary.getCategories() + "]";
+        return "DictionaryModel [dictionarySize=" + size() + ", categories=" + dictionary.getCategories() + "]";
     }
 
     public void toDictionaryCsv(PrintStream printStream) {

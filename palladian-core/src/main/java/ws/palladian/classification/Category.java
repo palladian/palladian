@@ -19,16 +19,10 @@ public class Category implements Serializable {
     /** The name of the category. */
     private final String name;
 
-    /**
-     * The frequency of documents belonging to this category, it will be used to
-     * calculate the prior.
-     */
+    /** The frequency of documents belonging to this category, it will be used to calculate the prior. */
     private int frequency = 0;
 
-    /** the total number of weights for all terms in this category */
-    private double totalTermWeight = 0.0;
-
-    /** the prior probability of this category */
+    /** The prior probability of this category */
     private double prior = 0.0;
 
     public Category(String name) {
@@ -84,7 +78,7 @@ public class Category implements Serializable {
         result = prime * result + (name == null ? 0 : name.hashCode());
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -100,21 +94,9 @@ public class Category implements Serializable {
         return cat.getName().equals(getName());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return getName() + "(prior:" + getPrior() + ")";
-    }
-
-    public void increaseTotalTermWeight(double totalTermWeight) {
-        this.totalTermWeight += totalTermWeight;
-    }
-
-    double getTotalTermWeight() {
-        return totalTermWeight;
     }
 
     void resetFrequency() {
