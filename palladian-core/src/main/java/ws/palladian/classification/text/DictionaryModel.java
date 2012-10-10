@@ -1,8 +1,8 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
+import java.util.Set;
 
-import ws.palladian.classification.Categories;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
@@ -45,8 +45,8 @@ public final class DictionaryModel implements Model {
         return dictionary.get(key);
     }
 
-    public Categories getCategories() {
-        return dictionary.getCategories();
+    public Set<String> getCategories() {
+        return dictionary.getCategories().uniqueItems();
     }
 
     public ClassificationTypeSetting getClassificationTypeSetting() {

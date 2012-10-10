@@ -86,9 +86,9 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
 
         for (String nominalFeatureValue : nominalFeatures) {
 
-            for (Category category : categories) {
+            for (String category : categories.uniqueItems()) {
                 
-                int cooccurrences = cooccurrenceMatrix.getCount(category.getName(), nominalFeatureValue);
+                int cooccurrences = cooccurrenceMatrix.getCount(category, nominalFeatureValue);
                 int rowSum = cooccurrenceMatrix.getRowSum(nominalFeatureValue);
                 
                 double score = (double)cooccurrences / (double)rowSum;
@@ -97,15 +97,15 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
                 if (currentScore == null) {
                     currentScore = 0.0;
                 }
-                scores.put(category, currentScore + score);
+                scores.put(new Category(category), currentScore + score);
             }
 
         }
         
         // create category entries
         CategoryEntries assignedEntries = new CategoryEntries();
-        for (Category category : categories) {
-            assignedEntries.add(new CategoryEntry(assignedEntries, category, scores.get(category)));
+        for (String category : categories.uniqueItems()) {
+            assignedEntries.add(new CategoryEntry(assignedEntries, new Category(category), scores.get(category)));
         }
 
         instance.assignCategoryEntries(assignedEntries);

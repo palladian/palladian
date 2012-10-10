@@ -2,10 +2,10 @@ package ws.palladian.classification.numeric;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -68,18 +68,18 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     @Override
     public CategoryEntries classify(FeatureVector vector, KnnModel model) {
 
-        Categories categories = getPossibleCategories(model.getTrainingExamples());
 
         // we need to normalize the new instance if the training instances were also normalized
         if (model.isNormalized()) {
             model.normalize(vector);
         }
 
+        Set<String> categories = getPossibleCategories(model.getTrainingExamples());
         CategoryEntries bestFitList = new CategoryEntries();
 
         // create one category entry for every category with relevance 0
-        for (Category category : categories) {
-            bestFitList.add(new CategoryEntry(bestFitList, category, 0));
+        for (String category : categories) {
+            bestFitList.add(new CategoryEntry(bestFitList, new Category(category), 0));
         }
 
         // find k nearest neighbors, compare instance to every known instance
@@ -115,20 +115,17 @@ public final class KnnClassifier implements Classifier<KnnModel> {
 
     /**
      * <p>
-     * Fetches the possible {@link Categories} from a list of {@link Instance} like to ones making up the typical
+     * Fetches the possible categories from a list of {@link Instance} like to ones making up the typical
      * training set.
      * </p>
      * 
      * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
      */
-    private Categories getPossibleCategories(List<Instance> instances) {
-        Categories categories = new Categories();
+    private Set<String> getPossibleCategories(List<Instance> instances) {
+        Set<String> categories = CollectionHelper.newHashSet();
         for (Instance instance : instances) {
-            Category category = new Category(instance.targetClass);
-            category.increaseFrequency();
-            categories.add(category);
+            categories.add(instance.targetClass);
         }
-        categories.calculatePriors();
         return categories;
     }
 

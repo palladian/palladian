@@ -342,8 +342,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // write model meta information
         LOGGER.info("write model meta information");
         StringBuilder supportedConcepts = new StringBuilder();
-        for (Category c : annotationModel.getCategories()) {
-            supportedConcepts.append(c.getName()).append("\n");
+        for (String c : annotationModel.getCategories()) {
+            supportedConcepts.append(c).append("\n");
         }
         FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
                 + "_meta.txt", supportedConcepts);
