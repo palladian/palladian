@@ -1,4 +1,4 @@
-package ws.palladian.classification;
+package ws.palladian.classification.utils;
 
 import java.io.File;
 import java.util.List;
@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.numeric.MinMaxNormalization;
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;

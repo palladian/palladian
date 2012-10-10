@@ -1,4 +1,4 @@
-package ws.palladian.classification;
+package ws.palladian.classification.utils;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,7 +6,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.numeric.MinMaxNormalization;
+import ws.palladian.classification.Instance;
+import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.NumericFeature;
 
