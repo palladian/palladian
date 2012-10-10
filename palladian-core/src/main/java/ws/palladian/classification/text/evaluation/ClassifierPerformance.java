@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import ws.palladian.classification.Categories;
-import ws.palladian.classification.Category;
 import ws.palladian.classification.text.TextInstance;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
@@ -26,7 +24,7 @@ public class ClassifierPerformance implements Serializable {
     private static final long serialVersionUID = -7375053843995436850L;
 
     /** The classifier's categories. */
-    private final Categories categories;
+    private final List<String> categories;
 
     /** The training documents. */
     private final List<TextInstance> trainingDocuments;
@@ -45,7 +43,7 @@ public class ClassifierPerformance implements Serializable {
      * 
      * @param classifier The classifier.
      */
-    public ClassifierPerformance(Categories categories, List<TextInstance> trainingDocuments,
+    public ClassifierPerformance(List<String> categories, List<TextInstance> trainingDocuments,
             List<TextInstance> testDocuments) {
         this.categories = categories;
         this.trainingDocuments = trainingDocuments;
@@ -58,12 +56,12 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category.
      * @return Number of correct classified documents in a given category.
      */
-    public int getNumberOfCorrectClassifiedDocumentsInCategory(Category category) {
+    public int getNumberOfCorrectClassifiedDocumentsInCategory(String category) {
         int number = 0;
 
         for (TextInstance document : testDocuments) {
 
-            if (document.getMainCategoryEntry().getCategory().getName().equals(category.getName())
+            if (document.getMainCategoryEntry().getCategory().getName().equals(category)
                     && isCorrectClassified(document)) {
                 ++number;
             }
@@ -75,17 +73,17 @@ public class ClassifierPerformance implements Serializable {
 
     public boolean isCorrectClassified(TextInstance textInstance) {
         String mcn = textInstance.getMainCategoryEntry().getCategory().getName();
-        return mcn.equals(textInstance.getFirstRealCategory().getName());
+        return mcn.equals(textInstance.getFirstRealCategory());
 
     }
 
     // FIXME this assumes cClassificationTypeSetting.SINGLE
-    public int getNumberOfConfusionsBetween(Category actualCategory, Category classifiedCategory) {
+    public int getNumberOfConfusionsBetween(String actualCategory, String classifiedCategory) {
         int number = 0;
 
         for (TextInstance document : testDocuments) {
-            if (document.getFirstRealCategory().getName().equals(actualCategory.getName()) &&
-                    document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory.getName())) {
+            if (document.getFirstRealCategory().equals(actualCategory) &&
+                    document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory)) {
 
                 number++;
             }
@@ -95,7 +93,7 @@ public class ClassifierPerformance implements Serializable {
 
     public double getCorrectlyClassified() {
         int correctlyClassified = 0;
-        for (Category c : categories) {
+        for (String c : categories) {
             correctlyClassified += getNumberOfCorrectClassifiedDocumentsInCategory(c);
         }
 
@@ -112,7 +110,7 @@ public class ClassifierPerformance implements Serializable {
 
         CountMap<String> countMap = CountMap.create();
         for (TextInstance document : testDocuments) {
-            countMap.add(document.getFirstRealCategory().getName());
+            countMap.add(document.getFirstRealCategory());
         }
 
         Integer highestClassCount = countMap.getSortedMapDescending().values().iterator().next();
@@ -129,7 +127,7 @@ public class ClassifierPerformance implements Serializable {
      * @param category
      * @return the precision for a given category
      */
-    public double getPrecisionForCategory(Category category) {
+    public double getPrecisionForCategory(String category) {
             int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
             int classified = getClassifiedNumberOfCategory(testDocuments, category);
 
@@ -146,7 +144,7 @@ public class ClassifierPerformance implements Serializable {
      * @param category
      * @return the recall for a given category
      */
-    public double getRecallForCategory(Category category) {
+    public double getRecallForCategory(String category) {
             int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
             int real = getRealNumberOfCategory(testDocuments, category);
             if (real < 1.0) {
@@ -162,7 +160,7 @@ public class ClassifierPerformance implements Serializable {
      * @param alpha A value between 0 and 1 to weight precision and recall (0.5 for F1).
      * @return F for a given category.
      */
-    public double getFForCategory(Category category, double alpha) {
+    public double getFForCategory(String category, double alpha) {
             double pfc = getPrecisionForCategory(category);
             double rfc = getRecallForCategory(category);
 
@@ -181,12 +179,12 @@ public class ClassifierPerformance implements Serializable {
      * percentage of actual category members were
      * found. 100% sensitivity means that all actual documents belonging to the category were classified correctly.
      * 
-     * @param category
+     * @param c
      * @return
      */
-    public double getSensitivityForCategory(Category category) {
-            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            int realPositives = getRealNumberOfCategory(testDocuments, category);
+    public double getSensitivityForCategory(String c) {
+            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(c);
+            int realPositives = getRealNumberOfCategory(testDocuments, c);
 
             int falseNegatives = realPositives - truePositives;
 
@@ -206,7 +204,7 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category.
      * @return The specificity.
      */
-    public double getSpecificityForCategory(Category category) {
+    public double getSpecificityForCategory(String category) {
             int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
             int realPositives = getRealNumberOfCategory(testDocuments, category);
             int classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
@@ -228,7 +226,7 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category.
      * @return The accuracy.
      */
-    public double getAccuracyForCategory(Category category) {
+    public double getAccuracyForCategory(String category) {
             int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
             int realPositives = getRealNumberOfCategory(testDocuments, category);
             int classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
@@ -253,7 +251,7 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category for which the prior should be determined.
      * @return The prior for the category.
      */
-    public double getWeightForCategory(Category category) {
+    public double getWeightForCategory(String category) {
 //        if (category.getTestSetWeight() > -1) {
 //            return category.getTestSetWeight();
 //        }
@@ -265,7 +263,7 @@ public class ClassifierPerformance implements Serializable {
             // the total number of documents assigned to categories, one document can be assigned to multiple
             // categories!
             int totalAssigned = 0;
-            for (Category c : categories) {
+            for (String c : categories) {
 
                 totalAssigned += getRealNumberOfCategory(testDocuments, c)
                         + getRealNumberOfCategory(trainingDocuments, c);
@@ -293,7 +291,7 @@ public class ClassifierPerformance implements Serializable {
         int count = 0;
 
 
-            for (Category c : categories) {
+            for (String c : categories) {
 
 
                 double pfc = getPrecisionForCategory(c);
@@ -332,7 +330,7 @@ public class ClassifierPerformance implements Serializable {
 
         int count = 0;
 
-            for (Category c : categories) {
+            for (String c : categories) {
 
                 double rfc = getRecallForCategory(c);
                 if (rfc < 0.0) {
@@ -369,7 +367,7 @@ public class ClassifierPerformance implements Serializable {
         double f = 0.0;
 
         int count = 0;
-        for (Category c : categories) {
+        for (String c : categories) {
 
             double ffc = getFForCategory(c, alpha);
 
@@ -407,7 +405,7 @@ public class ClassifierPerformance implements Serializable {
         double sensitivity = 0.0;
 
         int count = 0;
-        for (Category c : categories) {
+        for (String c : categories) {
 
             double sfc = getSensitivityForCategory(c);
 
@@ -445,7 +443,7 @@ public class ClassifierPerformance implements Serializable {
         double specificity = 0.0;
 
         int count = 0;
-        for (Category c : categories) {
+        for (String c : categories) {
 
             double sfc = getSpecificityForCategory(c);
 
@@ -483,7 +481,7 @@ public class ClassifierPerformance implements Serializable {
         double accuracy = 0.0;
 
         int count = 0;
-        for (Category c : categories) {
+        for (String c : categories) {
 
             double afc = getAccuracyForCategory(c);
 
@@ -534,13 +532,13 @@ public class ClassifierPerformance implements Serializable {
         // x = actual category, y = classified category
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
-        for (Category actualCategory : categories) {
+        for (String actualCategory : categories) {
 
-            for (Category classifiedCategory : categories) {
+            for (String classifiedCategory : categories) {
 
                 int count = getNumberOfConfusionsBetween(actualCategory, classifiedCategory);
 
-                confusionMatrix.set(actualCategory.getName(), classifiedCategory.getName(), count);
+                confusionMatrix.set(actualCategory, classifiedCategory, count);
             }
 
         }
@@ -753,12 +751,12 @@ public class ClassifierPerformance implements Serializable {
      * @param categoryName The category.
      * @return number The number of documents classified in the given category.
      */
-    private int getClassifiedNumberOfCategory(List<TextInstance> instances, Category category) {
+    private int getClassifiedNumberOfCategory(List<TextInstance> instances, String category) {
         int number = 0;
 
 
             for (TextInstance d : instances) {
-                if (d.getMainCategoryEntry().getCategory().getName().equals(category.getName())) {
+                if (d.getMainCategoryEntry().getCategory().getName().equals(category)) {
                     ++number;
                 }
             }
@@ -773,12 +771,12 @@ public class ClassifierPerformance implements Serializable {
      * @param category
      * @return number
      */
-    private int getRealNumberOfCategory(List<TextInstance> instances, Category category) {
+    private int getRealNumberOfCategory(List<TextInstance> instances, String category) {
         int number = 0;
 
         for (TextInstance d : instances) {
-            for (Category c : d.getRealCategories()) {
-                if (c.getName().equals(category.getName())) {
+            for (String c : d.getRealCategories()) {
+                if (c.equals(category)) {
                     ++number;
                 }
             }

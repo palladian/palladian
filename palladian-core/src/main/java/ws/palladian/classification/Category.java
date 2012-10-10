@@ -19,11 +19,11 @@ public class Category implements Serializable {
     /** The name of the category. */
     private final String name;
 
-    /** The frequency of documents belonging to this category, it will be used to calculate the prior. */
-    private int frequency = 0;
+//    /** The frequency of documents belonging to this category, it will be used to calculate the prior. */
+//    private int frequency = 0;
 
-    /** The prior probability of this category */
-    private double prior = 0.0;
+//    /** The prior probability of this category */
+//    private double prior = 0.0;
 
     public Category(String name) {
         if (name == null) {
@@ -38,38 +38,38 @@ public class Category implements Serializable {
         return name;
     }
 
-    int getFrequency() {
-        return frequency;
-    }
+//    int getFrequency() {
+//        return frequency;
+//    }
 
-    public void increaseFrequency() {
-        frequency++;
-    }
+//    public void increaseFrequency() {
+//        frequency++;
+//    }
 
-    /**
-     * The prior probability of this category. Set after learning.
-     * 
-     * @return The prior probability of this category.
-     */
-    public double getPrior() {
-        if (prior == 0.0) {
-            Logger.getRootLogger().debug("prior was set to 0.0 for category " + getName());
-        }
-        return prior;
-    }
+//    /**
+//     * The prior probability of this category. Set after learning.
+//     * 
+//     * @return The prior probability of this category.
+//     */
+//    public double getPrior() {
+//        if (prior == 0.0) {
+//            Logger.getRootLogger().debug("prior was set to 0.0 for category " + getName());
+//        }
+//        return prior;
+//    }
 
-    /**
-     * <p>
-     * Calculates the prior for this category, which is the ratio between this category's frequency to all documents in
-     * the corpus.
-     * </p>
-     * 
-     * @param totalDocuments
-     *            The count of total documents on this corpus.
-     */
-    void calculatePrior(int totalDocuments) {
-        prior = (double)frequency / totalDocuments;
-    }
+//    /**
+//     * <p>
+//     * Calculates the prior for this category, which is the ratio between this category's frequency to all documents in
+//     * the corpus.
+//     * </p>
+//     * 
+//     * @param totalDocuments
+//     *            The count of total documents on this corpus.
+//     */
+//    void calculatePrior(int totalDocuments) {
+//        prior = (double)frequency / totalDocuments;
+//    }
 
     @Override
     public int hashCode() {
@@ -96,10 +96,11 @@ public class Category implements Serializable {
 
     @Override
     public String toString() {
-        return getName() + "(prior:" + getPrior() + ")";
+//        return getName() + "(prior:" + getPrior() + ")";
+        return getName();
     }
 
-    void resetFrequency() {
-        this.frequency = 0;
-    }
+//    void resetFrequency() {
+//        this.frequency = 0;
+//    }
 }

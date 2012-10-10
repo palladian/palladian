@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 
 import org.junit.Test;
 
-import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -117,21 +116,21 @@ public class ClassifierTest {
 
         Category c1 = new Category("category1");
         Category c2 = new Category("category2");
-        c1.increaseFrequency();
-        c1.increaseFrequency();
-        c1.increaseFrequency();
-        c2.increaseFrequency();
-
-        Categories categories = new Categories();
-        categories.add(c1);
-        categories.add(c2);
-
-        categories.calculatePriors();
-        categories.calculatePriors();
-
-        // check priors
-        assertEquals(0.75, c1.getPrior(), 0);
-        assertEquals(0.25, c2.getPrior(), 0);
+//        c1.increaseFrequency();
+//        c1.increaseFrequency();
+//        c1.increaseFrequency();
+//        c2.increaseFrequency();
+//
+//        Categories categories = new Categories();
+//        categories.add(c1);
+//        categories.add(c2);
+//
+//        categories.calculatePriors();
+//        categories.calculatePriors();
+//
+//        // check priors
+//        assertEquals(0.75, c1.getPrior(), 0);
+//        assertEquals(0.25, c2.getPrior(), 0);
 
         // LOGGER.info(categories);
 
@@ -168,11 +167,11 @@ public class ClassifierTest {
         dictionary.updateWord(word4, c2.getName(), 8);
         dictionary.updateWord(word4, c2.getName(), 2);
         dictionary.updateWord(word4, c2.getName(), 1);
-        dictionary.calculateCategoryPriors();
+//        dictionary.calculateCategoryPriors();
 
         // check priors
-        assertEquals(0.4, dictionary.get(word1).getCategoryEntry("category1").getCategory().getPrior(), 0);
-        assertEquals(0.6, dictionary.get(word4).getCategoryEntry("category2").getCategory().getPrior(), 0);
+//        assertEquals(0.4, dictionary.get(word1).getCategoryEntry("category1").getCategory().getPrior(), 0);
+//        assertEquals(0.6, dictionary.get(word4).getCategoryEntry("category2").getCategory().getPrior(), 0);
 
         // check dictionary
         assertEquals(1.0, dictionary.get(word1).getCategoryEntry("category1").getRelevance(), 0);

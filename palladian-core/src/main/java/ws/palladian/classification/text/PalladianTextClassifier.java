@@ -114,11 +114,11 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         CategoryEntries bestFitList = new CategoryEntries();
 
         // create one category entry for every category with relevance 0
-        for (Category category : model.getCategories()) {
-            if (possibleClasses != null && !possibleClasses.contains(category.getName())) {
+        for (String category : model.getCategories()) {
+            if (possibleClasses != null && !possibleClasses.contains(category)) {
                 continue;
             }
-            CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
+            CategoryEntry c = new CategoryEntry(bestFitList, new Category(category), 0);
             bestFitList.add(c);
         }
 

@@ -1,10 +1,10 @@
 package ws.palladian.classification.text;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -23,7 +23,8 @@ public class TextInstance extends Instance {
      * The real categories are given for training documents (and test documents that are used to determine the quality
      * of the classifier).
      */
-    protected Categories realCategories;
+    // FIXME this is never set currently.
+    private List<String> realCategories;
 
     private String content = "";
 
@@ -63,11 +64,11 @@ public class TextInstance extends Instance {
      * 
      * @return The real categories.
      */
-    public Categories getRealCategories() {
+    public List<String> getRealCategories() {
         return realCategories;
     }
 
-    public Category getFirstRealCategory() {
+    public String getFirstRealCategory() {
         if (realCategories != null && realCategories.iterator().hasNext()) {
             return realCategories.iterator().next();
         }
