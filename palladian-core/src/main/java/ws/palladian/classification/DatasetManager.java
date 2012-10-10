@@ -113,7 +113,7 @@ public final class DatasetManager {
         final FileWriter indexFile = new FileWriter(indexFilename);
 
         // number of instances for each class
-        final CountMap cm = CountMap.create();
+        final CountMap<String> cm = CountMap.create();
 
         LineAction la = new LineAction() {
 
@@ -500,9 +500,9 @@ public final class DatasetManager {
      * @param datasetPath The path to the dataset index file.
      * @param csvPath The path where the csv file should be saved to.
      */
-    public static CountMap calculateClassDistribution(final Dataset dataset, String csvPath) {
+    public static CountMap<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
 
-        final CountMap classCounts = CountMap.create();
+        final CountMap<String> classCounts = CountMap.create();
         LineAction la = new LineAction() {
 
             @Override
@@ -520,7 +520,7 @@ public final class DatasetManager {
         FileHelper.performActionOnEveryLine(dataset.getPath(), la);
         
         StringBuilder csv = new StringBuilder();
-        for (Object entry : classCounts) {
+        for (String entry : classCounts) {
             csv.append(entry).append(";").append(classCounts.get(entry)).append("\n");
         }
         
@@ -573,9 +573,9 @@ public final class DatasetManager {
         modifiedDataset.setName(dataset.getName());
 
         // get class distribution to remove categories that appear not frequently enough
-        CountMap cd = calculateClassDistribution(dataset, "data/distributionFull.csv");
+        CountMap<String> cd = calculateClassDistribution(dataset, "data/distributionFull.csv");
 
-        Set<Object> keepClasses = cd.getObjectsWithHigherCountThan(minFrequency - 1);
+        Set<String> keepClasses = cd.getObjectsWithHigherCountThan(minFrequency - 1);
         StringBuilder keepClassesString = new StringBuilder();
         for (Object keepClass : keepClasses) {
             keepClassesString.append("#").append((String)keepClass).append("#");
