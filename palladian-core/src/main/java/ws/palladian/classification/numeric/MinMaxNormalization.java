@@ -1,43 +1,103 @@
 package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.Validate;
+
+import ws.palladian.classification.Instance;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NumericFeature;
+
 /**
- * This stores the max - min differences for each feature of the training instances. We need these values to
- * normalize test or unseen data. <featureIndex, max-min>
+ * <p>
+ * This class stores minimum and maximum values for a list of numeric features. It can be used to perform a Min-Max
+ * normalization.
+ * </p>
+ * 
+ * @author David Urbansky
+ * @author Philipp Katz
  */
 public class MinMaxNormalization implements Serializable {
 
     private static final long serialVersionUID = 7227377881428315427L;
 
-    private final Map<String, Double> normalizationMap;
-    private final Map<String, Double> minValueMap;
+    private final Map<String, Double> maxValues;
+    private final Map<String, Double> minValues;
 
     /**
-     * @param normalizationMap
-     * @param minValueMap
+     * @param maxValues Map with maximum values for each numeric feature.
+     * @param minValues Map with minumum values for each numeric feature.
      */
-    public MinMaxNormalization(Map<String, Double> normalizationMap, Map<String, Double> minValueMap) {
-        this.normalizationMap = normalizationMap;
-        this.minValueMap = minValueMap;
+    public MinMaxNormalization(Map<String, Double> maxValues, Map<String, Double> minValues) {
+        this.maxValues = maxValues;
+        this.minValues = minValues;
     }
 
-    public Map<String, Double> getNormalizationMap() {
-        return normalizationMap;
+    /**
+     * <p>
+     * Normalize a {@link List} of {@link Instance}s based on the normalization information. The values are modified
+     * directly in place.
+     * </p>
+     * 
+     * @param instances The List of Instances, not <code>null</code>.
+     */
+    public void normalize(List<Instance> instances) {
+        Validate.notNull(instances, "instances must not be null");
+
+        for (Instance instance : instances) {
+            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
+
+            for (NumericFeature numericFeature : numericFeatures) {
+                normalize(numericFeature);
+            }
+        }
     }
 
-    public Map<String, Double> getMinValueMap() {
-        return minValueMap;
+    private void normalize(NumericFeature numericFeature) {
+        String featureName = numericFeature.getName();
+        double featureValue = numericFeature.getValue();
+
+        Double minValue = minValues.get(featureName);
+        Double maxValue = maxValues.get(featureName);
+        double maxMinDifference = maxValue - minValue;
+        double normalizedValue = (featureValue - minValue) / maxMinDifference;
+
+        numericFeature.setValue(normalizedValue);
     }
-    
+
+    /**
+     * <p>
+     * Normalize a {@link FeatureVector} based in the normalization information. The values are modified directly in
+     * place.
+     * </p>
+     * 
+     * @param featureVector The FeatureVector to normalize, not <code>null</code>.
+     */
+    public void normalize(FeatureVector featureVector) {
+        Validate.notNull(featureVector, "featureVector must not be null");
+        for (NumericFeature feature : featureVector.getAll(NumericFeature.class)) {
+            normalize(feature);
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder toStringBuilder = new StringBuilder();
-        for (String name : normalizationMap.keySet()) {
-            toStringBuilder.append(name).append(";");
-            toStringBuilder.append(normalizationMap.get(name)).append(";");
-            toStringBuilder.append(minValueMap.get(name)).append("\n");
+        toStringBuilder.append("MinMaxNormalization:\n");
+        List<String> names = new ArrayList<String>(minValues.keySet());
+        Collections.sort(names);
+        for (int i = 0; i < names.size(); i++) {
+            if (i > 0) {
+                toStringBuilder.append('\n');
+            }
+            String name = names.get(i);
+            toStringBuilder.append(name).append(": ");
+            toStringBuilder.append(minValues.get(name)).append("; ");
+            toStringBuilder.append(maxValues.get(name));
         }
         return toStringBuilder.toString();
     }
