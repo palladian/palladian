@@ -1,4 +1,4 @@
-package ws.palladian.classification.numeric;
+package ws.palladian.classification.utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,7 +15,8 @@ import ws.palladian.processing.features.NumericFeature;
 /**
  * <p>
  * This class stores minimum and maximum values for a list of numeric features. It can be used to perform a Min-Max
- * normalization.
+ * normalization. Use {@link ClassificationUtils#calculateMinMaxNormalization(List)} to calculate the normalization
+ * information.
  * </p>
  * 
  * @author David Urbansky
@@ -30,9 +31,9 @@ public class MinMaxNormalization implements Serializable {
 
     /**
      * @param maxValues Map with maximum values for each numeric feature.
-     * @param minValues Map with minumum values for each numeric feature.
+     * @param minValues Map with minimum values for each numeric feature.
      */
-    public MinMaxNormalization(Map<String, Double> maxValues, Map<String, Double> minValues) {
+    MinMaxNormalization(Map<String, Double> maxValues, Map<String, Double> minValues) {
         this.maxValues = maxValues;
         this.minValues = minValues;
     }

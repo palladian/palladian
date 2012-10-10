@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;

@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
+import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.classification.utils.MinMaxNormalization;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
