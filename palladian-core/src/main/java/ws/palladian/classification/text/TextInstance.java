@@ -68,8 +68,8 @@ public class TextInstance extends Instance {
     }
 
     public Category getFirstRealCategory() {
-        if (realCategories != null && !realCategories.isEmpty()) {
-            return realCategories.get(0);
+        if (realCategories != null && realCategories.iterator().hasNext()) {
+            return realCategories.iterator().next();
         }
         return null;
     }
