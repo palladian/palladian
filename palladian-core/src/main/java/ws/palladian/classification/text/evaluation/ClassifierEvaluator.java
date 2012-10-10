@@ -21,19 +21,22 @@ public class ClassifierEvaluator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ClassifierEvaluator.class);
 
-    private int crossValidation = 5;
+    private final int crossValidation;
 
     /** The list of classifiers to evaluate. */
     private final List<PalladianTextClassifier> classifiers = new ArrayList<PalladianTextClassifier>();
 
     /** The list of dataset to use for evaluation. */
     private final List<Dataset> datasets = new ArrayList<Dataset>();
+    
+    public ClassifierEvaluator(int crossValidation) {
+        this.crossValidation = crossValidation;
+    }
+    
+    public ClassifierEvaluator() {
+        this(5);
+    }
 
-    /**
-     * The number of instances per class in the dataset to use for evaluation. This number must be lower or equals the
-     * number of instances in the smallest dataset. -1 means that all instances should be considered.
-     */
-    private int numberOfInstancesPerClass = -1;
 
     public void addClassifier(PalladianTextClassifier classifier) {
         classifiers.add(classifier);
@@ -43,12 +46,10 @@ public class ClassifierEvaluator {
         datasets.add(dataset);
     }
 
-    public Matrix runEvaluation(String evaluationOutputPath) {
+    public Matrix runEvaluation(String evaluationOutputPath) throws IOException {
         StopWatch stopWatch = new StopWatch();
 
         Matrix evaluationMatrix = new Matrix();
-
-        DatasetManager dsManager = new DatasetManager();
 
         // loop through all classifiers
         for (PalladianTextClassifier classifier : classifiers) {
@@ -63,14 +64,8 @@ public class ClassifierEvaluator {
                 List<ClassifierPerformanceResult> performances = new ArrayList<ClassifierPerformanceResult>();
 
                 // get the files for cross validation
-                List<String[]> fileSplits = new ArrayList<String[]>();
-                try {
-                    fileSplits = dsManager.splitForCrossValidation(dataset, getCrossValidation(),
-                            getNumberOfInstancesPerClass());
-                } catch (IOException e) {
-                    LOGGER.error("could not split dataset for cross validation, " + e.getMessage());
-                }
-
+                List<String[]> fileSplits = DatasetManager.splitForCrossValidation(dataset, crossValidation, -1);
+                
                 // iterate through the cross validation folds, each entry contains the training and test file path
                 for (String[] filePaths : fileSplits) {
 
@@ -109,7 +104,7 @@ public class ClassifierEvaluator {
 
                 ClassifierPerformanceResult averagedPerformance = averageClassifierPerformances(performances);
 
-                evaluationMatrix.set(dataset.getName(), evalClassifier.getName(), averagedPerformance);
+                evaluationMatrix.set(dataset.getName(), evalClassifier.getClass().getName(), averagedPerformance);
             }
 
             // free memory by resetting the classifier (training and test documents will be deleted)
@@ -120,7 +115,7 @@ public class ClassifierEvaluator {
         StringBuilder results = new StringBuilder();
 
         results.append("Evaluation of " + classifiers.size() + " classifiers on " + datasets.size() + " datasets.\n");
-        results.append("Cross validation folds per dataset: " + getCrossValidation() + "\n");
+        results.append("Cross validation folds per dataset: " + crossValidation + "\n");
         results.append("Time taken: " + stopWatch.getTotalElapsedTimeString() + "\n\n");
 
         results.append(";");
@@ -136,7 +131,8 @@ public class ClassifierEvaluator {
         for (PalladianTextClassifier classifier : classifiers) {
             results.append(classifier.toString());
             for (Dataset dataset : datasets) {
-                results.append(";").append(evaluationMatrix.get(dataset.getName(), classifier.getName()));
+                // XXX
+                results.append(";").append(evaluationMatrix.get(dataset.getName(), classifier.getClass().getName()));
             }
             results.append("\n");
         }
@@ -147,7 +143,7 @@ public class ClassifierEvaluator {
             for (Dataset dataset : datasets) {
                 results.append(classifier.toString() + " - " + dataset.getName() + " confusion matrix\n");
                 ClassifierPerformanceResult classificationResult = (ClassifierPerformanceResult)evaluationMatrix.get(
-                        dataset.getName(), classifier.getName());
+                        dataset.getName(), classifier.getClass().getName()); // XXX
                 results.append(classificationResult.getConfusionMatrix().asCsv());
                 results.append("\n\n");
             }
@@ -158,7 +154,7 @@ public class ClassifierEvaluator {
         for (PalladianTextClassifier classifier : classifiers) {
             for (Dataset dataset : datasets) {
                 ClassifierPerformanceResult classificationResult = (ClassifierPerformanceResult)evaluationMatrix.get(
-                        dataset.getName(), classifier.getName());
+                        dataset.getName(), classifier.getClass().getName()); // XXX
 
                 results.append(classifier.toString() + " - " + dataset.getName() + " threshold bucket analysis\n");
                 results.append(classificationResult.getThresholdBucketMapAsCsv());
@@ -175,7 +171,7 @@ public class ClassifierEvaluator {
         FileHelper.writeToFile(evaluationOutputPath, results);
 
         LOGGER.info("complete evaluation on " + classifiers.size() + " classifiers and " + datasets.size()
-                + " datasets with " + getCrossValidation() + " cv folds took " + stopWatch.getTotalElapsedTimeString());
+                + " datasets with " + crossValidation + " cv folds took " + stopWatch.getTotalElapsedTimeString());
 
         return evaluationMatrix;
     }
@@ -284,22 +280,6 @@ public class ClassifierEvaluator {
         }
         return new ClassifierPerformanceResult(precision, recall, f1, sensitivity, specificity, accuracy, correctness,
                 superiority, confusionMatrix, thresholdBucketMap, thresholdAccMap);
-    }
-
-    public int getCrossValidation() {
-        return crossValidation;
-    }
-
-    public void setCrossValidation(int crossValidation) {
-        this.crossValidation = crossValidation;
-    }
-
-    public void setNumberOfInstancesPerClass(int numberOfInstancesPerClass) {
-        this.numberOfInstancesPerClass = numberOfInstancesPerClass;
-    }
-
-    public int getNumberOfInstancesPerClass() {
-        return numberOfInstancesPerClass;
     }
 
     // public void createModel() {

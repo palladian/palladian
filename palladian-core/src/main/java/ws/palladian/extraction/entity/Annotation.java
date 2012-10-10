@@ -9,8 +9,6 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.Dictionary;
-import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
@@ -670,46 +668,46 @@ public class Annotation extends UniversalInstance {
         return unwrappedAnnotations;
     }
 
-    public Annotations unwrapAnnotations(PalladianTextClassifier classifier, Preprocessor preprocessor) {
-        Annotations unwrappedAnnotations = new Annotations();
-
-        if (getEntity().indexOf(" ") == -1) {
-            return unwrappedAnnotations;
-        }
-
-        String[] words = getEntity().split(" ");
-        String[] tags = new String[words.length];
-
-        // classify each word
-        for (int i = 0; i < words.length; i++) {
-
-            tags[i] = classifier.classify(words[i]).getMostLikelyCategoryEntry().getCategory().getName();
-            // TextInstance document = preprocessor.preProcessDocument(words[i]);
-            // tags[i] = document.getMainCategoryEntry().getCategory().getName();
-
-        }
-
-        // create annotations
-        Annotation lastAnnotation = new Annotation(0, "", "");
-        for (int i = 0; i < words.length; i++) {
-            String tag = tags[i];
-
-            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
-                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
-                int offsetPlus = 0;
-                if (i > 0) {
-                    offsetPlus = indexList.get(i - 1) + 1;
-                }
-                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i], tags[i]);
-                unwrappedAnnotations.add(lastAnnotation);
-            } else {
-                // update last annotation
-                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
-                lastAnnotation.setLength(lastAnnotation.getEntity().length());
-            }
-        }
-
-        return unwrappedAnnotations;
-    }
+//    public Annotations unwrapAnnotations(PalladianTextClassifier classifier, Preprocessor preprocessor) {
+//        Annotations unwrappedAnnotations = new Annotations();
+//
+//        if (getEntity().indexOf(" ") == -1) {
+//            return unwrappedAnnotations;
+//        }
+//
+//        String[] words = getEntity().split(" ");
+//        String[] tags = new String[words.length];
+//
+//        // classify each word
+//        for (int i = 0; i < words.length; i++) {
+//
+//            tags[i] = classifier.classify(words[i]).getMostLikelyCategoryEntry().getCategory().getName();
+//            // TextInstance document = preprocessor.preProcessDocument(words[i]);
+//            // tags[i] = document.getMainCategoryEntry().getCategory().getName();
+//
+//        }
+//
+//        // create annotations
+//        Annotation lastAnnotation = new Annotation(0, "", "");
+//        for (int i = 0; i < words.length; i++) {
+//            String tag = tags[i];
+//
+//            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
+//                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
+//                int offsetPlus = 0;
+//                if (i > 0) {
+//                    offsetPlus = indexList.get(i - 1) + 1;
+//                }
+//                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i], tags[i]);
+//                unwrappedAnnotations.add(lastAnnotation);
+//            } else {
+//                // update last annotation
+//                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
+//                lastAnnotation.setLength(lastAnnotation.getEntity().length());
+//            }
+//        }
+//
+//        return unwrappedAnnotations;
+//    }
 
 }

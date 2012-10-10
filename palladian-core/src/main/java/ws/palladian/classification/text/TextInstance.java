@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -11,6 +10,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * The document representation.
@@ -28,7 +28,8 @@ public class TextInstance extends Instance {
     private String content = "";
 
     /** The weighted terms with term,weight representation. */
-    private Map<String, Double> weightedTerms;
+    //private Map<String, Double> weightedTerms;
+    private final Set<String> terms;
 
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
@@ -47,7 +48,13 @@ public class TextInstance extends Instance {
      * The constructor.
      */
     public TextInstance() {
-        weightedTerms = new HashMap<String, Double>();
+        //weightedTerms = new HashMap<String, Double>();
+        terms = CollectionHelper.newHashSet();
+        assignedCategoryEntries = new CategoryEntries();
+    }
+    
+    public TextInstance(Set<String> terms) {
+        this.terms = terms;
         assignedCategoryEntries = new CategoryEntries();
     }
 
@@ -71,8 +78,12 @@ public class TextInstance extends Instance {
         return content;
     }
 
-    public Map<String, Double> getWeightedTerms() {
-        return weightedTerms;
+//    public Map<String, Double> getWeightedTerms() {
+//        return weightedTerms;
+//    }
+    
+    public Set<String> getTerms() {
+        return terms;
     }
 
     /**

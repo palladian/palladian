@@ -1,10 +1,8 @@
 package ws.palladian.classification.text;
 
+import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
@@ -93,40 +91,38 @@ public class Dictionary implements Serializable {
 
     }
 
-    public String toCsv() {
-        StringBuilder dictionaryString = new StringBuilder("");
+    public void toCsv(PrintStream printStream) {
+        // StringBuilder dictionaryString = new StringBuilder("");
 
         // add some meta information
-        dictionaryString.append("Words,").append(termCategoryEntries.entrySet().size()).append("\n").append("\n");
+        printStream.print("Words," + termCategoryEntries.entrySet().size() + "\n\n");
 
         // create the file head
-        dictionaryString.append("Term,");
-        Iterator<Category> ic = categories.iterator();
-        while (ic.hasNext()) {
-            dictionaryString.append(ic.next().getName()).append(",");
+        printStream.print("Term,");
+        for (Category category : categories) {
+            printStream.print(category.getName() + ",");
         }
-        dictionaryString.append("\n");
-
-        Logger.getRootLogger().debug("word count " + termCategoryEntries.entrySet().size());
+        printStream.print("\n");
 
         // one word per line with term frequencies per category
         for (Map.Entry<String, CategoryEntries> term : termCategoryEntries.entrySet()) {
 
-            dictionaryString.append(term.getKey()).append(",");
+            printStream.print(term.getKey());
+            printStream.print(",");
 
             // get word frequency for each category and current term
             for (Category category : categories) {
                 CategoryEntry ce = term.getValue().getCategoryEntry(category.getName());
                 if (ce == null) {
-                    dictionaryString.append("0.0,");
+                    printStream.print("0.0,");
                 } else {
-                    dictionaryString.append(ce.getRelevance()).append(",");
+                    printStream.print(ce.getRelevance() + ",");
                 }
             }
-            dictionaryString.append("\n");
+            printStream.print("\n");
         }
-
-        return dictionaryString.toString();
+        
+        printStream.flush();
     }
 
     public void calculateCategoryPriors() {

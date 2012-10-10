@@ -1,4 +1,4 @@
-package ws.palladian.classification;
+package ws.palladian.classification.text;
 
 import static org.junit.Assert.assertTrue;
 
@@ -7,14 +7,26 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.text.DictionaryModel;
-import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.helper.io.FileHelper;
 
-public class DictionaryClassifierTest {
+public class PalladianTextClassifierTest {
+    
+    private static final String JRC_TRAIN_FILE = "/Users/pk/Desktop/data/Wikipedia76Languages/languageDocumentIndex_random1000_train.txt";
+    private static final String JRC_TEST_FILE = "/Users/pk/Desktop/data/Wikipedia76Languages/languageDocumentIndex_random1000_test.txt";
+    private static final String WIKIPEDIA_TRAIN_FILE = "/Users/pk/Desktop/data/Wikipedia76Languages/languageDocumentIndex_random1000_train.txt";
+    private static final String WIKIPEDIA_TEST_FILE = "/Users/pk/Desktop/data/Wikipedia76Languages/languageDocumentIndex_random1000_test.txt";
+    private static final String TWENTY_NEWSGROUPS_1 = "/Users/pk/Desktop/data/20newsgroups-18828/index_split1.txt";
+    private static final String TWENTY_NEWSGROUPS_2 = "/Users/pk/Desktop/data/20newsgroups-18828/index_split2.txt";
+//    private static final String JRC_TRAIN_FILE = "C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_train.txt";
+//    private static final String JRC_TEST_FILE = "C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt";
+//    private static final String WIKIPEDIA_TRAIN_FILE = "C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_train.txt";
+//    private static final String WIKIPEDIA_TEST_FILE = "C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt";
+//    private static final String TWENTY_NEWSGROUPS_1 = "C:\\Workspace\\data\\20newsgroups-18828\\index_split1.txt";
+//    private static final String TWENTY_NEWSGROUPS_2 = "C:\\Workspace\\data\\20newsgroups-18828\\index_split2.txt";
 
     @Test
     public void testDictionaryClassifierCharJrc() throws IOException {
@@ -33,16 +45,16 @@ public class DictionaryClassifierTest {
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
-        dataset.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_train.txt");
+        dataset.setPath(JRC_TRAIN_FILE);
 
         Dataset dataset2 = new Dataset("JRC");
         dataset2.setFirstFieldLink(true);
         dataset2.setSeparationString(" ");
-        dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
+        dataset2.setPath(JRC_TEST_FILE);
 
         DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
-        FileHelper.writeToFile("dictCharJrc_ref.csv", model.toDictionaryCsv());
+        // model.toDictionaryCsv(new PrintStream("dictCharJrc_ref.csv"));
 
         double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
@@ -67,16 +79,16 @@ public class DictionaryClassifierTest {
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
-        dataset.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_train.txt");
+        dataset.setPath(WIKIPEDIA_TRAIN_FILE);
 
         Dataset dataset2 = new Dataset("JRC");
         dataset2.setFirstFieldLink(true);
         dataset2.setSeparationString(" ");
-        dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
+        dataset2.setPath(WIKIPEDIA_TEST_FILE);
 
         DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
-        FileHelper.writeToFile("dictWordJrc_ref.csv", model.toDictionaryCsv());
+        // model.toDictionaryCsv(new PrintStream("dictWordJrc_ref.csv"));
 
         double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
@@ -100,17 +112,17 @@ public class DictionaryClassifierTest {
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
-        dataset.setPath("C:\\Workspace\\data\\20newsgroups-18828\\index_split1.txt");
+        dataset.setPath(TWENTY_NEWSGROUPS_1);
 
         Dataset dataset2 = new Dataset("JRC");
         dataset2.setFirstFieldLink(true);
         dataset2.setSeparationString(" ");
         // dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
-        dataset2.setPath("C:\\Workspace\\data\\20newsgroups-18828\\index_split2.txt");
+        dataset2.setPath(TWENTY_NEWSGROUPS_2);
 
         DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
-        FileHelper.writeToFile("dictCharNg_ref.csv", model.toDictionaryCsv());
+        // model.toDictionaryCsv(new PrintStream("dictCharNg_ref.csv"));
 
         double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
@@ -134,16 +146,16 @@ public class DictionaryClassifierTest {
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
-        dataset.setPath("C:\\Workspace\\data\\20newsgroups-18828\\index_split1.txt");
+        dataset.setPath(TWENTY_NEWSGROUPS_1);
 
         Dataset dataset2 = new Dataset("JRC");
         dataset2.setFirstFieldLink(true);
         dataset2.setSeparationString(" ");
-        dataset2.setPath("C:\\Workspace\\data\\20newsgroups-18828\\index_split2.txt");
+        dataset2.setPath(TWENTY_NEWSGROUPS_2);
 
         DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
 
-        FileHelper.writeToFile("dictWordNg_ref.csv", model.toDictionaryCsv());
+        // model.toDictionaryCsv(new PrintStream("dictWordNg_ref.csv"));
 
         double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 

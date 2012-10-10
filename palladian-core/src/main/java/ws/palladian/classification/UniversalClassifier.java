@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.numeric.KnnClassifier;
+import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
@@ -51,6 +52,8 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
     private double[] weights = new double[3];
 
     private CountMap2D correctlyClassified2 = new CountMap2D();
+
+    private DictionaryModel textClassifierModel;
 
     // private Map<String, Double> weights2 = new HashMap<String, Double>();
 
@@ -121,7 +124,7 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
         // classify text using the dictionary classifier
         CategoryEntries textCategories = null;
         if (useTextClassifier) {
-            textCategories = textClassifier.classify(textFeature);
+            textCategories = textClassifier.classify(textFeature, textClassifierModel);
         }
 
         // classify numeric features with the KNN
@@ -219,6 +222,7 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
         // train the text classifier
         if (useTextClassifier) {
             // FIXME getTextClassifier().learn(getTrainingInstances(), cts, fs);
+            // store model
         }
 
         // train the numeric classifier
