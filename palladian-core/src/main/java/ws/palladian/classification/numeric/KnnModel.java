@@ -8,9 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.classification.ClassificationUtils;
-import ws.palladian.classification.Model;
 import ws.palladian.classification.Instance;
-import ws.palladian.processing.features.Feature;
+import ws.palladian.classification.Model;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
@@ -114,7 +113,8 @@ public final class KnnModel implements Model {
      */
     public void normalize() {
         List<Instance> nominalInstances = convertTrainingInstances(trainingExamples);
-        normalizationInformation = ClassificationUtils.minMaxNormalize(nominalInstances);
+        normalizationInformation = ClassificationUtils.calculateMinMaxNormalization(nominalInstances);
+        normalizationInformation.normalize(nominalInstances);
         trainingExamples = initTrainingInstances(nominalInstances);
         isNormalized = true;
     }
@@ -133,18 +133,7 @@ public final class KnnModel implements Model {
             throw new IllegalStateException(
                     "Tried calling normalize for an unnormalized model. Please normalize this model before you try this again.");
         }
-
-        List<NumericFeature> features = vector.getAll(NumericFeature.class);
-
-        for (Feature<Double> feature : features) {
-            String featureName = feature.getName();
-            double featureValue = feature.getValue();
-            double normalizedValue = (featureValue - normalizationInformation.getMinValueMap().get(featureName))
-                    / normalizationInformation.getNormalizationMap().get(featureName);
-
-            feature.setValue(normalizedValue);
-        }
-
+        normalizationInformation.normalize(vector);
     }
 
     /**

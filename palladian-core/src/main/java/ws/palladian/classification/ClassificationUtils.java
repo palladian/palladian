@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.classification.numeric.MinMaxNormalization;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -133,22 +135,23 @@ public final class ClassificationUtils {
 
     /**
      * <p>
-     * Perform a min-max normalization over the numeric values of the features. All values will be in the interval [0,1]
-     * after normalization.
+     * Calculate Min-Max normalization information over the numeric values of the given features (i.e. calculate the
+     * minimum and maximum values for each feature). The {@link MinMaxNormalization} instance can then be used to
+     * normalize numeric instances to an interval of [0,1].
      * </p>
      * 
-     * @param instances
-     *            The {@code List} of {@link Instance}s to normalize.
-     * @return A {@link MinMaxNormalization} object carrying information to
-     *         normalize further {@link Instance}s or {@link FeatureVector}s based on this normalization.
+     * @param instances The {@code List} of {@link Instance}s to normalize, not <code>null</code>.
+     * @return A {@link MinMaxNormalization} instance carrying information to normalize {@link Instance}s based on the
+     *         calculated normalization information.
      */
-    public static MinMaxNormalization minMaxNormalize(List<Instance> instances) {
+    public static MinMaxNormalization calculateMinMaxNormalization(List<Instance> instances) {
+        Validate.notNull(instances, "instances must not be null");
 
         // hold the min value of each feature <featureName, minValue>
-        Map<String, Double> featureMinValueMap = CollectionHelper.newHashMap();
+        Map<String, Double> minValues = CollectionHelper.newHashMap();
 
         // hold the max value of each feature <featureIndex, maxValue>
-        Map<String, Double> featureMaxValueMap = CollectionHelper.newHashMap();
+        Map<String, Double> maxValues = CollectionHelper.newHashMap();
 
         // find the min and max values
         for (Instance instance : instances) {
@@ -161,48 +164,29 @@ public final class ClassificationUtils {
                 double featureValue = feature.getValue();
 
                 // check min value
-                if (featureMinValueMap.get(featureName) != null) {
-                    double currentMin = featureMinValueMap.get(featureName);
+                if (minValues.get(featureName) != null) {
+                    double currentMin = minValues.get(featureName);
                     if (currentMin > featureValue) {
-                        featureMinValueMap.put(featureName, featureValue);
+                        minValues.put(featureName, featureValue);
                     }
                 } else {
-                    featureMinValueMap.put(featureName, featureValue);
+                    minValues.put(featureName, featureValue);
                 }
 
                 // check max value
-                if (featureMaxValueMap.get(featureName) != null) {
-                    double currentMax = featureMaxValueMap.get(featureName);
+                if (maxValues.get(featureName) != null) {
+                    double currentMax = maxValues.get(featureName);
                     if (currentMax < featureValue) {
-                        featureMaxValueMap.put(featureName, featureValue);
+                        maxValues.put(featureName, featureValue);
                     }
                 } else {
-                    featureMaxValueMap.put(featureName, featureValue);
+                    maxValues.put(featureName, featureValue);
                 }
 
             }
         }
-
-        // normalize the feature values
-        Map<String, Double> normalizationMap = CollectionHelper.newHashMap();
-        Map<String, Double> minValueMap = CollectionHelper.newHashMap();
-        for (Instance instance : instances) {
-            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
-
-            for (NumericFeature numericFeature : numericFeatures) {
-                String featureName = numericFeature.getName();
-                Double minValue = featureMinValueMap.get(featureName);
-                Double maxValue = featureMaxValueMap.get(featureName);
-                double maxMinDifference = maxValue - minValue;
-                double featureValue = numericFeature.getValue();
-                double normalizedValue = (featureValue - minValue) / maxMinDifference;
-                numericFeature.setValue(normalizedValue);
-                normalizationMap.put(featureName, maxMinDifference);
-                minValueMap.put(featureName, minValue);
-            }
-
-        }
-        return new MinMaxNormalization(normalizationMap, minValueMap);
+        
+        return new MinMaxNormalization(maxValues, minValues);
     }
 
 }
