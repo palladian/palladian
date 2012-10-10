@@ -149,19 +149,19 @@ public class UniversalClassifier extends ClassifierOld<UniversalInstance> /* imp
         if (instance.targetClass != null && learnWeights) {
 
             if (useTextClassifier
-                    && textCategories.getMostLikelyCategoryEntry().getCategory().getName().equals(instance.targetClass)) {
+                    && textCategories.getMostLikelyCategoryEntry().getCategory().equals(instance.targetClass)) {
                 correctlyClassified[0]++;
                 correctlyClassified2.increment("0", instance.targetClass);
                 mergedCategoryEntries.addAllRelative(textCategories);
             }
             if (useNumericClassifier
-                    && numericInstance.getMainCategoryEntry().getCategory().getName().equals(instance.targetClass)) {
+                    && numericInstance.getMainCategoryEntry().getCategory().equals(instance.targetClass)) {
                 correctlyClassified[1]++;
                 correctlyClassified2.increment("1", instance.targetClass);
                 mergedCategoryEntries.addAllRelative(numericInstance.getAssignedCategoryEntries());
             }
             if (useNominalClassifier
-                    && nominalInstance.getMainCategoryEntry().getCategory().getName().equals(instance.targetClass)) {
+                    && nominalInstance.getMainCategoryEntry().getCategory().equals(instance.targetClass)) {
                 correctlyClassified[2]++;
                 correctlyClassified2.increment("2", instance.targetClass);
                 mergedCategoryEntries.addAllRelative(nominalInstance.getAssignedCategoryEntries());

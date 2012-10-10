@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 
 import org.junit.Test;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.text.Dictionary;
@@ -114,8 +113,8 @@ public class ClassifierTest {
     @Test
     public void testClassifier() {
 
-        Category c1 = new Category("category1");
-        Category c2 = new Category("category2");
+        String c1 = "category1";
+        String c2 = "category2";
 //        c1.increaseFrequency();
 //        c1.increaseFrequency();
 //        c1.increaseFrequency();
@@ -159,14 +158,14 @@ public class ClassifierTest {
         // documents 2 3 5 => prior(c1) = 2/5, prior(c2) = 3/5
         // weights 84 19 103 => e.g. cweight(word1,word2,c1) = 66/84, cweight(word1,word3,c1) = 84/84
         Dictionary dictionary = new Dictionary();
-        dictionary.updateWord(word1, c1.getName(), 12);
-        dictionary.updateWord(word2, c2.getName(), 2);
-        dictionary.updateWord(word1, c1.getName(), 54);
-        dictionary.updateWord(word3, c1.getName(), 18);
-        dictionary.updateWord(word3, c2.getName(), 6);
-        dictionary.updateWord(word4, c2.getName(), 8);
-        dictionary.updateWord(word4, c2.getName(), 2);
-        dictionary.updateWord(word4, c2.getName(), 1);
+        dictionary.updateWord(word1, c1, 12);
+        dictionary.updateWord(word2, c2, 2);
+        dictionary.updateWord(word1, c1, 54);
+        dictionary.updateWord(word3, c1, 18);
+        dictionary.updateWord(word3, c2, 6);
+        dictionary.updateWord(word4, c2, 8);
+        dictionary.updateWord(word4, c2, 2);
+        dictionary.updateWord(word4, c2, 1);
 //        dictionary.calculateCategoryPriors();
 
         // check priors

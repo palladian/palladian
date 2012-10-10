@@ -133,8 +133,7 @@ public class PalladianLangDetect extends LanguageClassifier {
 
     @Override
     public String classify(String text) {
-        return palladianClassifier.classify(text, getPossibleClasses(), model).getMostLikelyCategoryEntry().getCategory()
-                .getName();
+        return palladianClassifier.classify(text, getPossibleClasses(), model).getMostLikelyCategoryEntry().getCategory();
     }
 
     public CategoryEntries classifyAsCategoryEntry(String text) {

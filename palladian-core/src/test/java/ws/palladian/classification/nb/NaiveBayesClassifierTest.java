@@ -9,8 +9,8 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -84,7 +84,7 @@ public class NaiveBayesClassifierTest {
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
 
         assertEquals(0.944, MathHelper.round(categoryEntries.getMostLikelyCategoryEntry().getRelevance(), 3), 0.01);
-        assertEquals("Case", categoryEntries.getMostLikelyCategoryEntry().getCategory().getName());
+        assertEquals("Case", categoryEntries.getMostLikelyCategoryEntry().getCategory());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class NaiveBayesClassifierTest {
         int correctlyClassified = 0;
         for (Instance testInstance : test) {
             CategoryEntries prediction = bayesClassifier.classify(testInstance.featureVector, bayesModel);
-            String categoryName = prediction.getMostLikelyCategoryEntry().getCategory().getName();
+            String categoryName = prediction.getMostLikelyCategoryEntry().getCategory();
             if (categoryName.equals(testInstance.targetClass)) {
                 correctlyClassified++;
             }

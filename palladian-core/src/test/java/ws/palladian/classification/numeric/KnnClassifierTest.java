@@ -8,8 +8,8 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -53,7 +53,7 @@ public class KnnClassifierTest {
         CategoryEntries result = knn.classify(featureVector, model);
 
         assertEquals(0.474, ClassificationUtils.getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0.001);
-        assertEquals("A", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory().getName());
+        assertEquals("A", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
     }
 
     /**
@@ -98,7 +98,7 @@ public class KnnClassifierTest {
 
         assertEquals(1.0000000001339825E9, ClassificationUtils.getSingleBestCategoryEntry(result)
                 .getAbsoluteRelevance(), 0);
-        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory().getName());
+        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class KnnClassifierTest {
 
         assertEquals(1.0000000054326154E9, ClassificationUtils.getSingleBestCategoryEntry(result)
                 .getAbsoluteRelevance(), 0);
-        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory().getName());
+        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
     }
 
 }

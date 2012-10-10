@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.extraction.token.Tokenizer;
@@ -119,8 +118,8 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     @Override
     public CategoryEntry getPolarity(String text, String query) {
         
-        Category positiveCategory = new Category("positive");
-        Category negativeCategory = new Category("negative");
+        String positiveCategory = "positive";
+        String negativeCategory = "negative";
         
         if (query != null) {
             query = query.toLowerCase();
@@ -185,14 +184,13 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentimentSumSentence);
             categoryEntries.add(positiveCategoryEntry);
             categoryEntries.add(negativeCategoryEntry);
-            
-            
-            if (categoryEntries.getMostLikelyCategoryEntry().getRelevance() > confidenceThreshold &&
-                    (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence) &&
- (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
-                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getCategory().getName(), sentence);
+
+            if (categoryEntries.getMostLikelyCategoryEntry().getRelevance() > confidenceThreshold
+                    && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
+                    && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
+                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getCategory(), sentence);
             }
-            
+
         }
         
 //        CategoryEntries categoryEntries = new CategoryEntries();

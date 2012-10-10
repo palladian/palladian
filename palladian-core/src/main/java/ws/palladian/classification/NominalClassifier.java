@@ -38,7 +38,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         StopWatch sw = new StopWatch();
 
         for (UniversalInstance instance : instances) {
-            String className = instance.getInstanceCategoryName();
+            String className = instance.getInstanceCategory();
             List<String> nominalFeatures = instance.getNominalFeatures();
 
             for (String nominalFeature : nominalFeatures) {
@@ -80,7 +80,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         }
 
         // category-probability map
-        Map<Category, Double> scores = new HashMap<Category, Double>();
+        Map<String, Double> scores = new HashMap<String, Double>();
         
         List<String> nominalFeatures = instance.getNominalFeatures();
 
@@ -97,7 +97,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
                 if (currentScore == null) {
                     currentScore = 0.0;
                 }
-                scores.put(new Category(category), currentScore + score);
+                scores.put(category, currentScore + score);
             }
 
         }
@@ -105,7 +105,7 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         // create category entries
         CategoryEntries assignedEntries = new CategoryEntries();
         for (String category : categories.uniqueItems()) {
-            assignedEntries.add(new CategoryEntry(assignedEntries, new Category(category), scores.get(category)));
+            assignedEntries.add(new CategoryEntry(assignedEntries, category, scores.get(category)));
         }
 
         instance.assignCategoryEntries(assignedEntries);
@@ -167,8 +167,8 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         List<UniversalInstance> testInstances = bc.createInstances("data/test.txt", " ");
         for (UniversalInstance universalInstance : testInstances) {
             bc.classify(universalInstance);
-            if (universalInstance.getMainCategoryEntry().getCategory().getName()
-                    .equalsIgnoreCase(universalInstance.getInstanceCategoryName())) {
+            if (universalInstance.getMainCategoryEntry().getCategory()
+                    .equalsIgnoreCase(universalInstance.getInstanceCategory())) {
                 correct++;
             }
         }

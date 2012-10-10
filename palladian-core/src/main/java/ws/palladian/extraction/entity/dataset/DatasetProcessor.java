@@ -162,7 +162,7 @@ public class DatasetProcessor {
                 document = HtmlHelper.stripHtmlTags(document);
 
                 for (Annotation annotation : annotations) {
-                    String tagName = annotation.getInstanceCategoryName().toUpperCase();
+                    String tagName = annotation.getInstanceCategory().toUpperCase();
                     document = document.replace(annotation.getEntity(), "<" + tagName + ">" + annotation.getEntity()
                             + "</" + tagName + ">");
                     if (document.indexOf("<" + tagName + ">") > -1) {

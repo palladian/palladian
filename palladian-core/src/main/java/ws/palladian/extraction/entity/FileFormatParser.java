@@ -672,7 +672,7 @@ public class FileFormatParser {
         // iterate through the annotations and collect numberOfSeedsPerConcept
         for (Annotation annotation : allAnnotations) {
 
-            String conceptName = annotation.getInstanceCategoryName();
+            String conceptName = annotation.getInstanceCategory();
             int numberOfSeeds = conceptSeedCount.get(conceptName);
 
             if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)

@@ -38,7 +38,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
 
     public CategoryEntry getCategoryEntry(String categoryName) {
         for (CategoryEntry ce : this) {
-            if (ce.getCategory().getName().equals(categoryName)) {
+            if (ce.getCategory().equals(categoryName)) {
                 return ce;
             }
         }
@@ -62,7 +62,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         setRelevancesUpToDate(false);
 
         for (CategoryEntry newCategoryEntry : c) {
-            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory().getName());
+            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
             if (ce != null) {
                 ce.addAbsoluteRelevance(newCategoryEntry.getAbsoluteRelevance());
             } else {
@@ -89,7 +89,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
             if (relevance < 0) {
                 relevance = 0;
             }
-            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory().getName());
+            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
             if (ce != null) {
                 ce.addAbsoluteRelevance(coefficient * relevance);
             } else {
@@ -144,7 +144,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
             return get(0);
         }
         LOGGER.warn("no most likey category entry found");
-        return new CategoryEntry(this, new Category(""), 1);
+        return new CategoryEntry(this, "", 1);
     }
 
     @Override
