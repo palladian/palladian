@@ -36,11 +36,7 @@ public class Dictionary implements Serializable {
         this.caseSensitive = caseSensitive;
     }
 
-    public CategoryEntries updateWord(String word, Category category, double value) {
-        return updateWord(word, category.getName(), value);
-    }
-
-    public CategoryEntries updateWord(String word, String categoryName, double value) {
+    public void updateWord(String word, String categoryName, double value) {
 
         if (!caseSensitive) {
             word = word.toLowerCase();
@@ -65,13 +61,9 @@ public class Dictionary implements Serializable {
                 // the word is new for that category so we need to increase
                 // the frequency for the category
                 category.increaseFrequency();
-                category.increaseTotalTermWeight(ce.getAbsoluteRelevance());
             } else {
                 ce.addAbsoluteRelevance(value);
-                category.increaseTotalTermWeight(value);
             }
-
-            return categoryEntries;
         } else {
 
             CategoryEntries categoryEntries = new CategoryEntries();
@@ -82,11 +74,8 @@ public class Dictionary implements Serializable {
             // a new word was added to the category so we need to increase
             // the frequency for the category
             category.increaseFrequency();
-            category.increaseTotalTermWeight(categoryEntry.getAbsoluteRelevance());
 
             termCategoryEntries.put(word, categoryEntries);
-
-            return categoryEntries;
         }
 
     }
@@ -180,10 +169,6 @@ public class Dictionary implements Serializable {
         }
 
         return dictionaryString.toString();
-    }
-
-    public int size() {
-        return termCategoryEntries.size();
     }
 
     public Map<String, CategoryEntries> getCategoryEntries() {
