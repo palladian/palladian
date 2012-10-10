@@ -39,18 +39,6 @@ public class CategoryEntry implements Serializable {
         return relativeRelevance;
     }
 
-    public double getTrust() {
-        return getRelevance();
-    }
-
-//    public void multAbsRel(double factor) {
-//        if (absoluteRelevance <= 0) {
-//            absoluteRelevance = 1;
-//        }
-//        this.absoluteRelevance *= factor;
-//        this.categoryEntries.setRelevancesUpToDate(false);
-//    }
-
     void setRelativeRelevance(double relevance) {
         this.relativeRelevance = relevance;
     }
@@ -64,14 +52,6 @@ public class CategoryEntry implements Serializable {
         // If a CategoryEntry is entered, the relative relevances are not up to date anymore.
         categoryEntries.setRelevancesUpToDate(false);
     }
-
-    //    public CategoryEntries getCategoryEntries() {
-    //        return categoryEntries;
-    //    }
-
-//    public void setCategoryEntries(CategoryEntries categoryEntries) {
-//        this.categoryEntries = categoryEntries;
-//    }
 
     @Override
     public String toString() {

@@ -589,7 +589,7 @@ public class ClassifierPerformance implements Serializable {
                     pair[0] = 1.0;
                 }
 
-                pair[1] = document.getMainCategoryEntry().getTrust();
+                pair[1] = document.getMainCategoryEntry().getRelevance();
 
                 correctThresholds.add(pair);
             }

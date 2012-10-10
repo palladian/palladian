@@ -1,12 +1,14 @@
 package ws.palladian.classification;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -17,10 +19,12 @@ import org.apache.log4j.Logger;
  * @author David Urbansky
  * 
  */
-public class CategoryEntries extends ArrayList<CategoryEntry> implements Serializable {
+public class CategoryEntries implements Serializable, Iterable<CategoryEntry> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(CategoryEntries.class);
+    
+    private final List<CategoryEntry> entries = CollectionHelper.newArrayList();
 
     private static final long serialVersionUID = 4321001999458490582L;
 
@@ -37,7 +41,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     }
 
     public CategoryEntry getCategoryEntry(String categoryName) {
-        for (CategoryEntry ce : this) {
+        for (CategoryEntry ce : entries) {
             if (ce.getCategory().equals(categoryName)) {
                 return ce;
             }
@@ -45,41 +49,20 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
         return null;
     }
 
-    @Override
     public boolean add(CategoryEntry e) {
         if (e == null) {
             return false;
         }
         // If a CategoryEntry is entered, the relative relevances are not up to date anymore.
         setRelevancesUpToDate(false);
-        return super.add(e);
+        return entries.add(e);
     }
 
-    @Override
-    public boolean addAll(Collection<? extends CategoryEntry> c) {
-        boolean listChanged = false;
-
-        setRelevancesUpToDate(false);
-
-        for (CategoryEntry newCategoryEntry : c) {
-            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
-            if (ce != null) {
-                ce.addAbsoluteRelevance(newCategoryEntry.getAbsoluteRelevance());
-            } else {
-                super.add(new CategoryEntry(this, newCategoryEntry.getCategory(), newCategoryEntry
-                        .getAbsoluteRelevance()));
-            }
-            listChanged = true;
-        }
-
-        return listChanged;
-    }
-
-    public boolean addAllRelative(Collection<? extends CategoryEntry> c) {
+    public boolean addAllRelative(CategoryEntries c) {
         return addAllRelative(1.0, c);
     }
 
-    public boolean addAllRelative(double coefficient, Collection<? extends CategoryEntry> categoryEntries) {
+    public boolean addAllRelative(double coefficient, CategoryEntries categoryEntries) {
         boolean listChanged = false;
 
         setRelevancesUpToDate(false);
@@ -112,11 +95,11 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
 
         // normalize
         Double totalRelevance = 0.0;
-        for (CategoryEntry entry : this) {
+        for (CategoryEntry entry : entries) {
             totalRelevance += entry.getAbsoluteRelevance();
         }
 
-        for (CategoryEntry entry : this) {
+        for (CategoryEntry entry : entries) {
             if (totalRelevance > 0) {
                 entry.setRelativeRelevance(entry.getAbsoluteRelevance() / totalRelevance);
             } else {
@@ -129,7 +112,7 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     }
 
     public void sortByRelevance() {
-        Collections.sort(this, new Comparator<CategoryEntry>() {
+        Collections.sort(entries, new Comparator<CategoryEntry>() {
             @Override
             public int compare(CategoryEntry o1, CategoryEntry o2) {
                 return ((Comparable<Double>)o2.getRelevance()).compareTo(o1.getRelevance());
@@ -140,8 +123,8 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     public CategoryEntry getMostLikelyCategoryEntry() {
         sortByRelevance();
         // XXX
-        if (size() > 0) {
-            return get(0);
+        if (entries.size() > 0) {
+            return entries.get(0);
         }
         LOGGER.warn("no most likey category entry found");
         return new CategoryEntry(this, "", 1);
@@ -150,10 +133,19 @@ public class CategoryEntries extends ArrayList<CategoryEntry> implements Seriali
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (CategoryEntry ce : this) {
+        for (CategoryEntry ce : entries) {
             sb.append(ce).append(",");
         }
         return sb.toString();
+    }
+
+    @Override
+    public Iterator<CategoryEntry> iterator() {
+        return entries.iterator();
+    }
+
+    public int size() {
+        return entries.size();
     }
 
 }

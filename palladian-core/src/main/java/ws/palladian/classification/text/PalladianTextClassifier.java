@@ -159,7 +159,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
                     regressionValue += Double.valueOf(ce.getCategory()) * ce.getRelevance();
                 }
             }
-            bestFitList.clear();
+            bestFitList = new CategoryEntries();
             bestFitList.add(new CategoryEntry(bestFitList, String.valueOf(regressionValue), 1));
         }
 

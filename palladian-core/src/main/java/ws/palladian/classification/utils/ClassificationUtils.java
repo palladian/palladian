@@ -41,10 +41,10 @@ public final class ClassificationUtils {
 
     public static CategoryEntry getSingleBestCategoryEntry(CategoryEntries entries) {
         CategoryEntries limitedCategories = limitCategories(entries, 1, 0.0);
-        if (limitedCategories.isEmpty()) {
-            return null;
+        if (limitedCategories.iterator().hasNext()) {
+            return limitedCategories.iterator().next();
         }
-        return limitedCategories.get(0);
+        return null;
     }
 
     /**
