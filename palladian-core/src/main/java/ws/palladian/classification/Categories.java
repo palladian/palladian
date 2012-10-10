@@ -1,19 +1,22 @@
 package ws.palladian.classification;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * An ArrayList of categories.
  * 
  * @author David Urbansky
  */
-public class Categories extends ArrayList<Category> implements Serializable {
+public class Categories implements Serializable, Iterable<Category> {
+
+    private List<Category> categories = CollectionHelper.newArrayList();
 
     private static final long serialVersionUID = 1L;
 
-    @Override
     public boolean add(Category category) {
 
         if (category == null) {
@@ -21,30 +24,16 @@ public class Categories extends ArrayList<Category> implements Serializable {
         }
 
         // XXX it would make more sense to increment the frequency here.
-        
+
         if (contains(category)) {
             // this.getCategoryByName(category.getName()).addRelevance(category.getRelevance());
-        	// Category existingCategory = this.getCategoryByName(category.getName());
-        	// existingCategory.increaseFrequency();
+            // Category existingCategory = this.getCategoryByName(category.getName());
+            // existingCategory.increaseFrequency();
             return false;
         } else {
-        	// category.increaseFrequency();
-        	return super.add(category);
+            // category.increaseFrequency();
+            return categories.add(category);
         }
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends Category> c) {
-
-        boolean allAdded = true;
-
-        for (Category category : c) {
-            if (!add(category)) {
-                allAdded = false;
-            }
-        }
-
-        return allAdded;
     }
 
     /**
@@ -57,30 +46,18 @@ public class Categories extends ArrayList<Category> implements Serializable {
      */
     public void calculatePriors() {
         int totalDocuments = 0;
-        for (Category category : this) {
+        for (Category category : categories) {
             totalDocuments += category.getFrequency();
         }
-        for (Category category : this) {
+        for (Category category : categories) {
             category.calculatePrior(totalDocuments);
         }
     }
 
-    /**
-     * Check whether ArrayList contains obj.
-     * 
-     * @return True if the obj is contained, false otherwise.
-     */
-    @Override
-    public boolean contains(Object obj) {
-        
-        if  (!(obj instanceof Category)) {
-            return false;
-        }
-        
-        
-        String categoryName = ((Category)obj).getName();
+    private boolean contains(Category category) {
+        String categoryName = category.getName();
 
-        for (Category c : this) {
+        for (Category c : categories) {
             if (c.getName().equals(categoryName)) {
                 return true;
             }
@@ -96,7 +73,7 @@ public class Categories extends ArrayList<Category> implements Serializable {
      * @return category
      */
     public Category getCategoryByName(String categoryName) {
-        for (Category c : this) {
+        for (Category c : categories) {
             if (c.getName().equals(categoryName)) {
                 return c;
             }
@@ -105,9 +82,14 @@ public class Categories extends ArrayList<Category> implements Serializable {
     }
 
     public void resetFrequencies() {
-        for (Category category : this) {
+        for (Category category : categories) {
             category.resetFrequency();
         }
+    }
+
+    @Override
+    public Iterator<Category> iterator() {
+        return categories.iterator();
     }
 
 }
