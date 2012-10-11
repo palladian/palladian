@@ -21,7 +21,6 @@ public class Dictionary implements Serializable {
 
     private static final long serialVersionUID = 3309493348334861440L;
 
-//    private final Categories categories = new Categories();
     private final CountMap<String> categories = CountMap.create();
     
     private final boolean caseSensitive;
@@ -42,11 +41,6 @@ public class Dictionary implements Serializable {
             word = word.toLowerCase();
         }
 
-//        Category category = categories.getCategoryByName(categoryName);
-//        if (category == null) {
-//            category = new Category(categoryName);
-//            categories.add(category);
-//        }
         categories.add(categoryName);
 
         if (termCategoryEntries.containsKey(word)) {
@@ -58,10 +52,6 @@ public class Dictionary implements Serializable {
             if (ce == null) {
                 ce = new CategoryEntry(categoryEntries, categoryName, value);
                 categoryEntries.add(ce);
-
-                // the word is new for that category so we need to increase
-                // the frequency for the category
-//                category.increaseFrequency();
             } else {
                 ce.addAbsoluteRelevance(value);
             }
@@ -71,10 +61,6 @@ public class Dictionary implements Serializable {
 
             CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, categoryName, value);
             categoryEntries.add(categoryEntry);
-
-            // a new word was added to the category so we need to increase
-            // the frequency for the category
-//            category.increaseFrequency();
 
             termCategoryEntries.put(word, categoryEntries);
         }
@@ -115,10 +101,6 @@ public class Dictionary implements Serializable {
         printStream.flush();
     }
 
-//    public void calculateCategoryPriors() {
-//        categories.calculatePriors();
-//    }
-
     /**
      * Get a list of category entries for the given term.
      * 
@@ -126,6 +108,10 @@ public class Dictionary implements Serializable {
      * @return A list of category entries.
      */
     public CategoryEntries get(String term) {
+        
+        if (!caseSensitive) {
+            term = term.toLowerCase();
+        }
 
         CategoryEntries categoryEntries = null;
 
@@ -137,11 +123,6 @@ public class Dictionary implements Serializable {
 
         return categoryEntries;
     }
-
-//    public Categories getCategories() {
-//        categories.calculatePriors();
-//        return categories;
-//    }
     
     public CountMap<String> getCategories() {
         return categories;

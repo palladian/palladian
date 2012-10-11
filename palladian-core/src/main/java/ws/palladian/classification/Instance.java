@@ -26,7 +26,7 @@ public class Instance implements Classified {
      * </p>
      */
     public final String targetClass;
-    
+
     /**
      * <p>
      * Creates a new completely initialized {@code Instance}.
@@ -37,14 +37,11 @@ public class Instance implements Classified {
      */
     public Instance(String targetClass, FeatureVector featureVector) {
         super();
-        
+
         this.targetClass = targetClass;
         this.featureVector = featureVector;
     }
-    
-    
-    
-    
+
     @Override
     public FeatureVector getFeatureVector() {
         return featureVector;
@@ -54,12 +51,12 @@ public class Instance implements Classified {
     public String getTargetClass() {
         return targetClass;
     }
-    
+
     @Deprecated
     public void setTargetClass(String instanceCategoryName) {
-        
+
     }
-    
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
