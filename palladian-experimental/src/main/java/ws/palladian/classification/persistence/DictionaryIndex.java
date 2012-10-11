@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Dictionary;
+import ws.palladian.classification.text.Dictionary;
 
 public abstract class DictionaryIndex {
 

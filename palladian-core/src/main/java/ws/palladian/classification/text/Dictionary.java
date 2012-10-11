@@ -1,12 +1,13 @@
-package ws.palladian.classification;
+package ws.palladian.classification.text;
 
+import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 
 /**
  * A dictionary holds a list of words with their probabilities/scores of belonging to certain categories. Word Category1
@@ -20,42 +21,33 @@ public class Dictionary implements Serializable {
 
     private static final long serialVersionUID = 3309493348334861440L;
 
-    private int numberOfDocuments = 0;
-
-    private Categories categories = new Categories();
+//    private final Categories categories = new Categories();
+    private final CountMap<String> categories = CountMap.create();
     
-    private boolean caseSensitive = false;
+    private final boolean caseSensitive;
 
     private final Map<String, CategoryEntries> termCategoryEntries = CollectionHelper.newHashMap();
-
+    
     public Dictionary() {
+        this.caseSensitive = false;
+    }
+    
+    public Dictionary(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
     }
 
-    @Deprecated
-    public Dictionary(String name) {
-        super();
-    }
-
-    @Deprecated
-    public Dictionary(String name, int classType) {
-        super();
-    }
-
-    public CategoryEntries updateWord(String word, Category category, double value) {
-        return updateWord(word, category.getName(), value);
-    }
-
-    public CategoryEntries updateWord(String word, String categoryName, double value) {
+    public void updateWord(String word, String categoryName, double value) {
 
         if (!caseSensitive) {
             word = word.toLowerCase();
         }
 
-        Category category = categories.getCategoryByName(categoryName);
-        if (category == null) {
-            category = new Category(categoryName);
-            categories.add(category);
-        }
+//        Category category = categories.getCategoryByName(categoryName);
+//        if (category == null) {
+//            category = new Category(categoryName);
+//            categories.add(category);
+//        }
+        categories.add(categoryName);
 
         if (termCategoryEntries.containsKey(word)) {
 
@@ -64,78 +56,68 @@ public class Dictionary implements Serializable {
             CategoryEntry ce = categoryEntries.getCategoryEntry(categoryName);
 
             if (ce == null) {
-                ce = new CategoryEntry(categoryEntries, category, value);
+                ce = new CategoryEntry(categoryEntries, categoryName, value);
                 categoryEntries.add(ce);
 
                 // the word is new for that category so we need to increase
                 // the frequency for the category
-                category.increaseFrequency();
-                category.increaseTotalTermWeight(ce.getAbsoluteRelevance());
+//                category.increaseFrequency();
             } else {
                 ce.addAbsoluteRelevance(value);
-                category.increaseTotalTermWeight(value);
             }
-
-            return categoryEntries;
         } else {
 
             CategoryEntries categoryEntries = new CategoryEntries();
 
-            CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, category, value);
+            CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, categoryName, value);
             categoryEntries.add(categoryEntry);
 
             // a new word was added to the category so we need to increase
             // the frequency for the category
-            category.increaseFrequency();
-            category.increaseTotalTermWeight(categoryEntry.getAbsoluteRelevance());
+//            category.increaseFrequency();
 
             termCategoryEntries.put(word, categoryEntries);
-
-            return categoryEntries;
         }
 
     }
 
-    public String toCsv() {
-        StringBuilder dictionaryString = new StringBuilder("");
+    public void toCsv(PrintStream printStream) {
+        // StringBuilder dictionaryString = new StringBuilder("");
 
         // add some meta information
-        dictionaryString.append("Files processed,").append(numberOfDocuments).append("\n");
-        dictionaryString.append("Words,").append(termCategoryEntries.entrySet().size()).append("\n").append("\n");
+        printStream.print("Words," + termCategoryEntries.entrySet().size() + "\n\n");
 
         // create the file head
-        dictionaryString.append("Term,");
-        Iterator<Category> ic = categories.iterator();
-        while (ic.hasNext()) {
-            dictionaryString.append(ic.next().getName()).append(",");
+        printStream.print("Term,");
+        for (String category : categories.uniqueItems()) {
+            printStream.print(category + ",");
         }
-        dictionaryString.append("\n");
-
-        Logger.getRootLogger().debug("word count " + termCategoryEntries.entrySet().size());
+        printStream.print("\n");
 
         // one word per line with term frequencies per category
         for (Map.Entry<String, CategoryEntries> term : termCategoryEntries.entrySet()) {
 
-            dictionaryString.append(term.getKey()).append(",");
+            printStream.print(term.getKey());
+            printStream.print(",");
 
             // get word frequency for each category and current term
-            for (Category category : categories) {
+            for (String category : categories.uniqueItems()) {
                 CategoryEntry ce = term.getValue().getCategoryEntry(category);
                 if (ce == null) {
-                    dictionaryString.append("0.0,");
+                    printStream.print("0.0,");
                 } else {
-                    dictionaryString.append(ce.getRelevance()).append(",");
+                    printStream.print(ce.getRelevance() + ",");
                 }
             }
-            dictionaryString.append("\n");
+            printStream.print("\n");
         }
-
-        return dictionaryString.toString();
+        
+        printStream.flush();
     }
 
-    public void calculateCategoryPriors() {
-        categories.calculatePriors();
-    }
+//    public void calculateCategoryPriors() {
+//        categories.calculatePriors();
+//    }
 
     /**
      * Get a list of category entries for the given term.
@@ -156,8 +138,12 @@ public class Dictionary implements Serializable {
         return categoryEntries;
     }
 
-    public Categories getCategories() {
-        categories.calculatePriors();
+//    public Categories getCategories() {
+//        categories.calculatePriors();
+//        return categories;
+//    }
+    
+    public CountMap<String> getCategories() {
         return categories;
     }
 
@@ -166,8 +152,8 @@ public class Dictionary implements Serializable {
         StringBuilder dictionaryString = new StringBuilder();
 
         dictionaryString.append("Words,");
-        for (Category category : categories) {
-            dictionaryString.append(category.getName()).append("(").append(category.getPrior()).append(")").append(",");
+        for (String category : categories) {
+            dictionaryString.append(category).append("(").append(categories.get(category)).append(")").append(",");
         }
         dictionaryString.append("\n");
 
@@ -176,7 +162,7 @@ public class Dictionary implements Serializable {
             dictionaryString.append(term.getKey()).append(",");
 
             // get word frequency for each category and current term
-            for (Category category : categories) {
+            for (String category : categories) {
                 CategoryEntry ce = term.getValue().getCategoryEntry(category);
                 if (ce == null) {
                     dictionaryString.append("0.0,");
@@ -188,14 +174,6 @@ public class Dictionary implements Serializable {
         }
 
         return dictionaryString.toString();
-    }
-
-    public void setCaseSensitive(boolean caseSensitive) {
-        this.caseSensitive = caseSensitive;
-    }
-
-    public int size() {
-        return termCategoryEntries.size();
     }
 
     public Map<String, CategoryEntries> getCategoryEntries() {

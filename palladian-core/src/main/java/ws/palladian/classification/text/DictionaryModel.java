@@ -1,8 +1,9 @@
 package ws.palladian.classification.text;
 
-import ws.palladian.classification.Categories;
+import java.io.PrintStream;
+import java.util.Set;
+
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
@@ -36,16 +37,16 @@ public final class DictionaryModel implements Model {
         dictionary = new Dictionary();
     }
 
-    public void updateWord(String key, String name, Double value) {
-        dictionary.updateWord(key, name, value);
+    public void updateWord(String key, String name) {
+        dictionary.updateWord(key, name, 1.0);
     }
 
     public CategoryEntries get(String key) {
         return dictionary.get(key);
     }
 
-    public Categories getCategories() {
-        return dictionary.getCategories();
+    public Set<String> getCategories() {
+        return dictionary.getCategories().uniqueItems();
     }
 
     public ClassificationTypeSetting getClassificationTypeSetting() {
@@ -65,16 +66,16 @@ public final class DictionaryModel implements Model {
     }
 
     public int size() {
-        return dictionary.size();
+        return dictionary.getCategoryEntries().size();
     }
 
     @Override
     public String toString() {
-        return "DictionaryModel [dictionarySize=" + dictionary.size() + ", categories=" + dictionary.getCategories() + "]";
+        return "DictionaryModel [dictionarySize=" + size() + ", categories=" + dictionary.getCategories() + "]";
     }
 
-    public String toDictionaryCsv() {
-        return dictionary.toCsv();
+    public void toDictionaryCsv(PrintStream printStream) {
+        dictionary.toCsv(printStream);
     }
 
 }

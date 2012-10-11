@@ -63,7 +63,7 @@ public class Instance implements Classified {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Instance2 [featureVector=");
+        builder.append("Instance [featureVector=");
         builder.append(featureVector);
         builder.append(", target=");
         builder.append(targetClass);
