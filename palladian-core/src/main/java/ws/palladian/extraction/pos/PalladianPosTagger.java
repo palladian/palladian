@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.UniversalClassifier;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -62,7 +62,7 @@ public class PalladianPosTagger extends BasePosTagger {
             UniversalInstance instance = new UniversalInstance(instances);
             setFeatures(instance, previousTag, annotation.getValue());
 
-            tagger.classify(instance);
+            tagger.classify(instance.getFeatureVector(),);
             String tag = instance.getMainCategoryEntry().getCategory().getName();
             assignTag(annotation, tag);
             previousTag = tag;

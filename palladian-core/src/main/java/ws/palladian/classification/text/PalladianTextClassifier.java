@@ -411,55 +411,6 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         return train(instances, cts, fs);
     }
 
-    /** FIXME in classifier utils **/
-    public List<Instance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
-
-        List<Instance> instances = new ArrayList<Instance>();
-
-        int added = 1;
-        List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
-        for (String string : trainingArray) {
-
-            String[] parts = string.split(dataset.getSeparationString());
-            if (parts.length != 2) {
-                continue;
-            }
-
-            String learningText = "";
-            if (!dataset.isFirstFieldLink()) {
-                learningText = parts[0];
-            } else {
-                learningText = FileHelper.readFileToString(dataset.getRootPath() + parts[0]);
-            }
-
-            String instanceCategory = parts[1];
-
-            Instance instance = new Instance();
-            instance.targetClass = instanceCategory;
-            instance.featureVector = createFeatureVector(learningText, featureSettings);
-            instances.add(instance);
-
-            ProgressHelper.showProgress(added++, trainingArray.size(), 1);
-        }
-
-        return instances;
-    }
-
-    // FIXME put this somewhere else
-    public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
-        FeatureVector featureVector = new FeatureVector();
-        Preprocessor preprocessor = new Preprocessor(featureSettings);
-        TextInstance preProcessDocument = preprocessor.preProcessDocument(text);
-        for (Entry<String, Double> entry : preProcessDocument.getWeightedTerms().entrySet()) {
-            NominalFeature textFeature = new NominalFeature("term", entry.getKey());
-            featureVector.add(textFeature);
-        }
-
-        return featureVector;
-    }
-
-
-
     public DictionaryModel getModel() {
         return model;
     }

@@ -1,10 +1,17 @@
 package ws.palladian.classification;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ws.palladian.classification.numeric.MinMaxNormalization;
+import ws.palladian.classification.text.Preprocessor;
+import ws.palladian.classification.text.TextInstance;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -101,8 +108,7 @@ public final class ClassificationUtils {
                     return;
                 }
 
-                Instance instance = new Instance();
-                instance.featureVector = new FeatureVector();
+                FeatureVector featureVector = new FeatureVector();
 
                 for (int f = 0; f < parts.length - 1; f++) {
                     String name = headNames == null ? String.valueOf(f) : headNames[f];
@@ -115,14 +121,14 @@ public final class ClassificationUtils {
                     }
                     try {
                         Double doubleValue = Double.valueOf(value);
-                        instance.featureVector.add(new NumericFeature(name, doubleValue));
+                        featureVector.add(new NumericFeature(name, doubleValue));
                     } catch (NumberFormatException e) {
-                        instance.featureVector.add(new NominalFeature(name, value));
+                        featureVector.add(new NominalFeature(name, value));
                     }
 
                 }
 
-                instance.targetClass = parts[parts.length - 1];
+                Instance instance = new Instance(parts[parts.length - 1],featureVector);
                 instances.add(instance);
             }
             
@@ -203,6 +209,52 @@ public final class ClassificationUtils {
 
         }
         return new MinMaxNormalization(normalizationMap, minValueMap);
+    }
+    
+ // FIXME put this somewhere else
+    public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
+        FeatureVector featureVector = new FeatureVector();
+        Preprocessor preprocessor = new Preprocessor(featureSettings);
+        TextInstance preProcessDocument = preprocessor.preProcessDocument(text);
+        for (Entry<String, Double> entry : preProcessDocument.getWeightedTerms().entrySet()) {
+            NominalFeature textFeature = new NominalFeature("term", entry.getKey());
+            featureVector.add(textFeature);
+        }
+
+        return featureVector;
+    }
+    
+    /** FIXME in classifier utils **/
+    public List<Instance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
+
+        List<Instance> instances = new ArrayList<Instance>();
+
+        int added = 1;
+        List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
+        for (String string : trainingArray) {
+
+            String[] parts = string.split(dataset.getSeparationString());
+            if (parts.length != 2) {
+                continue;
+            }
+
+            String learningText = "";
+            if (!dataset.isFirstFieldLink()) {
+                learningText = parts[0];
+            } else {
+                learningText = FileHelper.readFileToString(dataset.getRootPath() + parts[0]);
+            }
+
+            String instanceCategory = parts[1];
+
+            FeatureVector featureVector = createFeatureVector(learningText, featureSettings);
+            Instance instance = new Instance(instanceCategory, featureVector);
+            instances.add(instance);
+
+            ProgressHelper.showProgress(added++, trainingArray.size(), 1);
+        }
+
+        return instances;
     }
 
 }

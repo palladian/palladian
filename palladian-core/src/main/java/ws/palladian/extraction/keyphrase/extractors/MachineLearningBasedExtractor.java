@@ -196,15 +196,14 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         List<Instance> instances = new ArrayList<Instance>();
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            Instance instance = new Instance();
-            instance.targetClass = featureVector.get(IS_KEYWORD).getValue();
+            String targetClass = featureVector.get(IS_KEYWORD).getValue();
             FeatureVector cleanedFv = cleanFeatureVector(featureVector);
-            if ("true".equals(instance.targetClass)) {
+            if ("true".equals(targetClass)) {
                 posSamples++;
             } else {
                 negSamples++;
             }
-            instance.featureVector = cleanedFv;
+            Instance instance = new Instance(targetClass,cleanedFv);
             instances.add(instance);
         }
         System.out.println("# negative samples: " + negSamples);

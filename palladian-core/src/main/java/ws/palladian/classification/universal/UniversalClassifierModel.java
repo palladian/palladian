@@ -1,8 +1,9 @@
-package ws.palladian.classification;
+package ws.palladian.classification.universal;
 
+import ws.palladian.classification.Model;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnModel;
-import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.DictionaryModel;
 
 public class UniversalClassifierModel implements Model {
 
@@ -10,12 +11,20 @@ public class UniversalClassifierModel implements Model {
 
     private final NaiveBayesModel bayesModel;
     private final KnnModel knnModel;
-    private final PalladianTextClassifier textClassifier;
+    private final DictionaryModel dictionaryModel;
 
-    public UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, PalladianTextClassifier textClassifier) {
+    private final double[] weights;
+
+    public UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, DictionaryModel dictionaryModel) {
         this.bayesModel = bayesModel;
         this.knnModel = knnModel;
-        this.textClassifier = textClassifier;
+        this.dictionaryModel = dictionaryModel;
+
+        weights = new double[3];
+
+        weights[0] = 1.0;
+        weights[1] = 1.0;
+        weights[2] = 1.0;
     }
 
     public NaiveBayesModel getBayesModel() {
@@ -26,14 +35,10 @@ public class UniversalClassifierModel implements Model {
         return knnModel;
     }
 
-    public PalladianTextClassifier getTextClassifier() {
-        return textClassifier;
+    public DictionaryModel getTextClassifier() {
+        return dictionaryModel;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -41,11 +46,21 @@ public class UniversalClassifierModel implements Model {
         builder.append(bayesModel);
         builder.append(", knnModel=");
         builder.append(knnModel);
-        builder.append(", textClassifier=");
-        builder.append(textClassifier);
+        builder.append(", dictionaryModel=");
+        builder.append(dictionaryModel);
         // builder.append(", dictionary#documents=").append(textClassifier.getDictionary().getNumberOfDocuments());
         // builder.append(", dictionary#entries=").append(textClassifier.getDictionary().size());
         builder.append("]");
         return builder.toString();
+    }
+
+    public double[] getWeights() {
+        return weights;
+    }
+
+    public void setWeights(double... weights) {
+        this.weights[0] = weights[0];
+        this.weights[1] = weights[1];
+        this.weights[2] = weights[2];
     }
 }

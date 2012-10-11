@@ -454,7 +454,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             textInstance.setTextFeature(annotation.getEntity());
             // FIXME only one of the two following lines -> duplicate semantics
             textInstance.setInstanceCategory(annotation.getInstanceCategory());
-            textInstance.targetClass = annotation.getInstanceCategoryName();
+            textInstance.setTargetClass(annotation.getInstanceCategoryName());
             textInstances.add(textInstance);
         }
 
@@ -1293,7 +1293,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             trainingInstance.setTextFeature(annotation.getLeftContext() + "__" + annotation.getRightContext());
             // FIXME only one of the two lines below -> duplicate semantics
             trainingInstance.setInstanceCategory(tag);
-            trainingInstance.targetClass = tag;
+            trainingInstance.setTargetClass(tag);
             trainingInstances.add(trainingInstance);
 
             ProgressHelper.showProgress(c++, annotations.size(), 1);
