@@ -317,7 +317,6 @@ public final class CollectionHelper {
         return output;
     }
 
-    @SuppressWarnings("unchecked")
     public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(type, "type must not be null");
@@ -325,7 +324,7 @@ public final class CollectionHelper {
 
         for (I item : iterable) {
             if (type.isInstance(item)) {
-                output.add((O)item);
+                output.add(type.cast(item));
             }
         }
         return output;
