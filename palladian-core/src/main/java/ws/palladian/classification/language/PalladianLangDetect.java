@@ -89,7 +89,7 @@ public class PalladianLangDetect extends LanguageClassifier {
             classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
 
             // we want the classifier to be serialized in the end
-            classificationTypeSetting.setSerializeClassifier(true);
+            // classificationTypeSetting.setSerializeClassifier(true);
         }
 
         // specify feature settings that should be used by the classifier
