@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -298,6 +299,49 @@ public final class CollectionHelper {
             }
         }
         return modified;
+    }
+
+    public static <T> Collection<T> filter(Iterable<T> iterable, Filter<T> filter, Collection<T> output) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        Validate.notNull(output, "output must not be null");
+
+        for (T item : iterable) {
+            if (filter.accept(item)) {
+                output.add(item);
+            }
+        }
+        return output;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(type, "type must not be null");
+        Validate.notNull(output, "output must not be null");
+
+        for (I item : iterable) {
+            if (type.isInstance(item)) {
+                output.add((O)item);
+            }
+        }
+        return output;
+    }
+
+    /**
+     * <p>
+     * Get the first element in a {@link List}.
+     * </p>
+     * 
+     * @param list The List from which to get the element, not <code>null</code>.
+     * @return The first element, or <code>null</code> if List was empty.
+     */
+    public static <T> T getFirst(List<T> list) {
+        Validate.notNull(list, "list must not be null");
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
     }
 
 }
