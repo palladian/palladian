@@ -334,7 +334,7 @@ public final class CollectionHelper {
      * </p>
      * 
      * @param list The List from which to get the element, not <code>null</code>.
-     * @return The first element, or <code>null</code> if List was empty.
+     * @return The first element, or <code>null</code> if the list was empty.
      */
     public static <T> T getFirst(List<T> list) {
         Validate.notNull(list, "list must not be null");
@@ -342,6 +342,22 @@ public final class CollectionHelper {
             return null;
         }
         return list.get(0);
+    }
+
+    /**
+     * <p>
+     * Get the last element in a {@link List}.
+     * </p>
+     * 
+     * @param list The List from which to get the element, not <code>null</code>.
+     * @return The last element, or <code>null</code> if the list was empty.
+     */
+    public static <T> T getLast(List<T> list) {
+        Validate.notNull(list, "list must not be null");
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(list.size() - 1);
     }
 
 }
