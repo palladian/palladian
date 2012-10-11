@@ -1,9 +1,11 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
-// FIXME make this generic
 /**
  * x is columns
  * y is rows
@@ -16,23 +18,39 @@ import java.util.Map;
  * </pre>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
-public class CountMap2D extends HashMap<String, HashMap<String, Integer>> {
-
+public class CountMap2D<T> implements Serializable {
+    
+    // XXX subclass of Matrix?
+    
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
+    
+    private Map<T, Map<T, Integer>> map = new HashMap<T, Map<T, Integer>>(); 
+    
+    public static <T> CountMap2D<T> create() {
+        return new CountMap2D<T>();
+    }
+    
+    private CountMap2D() {
+        
+    }
 
     /**
      * Increment the entry with the key by one.
      * 
      * @param key The key of the value that should be incremented.
      */
-    public void increment(String x, String y) {
-        HashMap<String, Integer> row = get(y);
+    public void increment(T x, T y) {
+        increment(x, y, 1);
+    }
+
+    public void increment(T x, T y, int value) {
+        Map<T, Integer> row = map.get(y);
         if (row == null) {
-            row = new HashMap<String, Integer>();
-            put(y, row);
+            row = new HashMap<T, Integer>();
+            map.put(y, row);
         }
         
         Integer integer = row.get(x);
@@ -40,12 +58,12 @@ public class CountMap2D extends HashMap<String, HashMap<String, Integer>> {
             integer = new Integer(0);
         }
         int counter = integer.intValue();
-        counter++;
+        counter+=value;
         row.put(x, counter);
     }
 
-    public int getCount(String x, String y) {
-        HashMap<String, Integer> row = get(y);
+    public int getCount(T x, T y) {
+        Map<T, Integer> row = map.get(y);
         if (row == null) {
             return 0;
         }
@@ -60,12 +78,12 @@ public class CountMap2D extends HashMap<String, HashMap<String, Integer>> {
         return counter;
     }
 
-    public int getColumnSum(String x) {
+    public int getColumnSum(T x) {
         int sum = 0;
 
-        for (Map<String, Integer> entry : this.values()) {
-            for (java.util.Map.Entry<String, Integer> columnEntry : entry.entrySet()) {
-                if (columnEntry.getKey().equalsIgnoreCase(x)) {
+        for (Map<T, Integer> entry : map.values()) {
+            for (java.util.Map.Entry<T, Integer> columnEntry : entry.entrySet()) {
+                if (columnEntry.getKey().equals(x)) {
                     sum += columnEntry.getValue();
                 }
             }
@@ -74,10 +92,10 @@ public class CountMap2D extends HashMap<String, HashMap<String, Integer>> {
         return sum;
     }
 
-    public int getRowSum(String y) {
+    public int getRowSum(T y) {
         int sum = 0;
 
-        Map<String, Integer> row = get(y);
+        Map<T, Integer> row = map.get(y);
         if (row != null) {
             for (Integer v : row.values()) {
                 sum += v;
@@ -85,6 +103,19 @@ public class CountMap2D extends HashMap<String, HashMap<String, Integer>> {
         }
 
         return sum;
+    }
+
+    public Map<T, Integer> get(T x) {
+        return map.get(x);
+    }
+
+    public Set<Entry<T, Map<T, Integer>>> entrySet() {
+        return map.entrySet();
+    }
+    
+    @Override
+    public String toString() {
+        return map.toString();
     }
 
 }
