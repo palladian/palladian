@@ -1,27 +1,19 @@
 package ws.palladian.classification.universal;
 
-import java.util.Collection;
 import java.util.List;
-
-import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnClassifier;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.TextInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.collection.CountMap2D;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
@@ -29,11 +21,8 @@ import ws.palladian.processing.features.NominalFeature;
 
 public class UniversalClassifier implements Classifier<UniversalClassifierModel> {
 
-    /** The serialize version ID. */
-    private static final long serialVersionUID = 6434885229397022001L;
-
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(UniversalClassifier.class);
+    // private static final Logger LOGGER = Logger.getLogger(UniversalClassifier.class);
 
     public static final FeatureDescriptor<NominalFeature> TEXT_FEATURE = FeatureDescriptorBuilder.build(
             "ws.palladian.feature.text", NominalFeature.class);
@@ -56,18 +45,18 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     /** Whether or not to use the nominal classifier. */
     private boolean useNominalClassifier = true;
 
-    private AbstractWeightingStrategy weightStrategy;
+    private final AbstractWeightingStrategy weightStrategy;
+
+    private final FeatureSetting featureSetting;
+
+    private final ClassificationTypeSetting classificationTypeSetting;
 
     // private Map<String, Double> weights2 = new HashMap<String, Double>();
 
     public UniversalClassifier(AbstractWeightingStrategy weightStrategy) {
+        this(weightStrategy,new FeatureSetting(),new ClassificationTypeSetting());
 
-        textClassifier = new PalladianTextClassifier();
-        numericClassifier = new KnnClassifier();
-        nominalClassifier = new NaiveBayesClassifier();
 
-        this.weightStrategy = weightStrategy;
-        this.weightStrategy.setClassifier(this);
 
     }
 
@@ -86,6 +75,19 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     //
     // }
 
+    public UniversalClassifier(AbstractWeightingStrategy weightStrategy, FeatureSetting featureSetting,
+            ClassificationTypeSetting classificationTypeSetting) {
+        
+        textClassifier = new PalladianTextClassifier();
+        this.featureSetting = featureSetting;
+        this.classificationTypeSetting = classificationTypeSetting;
+        numericClassifier = new KnnClassifier();
+        nominalClassifier = new NaiveBayesClassifier();
+
+        this.weightStrategy = weightStrategy;
+        this.weightStrategy.setClassifier(this);
+    }
+
     protected UniversalClassificationResult internalClassify(FeatureVector featureVector, UniversalClassifierModel model) {
         UniversalClassificationResult result = new UniversalClassificationResult();
 
@@ -99,8 +101,8 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         // List<String> nominalFeatures = instance.getNominalFeatures();
 
         // classify text using the dictionary classifier
-        if (model.getBayesModel() != null) {
-            result.setTextCategories(textClassifier.classify(textFeature));
+        if (model.getTextClassifier() != null) {
+            result.setTextCategories(textClassifier.classify(textFeature, model.getTextClassifier()));
         }
 
         // classify numeric features with the KNN
@@ -250,9 +252,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
         // train the text classifier
         if (useTextClassifier) {
-            ClassificationTypeSetting cts = new ClassificationTypeSetting();
-            FeatureSetting fs = new FeatureSetting();
-            textModel = textClassifier.train(instances, cts, fs);
+            textModel = textClassifier.train(instances, classificationTypeSetting, featureSetting);
         }
 
         // train the numeric classifier

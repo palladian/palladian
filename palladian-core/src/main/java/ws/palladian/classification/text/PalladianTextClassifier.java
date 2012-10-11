@@ -425,10 +425,8 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
             String instanceCategory = parts[1];
 
-            Instance instance = new Instance();
-            instance.targetClass = instanceCategory;
-            instance.featureVector = createFeatureVector(learningText, featureSettings);
-            instances.add(instance);
+            FeatureVector featureVector = createFeatureVector(learningText, featureSettings);
+            instances.add(new Instance(instanceCategory, featureVector));
 
             ProgressHelper.showProgress(added++, trainingArray.size(), 1);
         }

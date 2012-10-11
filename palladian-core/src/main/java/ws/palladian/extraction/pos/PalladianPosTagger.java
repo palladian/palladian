@@ -6,10 +6,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.universal.CategoryWeightingStrategy;
 import ws.palladian.classification.universal.UniversalClassifier;
+import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -39,6 +43,7 @@ public class PalladianPosTagger extends BasePosTagger {
     private static final String TAGGER_NAME = "Palladian POS-Tagger";
 
     private UniversalClassifier tagger;
+    private UniversalClassifierModel model;
 
     public PalladianPosTagger(String modelFilePath) {
         tagger = (UniversalClassifier)Cache.getInstance().getDataObject(modelFilePath);
@@ -60,8 +65,8 @@ public class PalladianPosTagger extends BasePosTagger {
             UniversalInstance instance = new UniversalInstance();
             setFeatures(instance, previousTag, annotation.getValue());
 
-            tagger.classify(instance);
-            String tag = instance.getMainCategoryEntry().getCategory();
+            CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
+            String tag = categoryEntries.getMostLikelyCategoryEntry().getCategory();
             assignTag(annotation, tag);
             previousTag = tag;
         }
@@ -102,15 +107,16 @@ public class PalladianPosTagger extends BasePosTagger {
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
 
-        tagger = new UniversalClassifier();
-        tagger.switchClassifiers(true, false, true);
+        // FIXME
+        // tagger.switchClassifiers(true, false, true);
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(7);
         featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
         ClassificationTypeSetting cts = new ClassificationTypeSetting();
         cts.setClassificationType(ClassificationTypeSetting.TAG);
-        List<UniversalInstance> trainingInstances = CollectionHelper.newArrayList();
+        tagger = new UniversalClassifier(new CategoryWeightingStrategy(), featureSetting, cts);
+        List<Instance> trainingInstances = CollectionHelper.newArrayList();
 
         int c = 1;
         File[] trainingFiles = FileHelper.getFiles(folderPath);
@@ -148,13 +154,12 @@ public class PalladianPosTagger extends BasePosTagger {
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
-        tagger.setTrainingInstances(trainingInstances);
-        tagger.trainAll(cts, featureSetting);
+        model = tagger.train(trainingInstances);
 
         // classifier.learnClassifierWeightsByCategory(trainingInstances);
 
-        FileHelper.serialize(tagger, modelFilePath);
-        Cache.getInstance().putDataObject(modelFilePath, tagger);
+        FileHelper.serialize(model, modelFilePath);
+        Cache.getInstance().putDataObject(modelFilePath, model);
 
         LOGGER.info("finished training tagger in " + stopWatch.getElapsedTimeString());
     }
@@ -223,8 +228,8 @@ public class PalladianPosTagger extends BasePosTagger {
                 UniversalInstance instance = new UniversalInstance();
                 setFeatures(instance, previousTag, wordAndTag[0]);
 
-                tagger.classify(instance);
-                String assignedTag = instance.getMainCategoryEntry().getCategory();
+                CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
+                String assignedTag = categoryEntries.getMostLikelyCategoryEntry().getCategory();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
                 previousTag = assignedTag;

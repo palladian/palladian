@@ -16,11 +16,11 @@ import ws.palladian.helper.collection.CountMap2D;
  */
 public final class CategoryWeightingStrategy extends AbstractWeightingStrategy {
     
-    private CountMap2D correctlyClassified2 = new CountMap2D();
+    private CountMap2D correctlyClassified = new CountMap2D();
 
     @Override
     public void learnClassifierWeights(List<Instance> instances, UniversalClassifierModel model) {
-        correctlyClassified2.clear();
+        correctlyClassified.clear();
 
         int c = 1;
         for (Instance instance : instances) {
@@ -32,7 +32,7 @@ public final class CategoryWeightingStrategy extends AbstractWeightingStrategy {
     
     @Override
     protected void countCorrectlyClassified(int index, Instance instance) {
-        correctlyClassified2.increment(String.valueOf(index), instance.targetClass);
+        correctlyClassified.increment(String.valueOf(index), instance.targetClass);
     }
 
 }

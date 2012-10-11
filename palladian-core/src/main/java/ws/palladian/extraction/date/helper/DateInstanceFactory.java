@@ -195,10 +195,8 @@ public final class DateInstanceFactory {
                 fv.add(new NominalFeature(name, column));
             }
         }
-        Instance instance = new Instance();
-        instance.featureVector = fv;
-        instance.targetClass = split[split.length - 1];
-        return instance;
+        String targetClass = split[split.length - 1];
+        return new Instance(targetClass, fv);
     }
 
 }
