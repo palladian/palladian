@@ -95,9 +95,7 @@ public final class KnnModel implements Model {
         List<Instance> nominalInstances = new ArrayList<Instance>(instances.size());
 
         for (TrainingInstance instance : trainingInstances) {
-            Instance nominalInstance = new Instance();
-            nominalInstance.targetClass = instance.targetClass;
-            nominalInstance.featureVector = new FeatureVector();
+            Instance nominalInstance = new Instance(instance.targetClass,new FeatureVector());
             for (Entry<String, Double> feature : instance.features.entrySet()) {
                 nominalInstance.featureVector.add(new NumericFeature(FeatureDescriptorBuilder.build(feature.getKey(),
                         NumericFeature.class), feature.getValue()));
