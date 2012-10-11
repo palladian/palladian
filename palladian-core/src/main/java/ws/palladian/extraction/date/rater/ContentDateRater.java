@@ -9,10 +9,10 @@ import java.util.zip.GZIPInputStream;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;

@@ -53,7 +53,11 @@ public final class CollectionHelper {
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        Collections.sort(list, new EntryValueComparator<K, V>(ascending));
+        if (ascending) {
+            Collections.sort(list, EntryValueComparator.<K, V> ascending());
+        } else {
+            Collections.sort(list, EntryValueComparator.<K, V> descending());
+        }
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
@@ -313,7 +317,6 @@ public final class CollectionHelper {
         return output;
     }
 
-    @SuppressWarnings("unchecked")
     public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(type, "type must not be null");
@@ -321,7 +324,7 @@ public final class CollectionHelper {
 
         for (I item : iterable) {
             if (type.isInstance(item)) {
-                output.add((O)item);
+                output.add(type.cast(item));
             }
         }
         return output;

@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.ClassificationUtils;
-import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -29,9 +29,8 @@ public class KnnClassifierTest {
 
     /**
      * <p>
-     * Tests the typical in memory usage of the Knn classifier. It is trained
-     * with three instances and tried out on one {@link FeatureVector}. In the
-     * end the top class and its absolut relevance need to be correct.
+     * Tests the typical in memory usage of the Knn classifier. It is trained with three instances and tried out on one
+     * {@link FeatureVector}. In the end the top class and its absolute relevance need to be correct.
      * </p>
      */
     @Test
@@ -54,13 +53,12 @@ public class KnnClassifierTest {
         CategoryEntries result = knn.classify(featureVector, model);
 
         assertEquals(0.474, ClassificationUtils.getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0.001);
-        assertEquals("A", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory().getName());
+        assertEquals("A", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
     }
 
     /**
      * <p>
-     * Tests whether the {@link KnnClassifier} works correctly on a larger
-     * dataset loaded directly from a CSV file.
+     * Tests whether the {@link KnnClassifier} works correctly on a larger dataset loaded directly from a CSV file.
      * </p>
      * 
      * @throws FileNotFoundException
@@ -98,10 +96,9 @@ public class KnnClassifierTest {
         // classify
         CategoryEntries result = knn.classify(featureVector, model);
 
-        assertEquals(1.0000000001339825E9, ClassificationUtils
-                .getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0);
-        assertEquals("1", ClassificationUtils
-                .getSingleBestCategoryEntry(result).getCategory().getName());
+        assertEquals(1.0000000001339825E9, ClassificationUtils.getSingleBestCategoryEntry(result)
+                .getAbsoluteRelevance(), 0);
+        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
     }
 
     @Test
@@ -141,10 +138,9 @@ public class KnnClassifierTest {
         // classify
         CategoryEntries result = knn.classify(instanceBuilder.create(), loadedModel);
 
-        assertEquals(1.0000000054326154E9, ClassificationUtils
-                .getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0);
-        assertEquals("1", ClassificationUtils
-                .getSingleBestCategoryEntry(result).getCategory().getName());
+        assertEquals(1.0000000054326154E9, ClassificationUtils.getSingleBestCategoryEntry(result)
+                .getAbsoluteRelevance(), 0);
+        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
     }
 
 }

@@ -2,12 +2,10 @@ package ws.palladian.classification.text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
@@ -34,20 +32,10 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     private static final Logger LOGGER = Logger.getLogger(PalladianTextClassifier.class);
     public static final String UNASSIGNED = "UNASSIGNED";
 
-    private String name = "no-name";
-
-    private DictionaryModel model;
-
     public PalladianTextClassifier() {
     }
-
-//    public PalladianTextClassifier(String modelPath) {
-//        loadModel(modelPath);
-//    }
-
     public DictionaryModel loadModel(String modelPath) {
-        model = FileHelper.deserialize(modelPath);
-        return model;
+        return FileHelper.deserialize(modelPath);
     }
 
     public void reset() {
@@ -86,7 +74,10 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         for (NominalFeature termFeature : trainingInstance.featureVector.getFeatures(NominalFeature.class, "term")) {
 
             // FIXME "Term" still necessary or simply string.intern()?
-            model.updateWord(termFeature.getValue(), trainingInstance.targetClass, 1.0);
+            // -- do not use string.intern() unless it is absolutely necessary (i.e. there is a significant memory
+            // gain), it slows down performance considerably -- Philipp.
+            
+            model.updateWord(termFeature.getValue(), trainingInstance.targetClass);
 
             // FIXME => trainingInstance.targetClass => there must be multiple classes allowed!!!
             // for (Category realCategory : trainingDocument.getRealCategories()) {
@@ -98,13 +89,13 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     }
 
-    public CategoryEntries classify(String text) {
-        FeatureVector fv = createFeatureVector(text, getModel().getFeatureSetting());
-        return classify(fv, getModel());
+    public CategoryEntries classify(String text, DictionaryModel model) {
+        FeatureVector fv = createFeatureVector(text, model.getFeatureSetting());
+        return classify(fv, model);
     }
-    public CategoryEntries classify(String text, Set<String> possibleClasses) {
-        FeatureVector fv = createFeatureVector(text, getModel().getFeatureSetting());
-        return classify(fv, getModel(), possibleClasses);
+    public CategoryEntries classify(String text, Set<String> possibleClasses, DictionaryModel model) {
+        FeatureVector fv = createFeatureVector(text, model.getFeatureSetting());
+        return classify(fv, model, possibleClasses);
     }
 
     @Override
@@ -122,8 +113,8 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         CategoryEntries bestFitList = new CategoryEntries();
 
         // create one category entry for every category with relevance 0
-        for (Category category : model.getCategories()) {
-            if (possibleClasses != null && !possibleClasses.contains(category.getName())) {
+        for (String category : model.getCategories()) {
+            if (possibleClasses != null && !possibleClasses.contains(category)) {
                 continue;
             }
             CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
@@ -139,7 +130,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
                 // iterate through all categories in the dictionary for the weighted term
                 for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
-                    String categoryName = categoryEntry.getCategory().getName();
+                    String categoryName = categoryEntry.getCategory();
                     CategoryEntry c = bestFitList.getCategoryEntry(categoryName);
                     if (c == null) {
                         continue;
@@ -165,11 +156,11 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             double regressionValue = 0;
             for (CategoryEntry ce : bestFitList) {
                 if (ce.getRelevance() > 0) {
-                    regressionValue += Double.valueOf(ce.getCategory().getName()) * ce.getRelevance();
+                    regressionValue += Double.valueOf(ce.getCategory()) * ce.getRelevance();
                 }
             }
-            bestFitList.clear();
-            bestFitList.add(new CategoryEntry(bestFitList, new Category(String.valueOf(regressionValue)), 1));
+            bestFitList = new CategoryEntries();
+            bestFitList.add(new CategoryEntry(bestFitList, String.valueOf(regressionValue), 1));
         }
 
         // if (bestFitList.isEmpty()) {
@@ -411,20 +402,49 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         return train(instances, cts, fs);
     }
 
-    public DictionaryModel getModel() {
-        return model;
+    /** FIXME in classifier utils **/
+    public List<Instance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
+
+        List<Instance> instances = new ArrayList<Instance>();
+
+        int added = 1;
+        List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
+        for (String string : trainingArray) {
+
+            String[] parts = string.split(dataset.getSeparationString());
+            if (parts.length != 2) {
+                continue;
+            }
+
+            String learningText = "";
+            if (!dataset.isFirstFieldLink()) {
+                learningText = parts[0];
+            } else {
+                learningText = FileHelper.readFileToString(dataset.getRootPath() + parts[0]);
+            }
+
+            String instanceCategory = parts[1];
+
+            Instance instance = new Instance();
+            instance.targetClass = instanceCategory;
+            instance.featureVector = createFeatureVector(learningText, featureSettings);
+            instances.add(instance);
+
+            ProgressHelper.showProgress(added++, trainingArray.size(), 1);
+        }
+
+        return instances;
     }
 
-//    public void setModel(DictionaryModel model) {
-//        this.model = model;
-//    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    // FIXME put this somewhere else
+    public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
+        FeatureVector featureVector = new FeatureVector();
+        TextInstance preProcessDocument = Preprocessor.preProcessDocument(text, featureSettings);
+            for (String term : preProcessDocument.getTerms()) {
+            NominalFeature textFeature = new NominalFeature("term", term);
+            featureVector.add(textFeature);
+        }
+        return featureVector;
     }
 
     /**

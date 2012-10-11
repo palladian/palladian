@@ -34,7 +34,7 @@ public class DecisionTreeClassifierTest {
         CategoryEntries prediction = classifier.classify(featureVector, model);
 
         assertEquals(1., prediction.getMostLikelyCategoryEntry().getRelevance(), 0);
-        assertEquals("underweight", prediction.getMostLikelyCategoryEntry().getCategory().getName());
+        assertEquals("underweight", prediction.getMostLikelyCategoryEntry().getCategory());
     }
 
 }

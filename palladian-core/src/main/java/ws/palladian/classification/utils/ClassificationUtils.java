@@ -1,17 +1,14 @@
-package ws.palladian.classification;
+package ws.palladian.classification.utils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import ws.palladian.classification.numeric.MinMaxNormalization;
-import ws.palladian.classification.text.Preprocessor;
-import ws.palladian.classification.text.TextInstance;
-import ws.palladian.classification.text.evaluation.Dataset;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.helper.ProgressHelper;
+import org.apache.commons.lang3.Validate;
+
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -44,10 +41,10 @@ public final class ClassificationUtils {
 
     public static CategoryEntry getSingleBestCategoryEntry(CategoryEntries entries) {
         CategoryEntries limitedCategories = limitCategories(entries, 1, 0.0);
-        if (limitedCategories.isEmpty()) {
-            return null;
+        if (limitedCategories.iterator().hasNext()) {
+            return limitedCategories.iterator().next();
         }
-        return limitedCategories.get(0);
+        return null;
     }
 
     /**
@@ -68,7 +65,7 @@ public final class ClassificationUtils {
         for (CategoryEntry c : categories) {
             if (n < number && c.getRelevance() >= relevanceThreshold) {
                 // XXX added by Philipp, lower memory consumption.
-                c.setCategoryEntries(limitedCategories);
+                // c.setCategoryEntries(limitedCategories);
                 limitedCategories.add(c);
             }
             n++;
@@ -108,7 +105,8 @@ public final class ClassificationUtils {
                     return;
                 }
 
-                FeatureVector featureVector = new FeatureVector();
+                Instance instance = new Instance();
+                instance.featureVector = new FeatureVector();
 
                 for (int f = 0; f < parts.length - 1; f++) {
                     String name = headNames == null ? String.valueOf(f) : headNames[f];
@@ -121,14 +119,14 @@ public final class ClassificationUtils {
                     }
                     try {
                         Double doubleValue = Double.valueOf(value);
-                        featureVector.add(new NumericFeature(name, doubleValue));
+                        instance.featureVector.add(new NumericFeature(name, doubleValue));
                     } catch (NumberFormatException e) {
-                        featureVector.add(new NominalFeature(name, value));
+                        instance.featureVector.add(new NominalFeature(name, value));
                     }
 
                 }
 
-                Instance instance = new Instance(parts[parts.length - 1],featureVector);
+                instance.targetClass = parts[parts.length - 1];
                 instances.add(instance);
             }
             
@@ -139,22 +137,23 @@ public final class ClassificationUtils {
 
     /**
      * <p>
-     * Perform a min-max normalization over the numeric values of the features. All values will be in the interval [0,1]
-     * after normalization.
+     * Calculate Min-Max normalization information over the numeric values of the given features (i.e. calculate the
+     * minimum and maximum values for each feature). The {@link MinMaxNormalization} instance can then be used to
+     * normalize numeric instances to an interval of [0,1].
      * </p>
      * 
-     * @param instances
-     *            The {@code List} of {@link Instance}s to normalize.
-     * @return A {@link MinMaxNormalization} object carrying information to
-     *         normalize further {@link Instance}s or {@link FeatureVector}s based on this normalization.
+     * @param instances The {@code List} of {@link Instance}s to normalize, not <code>null</code>.
+     * @return A {@link MinMaxNormalization} instance carrying information to normalize {@link Instance}s based on the
+     *         calculated normalization information.
      */
-    public static MinMaxNormalization minMaxNormalize(List<Instance> instances) {
+    public static MinMaxNormalization calculateMinMaxNormalization(List<Instance> instances) {
+        Validate.notNull(instances, "instances must not be null");
 
         // hold the min value of each feature <featureName, minValue>
-        Map<String, Double> featureMinValueMap = CollectionHelper.newHashMap();
+        Map<String, Double> minValues = CollectionHelper.newHashMap();
 
         // hold the max value of each feature <featureIndex, maxValue>
-        Map<String, Double> featureMaxValueMap = CollectionHelper.newHashMap();
+        Map<String, Double> maxValues = CollectionHelper.newHashMap();
 
         // find the min and max values
         for (Instance instance : instances) {
@@ -167,94 +166,29 @@ public final class ClassificationUtils {
                 double featureValue = feature.getValue();
 
                 // check min value
-                if (featureMinValueMap.get(featureName) != null) {
-                    double currentMin = featureMinValueMap.get(featureName);
+                if (minValues.get(featureName) != null) {
+                    double currentMin = minValues.get(featureName);
                     if (currentMin > featureValue) {
-                        featureMinValueMap.put(featureName, featureValue);
+                        minValues.put(featureName, featureValue);
                     }
                 } else {
-                    featureMinValueMap.put(featureName, featureValue);
+                    minValues.put(featureName, featureValue);
                 }
 
                 // check max value
-                if (featureMaxValueMap.get(featureName) != null) {
-                    double currentMax = featureMaxValueMap.get(featureName);
+                if (maxValues.get(featureName) != null) {
+                    double currentMax = maxValues.get(featureName);
                     if (currentMax < featureValue) {
-                        featureMaxValueMap.put(featureName, featureValue);
+                        maxValues.put(featureName, featureValue);
                     }
                 } else {
-                    featureMaxValueMap.put(featureName, featureValue);
+                    maxValues.put(featureName, featureValue);
                 }
 
             }
         }
-
-        // normalize the feature values
-        Map<String, Double> normalizationMap = CollectionHelper.newHashMap();
-        Map<String, Double> minValueMap = CollectionHelper.newHashMap();
-        for (Instance instance : instances) {
-            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
-
-            for (NumericFeature numericFeature : numericFeatures) {
-                String featureName = numericFeature.getName();
-                Double minValue = featureMinValueMap.get(featureName);
-                Double maxValue = featureMaxValueMap.get(featureName);
-                double maxMinDifference = maxValue - minValue;
-                double featureValue = numericFeature.getValue();
-                double normalizedValue = (featureValue - minValue) / maxMinDifference;
-                numericFeature.setValue(normalizedValue);
-                normalizationMap.put(featureName, maxMinDifference);
-                minValueMap.put(featureName, minValue);
-            }
-
-        }
-        return new MinMaxNormalization(normalizationMap, minValueMap);
-    }
-    
- // FIXME put this somewhere else
-    public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
-        FeatureVector featureVector = new FeatureVector();
-        Preprocessor preprocessor = new Preprocessor(featureSettings);
-        TextInstance preProcessDocument = preprocessor.preProcessDocument(text);
-        for (Entry<String, Double> entry : preProcessDocument.getWeightedTerms().entrySet()) {
-            NominalFeature textFeature = new NominalFeature("term", entry.getKey());
-            featureVector.add(textFeature);
-        }
-
-        return featureVector;
-    }
-    
-    /** FIXME in classifier utils **/
-    public List<Instance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
-
-        List<Instance> instances = new ArrayList<Instance>();
-
-        int added = 1;
-        List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
-        for (String string : trainingArray) {
-
-            String[] parts = string.split(dataset.getSeparationString());
-            if (parts.length != 2) {
-                continue;
-            }
-
-            String learningText = "";
-            if (!dataset.isFirstFieldLink()) {
-                learningText = parts[0];
-            } else {
-                learningText = FileHelper.readFileToString(dataset.getRootPath() + parts[0]);
-            }
-
-            String instanceCategory = parts[1];
-
-            FeatureVector featureVector = createFeatureVector(learningText, featureSettings);
-            Instance instance = new Instance(instanceCategory, featureVector);
-            instances.add(instance);
-
-            ProgressHelper.showProgress(added++, trainingArray.size(), 1);
-        }
-
-        return instances;
+        
+        return new MinMaxNormalization(maxValues, minValues);
     }
 
 }

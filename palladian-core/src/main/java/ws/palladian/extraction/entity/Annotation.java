@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.Preprocessor;
+import ws.palladian.classification.text.Dictionary;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
@@ -45,7 +42,6 @@ public class Annotation extends UniversalInstance {
     private List<String> subTypes = null;
 
     public Annotation(Annotation annotation) {
-        super(null);
         offset = annotation.getOffset();
         length = annotation.getLength();
         entity = annotation.getEntity();
@@ -54,7 +50,6 @@ public class Annotation extends UniversalInstance {
     }
 
     public Annotation(Annotation annotation, List<UniversalInstance> instances) {
-        super(instances);
         offset = annotation.getOffset();
         length = annotation.getLength();
         entity = annotation.getEntity();
@@ -62,15 +57,6 @@ public class Annotation extends UniversalInstance {
     }
 
     public Annotation(int offset, String entityName, CategoryEntries tags) {
-        super(null);
-        this.offset = offset;
-        this.length = entityName.length();
-        entity = entityName;
-        this.assignedCategoryEntries = tags;
-    }
-
-    public Annotation(int offset, String entityName, CategoryEntries tags, List<UniversalInstance> instances) {
-        super(instances);
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
@@ -78,27 +64,17 @@ public class Annotation extends UniversalInstance {
     }
 
     public Annotation(int offset, String entityName, String tagName) {
-        super(null);
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, tagName, 1));
     }
 
     public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
-        super(annotations);
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
-    }
-
-    public Annotation(int offset, String entityName, String tagName, List<UniversalInstance> instances) {
-        super(instances);
-        this.offset = offset;
-        this.length = entityName.length();
-        entity = entityName;
-        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, tagName, 1));
     }
 
     private int containsDateFragment(String text) {
@@ -496,7 +472,7 @@ public class Annotation extends UniversalInstance {
     }
 
     public String getMostLikelyTagName() {
-        return getTags().getMostLikelyCategoryEntry().getCategory().getName();
+        return getTags().getMostLikelyCategoryEntry().getCategory();
     }
 
     public int getOffset() {
@@ -547,8 +523,8 @@ public class Annotation extends UniversalInstance {
     }
 
     public boolean sameTag(Annotation annotation) {
-        if (getMostLikelyTag().getCategory().getName()
-                .equalsIgnoreCase(annotation.getMostLikelyTag().getCategory().getName())) {
+        if (getMostLikelyTag().getCategory()
+                .equalsIgnoreCase(annotation.getMostLikelyTag().getCategory())) {
             return true;
         }
         return false;
@@ -562,8 +538,8 @@ public class Annotation extends UniversalInstance {
      * @return
      */
     public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
-        if (getMostLikelyTag().getCategory().getName()
-                .equalsIgnoreCase(goldStandardAnnotation.getInstanceCategoryName())) {
+        if (getMostLikelyTag().getCategory()
+                .equalsIgnoreCase(goldStandardAnnotation.getInstanceCategory())) {
             return true;
         }
         return false;
@@ -665,7 +641,7 @@ public class Annotation extends UniversalInstance {
                 int index = entityName.indexOf(" " + word.toLowerCase() + " ");
                 if (index > -1 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, termEntry.getValue()
-                            .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
+                            .getMostLikelyCategoryEntry().getCategory(), annotations);
                     wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
@@ -673,7 +649,7 @@ public class Annotation extends UniversalInstance {
                 index = entityName.indexOf(word.toLowerCase() + " ");
                 if (index == 0 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index, word, termEntry.getValue()
-                            .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
+                            .getMostLikelyCategoryEntry().getCategory(), annotations);
                     wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
@@ -681,7 +657,7 @@ public class Annotation extends UniversalInstance {
                 index = entityName.indexOf(" " + word.toLowerCase());
                 if (index == entityName.length() - word.length() - 1 && word.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, termEntry.getValue()
-                            .getMostLikelyCategoryEntry().getCategory().getName(), annotations);
+                            .getMostLikelyCategoryEntry().getCategory(), annotations);
                     wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
@@ -691,46 +667,46 @@ public class Annotation extends UniversalInstance {
         return unwrappedAnnotations;
     }
 
-    public Annotations unwrapAnnotations(PalladianTextClassifier classifier, Preprocessor preprocessor) {
-        Annotations unwrappedAnnotations = new Annotations();
-
-        if (getEntity().indexOf(" ") == -1) {
-            return unwrappedAnnotations;
-        }
-
-        String[] words = getEntity().split(" ");
-        String[] tags = new String[words.length];
-
-        // classify each word
-        for (int i = 0; i < words.length; i++) {
-
-            tags[i] = classifier.classify(words[i]).getMostLikelyCategoryEntry().getCategory().getName();
-            // TextInstance document = preprocessor.preProcessDocument(words[i]);
-            // tags[i] = document.getMainCategoryEntry().getCategory().getName();
-
-        }
-
-        // create annotations
-        Annotation lastAnnotation = new Annotation(0, "", "");
-        for (int i = 0; i < words.length; i++) {
-            String tag = tags[i];
-
-            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
-                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
-                int offsetPlus = 0;
-                if (i > 0) {
-                    offsetPlus = indexList.get(i - 1) + 1;
-                }
-                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i], tags[i]);
-                unwrappedAnnotations.add(lastAnnotation);
-            } else {
-                // update last annotation
-                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
-                lastAnnotation.setLength(lastAnnotation.getEntity().length());
-            }
-        }
-
-        return unwrappedAnnotations;
-    }
+//    public Annotations unwrapAnnotations(PalladianTextClassifier classifier, Preprocessor preprocessor) {
+//        Annotations unwrappedAnnotations = new Annotations();
+//
+//        if (getEntity().indexOf(" ") == -1) {
+//            return unwrappedAnnotations;
+//        }
+//
+//        String[] words = getEntity().split(" ");
+//        String[] tags = new String[words.length];
+//
+//        // classify each word
+//        for (int i = 0; i < words.length; i++) {
+//
+//            tags[i] = classifier.classify(words[i]).getMostLikelyCategoryEntry().getCategory().getName();
+//            // TextInstance document = preprocessor.preProcessDocument(words[i]);
+//            // tags[i] = document.getMainCategoryEntry().getCategory().getName();
+//
+//        }
+//
+//        // create annotations
+//        Annotation lastAnnotation = new Annotation(0, "", "");
+//        for (int i = 0; i < words.length; i++) {
+//            String tag = tags[i];
+//
+//            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
+//                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
+//                int offsetPlus = 0;
+//                if (i > 0) {
+//                    offsetPlus = indexList.get(i - 1) + 1;
+//                }
+//                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i], tags[i]);
+//                unwrappedAnnotations.add(lastAnnotation);
+//            } else {
+//                // update last annotation
+//                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
+//                lastAnnotation.setLength(lastAnnotation.getEntity().length());
+//            }
+//        }
+//
+//        return unwrappedAnnotations;
+//    }
 
 }

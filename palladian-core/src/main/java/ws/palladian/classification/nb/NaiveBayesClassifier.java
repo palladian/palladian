@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
@@ -113,7 +112,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         // create the result with normalized probabilities
         CategoryEntries categoryEntries = new CategoryEntries();
         for (Entry<String, Double> entry : probabilities.entrySet()) {
-            categoryEntries.add(new CategoryEntry(categoryEntries, new Category(entry.getKey()), entry.getValue()
+            categoryEntries.add(new CategoryEntry(categoryEntries, entry.getKey(), entry.getValue()
                     / evidence));
         }
 

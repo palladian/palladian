@@ -1,18 +1,15 @@
 package ws.palladian.classification.text;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Categories;
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * The document representation.
@@ -25,12 +22,14 @@ public class TextInstance extends Instance {
      * The real categories are given for training documents (and test documents that are used to determine the quality
      * of the classifier).
      */
-    protected Categories realCategories;
+    // FIXME this is never set currently.
+    private List<String> realCategories;
 
     private String content = "";
 
     /** The weighted terms with term,weight representation. */
-    private Map<String, Double> weightedTerms;
+    //private Map<String, Double> weightedTerms;
+    private final Set<String> terms;
 
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
@@ -39,13 +38,7 @@ public class TextInstance extends Instance {
     protected CategoryEntries assignedCategoryEntries = new CategoryEntries();
 
     /** If the class is nominal we have an instance category. */
-    private Category instanceCategory;
-
-    /**
-     * The list of instances to which this instance belongs to. This is important so that categories can be set
-     * correctly.
-     */
-    private List<? extends UniversalInstance> instances;
+    private String instanceCategory;
 
     public void assignCategoryEntries(CategoryEntries categoryEntries) {
         this.assignedCategoryEntries = categoryEntries;
@@ -55,7 +48,13 @@ public class TextInstance extends Instance {
      * The constructor.
      */
     public TextInstance() {
-        weightedTerms = new HashMap<String, Double>();
+        //weightedTerms = new HashMap<String, Double>();
+        terms = CollectionHelper.newHashSet();
+        assignedCategoryEntries = new CategoryEntries();
+    }
+    
+    public TextInstance(Set<String> terms) {
+        this.terms = terms;
         assignedCategoryEntries = new CategoryEntries();
     }
 
@@ -64,13 +63,13 @@ public class TextInstance extends Instance {
      * 
      * @return The real categories.
      */
-    public Categories getRealCategories() {
+    public List<String> getRealCategories() {
         return realCategories;
     }
 
-    public Category getFirstRealCategory() {
-        if (realCategories != null && !realCategories.isEmpty()) {
-            return realCategories.get(0);
+    public String getFirstRealCategory() {
+        if (realCategories != null && realCategories.iterator().hasNext()) {
+            return realCategories.iterator().next();
         }
         return null;
     }
@@ -79,8 +78,12 @@ public class TextInstance extends Instance {
         return content;
     }
 
-    public Map<String, Double> getWeightedTerms() {
-        return weightedTerms;
+//    public Map<String, Double> getWeightedTerms() {
+//        return weightedTerms;
+//    }
+    
+    public Set<String> getTerms() {
+        return terms;
     }
 
     /**
@@ -105,12 +108,8 @@ public class TextInstance extends Instance {
         return classifiedAs;
     }
 
-    public Category getInstanceCategory() {
+    public String getInstanceCategory() {
         return instanceCategory;
-    }
-
-    public String getInstanceCategoryName() {
-        return instanceCategory.getName();
     }
 
     /**
@@ -140,28 +139,19 @@ public class TextInstance extends Instance {
 
         if (highestMatch == null) {
             Logger.getRootLogger().warn("no assigned category found");
-            return new CategoryEntry(this.assignedCategoryEntries, new Category(null), 0.0);
+            return new CategoryEntry(this.assignedCategoryEntries, null, 0.0);
         }
 
         return highestMatch;
     }
 
-    public void setInstanceCategory(Category instanceCategory) {
+    public void setInstanceCategory(String instanceCategory) {
         this.instanceCategory = instanceCategory;
     }
 
-    public void setInstanceCategory(String categoryName) {
-//        Category category = instances.getCategories().getCategoryByName(categoryName);
-//        if (category == null) {
-//            category = new Category(categoryName);
-//            instances.getCategories().add(category);
-//        }
-        this.instanceCategory = new Category(categoryName);
-    }
-
-    protected void setInstances(List<? extends UniversalInstance> instances) {
-        this.instances = instances;
-    }
+//    protected void setInstances(List<? extends UniversalInstance> instances) {
+//        this.instances = instances;
+//    }
 
     public void sortCategoriesByRelevance() {
         assignedCategoryEntries.sortByRelevance();

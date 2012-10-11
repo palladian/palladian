@@ -7,6 +7,7 @@ import ws.palladian.classification.text.TextInstance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 
 @Deprecated
 public abstract class ClassifierOld<T> implements Serializable {
@@ -25,7 +26,7 @@ public abstract class ClassifierOld<T> implements Serializable {
 //    private transient Instances<T> testInstances = new Instances<T>();
 
     /** A classifier classifies to certain categories. */
-    protected Categories categories;
+    protected CountMap<String> categories;
 
 //    protected ProcessingPipeline processingPipeline = new ProcessingPipeline();
 
@@ -38,11 +39,11 @@ public abstract class ClassifierOld<T> implements Serializable {
     /** The feature settings which should be used by the text classifier. */
     private FeatureSetting featureSetting = new FeatureSetting();
 
-    public Categories getCategories() {
+    public CountMap<String> getCategories() {
         return categories;
     }
 
-    public void setCategories(Categories categories) {
+    public void setCategories(CountMap<String> categories) {
         this.categories = categories;
     }
 
@@ -111,24 +112,25 @@ public abstract class ClassifierOld<T> implements Serializable {
      * classifier to classify.
      */
     protected void getPossibleCategories(List<T> instances) {
-        if (getCategories() == null) {
-            setCategories(new Categories());
-        } else {
+//        if (categories == null) {
+            categories = CountMap.create();
+//        } else {
             // we need to reset all frequency counts since we're counting them now
-            categories.resetFrequencies();
-        }
+//            categories.resetFrequencies();
+//        }
         for (T instance : instances) {
-            String categoryName = ((TextInstance)instance).getInstanceCategory().getName();
-            Category category = getCategories().getCategoryByName(categoryName);
-            if (category == null) {
-                category = new Category(categoryName);
-                category.increaseFrequency();
-                getCategories().add(category);
-            } else {
-                category.increaseFrequency();
-            }
+            String categoryName = ((TextInstance)instance).getInstanceCategory();
+//            Category category = getCategories().getCategoryByName(categoryName);
+//            if (category == null) {
+//                category = new Category(categoryName);
+//                category.increaseFrequency();
+//                getCategories().add(category);
+//            } else {
+//                category.increaseFrequency();
+//            }
+            categories.add(categoryName);
         }
-        getCategories().calculatePriors();
+//        getCategories().calculatePriors();
     }
 
     public abstract void save(String classifierPath);
