@@ -151,7 +151,7 @@ public class MultiMap<K, V> implements Map<K, List<V>> {
     
     // MultiMap specific API
     
-    public void put(K key, V value) {
+    public void add(K key, V value) {
         List<V> values = map.get(key);
         if (values == null) {
             values = new ArrayList<V>();
