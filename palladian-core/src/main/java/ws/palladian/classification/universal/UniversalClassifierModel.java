@@ -63,4 +63,5 @@ public class UniversalClassifierModel implements Model {
         this.weights[1] = weights[1];
         this.weights[2] = weights[2];
     }
+
 }

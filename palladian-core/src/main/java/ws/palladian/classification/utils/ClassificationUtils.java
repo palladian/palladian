@@ -105,8 +105,7 @@ public final class ClassificationUtils {
                     return;
                 }
 
-                Instance instance = new Instance();
-                instance.featureVector = new FeatureVector();
+                FeatureVector featureVector = new FeatureVector();
 
                 for (int f = 0; f < parts.length - 1; f++) {
                     String name = headNames == null ? String.valueOf(f) : headNames[f];
@@ -119,14 +118,16 @@ public final class ClassificationUtils {
                     }
                     try {
                         Double doubleValue = Double.valueOf(value);
-                        instance.featureVector.add(new NumericFeature(name, doubleValue));
+                        featureVector.add(new NumericFeature(name, doubleValue));
                     } catch (NumberFormatException e) {
-                        instance.featureVector.add(new NominalFeature(name, value));
+                        featureVector.add(new NominalFeature(name, value));
                     }
 
                 }
 
-                instance.targetClass = parts[parts.length - 1];
+                String targetClass = parts[parts.length - 1];
+                Instance instance = new Instance(targetClass, featureVector);
+
                 instances.add(instance);
             }
             

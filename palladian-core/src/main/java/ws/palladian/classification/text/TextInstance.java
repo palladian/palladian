@@ -10,6 +10,7 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * The document representation.
@@ -48,12 +49,14 @@ public class TextInstance extends Instance {
      * The constructor.
      */
     public TextInstance() {
+        super(null, new FeatureVector()); // XXX
         //weightedTerms = new HashMap<String, Double>();
         terms = CollectionHelper.newHashSet();
         assignedCategoryEntries = new CategoryEntries();
     }
     
     public TextInstance(Set<String> terms) {
+        super(null, new FeatureVector()); // XXX
         this.terms = terms;
         assignedCategoryEntries = new CategoryEntries();
     }

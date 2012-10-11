@@ -50,6 +50,7 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Matrix;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -1373,9 +1374,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         List<Instance> nominalInstances = new ArrayList<Instance>();
 
         for (UniversalInstance uInstance : trainingInstances) {
-            uInstance.featureVector = PalladianTextClassifier.createFeatureVector(uInstance.getTextFeature(),
+            FeatureVector featureVector = PalladianTextClassifier.createFeatureVector(uInstance.getTextFeature(),
                     featureSetting);
-            nominalInstances.add(uInstance);
+            nominalInstances.add(new Instance(uInstance.getTargetClass(), featureVector));
         }
 
         return nominalInstances;
