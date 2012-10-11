@@ -1,6 +1,5 @@
 package ws.palladian.classification;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +7,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap2D;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Feature;
@@ -116,114 +114,47 @@ public class NominalClassifier extends ClassifierOld<UniversalInstance> {
         FileHelper.serialize(this, classifierPath);
     }
     
-    /**
-     * TODO: duplicate code with NaiveBayesClassifier
-     * <p>
-     * </p>
-     * 
-     * @param trainingFilePath
-     */
-    public final void trainFromCSV(String trainingFilePath, String separator) {
-        train(createInstances(trainingFilePath, separator));
-    }
-    
-    /**
-     * TODO: duplicate code with NaiveBayesClassifier
-     * Create instances from a file. The instances must be given in a CSV file
-     * in the following format:<br>
-     * feature1;..;featureN;NominalClass<br>
-     * All features must be nominal values and the class must be nominal. Each
-     * line is one training instance.
-     */
-    private List<UniversalInstance> createInstances(String filePath, String separator) {
-        List<String> trainingLines = FileHelper.readFileToArray(filePath);
+//    /**
+//     * TODO: duplicate code with NaiveBayesClassifier
+//     * <p>
+//     * </p>
+//     * 
+//     * @param trainingFilePath
+//     */
+//    public final void trainFromCSV(String trainingFilePath, String separator) {
+//        train(createInstances(trainingFilePath, separator));
+//    }
+//    
+//    /**
+//     * TODO: duplicate code with NaiveBayesClassifier
+//     * Create instances from a file. The instances must be given in a CSV file
+//     * in the following format:<br>
+//     * feature1;..;featureN;NominalClass<br>
+//     * All features must be nominal values and the class must be nominal. Each
+//     * line is one training instance.
+//     */
+//    private List<UniversalInstance> createInstances(String filePath, String separator) {
+//        List<String> trainingLines = FileHelper.readFileToArray(filePath);
+//
+//        List<UniversalInstance> instances = CollectionHelper.newArrayList();
+//
+//        for (String trainingLine : trainingLines) {
+//            String[] parts = trainingLine.split(separator);
+//
+//            UniversalInstance instance = new UniversalInstance();
+//            List<String> features = new ArrayList<String>();
+//            for (int f = 0; f < parts.length - 1; f++) {
+//                features.add(parts[f]);
+//            }
+//
+//            instance.setNominalFeatures(features);
+//
+//            instance.setInstanceCategory(parts[parts.length - 1]);
+//            instances.add(instance);
+//        }
+//
+//        return instances;
+//    }
 
-        List<UniversalInstance> instances = CollectionHelper.newArrayList();
-
-        for (String trainingLine : trainingLines) {
-            String[] parts = trainingLine.split(separator);
-
-            UniversalInstance instance = new UniversalInstance();
-            List<String> features = new ArrayList<String>();
-            for (int f = 0; f < parts.length - 1; f++) {
-                features.add(parts[f]);
-            }
-
-            instance.setNominalFeatures(features);
-
-            instance.setInstanceCategory(parts[parts.length - 1]);
-            instances.add(instance);
-        }
-
-        return instances;
-    }
-
-    public static void main(String[] args) {
-
-        NominalClassifier bc = new NominalClassifier();
-        bc.trainFromCSV("data/train.txt", " ");
-
-        int correct = 0;
-        List<UniversalInstance> testInstances = bc.createInstances("data/test.txt", " ");
-        for (UniversalInstance universalInstance : testInstances) {
-            bc.classify(universalInstance);
-            if (universalInstance.getMainCategoryEntry().getCategory()
-                    .equalsIgnoreCase(universalInstance.getInstanceCategory())) {
-                correct++;
-            }
-        }
-        System.out.println(correct / (double)testInstances.size());
-
-        System.exit(0);
-
-        List<UniversalInstance> instances = CollectionHelper.newArrayList();
-
-        List<String> nominalFeatures = new ArrayList<String>();
-
-        // create an instance to classify
-        UniversalInstance newInstance = new UniversalInstance();
-        newInstance.setInstanceCategory("A");
-        nominalFeatures.add("f1");
-        newInstance.setNominalFeatures(nominalFeatures);
-        instances.add(newInstance);
-        
-        newInstance = new UniversalInstance();
-        nominalFeatures = new ArrayList<String>();
-        newInstance.setInstanceCategory("B");
-        nominalFeatures.add("f1");
-        newInstance.setNominalFeatures(nominalFeatures);
-        instances.add(newInstance);
-        instances.add(newInstance);
-
-        newInstance = new UniversalInstance();
-        nominalFeatures = new ArrayList<String>();
-        newInstance.setInstanceCategory("A");
-        nominalFeatures.add("f2");
-        newInstance.setNominalFeatures(nominalFeatures);
-        instances.add(newInstance);
-        instances.add(newInstance);
-        instances.add(newInstance);
-
-        newInstance = new UniversalInstance();
-        nominalFeatures = new ArrayList<String>();
-        newInstance.setInstanceCategory("B");
-        nominalFeatures.add("f2");
-        newInstance.setNominalFeatures(nominalFeatures);
-        instances.add(newInstance);
-        instances.add(newInstance);
-        instances.add(newInstance);
-        instances.add(newInstance);
-
-        bc.train(instances);
-
-        newInstance = new UniversalInstance();
-        nominalFeatures = new ArrayList<String>();
-        nominalFeatures.add("f2");
-        newInstance.setNominalFeatures(nominalFeatures);
-
-        bc.classify(newInstance);
-
-        System.out.println(newInstance.getAssignedCategoryEntries());
-    }
     
 }
