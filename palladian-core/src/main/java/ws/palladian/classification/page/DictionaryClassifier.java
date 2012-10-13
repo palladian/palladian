@@ -692,7 +692,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         document.setClassifiedAs(classType);
 
-        System.out.println("matches: " + matches);
+        // System.out.println("matches: " + matches);
 
         LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
                 + document.getAssignedCategoryEntriesByRelevance(classType) + ")");

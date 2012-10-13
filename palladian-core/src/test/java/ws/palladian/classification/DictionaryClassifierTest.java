@@ -5,6 +5,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.classification.page.DictionaryClassifier;
@@ -14,6 +15,7 @@ import ws.palladian.classification.page.evaluation.Dataset;
 import ws.palladian.classification.page.evaluation.FeatureSetting;
 import ws.palladian.helper.io.FileHelper;
 
+@Ignore
 public class DictionaryClassifierTest {
 
     @Test
