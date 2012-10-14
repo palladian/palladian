@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import ws.palladian.classification.text.TextInstance;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -27,10 +27,10 @@ public class ClassifierPerformance implements Serializable {
     private final List<String> categories;
 
     /** The training documents. */
-    private final List<TextInstance> trainingDocuments;
+    private final List<UniversalInstance> trainingDocuments;
 
     /** The test documents that can be used to calculate recall, precision, and F-score. */
-    private final List<TextInstance> testDocuments;
+    private final List<UniversalInstance> testDocuments;
 
     /**
      * A list of pairs of [correct,threshold] where correct is 0 or 1 and the threshold is the threshold of the document
@@ -43,8 +43,8 @@ public class ClassifierPerformance implements Serializable {
      * 
      * @param classifier The classifier.
      */
-    public ClassifierPerformance(List<String> categories, List<TextInstance> trainingDocuments,
-            List<TextInstance> testDocuments) {
+    public ClassifierPerformance(List<String> categories, List<UniversalInstance> trainingDocuments,
+            List<UniversalInstance> testDocuments) {
         this.categories = categories;
         this.trainingDocuments = trainingDocuments;
         this.testDocuments = testDocuments;
@@ -59,9 +59,9 @@ public class ClassifierPerformance implements Serializable {
     public int getNumberOfCorrectClassifiedDocumentsInCategory(String category) {
         int number = 0;
 
-        for (TextInstance document : testDocuments) {
+        for (UniversalInstance document : testDocuments) {
 
-            if (document.getMainCategoryEntry().getCategory().equals(category)
+            if (document.getInstanceCategory().equals(category)
                     && isCorrectClassified(document)) {
                 ++number;
             }
@@ -71,9 +71,9 @@ public class ClassifierPerformance implements Serializable {
         return number;
     }
 
-    public boolean isCorrectClassified(TextInstance textInstance) {
-        String mcn = textInstance.getMainCategoryEntry().getCategory();
-        return mcn.equals(textInstance.getFirstRealCategory());
+    public boolean isCorrectClassified(UniversalInstance textInstance) {
+        String mcn = textInstance.getInstanceCategory();
+        return mcn.equals(textInstance.getInstanceCategory());
 
     }
 
@@ -81,9 +81,9 @@ public class ClassifierPerformance implements Serializable {
     public int getNumberOfConfusionsBetween(String actualCategory, String classifiedCategory) {
         int number = 0;
 
-        for (TextInstance document : testDocuments) {
-            if (document.getFirstRealCategory().equals(actualCategory) &&
-                    document.getMainCategoryEntry().getCategory().equals(classifiedCategory)) {
+        for (UniversalInstance document : testDocuments) {
+            if (document.getInstanceCategory().equals(actualCategory) &&
+                    document.getInstanceCategory().equals(classifiedCategory)) {
 
                 number++;
             }
@@ -109,8 +109,8 @@ public class ClassifierPerformance implements Serializable {
         double highestPrior = -1.0;
 
         CountMap<String> countMap = CountMap.create();
-        for (TextInstance document : testDocuments) {
-            countMap.add(document.getFirstRealCategory());
+        for (UniversalInstance document : testDocuments) {
+            countMap.add(document.getInstanceCategory());
         }
 
         Integer highestClassCount = countMap.getSortedMapDescending().values().iterator().next();
@@ -579,20 +579,22 @@ public class ClassifierPerformance implements Serializable {
         if (correctThresholds == null) {
 
             correctThresholds = new ArrayList<Double[]>();
+            
+            // XXX
 
-            for (TextInstance document : testDocuments) {
-                // pair containing correct (0 or 1) and the threshold [0,1]
-                Double[] pair = new Double[2];
-
-                pair[0] = 0.0;
-                if (isCorrectClassified(document)) {
-                    pair[0] = 1.0;
-                }
-
-                pair[1] = document.getMainCategoryEntry().getRelevance();
-
-                correctThresholds.add(pair);
-            }
+//            for (UniversalInstance document : testDocuments) {
+//                // pair containing correct (0 or 1) and the threshold [0,1]
+//                Double[] pair = new Double[2];
+//
+//                pair[0] = 0.0;
+//                if (isCorrectClassified(document)) {
+//                    pair[0] = 1.0;
+//                }
+//
+//                pair[1] = document.getMainCategoryEntry().getProbability();
+//
+//                correctThresholds.add(pair);
+//            }
 
         }
 
@@ -751,12 +753,12 @@ public class ClassifierPerformance implements Serializable {
      * @param categoryName The category.
      * @return number The number of documents classified in the given category.
      */
-    private int getClassifiedNumberOfCategory(List<TextInstance> instances, String category) {
+    private int getClassifiedNumberOfCategory(List<UniversalInstance> instances, String category) {
         int number = 0;
 
 
-            for (TextInstance d : instances) {
-                if (d.getMainCategoryEntry().getCategory().equals(category)) {
+            for (UniversalInstance d : instances) {
+                if (d.getInstanceCategory().equals(category)) {
                     ++number;
                 }
             }
@@ -771,14 +773,12 @@ public class ClassifierPerformance implements Serializable {
      * @param category
      * @return number
      */
-    private int getRealNumberOfCategory(List<TextInstance> instances, String category) {
+    private int getRealNumberOfCategory(List<UniversalInstance> instances, String category) {
         int number = 0;
 
-        for (TextInstance d : instances) {
-            for (String c : d.getRealCategories()) {
-                if (c.equals(category)) {
-                    ++number;
-                }
+        for (UniversalInstance d : instances) {
+            if (d.getInstanceCategory().equals(category)) {
+                number++;
             }
         }
 

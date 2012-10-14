@@ -738,12 +738,12 @@ public class DatasetCreator {
         // write the seeds to files
         Map<String, StringBuilder> fileMap = new HashMap<String, StringBuilder>();
         for (Annotation annotation : annotations) {
-            StringBuilder seedFileContent = fileMap.get(annotation.getInstanceCategory());
+            StringBuilder seedFileContent = fileMap.get(annotation.getTargetClass());
             if (seedFileContent == null) {
                 seedFileContent = new StringBuilder();
                 // we need to write a header
-                seedFileContent.append("Seeds for ").append(annotation.getInstanceCategory()).append("\n");
-                fileMap.put(annotation.getInstanceCategory(), seedFileContent);
+                seedFileContent.append("Seeds for ").append(annotation.getTargetClass()).append("\n");
+                fileMap.put(annotation.getTargetClass(), seedFileContent);
             }
 
             seedFileContent.append(annotation.getEntity()).append("\n");

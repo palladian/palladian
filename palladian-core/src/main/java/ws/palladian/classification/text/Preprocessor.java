@@ -27,9 +27,9 @@ public final class Preprocessor {
      * 
      * @param text
      *            The input string.
-     * @return The classification document.
+     * @return The extracted set of terms.
      */
-    public static TextInstance preProcessDocument(String text, FeatureSetting featureSettings) {
+    public static Set<String> preProcessDocument(String text, FeatureSetting featureSettings) {
 
         // remove http(s): and www from URL XXX
         // text = UrlHelper.getCleanUrl(text);
@@ -75,7 +75,7 @@ public final class Preprocessor {
                 termSet.add(ngram.toLowerCase());
             }
 
-        return new TextInstance(termSet);
+        return termSet;
     }
 
     private static boolean isStopWord(String word, FeatureSetting featureSettings) {

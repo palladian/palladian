@@ -26,7 +26,7 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  */
 public final class ClassificationUtils {
-    
+
     private static final String SEPARATOR = ";";
 
     /**
@@ -60,10 +60,9 @@ public final class ClassificationUtils {
      */
     public static CategoryEntries limitCategories(CategoryEntries categories, int number, double relevanceThreshold) {
         CategoryEntries limitedCategories = new CategoryEntries();
-        categories.sortByRelevance();
         int n = 0;
         for (CategoryEntry c : categories) {
-            if (n < number && c.getRelevance() >= relevanceThreshold) {
+            if (n < number && c.getProbability() >= relevanceThreshold) {
                 // XXX added by Philipp, lower memory consumption.
                 // c.setCategoryEntries(limitedCategories);
                 limitedCategories.add(c);
@@ -72,7 +71,7 @@ public final class ClassificationUtils {
         }
         return limitedCategories;
     }
-    
+
     /**
      * <p>
      * Create instances from a file. The instances must be given in a CSV file in the following format:
@@ -85,7 +84,7 @@ public final class ClassificationUtils {
      *            (column names are generated automatically).
      */
     public static List<Instance> createInstances(String filePath, final boolean readHeader) {
-        
+
         if (!new File(filePath).canRead()) {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
@@ -130,9 +129,9 @@ public final class ClassificationUtils {
 
                 instances.add(instance);
             }
-            
+
         });
-        
+
         return instances;
     }
 
@@ -159,9 +158,9 @@ public final class ClassificationUtils {
         // find the min and max values
         for (Instance instance : instances) {
 
-            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
+            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
 
-            for (Feature<Double> feature:numericFeatures) {
+            for (Feature<Double> feature : numericFeatures) {
 
                 String featureName = feature.getName();
                 double featureValue = feature.getValue();
@@ -188,7 +187,7 @@ public final class ClassificationUtils {
 
             }
         }
-        
+
         return new MinMaxNormalization(maxValues, minValues);
     }
 

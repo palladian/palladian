@@ -357,7 +357,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             CategoryEntries predictionResult = classifier.classify(cleanFv, model);
             CategoryEntry trueCategory = predictionResult.getCategoryEntry("true");
             if (trueCategory != null) {
-                keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));
+                keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getProbability()));
             }
         }
         reRankCooccurrences(keywords);

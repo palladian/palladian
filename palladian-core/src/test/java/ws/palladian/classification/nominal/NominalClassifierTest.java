@@ -41,8 +41,8 @@ public class NominalClassifierTest {
         
         assertNotNull(categoryA);
         assertNotNull(categoryB);
-        assertEquals(0.4286, categoryA.getRelevance(), 0.0001);
-        assertEquals(0.5714, categoryB.getRelevance(), 0.0001);
+        assertEquals(0.4286, categoryA.getProbability(), 0.0001);
+        assertEquals(0.5714, categoryB.getProbability(), 0.0001);
     }
 
 }

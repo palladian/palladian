@@ -49,10 +49,10 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         });
 
         for (Instance instance : instances) {
-            String category = instance.targetClass;
+            String category = instance.getTargetClass();
             categories.add(category);
 
-            for (Feature<?> feature : instance.featureVector) {
+            for (Feature<?> feature : instance.getFeatureVector()) {
                 String featureName = feature.getName();
 
                 if (feature instanceof NominalFeature) {
@@ -112,8 +112,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         // create the result with normalized probabilities
         CategoryEntries categoryEntries = new CategoryEntries();
         for (Entry<String, Double> entry : probabilities.entrySet()) {
-            categoryEntries.add(new CategoryEntry(categoryEntries, entry.getKey(), entry.getValue()
-                    / evidence));
+            categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue() / evidence));
         }
 
         return categoryEntries;

@@ -50,19 +50,19 @@ public class NaiveBayesClassifierTest {
         NaiveBayesModel model = bayesClassifier.train(instances);
         FeatureVector featureVector = new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
-        assertEquals(0.262, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
-        assertEquals(0.738, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.262, categoryEntries.getCategoryEntry("yes").getProbability(), 0.001);
+        assertEquals(0.738, categoryEntries.getCategoryEntry("no").getProbability(), 0.001);
 
         featureVector = new InstanceBuilder().set("outlook", "overcast").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         categoryEntries = bayesClassifier.classify(featureVector, model);
-        assertEquals(0.703, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
-        assertEquals(0.297, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.703, categoryEntries.getCategoryEntry("yes").getProbability(), 0.001);
+        assertEquals(0.297, categoryEntries.getCategoryEntry("no").getProbability(), 0.001);
 
         // missing values
         featureVector = new InstanceBuilder().set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         categoryEntries = bayesClassifier.classify(featureVector, model);
-        assertEquals(0.426, categoryEntries.getCategoryEntry("yes").getAbsoluteRelevance(), 0.001);
-        assertEquals(0.574, categoryEntries.getCategoryEntry("no").getAbsoluteRelevance(), 0.001);
+        assertEquals(0.426, categoryEntries.getCategoryEntry("yes").getProbability(), 0.001);
+        assertEquals(0.574, categoryEntries.getCategoryEntry("no").getProbability(), 0.001);
         // @formatter:on
     }
 
@@ -83,8 +83,8 @@ public class NaiveBayesClassifierTest {
         FeatureVector featureVector = new InstanceBuilder().set("f", 16.0).create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
 
-        assertEquals(0.944, MathHelper.round(categoryEntries.getMostLikelyCategoryEntry().getRelevance(), 3), 0.01);
-        assertEquals("Case", categoryEntries.getMostLikelyCategoryEntry().getCategory());
+        assertEquals(0.944, MathHelper.round(categoryEntries.getMostLikelyCategoryEntry().getProbability(), 3), 0.01);
+        assertEquals("Case", categoryEntries.getMostLikelyCategoryEntry().getName());
     }
 
     @Test
@@ -112,9 +112,9 @@ public class NaiveBayesClassifierTest {
 
         int correctlyClassified = 0;
         for (Instance testInstance : test) {
-            CategoryEntries prediction = bayesClassifier.classify(testInstance.featureVector, bayesModel);
-            String categoryName = prediction.getMostLikelyCategoryEntry().getCategory();
-            if (categoryName.equals(testInstance.targetClass)) {
+            CategoryEntries prediction = bayesClassifier.classify(testInstance.getFeatureVector(), bayesModel);
+            String categoryName = prediction.getMostLikelyCategoryEntry().getName();
+            if (categoryName.equals(testInstance.getTargetClass())) {
                 correctlyClassified++;
             }
         }

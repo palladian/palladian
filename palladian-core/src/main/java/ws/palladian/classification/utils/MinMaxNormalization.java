@@ -50,7 +50,7 @@ public class MinMaxNormalization implements Serializable {
         Validate.notNull(instances, "instances must not be null");
 
         for (Instance instance : instances) {
-            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
+            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
 
             for (NumericFeature numericFeature : numericFeatures) {
                 normalize(numericFeature);

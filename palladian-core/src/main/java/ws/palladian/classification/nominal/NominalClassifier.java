@@ -24,11 +24,11 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
     @Override
     public NominalClassifierModel train(List<Instance> instances) {
 
-        CountMap2D cooccurrenceMatrix = new CountMap2D();
+        CountMap2D<String> cooccurrenceMatrix = CountMap2D.create();
 
         for (Instance instance : instances) {
-            String className = instance.targetClass;
-            List<NominalFeature> nominalFeatures = instance.featureVector.getAll(NominalFeature.class);
+            String className = instance.getTargetClass();
+            List<NominalFeature> nominalFeatures = instance.getFeatureVector().getAll(NominalFeature.class);
             for (NominalFeature nominalFeature : nominalFeatures) {
                 cooccurrenceMatrix.increment(nominalFeature.getValue(), className);
             }
@@ -46,7 +46,7 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
     @Override
     public CategoryEntries classify(FeatureVector vector, NominalClassifierModel model) {
 
-        CountMap2D cooccurrenceMatrix = model.getCooccurrenceMatrix();
+        CountMap2D<String> cooccurrenceMatrix = model.getCooccurrenceMatrix();
 
         // category-probability map, initialized with zeros
         Map<String, Double> scores = LazyMap.create(new Factory<Double>() {
@@ -76,7 +76,7 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
         // create category entries
         CategoryEntries assignedEntries = new CategoryEntries();
         for (String category : categories) {
-            assignedEntries.add(new CategoryEntry(assignedEntries, category, scores.get(category)));
+            assignedEntries.add(new CategoryEntry(category, scores.get(category)));
         }
 
         return assignedEntries;
