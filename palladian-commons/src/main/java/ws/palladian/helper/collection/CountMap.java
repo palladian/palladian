@@ -84,6 +84,10 @@ public class CountMap<T> implements Collection<T>, Serializable {
      */
     public void add(T item, int increment) {
         Validate.notNull(map, "map must not be null");
+        
+        if (increment == 0) {
+            return;
+        }
 
         Integer count = get(item);
         int counter = count.intValue();
