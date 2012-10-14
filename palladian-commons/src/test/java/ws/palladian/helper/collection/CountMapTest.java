@@ -41,6 +41,11 @@ public class CountMapTest {
         assertEquals(0, countMap.get("one"));
         assertEquals(7, countMap.totalSize());
         assertEquals(2, countMap.uniqueSize());
+        
+        countMap.set("three", 0);
+        assertEquals(0, countMap.get("three"));
+        assertEquals(5, countMap.totalSize());
+        assertEquals(1, countMap.uniqueSize());
 
     }
 
