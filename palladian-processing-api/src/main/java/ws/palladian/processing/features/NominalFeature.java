@@ -13,13 +13,6 @@ package ws.palladian.processing.features;
  */
 public final class NominalFeature extends Feature<String> {
 
-    // /**
-    // * <p>
-    // * The values this {@code NominalFeature} can take on.
-    // * </p>
-    // */
-    // private final String[] possibleValues;
-
     /**
      * <p>
      * Creates a new {@code NominalFeature} instance with all attributes initialized.
@@ -31,8 +24,6 @@ public final class NominalFeature extends Feature<String> {
      */
     public NominalFeature(final String name, final String value) {
         super(name, value);
-
-        // this.possibleValues = possibleValues;
     }
 
     /**
@@ -48,12 +39,5 @@ public final class NominalFeature extends Feature<String> {
     public NominalFeature(final FeatureDescriptor<NominalFeature> descriptor, final String value) {
         this(descriptor.getIdentifier(), value);
     }
-    //
-    // /**
-    // * @return The values this {@code NominalFeature} can take on.
-    // */
-    // public String[] getPossibleValues() {
-    // return possibleValues;
-    // }
 
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
@@ -133,11 +134,26 @@ public class PalladianLangDetect extends LanguageClassifier {
 
     @Override
     public String classify(String text) {
-        return palladianClassifier.classify(text, getPossibleClasses(), model).getMostLikelyCategoryEntry().getCategory();
+        return classifyAsCategoryEntry(text).getMostLikelyCategoryEntry().getName();
     }
 
     public CategoryEntries classifyAsCategoryEntry(String text) {
-        return palladianClassifier.classify(text, getPossibleClasses(), model);
+        CategoryEntries categoryEntries = palladianClassifier.classify(text, model);
+        categoryEntries = narrowCategories(categoryEntries);
+        return categoryEntries;
+    }
+    
+    private CategoryEntries narrowCategories(CategoryEntries categoryEntries) {
+        if (possibleClasses == null) {
+            return categoryEntries;
+        }
+        CategoryEntries narrowedCategories = new CategoryEntries();
+        for (CategoryEntry categoryEntry : categoryEntries) {
+            if (possibleClasses.contains(categoryEntry.getName())) {
+                narrowedCategories.add(categoryEntry);
+            }
+        }
+        return narrowedCategories;
     }
 
     public static void main(String[] args) throws IOException {

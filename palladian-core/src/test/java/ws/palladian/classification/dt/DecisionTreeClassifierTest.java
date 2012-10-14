@@ -33,8 +33,8 @@ public class DecisionTreeClassifierTest {
         FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
         CategoryEntries prediction = classifier.classify(featureVector, model);
 
-        assertEquals(1., prediction.getMostLikelyCategoryEntry().getRelevance(), 0);
-        assertEquals("underweight", prediction.getMostLikelyCategoryEntry().getCategory());
+        assertEquals(1., prediction.getMostLikelyCategoryEntry().getProbability(), 0);
+        assertEquals("underweight", prediction.getMostLikelyCategoryEntry().getName());
     }
 
 }

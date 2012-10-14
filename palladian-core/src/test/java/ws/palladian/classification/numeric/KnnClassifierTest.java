@@ -52,8 +52,8 @@ public class KnnClassifierTest {
         // classify
         CategoryEntries result = knn.classify(featureVector, model);
 
-        assertEquals(0.474, ClassificationUtils.getSingleBestCategoryEntry(result).getAbsoluteRelevance(), 0.001);
-        assertEquals("A", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
+        assertEquals(0.474, ClassificationUtils.getSingleBestCategoryEntry(result).getProbability(), 0.001);
+        assertEquals("A", ClassificationUtils.getSingleBestCategoryEntry(result).getName());
     }
 
     /**
@@ -96,9 +96,8 @@ public class KnnClassifierTest {
         // classify
         CategoryEntries result = knn.classify(featureVector, model);
 
-        assertEquals(1.0000000001339825E9, ClassificationUtils.getSingleBestCategoryEntry(result)
-                .getAbsoluteRelevance(), 0);
-        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
+        assertEquals(1.0000000001339825E9, ClassificationUtils.getSingleBestCategoryEntry(result).getProbability(), 0);
+        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getName());
     }
 
     @Test
@@ -138,9 +137,8 @@ public class KnnClassifierTest {
         // classify
         CategoryEntries result = knn.classify(instanceBuilder.create(), loadedModel);
 
-        assertEquals(1.0000000054326154E9, ClassificationUtils.getSingleBestCategoryEntry(result)
-                .getAbsoluteRelevance(), 0);
-        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getCategory());
+        assertEquals(1.0000000054326154E9, ClassificationUtils.getSingleBestCategoryEntry(result).getProbability(), 0);
+        assertEquals("1", ClassificationUtils.getSingleBestCategoryEntry(result).getName());
     }
 
 }

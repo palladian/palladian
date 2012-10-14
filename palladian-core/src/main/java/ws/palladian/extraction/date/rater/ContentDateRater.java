@@ -87,8 +87,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             } else {
                 Instance instance = DateInstanceFactory.createInstance(date);
                 try {
-                    CategoryEntries dbl = predictor.classify(instance.featureVector, model);
-                    result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getRelevance()));
+                    CategoryEntries dbl = predictor.classify(instance.getFeatureVector(), model);
+                    result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getProbability()));
                 } catch (Exception e) {
                     LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
                 }

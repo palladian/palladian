@@ -66,7 +66,7 @@ public class PalladianPosTagger extends BasePosTagger {
             setFeatures(instance, previousTag, annotation.getValue());
 
             CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
-            String tag = categoryEntries.getMostLikelyCategoryEntry().getCategory();
+            String tag = categoryEntries.getMostLikelyCategoryEntry().getName();
             assignTag(annotation, tag);
             previousTag = tag;
         }
@@ -229,7 +229,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 setFeatures(instance, previousTag, wordAndTag[0]);
 
                 CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
-                String assignedTag = categoryEntries.getMostLikelyCategoryEntry().getCategory();
+                String assignedTag = categoryEntries.getMostLikelyCategoryEntry().getName();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
                 previousTag = assignedTag;

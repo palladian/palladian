@@ -7,13 +7,13 @@ public final class NominalClassifierModel implements Model {
 
     private static final long serialVersionUID = 1L;
 
-    private final CountMap2D cooccurrenceMatrix;
+    private final CountMap2D<String> cooccurrenceMatrix;
 
-    public NominalClassifierModel(CountMap2D cooccurrenceMatrix) {
+    public NominalClassifierModel(CountMap2D<String> cooccurrenceMatrix) {
         this.cooccurrenceMatrix = cooccurrenceMatrix;
     }
 
-    public CountMap2D getCooccurrenceMatrix() {
+    public CountMap2D<String> getCooccurrenceMatrix() {
         return cooccurrenceMatrix;
     }
 

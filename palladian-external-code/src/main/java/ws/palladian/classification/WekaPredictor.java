@@ -53,11 +53,11 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
             featureVector = declareFeatureVector(instances);
             trainInstances = new weka.core.Instances("rel", featureVector, instances.size());
             // last is classindex
-            trainInstances.setClassIndex(instances.get(0).featureVector.size());
+            trainInstances.setClassIndex(instances.get(0).getFeatureVector().size());
 
             for (Instance instance : instances) {
-                weka.core.Instance wekaInstance = makeWekaInstance(featureVector, instance.featureVector,
-                        instance.targetClass);
+                weka.core.Instance wekaInstance = makeWekaInstance(featureVector, instance.getFeatureVector(),
+                        instance.getTargetClass());
                 trainInstances.add(wekaInstance);
             }
             try {
@@ -93,7 +93,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
     }
 
     private FastVector declareFeatureVector(List<Instance> instances) {
-        FeatureVector featureVector = instances.get(0).featureVector;
+        FeatureVector featureVector = instances.get(0).getFeatureVector();
         FastVector ret = new FastVector(featureVector.size() + 1);
         for (Feature<?> feature : featureVector.toArray()) {
             if (feature instanceof NominalFeature) {
@@ -117,8 +117,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
     private FastVector getValues(String name, List<Instance> instances) {
         Set<String> nominalValues = new HashSet<String>();
         for (Instance instance : instances) {
-            @SuppressWarnings("deprecation")
-            NominalFeature feature = instance.featureVector.getFeature(NominalFeature.class, name);
+            NominalFeature feature = instance.getFeatureVector().getFeature(NominalFeature.class, name);
             if (feature == null) {
                 continue;
             }
@@ -138,8 +137,8 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         instance.setDataset(trainInstances);
         try {
             double[] distributionForInstance = classifier.distributionForInstance(instance);
-            ret.add(new CategoryEntry(ret, "true", distributionForInstance[0]));
-            ret.add(new CategoryEntry(ret, "false", distributionForInstance[1]));
+            ret.add(new CategoryEntry("true", distributionForInstance[0]));
+            ret.add(new CategoryEntry("false", distributionForInstance[1]));
         } catch (Exception e) {
             throw new IllegalStateException("An exception occurred while predicting: " + e.getMessage(), e);
         }

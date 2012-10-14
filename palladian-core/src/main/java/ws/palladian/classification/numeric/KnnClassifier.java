@@ -2,6 +2,8 @@ package ws.palladian.classification.numeric;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -45,7 +47,7 @@ public final class KnnClassifier implements Classifier<KnnModel> {
      * 
      * @param k The parameter k specifying the k nearest neighbors to use for classification.
      */
-    public KnnClassifier(Integer k) {
+    public KnnClassifier(int k) {
         this.k = k;
     }
 
@@ -67,55 +69,59 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     @Override
     public CategoryEntries classify(FeatureVector vector, KnnModel model) {
 
-
         // we need to normalize the new instance if the training instances were also normalized
         if (model.isNormalized()) {
             model.normalize(vector);
         }
 
         Set<String> categories = getPossibleCategories(model.getTrainingExamples());
-        CategoryEntries bestFitList = new CategoryEntries();
+        Map<String, Double> relevances = CollectionHelper.newHashMap();
 
         // create one category entry for every category with relevance 0
         for (String category : categories) {
-            bestFitList.add(new CategoryEntry(bestFitList, category, 0));
+            relevances.put(category, 0.);
         }
 
         // find k nearest neighbors, compare instance to every known instance
         List<Pair<Instance, Double>> neighbors = CollectionHelper.newArrayList();
-        for (Instance knownInstance : model.getTrainingExamples()) {
-            double distance = getDistanceBetween(vector, knownInstance.featureVector);
-            neighbors.add(Pair.of(knownInstance, distance));
+        for (Instance example : model.getTrainingExamples()) {
+            double distance = getDistanceBetween(vector, example.getFeatureVector());
+            neighbors.add(Pair.of(example, distance));
         }
 
         // sort near neighbor map by distance
         Collections.sort(neighbors, EntryValueComparator.<Instance, Double> ascending());
 
-        int ck = 0;
-
         // if there are several instances at the same distance we take all of them into the voting, k might get bigger
         // in those cases
         double lastDistance = -1;
+        int ck = 0;
         for (Pair<Instance, Double> neighbor : neighbors) {
 
             if (ck >= k && neighbor.getValue() != lastDistance) {
                 break;
             }
 
-            CategoryEntry c = bestFitList.getCategoryEntry(neighbor.getKey().targetClass);
-            c.addAbsoluteRelevance(1.0 / (neighbor.getValue() + 0.000000001));
+            double distance = neighbor.getValue();
+            double weight = 1.0 / (distance + 0.000000001);
+            String targetClass = neighbor.getKey().getTargetClass();
+            relevances.put(targetClass, relevances.get(targetClass) + weight);
 
-            lastDistance = neighbor.getValue();
-            ++ck;
+            lastDistance = distance;
+            ck++;
         }
 
-        return bestFitList;
+        CategoryEntries categoryEntries = new CategoryEntries();
+        for (Entry<String, Double> entry : relevances.entrySet()) {
+            categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue()));
+        }
+        System.out.println(categoryEntries);
+        return categoryEntries;
     }
 
     /**
      * <p>
-     * Fetches the possible categories from a list of {@link Instance} like to ones making up the typical
-     * training set.
+     * Fetches the possible categories from a list of {@link Instance} like to ones making up the typical training set.
      * </p>
      * 
      * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
@@ -123,7 +129,7 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     private Set<String> getPossibleCategories(List<Instance> instances) {
         Set<String> categories = CollectionHelper.newHashSet();
         for (Instance instance : instances) {
-            categories.add(instance.targetClass);
+            categories.add(instance.getTargetClass());
         }
         return categories;
     }

@@ -1,5 +1,7 @@
 package ws.palladian.classification;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.processing.Classified;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -9,6 +11,7 @@ import ws.palladian.processing.features.FeatureVector;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 2.0.0
  * @since 0.1.8
  */
@@ -19,13 +22,14 @@ public class Instance implements Classified {
      * The {@link FeatureVector} used by a processing classifier to train new {@link Model}.
      * </p>
      */
-    public final FeatureVector featureVector;
+    private final FeatureVector featureVector;
+
     /**
      * <p>
      * The target class this {@code Instance} belongs to.
      * </p>
      */
-    public final String targetClass;
+    private final String targetClass;
 
     /**
      * <p>
@@ -36,10 +40,21 @@ public class Instance implements Classified {
      * @param featureVector The {@link FeatureVector} used by a processing classifier to train new {@link Model}.
      */
     public Instance(String targetClass, FeatureVector featureVector) {
-        super();
-
+        Validate.notNull(targetClass, "targetClass must not be null");
+        Validate.notNull(featureVector, "featureVector must not be null");
         this.targetClass = targetClass;
         this.featureVector = featureVector;
+    }
+
+    /**
+     * <p>
+     * Creates a new completely initialized {@link Instance} with an empty {@link FeatureVector}.
+     * </p>
+     * 
+     * @param targetClass The target class this {@link Instance} belongs to, not <code>null</code>.
+     */
+    public Instance(String targetClass) {
+        this(targetClass, new FeatureVector());
     }
 
     @Override
@@ -50,11 +65,6 @@ public class Instance implements Classified {
     @Override
     public String getTargetClass() {
         return targetClass;
-    }
-
-    @Deprecated
-    public void setTargetClass(String instanceCategoryName) {
-
     }
 
     @Override

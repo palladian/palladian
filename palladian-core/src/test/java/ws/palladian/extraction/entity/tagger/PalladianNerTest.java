@@ -4,12 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
+import java.util.Set;
 
 import org.junit.Test;
 
-import ws.palladian.classification.Dictionary;
-import ws.palladian.classification.UniversalClassifier;
-import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.ResourceHelper;
@@ -25,28 +24,28 @@ public class PalladianNerTest {
         boolean trainingSuccessful = tagger.train(trainingFile, tudnerLiModel);
         assertTrue(trainingSuccessful);
 
-        Dictionary entityDictionary = tagger.getEntityDictionary();
-        assertEquals(2185, entityDictionary.size());
-        assertEquals(4, entityDictionary.getCategories().size());
+        DictionaryModel entityDictionary = tagger.getEntityDictionary();
+        assertEquals(2185, entityDictionary.getNumTerms());
+        assertEquals(4, entityDictionary.getNumCategories());
 
-        Dictionary caseDictionary = tagger.getCaseDictionary();
-        assertEquals(0, caseDictionary.size());
-        assertEquals(0, caseDictionary.getCategories().size());
+        DictionaryModel caseDictionary = tagger.getCaseDictionary();
+        assertEquals(0, caseDictionary.getNumTerms());
+        assertEquals(0, caseDictionary.getNumCategories());
 
-        CountMap leftContextMap = tagger.getLeftContextMap();
-        assertEquals(8274, leftContextMap.size());
+        CountMap<String> leftContextMap = tagger.getLeftContextMap();
+        // assertEquals(8274, leftContextMap.size());
 
-        Annotations removeAnnotations = tagger.getRemoveAnnotations();
+        Set<String> removeAnnotations = tagger.getRemoveAnnotations();
         assertEquals(0, removeAnnotations.size());
 
-        Dictionary contextDictionary = tagger.getContextClassifier().getDictionary();
-        assertEquals(89639, contextDictionary.size());
-        assertEquals(4, contextDictionary.getCategories().size());
+        DictionaryModel contextDictionary = tagger.getContextClassifier();
+        assertEquals(89639, contextDictionary.getNumTerms());
+        assertEquals(4, contextDictionary.getNumCategories());
 
-        UniversalClassifier universalClassifier = tagger.getUniversalClassifier();
-        Dictionary annotationDictionary = universalClassifier.getTextClassifier().getDictionary();
-        assertEquals(54040, annotationDictionary.size());
-        assertEquals(5, annotationDictionary.getCategories().size());
+        DictionaryModel annotationDictionary = tagger.getAnnotationDictionary();
+        assertEquals(54040, annotationDictionary.getNumTerms());
+        assertEquals(5, annotationDictionary.getNumCategories());
+        System.out.println(annotationDictionary.getCategories());
     }
 
     @Test
@@ -58,28 +57,27 @@ public class PalladianNerTest {
         boolean trainingSuccessful = tagger.train(trainingFile, tudnerLiModel);
         assertTrue(trainingSuccessful);
 
-        Dictionary entityDictionary = tagger.getEntityDictionary();
-        assertEquals(2185, entityDictionary.size());
-        assertEquals(4, entityDictionary.getCategories().size());
+        DictionaryModel entityDictionary = tagger.getEntityDictionary();
+        assertEquals(2185, entityDictionary.getNumTerms());
+        assertEquals(4, entityDictionary.getNumCategories());
 
-        Dictionary caseDictionary = tagger.getCaseDictionary();
-        assertEquals(5818, caseDictionary.size());
-        assertEquals(3, caseDictionary.getCategories().size());
+        DictionaryModel caseDictionary = tagger.getCaseDictionary();
+        assertEquals(5818, caseDictionary.getNumTerms());
+        assertEquals(3, caseDictionary.getNumCategories());
 
-        CountMap leftContextMap = tagger.getLeftContextMap();
-        assertEquals(8274, leftContextMap.size());
+        CountMap<String> leftContextMap = tagger.getLeftContextMap();
+        // assertEquals(8274, leftContextMap.size());
 
-        Annotations removeAnnotations = tagger.getRemoveAnnotations();
+        Set<String> removeAnnotations = tagger.getRemoveAnnotations();
         assertEquals(2008, removeAnnotations.size());
 
-        Dictionary contextDictionary = tagger.getContextClassifier().getDictionary();
-        assertEquals(89639, contextDictionary.size());
-        assertEquals(4, contextDictionary.getCategories().size());
+        DictionaryModel contextDictionary = tagger.getContextClassifier();
+        assertEquals(89639, contextDictionary.getNumTerms());
+        assertEquals(4, contextDictionary.getNumCategories());
 
-        UniversalClassifier universalClassifier = tagger.getUniversalClassifier();
-        Dictionary annotationDictionary = universalClassifier.getTextClassifier().getDictionary();
-        assertEquals(62281, annotationDictionary.size());
-        assertEquals(5, annotationDictionary.getCategories().size());
+        DictionaryModel annotationDictionary = tagger.getAnnotationDictionary();
+        assertEquals(62281, annotationDictionary.getNumTerms());
+        assertEquals(5, annotationDictionary.getNumCategories());
     }
 
 }

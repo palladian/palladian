@@ -69,9 +69,9 @@ public final class KnnModel implements Model {
         for (Instance instance : instances) {
             TrainingExample trainingInstance = new TrainingExample();
 
-            trainingInstance.targetClass = instance.targetClass;
+            trainingInstance.targetClass = instance.getTargetClass();
             trainingInstance.features = new HashMap<String, Double>();
-            List<NumericFeature> numericFeatures = instance.featureVector.getAll(NumericFeature.class);
+            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
             for (NumericFeature feature : numericFeatures) {
                 trainingInstance.features.put(feature.getName(), feature.getValue());
             }

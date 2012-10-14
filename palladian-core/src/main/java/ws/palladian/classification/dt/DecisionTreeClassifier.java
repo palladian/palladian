@@ -57,8 +57,8 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     public DecisionTreeModel train(List<Instance> instances) {
         Set<quickdt.Instance> trainingInstances = CollectionHelper.newHashSet();
         for (Instance instance : instances) {
-            Serializable[] input = getInput(instance.featureVector);
-            trainingInstances.add(Attributes.create(input).classification(instance.targetClass));
+            Serializable[] input = getInput(instance.getFeatureVector());
+            trainingInstances.add(Attributes.create(input).classification(instance.getTargetClass()));
         }
         Node tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
         return new DecisionTreeModel(tree);
@@ -79,8 +79,7 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     public CategoryEntries classify(FeatureVector featureVector, DecisionTreeModel decisionTreeModel) {
         Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(featureVector)));
         CategoryEntries categoryEntries = new CategoryEntries();
-        CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, (String)leaf.classification, leaf.probability);
-        categoryEntries.add(categoryEntry);
+        categoryEntries.add(new CategoryEntry((String)leaf.classification, leaf.probability));
         return categoryEntries;
     }
 

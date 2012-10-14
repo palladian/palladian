@@ -35,8 +35,7 @@ public class WikimetaNerTest {
         assertEquals(134, annotations.size());
         assertEquals("eastern United States", annotations.get(2).getEntity());
 
-        // wtf, this API is sick!
-        assertEquals("LOC", annotations.get(2).getAssignedCategoryEntries().iterator().next().getCategory());
+        assertEquals("LOC", annotations.get(2).getMostLikelyTagName());
 
         assertEquals(101, annotations.get(2).getOffset());
         assertEquals(21, annotations.get(2).getLength());

@@ -55,14 +55,13 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
             CategoryEntries entriesResult = classifier.classify(vector, decisionTreeModel);
             // CategoryEntry categoryResult = entriesResult.get(0);
             CategoryEntry categoryResult = ClassificationUtils.getSingleBestCategoryEntry(entriesResult);
-            String category = categoryResult.getCategory();
-            categories.add(category);
+            categories.add(categoryResult.getName());
         }
 
         CategoryEntries result = new CategoryEntries();
         for (String categoryName : categories.uniqueItems()) {
             double confidence = (double)categories.get(categoryName) / categories.totalSize();;
-            result.add(new CategoryEntry(result, categoryName, confidence));
+            result.add(new CategoryEntry(categoryName, confidence));
         }
         return result;
     }

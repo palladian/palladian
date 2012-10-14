@@ -1,11 +1,11 @@
 package ws.palladian.classification;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -19,115 +19,51 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author David Urbansky
  * 
  */
-public class CategoryEntries implements Serializable, Iterable<CategoryEntry> {
-
+public class CategoryEntries implements Iterable<CategoryEntry> {
+    
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(CategoryEntries.class);
-    
+
     private final List<CategoryEntry> entries = CollectionHelper.newArrayList();
-
-    private static final long serialVersionUID = 4321001999458490582L;
-
-    // in order to avoid recalculating all relative relevance scores for each category entry
-    // we update them only if new entries were added
-    private boolean relevancesUpToDate = false;
-
-    boolean isRelevancesUpToDate() {
-        return relevancesUpToDate;
-    }
-
-    void setRelevancesUpToDate(boolean relevancesUpToDate) {
-        this.relevancesUpToDate = relevancesUpToDate;
-    }
 
     public CategoryEntry getCategoryEntry(String categoryName) {
         for (CategoryEntry ce : entries) {
-            if (ce.getCategory().equals(categoryName)) {
+            if (ce.getName().equals(categoryName)) {
                 return ce;
             }
         }
         return null;
     }
 
-    public boolean add(CategoryEntry e) {
-        if (e == null) {
-            return false;
+    public void add(CategoryEntry categoryEntry) {
+        Validate.notNull(categoryEntry, "categoryEntry must not be null");
+        
+        CategoryEntry exists = getCategoryEntry(categoryEntry.getName());
+        if (exists != null) {
+            throw new IllegalStateException();
         }
-        // If a CategoryEntry is entered, the relative relevances are not up to date anymore.
-        setRelevancesUpToDate(false);
-        return entries.add(e);
+        
+        entries.add(categoryEntry);
+        sortByRelevance();
     }
 
-    public boolean addAllRelative(CategoryEntries c) {
-        return addAllRelative(1.0, c);
-    }
-
-    public boolean addAllRelative(double coefficient, CategoryEntries categoryEntries) {
-        boolean listChanged = false;
-
-        setRelevancesUpToDate(false);
-
-        for (CategoryEntry newCategoryEntry : categoryEntries) {
-            double relevance = newCategoryEntry.getRelevance();
-            if (relevance < 0) {
-                relevance = 0;
-            }
-            CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
-            if (ce != null) {
-                ce.addAbsoluteRelevance(coefficient * relevance);
-            } else {
-                this.add(new CategoryEntry(this, newCategoryEntry.getCategory(), coefficient * relevance));
-            }
-            listChanged = true;
-        }
-
-        return listChanged;
-    }
-
-    /**
-     * The relevance for a category entry is a sum of absolute relevance scores so far. To normalize the relevance to a
-     * value between 0 and 1 we need to divide
-     * it by the total absolute relevances of all category entries that are in the same category entries group.
-     */
-    void calculateRelativeRelevances() {
-
-        LOGGER.debug("recalculate category entries relevances");
-
-        // normalize
-        Double totalRelevance = 0.0;
-        for (CategoryEntry entry : entries) {
-            totalRelevance += entry.getAbsoluteRelevance();
-        }
-
-        for (CategoryEntry entry : entries) {
-            if (totalRelevance > 0) {
-                entry.setRelativeRelevance(entry.getAbsoluteRelevance() / totalRelevance);
-            } else {
-                entry.setRelativeRelevance(-1.0);
-            }
-        }
-
-        setRelevancesUpToDate(true);
-
-    }
-
-    public void sortByRelevance() {
+    private void sortByRelevance() {
         Collections.sort(entries, new Comparator<CategoryEntry>() {
             @Override
             public int compare(CategoryEntry o1, CategoryEntry o2) {
-                return ((Comparable<Double>)o2.getRelevance()).compareTo(o1.getRelevance());
+                return ((Comparable<Double>)o2.getProbability()).compareTo(o1.getProbability());
             }
         });
     }
 
     public CategoryEntry getMostLikelyCategoryEntry() {
         sortByRelevance();
-        // XXX
-        if (entries.size() > 0) {
-            return entries.get(0);
+        CategoryEntry result = CollectionHelper.getFirst(entries);
+        if (result != null) {
+            return result;
         }
         LOGGER.warn("no most likey category entry found");
-        return new CategoryEntry(this, "", 1);
+        return new CategoryEntry("", 1);
     }
 
     @Override
@@ -146,6 +82,19 @@ public class CategoryEntries implements Serializable, Iterable<CategoryEntry> {
 
     public int size() {
         return entries.size();
+    }
+    
+    public static void main(String[] args) {
+        CategoryEntries categoryEntries = new CategoryEntries();
+        System.out.println(categoryEntries);
+        categoryEntries.add(new CategoryEntry("a", 2));
+        System.out.println(categoryEntries);
+        categoryEntries.add(new CategoryEntry("b", 5));
+        System.out.println(categoryEntries);
+        categoryEntries.add(new CategoryEntry("c", 1));
+        System.out.println(categoryEntries);
+        categoryEntries.add(new CategoryEntry("d", 10));
+        System.out.println(categoryEntries);
     }
 
 }

@@ -180,15 +180,15 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             }
             
             CategoryEntries categoryEntries = new CategoryEntries();
-            CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentimentSumSentence);
-            CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentimentSumSentence);
+            CategoryEntry positiveCategoryEntry = new CategoryEntry(positiveCategory, positiveSentimentSumSentence);
+            CategoryEntry negativeCategoryEntry = new CategoryEntry(negativeCategory, negativeSentimentSumSentence);
             categoryEntries.add(positiveCategoryEntry);
             categoryEntries.add(negativeCategoryEntry);
 
-            if (categoryEntries.getMostLikelyCategoryEntry().getRelevance() > confidenceThreshold
+            if (categoryEntries.getMostLikelyCategoryEntry().getProbability() > confidenceThreshold
                     && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
                     && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
-                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getCategory(), sentence);
+                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getName(), sentence);
             }
 
         }
@@ -208,8 +208,8 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         if (getOpinionatedSentences().get("negative") != null) {
             negativeSentences = getOpinionatedSentences().get("negative").size();
         }
-        CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentences);
-        CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentences);
+        CategoryEntry positiveCategoryEntry = new CategoryEntry(positiveCategory, positiveSentences);
+        CategoryEntry negativeCategoryEntry = new CategoryEntry(negativeCategory, negativeSentences);
         categoryEntries.add(positiveCategoryEntry);
         categoryEntries.add(negativeCategoryEntry);
         

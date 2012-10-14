@@ -2,8 +2,11 @@ package ws.palladian.classification.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
@@ -14,7 +17,7 @@ import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -30,38 +33,41 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianTextClassifier.class);
-    public static final String UNASSIGNED = "UNASSIGNED";
+//    public static final String UNASSIGNED = "UNASSIGNED";
 
-    public PalladianTextClassifier() {
-    }
-    public DictionaryModel loadModel(String modelPath) {
-        return FileHelper.deserialize(modelPath);
-    }
+//    public PalladianTextClassifier() {
+//    }
+//    public DictionaryModel loadModel(String modelPath) {
+//        return FileHelper.deserialize(modelPath);
+//    }
 
-    public void reset() {
-        // FIXME
-    }
+//    public void reset() {
+//        // FIXME
+//    }
 
-    public PalladianTextClassifier copy() {
-        // FIXME
-        return null;
-    }
+//    public PalladianTextClassifier copy() {
+//        // FIXME
+//        return null;
+//    }
 
     @Override
     public DictionaryModel train(List<Instance> instances) {
-        return train(instances, null, null);
+        return train(instances, new ClassificationTypeSetting(), new FeatureSetting());
     }
 
     public DictionaryModel train(List<Instance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
-        DictionaryModel dictionaryModel = new DictionaryModel();
+        Validate.notNull(cts, "cts must not be null");
+        Validate.notNull(fs, "fs must not be null");
 
-        if (cts != null) {
-            dictionaryModel.setClassificationTypeSetting(cts);
-        }
-        if (fs != null) {
-            dictionaryModel.setFeatureSetting(fs);
-        }
+//        if (cts == null) {
+//            cts = new ClassificationTypeSetting();
+//        }
+//        if (fs == null) {
+//            fs = new FeatureSetting();
+//        }
 
+        DictionaryModel dictionaryModel = new DictionaryModel(fs, cts);
+        
         for (Instance instance : instances) {
             addToDictionary(dictionaryModel, instance);
         }
@@ -71,13 +77,15 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     private void addToDictionary(DictionaryModel model, Instance trainingInstance) {
 
-        for (NominalFeature termFeature : trainingInstance.featureVector.getFeatures(NominalFeature.class, "term")) {
+        List<NominalFeature> termFeatures = trainingInstance.getFeatureVector().getFeatures(NominalFeature.class, "term");
+        
+        for (NominalFeature termFeature : termFeatures) {
 
             // FIXME "Term" still necessary or simply string.intern()?
             // -- do not use string.intern() unless it is absolutely necessary (i.e. there is a significant memory
             // gain), it slows down performance considerably -- Philipp.
             
-            model.updateWord(termFeature.getValue(), trainingInstance.targetClass);
+            model.updateTerm(termFeature.getValue(), trainingInstance.getTargetClass());
 
             // FIXME => trainingInstance.targetClass => there must be multiple classes allowed!!!
             // for (Category realCategory : trainingDocument.getRealCategories()) {
@@ -86,6 +94,8 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             // model.updateWord(entry.getKey(), realCategory.getName(), entry.getValue());
             // }
         }
+        
+        model.addCategory(trainingInstance.getTargetClass());
 
     }
 
@@ -93,75 +103,122 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         FeatureVector fv = createFeatureVector(text, model.getFeatureSetting());
         return classify(fv, model);
     }
-    public CategoryEntries classify(String text, Set<String> possibleClasses, DictionaryModel model) {
-        FeatureVector fv = createFeatureVector(text, model.getFeatureSetting());
-        return classify(fv, model, possibleClasses);
-    }
+//    public CategoryEntries classify(String text, Set<String> possibleClasses, DictionaryModel model) {
+//        FeatureVector fv = createFeatureVector(text, model.getFeatureSetting());
+//        return classify(fv, model, possibleClasses);
+//    }
 
+//    @Override
+//    public CategoryEntries classify(FeatureVector vector, DictionaryModel model) {
+//        return classify(vector, model, null);
+//    }
+
+//    private CategoryEntries classify(FeatureVector vector, DictionaryModel model, Set<String> possibleClasses) {
+//        
+//        int classType = model.getClassificationTypeSetting().getClassificationType();
+//        
+//        long t1 = System.currentTimeMillis();
+//        
+//        // make a look up in the context map for every single term
+//        CategoryEntries bestFitList = new CategoryEntries();
+//        
+//        // create one category entry for every category with relevance 0
+//        for (String category : model.getCategories()) {
+//            if (possibleClasses != null && !possibleClasses.contains(category)) {
+//                continue;
+//            }
+//            CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
+//            bestFitList.add(c);
+//        }
+//        
+//        // iterate through all weighted terms in the document
+//        for (NominalFeature termFeature : vector.getFeatures(NominalFeature.class, "term")) {
+//            
+//            CategoryEntries dictionaryCategoryEntries = model.get(termFeature.getValue());
+//            
+//            if (dictionaryCategoryEntries != null) {
+//                
+//                // iterate through all categories in the dictionary for the weighted term
+//                for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
+//                    String categoryName = categoryEntry.getCategory();
+//                    CategoryEntry c = bestFitList.getCategoryEntry(categoryName);
+//                    if (c == null) {
+//                        continue;
+//                    }
+//                    
+//                    // add the absolute weight of the term to the category
+//                    if (categoryEntry.getRelevance() > 0) {
+//                        
+//                        // use relevance
+//                        c.addAbsoluteRelevance(categoryEntry.getRelevance() * categoryEntry.getRelevance());
+//                    }
+//                    
+//                }
+//                
+//            } else {
+//                LOGGER.trace("the term \"" + termFeature.getValue()
+//                        + "\" is not in the learned dictionary and cannot be associated with any category");
+//            }
+//        }
+//        
+//        // calculate one regression value for the given documents
+//        if (classType == ClassificationTypeSetting.REGRESSION) {
+//            double regressionValue = 0;
+//            for (CategoryEntry ce : bestFitList) {
+//                if (ce.getRelevance() > 0) {
+//                    regressionValue += Double.valueOf(ce.getCategory()) * ce.getRelevance();
+//                }
+//            }
+//            bestFitList = new CategoryEntries();
+//            bestFitList.add(new CategoryEntry(bestFitList, String.valueOf(regressionValue), 1));
+//        }
+//        
+//        // if (bestFitList.isEmpty()) {
+//        // Category unassignedCategory = new Category(null);
+//        // categories.add(unassignedCategory);
+//        // CategoryEntry defaultCE = new CategoryEntry(bestFitList, unassignedCategory, 1);
+//        // bestFitList.add(defaultCE);
+//        // }
+//        
+//        LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
+//                + bestFitList.getMostLikelyCategoryEntry() + ")");
+//        
+//        return bestFitList;
+//    }
     @Override
     public CategoryEntries classify(FeatureVector vector, DictionaryModel model) {
-        return classify(vector, model, null);
-    }
-
-    private CategoryEntries classify(FeatureVector vector, DictionaryModel model, Set<String> possibleClasses) {
-
-        int classType = model.getClassificationTypeSetting().getClassificationType();
-
-        long t1 = System.currentTimeMillis();
-
-        // make a look up in the context map for every single term
-        CategoryEntries bestFitList = new CategoryEntries();
-
-        // create one category entry for every category with relevance 0
+        
+        // initialize probability Map with mutable double objects, so we can add relevance values to them
+        Map<String, MutableDouble> probabilities = CollectionHelper.newHashMap();
         for (String category : model.getCategories()) {
-            if (possibleClasses != null && !possibleClasses.contains(category)) {
-                continue;
-            }
-            CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
-            bestFitList.add(c);
+            probabilities.put(category, new MutableDouble());
         }
-
-        // iterate through all weighted terms in the document
+        
+        double probabilitySum = 0.;
+        
+        // iterate through all terms in the document
         for (NominalFeature termFeature : vector.getFeatures(NominalFeature.class, "term")) {
-
-            CategoryEntries dictionaryCategoryEntries = model.get(termFeature.getValue());
-
-            if (dictionaryCategoryEntries != null) {
-
-                // iterate through all categories in the dictionary for the weighted term
-                for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
-                    String categoryName = categoryEntry.getCategory();
-                    CategoryEntry c = bestFitList.getCategoryEntry(categoryName);
-                    if (c == null) {
-                        continue;
-                    }
-
-                    // add the absolute weight of the term to the category
-                    if (categoryEntry.getRelevance() > 0) {
-
-                        // use relevance
-                        c.addAbsoluteRelevance(categoryEntry.getRelevance() * categoryEntry.getRelevance());
-                    }
-
-                }
-
-            } else {
-                LOGGER.trace("the term \"" + termFeature.getValue()
-                        + "\" is not in the learned dictionary and cannot be associated with any category");
+            Map<String, Double> categoryFrequencies = model.getCategoryFrequencies(termFeature.getValue());
+            for (String category : categoryFrequencies.keySet()) {
+                double categoryFrequency = categoryFrequencies.get(category);
+                double weight = categoryFrequency * categoryFrequency;
+                probabilities.get(category).add(weight);
+                probabilitySum += weight;
             }
+
         }
 
-        // calculate one regression value for the given documents
-        if (classType == ClassificationTypeSetting.REGRESSION) {
-            double regressionValue = 0;
-            for (CategoryEntry ce : bestFitList) {
-                if (ce.getRelevance() > 0) {
-                    regressionValue += Double.valueOf(ce.getCategory()) * ce.getRelevance();
-                }
-            }
-            bestFitList = new CategoryEntries();
-            bestFitList.add(new CategoryEntry(bestFitList, String.valueOf(regressionValue), 1));
-        }
+//        // calculate one regression value for the given documents
+//        if (classType == ClassificationTypeSetting.REGRESSION) {
+//            double regressionValue = 0;
+//            for (CategoryEntry ce : bestFitList) {
+//                if (ce.getRelevance() > 0) {
+//                    regressionValue += Double.valueOf(ce.getCategory()) * ce.getRelevance();
+//                }
+//            }
+//            bestFitList = new CategoryEntries();
+//            bestFitList.add(new CategoryEntry(bestFitList, String.valueOf(regressionValue), 1));
+//        }
 
         // if (bestFitList.isEmpty()) {
         // Category unassignedCategory = new Category(null);
@@ -170,27 +227,24 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         // bestFitList.add(defaultCE);
         // }
 
-        LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
-                + bestFitList.getMostLikelyCategoryEntry() + ")");
+//        LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
+//                + bestFitList.getMostLikelyCategoryEntry() + ")");
+        
+        CategoryEntries categories = new CategoryEntries();
 
-        return bestFitList;
+        // If we have a category weight by matching terms from the document, use them to create the probability
+        // distribution. Else wise return the prior probability distribution of the categories.
+        if (probabilitySum > 0) {
+            for (String category : model.getCategories()) {
+                categories.add(new CategoryEntry(category, probabilities.get(category).doubleValue() / probabilitySum));
+            }
+        } else {
+            for (String category : model.getCategories()) {
+                categories.add(new CategoryEntry(category, model.getPrior(category)));
+            }
+        }
+        return categories;
     }
-
-    // public ClassificationTypeSetting getClassificationTypeSetting() {
-    // return classificationTypeSetting;
-    // }
-    //
-    // public void setClassificationTypeSetting(ClassificationTypeSetting classificationTypeSetting) {
-    // this.classificationTypeSetting = classificationTypeSetting;
-    // }
-    //
-    // public FeatureSetting getFeatureSetting() {
-    // return featureSetting;
-    // }
-    //
-    // public void setFeatureSetting(FeatureSetting featureSetting) {
-    // this.featureSetting = featureSetting;
-    // }
 
     // /**
     // * FIXME somewhere else
@@ -437,8 +491,8 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     // FIXME put this somewhere else
     public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
         FeatureVector featureVector = new FeatureVector();
-        TextInstance preProcessDocument = Preprocessor.preProcessDocument(text, featureSettings);
-            for (String term : preProcessDocument.getTerms()) {
+        Set<String> terms = Preprocessor.preProcessDocument(text, featureSettings);
+            for (String term : terms) {
             NominalFeature textFeature = new NominalFeature("term", term);
             featureVector.add(textFeature);
         }

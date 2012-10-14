@@ -28,19 +28,19 @@ public abstract class AbstractWeightingStrategy implements UniversalClassifierWe
 
         CategoryEntries textCategories = result.getTextCategories();
         if (model.getTextClassifier()!=null
-                && textCategories.getMostLikelyCategoryEntry().getCategory().equals(instance.targetClass)) {
+                && textCategories.getMostLikelyCategoryEntry().getName().equals(instance.targetClass)) {
             countCorrectlyClassified(0,instance);
             mergedCategoryEntries.addAllRelative(textCategories);
         }
         CategoryEntries numericResults = result.getNumericResults();
         if (model.getKnnModel()!=null
-                && numericResults.getMostLikelyCategoryEntry().getCategory().equals(instance.targetClass)) {
+                && numericResults.getMostLikelyCategoryEntry().getName().equals(instance.targetClass)) {
             countCorrectlyClassified(1,instance);
             mergedCategoryEntries.addAllRelative(numericResults);
         }
         CategoryEntries nominalInstance = result.getNominalResults();
         if (model.getBayesModel()!=null
-                && nominalInstance.getMostLikelyCategoryEntry().getCategory().equals(instance.targetClass)) {
+                && nominalInstance.getMostLikelyCategoryEntry().getName().equals(instance.targetClass)) {
             countCorrectlyClassified(2,instance);
             mergedCategoryEntries.addAllRelative(nominalInstance);
         }

@@ -19,6 +19,9 @@ public class CountMap2DTest {
         assertEquals(13, countMap2d.getColumnSum("x1"));
         assertEquals(10, countMap2d.getColumnSum("x2"));
         assertEquals(6, countMap2d.getRowSum("y2"));
+
+        assertEquals(2, countMap2d.sizeX());
+        assertEquals(3, countMap2d.sizeY());
     }
 
 }

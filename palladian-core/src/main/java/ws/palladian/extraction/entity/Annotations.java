@@ -36,7 +36,7 @@ public class Annotations extends ArrayList<Annotation> {
             output.append(annotation.getLength()).append(";");
             output.append(annotation.getEndIndex()).append(";");
             output.append(annotation.getEntity()).append(";");
-            output.append(annotation.getMostLikelyTag().getCategory()).append("\n");
+            output.append(annotation.getMostLikelyTagName()).append("\n");
 
         }
 
@@ -117,8 +117,8 @@ public class Annotations extends ArrayList<Annotation> {
     public void instanceCategoryToClassified() {
         for (Annotation annotation : this) {
             CategoryEntries ces = new CategoryEntries();
-            ces.add(new CategoryEntry(ces, annotation.getInstanceCategory(), 1));
-            annotation.assignCategoryEntries(ces);
+            ces.add(new CategoryEntry(annotation.getTargetClass(), 1));
+            annotation.setTags(ces);
         }
     }
 }

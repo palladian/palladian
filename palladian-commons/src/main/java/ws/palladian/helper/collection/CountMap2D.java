@@ -21,20 +21,20 @@ import java.util.Set;
  * @author Philipp Katz
  */
 public class CountMap2D<T> implements Serializable {
-    
+
     // XXX subclass of Matrix?
-    
+
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
-    
-    private Map<T, Map<T, Integer>> map = new HashMap<T, Map<T, Integer>>(); 
-    
+
+    private Map<T, Map<T, Integer>> map = new HashMap<T, Map<T, Integer>>();
+
     public static <T> CountMap2D<T> create() {
         return new CountMap2D<T>();
     }
-    
+
     private CountMap2D() {
-        
+
     }
 
     /**
@@ -52,13 +52,13 @@ public class CountMap2D<T> implements Serializable {
             row = new HashMap<T, Integer>();
             map.put(y, row);
         }
-        
+
         Integer integer = row.get(x);
         if (integer == null) {
             integer = new Integer(0);
         }
         int counter = integer.intValue();
-        counter+=value;
+        counter += value;
         row.put(x, counter);
     }
 
@@ -82,7 +82,7 @@ public class CountMap2D<T> implements Serializable {
         int sum = 0;
 
         for (Map<T, Integer> entry : map.values()) {
-            for (java.util.Map.Entry<T, Integer> columnEntry : entry.entrySet()) {
+            for (Entry<T, Integer> columnEntry : entry.entrySet()) {
                 if (columnEntry.getKey().equals(x)) {
                     sum += columnEntry.getValue();
                 }
@@ -112,10 +112,36 @@ public class CountMap2D<T> implements Serializable {
     public Set<Entry<T, Map<T, Integer>>> entrySet() {
         return map.entrySet();
     }
-    
+
     @Override
     public String toString() {
         return map.toString();
     }
+
+    public Set<T> keySet() {
+        return map.keySet();
+    }
+    
+    public int sizeY() {
+        return map.size();
+    }
+    
+    public int sizeX() {
+        return getColumnValues().size();
+    }
+    
+    // XXX slow
+    public Set<T> getColumnValues() {
+        Set<T> valueSet = CollectionHelper.newHashSet();
+        for (Entry<T, Map<T, Integer>> entry : entrySet()) {
+            valueSet.addAll(entry.getValue().keySet());
+        }
+        return valueSet;
+    }
+    
+    public Map<T, Map<T, Integer>> getMap() {
+        return map;
+    }
+
 
 }
