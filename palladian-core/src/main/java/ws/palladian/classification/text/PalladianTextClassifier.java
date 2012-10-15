@@ -33,22 +33,6 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianTextClassifier.class);
-//    public static final String UNASSIGNED = "UNASSIGNED";
-
-//    public PalladianTextClassifier() {
-//    }
-//    public DictionaryModel loadModel(String modelPath) {
-//        return FileHelper.deserialize(modelPath);
-//    }
-
-//    public void reset() {
-//        // FIXME
-//    }
-
-//    public PalladianTextClassifier copy() {
-//        // FIXME
-//        return null;
-//    }
 
     @Override
     public DictionaryModel train(List<Instance> instances) {
@@ -58,14 +42,6 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     public DictionaryModel train(List<Instance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
         Validate.notNull(cts, "cts must not be null");
         Validate.notNull(fs, "fs must not be null");
-
-//        if (cts == null) {
-//            cts = new ClassificationTypeSetting();
-//        }
-//        if (fs == null) {
-//            fs = new FeatureSetting();
-//        }
-
         DictionaryModel dictionaryModel = new DictionaryModel(fs, cts);
         
         for (Instance instance : instances) {
@@ -194,6 +170,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             probabilities.put(category, new MutableDouble());
         }
         
+        // sum up the probabilities for normalization
         double probabilitySum = 0.;
         
         // iterate through all terms in the document
@@ -220,15 +197,6 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 //            bestFitList.add(new CategoryEntry(bestFitList, String.valueOf(regressionValue), 1));
 //        }
 
-        // if (bestFitList.isEmpty()) {
-        // Category unassignedCategory = new Category(null);
-        // categories.add(unassignedCategory);
-        // CategoryEntry defaultCE = new CategoryEntry(bestFitList, unassignedCategory, 1);
-        // bestFitList.add(defaultCE);
-        // }
-
-//        LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
-//                + bestFitList.getMostLikelyCategoryEntry() + ")");
         
         CategoryEntries categories = new CategoryEntries();
 

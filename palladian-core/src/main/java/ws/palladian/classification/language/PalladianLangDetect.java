@@ -27,20 +27,16 @@ public class PalladianLangDetect extends LanguageClassifier {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianLangDetect.class);
 
-    private final PalladianTextClassifier palladianClassifier;
-    private final DictionaryModel model;
+    private final PalladianTextClassifier textClassifier;
+    
+    private final DictionaryModel dictionaryModel;
 
     /** We can specify which classes are possible and discard all others for the classification task. */
     private Set<String> possibleClasses = null;
 
-    // XXX
-//    public PalladianLangDetect(String modelPath) {
-//        palladianClassifier = (PalladianTextClassifier)Cache.getInstance().getDataObject(modelPath, new File(modelPath));
-//    }
-
-    public PalladianLangDetect() {
-        palladianClassifier = new PalladianTextClassifier();
-        model = palladianClassifier.loadModel("data/models/palladianLanguageJRC/palladianLanguageJrc.gz");
+    public PalladianLangDetect(String modelPath) {
+        textClassifier = new PalladianTextClassifier();
+        dictionaryModel = FileHelper.deserialize(modelPath);
     }
 
     public Set<String> getPossibleClasses() {
@@ -138,7 +134,7 @@ public class PalladianLangDetect extends LanguageClassifier {
     }
 
     public CategoryEntries classifyAsCategoryEntry(String text) {
-        CategoryEntries categoryEntries = palladianClassifier.classify(text, model);
+        CategoryEntries categoryEntries = textClassifier.classify(text, dictionaryModel);
         categoryEntries = narrowCategories(categoryEntries);
         return categoryEntries;
     }

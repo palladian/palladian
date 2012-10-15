@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,13 +49,13 @@ public class Annotation extends UniversalInstance {
         tags = annotation.getTags();
     }
 
-    public Annotation(Annotation annotation, List<UniversalInstance> instances) {
-        super(annotation.getTargetClass());
-        offset = annotation.getOffset();
-        length = annotation.getLength();
-        entity = annotation.getEntity();
-        tags = annotation.getTags();
-    }
+//    public Annotation(Annotation annotation, List<UniversalInstance> instances) {
+//        super(annotation.getTargetClass());
+//        offset = annotation.getOffset();
+//        length = annotation.getLength();
+//        entity = annotation.getEntity();
+//        tags = annotation.getTags();
+//    }
 
     public Annotation(int offset, String entityName, String tagName) {
         super(tagName);
