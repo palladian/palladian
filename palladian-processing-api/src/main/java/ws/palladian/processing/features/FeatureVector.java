@@ -1,9 +1,9 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -197,27 +197,28 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return result;
     }
 
-    public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
+    public <T> List<? extends Feature<T>> getFeatures(Class<? extends Feature<T>> type, String path) {
 
         String[] pathElements = path.split("/");
+        List<Feature<T>> collectedFeatures = new LinkedList<Feature<T>>();
 
-        for (String pathElement : pathElements) {
-            Feature<?> feature = getFeature(pathElement);
-            if (feature instanceof AnnotationFeature) {
-                return ((AnnotationFeature)feature).getFeatures(type, path.substring(path.indexOf("/") + 1));
-            } else if (feature instanceof Collection) {
-                List<T> ret = new ArrayList<T>((Collection<T>)feature);
-                return ret;
+        // for (String pathElement : pathElements) {
+        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
+        for (Feature<?> selectedFeature : selectedFeatures) {
+            if (selectedFeature instanceof AnnotationFeature) {
+                collectedFeatures.addAll(((AnnotationFeature<T>)selectedFeature).getFeatures(type,
+                        path.substring(path.indexOf("/") + 1)));
             } else {
-                return getAll(type, pathElement);
+                collectedFeatures.add(type.cast(selectedFeature));
             }
         }
+        // }
 
-        return null;
+        return collectedFeatures;
     }
 
-    public <T extends Feature<?>> Set<T> getFeatureBag(Class<T> featureClass, String featurePath) {
-        return new HashSet<T>(getFeatures(featureClass, featurePath));
+    public <T> Set<? extends Feature<T>> getFeatureBag(Class<? extends Feature<T>> featureClass, String featurePath) {
+        return new HashSet<Feature<T>>(getFeatures(featureClass, featurePath));
     }
 
     @Override

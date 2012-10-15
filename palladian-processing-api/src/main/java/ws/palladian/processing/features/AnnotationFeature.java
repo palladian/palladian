@@ -103,10 +103,11 @@ public abstract class AnnotationFeature<T> extends Feature<List<Annotation<T>>> 
         return result;
     }
 
-    public List<? extends Feature<T>> getFeatures(Class<? extends Feature<T>> class1, String identifier) {
-        List features = new ArrayList();
+    public <F extends Feature<T>> List<F> getFeatures(Class<F> class1, String identifier) {
+        List<F> features = new ArrayList<F>();
         for (Annotation<T> current : getValue()) {
-            features.add(current.getFeatureVector().getFeature(class1, identifier));
+            List<F> selectedFeatures = (List<F>)current.getFeatureVector().getFeatures(class1, identifier);
+            features.addAll(selectedFeatures);
         }
 
         return features;

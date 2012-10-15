@@ -24,7 +24,6 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
-import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
@@ -156,10 +155,10 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
             }
 
             String[] arrayOfWholeSentencePattern = sequentialPattern.toArray(new String[sequentialPattern.size()]);
-            List<SequentialPattern> extractedPatterns = extractionStrategy.extract(arrayOfWholeSentencePattern,
+            List<SequentialPattern> extractedPatterns = extractionStrategy.extract("lsp", arrayOfWholeSentencePattern,
                     minSequentialPatternSize, maxSequentialPatternSize);
-            ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>("lsp", extractedPatterns);
-            sentence.addFeature(feature);
+            // ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>("lsp", extractedPatterns);
+            sentence.addFeatures(extractedPatterns);
         }
     }
 
