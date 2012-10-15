@@ -11,7 +11,9 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
- * <p>The UnitNormalizer normalizes units.</p>
+ * <p>
+ * The UnitNormalizer normalizes units.
+ * </p>
  * 
  * @author David Urbansky
  */
@@ -179,7 +181,8 @@ public class UnitNormalizer {
     }
 
     /**
-     * Returns true if units are the same unit type (time,distance etc.). e.g. MB and GB are digital size, hours and minutes are time units
+     * Returns true if units are the same unit type (time,distance etc.). e.g. MB and GB are digital size, hours and
+     * minutes are time units
      * 
      * @param unit1 The first unit.
      * @param unit2 The second unit.
@@ -223,7 +226,8 @@ public class UnitNormalizer {
 
         unit = unit.toLowerCase().trim();
 
-        // means no multiplier found (hint for other function that a shorter sequence for the unit string might bring a result)
+        // means no multiplier found (hint for other function that a shorter sequence for the unit string might bring a
+        // result)
         double multiplier = -1.0;
 
         // TODO more units (Mhz, Ghz..., volumes)
@@ -237,7 +241,8 @@ public class UnitNormalizer {
             multiplier = 604800.0;
         } else if (unit.equals("day") || unit.equals("days") || unit.equals("day(s)")) {
             multiplier = 86400.0;
-        } else if (unit.equals("hour") || unit.equals("hours") || unit.equals("hour(s)") || unit.equals("hrs") || unit.equals("hr") || unit.equals("h")) {
+        } else if (unit.equals("hour") || unit.equals("hours") || unit.equals("hour(s)") || unit.equals("hrs")
+                || unit.equals("hr") || unit.equals("h")) {
             multiplier = 3600.0;
         } else if (unit.equals("minute") || unit.equals("minutes") || unit.equals("min")) {
             multiplier = 60.0;
@@ -309,7 +314,8 @@ public class UnitNormalizer {
             multiplier = 0.1;
 
             // areas, all to square meter
-        } else if (unit.equals("sq.miles") || unit.equals("sq miles") || unit.equals("square mile") || unit.equals("square miles") || unit.equals("sq mi")) {
+        } else if (unit.equals("sq.miles") || unit.equals("sq miles") || unit.equals("square mile")
+                || unit.equals("square miles") || unit.equals("sq mi")) {
             multiplier = 2589988.11;
         } else if (unit.equals("thousand square miles")) {
             multiplier = 2589988110.0;
@@ -325,22 +331,25 @@ public class UnitNormalizer {
             multiplier = 1000000000000.0;
         } else if (unit.equals("hectare") || unit.equals("hectares")) {
             multiplier = 10000.0;
-        } else if (unit.equals("sq m") || unit.equals("sq meter") || unit.equals("sq meters") || unit.equals("square meter") || unit.equals("square meters")
-                || unit.equals("m²")) {
+        } else if (unit.equals("sq m") || unit.equals("sq meter") || unit.equals("sq meters")
+                || unit.equals("square meter") || unit.equals("square meters") || unit.equals("m²")) {
             multiplier = 1.0;
 
             // technical, hp and kw to hp, mile per hour to kilometer per hour, lb-ft to Nm
-        } else if (unit.equals("hp") || unit.equals("horsepower") || unit.equals("horses") || unit.equals("bhp") || unit.equals("metric horsepower")) {
+        } else if (unit.equals("hp") || unit.equals("horsepower") || unit.equals("horses") || unit.equals("bhp")
+                || unit.equals("metric horsepower")) {
             multiplier = 1;
         } else if (unit.equals("kw") || unit.equals("kilowatt") || unit.equals("kilowatts")) {
             multiplier = 1.3410;
         } else if (unit.equals("mph") || unit.equals("miles per hour")) {
             multiplier = 1.609344;
-        } else if (unit.equals("kmh") || unit.equals("kph") || unit.equals("kilometers per hour") || unit.equals("km/h")) {
+        } else if (unit.equals("kmh") || unit.equals("kph") || unit.equals("kilometers per hour")
+                || unit.equals("km/h")) {
             multiplier = 1.0;
-        } else if (unit.equals("lb/ft") || unit.equals("lbs.-ft") || unit.equals("lb ft") || unit.equals("lb-ft") || unit.equals("lb.-ft")
-                || unit.equals("pound feet") || unit.equals("pound-feet") || unit.equals("foot pound") || unit.equals("foot-pound")
-                || unit.equals("foot pounds") || unit.equals("foot-pounds") || unit.equals("ft-lb") || unit.equals("ft-lbs")) {
+        } else if (unit.equals("lb/ft") || unit.equals("lbs.-ft") || unit.equals("lb ft") || unit.equals("lb-ft")
+                || unit.equals("lb.-ft") || unit.equals("pound feet") || unit.equals("pound-feet")
+                || unit.equals("foot pound") || unit.equals("foot-pound") || unit.equals("foot pounds")
+                || unit.equals("foot-pounds") || unit.equals("ft-lb") || unit.equals("ft-lbs")) {
             multiplier = 1.355817952;
         } else if (unit.equals("nm") || unit.equals("newton meter") || unit.equals("newton meters")) {
             multiplier = 1.0;
@@ -354,13 +363,13 @@ public class UnitNormalizer {
             multiplier = 1000000000.0;
         } else if (unit.equals("trillion") || unit.equals("trillions")) {
             multiplier = 1000000000000.0;
-        } else if (unit.equals("mega pixel") || unit.equals("mega pixels") || unit.equals("megapixel") || unit.equals("megapixels") || unit.equals("mpix")
-                || unit.equals("mpixel") || unit.equals("mp") || unit.equals("mpx")) {
+        } else if (unit.equals("mega pixel") || unit.equals("mega pixels") || unit.equals("megapixel")
+                || unit.equals("megapixels") || unit.equals("mpix") || unit.equals("mpixel") || unit.equals("mp")
+                || unit.equals("mpx")) {
             multiplier = 1000000.0;
         } else if (unit.equals("%")) {
             multiplier = 0.01;
         }
-
 
         return multiplier;
     }
@@ -420,7 +429,8 @@ public class UnitNormalizer {
             if (matcher.find()) {
                 combinedValue = number * 3600; // hours to seconds
                 int lastColonIndex = matcher.group().lastIndexOf(":");
-                combinedValue += Double.valueOf(matcher.group().substring(1, lastColonIndex)) * 60; // minutes to seconds
+                combinedValue += Double.valueOf(matcher.group().substring(1, lastColonIndex)) * 60; // minutes to
+                                                                                                    // seconds
                 combinedValue += Double.valueOf(matcher.group().substring(lastColonIndex + 1, matcher.end()));
                 return MathHelper.round(combinedValue, decimals);
             }
@@ -439,7 +449,8 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
-                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end() - 1).trim()) * unitLookup("in"); // inches to centimeters
+                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end() - 1).trim())
+                        * unitLookup("in"); // inches to centimeters
                 return MathHelper.round(combinedValue, decimals);
             }
 
@@ -448,7 +459,8 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
-                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end() - 2).trim()) * unitLookup("in"); // inches to centimeters
+                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end() - 2).trim())
+                        * unitLookup("in"); // inches to centimeters
                 return MathHelper.round(combinedValue, decimals);
             }
 
@@ -464,6 +476,21 @@ public class UnitNormalizer {
         }
 
         return -1.0;
+    }
+
+    /**
+     * transforms a normalized value to the target unit
+     * @param unitTo unit to transform to
+     * @param value value to transorm
+     * @return transformed value
+     */
+    public static double transorm(String unitTo, double value) {
+        double divider = unitLookup(unitTo);
+        return value/divider;
+    }
+
+    public static double transorm(String unitTo, String value) {
+        return transorm(unitTo, Double.valueOf(value));
     }
 
     public static String getUnitTypeName(String string) {
@@ -530,7 +557,8 @@ public class UnitNormalizer {
         return getNormalizedNumber(number, unitText, 3, combinedSearchPreviousUnit);
     }
 
-    public static double getNormalizedNumber(double number, String unitText, int decimals, String combinedSearchPreviousUnit) {
+    public static double getNormalizedNumber(double number, String unitText, int decimals,
+            String combinedSearchPreviousUnit) {
 
         boolean combinedSearch = false;
         if (combinedSearchPreviousUnit.length() > 0) {
@@ -548,7 +576,8 @@ public class UnitNormalizer {
             unitText = StringHelper.trim(unitText);
         }
 
-        // some units are presented in optional plural form e.g. 5 hour(s) but some values are in brackets e.g. (2.26GHz), decide here whether to delete closing
+        // some units are presented in optional plural form e.g. 5 hour(s) but some values are in brackets e.g.
+        // (2.26GHz), decide here whether to delete closing
         // bracket or not
         if (!unitText.endsWith("(s)") && unitText.endsWith(")")) {
             unitText = unitText.substring(0, unitText.length() - 1);
@@ -584,7 +613,9 @@ public class UnitNormalizer {
             if (multiplier != -1.0) {
                 // when a subsequent unit is searched is has to be smaller than the previous one
                 // e.g. 1 hour 23 minutes (minutes < hour) otherwise 2GB 80GB causes problems
-                if (combinedSearch && !(unitsSameType(combinedSearchPreviousUnit, wordSequence) && isBigger(combinedSearchPreviousUnit, wordSequence))) {
+                if (combinedSearch
+                        && !(unitsSameType(combinedSearchPreviousUnit, wordSequence) && isBigger(
+                                combinedSearchPreviousUnit, wordSequence))) {
                     return 0.0;
                 }
                 break;
@@ -615,7 +646,8 @@ public class UnitNormalizer {
 
         try {
             if (m.find()) {
-                number += getNormalizedNumber(Double.valueOf(StringNormalizer.normalizeNumber(m.group())), restWordSequence.substring(m.end()), wordSequence);
+                number += getNormalizedNumber(Double.valueOf(StringNormalizer.normalizeNumber(m.group())),
+                        restWordSequence.substring(m.end()), wordSequence);
             }
         } catch (NumberFormatException e) {
             Logger.getRootLogger().error(m.group(), e);
@@ -704,6 +736,10 @@ public class UnitNormalizer {
         System.out.println(getNormalizedNumber(1, "m20s 23sdf sdf a__:"));
         System.out.println(getNormalizedNumber(1, ":20 23sdf sdf a__:"));
         System.out.println(getNormalizedNumber(1, ":20 23sdf sdf a__:"));
+
+
+        System.out.println(getNormalizedNumber(20,"inch"));
+        System.out.println(transorm("inch", getNormalizedNumber(20,"inch")));
 
         // System.out.println(Double.valueOf("8.589934592E9")/100000);
 

@@ -86,7 +86,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         super();
         this.name = name;
     }
-    
+
     public Dictionary(String name, int classType) {
         super();
         this.name = name;
@@ -360,7 +360,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
                 bestFitCategoryEntries.put(
                         categoryEntry.getCategory().getName(),
                         bestFitCategoryEntries.get(categoryEntry.getCategory().getName())
-                                + categoryEntry.getRelevance());
+                        + categoryEntry.getRelevance());
             } else {
                 bestFitCategoryEntries.put(categoryEntry.getCategory().getName(), categoryEntry.getRelevance());
                 bestFitCategoryEntries2.put(categoryEntry.getCategory().getName(), categoryEntry);
@@ -437,16 +437,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         this.numberOfDocuments++;
     }
 
-    /**
-     * Save the constructed context map to a csv file.
-     */
-    public void saveAsCSV() {
-
-        if (categories == null) {
-            Logger.getRootLogger().error("no categories assigned");
-            return;
-        }
-
+    public String toCsv() {
         StringBuilder dictionaryString = new StringBuilder("");
 
         // add some meta information
@@ -480,10 +471,23 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             dictionaryString.append("\n");
         }
 
+        return dictionaryString.toString();
+    }
+
+    /**
+     * Save the constructed context map to a csv file.
+     */
+    public void saveAsCSV() {
+
+        if (categories == null) {
+            Logger.getRootLogger().error("no categories assigned");
+            return;
+        }
+
         Logger.getRootLogger().debug("save dictionary...");
         FileHelper.writeToFile(
                 "data/temp/" + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + getName() + ".csv",
-                dictionaryString);
+ toCsv());
     }
 
     public void calculateCategoryPriors() {

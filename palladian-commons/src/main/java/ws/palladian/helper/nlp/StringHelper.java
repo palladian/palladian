@@ -254,6 +254,29 @@ public final class StringHelper {
 
     /**
      * <p>
+     * Replace a certain string only within a substring of a text.
+     * </p>
+     * 
+     * @param text The text in which something should be replaced.
+     * @param start The start of the substring in which we want to replace something.
+     * @param end The end of the substring in which we want to replace something.
+     * @param searchString The string we want to replace.
+     * @param replacement The replacement.
+     * @return The string with the replaced search string.
+     */
+    public static String replaceWithin(String text, int start, int end, String searchString, String replacement) {
+
+        String retText = text.substring(0, start);
+
+        retText += text.substring(start, end).replace(searchString, replacement);
+
+        retText += text.substring(end);
+
+        return retText;
+    }
+
+    /**
+     * <p>
      * Transform a name For example: jim carrey => Jim Carrey, university of los angeles => University of Los Angeles
      * </p>
      * <p>
