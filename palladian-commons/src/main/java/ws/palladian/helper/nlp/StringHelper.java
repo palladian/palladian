@@ -1513,6 +1513,10 @@ public final class StringHelper {
 
         List<String> matches = new ArrayList<String>();
 
+        if (text == null) {
+            return matches;
+        }
+
         Matcher m = regexpPattern.matcher(text);
         while (m.find()) {
             matches.add(m.group());
