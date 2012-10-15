@@ -142,7 +142,10 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
     }
 
     /**
-     * <p>Adds a new {@link Feature} to this Annotation's {@link FeatureVector}.</p>
+     * <p>
+     * Adds a new {@link Feature} to this Annotation's {@link FeatureVector}.
+     * </p>
+     * 
      * @param feature The feature to add, not <code>null</code>.
      */
     public final void addFeature(final Feature<?> feature) {

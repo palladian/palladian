@@ -47,22 +47,23 @@ public final class FeatureSelector {
      * @param instances
      * @return
      */
-    public static <T extends Feature<?>> Map<String, Map<String, Double>> calculateChiSquareValues(String featurePath,
-            Class<T> featureType, Collection<Instance> instances) {
+    public static <T> Map<String, Map<String, Double>> calculateChiSquareValues(String featurePath,
+            Class<? extends Feature<T>> featureType, Collection<Instance> instances) {
         Map<String, Map<String, Integer>> termClassCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
         Map<String, Integer> classCounts = new HashMap<String, Integer>();
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
         for (Instance instance : instances) {
-            Collection<T> features = instance.featureVector.getFeatureBag(featureType, featurePath);
-            for (T value : features) {
-                addCooccurence(value.getValue().toString(), instance.targetClass, termClassCorrelationMatrix);
+            Collection<? extends Feature<T>> features = instance.getFeatureVector().getFeatureBag(featureType,
+                    featurePath);
+            for (Feature<T> value : features) {
+                addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
             }
-            Integer count = classCounts.get(instance.targetClass);
+            Integer count = classCounts.get(instance.getTargetClass());
             if (count == null) {
                 count = 0;
             }
-            classCounts.put(instance.targetClass, ++count);
+            classCounts.put(instance.getTargetClass(), ++count);
         }
 
         // The following variables are uppercase because that is the way they are used in the literature.
@@ -195,17 +196,9 @@ public final class FeatureSelector {
         fv3.add(new NominalFeature("testfeature", "e"));
         fv3.add(new NominalFeature("testfeature", "f"));
 
-        Instance instance1 = new Instance();
-        instance1.featureVector = fv1;
-        instance1.targetClass = "c1";
-
-        Instance instance2 = new Instance();
-        instance2.featureVector = fv2;
-        instance2.targetClass = "c1";
-
-        Instance instance3 = new Instance();
-        instance3.featureVector = fv3;
-        instance3.targetClass = "c2";
+        Instance instance1 = new Instance("c1", fv1);
+        Instance instance2 = new Instance("c1", fv2);
+        Instance instance3 = new Instance("c2", fv3);
 
         Collection<Instance> instances = new HashSet<Instance>();
         instances.add(instance1);

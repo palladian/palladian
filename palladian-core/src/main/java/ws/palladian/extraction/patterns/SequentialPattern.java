@@ -3,10 +3,9 @@
  */
 package ws.palladian.extraction.patterns;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.Validate;
+import ws.palladian.processing.features.Feature;
 
 /**
  * <p>
@@ -18,25 +17,35 @@ import org.apache.commons.lang3.Validate;
  * @version 1.0
  * @since 0.1.7
  */
-public final class SequentialPattern {
+public final class SequentialPattern extends Feature<List<String>> {
 
-    private List<String> pattern;
+    // private List<String> pattern;
+
+    // /**
+    // *
+    // */
+    // public SequentialPattern(final List<String> lhs) {
+    // Validate.notEmpty(lhs, "lhs must not be empty");
+    //
+    // this.pattern = lhs;
+    // }
+
+    // public List<String> getPattern() {
+    // List<String> ret = new ArrayList<String>(pattern.size());
+    // ret.addAll(pattern);
+    // return ret;
+    // }
 
     /**
+     * <p>
      * 
+     * </p>
+     * 
+     * @param name
+     * @param value
      */
-    public SequentialPattern(final List<String> lhs) {
-        super();
-
-        Validate.notEmpty(lhs, "lhs must not be empty");
-
-        this.pattern = lhs;
-    }
-
-    public List<String> getPattern() {
-        List<String> ret = new ArrayList<String>(pattern.size());
-        ret.addAll(pattern);
-        return ret;
+    public SequentialPattern(String name, List<String> value) {
+        super(name, value);
     }
 
     /**
@@ -85,8 +94,8 @@ public final class SequentialPattern {
 
         // Step 1
 
-        n = this.pattern.size();
-        m = otherPattern.pattern.size();
+        n = getValue().size();
+        m = otherPattern.getValue().size();
         if (n == 0) {
             return m;
         }
@@ -109,13 +118,13 @@ public final class SequentialPattern {
 
         for (i = 1; i <= n; i++) {
 
-            s_i = this.pattern.get(i - 1);
+            s_i = getValue().get(i - 1);
 
             // Step 4
 
             for (j = 1; j <= m; j++) {
 
-                t_j = otherPattern.pattern.get(j - 1);
+                t_j = otherPattern.getValue().get(j - 1);
 
                 // Step 5
 
@@ -166,7 +175,7 @@ public final class SequentialPattern {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder("\nObject: " + super.toString());
-        stringBuilder.append(" <" + pattern + ">");
+        stringBuilder.append(" <" + getValue() + ">");
         return stringBuilder.toString();
     }
 
@@ -174,7 +183,7 @@ public final class SequentialPattern {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
+        result = prime * result + ((getValue() == null) ? 0 : getValue().hashCode());
         return result;
     }
 
@@ -190,11 +199,11 @@ public final class SequentialPattern {
             return false;
         }
         SequentialPattern other = (SequentialPattern)obj;
-        if (pattern == null) {
-            if (other.pattern != null) {
+        if (getValue() == null) {
+            if (other.getValue() != null) {
                 return false;
             }
-        } else if (!pattern.equals(other.pattern)) {
+        } else if (!getValue().equals(other.getValue())) {
             return false;
         }
         return true;
@@ -202,7 +211,7 @@ public final class SequentialPattern {
 
     public String getStringValue() {
         StringBuilder ret = new StringBuilder("<");
-        for (String token : pattern) {
+        for (String token : getValue()) {
             ret.append(token);
             ret.append(',');
         }
