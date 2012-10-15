@@ -1,27 +1,26 @@
-package ws.palladian.classification;
+package ws.palladian.classification.text.evaluation;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import ws.palladian.helper.math.ConfusionMatrix;
 
 public class ClassifierPerformanceResult {
 
-    private double precision = -1.0;
-    private double recall = -1.0;
-    private double f1 = -1.0;
+    private final double precision;
+    private final double recall;
+    private final double f1;
 
-    private double sensitivity = -1.0;
-    private double specificity = -1.0;
-    private double accuracy = -1.0;
+    private final double sensitivity;
+    private final double specificity;
+    private final double accuracy;
 
-    private double correctlyClassified = -1.0;
+    private final double correctlyClassified;
     
     /** Superiority is the factor with which the classifier is better than the highest prior in the dataset: Superiority = correctlyClassified / percentHighestPrior. A superiority of 1 means it doesn't make sense classifying at all since we could simply always take the category with the highest prior. A superiority smaller 1 means the classifier is harmful. */
-    private double superiority = -1.0;
+    private final double superiority;
     
-    private ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+    private final ConfusionMatrix confusionMatrix;
 
     /**
      * Hold the thresholds in buckets 0-0.1,0.1-0.2... with the buckets correctlyClassified. We will be able to see how
@@ -35,7 +34,7 @@ public class ClassifierPerformanceResult {
      * 0.9-1.00         |                        |
      * </pre>
      */
-    private Map<Double, Double[]> thresholdBucketMap = new TreeMap<Double, Double[]>();
+    private final Map<Double, Double[]> thresholdBucketMap;
 
     /**
      * Hold the thresholds in .01 steps with the correctlyClassified value of all documents with a threshold >= the
@@ -49,58 +48,60 @@ public class ClassifierPerformanceResult {
      * 1.00         |                       |
      * </pre>
      */
-    private Map<Double, Double[]> thresholdAccumulativeMap = new TreeMap<Double, Double[]>();
+    private final Map<Double, Double[]> thresholdAccumulativeMap;
+
+    /**
+     * @param precision
+     * @param recall
+     * @param f1
+     * @param sensitivity
+     * @param specificity
+     * @param accuracy
+     * @param correctlyClassified
+     * @param superiority
+     * @param confusionMatrix
+     * @param thresholdBucketMap
+     * @param thresholdAccumulativeMap
+     */
+    ClassifierPerformanceResult(double precision, double recall, double f1, double sensitivity,
+            double specificity, double accuracy, double correctlyClassified, double superiority,
+            ConfusionMatrix confusionMatrix, Map<Double, Double[]> thresholdBucketMap,
+            Map<Double, Double[]> thresholdAccumulativeMap) {
+        this.precision = precision;
+        this.recall = recall;
+        this.f1 = f1;
+        this.sensitivity = sensitivity;
+        this.specificity = specificity;
+        this.accuracy = accuracy;
+        this.correctlyClassified = correctlyClassified;
+        this.superiority = superiority;
+        this.confusionMatrix = confusionMatrix;
+        this.thresholdBucketMap = thresholdBucketMap;
+        this.thresholdAccumulativeMap = thresholdAccumulativeMap;
+    }
 
     public double getPrecision() {
         return precision;
-    }
-
-    public void setPrecision(double precision) {
-        this.precision = precision;
     }
 
     public double getRecall() {
         return recall;
     }
 
-    public void setRecall(double recall) {
-        this.recall = recall;
-    }
-
     public double getF1() {
         return f1;
-    }
-
-    public void setF1(double f1) {
-        this.f1 = f1;
     }
 
     public double getSensitivity() {
         return sensitivity;
     }
 
-    public void setSensitivity(double sensitivity) {
-        this.sensitivity = sensitivity;
-    }
-
     public double getSpecificity() {
         return specificity;
     }
 
-    public void setSpecificity(double specificity) {
-        this.specificity = specificity;
-    }
-
     public double getAccuracy() {
         return accuracy;
-    }
-
-    public void setAccuracy(double accuracy) {
-        this.accuracy = accuracy;
-    }
-
-    public void setCorrectlyClassified(double correctlyClassified) {
-        this.correctlyClassified = correctlyClassified;
     }
 
     public double getCorrectlyClassified() {
@@ -110,21 +111,9 @@ public class ClassifierPerformanceResult {
     public double getSuperiority() {
         return superiority;
     }
-
-    public void setSuperiority(double superiority) {
-        this.superiority = superiority;
-    }
-    
-    public void setConfusionMatrix(ConfusionMatrix confusionMatrix) {
-        this.confusionMatrix = confusionMatrix;
-    }
     
     public ConfusionMatrix getConfusionMatrix() {
         return confusionMatrix;
-    }
-    
-    public void setThresholdBucketMap(Map<Double, Double[]> thresholdBucketMap) {
-        this.thresholdBucketMap = thresholdBucketMap;
     }
 
     public Map<Double, Double[]> getThresholdBucketMap() {
@@ -145,10 +134,6 @@ public class ClassifierPerformanceResult {
         }
 
         return csv.toString();
-    }
-
-    public void setThresholdAccumulativeMap(Map<Double, Double[]> thresholdAccumulativeMap) {
-        this.thresholdAccumulativeMap = thresholdAccumulativeMap;
     }
 
     public Map<Double, Double[]> getThresholdAccumulativeMap() {

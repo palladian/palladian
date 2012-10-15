@@ -16,10 +16,10 @@ import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Dictionary;
 import ws.palladian.classification.persistence.DictionaryDbIndexH2;
 import ws.palladian.classification.persistence.DictionaryFileIndex;
 import ws.palladian.classification.persistence.DictionaryIndex;
+import ws.palladian.classification.text.Dictionary;
 
 /**
  * 
@@ -52,7 +52,7 @@ public class DictionaryIndexTest {
 
     @Before
     public void before() {
-        index.setDictionary(new Dictionary("test_dictionary", 1));
+        index.setDictionary(new Dictionary("test_dictionary"));
         index.empty();
         index.openWriter();
     }

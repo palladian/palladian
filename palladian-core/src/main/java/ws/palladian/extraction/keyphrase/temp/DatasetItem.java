@@ -3,13 +3,17 @@ package ws.palladian.extraction.keyphrase.temp;
 import java.io.File;
 import java.util.Arrays;
 
+import ws.palladian.processing.PipelineDocument;
+
 /**
  * <p>
  * An item in a {@link Dataset2}, typically used for classification evaluation tasks.
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated Replace by {@link PipelineDocument}
  */
+@Deprecated
 public final class DatasetItem {
 
     private final File file;

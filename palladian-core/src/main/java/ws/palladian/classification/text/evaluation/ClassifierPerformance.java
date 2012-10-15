@@ -6,16 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
-
-import ws.palladian.classification.Categories;
-import ws.palladian.classification.Category;
-import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.ClassifierPerformanceResult;
-import ws.palladian.classification.text.ClassificationDocuments;
-import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.TestDocument;
-import ws.palladian.classification.text.TextInstance;
+import ws.palladian.classification.UniversalInstance;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -33,15 +24,13 @@ public class ClassifierPerformance implements Serializable {
     private static final long serialVersionUID = -7375053843995436850L;
 
     /** The classifier's categories. */
-    private Categories categories = null;
-
-    private int classificationType = -1;
+    private final List<String> categories;
 
     /** The training documents. */
-    private ClassificationDocuments trainingDocuments = null;
+    private final List<UniversalInstance> trainingDocuments;
 
     /** The test documents that can be used to calculate recall, precision, and F-score. */
-    private ClassificationDocuments testDocuments = null;
+    private final List<UniversalInstance> testDocuments;
 
     /**
      * A list of pairs of [correct,threshold] where correct is 0 or 1 and the threshold is the threshold of the document
@@ -54,44 +43,11 @@ public class ClassifierPerformance implements Serializable {
      * 
      * @param classifier The classifier.
      */
-    public ClassifierPerformance(PalladianTextClassifier classifier, ClassificationDocuments trainingDocuments,
-            ClassificationDocuments testDocuments) {
-        categories = classifier.getModel().getCategories();
-        this.trainingDocuments = trainingDocuments;
-        this.testDocuments = testDocuments;
-        classificationType = classifier.getModel().getClassificationTypeSetting().getClassificationType();
-    }
-
-    public Categories getCategories() {
-        return categories;
-    }
-
-    public void setCategories(Categories categories) {
+    public ClassifierPerformance(List<String> categories, List<UniversalInstance> trainingDocuments,
+            List<UniversalInstance> testDocuments) {
         this.categories = categories;
-    }
-
-    public void setClassificationType(int classificationType) {
-        this.classificationType = classificationType;
-    }
-
-    public int getClassificationType() {
-        return classificationType;
-    }
-
-    public void setTrainingDocuments(ClassificationDocuments trainingDocuments) {
         this.trainingDocuments = trainingDocuments;
-    }
-
-    public ClassificationDocuments getTrainingDocuments() {
-        return trainingDocuments;
-    }
-
-    public void setTestDocuments(ClassificationDocuments testDocuments) {
         this.testDocuments = testDocuments;
-    }
-
-    public ClassificationDocuments getTestDocuments() {
-        return testDocuments;
     }
 
     /**
@@ -100,24 +56,14 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category.
      * @return Number of correct classified documents in a given category.
      */
-    public int getNumberOfCorrectClassifiedDocumentsInCategory(Category category) {
+    public int getNumberOfCorrectClassifiedDocumentsInCategory(String category) {
         int number = 0;
 
-        for (TextInstance document : getTestDocuments()) {
-            TestDocument testDocument = (TestDocument) document;
+        for (UniversalInstance document : testDocuments) {
 
-            if (category.getClassType() == ClassificationTypeSetting.SINGLE) {
-                if (document.getMainCategoryEntry().getCategory().getName().equals(category.getName())
-                        && testDocument.isCorrectClassified()) {
-                    ++number;
-                }
-            } else {
-                for (CategoryEntry c : testDocument.getAssignedCategoryEntries()) {
-                    if (c.getCategory().getName().equals(category.getName()) && testDocument.isCorrectClassified()) {
-                        ++number;
-                        break;
-                    }
-                }
+            if (document.getInstanceCategory().equals(category)
+                    && isCorrectClassified(document)) {
+                ++number;
             }
 
         }
@@ -125,32 +71,33 @@ public class ClassifierPerformance implements Serializable {
         return number;
     }
 
+    public boolean isCorrectClassified(UniversalInstance textInstance) {
+        String mcn = textInstance.getInstanceCategory();
+        return mcn.equals(textInstance.getInstanceCategory());
+
+    }
+
     // FIXME this assumes cClassificationTypeSetting.SINGLE
-    public int getNumberOfConfusionsBetween(Category actualCategory, Category classifiedCategory) {
+    public int getNumberOfConfusionsBetween(String actualCategory, String classifiedCategory) {
         int number = 0;
 
-        for (TextInstance document : getTestDocuments()) {
-            TestDocument testDocument = (TestDocument) document;
-
-            if (testDocument.getFirstRealCategory().getName().equals(actualCategory.getName()) &&
-                    document.getMainCategoryEntry().getCategory().getName().equals(classifiedCategory.getName())) {
+        for (UniversalInstance document : testDocuments) {
+            if (document.getInstanceCategory().equals(actualCategory) &&
+                    document.getInstanceCategory().equals(classifiedCategory)) {
 
                 number++;
-
             }
-
         }
-
         return number;
     }
 
     public double getCorrectlyClassified() {
         int correctlyClassified = 0;
-        for (Category c : getCategories()) {
+        for (String c : categories) {
             correctlyClassified += getNumberOfCorrectClassifiedDocumentsInCategory(c);
         }
 
-        return correctlyClassified / (double) getTestDocuments().size();
+        return correctlyClassified / (double) testDocuments.size();
     }
 
     /**
@@ -162,13 +109,13 @@ public class ClassifierPerformance implements Serializable {
         double highestPrior = -1.0;
 
         CountMap<String> countMap = CountMap.create();
-        for (TextInstance document : getTestDocuments()) {
-            countMap.add(document.getFirstRealCategory().getName());
+        for (UniversalInstance document : testDocuments) {
+            countMap.add(document.getInstanceCategory());
         }
 
         Integer highestClassCount = countMap.getSortedMapDescending().values().iterator().next();
         if (highestClassCount != null && highestClassCount > 0) {
-            highestPrior = highestClassCount / (double) getTestDocuments().size();
+            highestPrior = highestClassCount / (double) testDocuments.size();
         }
 
         return highestPrior;
@@ -180,20 +127,15 @@ public class ClassifierPerformance implements Serializable {
      * @param category
      * @return the precision for a given category
      */
-    public double getPrecisionForCategory(Category category) {
-        try {
-            double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double classified = getTestDocuments().getClassifiedNumberOfCategory(category);
+    public double getPrecisionForCategory(String category) {
+            int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int classified = getClassifiedNumberOfCategory(testDocuments, category);
 
             if (classified < 1.0) {
                 return -1.0;
             }
 
-            return correct / classified;
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Precision in Category " + category.getName());
-            return -1.0;
-        }
+            return (double) correct / classified;
     }
 
     /**
@@ -202,18 +144,13 @@ public class ClassifierPerformance implements Serializable {
      * @param category
      * @return the recall for a given category
      */
-    public double getRecallForCategory(Category category) {
-        try {
-            double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double real = getTestDocuments().getRealNumberOfCategory(category);
+    public double getRecallForCategory(String category) {
+            int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int real = getRealNumberOfCategory(testDocuments, category);
             if (real < 1.0) {
                 return -1.0;
             }
-            return correct / real;
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Recall in Category " + category.getName());
-            return -1.0;
-        }
+            return (double) correct / real;
     }
 
     /**
@@ -223,8 +160,7 @@ public class ClassifierPerformance implements Serializable {
      * @param alpha A value between 0 and 1 to weight precision and recall (0.5 for F1).
      * @return F for a given category.
      */
-    public double getFForCategory(Category category, double alpha) {
-        try {
+    public double getFForCategory(String category, double alpha) {
             double pfc = getPrecisionForCategory(category);
             double rfc = getRecallForCategory(category);
 
@@ -236,10 +172,6 @@ public class ClassifierPerformance implements Serializable {
             // double alphaSquared = alpha * alpha;
             // return ((1+alphaSquared)*getPrecisionForCategory(category) * getRecallForCategory(category)) /
             // (alphaSquared*getPrecisionForCategory(category)+getRecallForCategory(category));
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for F in Category " + category.getName());
-            return -1.0;
-        }
     }
 
     /**
@@ -247,29 +179,20 @@ public class ClassifierPerformance implements Serializable {
      * percentage of actual category members were
      * found. 100% sensitivity means that all actual documents belonging to the category were classified correctly.
      * 
-     * @param category
+     * @param c
      * @return
      */
-    public double getSensitivityForCategory(Category category) {
-        double sensitivity = 0.0;
-        try {
-            double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = getTestDocuments().getRealNumberOfCategory(category);
+    public double getSensitivityForCategory(String c) {
+            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(c);
+            int realPositives = getRealNumberOfCategory(testDocuments, c);
 
-            double falseNegatives = realPositives - truePositives;
+            int falseNegatives = realPositives - truePositives;
 
             if (truePositives + falseNegatives == 0) {
                 return -1.0;
             }
 
-            sensitivity = truePositives / (truePositives + falseNegatives);
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Sensitivity in Category " + category.getName());
-            return -1.0;
-        }
-
-        return sensitivity;
+            return (double) truePositives / (truePositives + falseNegatives);
     }
 
     /**
@@ -281,29 +204,20 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category.
      * @return The specificity.
      */
-    public double getSpecificityForCategory(Category category) {
-        double specificity = 0.0;
-        try {
-            double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = getTestDocuments().getRealNumberOfCategory(category);
-            double classifiedPositives = getTestDocuments().getClassifiedNumberOfCategory(category);
+    public double getSpecificityForCategory(String category) {
+            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int realPositives = getRealNumberOfCategory(testDocuments, category);
+            int classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
 
-            double falsePositives = classifiedPositives - truePositives;
-            double falseNegatives = realPositives - truePositives;
-            double trueNegatives = getTestDocuments().size() - classifiedPositives - falseNegatives;
+            int falsePositives = classifiedPositives - truePositives;
+            int falseNegatives = realPositives - truePositives;
+            int trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
             if (trueNegatives + falsePositives == 0) {
                 return -1.0;
             }
 
-            specificity = trueNegatives / (trueNegatives + falsePositives);
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Specificity in Category " + category.getName());
-            return -1.0;
-        }
-
-        return specificity;
+            return (double) trueNegatives / (trueNegatives + falsePositives);
     }
 
     /**
@@ -312,30 +226,21 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category.
      * @return The accuracy.
      */
-    public double getAccuracyForCategory(Category category) {
-        double accuracy = 0.0;
-        try {
-            double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = getTestDocuments().getRealNumberOfCategory(category);
-            double classifiedPositives = getTestDocuments().getClassifiedNumberOfCategory(category);
+    public double getAccuracyForCategory(String category) {
+            int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
+            int realPositives = getRealNumberOfCategory(testDocuments, category);
+            int classifiedPositives = getClassifiedNumberOfCategory(testDocuments, category);
 
-            double falsePositives = classifiedPositives - truePositives;
-            double falseNegatives = realPositives - truePositives;
-            double trueNegatives = getTestDocuments().size() - classifiedPositives - falseNegatives;
+            int falsePositives = classifiedPositives - truePositives;
+            int falseNegatives = realPositives - truePositives;
+            int trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
             if (truePositives + trueNegatives + falsePositives + falseNegatives == 0) {
                 return -1.0;
             }
 
-            accuracy = (truePositives + trueNegatives)
+            return (double) (truePositives + trueNegatives)
                     / (truePositives + trueNegatives + falsePositives + falseNegatives);
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Accuracy in Category " + category.getName());
-            return -1.0;
-        }
-
-        return accuracy;
     }
 
     /**
@@ -346,40 +251,33 @@ public class ClassifierPerformance implements Serializable {
      * @param category The category for which the prior should be determined.
      * @return The prior for the category.
      */
-    public double getWeightForCategory(Category category) {
-        if (category.getTestSetWeight() > -1) {
-            return category.getTestSetWeight();
-        }
+    public double getWeightForCategory(String category) {
+//        if (category.getTestSetWeight() > -1) {
+//            return category.getTestSetWeight();
+//        }
 
-        try {
             // the number of documents that belong to the given category
-            int documentCount = getTestDocuments().getRealNumberOfCategory(category)
-                    + getTrainingDocuments().getRealNumberOfCategory(category);
+            int documentCount = getRealNumberOfCategory(testDocuments, category)
+                    + getRealNumberOfCategory(trainingDocuments, category);
 
             // the total number of documents assigned to categories, one document can be assigned to multiple
             // categories!
             int totalAssigned = 0;
-            for (Category c : getCategories()) {
+            for (String c : categories) {
 
-                // skip categories that are not main categories because they are classified according to the main
-                // category
-                if (category.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                    continue;
-                }
-
-                totalAssigned += getTestDocuments().getRealNumberOfCategory(c)
-                        + getTrainingDocuments().getRealNumberOfCategory(c);
+                totalAssigned += getRealNumberOfCategory(testDocuments, c)
+                        + getRealNumberOfCategory(trainingDocuments, c);
+            }
+            
+            if (totalAssigned == 0) {
+                return 0;
             }
 
             // double ratio = (double) documentCount / (double) (testDocuments.size() + trainingDocuments.size());
-            double weight = (double) documentCount / (double) totalAssigned;
-            category.setTestSetWeight(weight);
-            return weight;
-
-        } catch (ArithmeticException e) {
-            Logger.getRootLogger().error("ERROR Division By Zero for Recall in Category " + category.getName());
-            return 0.0;
-        }
+            return (double) documentCount / totalAssigned;
+            
+            
+//            category.setTestSetWeight(weight);
     }
 
     /**
@@ -390,39 +288,11 @@ public class ClassifierPerformance implements Serializable {
     public double getAveragePrecision(boolean weighted) {
         double precision = 0.0;
 
-        double count = 0.0;
+        int count = 0;
 
-        if (getClassificationType() == ClassificationTypeSetting.TAG) {
 
-            for (TextInstance document : getTestDocuments()) {
+            for (String c : categories) {
 
-                int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
-                int totalAssigned = document.getAssignedCategoryEntries().size();
-
-                if (totalAssigned == 0) {
-                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getContent());
-                    continue;
-                }
-
-                // for (int i = 1; i <= precisionAtRank; i++) {
-                // totalPrecisionAts[i - 1] += ((TestDocument) document).getPrecisionAt(i);
-                // }
-
-                double microPrecision = (double) correctlyAssigned / (double) totalAssigned;
-
-                precision += microPrecision;
-                count++;
-            }
-
-        } else {
-
-            for (Category c : getCategories()) {
-
-                // skip categories that are not main categories because they are classified according to the main
-                // category
-                if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                    continue;
-                }
 
                 double pfc = getPrecisionForCategory(c);
                 if (pfc < 0) {
@@ -441,7 +311,6 @@ public class ClassifierPerformance implements Serializable {
                 return precision;
             }
 
-        }
 
 
         if (count == 0) {
@@ -459,35 +328,9 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageRecall(boolean weighted) {
         double recall = 0.0;
 
-        double count = 0.0;
+        int count = 0;
 
-        if (getClassificationType() == ClassificationTypeSetting.TAG) {
-
-            for (TextInstance document : getTestDocuments()) {
-
-                int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
-                int real = document.getRealCategories().size();
-
-                if (real == 0) {
-                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getContent());
-                    continue;
-                }
-
-                double microRecall = (double) correctlyAssigned / (double) real;
-
-                recall += microRecall;
-                count++;
-            }
-
-        } else {
-
-            for (Category c : getCategories()) {
-
-                // skip categories that are not main categories because they are classified according to the main
-                // category
-                if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                    continue;
-                }
+            for (String c : categories) {
 
                 double rfc = getRecallForCategory(c);
                 if (rfc < 0.0) {
@@ -506,7 +349,6 @@ public class ClassifierPerformance implements Serializable {
                 return recall;
             }
 
-        }
 
         if (count == 0) {
             return -1.0;
@@ -524,13 +366,8 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageF(double alpha, boolean weighted) {
         double f = 0.0;
 
-        double count = 0.0;
-        for (Category c : getCategories()) {
-
-            // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                continue;
-            }
+        int count = 0;
+        for (String c : categories) {
 
             double ffc = getFForCategory(c, alpha);
 
@@ -567,13 +404,8 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageSensitivity(boolean weighted) {
         double sensitivity = 0.0;
 
-        double count = 0.0;
-        for (Category c : getCategories()) {
-
-            // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                continue;
-            }
+        int count = 0;
+        for (String c : categories) {
 
             double sfc = getSensitivityForCategory(c);
 
@@ -610,13 +442,8 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageSpecificity(boolean weighted) {
         double specificity = 0.0;
 
-        double count = 0.0;
-        for (Category c : getCategories()) {
-
-            // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                continue;
-            }
+        int count = 0;
+        for (String c : categories) {
 
             double sfc = getSpecificityForCategory(c);
 
@@ -653,13 +480,8 @@ public class ClassifierPerformance implements Serializable {
     public double getAverageAccuracy(boolean weighted) {
         double accuracy = 0.0;
 
-        double count = 0.0;
-        for (Category c : getCategories()) {
-
-            // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                continue;
-            }
+        int count = 0;
+        for (String c : categories) {
 
             double afc = getAccuracyForCategory(c);
 
@@ -710,13 +532,13 @@ public class ClassifierPerformance implements Serializable {
         // x = actual category, y = classified category
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
-        for (Category actualCategory : categories) {
+        for (String actualCategory : categories) {
 
-            for (Category classifiedCategory : categories) {
+            for (String classifiedCategory : categories) {
 
                 int count = getNumberOfConfusionsBetween(actualCategory, classifiedCategory);
 
-                confusionMatrix.set(actualCategory.getName(), classifiedCategory.getName(), count);
+                confusionMatrix.set(actualCategory, classifiedCategory, count);
             }
 
         }
@@ -732,26 +554,24 @@ public class ClassifierPerformance implements Serializable {
      */
     public ClassifierPerformanceResult getClassifierPerformanceResult() {
 
-        ClassifierPerformanceResult classifierPerformanceResult = new ClassifierPerformanceResult();
+        double precision = getAveragePrecision(true);
+        double recall = getAverageRecall(true);
+        double fOne = getAverageF(0.5, true);
 
-        classifierPerformanceResult.setPrecision(getAveragePrecision(true));
-        classifierPerformanceResult.setRecall(getAverageRecall(true));
-        classifierPerformanceResult.setF1(getAverageF(0.5, true));
+        double sensitivity = getAverageSensitivity(true);
+        double specificity = getAverageSpecificity(true);
+        double accuracy = getAverageAccuracy(true);
 
-        classifierPerformanceResult.setSensitivity(getAverageSensitivity(true));
-        classifierPerformanceResult.setSpecificity(getAverageSpecificity(true));
-        classifierPerformanceResult.setAccuracy(getAverageAccuracy(true));
+        double correct = getCorrectlyClassified();
 
-        classifierPerformanceResult.setCorrectlyClassified(getCorrectlyClassified());
+        double superiority = getCorrectlyClassified() / getHighestPrior();
 
-        classifierPerformanceResult.setSuperiority(getCorrectlyClassified() / getHighestPrior());
+        ConfusionMatrix confusionMatrix = getConfusionMatrix();
 
-        classifierPerformanceResult.setConfusionMatrix(getConfusionMatrix());
-
-        classifierPerformanceResult.setThresholdBucketMap(getThresholdBucketMap());
-        classifierPerformanceResult.setThresholdAccumulativeMap(getThresholdAccumulativeMap());
-
-        return classifierPerformanceResult;
+        Map<Double, Double[]> thresholdBucketMap = getThresholdBucketMap();
+        Map<Double, Double[]> thresholdAccumulativeMap = getThresholdAccumulativeMap();
+        
+        return new ClassifierPerformanceResult(precision, recall, fOne, sensitivity, specificity, accuracy, correct, superiority, confusionMatrix, thresholdBucketMap, thresholdAccumulativeMap);
     }
 
     private List<Double[]> getCorrectThresholds() {
@@ -759,22 +579,22 @@ public class ClassifierPerformance implements Serializable {
         if (correctThresholds == null) {
 
             correctThresholds = new ArrayList<Double[]>();
+            
+            // XXX
 
-            for (TextInstance document : getTestDocuments()) {
-                TestDocument testDocument = (TestDocument)document;
-
-                // pair containing correct (0 or 1) and the threshold [0,1]
-                Double[] pair = new Double[2];
-
-                pair[0] = 0.0;
-                if (testDocument.isCorrectClassified()) {
-                    pair[0] = 1.0;
-                }
-
-                pair[1] = testDocument.getMainCategoryEntry().getTrust();
-
-                correctThresholds.add(pair);
-            }
+//            for (UniversalInstance document : testDocuments) {
+//                // pair containing correct (0 or 1) and the threshold [0,1]
+//                Double[] pair = new Double[2];
+//
+//                pair[0] = 0.0;
+//                if (isCorrectClassified(document)) {
+//                    pair[0] = 1.0;
+//                }
+//
+//                pair[1] = document.getMainCategoryEntry().getProbability();
+//
+//                correctThresholds.add(pair);
+//            }
 
         }
 
@@ -925,6 +745,44 @@ public class ClassifierPerformance implements Serializable {
         builder.append(getClassifierPerformanceResult());
         builder.append("]");
         return builder.toString();
+    }
+    
+    /**
+     * Get the number of documents that have been assigned to given category.
+     * 
+     * @param categoryName The category.
+     * @return number The number of documents classified in the given category.
+     */
+    private int getClassifiedNumberOfCategory(List<UniversalInstance> instances, String category) {
+        int number = 0;
+
+
+            for (UniversalInstance d : instances) {
+                if (d.getInstanceCategory().equals(category)) {
+                    ++number;
+                }
+            }
+
+
+        return number;
+    }
+    
+    /**
+     * Get the number of documents that actually ARE in the given category.
+     * 
+     * @param category
+     * @return number
+     */
+    private int getRealNumberOfCategory(List<UniversalInstance> instances, String category) {
+        int number = 0;
+
+        for (UniversalInstance d : instances) {
+            if (d.getInstanceCategory().equals(category)) {
+                number++;
+            }
+        }
+
+        return number;
     }
 
 }

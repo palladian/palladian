@@ -273,7 +273,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                 continue;
             }
 
-            String tagName = annotation.getMostLikelyTag().getCategory().getName();
+            String tagName = annotation.getMostLikelyTagName();
 
             taggedText.append(inputText.substring(lastEndIndex, annotation.getOffset()));
 
@@ -380,7 +380,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         // create count maps for each possible tag (for gold standard and annotation because both could have different
         // tags)
         for (Annotation goldStandardAnnotation : goldStandard) {
-            String tagName = goldStandardAnnotation.getInstanceCategoryName();
+            String tagName = goldStandardAnnotation.getTargetClass();
             if (assignments.get(tagName) == null) {
                 assignments.put(tagName, CountMap.<String>create());
             }
@@ -444,7 +444,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
                         // in confusion matrix real = tagged
                         assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getInstanceCategoryName());
+                                goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -453,13 +453,13 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                     } else {
 
                         // wrong tag (error3)
-                        assignments.get(goldStandardAnnotation.getInstanceCategoryName()).add(
+                        assignments.get(goldStandardAnnotation.getTargetClass()).add(
                                 EvaluationResult.ERROR3);
                         annotationsErrors.get(EvaluationResult.ERROR3).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
                         assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getInstanceCategoryName());
+                                goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -478,7 +478,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
                         // in confusion matrix real = tagged
                         assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getInstanceCategoryName());
+                                goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -492,7 +492,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
                         // in confusion matrix real != tagged
                         assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getInstanceCategoryName());
+                                goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -536,7 +536,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         // check which gold standard annotations have not been found by the NER (error2)
         for (Annotation goldStandardAnnotation : goldStandard) {
             if (!((EvaluationAnnotation) goldStandardAnnotation).isTagged()) {
-                assignments.get(goldStandardAnnotation.getInstanceCategoryName()).add(EvaluationResult.ERROR2);
+                assignments.get(goldStandardAnnotation.getTargetClass()).add(EvaluationResult.ERROR2);
                 annotationsErrors.get(EvaluationResult.ERROR2).add(goldStandardAnnotation);
             }
         }
@@ -695,7 +695,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         CountMap<String> cm = CountMap.create();
         for (Annotation annotation : annotations) {
             if (annotation instanceof EvaluationAnnotation) {
-                cm.add(annotation.getInstanceCategoryName());
+                cm.add(annotation.getTargetClass());
             } else {
                 cm.add(annotation.getMostLikelyTagName());
             }
