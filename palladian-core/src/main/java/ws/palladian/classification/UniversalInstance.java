@@ -2,7 +2,6 @@ package ws.palladian.classification;
 
 import java.util.List;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 

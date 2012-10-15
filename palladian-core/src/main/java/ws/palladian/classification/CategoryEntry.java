@@ -8,7 +8,7 @@ package ws.palladian.classification;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class CategoryEntry {
+public final class CategoryEntry {
 
     private final String name;
     private final double probability;

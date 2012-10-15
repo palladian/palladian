@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.List;
 
 import org.junit.Test;
@@ -224,8 +223,6 @@ public class PalladianTextClassifierTest {
         model.updateTerm(word4, c2);
         model.updateTerm(word4, c2);
         model.updateTerm(word4, c2);
-
-        System.out.println(model);
 
         // check dictionary
         assertEquals(1., model.getCategoryFrequencies(word1).get(c1), 0);

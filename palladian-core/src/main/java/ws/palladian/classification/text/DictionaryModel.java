@@ -79,7 +79,8 @@ public final class DictionaryModel implements Model {
     }
 
     public int getNumCategories() {
-        return termCategories.sizeX();
+        // return termCategories.sizeX();
+        return categories.uniqueSize();
     }
 
     public void addCategory(String catgegory) {

@@ -13,6 +13,7 @@ import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.ResourceHelper;
 
+// XXX added temporarily for testing purposes, but could be removed again after refactoring.
 public class PalladianNerTest {
 
     @Test
@@ -68,8 +69,8 @@ public class PalladianNerTest {
         CountMap<String> leftContextMap = tagger.getLeftContextMap();
         // assertEquals(8274, leftContextMap.size());
 
-        Set<String> removeAnnotations = tagger.getRemoveAnnotations();
-        assertEquals(2008, removeAnnotations.size());
+        // Set<String> removeAnnotations = tagger.getRemoveAnnotations();
+        // assertEquals(2008, removeAnnotations.size());
 
         DictionaryModel contextDictionary = tagger.getContextClassifier();
         assertEquals(89639, contextDictionary.getNumTerms());
