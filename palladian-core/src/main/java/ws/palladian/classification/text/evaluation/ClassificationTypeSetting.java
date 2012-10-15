@@ -31,8 +31,8 @@ public class ClassificationTypeSetting implements Serializable {
      */
     private int classificationType = SINGLE;
 
-    /** Whether or not the classifier should be serialized. */
-    private boolean serializeClassifier = false;
+//    /** Whether or not the classifier should be serialized. */
+//    private boolean serializeClassifier = false;
 
     /** configurations that only apply if {@link classifcationType} is set to {@link TAG} */
     private ClassificationTypeTagSetting classificationTypeTagSetting = new ClassificationTypeTagSetting();
@@ -54,7 +54,7 @@ public class ClassificationTypeSetting implements Serializable {
 //            Logger.getRootLogger().error(e);
 //        }
         this.classificationType = cts.classificationType;
-        this.serializeClassifier = cts.serializeClassifier;
+//        this.serializeClassifier = cts.serializeClassifier;
         this.classificationTypeTagSetting = new ClassificationTypeTagSetting(cts.classificationTypeTagSetting);
     }
     
@@ -80,13 +80,13 @@ public class ClassificationTypeSetting implements Serializable {
         return classificationTypeTagSetting;
     }
 
-    public void setSerializeClassifier(boolean serializeClassifier) {
-        this.serializeClassifier = serializeClassifier;
-    }
+//    public void setSerializeClassifier(boolean serializeClassifier) {
+//        this.serializeClassifier = serializeClassifier;
+//    }
 
-    public boolean isSerializeClassifier() {
-        return serializeClassifier;
-    }
+//    public boolean isSerializeClassifier() {
+//        return serializeClassifier;
+//    }
 
     @Override
     public String toString() {

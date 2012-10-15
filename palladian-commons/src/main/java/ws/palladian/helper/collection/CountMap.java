@@ -84,6 +84,10 @@ public class CountMap<T> implements Collection<T>, Serializable {
      */
     public void add(T item, int increment) {
         Validate.notNull(map, "map must not be null");
+        
+        if (increment == 0) {
+            return;
+        }
 
         Integer count = get(item);
         int counter = count.intValue();
@@ -108,9 +112,12 @@ public class CountMap<T> implements Collection<T>, Serializable {
      * @param count The count which to set.
      */
     public void set(T item, int count) {
-        Validate.notNull(map, "map must not be null");
-
-        map.put(item, count);
+        Validate.notNull(item, "item must not be null");
+        if (count == 0) {
+            map.remove(item);
+        } else {
+            map.put(item, count);
+        }
     }
 
     /**
@@ -154,6 +161,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
      * <p>
      * Returns the sum of all counts. Where in contrast, {@link #uniqueSize()} returns the number of <i>unique</i>
      * items.
+     * </p>
      * 
      * @return The number of items.
      */
@@ -284,7 +292,8 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return map.entrySet().toArray(a);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override

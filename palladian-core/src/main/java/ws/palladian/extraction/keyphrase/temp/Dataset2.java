@@ -3,13 +3,17 @@ package ws.palladian.extraction.keyphrase.temp;
 import java.io.File;
 import java.util.ArrayList;
 
+import ws.palladian.processing.PipelineDocument;
+
 /**
  * <p>
  * A dataset typically used for classification evaluation tasks, it consists of multiple {@link DatasetItem}s.
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated Replace by {@link Iterable} with {@link PipelineDocument}.
  */
+@Deprecated
 public class Dataset2 extends ArrayList<DatasetItem> {
 
     private static final long serialVersionUID = 1L;

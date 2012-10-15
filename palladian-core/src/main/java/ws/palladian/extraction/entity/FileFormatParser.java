@@ -623,11 +623,10 @@ public class FileFormatParser {
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
 
-            Annotation annotation = new Annotation(offset, entityName, "", annotations);
+            Annotation annotation = new Annotation(offset, entityName, conceptName, annotations);
             annotation.setLeftContext(leftContext.trim());
             annotation.setRightContext(rightContext.trim());
-            annotation.setInstanceCategory(conceptName);
-            annotation.createFeatures();
+//            annotation.createFeatures();
             annotations.add(annotation);
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
@@ -672,7 +671,7 @@ public class FileFormatParser {
         // iterate through the annotations and collect numberOfSeedsPerConcept
         for (Annotation annotation : allAnnotations) {
 
-            String conceptName = annotation.getInstanceCategoryName();
+            String conceptName = annotation.getTargetClass();
             int numberOfSeeds = conceptSeedCount.get(conceptName);
 
             if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)

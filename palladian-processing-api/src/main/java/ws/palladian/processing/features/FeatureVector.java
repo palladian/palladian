@@ -77,7 +77,6 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return selectedFeatures.get(0);
     }
 
-    @Deprecated
     public <T extends Feature<?>> T getFeature(Class<T> type, String name) {
         List<T> selectedFeatures = getAll(type, name);
         if (selectedFeatures.isEmpty()) {
@@ -189,19 +188,6 @@ public final class FeatureVector implements Iterable<Feature<?>> {
     public boolean remove(FeatureDescriptor<?> featureDescriptor) {
         return features.remove(featureDescriptor.getIdentifier()) != null;
     }
-
-    /**
-     * <p>
-     * Adds all features from the provided {@code FeatureVector} to this {@code FeatureVector}.
-     * </p>
-     * 
-     * @param featureVector The {@code FeatureVector} containing the {@link Feature}s to add.
-     */
-    // public void addAll(final FeatureVector featureVector) {
-    // for (Feature<?> feature : featureVector) {
-    // this.add(feature);
-    // }
-    // }
 
     private List<Feature<?>> getFlat() {
         List<Feature<?>> result = new ArrayList<Feature<?>>();

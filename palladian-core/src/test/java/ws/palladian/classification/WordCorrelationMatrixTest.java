@@ -49,11 +49,11 @@ public class WordCorrelationMatrixTest {
 
     private WordCorrelationMatrix wcm;
 
-    private Term term1 = new Term("sanfrancisco");
-    private Term term2 = new Term("cablecar");
-    private Term term3 = new Term("goldengatebridge");
-    private Term term4 = new Term("california");
-    private Term term5 = new Term("cali" + "fornia"); // to test proper handling of String equality
+    private String term1 = "sanfrancisco";
+    private String term2 = "cablecar";
+    private String term3 = "goldengatebridge";
+    private String term4 = "california";
+    private String term5 = "cali" + "fornia"; // to test proper handling of String equality
 
     /** get the class under test. */
     protected WordCorrelationMatrix getMatrix() {

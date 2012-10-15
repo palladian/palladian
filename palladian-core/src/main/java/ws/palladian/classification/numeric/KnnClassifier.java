@@ -1,41 +1,41 @@
 package ws.palladian.classification.numeric;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import ws.palladian.classification.Categories;
-import ws.palladian.classification.Category;
+import org.apache.commons.lang3.tuple.Pair;
+
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * A concrete KNN (K - Nearest Neighbour) classifier. I classifies {@link FeatureVector}s based on the k nearest
- * {@link Instance}s from the training set.
- * </p>
- * <p>
- * Since this is an instance based classifier it is fast during the learning phase but has a more complicated prediction
- * phase.
+ * A KNN (k-nearest neighbor) classifier. It classifies {@link FeatureVector}s based on the k nearest {@link Instance} s
+ * from the training set. Since this is an instance based classifier, it is fast during the learning phase but has a
+ * more complicated prediction phase.
  * </p>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
-public class KnnClassifier implements Classifier<KnnModel> {
+public final class KnnClassifier implements Classifier<KnnModel> {
 
     /**
-     * Number of nearest neighbors that are allowed to vote. If neighbors have
-     * the same distance they will all be considered for voting, k might
-     * increase in these cases.
+     * <p>
+     * Number of nearest neighbors that are allowed to vote. If neighbors have the same distance they will all be
+     * considered for voting, k might increase in these cases.
+     * </p>
      */
     private final int k;
 
@@ -45,13 +45,9 @@ public class KnnClassifier implements Classifier<KnnModel> {
      * should be used if the created object is used for prediction.
      * </p>
      * 
-     * @param k
-     *            The parameter k specifying the k nearest neighbours to use for
-     *            classification.
+     * @param k The parameter k specifying the k nearest neighbors to use for classification.
      */
-    public KnnClassifier(Integer k) {
-        super();
-
+    public KnnClassifier(int k) {
         this.k = k;
     }
 
@@ -70,181 +66,71 @@ public class KnnClassifier implements Classifier<KnnModel> {
         return new KnnModel(instances);
     }
 
-    // private List<NominalInstance> normalize(List<NominalInstance> instances) {
-    // // hold the min value of each feature <featureIndex, minValue>
-    // Map<Integer, Double> featureMinValueMap = new HashMap<Integer, Double>();
-    //
-    // // hold the max value of each feature <featureIndex, maxValue>
-    // Map<Integer, Double> featureMaxValueMap = new HashMap<Integer, Double>();
-    //
-    // // find the min and max values
-    // for (NominalInstance instance :instances) {
-    //
-    // // UniversalInstance nInstance = (UniversalInstance)instance;
-    // List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
-    //
-    // for (int i = 0; i < numericFeatures.size(); i++) {
-    //
-    // double featureValue = numericFeatures.get(i).getValue();
-    //
-    // // check min value
-    // if (featureMinValueMap.get(i) != null) {
-    // double currentMin = featureMinValueMap.get(i);
-    // if (currentMin > featureValue) {
-    // featureMinValueMap.put(i, featureValue);
-    // }
-    // } else {
-    // featureMinValueMap.put(i, featureValue);
-    // }
-    //
-    // // check max value
-    // if (featureMaxValueMap.get(i) != null) {
-    // double currentMax = featureMaxValueMap.get(i);
-    // if (currentMax < featureValue) {
-    // featureMaxValueMap.put(i, featureValue);
-    // }
-    // } else {
-    // featureMaxValueMap.put(i, featureValue);
-    // }
-    //
-    // }
-    // }
-    //
-    // // normalize the feature values
-    // // MinMaxNormalization minMaxNormalization = new MinMaxNormalization();
-    // // Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
-    // List<NominalInstance> normalizedInstances = new ArrayList<NominalInstance>(instances.size());
-    // for (NominalInstance instance : instances) {
-    // NominalInstance normalizedInstance = new NominalInstance();
-    // normalizedInstance.target = instance.target;
-    // normalizedInstance.featureVector = new FeatureVector();
-    //
-    // // UniversalInstance nInstance = (UniversalInstance)instance;
-    // List<Feature<Double>> numericFeatures = instance.featureVector.getAll(Double.class);
-    //
-    // for (int i = 0; i < numericFeatures.size(); i++) {
-    //
-    // double max_minus_min = featureMaxValueMap.get(i) - featureMinValueMap.get(i);
-    // Feature<Double> currentFeature = numericFeatures.get(i);
-    // double featureValue = currentFeature.getValue();
-    // double normalizedValue = (featureValue - featureMinValueMap.get(i)) / max_minus_min;
-    //
-    // normalizedInstance.featureVector.add(new NumericFeature(FeatureDescriptorBuilder.build(currentFeature.getName(),
-    // NumericFeature.class), normalizedValue));
-    //
-    // // normalizationMap.put(i, max_minus_min);
-    // // minMaxNormalization.getMinValueMap().put(i, featureMinValueMap.get(i));
-    // }
-    // normalizedInstances.add(normalizedInstance);
-    //
-    // }
-    //
-    // // minMaxNormalization.setNormalizationMap(normalizationMap);
-    // return normalizedInstances;
-    // }
-
-    /**
-     * Classify a given {@link FeatureVector} using the provided {@link KnnModel}.
-     * 
-     * @param instance
-     *            The instance to be classified.
-     */
     @Override
     public CategoryEntries classify(FeatureVector vector, KnnModel model) {
 
-        // StopWatch stopWatch = new StopWatch();
-
-        // if (categories == null) {
-        Categories categories = getPossibleCategories(model.getTrainingInstances());
-        // }
-
-        // // we need to normalize the new instance if the training instances were
-        // // also normalized
+        // we need to normalize the new instance if the training instances were also normalized
         if (model.isNormalized()) {
             model.normalize(vector);
         }
-        // List<NominalInstance> normalizedInstances = normalize(model.getTrainingInstances());
 
-        CategoryEntries bestFitList = new CategoryEntries();
+        Set<String> categories = getPossibleCategories(model.getTrainingExamples());
+        Map<String, Double> relevances = CollectionHelper.newHashMap();
 
         // create one category entry for every category with relevance 0
-        for (Category category : categories) {
-            CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
-            bestFitList.add(c);
+        for (String category : categories) {
+            relevances.put(category, 0.);
         }
 
         // find k nearest neighbors, compare instance to every known instance
-        Map<Instance, Double> neighbors = new HashMap<Instance, Double>();
-        for (Instance knownInstance : model.getTrainingInstances()) {
-            double distance = getDistanceBetween(vector, knownInstance.featureVector);
-            neighbors.put(knownInstance, distance);
+        List<Pair<Instance, Double>> neighbors = CollectionHelper.newArrayList();
+        for (Instance example : model.getTrainingExamples()) {
+            double distance = getDistanceBetween(vector, example.getFeatureVector());
+            neighbors.add(Pair.of(example, distance));
         }
 
-        // CollectionHelper.print(neighbors, 10);
-
         // sort near neighbor map by distance
-        Map<Instance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
+        Collections.sort(neighbors, EntryValueComparator.<Instance, Double> ascending());
 
-        // CollectionHelper.print(sortedList, 10);
-
-        // get votes from k nearest neighbors and decide in which category the
-        // document is in. Also consider distance for nearest neighbors
-        Map<String, Double> votes = new HashMap<String, Double>();
-        int ck = 0;
-
-        // if there are several instances at the same distance we take all of
-        // them into the voting, k might get bigger
+        // if there are several instances at the same distance we take all of them into the voting, k might get bigger
         // in those cases
         double lastDistance = -1;
-        for (Entry<Instance, Double> neighbour : sortedList.entrySet()) {
+        int ck = 0;
+        for (Pair<Instance, Double> neighbor : neighbors) {
 
-            if (ck >= k && neighbour.getValue() != lastDistance) {
+            if (ck >= k && neighbor.getValue() != lastDistance) {
                 break;
             }
 
-            String categoryName = neighbour.getKey().targetClass;
-            if (votes.containsKey(categoryName)) {
-                votes.put(categoryName, votes.get(categoryName) + 1.0 / (neighbour.getValue() + 0.000000001));
-            } else {
-                votes.put(categoryName, 1.0 / (neighbour.getValue() + 0.000000001));
-            }
+            double distance = neighbor.getValue();
+            double weight = 1.0 / (distance + 0.000000001);
+            String targetClass = neighbor.getKey().getTargetClass();
+            relevances.put(targetClass, relevances.get(targetClass) + weight);
 
-            lastDistance = neighbour.getValue();
-            ++ck;
+            lastDistance = distance;
+            ck++;
         }
 
-        LinkedHashMap<String, Double> sortedVotes = CollectionHelper.sortByValue(votes, CollectionHelper.DESCENDING);
-
-        // assign category entries
-        for (Entry<String, Double> entry : sortedVotes.entrySet()) {
-
-            CategoryEntry c = bestFitList.getCategoryEntry(entry.getKey());
-            if (c == null) {
-                continue;
-            }
-
-            c.addAbsoluteRelevance(entry.getValue());
+        CategoryEntries categoryEntries = new CategoryEntries();
+        for (Entry<String, Double> entry : relevances.entrySet()) {
+            categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue()));
         }
-
-        return bestFitList;
+        System.out.println(categoryEntries);
+        return categoryEntries;
     }
 
     /**
      * <p>
-     * Fetches the possible {@link Categories} from a list of {@link Instance} like to ones making up the typical
-     * training set.
+     * Fetches the possible categories from a list of {@link Instance} like to ones making up the typical training set.
      * </p>
      * 
      * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
      */
-    protected Categories getPossibleCategories(List<Instance> instances) {
-        Categories categories = new Categories();
+    private Set<String> getPossibleCategories(List<Instance> instances) {
+        Set<String> categories = CollectionHelper.newHashSet();
         for (Instance instance : instances) {
-            Category category = new Category(instance.targetClass);
-            category.increaseFrequency();
-            categories.add(category);
+            categories.add(instance.getTargetClass());
         }
-        categories.calculatePriors();
         return categories;
     }
 
@@ -254,14 +140,13 @@ public class KnnClassifier implements Classifier<KnnModel> {
      * Distance = sqrt(SUM_0,n (i1-i2)²)
      * </p>
      * 
-     * @param vector
-     *            The instance to classify.
-     * @param featureVector
-     *            The instance in the vector space with known categories.
-     * @return distance The Euclidean distance between the two instances in the
-     *         vector space.
+     * @param vector The instance to classify.
+     * @param featureVector The instance in the vector space with known categories.
+     * @return distance The Euclidean distance between the two instances in the vector space.
      */
-    private Double getDistanceBetween(FeatureVector vector, FeatureVector featureVector) {
+    private double getDistanceBetween(FeatureVector vector, FeatureVector featureVector) {
+
+        // XXX factor this distance measure out to a strategy class.
 
         double squaredSum = 0;
 

@@ -9,10 +9,10 @@ import java.util.zip.GZIPInputStream;
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.ClassificationUtils;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -87,8 +87,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             } else {
                 Instance instance = DateInstanceFactory.createInstance(date);
                 try {
-                    CategoryEntries dbl = predictor.classify(instance.featureVector, model);
-                    result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getRelevance()));
+                    CategoryEntries dbl = predictor.classify(instance.getFeatureVector(), model);
+                    result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getProbability()));
                 } catch (Exception e) {
                     LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
                 }

@@ -5,13 +5,13 @@ import java.util.Random;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Predictor;
 import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.features.FeatureVector;
@@ -53,15 +53,15 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
         CountMap<String> categories = CountMap.create();
         for (DecisionTreeModel decisionTreeModel : model.getModels()) {
             CategoryEntries entriesResult = classifier.classify(vector, decisionTreeModel);
-            CategoryEntry categoryResult = entriesResult.get(0);
-            String category = categoryResult.getCategory().getName();
-            categories.add(category);
+            // CategoryEntry categoryResult = entriesResult.get(0);
+            CategoryEntry categoryResult = ClassificationUtils.getSingleBestCategoryEntry(entriesResult);
+            categories.add(categoryResult.getName());
         }
 
         CategoryEntries result = new CategoryEntries();
         for (String categoryName : categories.uniqueItems()) {
             double confidence = (double)categories.get(categoryName) / categories.totalSize();;
-            result.add(new CategoryEntry(result, new Category(categoryName), confidence));
+            result.add(new CategoryEntry(categoryName, confidence));
         }
         return result;
     }

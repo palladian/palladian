@@ -25,9 +25,7 @@ public class InstanceBuilder {
     }
     
     public Instance create(String target) {
-        Instance instance = new Instance();
-        instance.featureVector = featureVector;
-        instance.targetClass = target;
+        Instance instance = new Instance(target, featureVector);
         return instance;
     }
     
