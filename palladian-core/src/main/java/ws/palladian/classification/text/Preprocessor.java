@@ -4,9 +4,10 @@ import java.util.Set;
 
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
 
 /**
  * @author David Urbansky
@@ -15,9 +16,9 @@ import ws.palladian.processing.ProcessingPipeline;
  */
 @Deprecated
 public final class Preprocessor {
-    
+
     private Preprocessor() {
-        
+
     }
 
     /**
@@ -29,10 +30,7 @@ public final class Preprocessor {
      *            The input string.
      * @return The extracted set of terms.
      */
-    public static Set<String> preProcessDocument(String text, FeatureSetting featureSettings) {
-
-        // remove http(s): and www from URL XXX
-        // text = UrlHelper.getCleanUrl(text);
+    public static FeatureVector preProcessDocument(String text, FeatureSetting featureSettings) {
 
         Set<String> ngrams = null;
 
@@ -50,32 +48,36 @@ public final class Preprocessor {
             throw new IllegalArgumentException(
                     "Incorrect feature setting. Please set classifier to either use char ngrams or word ngrams.");
         }
-        
+
         // create a new term map for the classification document
-        Set<String> termSet = CollectionHelper.newHashSet();
+        FeatureVector featureVector = new FeatureVector();
+        int termCount = 0;
 
-            // build the map
-            for (String ngram : ngrams) {
+        // build the map
+        for (String ngram : ngrams) {
 
-                // TODO, change that => do not add ngrams with some special chars or
-                // if it is only numbers
-                if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
-                        || StringHelper.isNumber(ngram)) {
-                    continue;
-                }
-                
-                if (featureSettings.getTextFeatureType() == FeatureSetting.WORD_NGRAMS
-                        && featureSettings.getMaxNGramLength() == 1
-                        && (ngram.length() < featureSettings.getMinimumTermLength() || ngram.length() > featureSettings
-                                .getMaximumTermLength()) || termSet.size() >= featureSettings.getMaxTerms()
-                                || isStopWord(ngram, featureSettings)) {
-                    continue;
-                }
-                
-                termSet.add(ngram.toLowerCase());
+            // TODO, change that => do not add ngrams with some special chars or
+            // if it is only numbers
+            if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
+                    || StringHelper.isNumber(ngram)) {
+                continue;
             }
 
-        return termSet;
+            if (featureSettings.getTextFeatureType() == FeatureSetting.WORD_NGRAMS
+                    && featureSettings.getMaxNGramLength() == 1
+                    && (ngram.length() < featureSettings.getMinimumTermLength() || ngram.length() > featureSettings
+                            .getMaximumTermLength()) || termCount >= featureSettings.getMaxTerms()
+                    || isStopWord(ngram, featureSettings)) {
+                continue;
+            }
+
+            NominalFeature textFeature = new NominalFeature("term", ngram.toLowerCase());
+            featureVector.add(textFeature);
+            termCount++;
+        }
+
+        return featureVector;
+
     }
 
     private static boolean isStopWord(String word, FeatureSetting featureSettings) {

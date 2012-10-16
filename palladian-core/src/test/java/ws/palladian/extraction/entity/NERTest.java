@@ -46,11 +46,6 @@ public class NERTest {
         testFile = null;
     }
 
-    /*
-     * Expected results:
-     * Language Independent:
-     * English:
-     */
     @Test
     public void testPalladianNer() throws FileNotFoundException {
 

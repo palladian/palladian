@@ -1,8 +1,6 @@
 package ws.palladian.extraction.entity;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -622,28 +620,27 @@ public class Annotation extends UniversalInstance {
         }
 
         // go through the entity dictionary
-        for (Entry<String, Map<String, Integer>> termEntry : entityDictionary.getMap().entrySet()) {
-//            for (Map.Entry<String, CategoryEntries> termEntry : entityDictionary.getCategoryEntries().entrySet()) {
-            String word = termEntry.getKey();
-            if (word.length() < length) {
-                int index = entityName.indexOf(" " + word.toLowerCase() + " ");
-                String mostLikelyCategory = mostLikelyCategory(termEntry.getValue());
-                if (index > -1 && word.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, mostLikelyCategory, annotations);
+        for (String term : entityDictionary.getTerms()) {
+            if (term.length() < length) {
+                int index = entityName.indexOf(" " + term.toLowerCase() + " ");
+                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
+                String mostLikelyCategory = categoryEntries.getMostLikelyCategoryEntry().getName();
+                if (index > -1 && term.length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, term, mostLikelyCategory, annotations);
 //                    wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
-                index = entityName.indexOf(word.toLowerCase() + " ");
-                if (index == 0 && word.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index, word, mostLikelyCategory, annotations);
+                index = entityName.indexOf(term.toLowerCase() + " ");
+                if (index == 0 && term.length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(getOffset() + index, term, mostLikelyCategory, annotations);
 //                    wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
-                index = entityName.indexOf(" " + word.toLowerCase());
-                if (index == entityName.length() - word.length() - 1 && word.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, word, mostLikelyCategory, annotations);
+                index = entityName.indexOf(" " + term.toLowerCase());
+                if (index == entityName.length() - term.length() - 1 && term.length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, term, mostLikelyCategory, annotations);
 //                    wrappedAnnotation.createFeatures();
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
@@ -651,19 +648,6 @@ public class Annotation extends UniversalInstance {
         }
 
         return unwrappedAnnotations;
-    }
-    
-    // XXX
-    private String mostLikelyCategory(Map<String, Integer> map) {
-        String ret = null;
-        double mostLikely = -1;
-        for (String name : map.keySet()) {
-            if (map.get(name) > mostLikely) {
-                mostLikely = map.get(name);
-                ret = name;
-            }
-        }
-        return ret;
     }
 
 //    public Annotations unwrapAnnotations(PalladianTextClassifier classifier, Preprocessor preprocessor) {

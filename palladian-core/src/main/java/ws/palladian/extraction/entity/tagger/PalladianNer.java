@@ -27,6 +27,7 @@ import ws.palladian.classification.Instance;
 import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.extraction.entity.Annotation;
@@ -771,22 +772,22 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     double upperCaseToLowerCaseRatio = 2;
 
                     // CategoryEntries ces = caseDictionary.get(tokenTermMap.get(annotation.getEntity().toLowerCase()));
-                    Map<String, Double> ces = caseDictionary.getCategoryFrequencies(annotation.getEntity().toLowerCase());
+                    CategoryEntries ces = caseDictionary.getCategoryEntries(annotation.getEntity().toLowerCase());
                     if (ces != null && ces.size() > 0) {
                         double allUpperCase = 0.0;
                         double upperCase = 0.0;
                         double lowerCase = 0.0;
 
-                        if (ces.get("A") != null) {
-                            allUpperCase = ces.get("A");
+                        if (ces.getCategoryEntry("A") != null) {
+                            allUpperCase = ces.getCategoryEntry("A").getProbability();
                         }
 
-                        if (ces.get("Aa") != null) {
-                            upperCase = ces.get("Aa");
+                        if (ces.getCategoryEntry("Aa") != null) {
+                            upperCase = ces.getCategoryEntry("Aa").getProbability();
                         }
 
-                        if (ces.get("a") != null) {
-                            lowerCase = ces.get("a");
+                        if (ces.getCategoryEntry("a") != null) {
+                            lowerCase = ces.getCategoryEntry("a").getProbability();
                         }
 
                         if (lowerCase > 0) {
@@ -846,12 +847,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                 // CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
                 // XXX
-                Map<String, Double> ces = entityDictionary.getCategoryFrequencies(annotation.getEntity());
-                CategoryEntries categoryEntries = new CategoryEntries();
-                for (String name : ces.keySet()) {
-                    categoryEntries.add(new CategoryEntry(name, ces.get(name)));
-                }
-                if (ces != null && ces.size() > 0) {
+                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
+                if (categoryEntries != null && categoryEntries.size() > 0) {
                     annotation.setTags(categoryEntries);
                     changed++;
                 }
@@ -941,28 +938,14 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                         // search for a known instance in the prefix
                         // go through the entity dictionary
-                        for (Entry<String, Map<String, Integer>> termEntry : entityDictionary.getMap().entrySet()) {
-                            String word = termEntry.getKey();
+                        for (String term : entityDictionary.getTerms()) {
 
-                            int indexPrefix = annotation.getEntity().substring(0, index + length).indexOf(word + " ");
-                            if (indexPrefix > -1 && word.length() > 2) {
-                                
-                                // XXX
-                                
-//                                Annotation wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix,
-//                                        word,
-//                                        termEntry.getValue().getMostLikelyCategoryEntry().getName(),
-//                                        annotations);
-//                                toAdd.add(wrappedAnnotation2);
-                                int highestCategory = -1;
-                                Annotation wrappedAnnotation2 = null;
-                                Map<String, Integer> categoryCounts = termEntry.getValue();
-                                for (String category : categoryCounts.keySet()) {
-                                    if (categoryCounts.get(category) > highestCategory) {
-                                        highestCategory = categoryCounts.get(category);
-                                        wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix, word, category, annotations);
-                                    }
-                                }
+                            int indexPrefix = annotation.getEntity().substring(0, index + length).indexOf(term + " ");
+                            if (indexPrefix > -1 && term.length() > 2) {
+                                Annotation wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix,
+                                        term,
+                                        entityDictionary.getCategoryEntries(term).getMostLikelyCategoryEntry().getName(),
+                                        annotations);
                                 toAdd.add(wrappedAnnotation2);
                                 
                                 LOGGER.debug("add from prefix " + wrappedAnnotation2.getEntity());
@@ -1386,7 +1369,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         List<Instance> instances = new ArrayList<Instance>();
 
         for (UniversalInstance uInstance : trainingInstances) {
-            FeatureVector featureVector = PalladianTextClassifier.createFeatureVector(uInstance.getTextFeature(),
+            FeatureVector featureVector = Preprocessor.preProcessDocument(uInstance.getTextFeature(),
                     featureSetting);
             instances.add(new Instance(uInstance.getTargetClass(), featureVector));
         }
