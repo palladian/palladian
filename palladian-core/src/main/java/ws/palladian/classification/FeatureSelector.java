@@ -49,8 +49,8 @@ public final class FeatureSelector {
      */
     public static <T> Map<String, Map<String, Double>> calculateChiSquareValues(String featurePath,
             Class<? extends Feature<T>> featureType, Collection<Instance> instances) {
-        Map<String, Map<String, Integer>> termClassCorrelationMatrix = new HashMap<String, Map<String, Integer>>();
-        Map<String, Integer> classCounts = new HashMap<String, Integer>();
+        Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
+        Map<String, Long> classCounts = new HashMap<String, Long>();
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
         for (Instance instance : instances) {
@@ -59,38 +59,40 @@ public final class FeatureSelector {
             for (Feature<T> value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
             }
-            Integer count = classCounts.get(instance.getTargetClass());
+            Long count = classCounts.get(instance.getTargetClass());
             if (count == null) {
-                count = 0;
+                count = 0L;
             }
             classCounts.put(instance.getTargetClass(), ++count);
         }
 
         // The following variables are uppercase because that is the way they are used in the literature.
-        for (Map.Entry<String, Map<String, Integer>> termOccurence : termClassCorrelationMatrix.entrySet()) {
+        for (Map.Entry<String, Map<String, Long>> termOccurence : termClassCorrelationMatrix.entrySet()) {
             int N = instances.size();
-            for (Map.Entry<String, Integer> currentClassCount : classCounts.entrySet()) {
+            for (Map.Entry<String, Long> currentClassCount : classCounts.entrySet()) {
                 // for (Map.Entry<String, Integer> classOccurence : termOccurence.getValue().entrySet()) {
                 String className = currentClassCount.getKey();
-                Integer classCount = currentClassCount.getValue();
-                Integer termClassCoocurrence = termOccurence.getValue().get(className);
+                Long classCount = currentClassCount.getValue();
+                Long termClassCoocurrence = termOccurence.getValue().get(className);
                 if (termClassCoocurrence == null) {
-                    termClassCoocurrence = 0;
+                    termClassCoocurrence = 0L;
                 }
                 LOGGER.debug("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
-                int N_11 = termClassCoocurrence;
-                int N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
-                int N_01 = classCount - termClassCoocurrence;
-                int N_00 = N - (N_10 + N_01 + N_11);
-                LOGGER.debug("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", new Integer[] {N_11, N_10, N_01, N_00});
+                long N_11 = termClassCoocurrence;
+                long N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
+                long N_01 = classCount - termClassCoocurrence;
+                long N_00 = N - (N_10 + N_01 + N_11);
+                LOGGER.debug("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", new Long[] {N_11, N_10, N_01, N_00});
 
-                double E_11 = calculateExpectedCount(N_11, N_10, N_11, N_01, N);
-                double E_10 = calculateExpectedCount(N_11, N_10, N_00, N_10, N);
-                double E_01 = calculateExpectedCount(N_01, N_00, N_11, N_01, N);
-                double E_00 = calculateExpectedCount(N_01, N_00, N_10, N_00, N);
+                // double E_11 = calculateExpectedCount(N_11, N_10, N_11, N_01, N);
+                // double E_10 = calculateExpectedCount(N_11, N_10, N_00, N_10, N);
+                // double E_01 = calculateExpectedCount(N_01, N_00, N_11, N_01, N);
+                // double E_00 = calculateExpectedCount(N_01, N_00, N_10, N_00, N);
 
-                double chiSquare = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2)
-                        / ((N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00));
+                double numerator = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
+                long denominatorInt = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
+                double denominator = Double.valueOf(denominatorInt);
+                double chiSquare = numerator / denominator;
                 // double chiSquare = summand(N_11, E_11) + summand(N_10, E_10) + summand(N_01, E_01)
                 // + summand(N_00, E_00);
 
@@ -149,12 +151,12 @@ public final class FeatureSelector {
      *            how often a the row value and the column value occur together.
      * @return The sum of the class occurrence without the term.
      */
-    private static int sumOfRowExceptOne(String rowValue, String exception,
-            Map<String, Map<String, Integer>> correlationMatrix) {
-        Map<String, Integer> occurencesOfClass = correlationMatrix.get(rowValue);
+    private static long sumOfRowExceptOne(String rowValue, String exception,
+            Map<String, Map<String, Long>> correlationMatrix) {
+        Map<String, Long> occurencesOfClass = correlationMatrix.get(rowValue);
         // add up all occurences of the current class
-        int ret = 0;
-        for (Map.Entry<String, Integer> occurence : occurencesOfClass.entrySet()) {
+        long ret = 0;
+        for (Map.Entry<String, Long> occurence : occurencesOfClass.entrySet()) {
             if (!occurence.getKey().equals(exception)) {
                 ret += occurence.getValue();
             }
@@ -162,14 +164,14 @@ public final class FeatureSelector {
         return ret;
     }
 
-    private static void addCooccurence(String row, String column, Map<String, Map<String, Integer>> correlationMatrix) {
-        Map<String, Integer> correlations = correlationMatrix.get(row);
+    private static void addCooccurence(String row, String column, Map<String, Map<String, Long>> correlationMatrix) {
+        Map<String, Long> correlations = correlationMatrix.get(row);
         if (correlations == null) {
-            correlations = new HashMap<String, Integer>();
+            correlations = new HashMap<String, Long>();
         }
-        Integer occurenceCount = correlations.get(column);
+        Long occurenceCount = correlations.get(column);
         if (occurenceCount == null) {
-            occurenceCount = 0;
+            occurenceCount = 0L;
         }
         occurenceCount++;
         correlations.put(column, occurenceCount);

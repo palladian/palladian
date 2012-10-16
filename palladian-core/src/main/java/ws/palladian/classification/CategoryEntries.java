@@ -117,4 +117,13 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
         return entries.size();
     }
 
+    /**
+     * @param entry The entry to search for.
+     * @return {@code true} if the {@code CategoryEntries} contain the provided {@code CategoryEntry} and {@code false}
+     *         otherwise.
+     */
+    public boolean contains(CategoryEntry entry) {
+        return entries.contains(entry);
+    }
+
 }
