@@ -119,7 +119,8 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
         Iterator<Annotation<String>> posTagsIterator = posTags.iterator();
         Iterator<Annotation<String>> markedKeywordsIterator = markedKeywords.iterator();
 
-        Annotation<String> currentMarkedKeyword = markedKeywordsIterator.hasNext() ? markedKeywordsIterator.next() : null;
+        Annotation<String> currentMarkedKeyword = markedKeywordsIterator.hasNext() ? markedKeywordsIterator.next()
+                : null;
         Annotation<String> currentPosTag = posTagsIterator.hasNext() ? posTagsIterator.next() : null;
 
         // create one LSP per sentence in the document.
@@ -154,11 +155,10 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
             }
 
             String[] arrayOfWholeSentencePattern = sequentialPattern.toArray(new String[sequentialPattern.size()]);
-            List<SequentialPattern> extractedPatterns = extractionStrategy.extract(arrayOfWholeSentencePattern,
+            List<SequentialPattern> extractedPatterns = extractionStrategy.extract("lsp", arrayOfWholeSentencePattern,
                     minSequentialPatternSize, maxSequentialPatternSize);
-            SequentialPatternsFeature feature = new SequentialPatternsFeature(PROVIDED_FEATURE_DESCRIPTOR,
-                    extractedPatterns);
-            sentence.addFeature(feature);
+            // ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>("lsp", extractedPatterns);
+            sentence.addFeatures(extractedPatterns);
         }
     }
 
