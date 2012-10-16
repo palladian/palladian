@@ -18,35 +18,36 @@ public abstract class AbstractWeightingStrategy implements UniversalClassifierWe
     protected void setClassifier(UniversalClassifier classifier) {
         this.classifier = classifier;
     }
-    
+
     protected UniversalClassifier getClassifier() {
         return this.classifier;
     }
 
-    protected CategoryEntries evaluateResults(Instance instance, UniversalClassificationResult result, UniversalClassifierModel model) {
+    protected CategoryEntries evaluateResults(Instance instance, UniversalClassificationResult result,
+            UniversalClassifierModel model) {
         CategoryEntries mergedCategoryEntries = new CategoryEntries();
 
         CategoryEntries textCategories = result.getTextCategories();
-        if (model.getTextClassifier()!=null
-                && textCategories.getMostLikelyCategoryEntry().getName().equals(instance.targetClass)) {
-            countCorrectlyClassified(0,instance);
+        if (model.getTextClassifier() != null
+                && textCategories.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            countCorrectlyClassified(0, instance);
             mergedCategoryEntries.addAllRelative(textCategories);
         }
         CategoryEntries numericResults = result.getNumericResults();
-        if (model.getKnnModel()!=null
-                && numericResults.getMostLikelyCategoryEntry().getName().equals(instance.targetClass)) {
-            countCorrectlyClassified(1,instance);
+        if (model.getKnnModel() != null
+                && numericResults.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            countCorrectlyClassified(1, instance);
             mergedCategoryEntries.addAllRelative(numericResults);
         }
         CategoryEntries nominalInstance = result.getNominalResults();
-        if (model.getBayesModel()!=null
-                && nominalInstance.getMostLikelyCategoryEntry().getName().equals(instance.targetClass)) {
-            countCorrectlyClassified(2,instance);
+        if (model.getBayesModel() != null
+                && nominalInstance.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            countCorrectlyClassified(2, instance);
             mergedCategoryEntries.addAllRelative(nominalInstance);
         }
 
         return mergedCategoryEntries;
     }
-    
+
     protected abstract void countCorrectlyClassified(int index, Instance instance);
 }

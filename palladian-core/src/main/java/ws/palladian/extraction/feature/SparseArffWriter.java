@@ -38,7 +38,6 @@ import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -316,7 +315,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             for (String dataEntry : dataEntries) {
                 String[] entry = dataEntry.split(" ");
                 Integer featureTypeIndex = featureTypes.get(entry[0]);
-                instance.add(new ImmutablePair(attributeIndex, entry[1]));
+                instance.add(new ImmutablePair<Integer, String>(attributeIndex, entry[1]));
             }
             instances.add(instance);
         }
@@ -433,35 +432,6 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             handleNominalFeature((NominalFeature)feature, newInstance);
         } else if (feature instanceof SequentialPatternsFeature) {
             handleSequentialPatterns((SequentialPatternsFeature)feature, newInstance);
-        } else if (feature instanceof ListFeature) {
-            handleListFeature((ListFeature)feature, newInstance);
-        }
-    }
-
-    /**
-     * <p>
-     * A handle method for {@link ListFeature}s.
-     * </p>
-     * 
-     * @param feature {@see #handleFeature(Feature, List)}
-     * @param newInstance {@see #handleFeature(Feature, List)}
-     */
-    private void handleListFeature(ListFeature feature, List<Pair<Integer, String>> newInstance) {
-        List<Object> elements = feature.getValue();
-        for (Object element : elements) {
-            String featureType = "\"" + element.toString() + "\" numeric";
-
-            Integer featureTypeIndex = featureTypes.get(featureType);
-            if (featureTypeIndex == null) {
-                featureTypes.put(featureType, featuresAdded);
-                featureTypeIndex = featuresAdded;
-                featuresAdded++;
-            }
-
-            ImmutablePair<Integer, String> featureValue = new ImmutablePair<Integer, String>(featureTypeIndex, "1.0");
-            if (!newInstance.contains(featureValue)) {
-                newInstance.add(featureValue);
-            }
         }
     }
 

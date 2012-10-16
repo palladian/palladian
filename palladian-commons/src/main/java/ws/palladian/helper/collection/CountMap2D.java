@@ -123,15 +123,15 @@ public class CountMap2D<T> implements Serializable {
     public Set<T> keySet() {
         return map.keySet();
     }
-    
+
     public int sizeY() {
         return map.size();
     }
-    
+
     public int sizeX() {
         return getColumnValues().size();
     }
-    
+
     // XXX slow
     public Set<T> getColumnValues() {
         Set<T> valueSet = CollectionHelper.newHashSet();
@@ -140,10 +140,19 @@ public class CountMap2D<T> implements Serializable {
         }
         return valueSet;
     }
-    
+
     public Map<T, Map<T, Integer>> getMap() {
         return map;
     }
 
+    /**
+     * <p>
+     * Clears the map of all existing entries.
+     * </p>
+     */
+    public void clear() {
+        map.clear();
+
+    }
 
 }
