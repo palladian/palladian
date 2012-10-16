@@ -16,7 +16,6 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public interface Predictor<M extends Model> {
 
-    // FIXME call that "train"
     M train(List<Instance> instances);
 
     // FIXME activate method below

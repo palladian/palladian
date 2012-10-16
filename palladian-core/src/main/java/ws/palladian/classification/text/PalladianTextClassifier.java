@@ -76,7 +76,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     }
 
     public CategoryEntries classify(String text, DictionaryModel model) {
-        FeatureVector fv = createFeatureVector(text, model.getFeatureSetting());
+        FeatureVector fv = Preprocessor.preProcessDocument(text, model.getFeatureSetting());
         return classify(fv, model);
     }
 //    public CategoryEntries classify(String text, Set<String> possibleClasses, DictionaryModel model) {
@@ -175,11 +175,11 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         
         // iterate through all terms in the document
         for (NominalFeature termFeature : vector.getFeatures(NominalFeature.class, "term")) {
-            Map<String, Double> categoryFrequencies = model.getCategoryFrequencies(termFeature.getValue());
-            for (String category : categoryFrequencies.keySet()) {
-                double categoryFrequency = categoryFrequencies.get(category);
+            CategoryEntries categoryFrequencies = model.getCategoryEntries(termFeature.getValue());
+            for (CategoryEntry category : categoryFrequencies) {
+                double categoryFrequency = category.getProbability();
                 double weight = categoryFrequency * categoryFrequency;
-                probabilities.get(category).add(weight);
+                probabilities.get(category.getName()).add(weight);
                 probabilitySum += weight;
             }
 
@@ -447,7 +447,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
             String instanceCategory = parts[1];
 
-            FeatureVector featureVector = createFeatureVector(learningText, featureSettings);
+            FeatureVector featureVector = Preprocessor.preProcessDocument(learningText, featureSettings);
             instances.add(new Instance(instanceCategory, featureVector));
 
             ProgressHelper.showProgress(added++, trainingArray.size(), 1);
@@ -456,16 +456,16 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         return instances;
     }
 
-    // FIXME put this somewhere else
-    public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
-        FeatureVector featureVector = new FeatureVector();
-        Set<String> terms = Preprocessor.preProcessDocument(text, featureSettings);
-            for (String term : terms) {
-            NominalFeature textFeature = new NominalFeature("term", term);
-            featureVector.add(textFeature);
-        }
-        return featureVector;
-    }
+//    // FIXME put this somewhere else
+//    public static FeatureVector createFeatureVector(String text, FeatureSetting featureSettings) {
+//        FeatureVector featureVector = new FeatureVector();
+//        Set<String> terms = Preprocessor.preProcessDocument(text, featureSettings);
+//            for (String term : terms) {
+//            NominalFeature textFeature = new NominalFeature("term", term);
+//            featureVector.add(textFeature);
+//        }
+//        return featureVector;
+//    }
 
     /**
      * FIXME make this work again

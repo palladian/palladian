@@ -109,6 +109,7 @@ public class CountMap2D<T> implements Serializable {
         return map.get(x);
     }
 
+    // XXX rename
     public Set<Entry<T, Map<T, Integer>>> entrySet() {
         return map.entrySet();
     }
@@ -118,6 +119,7 @@ public class CountMap2D<T> implements Serializable {
         return map.toString();
     }
 
+    // XXX rename
     public Set<T> keySet() {
         return map.keySet();
     }
