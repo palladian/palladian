@@ -1,9 +1,12 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -197,16 +200,26 @@ public final class FeatureVector implements Iterable<Feature<?>> {
     public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
 
         String[] pathElements = path.split("/");
+        List<T> collectedFeatures = new LinkedList<T>();
 
-        for (String pathElement : pathElements) {
-            Feature<?> feature = getFeature(pathElement);
-            if (feature instanceof AnnotationFeature) {
-                return ((AnnotationFeature)feature).getFeatures(type, path.substring(path.indexOf("/") + 1));
+        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
+        if (selectedFeatures != null) {
+
+            for (Feature<?> selectedFeature : selectedFeatures) {
+                if (selectedFeature instanceof AnnotationFeature) {
+                    collectedFeatures.addAll(((AnnotationFeature)selectedFeature).getFeatures(type,
+                            path.substring(path.indexOf("/") + 1)));
+                } else {
+                    collectedFeatures.add(type.cast(selectedFeature));
+                }
             }
-            return getAll(type, pathElement);
         }
 
-        return null;
+        return collectedFeatures;
+    }
+
+    public <T> Set<? extends Feature<T>> getFeatureBag(Class<? extends Feature<T>> featureClass, String featurePath) {
+        return new HashSet<Feature<T>>(getFeatures(featureClass, featurePath));
     }
 
     @Override
