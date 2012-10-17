@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
-import java.util.Set;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class PalladianNerTest {
         CountMap<String> leftContextMap = tagger.getLeftContextMap();
         // assertEquals(8274, leftContextMap.size());
 
-        Set<String> removeAnnotations = tagger.getRemoveAnnotations();
+        List<String> removeAnnotations = tagger.getRemoveAnnotations();
         assertEquals(0, removeAnnotations.size());
 
         DictionaryModel contextDictionary = tagger.getContextClassifier();

@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
@@ -98,7 +97,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     /** The serial vesion id. */
     private static final long serialVersionUID = -8793232373094322955L;
 
-    private transient PalladianTextClassifier textClassifier =new PalladianTextClassifier();
+    private transient PalladianTextClassifier textClassifier = new PalladianTextClassifier();
 
     /** This dictionary contains the entity terms as they are. */
     private DictionaryModel entityDictionary;
@@ -115,8 +114,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     private Matrix patternProbabilityMatrix = new Matrix();
 
-    // private Annotations removeAnnotations = new Annotations();
-    private Set<String> removeAnnotations = CollectionHelper.newHashSet();
+    private List<String> removeAnnotations = CollectionHelper.newArrayList();
 
     // learning features
     private boolean removeDates = true;
@@ -600,8 +598,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     private Annotations classifyCandidatesEnglish(Annotations entityCandidates) {
         Annotations annotations = new Annotations();
-
-        int i = 0;
+        int i = 1;
         for (Annotation annotation : entityCandidates) {
 
             Annotations wrappedAnnotations = new Annotations();
@@ -624,10 +621,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
             }
 
-            if (i % 100 == 0) {
-                LOGGER.debug("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
-            }
-            i++;
+            ProgressHelper.showProgress(i++, entityCandidates.size(), 1);
         }
 
         return annotations;
@@ -698,7 +692,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      * @param annotations The classified annotations to process
      */
     private void postProcessAnnotations(Annotations annotations) {
-
+        
         LOGGER.debug("start post processing annotations");
 
         StopWatch stopWatch = new StopWatch();
@@ -845,8 +839,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             for (Annotation annotation : annotations) {
 
-                // CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
-                // XXX
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
                 if (categoryEntries != null && categoryEntries.size() > 0) {
                     annotation.setTags(categoryEntries);
@@ -1422,7 +1414,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return leftContextMap;
     }
     
-    Set<String> getRemoveAnnotations() {
+    List<String> getRemoveAnnotations() {
         return removeAnnotations;
     }
     
@@ -1433,79 +1425,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     DictionaryModel getAnnotationDictionary() {
         return annotationModel;
     }
-
-    // public void addToEntityDictionary(Dictionary entityDictionary) {
-    // for (Entry<Term, CategoryEntries> entry : entityDictionary.entrySet()) {
-    // this.entityDictionary.updateWord(entry.getKey(), entry.getValue().get(0), 1);
-    // }
-    // }
-
-//    /**
-//     * Create an h2 database dictionary from a dictionary file with the following format:<br>
-//     * Entity;Type
-//     * 
-//     * @param dictionaryPath The path of the dictionary text file.
-//     */
-//    public void makeDictionary(String dictionaryPath) {
-//
-//        StopWatch stopWatch = new StopWatch();
-//
-//        // XXX true
-//        final DictionaryModel dictionary = new DictionaryModel(null, null);
-//        // dictionary.setIndexPath("data/models/");
-//
-//        final int totalLines = FileHelper.getNumberOfLines(dictionaryPath);
-//
-//        LineAction lineAction = new LineAction() {
-//
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//
-//                // if (lineNumber > 20000) {
-//                // return;
-//                // }
-//
-//                String[] parts = line.split(";");
-//
-//                if (parts.length != 2) {
-//                    LOGGER.warn("line " + lineNumber + " is not well formatted");
-//                    return;
-//                }
-//
-//                String entity = parts[0];
-//                String type = parts[1];
-//
-//                // XXX necessary?
-//                
-////                if (entity.length() > DictionaryDbIndexH2.MAX_WORD_LENGTH || type.length() > 25) {
-////                    LOGGER.warn("input too long (max. " + DictionaryDbIndexH2.MAX_WORD_LENGTH
-////                            + " characters per field): " + entity + "," + type);
-////                    return;
-////                }
-//
-//                dictionary.updateTerm(entity, type);
-//
-//                if (lineNumber % 1000 == 0) {
-//                    LOGGER.debug("progress: " + MathHelper.round(100 * lineNumber / (double)totalLines, 2) + "%");
-//                }
-//            }
-//
-//        };
-//
-//        FileHelper.performActionOnEveryLine(dictionaryPath, lineAction);
-//
-//        LOGGER.info("serialize dictionary now...");
-//
-//        FileHelper.serialize(dictionary, "dict.ser.gz");
-//        /*
-//         * dictionary.serialize("dict.ser", true, true);
-//         * dictionary.useIndex();
-//         * CategoryEntries categoryEntries2 = dictionary.get(new Term("Cape Town"));
-//         * System.out.println(categoryEntries2);
-//         */
-//
-//        LOGGER.info("dictionary creation took " + stopWatch.getTotalElapsedTimeString());
-//    }
 
     public void setTagUrls(boolean tagUrls) {
         this.tagUrls = tagUrls;
