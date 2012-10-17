@@ -1,9 +1,10 @@
 package ws.palladian.classification.utils;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.lang3.Validate;
 
@@ -24,7 +25,6 @@ import ws.palladian.processing.features.NumericFeature;
  * </p>
  * 
  * @author Klemens Muthmann
- * 
  */
 public final class ClassificationUtils {
 
@@ -84,8 +84,26 @@ public final class ClassificationUtils {
      * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
      *            (column names are generated automatically).
      */
-    public static List<Instance> createInstances(String filePath, final boolean readHeader) {
+    public static List<Instance> createInstances(String filePath, boolean readHeader) {
+        return createInstances(filePath, readHeader, SEPARATOR);
+    }
 
+    /**
+     * <p>
+     * Create instances from a file. The instances must be given in a CSV file in the following format: feature1 ..
+     * featureN NominalClass. Each line is one training instance.
+     * </p>
+     * <p>
+     * Each field must be separated by {@code fieldSeparator} and each line must end with a line break.
+     * </p>
+     * 
+     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+     *            path.
+     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
+     *            (column names are generated automatically).
+     * @param fieldSeparator The separator {@code String} for individual fields.
+     */
+    public static List<Instance> createInstances(String filePath, final boolean readHeader, final String fieldSeparator) {
         if (!new File(filePath).canRead()) {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
@@ -98,7 +116,7 @@ public final class ClassificationUtils {
 
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split(SEPARATOR);
+                String[] parts = line.split(fieldSeparator);
 
                 if (readHeader && lineNumber == 0) {
                     headNames = parts;
@@ -190,6 +208,27 @@ public final class ClassificationUtils {
         }
 
         return new MinMaxNormalization(maxValues, minValues);
+    }
+
+    /**
+     * <p>
+     * Draws a fraction of the provided list by random.
+     * </p>
+     * 
+     * @param list The {@code List} to draw from.
+     * @param fraction The fraction to draw from the list.
+     * @return The random subset from {@code list}.
+     */
+    public static <T> List<T> drawRandomSubset(final List<T> list, final int fraction) {
+        Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
+        int m = (fraction * list.size()) / 100;
+        for (int i = 0; i < list.size(); i++) {
+            int pos = i + rnd.nextInt(list.size() - i);
+            T tmp = list.get(pos);
+            list.set(pos, list.get(i));
+            list.set(i, tmp);
+        }
+        return list.subList(0, m);
     }
 
 }
