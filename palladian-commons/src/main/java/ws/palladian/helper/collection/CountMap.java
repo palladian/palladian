@@ -51,10 +51,10 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return countMap;
     }
 
-    /** Private constructor, use {@link #create()} instead. */
-    private CountMap() {
-
-    }
+//    /** Private constructor, use {@link #create()} instead. */
+//    private CountMap() {
+//
+//    }
 
     /**
      * <p>

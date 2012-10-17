@@ -29,12 +29,15 @@ public class CountMap2D<T> implements Serializable {
 
     private Map<T, Map<T, Integer>> map = new HashMap<T, Map<T, Integer>>();
 
+    /**
+     * <p>
+     * Shortcut method instead of constructor which allows omitting the type parameter.
+     * </p>
+     * 
+     * @return
+     */
     public static <T> CountMap2D<T> create() {
         return new CountMap2D<T>();
-    }
-
-    private CountMap2D() {
-
     }
 
     /**
