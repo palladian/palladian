@@ -176,7 +176,7 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
                     // create new, minimal item and add to feed
                     EvaluationFeedItem item = new EvaluationFeedItem();
                     item.setFeedId(feed.getId());
-                    item.setHash(hash, true);
+                    item.setHash(hash);
                     item.setPublished(publishDate);
                     item.setCorrectedPublishedDate(correctedPublishDate);
                     item.setPollTimestamp(currentPollTime);

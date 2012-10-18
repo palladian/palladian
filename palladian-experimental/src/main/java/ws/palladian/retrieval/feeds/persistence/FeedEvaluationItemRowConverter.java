@@ -35,7 +35,7 @@ public class FeedEvaluationItemRowConverter implements RowConverter<EvaluationFe
         item.setPublished(resultSet.getTimestamp("correctedPublishTime"));
         // item.setPublished(resultSet.getTimestamp("publishTime"));
         // item.setCorrectedPublishedDate(resultSet.getTimestamp("correctedPublishTime"));
-        item.setHash(resultSet.getString("extendedItemHash"), true);
+        item.setHash(resultSet.getString("extendedItemHash"));
 
         return item;
 
