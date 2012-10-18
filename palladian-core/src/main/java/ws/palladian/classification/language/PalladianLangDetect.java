@@ -9,7 +9,6 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.StopWatch;
@@ -61,11 +60,10 @@ public class PalladianLangDetect extends LanguageClassifier {
      * @param classifierPath The path where the classifier should be saved to. For example, <tt>data/models/</tt>
      */
     public static void train(Dataset dataset, String classifierName, String classifierPath) {
-        train(dataset, classifierName, classifierPath, null, null);
+        train(dataset, classifierName, classifierPath, null);
     }
 
-    public static void train(Dataset dataset, String classifierName, String classifierPath,
-            ClassificationTypeSetting cts, FeatureSetting fs) {
+    public static void train(Dataset dataset, String classifierName, String classifierPath, FeatureSetting fs) {
 
         // take the time for the learning
         StopWatch stopWatch = new StopWatch();
@@ -76,18 +74,6 @@ public class PalladianLangDetect extends LanguageClassifier {
         // create a text classifier by giving a name and a path where it should be saved to
         PalladianTextClassifier classifier = new PalladianTextClassifier();
         // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
-
-        // specify the settings for the classification
-        ClassificationTypeSetting classificationTypeSetting = cts;
-        if (classificationTypeSetting == null) {
-            classificationTypeSetting = new ClassificationTypeSetting();
-
-            // we use only a single category per document
-            classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
-
-            // we want the classifier to be serialized in the end
-            // classificationTypeSetting.setSerializeClassifier(true);
-        }
 
         // specify feature settings that should be used by the classifier
         FeatureSetting featureSetting = fs;
@@ -110,7 +96,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         // classifier.save(classifierPath);
         // classifierManager.trainClassifier(dataset, classifier);
 
-        DictionaryModel trainedModel = classifier.train(dataset, classificationTypeSetting, featureSetting);
+        DictionaryModel trainedModel = classifier.train(dataset, featureSetting);
 
         // test the classifier
         // Dataset testDataset = new Dataset();
