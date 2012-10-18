@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 
@@ -45,9 +44,6 @@ public class PalladianTextClassifierTest {
         featureSetting.setMinNGramLength(3);
         featureSetting.setMaxNGramLength(6);
 
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
-
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
@@ -58,7 +54,7 @@ public class PalladianTextClassifierTest {
         dataset2.setSeparationString(" ");
         dataset2.setPath(JRC_TEST_FILE);
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, featureSetting);
 
         // model.toDictionaryCsv(new PrintStream("dictCharJrc_ref.csv"));
 
@@ -79,9 +75,6 @@ public class PalladianTextClassifierTest {
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(3);
 
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
-
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
@@ -92,7 +85,7 @@ public class PalladianTextClassifierTest {
         dataset2.setSeparationString(" ");
         dataset2.setPath(WIKIPEDIA_TEST_FILE);
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, featureSetting);
 
         // model.toCsv(new PrintStream("dictWordJrc_ref.csv"));
 
@@ -112,9 +105,6 @@ public class PalladianTextClassifierTest {
         featureSetting.setMinNGramLength(3);
         featureSetting.setMaxNGramLength(6);
 
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
-
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
@@ -126,7 +116,7 @@ public class PalladianTextClassifierTest {
         // dataset2.setPath("C:\\Workspace\\data\\Wikipedia76Languages\\languageDocumentIndex_random1000_test.txt");
         dataset2.setPath(TWENTY_NEWSGROUPS_2);
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, featureSetting);
 
         // model.toDictionaryCsv(new PrintStream("dictCharNg_ref.csv"));
 
@@ -146,9 +136,6 @@ public class PalladianTextClassifierTest {
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(3);
 
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
-
         Dataset dataset = new Dataset("JRC");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
@@ -159,7 +146,7 @@ public class PalladianTextClassifierTest {
         dataset2.setSeparationString(" ");
         dataset2.setPath(TWENTY_NEWSGROUPS_2);
 
-        DictionaryModel model = dictionaryClassifier1.train(dataset, classificationTypeSetting, featureSetting);
+        DictionaryModel model = dictionaryClassifier1.train(dataset, featureSetting);
 
         // model.toDictionaryCsv(new PrintStream("dictWordNg_ref.csv"));
 
@@ -209,7 +196,7 @@ public class PalladianTextClassifierTest {
          * rel(word4,c2) = 100%
          * </pre>
          */
-        DictionaryModel model = new DictionaryModel(null, null);
+        DictionaryModel model = new DictionaryModel(null);
         model.updateTerm(word1, c1);
         model.updateTerm(word1, c1);
 

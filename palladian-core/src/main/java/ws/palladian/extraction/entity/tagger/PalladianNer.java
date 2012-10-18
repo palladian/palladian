@@ -27,7 +27,6 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.Preprocessor;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
@@ -191,10 +190,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         setName("Palladian NER (" + getLanguageMode() + ")");
 
         // hold entities in a dictionary that are learned from the training data
-        entityDictionary = new DictionaryModel(null, null);
+        entityDictionary = new DictionaryModel(null);
 
         // keep the case dictionary from the training data
-        caseDictionary = new DictionaryModel(null, null);
+        caseDictionary = new DictionaryModel(null);
 
         // with entity 2-8 and context 4-7: 173MB model
         // precision MUC: 79.93%, recall MUC: 85.55%, F1 MUC: 82.64%
@@ -440,9 +439,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     private void trainAnnotationClassifier(List<UniversalInstance> textInstances) {
 
-        ClassificationTypeSetting cts = new ClassificationTypeSetting();
-        cts.setClassificationType(ClassificationTypeSetting.TAG);
-
         FeatureSetting featureSetting = new FeatureSetting();
 
         // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
@@ -452,7 +448,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         featureSetting.setMaxNGramLength(8);
 
         LOGGER.info("start training classifiers now...");
-        annotationModel = textClassifier.train(convertInstances(textInstances, featureSetting), cts, featureSetting);
+        annotationModel = textClassifier.train(convertInstances(textInstances, featureSetting), featureSetting);
     }
 
     /**
@@ -1345,16 +1341,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     private void trainContextClassifier(List<UniversalInstance> trainingInstances) {
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
-
         // be careful with the n-gram sizes, they heavily influence the model size
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setMinNGramLength(4);// 4
         featureSetting.setMaxNGramLength(5);// 6
 
-        contextModel = textClassifier.train(convertInstances(trainingInstances, featureSetting), classificationTypeSetting,
-                featureSetting);
+        contextModel = textClassifier.train(convertInstances(trainingInstances, featureSetting), featureSetting);
     }
 
     private List<Instance> convertInstances(List<UniversalInstance> trainingInstances, FeatureSetting featureSetting) {

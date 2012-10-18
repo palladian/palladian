@@ -3,7 +3,6 @@ package ws.palladian.classification.text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableDouble;
@@ -13,7 +12,6 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.ProgressHelper;
@@ -36,13 +34,12 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     @Override
     public DictionaryModel train(List<Instance> instances) {
-        return train(instances, new ClassificationTypeSetting(), new FeatureSetting());
+        return train(instances, new FeatureSetting());
     }
 
-    public DictionaryModel train(List<Instance> instances, ClassificationTypeSetting cts, FeatureSetting fs) {
-        Validate.notNull(cts, "cts must not be null");
+    public DictionaryModel train(List<Instance> instances, FeatureSetting fs) {
         Validate.notNull(fs, "fs must not be null");
-        DictionaryModel dictionaryModel = new DictionaryModel(fs, cts);
+        DictionaryModel dictionaryModel = new DictionaryModel(fs);
         
         for (Instance instance : instances) {
             addToDictionary(dictionaryModel, instance);
@@ -415,13 +412,13 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
      */
     @Override
     public DictionaryModel train(Dataset dataset) {
-        return train(dataset, null, null);
+        return train(dataset, null);
     }
 
-    public DictionaryModel train(Dataset dataset, ClassificationTypeSetting cts, FeatureSetting fs) {
+    public DictionaryModel train(Dataset dataset, FeatureSetting fs) {
         List<Instance> instances = createInstances(dataset, fs);
         LOGGER.info("trained with " + instances.size() + " instances from " + dataset.getPath());
-        return train(instances, cts, fs);
+        return train(instances, fs);
     }
 
     /** FIXME in classifier utils **/

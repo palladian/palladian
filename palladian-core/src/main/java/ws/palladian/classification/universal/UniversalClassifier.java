@@ -14,7 +14,6 @@ import ws.palladian.classification.numeric.KnnClassifier;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.processing.features.FeatureDescriptor;
@@ -52,12 +51,10 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
     private final FeatureSetting featureSetting;
 
-    private final ClassificationTypeSetting classificationTypeSetting;
-
     // private Map<String, Double> weights2 = new HashMap<String, Double>();
 
     public UniversalClassifier(AbstractWeightingStrategy weightStrategy) {
-        this(weightStrategy, new FeatureSetting(), new ClassificationTypeSetting());
+        this(weightStrategy, new FeatureSetting());
 
     }
 
@@ -76,12 +73,10 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     //
     // }
 
-    public UniversalClassifier(AbstractWeightingStrategy weightStrategy, FeatureSetting featureSetting,
-            ClassificationTypeSetting classificationTypeSetting) {
+    public UniversalClassifier(AbstractWeightingStrategy weightStrategy, FeatureSetting featureSetting) {
 
         textClassifier = new PalladianTextClassifier();
         this.featureSetting = featureSetting;
-        this.classificationTypeSetting = classificationTypeSetting;
         numericClassifier = new KnnClassifier();
         nominalClassifier = new NaiveBayesClassifier();
 
@@ -202,7 +197,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
         // train the text classifier
         if (useTextClassifier) {
-            textModel = textClassifier.train(instances, classificationTypeSetting, featureSetting);
+            textModel = textClassifier.train(instances, featureSetting);
         }
 
         // train the numeric classifier
