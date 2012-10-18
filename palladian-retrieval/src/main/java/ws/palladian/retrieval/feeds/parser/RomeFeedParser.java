@@ -412,7 +412,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         // if the entry provides no author data, try to get it from the feed
 
         if (authors.isEmpty()) {
-            LOGGER.debug("entry contains no author; trying to take from feed");
+            // LOGGER.debug("entry contains no author; trying to take from feed");
             List<SyndPerson> syndFeedPersons = syndFeed.getAuthors();
             if (syndFeedPersons != null) {
                 for (SyndPerson syndPerson : syndFeedPersons) {
