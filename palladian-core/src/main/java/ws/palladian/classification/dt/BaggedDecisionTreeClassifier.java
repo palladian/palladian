@@ -53,8 +53,7 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
         CountMap<String> categories = CountMap.create();
         for (DecisionTreeModel decisionTreeModel : model.getModels()) {
             CategoryEntries entriesResult = classifier.classify(vector, decisionTreeModel);
-            // CategoryEntry categoryResult = entriesResult.get(0);
-            CategoryEntry categoryResult = ClassificationUtils.getSingleBestCategoryEntry(entriesResult);
+            CategoryEntry categoryResult = entriesResult.getMostLikelyCategoryEntry();
             categories.add(categoryResult.getName());
         }
 
