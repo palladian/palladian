@@ -1716,16 +1716,16 @@ public final class StringHelper {
         // } catch (PatternSyntaxException e) {
         // }
 
-        String word = "([^\\s,.;-?!()]+?)";
-        String allowedNeighbors = "[\\s,.;-?!()]";
-        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
-                + allowedNeighbors + word + "$)|(^" + word + "$)";
+        // String word = "([^\\s,.;-?!()]+?)";
+        // String allowedNeighbors = "[\\s,.;-?!()]";
+        // String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
+        // + allowedNeighbors + word + "$)|(^" + word + "$)";
 
-        Pattern pat = null;
-        try {
-            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
-        } catch (PatternSyntaxException e) {
-        }
+        // Pattern pat = null;
+        // try {
+        // pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        // } catch (PatternSyntaxException e) {
+        // }
 
         StopWatch stopWatch = new StopWatch();
 
