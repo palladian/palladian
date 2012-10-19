@@ -1002,7 +1002,8 @@ public class MediaWikiCrawler implements Runnable {
                         if (DEBUG) {
                             LOGGER.debug("Nothing to do for Wiki \"" + mwDescriptor.getWikiName()
                                     + "\", going to sleep for " + (newRevisionsInterval - timeElapsed)
-                                    / DateHelper.SECOND_MS + " seconds.");
+ / 1000
+                                    + " seconds.");
                         }
 
                         try {
@@ -1014,9 +1015,9 @@ public class MediaWikiCrawler implements Runnable {
                     } else {
                         LOGGER.error("Could not process all tasks for Wiki \"" + mwDescriptor.getWikiName()
                                 + "\" in time, processing took "
-                                + ((timeElapsed - newRevisionsInterval) / DateHelper.SECOND_MS)
+ + ((timeElapsed - newRevisionsInterval) / 1000)
                                 + " seconds, but should have been done within "
-                                + (newRevisionsInterval / DateHelper.SECOND_MS)
+ + (newRevisionsInterval / 1000)
                                 + " seconds. Please provide more resources!");
                     }
                 }
