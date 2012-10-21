@@ -105,8 +105,20 @@ public class HttpRetriever {
     /** The default timeout for a connection to be established, in milliseconds. */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(10);
 
+    /** The default timeout for a connection to be established when checking for redirects, in milliseconds. */
+    public static final int DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = (int)TimeUnit.SECONDS.toMillis(1);
+
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
     public static final int DEFAULT_SOCKET_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(180);
+
+    /** The maximum number of redirected URLs to check. */
+    public static final int MAX_REDIRECTS = 10;
+
+    /**
+     * The default timeout which specifies the maximum interval for new packets to wait when checking for redirects, in
+     * milliseconds.
+     */
+    public static final int DEFAULT_SOCKET_TIMEOUT_REDIRECTS = (int)TimeUnit.SECONDS.toMillis(1);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
@@ -147,6 +159,12 @@ public class HttpRetriever {
 
     /** For secure proxies, we save USERNAME:PASSWORD and send it with the requests. */
     private String proxyAuthentication = "";
+
+    /** The timeout for connections when checking for redirects. */
+    private long connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
+
+    /** The socket timeout when checking for redirects. */
+    private long socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     // ///////////// Misc. ////////
 
@@ -548,10 +566,8 @@ public class HttpRetriever {
         HttpParams params = client.getParams();
         params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
 
-        // TODO hard coded time out values for now; does it make sense to use the same values configured for normal HTTP
-        // operations? For now I set shorter timeouts to avoid lagging.
-        HttpConnectionParams.setSoTimeout(params, 1000);
-        HttpConnectionParams.setConnectionTimeout(params, 1000);
+        HttpConnectionParams.setSoTimeout(params, (int)getSocketTimeoutRedirects());
+        HttpConnectionParams.setConnectionTimeout(params, (int)getConnectionTimeoutRedirects());
 
         for (;;) {
             HttpHead headRequest;
@@ -575,9 +591,13 @@ public class HttpRetriever {
                                     + "\". URLs collected so far: " + StringUtils.join(ret, ","));
                         }
 
-                        // TODO: add checking for a maximum # of redirects here, to avoid endless redirects
 
                         ret.add(url);
+
+                        // avoid endless redirects
+                        if (ret.size() > MAX_REDIRECTS) {
+                            throw new HttpException("probably endless redirects for initial URL: " + url);
+                        }
                     }
                 } else {
                     break; // done.
@@ -1047,6 +1067,22 @@ public class HttpRetriever {
 
     public void setProxyAuthentication(String proxyAuthentication) {
         this.proxyAuthentication = proxyAuthentication;
+    }
+
+    public long getConnectionTimeoutRedirects() {
+        return connectionTimeoutRedirects;
+    }
+
+    public void setConnectionTimeoutRedirects(long connectionTimeoutRedirects) {
+        this.connectionTimeoutRedirects = connectionTimeoutRedirects;
+    }
+
+    public long getSocketTimeoutRedirects() {
+        return socketTimeoutRedirects;
+    }
+
+    public void setSocketTimeoutRedirects(long socketTimeoutRedirects) {
+        this.socketTimeoutRedirects = socketTimeoutRedirects;
     }
 
 }
