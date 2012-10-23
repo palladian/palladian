@@ -21,7 +21,7 @@ public class FeedTest {
         for (int i = 1; i <= 4; i++) {
             FeedItem item = new FeedItem();
             item.setId(i);
-            item.setHash(i + "", true);
+            item.setHash(i + "");
             date = new Date(baseTime + (i * 3600000));
             item.setPublished(date);
             items.add(item);
@@ -30,7 +30,7 @@ public class FeedTest {
         // add item equal to last item
         FeedItem item = new FeedItem();
         item.setId(5);
-        item.setHash(4 + "", true);
+        item.setHash(4 + "");
         date = new Date(baseTime + (4 * 3600000));
         item.setPublished(date);
         items.add(item);
@@ -46,7 +46,7 @@ public class FeedTest {
         for (int i = 1; i <= 4; i++) {
             item = new FeedItem();
             item.setId(i);
-            item.setHash(i + "", true);
+            item.setHash(i + "");
             date = new Date(baseTime - (i * 3600000));
             item.setPublished(date);
             items.add(item);
