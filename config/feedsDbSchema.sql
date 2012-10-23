@@ -140,9 +140,10 @@ CREATE TABLE IF NOT EXISTS `feed_items` (
   `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `description` text COLLATE utf8_unicode_ci,
   `text` text COLLATE utf8_unicode_ci,
+  `itemHash` char(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The sha1-hash of the item.',
   PRIMARY KEY (`id`),
   CONSTRAINT `feed_items_ibfk_1` FOREIGN KEY (`feedId`) REFERENCES `feeds` (`id`) ON DELETE CASCADE,
-  UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
+  UNIQUE KEY `itemHash` (`itemHash`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --

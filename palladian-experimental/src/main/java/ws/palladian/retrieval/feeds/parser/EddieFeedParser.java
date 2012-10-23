@@ -11,6 +11,7 @@ import org.w3c.dom.Document;
 import uk.org.catnip.eddie.Entry;
 import uk.org.catnip.eddie.FeedData;
 import uk.org.catnip.eddie.parser.Parser;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.feeds.Feed;
@@ -86,7 +87,7 @@ public final class EddieFeedParser extends BaseFeedParser implements FeedParser 
     public static void main(String[] args) throws FeedParserException {
         FeedParser feedParser = new EddieFeedParser();
         Feed feed = feedParser.getFeed("http://rss.cnn.com/rss/edition.rss");
-        feed.print();
+        CollectionHelper.print(feed.getItems());
     }
 
 }
