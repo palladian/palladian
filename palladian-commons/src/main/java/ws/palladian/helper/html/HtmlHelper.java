@@ -522,6 +522,8 @@ public class HtmlHelper {
      * JavaScript/DOM.
      * </p>
      * 
+     * FIXME David: the JavaDoc is not correct, the root node of the page is not excluded, rename method?
+     * 
      * @param node
      * @return
      */

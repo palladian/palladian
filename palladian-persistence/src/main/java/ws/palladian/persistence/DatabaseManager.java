@@ -259,12 +259,12 @@ public class DatabaseManager {
      * @return The result of the query, or <code>null</code> if no result.
      */
     public final Integer runAggregateQuery(String aggregateQuery) {
-//        return runSingleQuery(new RowConverter<Integer>() {
-//            @Override
-//            public Integer convert(ResultSet resultSet) throws SQLException {
-//                return resultSet.getInt(1);
-//            }
-//        }, aggregateQuery);
+        //        return runSingleQuery(new RowConverter<Integer>() {
+        //            @Override
+        //            public Integer convert(ResultSet resultSet) throws SQLException {
+        //                return resultSet.getInt(1);
+        //            }
+        //        }, aggregateQuery);
         return runSingleQuery(OneColumnRowConverter.INTEGER, aggregateQuery);
     }
 
@@ -372,8 +372,8 @@ public class DatabaseManager {
         int counter = 0;
 
         try {
-
             connection = getConnection();
+
             ps = connection.prepareStatement(sql);
             fillPreparedStatement(ps, args);
             rs = ps.executeQuery();
