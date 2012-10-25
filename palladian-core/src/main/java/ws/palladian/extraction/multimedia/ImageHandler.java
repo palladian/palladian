@@ -233,14 +233,7 @@ public class ImageHandler {
         int iWidth = bufferedImage.getWidth();
         int iHeight = bufferedImage.getHeight();
 
-        double imageRatio = (double)iWidth / (double)iHeight;
-        double boxRatio = (double)boxWidth / (double)boxHeight;
-
-        double scale = (double)boxWidth / (double)iWidth;
-
-        if (imageRatio > boxRatio) {
-            scale = (double)boxHeight / (double)iHeight;
-        }
+        double scale = Math.min((double)boxWidth / (double)iWidth, (double)boxHeight / (double)iHeight);
 
         if (scale > 1.0) {
             return rescaleImageSmooth(bufferedImage, boxWidth, boxHeight);
@@ -251,8 +244,8 @@ public class ImageHandler {
 
     /**
      * <p>
-     * Rescale an image to fill a in a given box but having parts potentially outside of the box. For example, a 600x200
-     * image is transformed to 300x100 to fit a 200x100 box.
+     * Rescale an image to fit a in a given bounding box. For example, a 600x120 image is transformed to 200x40 to fit a
+     * 200x100 box.
      * </p>
      * 
      * @param bufferedImage The buffered image which should be transformed.
@@ -270,14 +263,7 @@ public class ImageHandler {
         int iWidth = bufferedImage.getWidth();
         int iHeight = bufferedImage.getHeight();
 
-        double imageRatio = (double)iWidth / (double)iHeight;
-        double boxRatio = (double)boxWidth / (double)boxHeight;
-
-        double scale = (double)boxWidth / (double)iWidth;
-
-        if (imageRatio > boxRatio) {
-            scale = (double)boxHeight / (double)iHeight;
-        }
+        double scale = Math.min((double)boxWidth / (double)iWidth, (double)boxHeight / (double)iHeight);
 
         return rescaleImage(bufferedImage, scale);
     }

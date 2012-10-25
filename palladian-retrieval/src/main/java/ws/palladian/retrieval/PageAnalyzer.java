@@ -23,7 +23,6 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -1284,43 +1283,6 @@ public class PageAnalyzer {
         }
 
         return keywords;
-    }
-
-    /**
-     * 
-     * Extracts the content of the body out of a given pageContent; textOnly-Parameter allows to get the textual content
-     * FIXME: other versions of this exist
-     * 
-     */
-    public static String extractBodyContent(String pageContent, boolean textOnly) {
-
-        String bodyContent = "";
-        List<String> tempList = HtmlHelper.getConcreteTags(pageContent, "body");
-
-        if (tempList.size() > 0) {
-            bodyContent = tempList.get(0);
-        } else {
-            LOGGER.error("========Fehler bei extractBodyContent===== ");
-            LOGGER.error("body could not extracted");
-            // return "error" to divide between empty string and error
-            return "error";
-        }
-
-        if (textOnly) {
-            boolean stripTags = true;
-            boolean stripComments = true;
-            boolean stripJSAndCSS = true;
-            boolean joinTagsAndRemoveNewlines = false;
-
-            // Remove all tags, comments, JS and CSS from body
-            bodyContent = HtmlHelper.stripHtmlTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
-                    joinTagsAndRemoveNewlines);
-            bodyContent = bodyContent.replaceAll("&nbsp;", " ");
-            bodyContent = bodyContent.replaceAll("&amp;", "&");
-            return bodyContent;
-        }
-
-        return bodyContent;
     }
 
     public static String removeXPathIndices(String xPath) {

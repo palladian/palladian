@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -65,6 +66,9 @@ public class HtmlHelper {
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
+    private static final Pattern STRIP_ALL_TAGS = Pattern
+            .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
+                    | Pattern.CASE_INSENSITIVE);
 
     /** Thread local caching of TransformerFactories which are not thread-safe, but expensive to create. */
     private static final ThreadLocal<TransformerFactory> TRANSFORMER_FACTORIES = new ThreadLocal<TransformerFactory>() {
@@ -153,6 +157,66 @@ public class HtmlHelper {
      * {@link HtmlHelper.htmlToReableText} in case you need formatting.
      * </p>
      * 
+     * @param htmlText The html content for which tags should be removed.
+     */
+    public static String stripHtmlTags(String htmlText) {
+        return STRIP_ALL_TAGS.matcher(htmlText).replaceAll("");
+    }
+
+    public static String stripHtmlTags(String htmlText, EnumSet<HtmlElement> htmlElements) {
+        if (htmlText == null) {
+            return htmlText;
+        }
+
+        StringBuilder regExp = new StringBuilder();
+
+        if (htmlElements.contains(HtmlElement.COMMENTS)) {
+            regExp.append("<!--.*?-->|");
+        }
+
+        if (htmlElements.contains(HtmlElement.SCRIPT)) {
+            regExp.append("<script.*?>.*?</script>|");
+        }
+
+        if (htmlElements.contains(HtmlElement.CSS)) {
+            regExp.append("<style.*?>.*?</style>|");
+        }
+
+        if (htmlElements.contains(HtmlElement.TAG)) {
+            regExp.append("<.*?>");
+        }
+
+        String r = regExp.toString();
+        if (r.isEmpty()) {
+            return htmlText;
+        }
+
+        if (r.endsWith("|")) {
+            r = r.substring(0, regExp.length() - 1);
+        }
+
+        Pattern p = Pattern.compile(r, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        return p.matcher(htmlText).replaceAll("");
+    }
+
+    public static String joinTagsAndRemoveNewLines(String htmlText) {
+        if (htmlText == null) {
+            return htmlText;
+        }
+
+        htmlText = htmlText.replaceAll(">\\s*?<", "><");
+        htmlText = htmlText.replaceAll("\n", "");
+
+        return htmlText;
+    }
+
+    /**
+     * <p>
+     * Remove all style and script tags including their content (CSS, JavaScript). Remove all other tags as well. Close
+     * gaps. The text might not be readable since all format hints are discarded. Consider using
+     * {@link HtmlHelper.htmlToReableText} in case you need formatting.
+     * </p>
+     * 
      * @param htmlContent
      *            the html content
      * @param stripTags
@@ -165,6 +229,7 @@ public class HtmlHelper {
      *            the join tags and remove newlines
      * @return The text of the web page.
      */
+    @Deprecated
     public static String stripHtmlTags(String htmlText, boolean stripTags, boolean stripComments,
             boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
 
@@ -206,20 +271,6 @@ public class HtmlHelper {
         // htmlText = htmlText.replaceAll("[ ]{2,}", " ");
 
         // return htmlText.trim();
-    }
-
-    /**
-     * <p>
-     * Remove all style and script tags including their content (CSS, JavaScript). Remove all other tags as well. Close
-     * gaps. The text might not be readable since all format hints are discarded. Consider using
-     * {@link HtmlHelper.htmlToReableText} in case you need formatting.
-     * </p>
-     * 
-     * @param htmlContent
-     *            the html content
-     */
-    public static String stripHtmlTags(String htmlContent) {
-        return stripHtmlTags(htmlContent, true, true, true, false);
     }
 
     /**
@@ -521,6 +572,8 @@ public class HtmlHelper {
      * Returns a String representation of the supplied Node, excluding the Node itself, like innerHTML in
      * JavaScript/DOM.
      * </p>
+     * 
+     * FIXME David: the JavaDoc is not correct, the root node of the page is not excluded, rename method?
      * 
      * @param node
      * @return

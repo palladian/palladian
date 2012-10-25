@@ -874,15 +874,8 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"}; // whitespace is also
-        // unwanted but
-        // trim() handles
-        // that, " "
-        // here is
-        // another
-        // character
-        // (ASCII code
-        // 160)
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"};
+        // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
         // Pattern p = Pattern.compile("((\\d)+'')|('(\\s)?(\\d)+\")");
@@ -937,15 +930,15 @@ public final class StringHelper {
         // remove all control characters from string
         // string = removeControlCharacters(string);
 
-        string = replaceProtectedSpace(string);
+        // string = replaceProtectedSpace(string);
 
         // close spaces gap that might have arisen
-        string = removeDoubleWhitespaces(string);
+        // string = removeDoubleWhitespaces(string);
 
         // string = string.replaceAll("'\\)\\)","").replaceAll("'\\)",""); //
         // values are in javascript text sometimes e.g. ...('80GB')
 
-        return string;
+        return string.trim();
     }
 
     /**
@@ -975,6 +968,7 @@ public final class StringHelper {
      * <li>Unescape HTML (&_lt; becomes >)</li>
      * <li>Remove control characters.</li>
      * <li>Remove protected spaces.</li>
+     * <li>Remove double white spaces.</li>
      * <li>Remove HTML tags (<b>stop</B> becomes stop).</li> </li>
      * 
      * @param text The text that should be cleansed.
@@ -986,6 +980,7 @@ public final class StringHelper {
         text = StringEscapeUtils.unescapeHtml(text);
         text = removeControlCharacters(text);
         text = replaceProtectedSpace(text);
+        text = removeDoubleWhitespaces(text);
         // text = removeNonAsciiCharacters(text);
 
         // trim but keep sentence delimiters
@@ -1522,6 +1517,20 @@ public final class StringHelper {
         return "";
     }
 
+    public static String getRegexpMatch(Pattern regexpPattern, String text) {
+
+        if (text == null) {
+            return "";
+        }
+
+        Matcher m = regexpPattern.matcher(text);
+        if (m.find()) {
+            return m.group();
+        }
+
+        return "";
+    }
+
     /**
      * <p>
      * Find matches of the given regular expression in the given text.
@@ -1687,6 +1696,14 @@ public final class StringHelper {
      */
     public static void main(String[] args) {
 
+        StopWatch sw = new StopWatch();
+        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                                       ";
+        for (int i = 0; i < 1000; i++) {
+            StringHelper.removeDoubleWhitespaces(text);
+        }
+        System.out.println(sw.getElapsedTimeString());
+        System.exit(0);
+
         // String word = "test";
         // String allowedNeighbors = "[\\s,.;-]";
         // String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
@@ -1698,16 +1715,16 @@ public final class StringHelper {
         // } catch (PatternSyntaxException e) {
         // }
 
-        String word = "([^\\s,.;-?!()]+?)";
-        String allowedNeighbors = "[\\s,.;-?!()]";
-        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
-                + allowedNeighbors + word + "$)|(^" + word + "$)";
+        // String word = "([^\\s,.;-?!()]+?)";
+        // String allowedNeighbors = "[\\s,.;-?!()]";
+        // String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
+        // + allowedNeighbors + word + "$)|(^" + word + "$)";
 
-        Pattern pat = null;
-        try {
-            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
-        } catch (PatternSyntaxException e) {
-        }
+        // Pattern pat = null;
+        // try {
+        // pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        // } catch (PatternSyntaxException e) {
+        // }
 
         StopWatch stopWatch = new StopWatch();
 
