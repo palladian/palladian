@@ -52,13 +52,14 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        TextAnnotationFeature sentencesFeature = document.getFeature(LingPipeSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature sentencesFeature = document
+                .getFeature(LingPipeSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         Validate.notNull(
                 sentencesFeature,
-                "Nount annotator can only work if the text was processed by an AbstractSentenceDetector. Please add one to your pipeline.");
+                "Noun annotator can only work if the text was processed by an AbstractSentenceDetector. Please add one to your pipeline.");
         TextAnnotationFeature tokenFeature = document.getFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Validate.notNull(tokenFeature,
-                "Nount annotator can only work if the text was processed by a BaseTokenizer. Please add one to your pipeline.");
+                "Noun annotator can only work if the text was processed by a BaseTokenizer. Please add one to your pipeline.");
 
         List<Annotation<String>> ret = new ArrayList<Annotation<String>>();
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
@@ -66,8 +67,11 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
             List<Annotation<String>> tokens = tokenFeature.getAnnotations(sentence.getStartPosition(),
                     sentence.getEndPosition());
             for (Annotation<String> token : tokens) {
-            	NominalFeature posTag = token.getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
-                if (nounTagList.contains(posTag.getValue())) {
+                NominalFeature posTag = token.getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR);
+                if (posTag == null) {
+                    throw new DocumentUnprocessableException(
+                            "At least one token has not PoS tag. The noun annotator requires the pipeline to call a PoSTagger in advance.");
+                } else if (nounTagList.contains(posTag.getValue())) {
                     ret.add(new PositionAnnotation(document, token.getStartPosition(), token.getEndPosition()));
                 }
             }
