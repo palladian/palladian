@@ -1,6 +1,7 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.Stack;
 import java.util.TreeMap;
 
 /**
@@ -68,13 +70,33 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         list.add(feature);
     }
 
-    @Deprecated
-    private Feature<?> getFeature(String name) {
-        List<Feature<?>> selectedFeatures = features.get(name);
-        if (selectedFeatures == null || selectedFeatures.isEmpty()) {
+    /**
+     * <p>
+     * Provides the first feature matching the provided path ignoring the class of the {@code Feature}.
+     * </p>
+     * 
+     * @param featurePath
+     * @return
+     */
+    public Feature<?> getFeature(String featurePath) {
+        String[] pathElements = featurePath.split("/");
+        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
+        if (selectedFeatures == null) {
             return null;
         }
-        return selectedFeatures.get(0);
+        Feature<?> selectedFeature = selectedFeatures.get(0);
+        if (pathElements.length > 1) {
+            AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)selectedFeature;
+            for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
+                selectedFeature = annotation.getFeatureVector().getFeature(
+                        featurePath.substring(featurePath.indexOf("/") + 1));
+                if (selectedFeature != null) {
+                    return selectedFeature;
+                }
+            }
+        }
+
+        return selectedFeature;
     }
 
     public <T extends Feature<?>> T getFeature(Class<T> type, String name) {
@@ -85,7 +107,6 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return selectedFeatures.get(0);
     }
 
-    @Deprecated
     public <T extends Feature<?>> List<T> getAll(Class<T> type, String name) {
         List<T> selectedFeatures = new ArrayList<T>();
         for (Feature<?> feature : getAll(type)) {
@@ -185,6 +206,7 @@ public final class FeatureVector implements Iterable<Feature<?>> {
      * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
      *         specified identifier to remove.
      */
+    @Deprecated
     public boolean remove(FeatureDescriptor<?> featureDescriptor) {
         return features.remove(featureDescriptor.getIdentifier()) != null;
     }
@@ -218,12 +240,75 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return collectedFeatures;
     }
 
+    public List<? extends Feature<?>> getFeatures() {
+        List<Feature<?>> ret = new ArrayList<Feature<?>>();
+        for (Entry<String, List<Feature<?>>> entry : features.entrySet()) {
+            ret.addAll(entry.getValue());
+        }
+        return ret;
+    }
+
     public <T> Set<? extends Feature<T>> getFeatureBag(Class<? extends Feature<T>> featureClass, String featurePath) {
         return new HashSet<Feature<T>>(getFeatures(featureClass, featurePath));
     }
 
     @Override
     public Iterator<Feature<?>> iterator() {
-        return getFlat().iterator();
+        // return getFlat().iterator();
+        return new FeatureIterator(this);
     }
+}
+
+class FeatureIterator implements Iterator<Feature<?>> {
+
+    private final FeatureVector vector;
+    private final Stack<Iterator<? extends Feature<?>>> iteratorStack;
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     */
+    public FeatureIterator(FeatureVector vector) {
+        super();
+
+        this.vector = vector;
+        iteratorStack = new Stack<Iterator<? extends Feature<?>>>();
+        iteratorStack.push(vector.getFeatures().iterator());
+    }
+
+    @Override
+    public boolean hasNext() {
+        return !iteratorStack.isEmpty();
+    }
+
+    @Override
+    public Feature<?> next() {
+        try {
+            Iterator<? extends Feature<?>> currentIterator = iteratorStack.pop();
+            Feature<?> feature = currentIterator.next();
+
+            if (feature instanceof AnnotationFeature<?>) {
+                AnnotationFeature<?> annotationFeature = (AnnotationFeature)feature;
+                for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
+                    iteratorStack.push(annotation.getFeatureVector().iterator());
+                }
+            }
+
+            if (currentIterator.hasNext()) {
+                iteratorStack.push(currentIterator);
+            }
+
+            return feature;
+        } catch (EmptyStackException e) {
+            throw new IllegalStateException("Iterator has no more elements");
+        }
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("This operation is not supported by the FeatureIterator");
+    }
+
 }
