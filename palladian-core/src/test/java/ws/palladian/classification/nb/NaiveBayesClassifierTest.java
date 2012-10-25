@@ -11,6 +11,8 @@ import org.junit.Test;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.classification.text.evaluation.ClassifierEvaluation;
+import ws.palladian.classification.text.evaluation.ClassifierEvaluationResult;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -109,16 +111,10 @@ public class NaiveBayesClassifierTest {
 
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
         NaiveBayesModel bayesModel = bayesClassifier.train(train);
-
-        int correctlyClassified = 0;
-        for (Instance testInstance : test) {
-            CategoryEntries prediction = bayesClassifier.classify(testInstance.getFeatureVector(), bayesModel);
-            String categoryName = prediction.getMostLikelyCategoryEntry().getName();
-            if (categoryName.equals(testInstance.getTargetClass())) {
-                correctlyClassified++;
-            }
-        }
-        return (double)correctlyClassified / test.size();
+        
+        ClassifierEvaluationResult evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, bayesModel, test);
+        System.out.println(evaluationResult);
+        return evaluationResult.getAccuracy();
     }
 
 }
