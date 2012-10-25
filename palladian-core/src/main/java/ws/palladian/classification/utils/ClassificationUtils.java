@@ -118,6 +118,30 @@ public final class ClassificationUtils {
 
         return instances;
     }
+    
+    public static void writeInstances(List<Instance> instances, String filePath) {
+        System.out.println("# instances: " + instances.size());
+        StringBuilder builder = new StringBuilder();
+        
+        // create header
+        FeatureVector firstFv = instances.get(0).getFeatureVector();
+        for (Feature<?> feature: firstFv) {
+            builder.append(feature.getName());
+            builder.append(';');
+        }
+        builder.append("category").append('\n');
+        
+        for (Instance instance : instances) {
+            for (Feature<?> feature : instance.getFeatureVector()) {
+                builder.append(feature.getValue());
+                builder.append(";");
+            }
+            builder.append(instance.getTargetClass());
+            builder.append('\n');
+        }
+        
+        FileHelper.writeToFile(filePath, builder);
+    }
 
     /**
      * <p>
