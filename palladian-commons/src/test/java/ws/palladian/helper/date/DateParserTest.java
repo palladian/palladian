@@ -342,6 +342,9 @@ public class DateParserTest {
         
         // Year
         assertEquals("2012", DateParser.findDate("it happened in 2012", RegExp.DATE_CONTEXT_YYYY).getNormalizedDateString());
+        
+        // date with line break
+        assertEquals("2006-02-06", DateParser.findDate("06. Feb\n06", RegExp.DATE_EU_D_MMMM_Y).getNormalizedDateString());
     }
     
     @Test
