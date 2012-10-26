@@ -575,7 +575,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     private boolean hasAssignedType(CategoryEntries ces) {
-        return !ces.getMostLikelyCategoryEntry().getName().equalsIgnoreCase(NO_ENTITY);
+        CategoryEntry mostLikelyCategoryEntry = ces.getMostLikelyCategoryEntry();
+        if (mostLikelyCategoryEntry == null) {
+            return false;
+        }
+        return !mostLikelyCategoryEntry.getName().equalsIgnoreCase(NO_ENTITY);
     }
 
     /**
