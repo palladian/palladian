@@ -13,11 +13,15 @@ public class ClassifierEvaluationResult {
     }
 
     public double getAccuracy() {
+        return (double)getCorrectlyClassified() / getTotalDocuments();
+    }
+    
+    public int getCorrectlyClassified() {
         int correct = 0;
         for (String value : getCategories()) {
             correct += confusionMatrix.getCount(value, value);
         }
-        return (double)correct / getTotalDocuments();
+        return correct;
     }
 
     /**
@@ -74,6 +78,10 @@ public class ClassifierEvaluationResult {
             return 0;
         }
         return (double)max / sum;
+    }
+    
+    public double getSuperiority() {
+        return getAccuracy() / getHighestPrior();
     }
 
     /**
@@ -463,6 +471,21 @@ public class ClassifierEvaluationResult {
         builder.append(getHighestPrior());
         builder.append("]");
         return builder.toString();
+    }
+    
+    public String toReadableString() {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("Precision: ").append(getAveragePrecision(true)).append("\n");
+        builder.append("Recall: ").append(getAverageRecall(true)).append("\n");
+        builder.append("F1: ").append(getAverageF(0.5, true)).append("\n");
+        builder.append("Sensitivity: ").append(getAverageSensitivity(true)).append("\n");
+        builder.append("Specificity: ").append(getAverageSpecificity(true)).append("\n");
+        builder.append("Accuracy: ").append(getAverageAccuracy(true)).append("\n");
+        builder.append("Correctly Classified: ").append(getCorrectlyClassified()).append("\n");
+        builder.append("Superiority: ").append(getSuperiority()).append("\n");
+        return builder.toString();
+
     }
 
 }
