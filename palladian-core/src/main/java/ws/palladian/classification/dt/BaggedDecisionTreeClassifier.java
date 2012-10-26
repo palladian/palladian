@@ -11,7 +11,6 @@ import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Predictor;
 import ws.palladian.classification.text.evaluation.Dataset;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.features.FeatureVector;
