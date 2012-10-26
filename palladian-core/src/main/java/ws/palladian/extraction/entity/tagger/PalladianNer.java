@@ -93,7 +93,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianNer.class);
 
-    /** The serial vesion id. */
+    /** The serial version id. */
     private static final long serialVersionUID = -8793232373094322955L;
 
     private transient PalladianTextClassifier textClassifier = new PalladianTextClassifier();
@@ -361,11 +361,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
-        if (languageMode.equals(LanguageMode.English)) {
-            return trainEnglish(trainingFilePath, modelFilePath);
-        } else {
-            return trainLanguageIndependent(trainingFilePath, modelFilePath);
-        }
+        return train(trainingFilePath, new Annotations(), modelFilePath);
     }
 
     /**
@@ -379,22 +375,18 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     public boolean train(String trainingFilePath, Annotations annotations, String modelFilePath) {
 
-        // create instances, instances are annotations
-        List<UniversalInstance> textInstances = CollectionHelper.newArrayList();
-
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
-        for (Annotation annotation : annotations) {
-            UniversalInstance textInstance = new UniversalInstance(annotation.getTargetClass());
-            textInstance.setTextFeature(annotation.getEntity());
-            textInstances.add(textInstance);
-        }
 
         // save training entities in a dedicated dictionary
         for (Annotation annotation : annotations) {
             addToEntityDictionary(annotation);
         }
-
-        return train(trainingFilePath, modelFilePath);
+        
+        if (languageMode.equals(LanguageMode.English)) {
+            return trainEnglish(trainingFilePath, modelFilePath, annotations);
+        } else {
+            return trainLanguageIndependent(trainingFilePath, modelFilePath);
+        }
     }
 
     /**
@@ -834,7 +826,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             stopWatch.start();
 
             for (Annotation annotation : annotations) {
-
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
                 if (categoryEntries != null && categoryEntries.size() > 0) {
                     annotation.setTags(categoryEntries);
