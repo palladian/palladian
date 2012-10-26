@@ -8,14 +8,26 @@ public class ClassifierEvaluationResult {
 
     private final CountMap2D<String> confusionMatrix;
 
-    public ClassifierEvaluationResult(CountMap2D<String> confusionMatrix) {
+    public ClassifierEvaluationResult() {
+        this.confusionMatrix = CountMap2D.create();
+    }
+
+    ClassifierEvaluationResult(CountMap2D<String> confusionMatrix) {
         this.confusionMatrix = confusionMatrix;
+    }
+
+    public void add(String realCategory, String predictedCategory) {
+        add(realCategory, predictedCategory, 1);
+    }
+
+    public void add(String realCategory, String predictedCategory, int count) {
+        confusionMatrix.increment(predictedCategory, realCategory, count);
     }
 
     public double getAccuracy() {
         return (double)getCorrectlyClassified() / getTotalDocuments();
     }
-    
+
     public int getCorrectlyClassified() {
         int correct = 0;
         for (String value : getCategories()) {
@@ -42,10 +54,10 @@ public class ClassifierEvaluationResult {
         return confusionMatrix.getRowSum(category);
     }
 
-    public int getNumberOfConfusionsBetween(String actualCategory, String classifiedCategory) {
-        return confusionMatrix.getCount(actualCategory, classifiedCategory);
+    public int getNumberOfConfusionsBetween(String realCategory, String predictedCategory) {
+        return confusionMatrix.getCount(predictedCategory, realCategory);
     }
-    
+
     public Set<String> getCategories() {
         return confusionMatrix.getColumnValues();
     }
@@ -79,7 +91,7 @@ public class ClassifierEvaluationResult {
         }
         return (double)max / sum;
     }
-    
+
     public double getSuperiority() {
         return getAccuracy() / getHighestPrior();
     }
@@ -195,7 +207,7 @@ public class ClassifierEvaluationResult {
         return (double)(truePositives + trueNegatives)
                 / (truePositives + trueNegatives + falsePositives + falseNegatives);
     }
-    
+
     /**
      * Calculate the prior for the given category. The prior is determined by calculating the frequency of the category
      * in the training and test set and
@@ -217,7 +229,7 @@ public class ClassifierEvaluationResult {
         }
 
         return (double)documentCount / totalAssigned;
-    }    
+    }
 
     /**
      * Get the average precision of all categories.
@@ -229,28 +241,24 @@ public class ClassifierEvaluationResult {
 
         int count = 0;
 
+        for (String category : getCategories()) {
 
-            for (String c : getCategories()) {
-
-
-                double pfc = getPrecisionForCategory(c);
-                if (pfc < 0) {
-                    continue;
-                }
-
-                if (weighted) {
-                    precision += getWeightForCategory(c) * pfc;
-                } else {
-                    precision += pfc;
-                }
-                ++count;
+            double pfc = getPrecisionForCategory(category);
+            if (pfc < 0) {
+                continue;
             }
 
             if (weighted) {
-                return precision;
+                precision += getWeightForCategory(category) * pfc;
+            } else {
+                precision += pfc;
             }
+            ++count;
+        }
 
-
+        if (weighted) {
+            return precision;
+        }
 
         if (count == 0) {
             return -1.0;
@@ -258,8 +266,6 @@ public class ClassifierEvaluationResult {
 
         return precision / count;
     }
-    
-
 
     /**
      * Get the average recall of all categories.
@@ -271,25 +277,24 @@ public class ClassifierEvaluationResult {
 
         int count = 0;
 
-            for (String c : getCategories()) {
+        for (String category : getCategories()) {
 
-                double rfc = getRecallForCategory(c);
-                if (rfc < 0.0) {
-                    continue;
-                }
-
-                if (weighted) {
-                    recall += getWeightForCategory(c) * rfc;
-                } else {
-                    recall += rfc;
-                }
-                ++count;
+            double rfc = getRecallForCategory(category);
+            if (rfc < 0.0) {
+                continue;
             }
 
             if (weighted) {
-                return recall;
+                recall += getWeightForCategory(category) * rfc;
+            } else {
+                recall += rfc;
             }
+            ++count;
+        }
 
+        if (weighted) {
+            return recall;
+        }
 
         if (count == 0) {
             return -1.0;
@@ -297,8 +302,6 @@ public class ClassifierEvaluationResult {
 
         return recall / count;
     }
-    
-
 
     /**
      * Get the average F of all categories.
@@ -310,16 +313,16 @@ public class ClassifierEvaluationResult {
         double f = 0.0;
 
         int count = 0;
-        for (String c : getCategories()) {
+        for (String category : getCategories()) {
 
-            double ffc = getFForCategory(c, alpha);
+            double ffc = getFForCategory(category, alpha);
 
             if (ffc < 0.0) {
                 continue;
             }
 
             if (weighted) {
-                f += getWeightForCategory(c) * ffc;
+                f += getWeightForCategory(category) * ffc;
             } else {
                 f += ffc;
             }
@@ -337,8 +340,6 @@ public class ClassifierEvaluationResult {
 
         return f / count;
     }
-    
-
 
     /**
      * Calculate the average sensitivity.
@@ -350,16 +351,16 @@ public class ClassifierEvaluationResult {
         double sensitivity = 0.0;
 
         int count = 0;
-        for (String c : getCategories()) {
+        for (String category : getCategories()) {
 
-            double sfc = getSensitivityForCategory(c);
+            double sfc = getSensitivityForCategory(category);
 
             if (sfc < 0.0) {
                 continue;
             }
 
             if (weighted) {
-                sensitivity += getWeightForCategory(c) * sfc;
+                sensitivity += getWeightForCategory(category) * sfc;
             } else {
                 sensitivity += sfc;
             }
@@ -377,8 +378,6 @@ public class ClassifierEvaluationResult {
 
         return sensitivity / count;
     }
-    
-
 
     /**
      * Calculate the average specificity.
@@ -390,16 +389,16 @@ public class ClassifierEvaluationResult {
         double specificity = 0.0;
 
         int count = 0;
-        for (String c : getCategories()) {
+        for (String category : getCategories()) {
 
-            double sfc = getSpecificityForCategory(c);
+            double sfc = getSpecificityForCategory(category);
 
             if (sfc < 0) {
                 return -1.0;
             }
 
             if (weighted) {
-                specificity += getWeightForCategory(c) * sfc;
+                specificity += getWeightForCategory(category) * sfc;
             } else {
                 specificity += sfc;
             }
@@ -417,7 +416,7 @@ public class ClassifierEvaluationResult {
 
         return specificity / count;
     }
-    
+
     /**
      * Calculate the average accuracy.
      * 
@@ -428,16 +427,16 @@ public class ClassifierEvaluationResult {
         double accuracy = 0.0;
 
         int count = 0;
-        for (String c : getCategories()) {
+        for (String category : getCategories()) {
 
-            double afc = getAccuracyForCategory(c);
+            double afc = getAccuracyForCategory(category);
 
             if (afc < 0.0) {
                 return -1.0;
             }
 
             if (weighted) {
-                accuracy += getWeightForCategory(c) * afc;
+                accuracy += getWeightForCategory(category) * afc;
             } else {
                 accuracy += afc;
             }
@@ -472,7 +471,7 @@ public class ClassifierEvaluationResult {
         builder.append("]");
         return builder.toString();
     }
-    
+
     public String toReadableString() {
 
         StringBuilder builder = new StringBuilder();
