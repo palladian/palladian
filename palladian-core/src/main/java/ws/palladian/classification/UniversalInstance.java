@@ -10,6 +10,7 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  * @author David Urbansky
  */
+@Deprecated
 public class UniversalInstance extends Instance {
 
     private String textFeature = "";
