@@ -136,6 +136,7 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * @param descriptor The {@code FeatureDescriptor} identifying the desired {@code Feature}
      * @return
      */
+    @Deprecated
     public final <F extends Feature<?>> F getFeature(FeatureDescriptor<F> descriptor) {
         Validate.notNull(descriptor, "descriptor must not be null");
         return getFeatureVector().get(descriptor);
