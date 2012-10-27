@@ -1493,25 +1493,25 @@ public final class StringHelper {
             return "";
         }
 
-        Pattern p;
+        Pattern pattern;
 
         if (caseInsensitive) {
             if (dotAll) {
-                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+                pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
             } else {
-                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+                pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
             }
         } else {
             if (dotAll) {
-                p = Pattern.compile(regexp, Pattern.DOTALL);
+                pattern = Pattern.compile(regexp, Pattern.DOTALL);
             } else {
-                p = Pattern.compile(regexp);
+                pattern = Pattern.compile(regexp);
             }
         }
 
-        Matcher m = p.matcher(text);
-        if (m.find()) {
-            return m.group();
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            return matcher.group();
         }
 
         return "";
@@ -1535,13 +1535,12 @@ public final class StringHelper {
      * <p>
      * Find matches of the given regular expression in the given text.
      * </p>
-     * <p>
      * 
-     * @param regexpPattern The regular expression as a compiled pattern.
+     * @param pattern The regular expression as a compiled pattern.
      * @param text The text on which the regular expression should be evaluated.
      * @return A list of string matches.
      */
-    public static List<String> getRegexpMatches(Pattern regexpPattern, String text) {
+    public static List<String> getRegexpMatches(Pattern pattern, String text) {
 
         List<String> matches = new ArrayList<String>();
 
@@ -1549,9 +1548,9 @@ public final class StringHelper {
             return matches;
         }
 
-        Matcher m = regexpPattern.matcher(text);
-        while (m.find()) {
-            matches.add(m.group());
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            matches.add(matcher.group());
         }
 
         return matches;
@@ -1571,8 +1570,8 @@ public final class StringHelper {
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
-        Pattern p = Pattern.compile(regexp);
-        return getRegexpMatches(p, text);
+        Pattern pattern = Pattern.compile(regexp);
+        return getRegexpMatches(pattern, text);
     }
 
     /**
