@@ -12,10 +12,10 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.text.evaluation.ClassifierEvaluation;
-import ws.palladian.classification.text.evaluation.ClassifierEvaluationResult;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -112,7 +112,7 @@ public class NaiveBayesClassifierTest {
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
         NaiveBayesModel bayesModel = bayesClassifier.train(train);
         
-        ClassifierEvaluationResult evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, bayesModel, test);
+        ConfusionMatrix evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, bayesModel, test);
         System.out.println(evaluationResult);
         return evaluationResult.getAccuracy();
     }
