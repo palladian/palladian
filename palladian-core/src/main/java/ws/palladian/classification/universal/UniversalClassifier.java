@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
@@ -16,6 +19,7 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
@@ -24,7 +28,7 @@ import ws.palladian.processing.features.NominalFeature;
 public class UniversalClassifier implements Classifier<UniversalClassifierModel> {
 
     /** The logger for this class. */
-    // private static final Logger LOGGER = Logger.getLogger(UniversalClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
 
     public static final FeatureDescriptor<NominalFeature> TEXT_FEATURE = FeatureDescriptorBuilder.build(
             "ws.palladian.feature.text", NominalFeature.class);
@@ -47,14 +51,14 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     /** Whether or not to use the nominal classifier. */
     private boolean useNominalClassifier = true;
 
-    private final AbstractWeightingStrategy weightStrategy;
-
     private final FeatureSetting featureSetting;
+
+    int[] correctlyClassified = new int[3];
 
     // private Map<String, Double> weights2 = new HashMap<String, Double>();
 
-    public UniversalClassifier(AbstractWeightingStrategy weightStrategy) {
-        this(weightStrategy, new FeatureSetting());
+    public UniversalClassifier() {
+        this(new FeatureSetting());
 
     }
 
@@ -73,15 +77,66 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     //
     // }
 
-    public UniversalClassifier(AbstractWeightingStrategy weightStrategy, FeatureSetting featureSetting) {
+    public UniversalClassifier(FeatureSetting featureSetting) {
 
         textClassifier = new PalladianTextClassifier();
         this.featureSetting = featureSetting;
         numericClassifier = new KnnClassifier();
         nominalClassifier = new NaiveBayesClassifier();
 
-        this.weightStrategy = weightStrategy;
-        this.weightStrategy.setClassifier(this);
+        correctlyClassified = new int[3];
+    }
+
+    public void learnClassifierWeights(List<Instance> instances, UniversalClassifierModel model) {
+        correctlyClassified[0] = 0;
+        correctlyClassified[1] = 0;
+        correctlyClassified[2] = 0;
+
+        int c = 1;
+        for (Instance instance : instances) {
+            UniversalClassificationResult result = internalClassify(instance.getFeatureVector(), model);
+            evaluateResults(instance, result, model);
+            ProgressHelper.showProgress(c++, instances.size(), 1);
+        }
+
+        model.setWeights(correctlyClassified[0] / (double)instances.size(),
+                correctlyClassified[1] / (double)instances.size(), correctlyClassified[2] / (double)instances.size());
+
+        LOGGER.debug("weight text   : " + model.getWeights()[0]);
+        LOGGER.debug("weight numeric: " + model.getWeights()[1]);
+        LOGGER.debug("weight nominal: " + model.getWeights()[2]);
+    }
+
+    private CategoryEntries evaluateResults(Instance instance, UniversalClassificationResult result,
+            UniversalClassifierModel model) {
+        Map<CategoryEntries, Double> weightedCategoryEntries = new HashMap<CategoryEntries, Double>();
+
+        // Since there are not weights yet the classifier weights all results with one.
+        CategoryEntries textCategories = result.getTextCategories();
+        if (model.getTextClassifier() != null
+                && textCategories.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            countCorrectlyClassified(0, instance);
+            weightedCategoryEntries.put(textCategories, 1.0);
+        }
+        CategoryEntries numericResults = result.getNumericResults();
+        if (model.getKnnModel() != null
+                && numericResults.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            countCorrectlyClassified(1, instance);
+            weightedCategoryEntries.put(numericResults, 1.0);
+        }
+        CategoryEntries nominalInstance = result.getNominalResults();
+        if (model.getBayesModel() != null
+                && nominalInstance.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            countCorrectlyClassified(2, instance);
+            weightedCategoryEntries.put(nominalInstance, 1.0);
+        }
+        CategoryEntries mergedCategoryEntries = normalize(weightedCategoryEntries);
+
+        return mergedCategoryEntries;
+    }
+
+    private void countCorrectlyClassified(int index, Instance instance) {
+        correctlyClassified[index]++;
     }
 
     protected UniversalClassificationResult internalClassify(FeatureVector featureVector, UniversalClassifierModel model) {
@@ -211,7 +266,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         }
 
         UniversalClassifierModel model = new UniversalClassifierModel(nominalModel, numericModel, textModel);
-        weightStrategy.learnClassifierWeights(instances, model);
+        learnClassifierWeights(instances, model);
         return model;
     }
 

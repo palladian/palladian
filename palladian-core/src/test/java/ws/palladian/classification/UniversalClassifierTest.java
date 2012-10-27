@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.universal.AbstractWeightingStrategy;
-import ws.palladian.classification.universal.InstanceWeightingStrategy;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.classification.utils.ClassificationUtils;
@@ -35,8 +33,7 @@ public class UniversalClassifierTest {
      */
     @Test
     public void test() throws FileNotFoundException {
-        AbstractWeightingStrategy weightingStrategy = new InstanceWeightingStrategy();
-        UniversalClassifier objectOfClassUnderTest = new UniversalClassifier(weightingStrategy);
+        UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
 
         List<Instance> instances = ClassificationUtils.createInstances(
                 ResourceHelper.getResourcePath("/classifier/saheart.csv"), true, ",");
