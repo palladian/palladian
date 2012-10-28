@@ -397,6 +397,7 @@ public class DocumentRetriever {
                     HttpResult httpResult = httpRetriever.httpGet(cleanUrl, globalHeaders);
                     document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
                     document.setDocumentURI(cleanUrl);
+                    document.setUserData("httpResult", httpResult, null);
                 }
 
                 callRetrieverCallback(document);
