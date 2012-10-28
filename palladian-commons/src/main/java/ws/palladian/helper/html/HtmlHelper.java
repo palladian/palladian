@@ -850,6 +850,7 @@ public class HtmlHelper {
             }
 
             String currentDomain = UrlHelper.getDomain(currentLink, false);
+            currentDomain = currentDomain.replaceFirst("[a-zA-Z-_]+\\.(?=[a-z]+\\.)", "");
 
             boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
 
