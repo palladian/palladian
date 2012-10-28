@@ -3,6 +3,8 @@ package ws.palladian.extraction.token;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,6 +15,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
@@ -21,6 +25,8 @@ import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -427,6 +433,8 @@ public final class Tokenizer {
             sentences.add(inputText.substring(lastIndex).trim());
         }
 
+        // TODO Since requirements might differ slightly from application to application, this filtering should be
+        // carried out by each calling application itself.
         if (onlyRealSentences) {
 
             List<String> realSentences = new ArrayList<String>();
@@ -438,6 +446,8 @@ public final class Tokenizer {
                     String cleanSentence = StringHelper.trim(sentence);
                     int wordCount = StringHelper.countWhitespaces(cleanSentence) + 1;
 
+                    // TODO Why is this 8?
+                    // TODO There are valid english sentences with only one word like "Go!" or "Stop!"
                     if (cleanSentence.length() > 8 && wordCount > 2) {
                         realSentences.add(sentence.trim());
                     }
@@ -479,6 +489,215 @@ public final class Tokenizer {
         }
 
         return sentencesReplacedSmileys;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param document
+     * @param annotations
+     * @param maskedText
+     * @param mask
+     * @return
+     */
+    private static String maskAnnotations(TextDocument document, Annotations annotations, String mask,
+            List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
+        List<PositionAnnotation> tags = convert(document, annotations);
+        for (PositionAnnotation annotation : tags) {
+            maskedText = StringUtils.replaceOnce(maskedText, annotation.getValue(), mask);
+            annotationsForMaskedText.add(annotation);
+        }
+
+        return maskedText;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param inputDocument
+     * @return
+     */
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument) {
+        return getSentences(inputDocument, SENTENCE_SPLIT_PATTERN);
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param inputDocument
+     * @param pattern
+     * @return
+     */
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, Pattern pattern) {
+        String inputText = inputDocument.getContent();
+        // recognize URLs so we don't break them
+        Annotations taggedUrlsAnnotations = urlTagger.tagUrls(inputText);
+        String mask = "PALLADIANMASK";
+        List<PositionAnnotation> masks = new ArrayList<PositionAnnotation>();
+        String maskedText = inputDocument.getContent();
+        maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
+
+        // recognize dates so we don't break them
+        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
+
+        // recognize smileys so we don't break them
+        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
+
+        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();
+
+        // pattern to find the end of a sentence
+        Matcher matcher = pattern.matcher(maskedText);
+        int lastIndex = 0;
+        int index = 0;
+
+        while (matcher.find()) {
+            int endPosition = matcher.end();
+            String value = maskedText.substring(lastIndex, endPosition).trim();
+            PositionAnnotation sentence = new PositionAnnotation(inputDocument, lastIndex, endPosition, index, value);
+            sentences.add(sentence);
+            lastIndex = endPosition;
+            index++;
+        }
+
+        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
+        // character, just add the last fragment
+        if (lastIndex < maskedText.length()) {
+            String value = maskedText.substring(lastIndex).trim();
+            PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(inputDocument, lastIndex,
+                    maskedText.length(), index, value);
+            sentences.add(lastSentenceAnnotation);
+        }
+
+        // replace masks back
+        Collections.sort(masks, new Comparator<PositionAnnotation>() {
+
+            @Override
+            public int compare(PositionAnnotation o1, PositionAnnotation o2) {
+                return o1.getStartPosition().compareTo(o2.getStartPosition());
+            }
+        });
+        return recalculatePositions(inputDocument, maskedText, masks, sentences);
+
+        // List<String> sentencesReplacedUrls = new ArrayList<String>();
+        // for (String sentence : sentences) {
+        // for (Entry<String, String> entry : urlMapping.entrySet()) {
+        // sentence = sentence.replace(entry.getKey(), entry.getValue());
+        // }
+        // sentencesReplacedUrls.add(sentence);
+        // }
+        //
+        // // replace dates back
+        // List<String> sentencesReplacedDates = new ArrayList<String>();
+        // for (String sentence : sentencesReplacedUrls) {
+        // for (Entry<String, String> entry : dateMapping.entrySet()) {
+        // sentence = sentence.replace(entry.getKey(), entry.getValue());
+        // }
+        // if (!sentence.isEmpty()) {
+        // sentencesReplacedDates.add(sentence);
+        // }
+        // }
+        //
+        // // replace smileys back
+        // List<String> sentencesReplacedSmileys = new ArrayList<String>();
+        // for (String sentence : sentencesReplacedDates) {
+        // for (Entry<String, String> entry : smileyMapping.entrySet()) {
+        // sentence = sentence.replace(entry.getKey(), entry.getValue());
+        // }
+        // if (!sentence.isEmpty()) {
+        // sentencesReplacedSmileys.add(sentence);
+        // }
+        // }
+        //
+        // return sentencesReplacedSmileys;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param inputDocument
+     * @param maskedText
+     * @param maskAnnotations A list of masked {@link PositionAnnotation}s that must be sorted by start position.
+     * @param sentences
+     */
+    private static List<PositionAnnotation> recalculatePositions(TextDocument inputDocument, String maskedText,
+            List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences) {
+        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
+
+        int lastTransformedEndPosition = 0;
+        int lastEndPosition = 0;
+        String mask = "PALLADIANMASK";
+        Pattern maskPattern = Pattern.compile(mask);
+        int maskLength = mask.length();
+        int maskAnnotationIndex = 0;
+        for (PositionAnnotation sentence : sentences) {
+            int transformedStartPosition = lastTransformedEndPosition + (lastEndPosition - sentence.getStartPosition());
+            int transformedEndPosition = sentence.getEndPosition() + transformedStartPosition
+                    - sentence.getStartPosition();
+
+            // Search sentences for PALLADIANMASK
+            Matcher maskMatcher = maskPattern.matcher(sentence.getValue());
+            while (maskMatcher.find()) {
+                PositionAnnotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
+                transformedEndPosition += maskAnnotation.getEndPosition() - maskAnnotation.getStartPosition()
+                        - maskLength;
+                maskAnnotationIndex++;
+                // handle contained masks by jumping over them
+                while (maskAnnotationIndex < maskAnnotations.size()
+                        && maskAnnotations.get(maskAnnotationIndex).getEndPosition() <= maskAnnotation.getEndPosition()) {
+                    maskAnnotationIndex++;
+                }
+            }
+
+            String transformedValue = null;
+            try {
+                transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
+                        transformedEndPosition));
+            } catch (Exception e) {
+                System.out.println("#########################");
+            }
+            PositionAnnotation transformedSentence = new PositionAnnotation(inputDocument, transformedStartPosition,
+                    transformedEndPosition, sentence.getIndex(), transformedValue);
+            ret.add(transformedSentence);
+            lastTransformedEndPosition = transformedEndPosition;
+            lastEndPosition = sentence.getEndPosition();
+        }
+
+        return ret;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param taggedUrlsAnnotations
+     * @return
+     */
+    private static List<PositionAnnotation> convert(TextDocument document, Annotations annotations) {
+        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
+
+        for (Annotation annotation : annotations) {
+            int index = annotations.indexOf(annotation);
+            String value = annotation.getEntity();
+            int startPosition = annotation.getOffset();
+            int endPosition = annotation.getOffset() + annotation.getLength();
+            PositionAnnotation positionAnnotation = new PositionAnnotation(document, startPosition, endPosition, index,
+                    value);
+
+            ret.add(positionAnnotation);
+        }
+
+        return ret;
     }
 
     public static List<String> getSentences(String inputText) {
@@ -645,7 +864,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
