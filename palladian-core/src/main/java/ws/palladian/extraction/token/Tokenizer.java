@@ -493,14 +493,16 @@ public final class Tokenizer {
 
     /**
      * <p>
-     * 
+     * Replaces all of the provided {@link Annotations} with mask in the {@code document}. The masking annotations are
+     * added to the {@code annotationsForMaskedText} while the text containing the masks is created based on
+     * {@code maskedText} and is returned.
      * </p>
      * 
-     * @param document
-     * @param annotations
-     * @param maskedText
-     * @param mask
-     * @return
+     * @param document The {@link TextDocument} containing the original text.
+     * @param annotations The {@link Annotations} to search for in the text.
+     * @param maskedText The text to add the masks to.
+     * @param mask The mask to add. This should be something that will never occur within the text itself.
+     * @return The {@code maskedText} with the additional masks added during this run of the method.
      */
     private static String maskAnnotations(TextDocument document, Annotations annotations, String mask,
             List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
@@ -515,32 +517,35 @@ public final class Tokenizer {
 
     /**
      * <p>
-     * 
+     * Splits the text of {@code inputDocument} into sentences.
      * </p>
      * 
-     * @param inputDocument
-     * @return
+     * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
     public static List<PositionAnnotation> getSentences(TextDocument inputDocument) {
         return getSentences(inputDocument, SENTENCE_SPLIT_PATTERN);
     }
 
+    // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
+    // mixture of URLs and several sentence at the moment.
     /**
      * <p>
-     * 
+     * Splits the text of {@code inputDocument} into sentences using the provided regular expression.
      * </p>
      * 
-     * @param inputDocument
-     * @param pattern
-     * @return
+     * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @param pattern The {@link Pattern} to use to split sentences.
+     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
     public static List<PositionAnnotation> getSentences(TextDocument inputDocument, Pattern pattern) {
         String inputText = inputDocument.getContent();
-        // recognize URLs so we don't break them
-        Annotations taggedUrlsAnnotations = urlTagger.tagUrls(inputText);
         String mask = "PALLADIANMASK";
         List<PositionAnnotation> masks = new ArrayList<PositionAnnotation>();
         String maskedText = inputDocument.getContent();
+
+        // recognize URLs so we don't break them
+        Annotations taggedUrlsAnnotations = urlTagger.tagUrls(inputText);
         maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
 
         // recognize dates so we don't break them
@@ -585,49 +590,19 @@ public final class Tokenizer {
             }
         });
         return recalculatePositions(inputDocument, maskedText, masks, sentences);
-
-        // List<String> sentencesReplacedUrls = new ArrayList<String>();
-        // for (String sentence : sentences) {
-        // for (Entry<String, String> entry : urlMapping.entrySet()) {
-        // sentence = sentence.replace(entry.getKey(), entry.getValue());
-        // }
-        // sentencesReplacedUrls.add(sentence);
-        // }
-        //
-        // // replace dates back
-        // List<String> sentencesReplacedDates = new ArrayList<String>();
-        // for (String sentence : sentencesReplacedUrls) {
-        // for (Entry<String, String> entry : dateMapping.entrySet()) {
-        // sentence = sentence.replace(entry.getKey(), entry.getValue());
-        // }
-        // if (!sentence.isEmpty()) {
-        // sentencesReplacedDates.add(sentence);
-        // }
-        // }
-        //
-        // // replace smileys back
-        // List<String> sentencesReplacedSmileys = new ArrayList<String>();
-        // for (String sentence : sentencesReplacedDates) {
-        // for (Entry<String, String> entry : smileyMapping.entrySet()) {
-        // sentence = sentence.replace(entry.getKey(), entry.getValue());
-        // }
-        // if (!sentence.isEmpty()) {
-        // sentencesReplacedSmileys.add(sentence);
-        // }
-        // }
-        //
-        // return sentencesReplacedSmileys;
     }
 
     /**
      * <p>
-     * 
+     * Remapps the start and end position of all sentences from a masked text to the true text of the
+     * {@code inputDocument}.
      * </p>
      * 
-     * @param inputDocument
-     * @param maskedText
+     * @param inputDocument The {@link TextDocument} containing the original text.
+     * @param maskedText The text where dates, urls and smileys are masked so they do not break sentence splitting.
      * @param maskAnnotations A list of masked {@link PositionAnnotation}s that must be sorted by start position.
-     * @param sentences
+     * @param sentences The extracted sentences on {@code maskedText}, which should be remapped to the text of the
+     *            {@code inputDocument}.
      */
     private static List<PositionAnnotation> recalculatePositions(TextDocument inputDocument, String maskedText,
             List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences) {
@@ -659,12 +634,8 @@ public final class Tokenizer {
             }
 
             String transformedValue = null;
-            try {
-                transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
-                        transformedEndPosition));
-            } catch (Exception e) {
-                System.out.println("#########################");
-            }
+            transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
+                    transformedEndPosition));
             PositionAnnotation transformedSentence = new PositionAnnotation(inputDocument, transformedStartPosition,
                     transformedEndPosition, sentence.getIndex(), transformedValue);
             ret.add(transformedSentence);
@@ -677,11 +648,13 @@ public final class Tokenizer {
 
     /**
      * <p>
-     * 
+     * Converts NER {@link Annotations} to a {@link List} of pipeline {@link PositionAnnotation}s, referencing the
+     * provided document.
      * </p>
      * 
-     * @param taggedUrlsAnnotations
-     * @return
+     * @param annotations The {@link Annotations} to convert.
+     * @return A list of {@link PositionAnnotation}s representing the provided {@link Annotations} on the provided
+     *         {@link TextDocument}.
      */
     private static List<PositionAnnotation> convert(TextDocument document, Annotations annotations) {
         List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
@@ -700,6 +673,14 @@ public final class Tokenizer {
         return ret;
     }
 
+    /**
+     * <p>
+     * Splits a text into sentences.
+     * </p>
+     * 
+     * @param inputText The text to split.
+     * @return The senteces as they appear in the text.
+     */
     public static List<String> getSentences(String inputText) {
         return getSentences(inputText, false);
     }
