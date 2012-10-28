@@ -1,6 +1,6 @@
 package ws.palladian.classification.universal;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,9 +20,7 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
-import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
@@ -57,8 +55,6 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
     private final FeatureSetting featureSetting;
 
-    private final int[] correctlyClassified = new int[3];
-
     public UniversalClassifier() {
         this(new FeatureSetting());
 
@@ -72,15 +68,17 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     }
 
     private void learnClassifierWeights(List<Instance> instances, UniversalClassifierModel model) {
-        correctlyClassified[0] = 0;
-        correctlyClassified[1] = 0;
-        correctlyClassified[2] = 0;
+        int[] correctlyClassified = new int[3];
+        Arrays.fill(correctlyClassified, 0);
 
-        int c = 1;
+        // int c = 1;
         for (Instance instance : instances) {
             UniversalClassificationResult result = internalClassify(instance.getFeatureVector(), model);
-            evaluateResults(instance, result, model);
-//            ProgressHelper.showProgress(c++, instances.size(), 1);
+            int[] evaluatedResult = evaluateResults(instance, result);
+            correctlyClassified[0] += evaluatedResult[0];
+            correctlyClassified[1] += evaluatedResult[1];
+            correctlyClassified[2] += evaluatedResult[2];
+            // ProgressHelper.showProgress(c++, instances.size(), 1);
         }
 
         model.setWeights(correctlyClassified[0] / (double)instances.size(),
@@ -91,38 +89,30 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         LOGGER.debug("weight nominal: " + model.getWeights()[2]);
     }
 
-    private CategoryEntries evaluateResults(Instance instance, UniversalClassificationResult result,
-            UniversalClassifierModel model) {
-        Map<CategoryEntries, Double> weightedCategoryEntries = new HashMap<CategoryEntries, Double>();
+    private int[] evaluateResults(Instance instance, UniversalClassificationResult result) {
+
+        int[] correctlyClassified = new int[3];
+        Arrays.fill(correctlyClassified, 0);
 
         // Since there are not weights yet the classifier weights all results with one.
-        CategoryEntries textCategories = result.getTextCategories();
-        if (model.getTextClassifier() != null
-                && textCategories.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
-            countCorrectlyClassified(0);
-            weightedCategoryEntries.put(textCategories, 1.0);
+        CategoryEntries textResult = result.getTextResults();
+        if (result.getTextResults() != null
+                && textResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            correctlyClassified[0]++;
         }
-        CategoryEntries numericResults = result.getNumericResults();
-        if (model.getKnnModel() != null
-                && numericResults.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
-            countCorrectlyClassified(1);
-            weightedCategoryEntries.put(numericResults, 1.0);
+        CategoryEntries numericResult = result.getNumericResults();
+        if (result.getNumericResults() != null
+                && numericResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            correctlyClassified[1]++;
         }
-        CategoryEntries nominalInstance = result.getNominalResults();
-        if (model.getBayesModel() != null
-                && nominalInstance.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
-            countCorrectlyClassified(2);
-            weightedCategoryEntries.put(nominalInstance, 1.0);
+        CategoryEntries nominalResult = result.getNominalResults();
+        if (result.getNominalResults() != null
+                && nominalResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+            correctlyClassified[2]++;
         }
-        CategoryEntries mergedCategoryEntries = normalize(weightedCategoryEntries);
-
-        return mergedCategoryEntries;
+        return correctlyClassified;
     }
-
-    private void countCorrectlyClassified(int index) {
-        correctlyClassified[index]++;
-    }
-
+    
     protected UniversalClassificationResult internalClassify(FeatureVector featureVector, UniversalClassifierModel model) {
 
         // separate instance in feature types
@@ -136,8 +126,8 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         CategoryEntries nominal=null;
 
         // classify text using the dictionary classifier
-        if (model.getTextClassifier() != null) {
-            text = textClassifier.classify(textFeature, model.getTextClassifier());
+        if (model.getDictionaryModel() != null) {
+            text = textClassifier.classify(textFeature, model.getDictionaryModel());
         }
 
         // classify numeric features with the KNN
@@ -156,17 +146,14 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         Map<CategoryEntries, Double> weightedCategoryEntries = LazyMap.create(new ConstantFactory<Double>(0.));
 
         // merge classification results
-        if (model.getTextClassifier() != null) {
-            double newWeight = weightedCategoryEntries.get(result.getTextCategories()) + model.getWeights()[0];
-            weightedCategoryEntries.put(result.getTextCategories(), newWeight);
+        if (model.getDictionaryModel() != null) {
+            weightedCategoryEntries.put(result.getTextResults(), model.getWeights()[0]);
         }
         if (model.getKnnModel() != null) {
-            double newWeight = weightedCategoryEntries.get(result.getNumericResults()) + model.getWeights()[1];
-            weightedCategoryEntries.put(result.getNumericResults(), newWeight);
+            weightedCategoryEntries.put(result.getNumericResults(), model.getWeights()[1]);
         }
         if (model.getBayesModel() != null) {
-            double newWeight = weightedCategoryEntries.get(result.getNominalResults()) + model.getWeights()[2];
-            weightedCategoryEntries.put(result.getNominalResults(), newWeight);
+            weightedCategoryEntries.put(result.getNominalResults(), model.getWeights()[2]);
         }
         CategoryEntries normalizedCategoryEntries = normalize(weightedCategoryEntries);
         return normalizedCategoryEntries;
@@ -183,28 +170,27 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
      */
     protected CategoryEntries normalize(Map<CategoryEntries, Double> weightedCategoryEntries) {
         CategoryEntries normalizedCategoryEntries = new CategoryEntries();
-        Map<CategoryEntry, Double> mergedCategoryEntries = LazyMap.create(new ConstantFactory<Double>(0.));
+        Map<String, Double> mergedCategoryEntries = LazyMap.create(new ConstantFactory<Double>(0.));
 
         // merge entries from different classifiers
         for (Entry<CategoryEntries, Double> entries : weightedCategoryEntries.entrySet()) {
             for (CategoryEntry entry : entries.getKey()) {
                 double relevance = entry.getProbability();
                 double weight = entries.getValue();
-                Double existingRelevance = mergedCategoryEntries.get(entry);
-                mergedCategoryEntries.put(entry, existingRelevance + relevance * weight);
+                Double existingRelevance = mergedCategoryEntries.get(entry.getName());
+                mergedCategoryEntries.put(entry.getName(), existingRelevance + relevance * weight);
             }
         }
 
         // calculate normalization value.
         double totalRelevance = 0.0;
-        for (Entry<CategoryEntry, Double> entry : mergedCategoryEntries.entrySet()) {
+        for (Entry<String, Double> entry : mergedCategoryEntries.entrySet()) {
             totalRelevance += entry.getValue();
         }
 
         // normalize entries
-        for (Entry<CategoryEntry, Double> entry : mergedCategoryEntries.entrySet()) {
-            normalizedCategoryEntries
-                    .add(new CategoryEntry(entry.getKey().getName(), entry.getValue() / totalRelevance));
+        for (Entry<String, Double> entry : mergedCategoryEntries.entrySet()) {
+            normalizedCategoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue() / totalRelevance));
         }
 
         return normalizedCategoryEntries;
@@ -272,7 +258,7 @@ class UniversalClassificationResult {
         return numericResults;
     }
 
-    public CategoryEntries getTextCategories() {
+    public CategoryEntries getTextResults() {
         return textCategories;
     }
 

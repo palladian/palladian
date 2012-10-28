@@ -37,7 +37,7 @@ public class UniversalClassifierModel implements Model {
         return knnModel;
     }
 
-    public DictionaryModel getTextClassifier() {
+    public DictionaryModel getDictionaryModel() {
         return dictionaryModel;
     }
 
