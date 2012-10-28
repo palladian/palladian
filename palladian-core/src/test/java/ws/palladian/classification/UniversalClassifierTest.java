@@ -33,41 +33,48 @@ public class UniversalClassifierTest {
      */
     @Test
     public void test() throws FileNotFoundException {
-        UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
 
         List<Instance> instances = ClassificationUtils.createInstances(
                 ResourceHelper.getResourcePath("/classifier/saheart.csv"), true, ",");
 
         List<Instance> trainingSet = ClassificationUtils.drawRandomSubset(instances, 60);
-        List<Instance> testSet = instances;
-        testSet.removeAll(trainingSet);
-        UniversalClassifierModel model = objectOfClassUnderTest.train(instances);
+        instances.removeAll(trainingSet);
+        
+        
+        for (int i = 0; i < 3; i++) {
+            UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
+            UniversalClassifierModel model = objectOfClassUnderTest.train(instances);
 
-        int truePositives = 0;
-        int trueNegatives = 0;
-        int falsePositives = 0;
-        int falseNegatives = 0;
+            int truePositives = 0;
+            int trueNegatives = 0;
+            int falsePositives = 0;
+            int falseNegatives = 0;
 
-        for (Instance testInstance : testSet) {
-            CategoryEntries result = objectOfClassUnderTest.classify(testInstance.getFeatureVector(), model);
-            if (result.getMostLikelyCategoryEntry().getName().equals("1") && testInstance.getTargetClass().equals("1")) {
-                truePositives++;
-            } else if (result.getMostLikelyCategoryEntry().getName().equals("0")
-                    && testInstance.getTargetClass().equals("0")) {
-                trueNegatives++;
-            } else if (result.getMostLikelyCategoryEntry().getName().equals("1")
-                    && testInstance.getTargetClass().equals("0")) {
-                falsePositives++;
-            } else if (result.getMostLikelyCategoryEntry().getName().equals("0")
-                    && testInstance.getTargetClass().equals("1")) {
-                falseNegatives++;
+            for (Instance testInstance : instances) {
+                CategoryEntries result = objectOfClassUnderTest.classify(testInstance.getFeatureVector(), model);
+                if (result.getMostLikelyCategoryEntry().getName().equals("1")
+                        && testInstance.getTargetClass().equals("1")) {
+                    truePositives++;
+                } else if (result.getMostLikelyCategoryEntry().getName().equals("0")
+                        && testInstance.getTargetClass().equals("0")) {
+                    trueNegatives++;
+                } else if (result.getMostLikelyCategoryEntry().getName().equals("1")
+                        && testInstance.getTargetClass().equals("0")) {
+                    falsePositives++;
+                } else if (result.getMostLikelyCategoryEntry().getName().equals("0")
+                        && testInstance.getTargetClass().equals("1")) {
+                    falseNegatives++;
+                }
             }
-        }
 
-        double precision = Double.valueOf(truePositives) / (truePositives + falsePositives);
-        System.out.println("Precision: " + precision);
-        double recall = Double.valueOf(truePositives) / (truePositives + falseNegatives);
-        System.out.println("Recall: " + recall);
-        System.out.println("F1: " + Double.valueOf(2 * precision * recall) / (precision + recall));
+            System.out.println("TP:" + truePositives);
+            System.out.println("TN:" + trueNegatives);
+            System.out.println("FP:" + falsePositives);
+            System.out.println("FN:" + falseNegatives);
+            System.out.println("total:" + instances.size());
+            System.out.println("correct:" + (truePositives + trueNegatives));
+            System.out.println(model);
+
+        }
     }
 }
