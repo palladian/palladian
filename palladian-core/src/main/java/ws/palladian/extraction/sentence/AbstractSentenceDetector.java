@@ -15,6 +15,7 @@ import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureProvider;
+import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
@@ -74,7 +75,7 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
             .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
 
     /** holds the sentences. **/
-    private Annotation<String>[] sentences;
+    private PositionAnnotation[] sentences;
 
     /**
      * <p>
@@ -124,7 +125,7 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
      * 
      * @return the extracted sentences.
      */
-    public final Annotation<String>[] getSentences() {
+    public final PositionAnnotation[] getSentences() {
         return Arrays.copyOf(sentences, sentences.length);
     }
 
@@ -136,7 +137,7 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
      * @param sentences
      *            Extracted sentence {@code Annotation}
      */
-    protected final void setSentences(Annotation<String>[] sentences) {
+    protected final void setSentences(PositionAnnotation[] sentences) {
         this.sentences = Arrays.copyOf(sentences, sentences.length);
     }
 

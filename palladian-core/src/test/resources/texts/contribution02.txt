@@ -1,0 +1,225 @@
+Hi, I have following error encountered during installtion of SAP Netweaver PI 7.1 EHp1 on Linux10/Oracle11. 
+
+Errror is in Phase Import Java Dump. I have checked the database and listener both are running. 
+
+JLoad LOG:
+
+31.08.11 23:47:41 com.sap.inst.jload.Jload main
+INFO: Jload R 7.10 V 0 A 0
+
+31.08.11 23:47:41 com.sap.inst.jload.Jload main
+INFO: Jload -sec JXD,jdbc/pool/JXD,/usr/sap/JXD/SYS/global/security/data/SecStore.properties,/usr/sap/JXD/SYS/global/security/data/SecStore.key -dataDir /Media/Javaexport/DATA_UNITS/JAVA_EXPORT_JDMP -job /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.XML -log jload.log
+
+31.08.11 23:47:43 com.sap.inst.jload.db.DBConnection connectViaSecureStore
+INFO: connected to JXD on jdbc/pool/JXD
+
+31.08.11 23:47:44 com.sap.inst.jload.JobStatus readStatus
+INFO: trying to read status file /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.sta
+
+31.08.11 23:47:44 com.sap.inst.jload.JobStatus readStatus
+INFO: status file IMPORT.sta doesn't exist - no restart
+
+31.08.11 23:47:44 com.sap.inst.jload.Jload dbImport
+INFO: trying to create table ADS_LICENSED_FORMS
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload dbImport
+INFO: table ADS_LICENSED_FORMS created
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload dbImport
+INFO: ADS_LICENSED_FORMS loaded (0 rows)
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload dbImport
+INFO: trying to create table BC_CMSRTS
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload dbImport
+INFO: table BC_CMSRTS created
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload dbImport
+INFO: BC_CMSRTS loaded (0 rows)
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload dbImport
+INFO: trying to create table BC_COMPVERS
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload logStackTrace
+SEVERE: java.io.IOException: Unexpected end of input stream
+	at com.sap.inst.jload.io.GZIPInputSentinel.fillBuffer(GZIPInputSentinel.java:95)
+	at com.sap.inst.jload.io.GZIPInputSentinel.read(GZIPInputSentinel.java:160)
+	at java.util.zip.InflaterInputStream.fill(InflaterInputStream.java:214)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:134)
+	at java.util.zip.GZIPInputStream.read(GZIPInputStream.java:87)
+	at com.sap.inst.jload.io.ChoppedInputStream.read(ChoppedInputStream.java:130)
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:235)
+	at java.io.DataInputStream.readChar(DataInputStream.java:331)
+	at com.sap.inst.jload.db.DBTable.create(DBTable.java:100)
+	at com.sap.inst.jload.Jload.dbImport(Jload.java:353)
+	at com.sap.inst.jload.Jload.executeJob(Jload.java:505)
+	at com.sap.inst.jload.Jload.main(Jload.java:743)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:592)
+	at com.sap.engine.offline.OfflineToolStart.main(OfflineToolStart.java:161)
+
+
+31.08.11 23:47:48 com.sap.inst.jload.Jload printErrorInformation
+SEVERE: An error occured during execution. Please consult SAP note 942766 for first steps on troubleshooting the problem.
+
+31.08.11 23:47:48 com.sap.inst.jload.db.DBConnection disconnect
+INFO: disconnected
+
+01.09.11 00:05:42 com.sap.inst.jload.Jload main
+INFO: Jload R 7.10 V 0 A 0
+
+01.09.11 00:05:42 com.sap.inst.jload.Jload main
+INFO: Jload -sec JXD,jdbc/pool/JXD,/usr/sap/JXD/SYS/global/security/data/SecStore.properties,/usr/sap/JXD/SYS/global/security/data/SecStore.key -dataDir /Media/Javaexport/DATA_UNITS/JAVA_EXPORT_JDMP -job /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.XML -log jload.log
+
+01.09.11 00:05:43 com.sap.inst.jload.db.DBConnection connectViaSecureStore
+INFO: connected to JXD on jdbc/pool/JXD
+
+01.09.11 00:05:44 com.sap.inst.jload.JobStatus readStatus
+INFO: trying to read status file /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.sta
+
+01.09.11 00:05:44 com.sap.inst.jload.JobStatus readStatus
+INFO: commencing restart
+
+01.09.11 00:05:44 com.sap.inst.jload.Jload dbImport
+INFO: trying to drop table BC_COMPVERS
+
+01.09.11 00:05:46 com.sap.inst.jload.Jload dbImport
+INFO: table dropped
+
+01.09.11 00:05:46 com.sap.inst.jload.Jload dbImport
+INFO: trying to create table BC_COMPVERS
+
+01.09.11 00:05:46 com.sap.inst.jload.Jload logStackTrace
+SEVERE: java.io.IOException: Unexpected end of input stream
+	at com.sap.inst.jload.io.GZIPInputSentinel.fillBuffer(GZIPInputSentinel.java:95)
+	at com.sap.inst.jload.io.GZIPInputSentinel.read(GZIPInputSentinel.java:160)
+	at java.util.zip.InflaterInputStream.fill(InflaterInputStream.java:214)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:134)
+	at java.util.zip.GZIPInputStream.read(GZIPInputStream.java:87)
+	at com.sap.inst.jload.io.ChoppedInputStream.read(ChoppedInputStream.java:130)
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:235)
+	at java.io.DataInputStream.readChar(DataInputStream.java:331)
+	at com.sap.inst.jload.db.DBTable.create(DBTable.java:100)
+	at com.sap.inst.jload.Jload.dbImport(Jload.java:353)
+	at com.sap.inst.jload.Jload.executeJob(Jload.java:505)
+	at com.sap.inst.jload.Jload.main(Jload.java:743)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:592)
+	at com.sap.engine.offline.OfflineToolStart.main(OfflineToolStart.java:161)
+
+
+01.09.11 00:05:46 com.sap.inst.jload.Jload printErrorInformation
+SEVERE: An error occured during execution. Please consult SAP note 942766 for first steps on troubleshooting the problem.
+
+01.09.11 00:05:46 com.sap.inst.jload.db.DBConnection disconnect
+INFO: disconnected
+
+01.09.11 01:15:21 com.sap.inst.jload.Jload main
+INFO: Jload R 7.10 V 0 A 0
+
+01.09.11 01:15:21 com.sap.inst.jload.Jload main
+INFO: Jload -sec JXD,jdbc/pool/JXD,/usr/sap/JXD/SYS/global/security/data/SecStore.properties,/usr/sap/JXD/SYS/global/security/data/SecStore.key -dataDir /Media/Javaexport/DATA_UNITS/JAVA_EXPORT_JDMP -job /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.XML -log jload.log
+
+01.09.11 01:15:23 com.sap.inst.jload.db.DBConnection connectViaSecureStore
+INFO: connected to JXD on jdbc/pool/JXD
+
+01.09.11 01:15:23 com.sap.inst.jload.JobStatus readStatus
+INFO: trying to read status file /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.sta
+
+01.09.11 01:15:23 com.sap.inst.jload.JobStatus readStatus
+INFO: commencing restart
+
+01.09.11 01:15:23 com.sap.inst.jload.Jload dbImport
+INFO: trying to drop table BC_COMPVERS
+
+01.09.11 01:15:25 com.sap.inst.jload.Jload dbImport
+INFO: table dropped
+
+01.09.11 01:15:25 com.sap.inst.jload.Jload dbImport
+INFO: trying to create table BC_COMPVERS
+
+01.09.11 01:15:25 com.sap.inst.jload.Jload logStackTrace
+SEVERE: java.io.IOException: Unexpected end of input stream
+	at com.sap.inst.jload.io.GZIPInputSentinel.fillBuffer(GZIPInputSentinel.java:95)
+	at com.sap.inst.jload.io.GZIPInputSentinel.read(GZIPInputSentinel.java:160)
+	at java.util.zip.InflaterInputStream.fill(InflaterInputStream.java:214)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:134)
+	at java.util.zip.GZIPInputStream.read(GZIPInputStream.java:87)
+	at com.sap.inst.jload.io.ChoppedInputStream.read(ChoppedInputStream.java:130)
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:235)
+	at java.io.DataInputStream.readChar(DataInputStream.java:331)
+	at com.sap.inst.jload.db.DBTable.create(DBTable.java:100)
+	at com.sap.inst.jload.Jload.dbImport(Jload.java:353)
+	at com.sap.inst.jload.Jload.executeJob(Jload.java:505)
+	at com.sap.inst.jload.Jload.main(Jload.java:743)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:592)
+	at com.sap.engine.offline.OfflineToolStart.main(OfflineToolStart.java:161)
+
+
+01.09.11 01:15:25 com.sap.inst.jload.Jload printErrorInformation
+SEVERE: An error occured during execution. Please consult SAP note 942766 for first steps on troubleshooting the problem.
+
+01.09.11 01:15:25 com.sap.inst.jload.db.DBConnection disconnect
+INFO: disconnected
+
+01.09.11 01:28:12 com.sap.inst.jload.Jload main
+INFO: Jload R 7.10 V 0 A 0
+
+01.09.11 01:28:12 com.sap.inst.jload.Jload main
+INFO: Jload -sec JXD,jdbc/pool/JXD,/usr/sap/JXD/SYS/global/security/data/SecStore.properties,/usr/sap/JXD/SYS/global/security/data/SecStore.key -dataDir /Media/Javaexport/DATA_UNITS/JAVA_EXPORT_JDMP -job /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.XML -log jload.log
+
+01.09.11 01:28:13 com.sap.inst.jload.db.DBConnection connectViaSecureStore
+INFO: connected to JXD on jdbc/pool/JXD
+
+01.09.11 01:28:13 com.sap.inst.jload.JobStatus readStatus
+INFO: trying to read status file /TMPDIR/sapinst_instdir/NW71/INSTALL/SYSTEM/ORA/STD/AS/IMPORT.sta
+
+01.09.11 01:28:13 com.sap.inst.jload.JobStatus readStatus
+INFO: commencing restart
+
+01.09.11 01:28:13 com.sap.inst.jload.Jload dbImport
+INFO: trying to drop table BC_COMPVERS
+
+01.09.11 01:28:15 com.sap.inst.jload.Jload dbImport
+INFO: table dropped
+
+01.09.11 01:28:15 com.sap.inst.jload.Jload dbImport
+INFO: trying to create table BC_COMPVERS
+
+01.09.11 01:28:15 com.sap.inst.jload.Jload logStackTrace
+SEVERE: java.io.IOException: Unexpected end of input stream
+	at com.sap.inst.jload.io.GZIPInputSentinel.fillBuffer(GZIPInputSentinel.java:95)
+	at com.sap.inst.jload.io.GZIPInputSentinel.read(GZIPInputSentinel.java:160)
+	at java.util.zip.InflaterInputStream.fill(InflaterInputStream.java:214)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:134)
+	at java.util.zip.GZIPInputStream.read(GZIPInputStream.java:87)
+	at com.sap.inst.jload.io.ChoppedInputStream.read(ChoppedInputStream.java:130)
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:235)
+	at java.io.DataInputStream.readChar(DataInputStream.java:331)
+	at com.sap.inst.jload.db.DBTable.create(DBTable.java:100)
+	at com.sap.inst.jload.Jload.dbImport(Jload.java:353)
+	at com.sap.inst.jload.Jload.executeJob(Jload.java:505)
+	at com.sap.inst.jload.Jload.main(Jload.java:743)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:592)
+	at com.sap.engine.offline.OfflineToolStart.main(OfflineToolStart.java:161)
+
+
+01.09.11 01:28:15 com.sap.inst.jload.Jload printErrorInformation
+SEVERE: An error occured during execution. Please consult SAP note 942766 for first steps on troubleshooting the problem.
+
+01.09.11 01:28:15 com.sap.inst.jload.db.DBConnection disconnect
+INFO: disconnected
