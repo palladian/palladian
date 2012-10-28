@@ -57,7 +57,6 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
     public UniversalClassifier() {
         this(new FeatureSetting());
-
     }
 
     public UniversalClassifier(FeatureSetting featureSetting) {
@@ -121,9 +120,9 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
             textFeature = featureVector.get(TEXT_FEATURE).getValue();
         }
         
-        CategoryEntries text=null;
-        CategoryEntries numeric=null;
-        CategoryEntries nominal=null;
+        CategoryEntries text = null;
+        CategoryEntries numeric = null;
+        CategoryEntries nominal = null;
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
