@@ -46,7 +46,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.Matrix;
+import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -111,7 +111,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     
     private CountMap<String> leftContextMap = CountMap.create();
 
-    private Matrix patternProbabilityMatrix = new Matrix();
+    private NumericMatrix patternProbabilityMatrix = new NumericMatrix();
 
     private List<String> removeAnnotations = CollectionHelper.newArrayList();
 
@@ -1076,13 +1076,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             CountMap<String> matchingPatternMap = CountMap.create();
 
             int sumOfMatchingPatterns = 0;
-            for (Object string : patternProbabilityMatrix.getMatrix().keySet()) {
+            for (String string : patternProbabilityMatrix.getMatrix().keySet()) {
 
                 Integer matches = (Integer) patternProbabilityMatrix.get(string, contextPattern);
                 if (matches == null) {
-                    matchingPatternMap.set((String) string, 0);
+                    matchingPatternMap.set(string, 0);
                 } else {
-                    matchingPatternMap.add((String) string, matches);
+                    matchingPatternMap.add(string, matches);
                     sumOfMatchingPatterns += matches;
                 }
 

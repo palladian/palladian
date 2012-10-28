@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -157,7 +158,12 @@ public class ImageHandler {
             duplicateImages.clear();
 
             // order images by ranking and collect urls
-            Collections.sort(normalizedImages, new ExtractedImageComparator());
+            Collections.sort(normalizedImages, new Comparator<ExtractedImage>() {
+                @Override
+                public int compare(ExtractedImage image1, ExtractedImage image2) {
+                    return (int) (1000 * image2.getRanking() - 1000 * image1.getRanking());
+                }
+            });
             // CollectionHelper.print(normalizedImages);
 
             int matchingImages = Math.min(normalizedImages.size(), matchingNumber);
