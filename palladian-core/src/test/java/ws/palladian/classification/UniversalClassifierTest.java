@@ -40,10 +40,10 @@ public class UniversalClassifierTest {
         List<Instance> trainingSet = ClassificationUtils.drawRandomSubset(instances, 60);
         instances.removeAll(trainingSet);
         
+        UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
+        UniversalClassifierModel model = objectOfClassUnderTest.train(trainingSet);
         
         for (int i = 0; i < 3; i++) {
-            UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
-            UniversalClassifierModel model = objectOfClassUnderTest.train(instances);
 
             int truePositives = 0;
             int trueNegatives = 0;
