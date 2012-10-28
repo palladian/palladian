@@ -7,14 +7,15 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Classified;
 
 public final class ClassifierEvaluation {
-    
+
     // XXX integrate in ClassificationUtils?
-    
+
     private ClassifierEvaluation() {
         // no instances.
     }
 
-    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, M model, Iterable<? extends Classified> testData) {
+    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, M model,
+            Iterable<? extends Classified> testData) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
@@ -24,7 +25,7 @@ public final class ClassifierEvaluation {
             String realCategory = testInstance.getTargetClass();
             confusionMatrix.add(realCategory, classifiedCategory);
         }
-        
+
         return confusionMatrix;
 
     }

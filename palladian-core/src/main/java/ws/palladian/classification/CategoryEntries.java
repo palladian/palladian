@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>
@@ -50,9 +51,11 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
      */
     public void add(CategoryEntry categoryEntry) {
         Validate.notNull(categoryEntry, "categoryEntry must not be null");
-        for (CategoryEntry existingEntry : entries) {
-            if (existingEntry.getName().equals(categoryEntry.getName())) {
-                entries.remove(existingEntry);
+        Iterator<CategoryEntry> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            CategoryEntry current = iterator.next();
+            if (current.getName().equals(categoryEntry.getName())) {
+                iterator.remove();
             }
         }
         entries.add(categoryEntry);
@@ -95,7 +98,7 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
             }
             toStringBuilder.append(categoryEntry.getName());
             toStringBuilder.append("=");
-            toStringBuilder.append(categoryEntry.getProbability());
+            toStringBuilder.append(MathHelper.round(categoryEntry.getProbability(), 4));
         }
         toStringBuilder.append("]");
         return toStringBuilder.toString();
