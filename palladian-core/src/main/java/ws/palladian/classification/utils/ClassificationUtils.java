@@ -1,6 +1,7 @@
 package ws.palladian.classification.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import ws.palladian.processing.features.NumericFeature;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public final class ClassificationUtils {
 
@@ -210,14 +212,27 @@ public final class ClassificationUtils {
      */
     public static <T> List<T> drawRandomSubset(final List<T> list, final int fraction) {
         Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
-        int m = (fraction * list.size()) / 100;
-        for (int i = 0; i < list.size(); i++) {
-            int pos = i + rnd.nextInt(list.size() - i);
-            T tmp = list.get(pos);
-            list.set(pos, list.get(i));
-            list.set(i, tmp);
+//        int m = (fraction * list.size()) / 100;
+//        for (int i = 0; i < list.size(); i++) {
+//            int pos = i + rnd.nextInt(list.size() - i);
+//            T tmp = list.get(pos);
+//            list.set(pos, list.get(i));
+//            list.set(i, tmp);
+//        }
+//        return list.subList(0, m);
+        
+        // http://stackoverflow.com/questions/136474/best-way-to-pick-a-random-subset-from-a-collection
+        
+        List<T> result = new ArrayList<T>(list);
+        int count = (fraction * list.size()) / 100;
+        
+        for (int n = 0; n < count; n++) {
+            int k = rnd.nextInt(result.size() - n) + n;
+            T tmp = result.get(n);
+            result.set(n, result.get(k));
+            result.set(k, tmp);
         }
-        return list.subList(0, m);
+        return new ArrayList<T>(list.subList(0, count));
     }
 
 }

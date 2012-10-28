@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.StopWatch;
-
 /**
  * <p>
  * Test cases for the {@link StringHelper} class.
@@ -51,8 +49,6 @@ public class StringHelperTest {
 
     @Test
     public void testReplaceWord() {
-
-        StopWatch stopWatch = new StopWatch();
         assertEquals("a b", StringHelper.removeWord("test", "a test b"));
         assertEquals("atest b", StringHelper.removeWord("test", "atest b"));
         assertEquals("atestb", StringHelper.removeWord("test", "atestb"));
@@ -72,7 +68,6 @@ public class StringHelperTest {
         assertEquals("a (test) b", StringHelper.replaceWord("test", "(test)", "a test b"));
         assertEquals("a  b", StringHelper.replaceWord("test", "", "a test b"));
         assertEquals("a test b", StringHelper.replaceWord("", "", "a test b"));
-        System.out.println(stopWatch.getElapsedTimeString());
     }
 
     @Test
