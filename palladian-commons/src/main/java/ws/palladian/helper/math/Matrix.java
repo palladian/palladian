@@ -3,57 +3,55 @@ package ws.palladian.helper.math;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-// FIXME make generic.
-public class Matrix implements Serializable {
+public class Matrix<T> implements Serializable {
 
     /** The serial version id. */
     private static final long serialVersionUID = 8789241892771529365L;
 
     /** The maps holding the matrix. */
-    protected Map<Object, Map<Object, Object>> matrix;
+    private final Map<String, Map<String, T>> matrix;
 
     /** All keys for the x-axis used in the matrix. */
-    protected final Set<String> keysX;
+    private final Set<String> keysX;
     
     /** All keys for the y-axis used in the matrix. */
-    protected final Set<String> keysY;
+    private final Set<String> keysY;
 
     public Matrix() {
-        matrix = new HashMap<Object, Map<Object, Object>>();
+        matrix = new HashMap<String, Map<String, T>>();
         keysX = new TreeSet<String>();
         keysY = new TreeSet<String>();
     }
 
-    public Map<Object, Object> get(Object x) {
+    public Map<String, T> get(String x) {
         return matrix.get(x);
     }
 
-    public Object get(Object x, Object y) {
-        Map<Object, Object> column = matrix.get(x);
+    public T get(String x, String y) {
+        Map<String, T> column = matrix.get(x);
 
         if (column == null) {
             return null;
         }
 
-        Object row = column.get(y);
+        T item = column.get(y);
 
-        if (row == null) {
+        if (item == null) {
             return null;
         }
 
-        return row;
+        return item;
     }
 
-    public void set(Object x, Object y, Object value) {
+    public void set(String x, String y, T value) {
 
-        Map<Object, Object> column = matrix.get(x);
+        Map<String, T> column = matrix.get(x);
 
         if (column == null) {
-            column = new HashMap<Object, Object>();
+            column = new HashMap<String, T>();
             matrix.put(x, column);
         }
         keysX.add(x.toString());
@@ -63,12 +61,16 @@ public class Matrix implements Serializable {
 
     }
 
-    public Map<Object, Map<Object, Object>> getMatrix() {
+    public Map<String, Map<String, T>> getMatrix() {
         return matrix;
     }
-
-    public void setMatrix(Map<Object, Map<Object, Object>> matrix) {
-        this.matrix = matrix;
+    
+    public Set<String> getKeysX() {
+        return keysX;
+    }
+    
+    public Set<String> getKeysY() {
+        return keysY;
     }
 
     @Override
@@ -110,107 +112,5 @@ public class Matrix implements Serializable {
     public String asCsv() {
         return toString().replace("\t", ";");
     }
-
-    /**
-     * <p>Add each cell of the given matrix to the current one.</p>
-     * <p><em>Note: The values in the matrix must be numeric.</em></p>
-     * @param matrix The matrix to add to the current matrix. The matrix must have the same column and row names as the matrix it is added to.
-     */
-    public void add(Matrix matrix) {
-
-        for (String yKey : keysY) {
-            for (String xKey : keysX) {
-                Number currentNumber = (Number) get(xKey,yKey);
-                double value = currentNumber.doubleValue();
-                Number number = (Number)matrix.get(xKey, yKey);
-
-                // in that case one matrix did not have that cell and we create it starting from zero
-                if (number == null) {
-                    number = 0;
-                }
-
-                value += number.doubleValue();
-                set(xKey,yKey,value);
-            }
-        }
-        
-    }
-    
-    /**
-     * <p>Divide each cell of the given matrix by the given number.</p>
-     * <p><em>Note: The values in the matrix must be numeric.</em></p>
-     * @param divisor The value by which every cell is divided by.
-     */
-    public void divideBy(double divisor) {
-        for (String yKey : keysY) {
-            for (String xKey : keysX) {
-                Number currentNumber = (Number) get(xKey,yKey);
-                double value = currentNumber.doubleValue();
-                value /= divisor;
-                set(xKey,yKey,value);
-            }
-        }
-    }
-
-    /**
-     * <p>Calculate the sum of the entries in one column.</p>
-     * <p><em>Note: The values in the matrix must be numeric.</em></p>
-     * @param column The column for which the values should be summed.
-     */
-    protected double calculateColumnSum(Map<Object, Object> column) {
-        
-        double sum = 0;
-        for (Entry<Object, Object> rowEntry : column.entrySet()) {
-            sum += ((Number)rowEntry.getValue()).doubleValue();
-        }
-        
-        return sum;
-    }
-    
-    public static void main(String[] args) {
-
-        Matrix confusionMatrix = new Matrix();
-
-        Object o = confusionMatrix.get("A", "B");
-        if (o == null) {
-            o = 1;
-        } else {
-            o = (Integer) o + 1;
-        }
-        confusionMatrix.set("A", "B", o);
-
-        o = confusionMatrix.get("B", "A");
-        if (o == null) {
-            o = 1;
-        } else {
-            o = (Integer) o + 1;
-        }
-        confusionMatrix.set("B", "A", o);
-
-        o = confusionMatrix.get("B", "B");
-        if (o == null) {
-            o = 1;
-        } else {
-            o = (Integer) o + 1;
-        }
-        confusionMatrix.set("B", "B", o);
-
-        o = confusionMatrix.get("B", "B");
-        if (o == null) {
-            o = 1;
-        } else {
-            o = (Integer) o + 1;
-        }
-        confusionMatrix.set("B", "B", o);
-        
-        System.out.println(confusionMatrix);
-        
-        Matrix confusionMatrix2 = new Matrix();
-        confusionMatrix2.set("A", "1", "A1");
-        confusionMatrix2.set("B", "2", "B2");
-        System.out.println(confusionMatrix2);
-
-    }
-
     
 }
