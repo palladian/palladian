@@ -83,8 +83,7 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
         Validate.notNull(text, "text must not be null");
 
         Chunking chunking = sentenceChunker.chunk(text);
-        @SuppressWarnings("unchecked")
-        Annotation<String>[] sentences = new Annotation[chunking.chunkSet().size()];
+        PositionAnnotation[] sentences = new PositionAnnotation[chunking.chunkSet().size()];
         PipelineDocument<String> document = new PipelineDocument<String>(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {

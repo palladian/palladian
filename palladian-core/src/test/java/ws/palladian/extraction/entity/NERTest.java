@@ -1,6 +1,7 @@
 package ws.palladian.extraction.entity;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 
@@ -16,6 +17,7 @@ import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.extraction.entity.tagger.StanfordNer;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
@@ -61,6 +63,9 @@ public class NERTest {
                 .evaluate(ResourceHelper.getResourcePath("/ner/training.txt"), TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+        
+        assertTrue(er.getF1(EvaluationResult.MUC) > 0.68);
+        assertTrue(er.getF1(EvaluationResult.EXACT_MATCH) > 0.52);
 
         tagger.loadModel(tudnerLiModel);
         tagger.setTagUrls(false);
@@ -97,6 +102,10 @@ public class NERTest {
         er = tagger.evaluate(ResourceHelper.getResourcePath("/ner/training.txt"), TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+        
+        assertTrue(er.getF1(EvaluationResult.MUC) > 0.94);
+        assertTrue(er.getF1(EvaluationResult.EXACT_MATCH) > 0.90);
+
 
         tagger.loadModel(tudnerEnModel);
         tagger.setTagUrls(false);

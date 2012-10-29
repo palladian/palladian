@@ -44,9 +44,9 @@ import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.CountMap2D;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -111,7 +111,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     
     private CountMap<String> leftContextMap = CountMap.create();
 
-    private NumericMatrix patternProbabilityMatrix = new NumericMatrix();
+    private CountMap2D<String> patternProbabilityMatrix = CountMap2D.create();
 
     private List<String> removeAnnotations = CollectionHelper.newArrayList();
 
@@ -1055,8 +1055,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Map<String, Double> probabilityMap = new HashMap<String, Double>();
 
         // initialize all entity types with one
-        for (Object string : patternProbabilityMatrix.getMatrix().keySet()) {
-            probabilityMap.put((String) string, 0.0);
+        for (String string : patternProbabilityMatrix.getKeysX()) {
+            probabilityMap.put(string, 0.0);
         }
 
         // number of patterns found
@@ -1076,9 +1076,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             CountMap<String> matchingPatternMap = CountMap.create();
 
             int sumOfMatchingPatterns = 0;
-            for (String string : patternProbabilityMatrix.getMatrix().keySet()) {
+            for (String string : patternProbabilityMatrix.getKeysX()) {
 
-                Integer matches = (Integer) patternProbabilityMatrix.get(string, contextPattern);
+                Integer matches = patternProbabilityMatrix.get(string, contextPattern);
                 if (matches == null) {
                     matchingPatternMap.set(string, 0);
                 } else {
@@ -1094,12 +1094,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 continue;
             }
 
-            for (Object string : patternProbabilityMatrix.getMatrix().keySet()) {
+            for (String string : patternProbabilityMatrix.getKeysX()) {
                 Double double1 = probabilityMap.get(string);
 
-                double1 += matchingPatternMap.get((String) string) / (double) sumOfMatchingPatterns;
+                double1 += matchingPatternMap.get(string) / (double) sumOfMatchingPatterns;
 
-                probabilityMap.put((String) string, double1);
+                probabilityMap.put(string, double1);
             }
         }
 
@@ -1107,14 +1107,14 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         
         double sum = 0;
 
-        for (Object string : patternProbabilityMatrix.getMatrix().keySet()) {
+        for (String string : patternProbabilityMatrix.getKeysX()) {
             sum += probabilityMap.get(string);
         }
         if (sum ==0){
             sum = 1;
         }
-        for (Object string : patternProbabilityMatrix.getMatrix().keySet()) {
-            ce.add(new CategoryEntry((String) string, probabilityMap.get(string) / sum));
+        for (String string : patternProbabilityMatrix.getKeysX()) {
+            ce.add(new CategoryEntry(string, probabilityMap.get(string) / sum));
         }
 
         /*
