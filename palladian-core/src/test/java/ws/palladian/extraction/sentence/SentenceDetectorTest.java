@@ -56,8 +56,8 @@ public class SentenceDetectorTest {
     public void testLingPipeSentenceChunker() throws Exception {
         objectOfClassUnderTest = new LingPipeSentenceDetector();
         objectOfClassUnderTest.detect(fixture);
-        Annotation[] sentences = objectOfClassUnderTest.getSentences();
-        for (Annotation sentence : sentences) {
+        PositionAnnotation[] sentences = objectOfClassUnderTest.getSentences();
+        for (PositionAnnotation sentence : sentences) {
             assertTrue(expectedResult.contains(sentence.getValue()));
         }
     }
@@ -66,8 +66,8 @@ public class SentenceDetectorTest {
     public void testOpenNLPSentenceChunker() throws Exception {
         objectOfClassUnderTest = new OpenNlpSentenceDetector(ResourceHelper.getResourceFile("/model/en-sent.bin"));
         objectOfClassUnderTest.detect(fixture);
-        Annotation[] sentences = objectOfClassUnderTest.getSentences();
-        for (Annotation sentence : sentences) {
+        PositionAnnotation[] sentences = objectOfClassUnderTest.getSentences();
+        for (PositionAnnotation sentence : sentences) {
             assertTrue(expectedResult.contains(sentence.getValue()));
         }
     }
