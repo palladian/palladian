@@ -102,7 +102,7 @@ public class DatabaseManagerTest {
     public void testRunBatchUpdate() {
         final List<SampleClazz> test = Arrays.asList(c1, c2, c3, c4);
         final int[] expectedIds = new int[] {1, 2, 3, 4};
-        boolean success = databaseManager.runBatchInsert(INSERT_TEST, new BatchDataProvider() {
+        int insertedRows = databaseManager.runBatchInsert(INSERT_TEST, new BatchDataProvider() {
 
             @Override
             public List<Object> getData(int number) {
@@ -125,7 +125,7 @@ public class DatabaseManagerTest {
                 assertEquals(expectedIds[number], generatedId);
             }
         });
-        assertTrue(success);
+        assertEquals(4, insertedRows);
     }
 
     @Test

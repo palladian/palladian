@@ -37,13 +37,15 @@ public final class DatasetHelper {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] split = line.split(separator);
-                if (split.length < 2) {
-                    throw new IllegalStateException();
-                }
                 // FIXME build filename from filePath + file name in index file
                 // File file = new File(split[0]);
                 File file = new File(filePath.getParent(), split[0]);
-                String[] categories = Arrays.copyOfRange(split, 1, split.length);
+                String[] categories;
+                if (split.length > 1) {
+                    categories = Arrays.copyOfRange(split, 1, split.length);
+                } else {
+                    categories = new String[0]; // no categories given.
+                }
                 ret.add(new DatasetItem(file, categories));
             }
         });
