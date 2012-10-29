@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
@@ -25,6 +26,8 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.services.GoogleIndexedPage;
@@ -128,7 +131,10 @@ public class SitemapAnalyzer {
 
         LOGGER.info("starting to process each page (" + urls.size() + " in total), time elapsed: "
                 + stopWatch.getElapsedTimeString());
-        DocumentRetriever documentRetriever = new DocumentRetriever();
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        httpRetriever.setConnectionTimeout(TimeUnit.MILLISECONDS.toMillis(120));
+        httpRetriever.setSocketTimeout(TimeUnit.MILLISECONDS.toMillis(120));
+        DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
         documentRetriever.setNumThreads(getNumThreads());
         documentRetriever.getWebDocuments(urls, retrieverCallback);
 
@@ -169,6 +175,6 @@ public class SitemapAnalyzer {
     public static void main(String[] args) {
         SitemapAnalyzer sitemapAnalyzer = new SitemapAnalyzer();
         sitemapAnalyzer.setNumThreads(10);
-        sitemapAnalyzer.analyzeSitemap("http://eelee.com/sitemapIndex.xml", "sitemapAnalysis.csv");
+        sitemapAnalyzer.analyzeSitemap("http://webknox.com/sitemapIndex.xml", "sitemapAnalysis.csv");
     }
 }
