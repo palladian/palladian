@@ -1,9 +1,8 @@
 package ws.palladian.classification;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
@@ -21,7 +20,7 @@ import ws.palladian.helper.math.MathHelper;
  */
 public final class CategoryEntries implements Iterable<CategoryEntry> {
 
-    private final List<CategoryEntry> entries = CollectionHelper.newArrayList();
+    private final Map<String, Double> categoryEntries = CollectionHelper.newHashMap();
 
     /**
      * <p>
@@ -33,12 +32,11 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
      */
     public CategoryEntry getCategoryEntry(String categoryName) {
         Validate.notNull(categoryName, "categoryName must not be null");
-        for (CategoryEntry categoryEntry : entries) {
-            if (categoryEntry.getName().equals(categoryName)) {
-                return categoryEntry;
-            }
+        Double probability = categoryEntries.get(categoryName);
+        if (probability == null) {
+            return null;
         }
-        return null;
+        return new CategoryEntry(categoryName, probability);
     }
 
     /**
@@ -51,27 +49,7 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
      */
     public void add(CategoryEntry categoryEntry) {
         Validate.notNull(categoryEntry, "categoryEntry must not be null");
-        Iterator<CategoryEntry> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            CategoryEntry current = iterator.next();
-            if (current.getName().equals(categoryEntry.getName())) {
-                iterator.remove();
-            }
-        }
-        entries.add(categoryEntry);
-        sortByRelevance();
-    }
-
-    /**
-     * Sorts the entries by relevance; higher relevance first.
-     */
-    private void sortByRelevance() {
-        Collections.sort(entries, new Comparator<CategoryEntry>() {
-            @Override
-            public int compare(CategoryEntry e1, CategoryEntry e2) {
-                return new Double(e2.getProbability()).compareTo(e1.getProbability());
-            }
-        });
+        categoryEntries.put(categoryEntry.getName(), categoryEntry.getProbability());
     }
 
     /**
@@ -82,7 +60,18 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
      * @return The CategoryEntry with the highest relevance, or <code>null</code> no entries exist.
      */
     public CategoryEntry getMostLikelyCategoryEntry() {
-        return CollectionHelper.getFirst(entries);
+        if (categoryEntries.isEmpty()) {
+            return null;
+        }
+        double maxProbability = 0;
+        String maxName = null;
+        for (Entry<String, Double> entry : categoryEntries.entrySet()) {
+            if (entry.getValue() > maxProbability) {
+                maxProbability = entry.getValue();
+                maxName = entry.getKey();
+            }
+        }
+        return new CategoryEntry(maxName, maxProbability);
     }
 
     @Override
@@ -90,7 +79,7 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
         StringBuilder toStringBuilder = new StringBuilder();
         toStringBuilder.append("CategoryEntries [");
         boolean first = true;
-        for (CategoryEntry categoryEntry : entries) {
+        for (CategoryEntry categoryEntry : this) {
             if (first) {
                 first = false;
             } else {
@@ -106,7 +95,24 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
 
     @Override
     public Iterator<CategoryEntry> iterator() {
-        return entries.iterator();
+        final Iterator<Entry<String, Double>> iterator = categoryEntries.entrySet().iterator();
+        return new Iterator<CategoryEntry>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public CategoryEntry next() {
+                Entry<String, Double> entry = iterator.next();
+                return new CategoryEntry(entry.getKey(), entry.getValue());
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Modifications are not allowed.");
+            }
+        };
     }
 
     /**
@@ -117,16 +123,16 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
      * @return The number of CategoryEntries.
      */
     public int size() {
-        return entries.size();
+        return categoryEntries.size();
     }
 
-    /**
-     * @param entry The entry to search for.
-     * @return {@code true} if the {@code CategoryEntries} contain the provided {@code CategoryEntry} and {@code false}
-     *         otherwise.
-     */
-    public boolean contains(CategoryEntry entry) {
-        return entries.contains(entry);
-    }
+//    /**
+//     * @param entry The entry to search for.
+//     * @return {@code true} if the {@code CategoryEntries} contain the provided {@code CategoryEntry} and {@code false}
+//     *         otherwise.
+//     */
+//    public boolean contains(CategoryEntry entry) {
+//        return categoryEntries.containsKey(entry);
+//    }
 
 }

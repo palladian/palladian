@@ -147,6 +147,10 @@ public class ThresholdAnalyzer {
             double threshold = (double)i / numBins;
             double pr = getPrecision(threshold);
             double rc = getRecall(threshold);
+            if (rc == 0) {
+                // no more useful information from here, stop.
+                break;
+            }
             double f1 = getF1(threshold);
             sb.append(format.format(threshold)).append('\t');
             sb.append(format.format(pr)).append('\t');
