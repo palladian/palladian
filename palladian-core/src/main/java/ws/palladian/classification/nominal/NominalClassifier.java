@@ -9,8 +9,8 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMap2D;
-import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -30,7 +30,7 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
             String className = instance.getTargetClass();
             List<NominalFeature> nominalFeatures = instance.getFeatureVector().getAll(NominalFeature.class);
             for (NominalFeature nominalFeature : nominalFeatures) {
-                cooccurrenceMatrix.increment(nominalFeature.getValue(), className);
+                cooccurrenceMatrix.increment(className, nominalFeature.getValue());
             }
         }
 
@@ -49,23 +49,18 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
         CountMap2D<String> cooccurrenceMatrix = model.getCooccurrenceMatrix();
 
         // category-probability map, initialized with zeros
-        Map<String, Double> scores = LazyMap.create(new Factory<Double>() {
-            @Override
-            public Double create() {
-                return 0.;
-            }
-        });
+        Map<String, Double> scores = LazyMap.create(ConstantFactory.create(0.));
 
         // category names
-        Set<String> categories = cooccurrenceMatrix.keySet();
+        Set<String> categories = cooccurrenceMatrix.getKeysX();
 
         for (NominalFeature nominalFeature : vector.getAll(NominalFeature.class)) {
 
             for (String category : categories) {
 
                 String featureValue = nominalFeature.getValue();
-                int cooccurrences = cooccurrenceMatrix.getCount(featureValue, category);
-                int rowSum = cooccurrenceMatrix.getColumnSum(featureValue);
+                int cooccurrences = cooccurrenceMatrix.getCount(category, featureValue);
+                int rowSum = cooccurrenceMatrix.getRowSum(featureValue);
 
                 double score = (double)cooccurrences / rowSum;
                 scores.put(category, scores.get(category) + score);

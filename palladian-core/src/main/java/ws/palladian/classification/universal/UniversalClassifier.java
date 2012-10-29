@@ -1,6 +1,7 @@
 package ws.palladian.classification.universal;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +21,7 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.features.FeatureDescriptor;
@@ -35,6 +37,10 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     public static final FeatureDescriptor<NominalFeature> TEXT_FEATURE = FeatureDescriptorBuilder.build(
             "ws.palladian.feature.text", NominalFeature.class);
 
+    public static enum UniversalClassifierSettings {
+        USE_NUMERIC, USE_TEXT, USE_NOMINAL
+    }
+
     /** The text classifier which is used to classify the textual feature parts of the instances. */
     private final PalladianTextClassifier textClassifier;
 
@@ -44,41 +50,42 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     /** The Bayes classifier for nominal classification. */
     private final NaiveBayesClassifier nominalClassifier;
 
-    /** Whether or not to use the text classifier. */
-    private boolean useTextClassifier = true;
-
-    /** Whether or not to use the numeric classifier. */
-    private boolean useNumericClassifier = true;
-
-    /** Whether or not to use the nominal classifier. */
-    private boolean useNominalClassifier = true;
-
     private final FeatureSetting featureSetting;
 
-    public UniversalClassifier() {
-        this(new FeatureSetting());
+    private final EnumSet<UniversalClassifierSettings> settings;
 
+    public UniversalClassifier() {
+        this(EnumSet.allOf(UniversalClassifierSettings.class), new FeatureSetting());
     }
 
     public UniversalClassifier(FeatureSetting featureSetting) {
+        this(EnumSet.allOf(UniversalClassifierSettings.class), featureSetting);
+    }
+
+    public UniversalClassifier(EnumSet<UniversalClassifierSettings> settings) {
+        this(settings, new FeatureSetting());
+    }
+
+    public UniversalClassifier(EnumSet<UniversalClassifierSettings> settings, FeatureSetting featureSetting) {
         textClassifier = new PalladianTextClassifier();
         this.featureSetting = featureSetting;
         numericClassifier = new KnnClassifier();
         nominalClassifier = new NaiveBayesClassifier();
+        this.settings = settings;
     }
 
     private void learnClassifierWeights(List<Instance> instances, UniversalClassifierModel model) {
         int[] correctlyClassified = new int[3];
         Arrays.fill(correctlyClassified, 0);
 
-        // int c = 1;
+        int c = 1;
         for (Instance instance : instances) {
             UniversalClassificationResult result = internalClassify(instance.getFeatureVector(), model);
             int[] evaluatedResult = evaluateResults(instance, result);
             correctlyClassified[0] += evaluatedResult[0];
             correctlyClassified[1] += evaluatedResult[1];
             correctlyClassified[2] += evaluatedResult[2];
-            // ProgressHelper.showProgress(c++, instances.size(), 1);
+            ProgressHelper.showProgress(c++, instances.size(), 0);
         }
 
         model.setWeights(correctlyClassified[0] / (double)instances.size(),
@@ -96,23 +103,23 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
         // Since there are not weights yet the classifier weights all results with one.
         CategoryEntries textResult = result.getTextResults();
-        if (result.getTextResults() != null
+        if (textResult != null && textResult.getMostLikelyCategoryEntry() != null
                 && textResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
             correctlyClassified[0]++;
         }
         CategoryEntries numericResult = result.getNumericResults();
-        if (result.getNumericResults() != null
+        if (numericResult != null && numericResult.getMostLikelyCategoryEntry() != null
                 && numericResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
             correctlyClassified[1]++;
         }
         CategoryEntries nominalResult = result.getNominalResults();
-        if (result.getNominalResults() != null
+        if (nominalResult != null && nominalResult.getMostLikelyCategoryEntry() != null
                 && nominalResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
             correctlyClassified[2]++;
         }
         return correctlyClassified;
     }
-    
+
     protected UniversalClassificationResult internalClassify(FeatureVector featureVector, UniversalClassifierModel model) {
 
         // separate instance in feature types
@@ -120,10 +127,10 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         if (featureVector.get(TEXT_FEATURE) != null) {
             textFeature = featureVector.get(TEXT_FEATURE).getValue();
         }
-        
-        CategoryEntries text=null;
-        CategoryEntries numeric=null;
-        CategoryEntries nominal=null;
+
+        CategoryEntries text = null;
+        CategoryEntries numeric = null;
+        CategoryEntries nominal = null;
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
@@ -143,7 +150,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     }
 
     private CategoryEntries mergeResults(UniversalClassificationResult result, UniversalClassifierModel model) {
-        Map<CategoryEntries, Double> weightedCategoryEntries = LazyMap.create(new ConstantFactory<Double>(0.));
+        Map<CategoryEntries, Double> weightedCategoryEntries = LazyMap.create(ConstantFactory.create(0.));
 
         // merge classification results
         if (model.getDictionaryModel() != null) {
@@ -170,7 +177,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
      */
     protected CategoryEntries normalize(Map<CategoryEntries, Double> weightedCategoryEntries) {
         CategoryEntries normalizedCategoryEntries = new CategoryEntries();
-        Map<String, Double> mergedCategoryEntries = LazyMap.create(new ConstantFactory<Double>(0.));
+        Map<String, Double> mergedCategoryEntries = LazyMap.create(ConstantFactory.create(0.));
 
         // merge entries from different classifiers
         for (Entry<CategoryEntries, Double> entries : weightedCategoryEntries.entrySet()) {
@@ -203,21 +210,25 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         DictionaryModel textModel = null;
 
         // train the text classifier
-        if (useTextClassifier) {
+        if (settings.contains(UniversalClassifierSettings.USE_TEXT)) {
+            LOGGER.debug("training text classifier");
             textModel = textClassifier.train(instances, featureSetting);
         }
 
         // train the numeric classifier
-        if (useNumericClassifier) {
+        if (settings.contains(UniversalClassifierSettings.USE_NUMERIC)) {
+            LOGGER.debug("training numeric classifier");
             numericModel = numericClassifier.train(instances);
         }
 
         // train the nominal classifier
-        if (useNominalClassifier) {
+        if (settings.contains(UniversalClassifierSettings.USE_NOMINAL)) {
+            LOGGER.debug("training nominal classifier");
             nominalModel = nominalClassifier.train(instances);
         }
 
         UniversalClassifierModel model = new UniversalClassifierModel(nominalModel, numericModel, textModel);
+        LOGGER.debug("learning classifier weights");
         learnClassifierWeights(instances, model);
         return model;
     }
@@ -233,17 +244,13 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         return mergeResults(result, model);
     }
 
-    // XXX not used?
-//    public enum UniversalClassifierSettings {
-//        USE_NUMERIC, USE_TEXT, USE_NOMINAL
-//    }
 }
 
 class UniversalClassificationResult {
     private final CategoryEntries textCategories;
     private final CategoryEntries numericResults;
     private final CategoryEntries nominalResults;
-    
+
     UniversalClassificationResult(CategoryEntries text, CategoryEntries numeric, CategoryEntries nominal) {
         this.textCategories = text;
         this.numericResults = numeric;
@@ -262,7 +269,8 @@ class UniversalClassificationResult {
         return textCategories;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
@@ -277,5 +285,5 @@ class UniversalClassificationResult {
         builder.append("]");
         return builder.toString();
     }
-    
+
 }
