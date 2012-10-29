@@ -3,13 +3,13 @@ package ws.palladian.helper;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringOutputStream;
 
 /**
- * This class should provide convinience methods for interacting with the OS functionality.
+ * This class should provide convenience methods for interacting with the OS functionality.
  * 
  * @author David Urbansky
  * 
@@ -46,7 +46,8 @@ public class ProcessHelper {
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
-            FileHelper.close(in, stringOutputStream);
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(stringOutputStream);
             if (p != null) {
                 p.destroy();
             }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -692,7 +693,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         document.setClassifiedAs(classType);
 
-        System.out.println("matches: " + matches);
+        // System.out.println("matches: " + matches);
 
         LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
                 + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
@@ -844,7 +845,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         }
 
-        ThreadHelper.deepSleep(8 * DateHelper.SECOND_MS);
+        ThreadHelper.deepSleep(TimeUnit.SECONDS.toMillis(8));
         long totalTime = 0l;
         for (Long l : longs) {
             totalTime += l;

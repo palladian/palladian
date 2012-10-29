@@ -1397,6 +1397,28 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     public void setEntityDictionary(Dictionary entityDictionary) {
         this.entityDictionary = entityDictionary;
     }
+    
+    //////////////// accessors for testing only. /////////////////////
+    
+    Dictionary getCaseDictionary() {
+        return caseDictionary;
+    }
+    
+    CountMap getLeftContextMap() {
+        return leftContextMap;
+    }
+    
+    Annotations getRemoveAnnotations() {
+        return removeAnnotations;
+    }
+    
+    DictionaryClassifier getContextClassifier() {
+        return contextClassifier;
+    }
+    
+    UniversalClassifier getUniversalClassifier() {
+        return universalClassifier;
+    }
 
     // public void addToEntityDictionary(Dictionary entityDictionary) {
     // for (Entry<Term, CategoryEntries> entry : entityDictionary.entrySet()) {
