@@ -14,7 +14,6 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.helper.Cache;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**

@@ -57,12 +57,12 @@ public class ConfusionMatrix {
     }
 
     public Set<String> getCategories() {
-        return confusionMatrix.getColumnValues();
+        return confusionMatrix.getKeysX();
     }
 
     public int getTotalDocuments() {
         int total = 0;
-        for (String value : confusionMatrix.getColumnValues()) {
+        for (String value : confusionMatrix.getKeysX()) {
             total += confusionMatrix.getRowSum(value);
         }
         return total;
@@ -78,7 +78,7 @@ public class ConfusionMatrix {
      */
     public double getHighestPrior() {
         int max = 0;
-        for (String value : confusionMatrix.getColumnValues()) {
+        for (String value : confusionMatrix.getKeysX()) {
             max = Math.max(max, confusionMatrix.getRowSum(value));
         }
         int sum = getTotalDocuments();
@@ -520,6 +520,7 @@ public class ConfusionMatrix {
         builder.append("Average Sensitivity:\t").append(MathHelper.round(getAverageSensitivity(true), 4)).append("\n");
         builder.append("Average Specificity:\t").append(MathHelper.round(getAverageSpecificity(true), 4)).append("\n");
         builder.append("Average Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append("\n");
+        builder.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append("\n");
         builder.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append("\n");
         builder.append("# Documents:\t").append(getTotalDocuments()).append("\n");
         builder.append("# Correctly Classified:\t").append(getCorrectlyClassified()).append("\n");
