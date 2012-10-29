@@ -145,7 +145,7 @@ public final class LingPipePosTagger extends BasePosTagger {
                 String assignedTag = tagging.tags().get(0);
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
-                matrix.increment(correctTag, assignedTag);
+                matrix.add(correctTag, assignedTag);
 
                 if (assignedTag.equals(correctTag)) {
                     correct++;

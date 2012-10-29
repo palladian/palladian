@@ -1,5 +1,7 @@
 package ws.palladian.classification.universal;
 
+import java.util.Arrays;
+
 import ws.palladian.classification.Model;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnModel;
@@ -35,7 +37,7 @@ public class UniversalClassifierModel implements Model {
         return knnModel;
     }
 
-    public DictionaryModel getTextClassifier() {
+    public DictionaryModel getDictionaryModel() {
         return dictionaryModel;
     }
 
@@ -48,8 +50,8 @@ public class UniversalClassifierModel implements Model {
         builder.append(knnModel);
         builder.append(", dictionaryModel=");
         builder.append(dictionaryModel);
-        // builder.append(", dictionary#documents=").append(textClassifier.getDictionary().getNumberOfDocuments());
-        // builder.append(", dictionary#entries=").append(textClassifier.getDictionary().size());
+        builder.append(", weights=");
+        builder.append(Arrays.toString(weights));
         builder.append("]");
         return builder.toString();
     }
@@ -58,7 +60,7 @@ public class UniversalClassifierModel implements Model {
         return weights;
     }
 
-    public void setWeights(double... weights) {
+    void setWeights(double... weights) {
         this.weights[0] = weights[0];
         this.weights[1] = weights[1];
         this.weights[2] = weights[2];

@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.helper.math.ConfusionMatrix;
 
+@Deprecated
 public class ClassifierPerformanceResult {
 
     private final double precision;

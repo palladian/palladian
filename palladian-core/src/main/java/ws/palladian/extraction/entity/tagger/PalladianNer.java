@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
@@ -28,7 +27,6 @@ import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.Preprocessor;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
@@ -48,7 +46,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.Matrix;
+import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -98,7 +96,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     /** The serial vesion id. */
     private static final long serialVersionUID = -8793232373094322955L;
 
-    private transient PalladianTextClassifier textClassifier =new PalladianTextClassifier();
+    private transient PalladianTextClassifier textClassifier = new PalladianTextClassifier();
 
     /** This dictionary contains the entity terms as they are. */
     private DictionaryModel entityDictionary;
@@ -113,10 +111,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     
     private CountMap<String> leftContextMap = CountMap.create();
 
-    private Matrix patternProbabilityMatrix = new Matrix();
+    private NumericMatrix patternProbabilityMatrix = new NumericMatrix();
 
-    // private Annotations removeAnnotations = new Annotations();
-    private Set<String> removeAnnotations = CollectionHelper.newHashSet();
+    private List<String> removeAnnotations = CollectionHelper.newArrayList();
 
     // learning features
     private boolean removeDates = true;
@@ -193,10 +190,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         setName("Palladian NER (" + getLanguageMode() + ")");
 
         // hold entities in a dictionary that are learned from the training data
-        entityDictionary = new DictionaryModel(null, null);
+        entityDictionary = new DictionaryModel(null);
 
         // keep the case dictionary from the training data
-        caseDictionary = new DictionaryModel(null, null);
+        caseDictionary = new DictionaryModel(null);
 
         // with entity 2-8 and context 4-7: 173MB model
         // precision MUC: 79.93%, recall MUC: 85.55%, F1 MUC: 82.64%
@@ -442,9 +439,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     private void trainAnnotationClassifier(List<UniversalInstance> textInstances) {
 
-        ClassificationTypeSetting cts = new ClassificationTypeSetting();
-        cts.setClassificationType(ClassificationTypeSetting.TAG);
-
         FeatureSetting featureSetting = new FeatureSetting();
 
         // universalClassifier.getTextClassifier().getDictionary().setCaseSensitive(true);
@@ -454,7 +448,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         featureSetting.setMaxNGramLength(8);
 
         LOGGER.info("start training classifiers now...");
-        annotationModel = textClassifier.train(convertInstances(textInstances, featureSetting), cts, featureSetting);
+        annotationModel = textClassifier.train(convertInstances(textInstances, featureSetting), featureSetting);
     }
 
     /**
@@ -600,8 +594,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     private Annotations classifyCandidatesEnglish(Annotations entityCandidates) {
         Annotations annotations = new Annotations();
-
-        int i = 0;
+        int i = 1;
         for (Annotation annotation : entityCandidates) {
 
             Annotations wrappedAnnotations = new Annotations();
@@ -624,10 +617,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
             }
 
-            if (i % 100 == 0) {
-                LOGGER.debug("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
-            }
-            i++;
+            ProgressHelper.showProgress(i++, entityCandidates.size(), 1);
         }
 
         return annotations;
@@ -698,7 +688,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      * @param annotations The classified annotations to process
      */
     private void postProcessAnnotations(Annotations annotations) {
-
+        
         LOGGER.debug("start post processing annotations");
 
         StopWatch stopWatch = new StopWatch();
@@ -845,8 +835,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             for (Annotation annotation : annotations) {
 
-                // CategoryEntries ces = entityDictionary.get(entityTermMap.get(annotation.getEntity()));
-                // XXX
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
                 if (categoryEntries != null && categoryEntries.size() > 0) {
                     annotation.setTags(categoryEntries);
@@ -1088,13 +1076,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             CountMap<String> matchingPatternMap = CountMap.create();
 
             int sumOfMatchingPatterns = 0;
-            for (Object string : patternProbabilityMatrix.getMatrix().keySet()) {
+            for (String string : patternProbabilityMatrix.getMatrix().keySet()) {
 
                 Integer matches = (Integer) patternProbabilityMatrix.get(string, contextPattern);
                 if (matches == null) {
-                    matchingPatternMap.set((String) string, 0);
+                    matchingPatternMap.set(string, 0);
                 } else {
-                    matchingPatternMap.add((String) string, matches);
+                    matchingPatternMap.add(string, matches);
                     sumOfMatchingPatterns += matches;
                 }
 
@@ -1353,16 +1341,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     private void trainContextClassifier(List<UniversalInstance> trainingInstances) {
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.TAG);
-
         // be careful with the n-gram sizes, they heavily influence the model size
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setMinNGramLength(4);// 4
         featureSetting.setMaxNGramLength(5);// 6
 
-        contextModel = textClassifier.train(convertInstances(trainingInstances, featureSetting), classificationTypeSetting,
-                featureSetting);
+        contextModel = textClassifier.train(convertInstances(trainingInstances, featureSetting), featureSetting);
     }
 
     private List<Instance> convertInstances(List<UniversalInstance> trainingInstances, FeatureSetting featureSetting) {
@@ -1422,7 +1406,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return leftContextMap;
     }
     
-    Set<String> getRemoveAnnotations() {
+    List<String> getRemoveAnnotations() {
         return removeAnnotations;
     }
     
@@ -1433,79 +1417,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     DictionaryModel getAnnotationDictionary() {
         return annotationModel;
     }
-
-    // public void addToEntityDictionary(Dictionary entityDictionary) {
-    // for (Entry<Term, CategoryEntries> entry : entityDictionary.entrySet()) {
-    // this.entityDictionary.updateWord(entry.getKey(), entry.getValue().get(0), 1);
-    // }
-    // }
-
-//    /**
-//     * Create an h2 database dictionary from a dictionary file with the following format:<br>
-//     * Entity;Type
-//     * 
-//     * @param dictionaryPath The path of the dictionary text file.
-//     */
-//    public void makeDictionary(String dictionaryPath) {
-//
-//        StopWatch stopWatch = new StopWatch();
-//
-//        // XXX true
-//        final DictionaryModel dictionary = new DictionaryModel(null, null);
-//        // dictionary.setIndexPath("data/models/");
-//
-//        final int totalLines = FileHelper.getNumberOfLines(dictionaryPath);
-//
-//        LineAction lineAction = new LineAction() {
-//
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//
-//                // if (lineNumber > 20000) {
-//                // return;
-//                // }
-//
-//                String[] parts = line.split(";");
-//
-//                if (parts.length != 2) {
-//                    LOGGER.warn("line " + lineNumber + " is not well formatted");
-//                    return;
-//                }
-//
-//                String entity = parts[0];
-//                String type = parts[1];
-//
-//                // XXX necessary?
-//                
-////                if (entity.length() > DictionaryDbIndexH2.MAX_WORD_LENGTH || type.length() > 25) {
-////                    LOGGER.warn("input too long (max. " + DictionaryDbIndexH2.MAX_WORD_LENGTH
-////                            + " characters per field): " + entity + "," + type);
-////                    return;
-////                }
-//
-//                dictionary.updateTerm(entity, type);
-//
-//                if (lineNumber % 1000 == 0) {
-//                    LOGGER.debug("progress: " + MathHelper.round(100 * lineNumber / (double)totalLines, 2) + "%");
-//                }
-//            }
-//
-//        };
-//
-//        FileHelper.performActionOnEveryLine(dictionaryPath, lineAction);
-//
-//        LOGGER.info("serialize dictionary now...");
-//
-//        FileHelper.serialize(dictionary, "dict.ser.gz");
-//        /*
-//         * dictionary.serialize("dict.ser", true, true);
-//         * dictionary.useIndex();
-//         * CategoryEntries categoryEntries2 = dictionary.get(new Term("Cape Town"));
-//         * System.out.println(categoryEntries2);
-//         */
-//
-//        LOGGER.info("dictionary creation took " + stopWatch.getTotalElapsedTimeString());
-//    }
 
     public void setTagUrls(boolean tagUrls) {
         this.tagUrls = tagUrls;

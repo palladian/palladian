@@ -104,6 +104,11 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
 
         Double jaccardSimilarity = Integer.valueOf(overlap.size()).doubleValue()
                 / Integer.valueOf(union.size()).doubleValue();
+        // TODO Remove debug code
+        if (jaccardSimilarity > 1.0) {
+            System.out.println("+++++++++++++++++");
+        }
+
         document1.addFeature(new NumericFeature(getDescriptor(), jaccardSimilarity));
         setOutput(DEFAULT_OUTPUT_PORT_IDENTIFIER, document1);
     }
