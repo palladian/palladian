@@ -15,7 +15,7 @@ import ws.palladian.retrieval.HttpRetriever;
  * 
  * @author David Urbansky
  */
-public class SitemapCrawler {
+public class SitemapRetriever {
 
     public List<String> getUrls(String sitemapIndexUrl) {
         List<String> pageUrls = CollectionHelper.newArrayList();
