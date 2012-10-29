@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.feeds.parser;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,8 +42,7 @@ import com.sun.syndication.io.SyndFeedInput;
  * @author David Urbansky
  * @author Klemens Muthmann
  * 
- * @see https://rome.dev.java.net/
- * @see http://rometools.org/
+ * @see <a href="http://rometools.org/">The ROME Project</a>
  */
 public class RomeFeedParser extends BaseFeedParser implements FeedParser {
 
@@ -56,15 +54,6 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
 
     /** If we cant find a pubdate in this many consecutive items, give up. */
     private static final int MAX_DATE_RETRIES = 5;
-
-    /**
-     * Whether to clean strings like text and title from feed's items; this means strip out HTML tags and entities. If
-     * disabled, the raw content from the feed is aggregated without further treatment.
-     */
-//    private boolean cleanStrings = true;
-
-    public RomeFeedParser() {
-    }
 
     // ///////////////////////////////////////////////////
     // RomeFeedParser API
@@ -86,21 +75,6 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         return getFeed(syndFeed, null);
     }
 
-
-    /**
-     * Updates the supplied {@link Feed} with new items. This means, the existing items (if any) are replaced by current
-     * items downloaded from web.
-     * 
-     * @param feed
-     * @throws FeedParserException
-     */
-    // public void updateFeed(Feed feed) throws FeedParserException {
-    // Feed downloadedFeed = getFeed(feed.getFeedUrl());
-    // feed.setItems(downloadedFeed.getItems());
-    // feed.setWindowSize(downloadedFeed.getItems().size());
-    // feed.setByteSize(downloadedFeed.getByteSize());
-    // }
-
     // ///////////////////////////////////////////////////
     // Settings
     // ///////////////////////////////////////////////////
@@ -112,14 +86,6 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
     public boolean isUseDateRecognition() {
         return useDateRecognition;
     }
-
-//    public void setCleanStrings(boolean cleanStrings) {
-//        this.cleanStrings = cleanStrings;
-//    }
-//
-//    public boolean isCleanStrings() {
-//        return cleanStrings;
-//    }
 
     // ///////////////////////////////////////////////////
     // private ROME specific methods
@@ -248,7 +214,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
      * @return
      */
     private String getEntryTitle(SyndEntry syndEntry) {
-        return cleanup(syndEntry.getTitle());
+        return syndEntry.getTitle();
     }
 
     /**
@@ -285,9 +251,8 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
             for (SyndContent content : contents) {
                 String contentValue = content.getValue();
                 if (contentValue != null && contentValue.length() != 0) {
-                    String contentText = cleanup(contentValue);
-                    if (entryText == null || contentText.length() > entryText.length()) {
-                        entryText = contentText;
+                    if (entryText == null || contentValue.length() > entryText.length()) {
+                        entryText = contentValue;
                     }
                 }
             }
@@ -412,7 +377,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         // if the entry provides no author data, try to get it from the feed
 
         if (authors.isEmpty()) {
-            LOGGER.debug("entry contains no author; trying to take from feed");
+            // LOGGER.debug("entry contains no author; trying to take from feed");
             List<SyndPerson> syndFeedPersons = syndFeed.getAuthors();
             if (syndFeedPersons != null) {
                 for (SyndPerson syndPerson : syndFeedPersons) {
@@ -454,32 +419,6 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         return new HashMap<String, Object>();
     }
 
-    //
-    // private SyndFeed buildSyndFeed(InputSource inputSource) throws FeedParserException {
-    //
-    // try {
-    //
-    // SyndFeedInput feedInput = new SyndFeedInput();
-    //
-    // // this preserves the "raw" feed data and gives direct access to RSS/Atom specific elements see
-    // // http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
-    // feedInput.setPreserveWireFeed(true);
-    //
-    // SyndFeed syndFeed = feedInput.build(inputSource);
-    // LOGGER.debug("feed type is " + syndFeed.getFeedType());
-    //
-    // return syndFeed;
-    //
-    // } catch (IllegalArgumentException e) {
-    // // LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
-    // throw new FeedParserException(e);
-    // } catch (FeedException e) {
-    // // LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
-    // throw new FeedParserException(e);
-    // }
-    //
-    // }
-
     /**
      * Builds a {@link SyndFeed} with ROME from the supplied {@link Document}.
      * 
@@ -511,76 +450,5 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         }
 
     }
-
-    /**
-     * Clean up method to strip out undesired characters from feed text contents, like HTML tags and escaped entities.
-     * 
-     * @param dirty
-     * @return
-     */
-    private String cleanup(String dirty) {
-//        String result = null;
-//        if (cleanStrings) {
-//            if (dirty != null) {
-//                // TODO this causes trouble with special and foreign characters
-//                result = HTMLHelper.documentToReadableText(dirty, false);
-//                result = StringEscapeUtils.unescapeHtml(result);
-//                result = result.trim();
-//            }
-//        } else {
-//            result = dirty;
-//        }
-//        return result;
-        return dirty;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        // String clean =
-        // cleanup("Anonymous created the <a href=\"/forum/message.php?msg_id=126707\" title=\"phpMyAdmin\">Welcome to Open Discussion</a> forum thread");
-        // System.out.println(clean);
-        // System.exit(0);
-
-        // DocumentRetriever retr = new DocumentRetriever();
-        // retr.downloadAndSave("http://z.umn.edu/musicevents", "test.html", true);
-        // System.exit(0);
-
-        RomeFeedParser downloader = new RomeFeedParser();
-        Feed loadedFeed = downloader.getFeed(new File("feedsandro.gz"), true);
-        System.out.println(loadedFeed);
-        System.exit(0);
-        
-        // downloader.setCleanStrings(false);
-        downloader.setUseDateRecognition(true);
-        Feed feed = downloader.getFeed("http://www.d3p.co.jp/rss/mobile.rdf");
-        feed.print();
-        
-        // Feed feed = downloader.getFeed("http://www.phpbb-seo.com/en/rss/news/rss.xml");
-        // StopWatch sw = new StopWatch();
-        // Feed feed = downloader.getFeed("http://808chiangmai.com/?feed=atom");
-        // Feed feed = downloader.getFeed("http://z.umn.edu/musicevents");
-
-        System.exit(0);
-        // feed = downloader.getFeed("http://www.pittsburghgrapevine.com/public/rss/act_blogs/rss_20/");
-
-        // CollectionHelper.print(feed.getItems());
-        // System.out.println(feed.getItems().get(0).getPublished());
-        // System.out.println("took " + sw);
-        // System.exit(0);
-
-        // RomeFeedParser.printFeed(feed);
-
-        // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
-        // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
-        // Feed feed = downloader
-        // .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
-        // printFeed(feed);
-
-        // Feed feed = downloader.getFeed(RomeFeedParser.class.getResource("/feeds/atomSample1.xml").getFile());
-        // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
-        // RomeFeedParser.printFeed(feed, true);
-
-    }
-
 
 }

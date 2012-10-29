@@ -39,10 +39,11 @@ public class HtmlHelperTest {
     @Test
     public void testStripTags() throws FileNotFoundException {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
-        assertEquals("this is relevant", HtmlHelper.stripHtmlTags(htmlContent, true, true, true, true).trim());
+        htmlContent = HtmlHelper.joinTagsAndRemoveNewLines(htmlContent);
+        assertEquals("this is relevant", HtmlHelper.stripHtmlTags(htmlContent).trim());
 
         String content = FileHelper.readFileToString(ResourceHelper.getResourceFile("removeHtmlTest.html"));
-        String result = HtmlHelper.stripHtmlTags(content, true, true, true, false);
+        String result = HtmlHelper.stripHtmlTags(content);
         
         assertEquals("65efc6cba6ae65e3e53e15c07e491fc4", DigestUtils.md5Hex(result));
 
@@ -52,11 +53,12 @@ public class HtmlHelperTest {
 //        Assert.assertEquals(DigestUtils.md5Hex(stripped), DigestUtils.md5Hex(result));
 //        assertThat(result,is(stripped));
         
-        assertEquals("some text1", HtmlHelper.stripHtmlTags(
-                "<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>",
-                true, true, true, true));
-        assertEquals("some text 2", HtmlHelper.stripHtmlTags(
-                "<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />", true, true, true, true));
+        htmlContent = HtmlHelper
+                .joinTagsAndRemoveNewLines("<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>");
+        assertEquals("some text1", HtmlHelper.stripHtmlTags(htmlContent));
+        htmlContent = HtmlHelper
+                .joinTagsAndRemoveNewLines("<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />");
+        assertEquals("some text 2", HtmlHelper.stripHtmlTags(htmlContent));
     }
 
 //    @Test

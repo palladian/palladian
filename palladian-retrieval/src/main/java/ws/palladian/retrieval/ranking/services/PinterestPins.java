@@ -53,7 +53,7 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
             return ranking;
         }
 
-        Integer pins = null;
+        Integer pins = 0;
         String requestUrl = buildRequestUrl(url);
 
         try {
@@ -64,8 +64,6 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
                 JSONObject jsonObject = new JSONObject(response);
 
                 pins = jsonObject.getInt("Pinterest");
-
-
 
                 LOGGER.trace("Pinterest Pins for " + url + " : " + pins);
             }
