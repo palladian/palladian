@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class WebKnoxSearcherTest extends WebSearcherTest {
         List<WebResult> webResults = searcher.search("cats", 10, Language.ENGLISH);
         // CollectionHelper.print(webResults);
 
-        assertEquals(10, webResults.size());
+        assertTrue(webResults.size() > 0);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class WebKnoxSearcherTest extends WebSearcherTest {
         List<WebResult> webResults = newsSearcher.search("obama care", 12, Language.ENGLISH);
         // CollectionHelper.print(webResults);
 
-        assertEquals(12, webResults.size());
+        assertTrue(webResults.size() > 0);
     }
 
 }

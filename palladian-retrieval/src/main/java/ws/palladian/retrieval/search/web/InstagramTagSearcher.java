@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -63,8 +64,8 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
             query = querySplit[0];
         }
 
-        String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s", query,
-                accessToken);
+        String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s",
+                UrlHelper.urlEncode(query), accessToken);
 
         page: for (;;) {
 
