@@ -1,8 +1,6 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -53,15 +51,11 @@ public final class DictionaryModel implements Model {
 
     public CategoryEntries getCategoryEntries(String term) {
         CategoryEntries categoryFrequencies = new CategoryEntries();
-        Map<String, Integer> categoryCounts = termCategories.get(term);
-        if (categoryCounts != null) {
-            int sum = 0;
-            for (Integer categoryCount : categoryCounts.values()) {
-                sum += categoryCount;
-            }
-            for (Entry<String, Integer> categoryCount : categoryCounts.entrySet()) {
-                double probability = (double)categoryCount.getValue() / sum;
-                categoryFrequencies.add(new CategoryEntry(categoryCount.getKey(), probability));
+        int sum = termCategories.getRowSum(term);
+        if (sum > 0) {
+            for (String category : getCategories()) {
+                double probability = (double)termCategories.getCount(category, term) / sum;
+                categoryFrequencies.add(new CategoryEntry(category, probability));
             }
         }
         return categoryFrequencies;
@@ -72,19 +66,19 @@ public final class DictionaryModel implements Model {
     }
 
     public int getNumCategories() {
-        return categories.uniqueSize();
+        return termCategories.sizeX();
+    }
+
+    public Set<String> getCategories() {
+        return termCategories.getKeysX();
+    }
+
+    public Set<String> getTerms() {
+        return termCategories.getKeysY();
     }
 
     public void addCategory(String catgegory) {
         categories.add(catgegory);
-    }
-
-    public CountMap<String> getCategories() {
-        return categories;
-    }
-
-    public Set<String> getTerms() {
-        return termCategories.keySet();
     }
 
     public double getPrior(String category) {
@@ -107,7 +101,7 @@ public final class DictionaryModel implements Model {
         printStream.print("\n");
 
         // one word per line with term frequencies per category
-        for (String term : termCategories.keySet()) {
+        for (String term : termCategories.getKeysY()) {
             printStream.print(term);
             printStream.print(",");
             // get word frequency for each category and current term

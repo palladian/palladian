@@ -1,6 +1,6 @@
 package ws.palladian.helper.math;
 
-public class NumericMatrix extends Matrix<Number> {
+public class NumericMatrix<K> extends Matrix<K, Double> {
 
     private static final long serialVersionUID = 1L;
 
@@ -12,17 +12,17 @@ public class NumericMatrix extends Matrix<Number> {
      * @param matrix The matrix to add to the current matrix. The matrix must have the same column and row names as the
      *            matrix it is added to.
      */
-    public void add(NumericMatrix matrix) {
+    public void add(NumericMatrix<K> matrix) {
 
-        for (String yKey : getKeysY()) {
-            for (String xKey : getKeysX()) {
-                Number currentNumber = get(xKey, yKey);
+        for (K yKey : getKeysY()) {
+            for (K xKey : getKeysX()) {
+                Double currentNumber = get(xKey, yKey);
                 double value = currentNumber.doubleValue();
-                Number number = matrix.get(xKey, yKey);
+                Double number = matrix.get(xKey, yKey);
 
                 // in that case one matrix did not have that cell and we create it starting from zero
                 if (number == null) {
-                    number = 0;
+                    number = 0.;
                 }
 
                 value += number.doubleValue();
@@ -40,15 +40,25 @@ public class NumericMatrix extends Matrix<Number> {
      * @param divisor The value by which every cell is divided by.
      */
     public void divideBy(double divisor) {
-        for (String yKey : getKeysY()) {
-            for (String xKey : getKeysX()) {
-                Number currentNumber = get(xKey, yKey);
+        for (K yKey : getKeysY()) {
+            for (K xKey : getKeysX()) {
+                Double currentNumber = get(xKey, yKey);
                 double value = currentNumber.doubleValue();
                 value /= divisor;
                 set(xKey, yKey, value);
             }
         }
     }
+    
+    @Override
+    public Double get(K x, K y) {
+        Double value = super.get(x, y);
+        if (value == null) {
+            return 0.;
+        }
+        return value;
+    };
+    
 
 //    /**
 //     * <p>
@@ -69,43 +79,43 @@ public class NumericMatrix extends Matrix<Number> {
 
     public static void main(String[] args) {
 
-        NumericMatrix confusionMatrix = new NumericMatrix();
+        NumericMatrix<String> confusionMatrix = new NumericMatrix<String>();
 
-        Number o = confusionMatrix.get("A", "B");
+        Double o = confusionMatrix.get("A", "B");
         if (o == null) {
-            o = 1;
+            o = 1.;
         } else {
-            o = (Integer)o + 1;
+            o = o + 1;
         }
         confusionMatrix.set("A", "B", o);
 
         o = confusionMatrix.get("B", "A");
         if (o == null) {
-            o = 1;
+            o = 1.;
         } else {
-            o = (Integer)o + 1;
+            o = o + 1;
         }
         confusionMatrix.set("B", "A", o);
 
         o = confusionMatrix.get("B", "B");
         if (o == null) {
-            o = 1;
+            o = 1.;
         } else {
-            o = (Integer)o + 1;
+            o = o + 1;
         }
         confusionMatrix.set("B", "B", o);
 
         o = confusionMatrix.get("B", "B");
         if (o == null) {
-            o = 1;
+            o = 1.;
         } else {
-            o = (Integer)o + 1;
+            o = o + 1;
         }
         confusionMatrix.set("B", "B", o);
 
         System.out.println(confusionMatrix);
 
-        Matrix<String> confusionMatrix2 = new Matrix<String>();
+        Matrix<String, String> confusionMatrix2 = new Matrix<String, String>();
         confusionMatrix2.set("A", "1", "A1");
         confusionMatrix2.set("B", "2", "B2");
         System.out.println(confusionMatrix2);
