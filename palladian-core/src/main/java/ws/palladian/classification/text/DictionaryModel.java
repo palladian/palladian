@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMap2D;
@@ -36,24 +35,16 @@ public final class DictionaryModel implements Model {
     /** Configuration for the feature extraction. */
     private final FeatureSetting featureSetting;
 
-    /** Configurations for the classification type. */
-    private final ClassificationTypeSetting classificationTypeSetting;
-
     /**
      * @param featureSetting
      * @param classificationTypeSetting
      */
-    public DictionaryModel(FeatureSetting featureSetting, ClassificationTypeSetting classificationTypeSetting) {
+    public DictionaryModel(FeatureSetting featureSetting) {
         this.featureSetting = featureSetting;
-        this.classificationTypeSetting = classificationTypeSetting;
     }
 
     public FeatureSetting getFeatureSetting() {
         return featureSetting;
-    }
-
-    public ClassificationTypeSetting getClassificationTypeSetting() {
-        return classificationTypeSetting;
     }
 
     public void updateTerm(String term, String category) {
@@ -154,8 +145,6 @@ public final class DictionaryModel implements Model {
         StringBuilder builder = new StringBuilder();
         builder.append("DictionaryModel [featureSetting=");
         builder.append(featureSetting);
-        builder.append(", classificationTypeSetting=");
-        builder.append(classificationTypeSetting);
         builder.append(", getNumTerms()=");
         builder.append(getNumTerms());
         builder.append(", getNumCategories()=");

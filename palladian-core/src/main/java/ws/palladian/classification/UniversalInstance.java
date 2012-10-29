@@ -10,6 +10,7 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  * @author David Urbansky
  */
+@Deprecated
 public class UniversalInstance extends Instance {
 
     private String textFeature = "";
@@ -32,7 +33,8 @@ public class UniversalInstance extends Instance {
 
     public void setNumericFeatures(List<Double> numericFeatures) {
         for (Double numericFeature : numericFeatures) {
-            getFeatureVector().add(new NumericFeature("num" + getFeatureVector().size(), numericFeature));
+            String name = "num" + getFeatureVector().size();
+            getFeatureVector().add(new NumericFeature(name.intern(), numericFeature));
         }
     }
 
@@ -47,7 +49,8 @@ public class UniversalInstance extends Instance {
 
     public void setNominalFeatures(List<String> nominalFeatures) {
         for (String nominalFeature : nominalFeatures) {
-            getFeatureVector().add(new NominalFeature("nom" + getFeatureVector().size(), nominalFeature));
+            String name = "nom" + getFeatureVector().size();
+            getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
         }
     }
 

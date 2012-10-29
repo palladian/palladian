@@ -9,9 +9,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.text.evaluation.ClassificationTypeSetting;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.classification.universal.CategoryWeightingStrategy;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.Cache;
@@ -113,9 +111,7 @@ public class PalladianPosTagger extends BasePosTagger {
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(7);
         featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        ClassificationTypeSetting cts = new ClassificationTypeSetting();
-        cts.setClassificationType(ClassificationTypeSetting.TAG);
-        tagger = new UniversalClassifier(new CategoryWeightingStrategy(), featureSetting, cts);
+        tagger = new UniversalClassifier(featureSetting);
         List<Instance> trainingInstances = CollectionHelper.newArrayList();
 
         int c = 1;
@@ -233,7 +229,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
                 previousTag = assignedTag;
-                matrix.increment(correctTag, assignedTag);
+                matrix.add(correctTag, assignedTag);
 
                 if (assignedTag.equals(correctTag)) {
                     correct++;
