@@ -54,8 +54,7 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
 
             paging: for (int page = 0; page <= numPages; page++) {
 
-                // TODO really necessary to use https here?
-                String requestUrl = "https://www.google.com/search?hl=en&safe=off&output=search&start="
+                String requestUrl = "http://www.google.com/search?hl=en&safe=off&output=search&start="
                         + entriesPerPage * page + "&q=" + UrlHelper.urlEncode(query);
                 HttpResult httpResult = retriever.httpGet(requestUrl);
                 Document document = parser.parse(httpResult);
@@ -125,7 +124,9 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
     public static void main(String[] args) throws SearcherException {
         GoogleScraperSearcher scroogleSearcher = new GoogleScraperSearcher();
         // List<String> urls = scroogleSearcher.searchUrls("capital germany", 11);
-        List<String> urls = scroogleSearcher.searchUrls("\"the population of germany is\"", 5);
+        // List<String> urls = scroogleSearcher.searchUrls("\"the population of germany is\"", 5);
+        // List<String> urls = scroogleSearcher.searchUrls("\"eelee.com/sagem-puma-phone\"", 5);
+        List<String> urls = scroogleSearcher.searchUrls("\"eelee.com/wnd-wind-duo-2200-reviews\"", 5);
         CollectionHelper.print(urls);
     }
 }
