@@ -23,8 +23,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public abstract class AbstractTokenRemover extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * <p>
      * Determine whether to remove the supplied {@link Annotation} from the {@link PipelineDocument}'s

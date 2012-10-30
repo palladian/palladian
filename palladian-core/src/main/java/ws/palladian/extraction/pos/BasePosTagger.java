@@ -11,6 +11,7 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
@@ -41,8 +42,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public abstract class BasePosTagger extends StringDocumentPipelineProcessor implements PosTagger {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * <p>
      * The identifier of the feature provided by this {@link PipelineProcessor}.
@@ -71,7 +70,7 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
 
     @Override
     public TagAnnotations tag(String text) {
-        PipelineDocument<String> document = new PipelineDocument<String>(text);
+        TextDocument document = new TextDocument(text);
         try {
             BaseTokenizer tokenizer = getTokenizer();
             tokenizer.processDocument(document);

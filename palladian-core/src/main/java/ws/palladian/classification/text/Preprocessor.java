@@ -53,7 +53,6 @@ public final class Preprocessor {
         FeatureVector featureVector = new FeatureVector();
         int termCount = 0;
 
-        // build the map
         for (String ngram : ngrams) {
 
             // TODO, change that => do not add ngrams with some special chars or
@@ -66,8 +65,7 @@ public final class Preprocessor {
             if (featureSettings.getTextFeatureType() == FeatureSetting.WORD_NGRAMS
                     && featureSettings.getMaxNGramLength() == 1
                     && (ngram.length() < featureSettings.getMinimumTermLength() || ngram.length() > featureSettings
-                            .getMaximumTermLength()) || termCount >= featureSettings.getMaxTerms()
-                    || isStopWord(ngram, featureSettings)) {
+                            .getMaximumTermLength()) || termCount >= featureSettings.getMaxTerms()) {
                 continue;
             }
 
@@ -80,15 +78,5 @@ public final class Preprocessor {
 
     }
 
-    private static boolean isStopWord(String word, FeatureSetting featureSettings) {
-        word = word.toLowerCase().trim();
-
-        for (String stopWord : featureSettings.getStopWords()) {
-            if (stopWord.equals(word)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 }

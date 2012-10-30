@@ -32,8 +32,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public final class AdditionalFeatureExtractor extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     /** Denotes the percentage a term instance starts with an upper case letter. */
     public static final FeatureDescriptor<NumericFeature> STARTS_UPPERCASE_PERCENTAGE = FeatureDescriptorBuilder.build(
             "startsUppercase", NumericFeature.class);

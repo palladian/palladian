@@ -14,7 +14,7 @@ import ws.palladian.processing.PipelineProcessor;
  * 
  * @author Philipp Katz
  */
-public abstract class AnnotationFeature<T> extends Feature<List<Annotation<T>>> {
+public abstract class AnnotationFeature<T> extends ListFeature<Annotation<T>> {
 
     private static final char NEWLINE = '\n';
 
@@ -109,10 +109,10 @@ public abstract class AnnotationFeature<T> extends Feature<List<Annotation<T>>> 
         return result;
     }
 
-    public <F extends Feature<T>> List<F> getFeatures(Class<F> class1, String identifier) {
+    public <F extends Feature<T>> List<F> getFeatures(Class<F> type, String identifier) {
         List<F> features = new ArrayList<F>();
         for (Annotation<T> current : getValue()) {
-            List<F> selectedFeatures = (List<F>)current.getFeatureVector().getFeatures(class1, identifier);
+            List<F> selectedFeatures = current.getFeatureVector().getFeatures(type, identifier);
             features.addAll(selectedFeatures);
         }
 

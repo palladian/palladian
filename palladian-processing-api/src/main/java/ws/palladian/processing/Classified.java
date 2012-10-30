@@ -12,7 +12,7 @@ package ws.palladian.processing;
  * @version 1.0.0
  * @since 0.1.8
  */
-public interface Classified extends Classifiable {
+public interface Classified {
     /**
      * @return Provides the class this {@link Classified} belongs to and which should be used to train new
      *         {@link Model}s.

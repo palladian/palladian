@@ -35,8 +35,6 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public final class PhrasenessAnnotator extends AbstractTokenProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     /** The {@link FeatureDescriptor} describing the Generalized Dice Coefficient annotated by this component. */
     public static final FeatureDescriptor<NumericFeature> GENERALIZED_DICE = FeatureDescriptorBuilder.build(
             "ws.palladian.features.generalizedDice", NumericFeature.class);

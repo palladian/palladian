@@ -65,12 +65,6 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SparseArffWriter.class);
     /**
      * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -8674006178227544037L;
-    /**
-     * <p>
      * The target ARFF file this writer saves data to.
      * </p>
      */
@@ -314,7 +308,6 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
             List<Pair<Integer, String>> instance = new ArrayList<Pair<Integer, String>>();
             for (String dataEntry : dataEntries) {
                 String[] entry = dataEntry.split(" ");
-                Integer featureTypeIndex = featureTypes.get(entry[0]);
                 instance.add(new ImmutablePair<Integer, String>(attributeIndex, entry[1]));
             }
             instances.add(instance);

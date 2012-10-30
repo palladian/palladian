@@ -17,13 +17,6 @@ import ws.palladian.processing.PipelineDocument;
 public final class LowerCaser extends StringDocumentPipelineProcessor {
 
     /**
-     * <p>
-     * Used to serialize objects of this class. Should only change of the set of attributes of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -5655408816402154527L;
-
-    /**
      * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
      */
     public LowerCaser() {

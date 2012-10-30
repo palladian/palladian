@@ -55,12 +55,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @since 0.1.7
  */
 public final class SequentialPatternAnnotator extends StringDocumentPipelineProcessor {
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -1433065329363584974L;
 
     private Set<String> keywords;
 
