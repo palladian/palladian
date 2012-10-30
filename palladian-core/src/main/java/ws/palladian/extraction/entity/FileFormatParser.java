@@ -669,7 +669,7 @@ public class FileFormatParser {
         for (Annotation annotation : allAnnotations) {
 
             String conceptName = annotation.getTargetClass();
-            int numberOfSeeds = conceptSeedCount.get(conceptName);
+            int numberOfSeeds = conceptSeedCount.getCount(conceptName);
 
             if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)
                     && !entitySet.contains(annotation.getEntity())) {

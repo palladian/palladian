@@ -137,7 +137,7 @@ public class SitemapAnalyzer {
         for (String url : urls) {
             Map<String, Object> map = resultTable.get(url);
             if (map != null) {
-                Integer value = internalInboundLinkMap.get(url);
+                Integer value = internalInboundLinkMap.getCount(url);
                 map.put("in-int", value);
             }
         }

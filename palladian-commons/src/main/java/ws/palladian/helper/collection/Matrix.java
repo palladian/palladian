@@ -1,4 +1,4 @@
-package ws.palladian.helper.math;
+package ws.palladian.helper.collection;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public class Matrix<K, V> implements Serializable {
     private final Set<K> keysY;
 
     public Matrix() {
-        matrix = new HashMap<K, Map<K, V>>();
+        matrix = CollectionHelper.newHashMap();
         keysX = new TreeSet<K>();
         keysY = new TreeSet<K>();
     }
@@ -72,7 +72,6 @@ public class Matrix<K, V> implements Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-
         boolean headWritten = false;
 
         // iterate through all rows (y)
@@ -80,28 +79,22 @@ public class Matrix<K, V> implements Serializable {
 
             // write table head
             if (!headWritten) {
-                builder.append("\t");
-
-                for (K key : keysX) {
-                    builder.append(key).append("\t");
+                builder.append('\t');
+                for (K xKey : keysX) {
+                    builder.append(xKey).append('\t');
                 }
-                builder.append("\n");
-
+                builder.append('\n');
                 headWritten = true;
             }
 
-            builder.append(yKey).append("\t");
+            builder.append(yKey).append('\t');
 
             // iterate through all columns (x)
             for (K xKey : keysX) {
-
-                builder.append(get(xKey, yKey)).append("\t");
-
+                builder.append(get(xKey, yKey)).append('\t');
             }
-
-            builder.append("\n");
+            builder.append('\n');
         }
-
         return builder.toString();
     }
 

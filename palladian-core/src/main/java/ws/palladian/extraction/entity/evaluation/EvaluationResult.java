@@ -150,14 +150,14 @@ public class EvaluationResult {
 
         if (type == EXACT_MATCH) {
 
-            correctAssignments = cm.get(CORRECT);
-            totalAssignments = cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5)
+            correctAssignments = cm.getCount(CORRECT);
+            totalAssignments = cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5)
             + correctAssignments;
 
         } else if (type == MUC) {
 
-            correctAssignments = cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
-            totalAssignments = 2 * (cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + cm.get(CORRECT));
+            correctAssignments = cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
+            totalAssignments = 2 * (cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5) + cm.getCount(CORRECT));
 
         }
 
@@ -184,13 +184,13 @@ public class EvaluationResult {
 
         if (type == EXACT_MATCH) {
 
-            correctAssignments = cm.get(CORRECT);
-            possibleAssignments = cm.get(POSSIBLE);
+            correctAssignments = cm.getCount(CORRECT);
+            possibleAssignments = cm.getCount(POSSIBLE);
 
         } else if (type == MUC) {
 
-            correctAssignments = cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
-            possibleAssignments = 2 * cm.get(POSSIBLE);
+            correctAssignments = cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
+            possibleAssignments = 2 * cm.getCount(POSSIBLE);
 
         }
 
@@ -297,14 +297,14 @@ public class EvaluationResult {
 
             if (type == EXACT_MATCH) {
 
-                correctAssignments += cm.get(CORRECT);
-                totalAssignments += cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + cm.get(CORRECT);
+                correctAssignments += cm.getCount(CORRECT);
+                totalAssignments += cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5) + cm.getCount(CORRECT);
 
             } else if (type == MUC) {
 
-                correctAssignments += cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
-                totalAssignments += 2 * (cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + cm
-                        .get(CORRECT));
+                correctAssignments += cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
+                totalAssignments += 2 * (cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5) + cm
+                        .getCount(CORRECT));
 
             }
 
@@ -331,13 +331,13 @@ public class EvaluationResult {
 
             if (type == EXACT_MATCH) {
 
-                correctAssignments += cm.get(CORRECT);
-                possibleAssignments += cm.get(POSSIBLE);
+                correctAssignments += cm.getCount(CORRECT);
+                possibleAssignments += cm.getCount(POSSIBLE);
 
             } else if (type == MUC) {
 
-                correctAssignments += cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
-                possibleAssignments += 2 * cm.get(POSSIBLE);
+                correctAssignments += cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
+                possibleAssignments += 2 * cm.getCount(POSSIBLE);
 
             }
 
