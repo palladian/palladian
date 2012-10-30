@@ -516,12 +516,15 @@ public final class Tokenizer {
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) || string
-                        .charAt(startIndex + 2) == '-') && string.charAt(startIndex + 1) == ' ';
+.charAt(startIndex + 2) == '-' || string.charAt(startIndex + 2) == '=')
+                        && string.charAt(startIndex + 1) == ' ';
             }
+
             // break after period
             if (!pointIsSentenceDelimiter && string.charAt(startIndex + 1) == '\n') {
                 pointIsSentenceDelimiter = true;
             }
+
             if (pointIsSentenceDelimiter) {
                 break;
             }
