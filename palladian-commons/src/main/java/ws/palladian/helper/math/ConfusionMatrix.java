@@ -2,14 +2,14 @@ package ws.palladian.helper.math;
 
 import java.util.Set;
 
-import ws.palladian.helper.collection.CountMap2D;
+import ws.palladian.helper.collection.CountMatrix;
 
 public class ConfusionMatrix {
 
-    private final CountMap2D<String> confusionMatrix;
+    private final CountMatrix<String> confusionMatrix;
 
     public ConfusionMatrix() {
-        this.confusionMatrix = CountMap2D.create();
+        this.confusionMatrix = CountMatrix.create();
     }
 
     public void add(String realCategory, String predictedCategory) {
@@ -17,7 +17,7 @@ public class ConfusionMatrix {
     }
 
     public void add(String realCategory, String predictedCategory, int count) {
-        confusionMatrix.increment(predictedCategory, realCategory, count);
+        confusionMatrix.add(predictedCategory, realCategory, count);
     }
 
     public double getAccuracy() {

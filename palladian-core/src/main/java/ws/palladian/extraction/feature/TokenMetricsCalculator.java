@@ -85,7 +85,7 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
         // calculate "normalized term frequency", see "Information Retrieval", Grossman/Frieder, p. 32
         int maxCount = 1;
         for (String token : occurrences.uniqueItems()) {
-            maxCount = Math.max(maxCount, occurrences.get(token));
+            maxCount = Math.max(maxCount, occurrences.getCount(token));
         }
 
         for (Annotation<String> annotation : annotations) {
@@ -93,7 +93,7 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
             String value = annotation.getValue().toLowerCase();
             double first = (double)firstOccurrences.get(value) / lastPosition;
             double last = (double)lastOccurrences.get(value) / lastPosition;
-            double count = occurrences.get(value);
+            double count = occurrences.getCount(value);
             double frequency = count / maxCount;
             double spread = last - first;
             double charLength = value.length();

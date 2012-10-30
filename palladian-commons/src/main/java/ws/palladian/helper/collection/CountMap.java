@@ -12,10 +12,16 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 /**
+ * <p>
+ * A CountMap is a collection which allows counting equal items, it behaves similar to a {@link Set}, but counts the
+ * occurrences of identical item. It is also often referred to as a "Bag". Typical use cases might be a "bag of words"
+ * model for text document, for example.
+ * </p>
+ * 
+ * @param <T> The type of the items in this CountMap.
  * 
  * @author David Urbansky
  * @author Philipp Katz
- * @param <T>
  */
 public class CountMap<T> implements Collection<T>, Serializable {
 
@@ -67,7 +73,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
     public boolean add(T item) {
         Validate.notNull(map, "map must not be null");
 
-        Integer count = get(item);
+        Integer count = getCount(item);
         int counter = count.intValue();
         counter++;
         map.put(item, counter);
@@ -89,7 +95,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
             return;
         }
 
-        Integer count = get(item);
+        Integer count = getCount(item);
         int counter = count.intValue();
         counter += increment;
         map.put(item, counter);
@@ -128,8 +134,8 @@ public class CountMap<T> implements Collection<T>, Serializable {
      * @param item The item for which to get the count, not <code>null</code>.
      * @return The count of the specified item.
      */
-    public int get(T item) {
-        Validate.notNull(map, "map must not be null");
+    public int getCount(T item) {
+        Validate.notNull(item, "item must not be null");
 
         Integer count = map.get(item);
         return count == null ? 0 : count;
@@ -216,7 +222,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
         int highest = 0;
         T result = null;
         for (T item : uniqueItems()) {
-            int current = get(item);
+            int current = getCount(item);
             if (current > highest) {
                 result = item;
                 highest = current;

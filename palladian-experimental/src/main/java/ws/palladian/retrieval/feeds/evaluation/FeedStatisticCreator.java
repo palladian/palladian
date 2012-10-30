@@ -940,9 +940,9 @@ public class FeedStatisticCreator {
         String chartDataLabels = "";
         String chartColors = "";
         for (FeedActivityPattern o : updateClassCounts.uniqueItems()) {
-            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.get(o))
+            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.getCount(o))
                     .append("\n");
-            chartData += updateClassCounts.get(o) + ",";
+            chartData += updateClassCounts.getCount(o) + ",";
             chartDataLabels += o + "|";
             chartColors += colors.get(o.getIdentifier()) + "|";
         }

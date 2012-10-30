@@ -4,16 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class CountMap2DTest {
+public class CountMatrixTest {
 
     @Test
     public void testCountMap2D() {
-        CountMap2D<String> countMap2d = CountMap2D.create();
-        countMap2d.increment("x1", "y1", 2);
-        countMap2d.increment("x1", "y2", 5);
-        countMap2d.increment("x1", "y3", 6);
-        countMap2d.increment("x2", "y2", 1);
-        countMap2d.increment("x2", "y3", 9);
+        CountMatrix<String> countMap2d = CountMatrix.create();
+        countMap2d.add("x1", "y1", 2);
+        countMap2d.add("x1", "y2", 5);
+        countMap2d.add("x1", "y3", 6);
+        countMap2d.add("x2", "y2", 1);
+        countMap2d.add("x2", "y3", 9);
 
         assertEquals(2, countMap2d.getCount("x1", "y1"));
         assertEquals(13, countMap2d.getColumnSum("x1"));
