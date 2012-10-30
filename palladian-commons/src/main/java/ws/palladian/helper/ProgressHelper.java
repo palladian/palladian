@@ -24,22 +24,22 @@ import ws.palladian.helper.math.MathHelper;
  * @author Philipp Katz
  */
 public final class ProgressHelper {
-    
+
     private final static char PROGRESS_CHAR = '\u25A0';
 
     private ProgressHelper() {
         // no instances.
     }
 
-    public static String showProgress(long counter, long totalCount, int showEveryPercent) {
+    public static String showProgress(long counter, long totalCount, double showEveryPercent) {
         return showProgress(counter, totalCount, showEveryPercent, null, null);
     }
 
-    public static String showProgress(long counter, long totalCount, int showEveryPercent, Logger logger) {
+    public static String showProgress(long counter, long totalCount, double showEveryPercent, Logger logger) {
         return showProgress(counter, totalCount, showEveryPercent, logger, null);
     }
 
-    public static String showProgress(long counter, long totalCount, int showEveryPercent, StopWatch stopWatch) {
+    public static String showProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
         return showProgress(counter, totalCount, showEveryPercent, null, stopWatch);
     }
 
@@ -53,7 +53,7 @@ public final class ProgressHelper {
      * @param stopWatch A {@link StopWatch} which allows an approximation of the estimated time until completion.
      * @return
      */
-    public static String showProgress(long counter, long totalCount, int showEveryPercent, Logger logger,
+    public static String showProgress(long counter, long totalCount, double showEveryPercent, Logger logger,
             StopWatch stopWatch) {
 
         StringBuilder processString = new StringBuilder();
@@ -99,16 +99,16 @@ public final class ProgressHelper {
 
     public static void main(String[] args) {
 
-        StopWatch stopWatch = new StopWatch();
-        for (int i = 1; i <= 10; i++) {
-            ThreadHelper.deepSleep(1000);
-            ProgressHelper.showProgress(i, 10, 1, stopWatch);
-        }
+        // StopWatch stopWatch = new StopWatch();
+        // for (int i = 1; i <= 10; i++) {
+        // ThreadHelper.deepSleep(1000);
+        // ProgressHelper.showProgress(i, 10, 1, stopWatch);
+        // }
+        //
+        // System.exit(0);
 
-        System.exit(0);
-
-        int totalCount = 5000;
-        int showEvery = 5;
+        int totalCount = 1000;
+        double showEvery = .5;
 
         for (int i = 1; i <= totalCount; i++) {
             ProgressHelper.showProgress(i, totalCount, showEvery);
