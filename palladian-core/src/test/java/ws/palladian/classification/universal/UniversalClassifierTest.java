@@ -1,16 +1,15 @@
 /**
  * Created on: 17.10.2012 19:46:44
  */
-package ws.palladian.classification;
+package ws.palladian.classification.universal;
 
 import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.ClassifierEvaluation;
-import ws.palladian.classification.universal.UniversalClassifier;
-import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;

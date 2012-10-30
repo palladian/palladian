@@ -19,11 +19,6 @@ import ws.palladian.processing.Port;
  * @since 0.1.7
  */
 public final class DocumentCreationProcessor<T> extends AbstractPipelineProcessor<T> {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 95543851870074183L;
     private PipelineDocument<T> document;
 
     /**

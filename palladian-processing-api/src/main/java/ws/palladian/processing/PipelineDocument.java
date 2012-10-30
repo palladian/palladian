@@ -20,7 +20,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public class PipelineDocument<T> implements Classifiable {
+public abstract class PipelineDocument<T> implements Classifiable {
 
     /**
      * <p>

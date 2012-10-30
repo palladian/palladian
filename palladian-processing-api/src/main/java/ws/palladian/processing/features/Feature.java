@@ -20,7 +20,7 @@ public abstract class Feature<T> {
      * The {@link FeatureVector} wide unique identifier of this {@code Feature}.
      * </p>
      */
-    private String name;
+    private final String name;
     /**
      * <p>
      * The {@code Feature}'s value containing concrete extracted data from a document.
@@ -68,17 +68,17 @@ public abstract class Feature<T> {
         return name;
     }
 
-    /**
-     * <p>
-     * Resets this {@code Feature}'s identifier overwriting the old one. Use with care!
-     * </p>
-     * 
-     * @param name
-     *            The {@link FeatureVector} wide unique identifier of this {@code Feature}.
-     */
-    public final void setName(String name) {
-        this.name = name;
-    }
+//    /**
+//     * <p>
+//     * Resets this {@code Feature}'s identifier overwriting the old one. Use with care!
+//     * </p>
+//     * 
+//     * @param name
+//     *            The {@link FeatureVector} wide unique identifier of this {@code Feature}.
+//     */
+//    public final void setName(String name) {
+//        this.name = name;
+//    }
 
     /**
      * <p>

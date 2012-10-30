@@ -17,6 +17,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
@@ -47,8 +48,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @author Philipp Katz
  */
 public final class TokenDistributionStatisticsCalculator extends StringDocumentPipelineProcessor {
-
-    private static final long serialVersionUID = 1L;
 
     /** Identifier for the feature provided by this class. */
     public static final FeatureDescriptor<NumericFeature> LEVEL_STATISTICS = FeatureDescriptorBuilder.build(
@@ -124,7 +123,7 @@ public final class TokenDistributionStatisticsCalculator extends StringDocumentP
         pipeline.add(new TokenDistributionStatisticsCalculator());
         pipeline.add(new DuplicateTokenRemover());
 
-        PipelineDocument<String> doc = new PipelineDocument<String>(
+        TextDocument doc = new TextDocument(
                 FileHelper.readFileToString("/Users/pk/Desktop/pg1661.txt"));
         pipeline.process(doc);
 

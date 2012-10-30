@@ -12,12 +12,13 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
 public class AnnotatorTest {
 
-    private final PipelineDocument<String> document = new PipelineDocument<String>("Let's try to stem some tokens in English language.");
+    private final TextDocument document = new TextDocument("Let's try to stem some tokens in English language.");
 
     @Test(expected = DocumentUnprocessableException.class)
     public void testMissingTokenAnnotations() throws DocumentUnprocessableException {

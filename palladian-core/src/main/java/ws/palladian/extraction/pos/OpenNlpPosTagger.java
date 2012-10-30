@@ -26,8 +26,6 @@ import ws.palladian.processing.features.Annotation;
  */
 public final class OpenNlpPosTagger extends BasePosTagger {
 
-    private static final long serialVersionUID = 1L;
-
     /** The name of this POS tagger. */
     private static final String TAGGER_NAME = "OpenNLP POS-Tagger";
 

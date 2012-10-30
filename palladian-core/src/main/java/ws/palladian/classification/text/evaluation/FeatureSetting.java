@@ -1,8 +1,6 @@
 package ws.palladian.classification.text.evaluation;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <p>Save the settings which text features should be used for a classifier.</p>
@@ -43,49 +41,6 @@ public class FeatureSetting implements Serializable {
      * and {@link maxNGramLength} is 1, that is, only unigrams will be used.
      */
     private int maximumTermLength = 20;
-
-    /** Set of English stop words. */
-    // public static Set<String> englishStopWords = new HashSet<String>();
-
-    private Set<String> stopWords = new HashSet<String>();
-
-    public FeatureSetting() {
-
-        // init();
-
-    }
-    
-    public FeatureSetting(FeatureSetting fs) {
-        super();
-//        try {
-//            PropertyUtils.copyProperties(this, fs);
-//        } catch (IllegalAccessException e) {
-//            Logger.getRootLogger().error(e);
-//        } catch (InvocationTargetException e) {
-//            Logger.getRootLogger().error(e);
-//        } catch (NoSuchMethodException e) {
-//            Logger.getRootLogger().error(e);
-//        }
-        
-        this.maxTerms = fs.maxTerms;
-        this.minNGramLength = fs.minNGramLength;
-        this.maxNGramLength = fs.maxNGramLength;
-        this.minimumTermLength = fs.minimumTermLength;
-        this.maximumTermLength = fs.maximumTermLength;
-        this.stopWords = new HashSet<String>(fs.stopWords);
-        
-//        init();
-    }
-
-//    private void init() {
-//        String[] englishStopWordsArray = { "I", "a", "about", "an", "and", "are", "as", "at", "be", "by", "com", "de",
-//                "en", "for", "from", "how", "in", "is", "he", "she", "it", "la", "of", "on", "or", "that", "the",
-//                "this", "to", "was", "what", "when", "where", "who", "will", "with", "und", "the", "www" };
-//
-//        for (String stopWord : englishStopWordsArray) {
-//            englishStopWords.add(stopWord);
-//        }        
-//    }
     
     public int getTextFeatureType() {
         return textFeatureType;
@@ -143,14 +98,6 @@ public class FeatureSetting implements Serializable {
         return minimumTermLength;
     }
 
-    public Set<String> getStopWords() {
-        return stopWords;
-    }
-
-    public void setStopWords(Set<String> stopWords) {
-        this.stopWords = stopWords;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -164,8 +111,6 @@ public class FeatureSetting implements Serializable {
         builder.append(minNGramLength);
         builder.append(", minimumTermLength=");
         builder.append(minimumTermLength);
-        builder.append(", stopWords=");
-        builder.append(stopWords);
         builder.append(", textFeatureType=");
         builder.append(textFeatureType);
         builder.append("]");

@@ -28,8 +28,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public final class TokenMetricsCalculator extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     public static final FeatureDescriptor<NumericFeature> FIRST = FeatureDescriptorBuilder.build(
             "ws.palladian.features.tokens.first", NumericFeature.class);
     public static final FeatureDescriptor<NumericFeature> LAST = FeatureDescriptorBuilder.build(
@@ -47,8 +45,8 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        TextAnnotationFeature annotationFeature = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().getFeature(TextAnnotationFeature.class,
+                BaseTokenizer.PROVIDED_FEATURE);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("The required feature "
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");

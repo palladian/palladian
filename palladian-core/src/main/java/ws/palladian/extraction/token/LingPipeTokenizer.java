@@ -18,8 +18,6 @@ import com.aliasi.tokenizer.TokenizerFactory;
  */
 public final class LingPipeTokenizer extends BaseTokenizer {
 
-    private static final long serialVersionUID = 1L;
-
     /** Factory for creating a LingPipe tokenizer. */
     private final TokenizerFactory tokenizerFactory;
 
