@@ -508,8 +508,12 @@ public final class Tokenizer {
             List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
         List<PositionAnnotation> tags = convert(document, annotations);
         for (PositionAnnotation annotation : tags) {
-            maskedText = StringUtils.replaceOnce(maskedText, annotation.getValue(), mask);
-            annotationsForMaskedText.add(annotation);
+            // This check is necessary to handle nested masks. Such masks are not replaced in the text and should not be
+            // added to the list of masks.
+            if (maskedText.contains(annotation.getValue())) {
+                maskedText = StringUtils.replaceOnce(maskedText, annotation.getValue(), mask);
+                annotationsForMaskedText.add(annotation);
+            }
         }
 
         return maskedText;
@@ -565,8 +569,15 @@ public final class Tokenizer {
 
         while (matcher.find()) {
             int endPosition = matcher.end();
-            String value = maskedText.substring(lastIndex, endPosition).trim();
-            PositionAnnotation sentence = new PositionAnnotation(inputDocument, lastIndex, endPosition, index, value);
+
+            String untrimmedValue = maskedText.substring(lastIndex, endPosition);
+            String leftTrimmedValue = StringHelper.ltrim(untrimmedValue);
+            Integer leftOffset = untrimmedValue.length() - leftTrimmedValue.length();
+            String value = StringHelper.rtrim(leftTrimmedValue);
+
+            int leftIndex = lastIndex + leftOffset;
+            int rightIndex = leftIndex + value.length();
+            PositionAnnotation sentence = new PositionAnnotation(inputDocument, leftIndex, rightIndex, index, value);
             sentences.add(sentence);
             lastIndex = endPosition;
             index++;
@@ -575,10 +586,20 @@ public final class Tokenizer {
         // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
         // character, just add the last fragment
         if (lastIndex < maskedText.length()) {
-            String value = maskedText.substring(lastIndex).trim();
-            PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(inputDocument, lastIndex,
-                    maskedText.length(), index, value);
-            sentences.add(lastSentenceAnnotation);
+            // the following code is necessary to know how many characters are trimmed from the left and from the right
+            // of the remaining content.
+            String untrimmedValue = maskedText.substring(lastIndex);
+            String leftTrimmedValue = StringHelper.ltrim(untrimmedValue);
+            Integer leftOffset = untrimmedValue.length() - leftTrimmedValue.length();
+            String value = StringHelper.rtrim(leftTrimmedValue);
+            // Since there often is a line break at the end of a file this should not be added here.
+            if (!value.isEmpty()) {
+                int leftIndex = lastIndex + leftOffset;
+                int rightIndex = leftIndex + value.length();
+                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(inputDocument, leftIndex,
+                        rightIndex, index, value);
+                sentences.add(lastSentenceAnnotation);
+            }
         }
 
         // replace masks back
@@ -615,26 +636,25 @@ public final class Tokenizer {
         int maskLength = mask.length();
         int maskAnnotationIndex = 0;
         for (PositionAnnotation sentence : sentences) {
-            int transformedStartPosition = lastTransformedEndPosition + (lastEndPosition - sentence.getStartPosition());
-            int transformedEndPosition = sentence.getEndPosition() + transformedStartPosition
-                    - sentence.getStartPosition();
+            int spaceBetweenSentences = sentence.getStartPosition() - lastEndPosition;
+            int transformedStartPosition = lastTransformedEndPosition + spaceBetweenSentences;
+            int currentOffset = transformedStartPosition - sentence.getStartPosition();
+            int transformedEndPosition = sentence.getEndPosition() + currentOffset;
 
             // Search sentences for PALLADIANMASK
             Matcher maskMatcher = maskPattern.matcher(sentence.getValue());
             while (maskMatcher.find()) {
                 PositionAnnotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
-                transformedEndPosition += maskAnnotation.getEndPosition() - maskAnnotation.getStartPosition()
-                        - maskLength;
+                transformedEndPosition += maskAnnotation.getValue().length() - maskLength;
                 maskAnnotationIndex++;
                 // handle contained masks by jumping over them
-                while (maskAnnotationIndex < maskAnnotations.size()
-                        && maskAnnotations.get(maskAnnotationIndex).getEndPosition() <= maskAnnotation.getEndPosition()) {
-                    maskAnnotationIndex++;
-                }
+                // while (maskAnnotationIndex < maskAnnotations.size()
+                // && maskAnnotations.get(maskAnnotationIndex).getEndPosition() <= maskAnnotation.getEndPosition()) {
+                // maskAnnotationIndex++;
+                // }
             }
 
-            String transformedValue = null;
-            transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
+            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
                     transformedEndPosition));
             PositionAnnotation transformedSentence = new PositionAnnotation(inputDocument, transformedStartPosition,
                     transformedEndPosition, sentence.getIndex(), transformedValue);

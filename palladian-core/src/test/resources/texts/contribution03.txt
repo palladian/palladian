@@ -1,0 +1,48 @@
+com.sap.sdm.control/sap.com/SAP AG/6.30.20030430181133.0000
+Initializing Network Manager (50017)
+Checking if another SDM is running on port 50018
+Processing error. Return code: 4
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+callSdmViaSapinst.log:
+
+Feb 11, 2004 11:39:35... Error: ERROR: Connect failed to database jdbc:sapdb://NITNO0T5/C11?timeout=0 as user SAPC11DB (com.sap.dbtech.jdbc.exceptions.JDBCDriverException/SAP DBTech JDBC: Cannot connect to jdbc:sapdb://NITNO0T5/C11 [Cannot connect to host NITNO0T5 [Connection refused: connect], -813.].)
+Feb 11, 2004 11:39:36... Info: Loading JDBC driver 'com.sap.dbtech.jdbc.DriverSapDB' by name (via classpath).
+Feb 11, 2004 11:39:36... Info: JDBC driver com.sap.dbtech.jdbc.DriverSapDB successfully loaded.
+Feb 11, 2004 11:39:36... Info: Driver com.sap.dbtech.jdbc.DriverSapDB was suitable for URL jdbc:sapdb://NITNO0T5/C11?timeout=0.
+Feb 11, 2004 11:39:36... Info: Connecting to database 'jdbc:sapdb://NITNO0T5/C11?timeout=0' as user 'SAPC11DB'.
+Feb 11, 2004 11:40:34... Error: ERROR: Connect failed to database jdbc:sapdb://NITNO0T5/C11?timeout=0 as user SAPC11DB (com.sap.dbtech.jdbc.exceptions.JDBCDriverException/SAP DBTech JDBC: Cannot connect to jdbc:sapdb://NITNO0T5/C11 [Cannot connect to host NITNO0T5 [Connection refused: connect], -813.].)
+Feb 11, 2004 11:40:34... Info: Loading JDBC driver 'com.sap.dbtech.jdbc.DriverSapDB' by name (via classpath).
+Feb 11, 2004 11:40:34... Info: JDBC driver com.sap.dbtech.jdbc.DriverSapDB successfully loaded.
+Feb 11, 2004 11:40:34... Info: Driver com.sap.dbtech.jdbc.DriverSapDB was suitable for URL jdbc:sapdb://NITNO0T5/C11?timeout=0.
+Feb 11, 2004 11:40:34... Info: Connecting to database 'jdbc:sapdb://NITNO0T5/C11?timeout=0' as user 'SAPC11DB'.
+Feb 11, 2004 11:41:34... Error: ERROR: Connect failed to database jdbc:sapdb://NITNO0T5/C11?timeout=0 as user SAPC11DB (com.sap.dbtech.jdbc.exceptions.JDBCDriverException/SAP DBTech JDBC: Cannot connect to jdbc:sapdb://NITNO0T5/C11 [Cannot connect to host NITNO0T5 [Connection refused: connect], -813.].)
+Feb 11, 2004 11:41:34... Info: Loading JDBC driver 'com.sap.dbtech.jdbc.DriverSapDB' by name (via classpath).
+Feb 11, 2004 11:41:34... Info: JDBC driver com.sap.dbtech.jdbc.DriverSapDB successfully loaded.
+Feb 11, 2004 11:41:34... Info: Driver com.sap.dbtech.jdbc.DriverSapDB was suitable for URL jdbc:sapdb://NITNO0T5/C11?timeout=0.
+Feb 11, 2004 11:41:34... Info: Connecting to database 'jdbc:sapdb://NITNO0T5/C11?timeout=0' as user 'SAPC11DB'.
+Feb 11, 2004 11:42:35... Error: ERROR: Connect failed to database jdbc:sapdb://NITNO0T5/C11?timeout=0 as user SAPC11DB (com.sap.dbtech.jdbc.exceptions.JDBCDriverException/SAP DBTech JDBC: Cannot connect to jdbc:sapdb://NITNO0T5/C11 [Cannot connect to host NITNO0T5 [Connection refused: connect], -813.].)
+Feb 11, 2004 11:42:35... Info: Deployment NOT successful for com.sap.engine.jddischema
+Feb 11, 2004 11:42:35... Info: Error text:
+Feb 11, 2004 11:42:35... Info: Execution of deployment com.sap.engine.jddischema aborted.
+Internal error in SDM: deployment was started although target system is not configured properly. Db connect failed.
+Feb 11, 2004 11:42:35... Info: Loading JDBC driver 'com.sap.dbtech.jdbc.DriverSapDB' by name (via classpath).
+Feb 11, 2004 11:42:35... Info: JDBC driver com.sap.dbtech.jdbc.DriverSapDB successfully loaded.
+Feb 11, 2004 11:42:35... Info: Driver com.sap.dbtech.jdbc.DriverSapDB was suitable for URL jdbc:sapdb://NITNO0T5/C11?timeout=0.
+Feb 11, 2004 11:42:35... Info: Connecting to database 'jdbc:sapdb://NITNO0T5/C11?timeout=0' as user 'SAPC11DB'.
+Feb 11, 2004 11:43:38... Error: ERROR: Connect failed to database jdbc:sapdb://NITNO0T5/C11?timeout=0 as user SAPC11DB (com.sap.dbtech.jdbc.exceptions.JDBCDriverException/SAP DBTech JDBC: Cannot connect to jdbc:sapdb://NITNO0T5/C11 [Cannot connect to host NITNO0T5 [Connection refused: connect], -813.].)
+Feb 11, 2004 11:43:38... Info: Loading JDBC driver 'com.sap.dbtech.jdbc.DriverSapDB' by name (via classpath).
+Feb 11, 2004 11:43:38... Info: JDBC driver com.sap.dbtech.jdbc.DriverSapDB successfully loaded.
+Feb 11, 2004 11:43:38... Info: Driver com.sap.dbtech.jdbc.DriverSapDB was suitable for URL jdbc:sapdb://NITNO0T5/C11?timeout=0.
+Feb 11, 2004 11:43:38... Info: Connecting to database 'jdbc:sapdb://NITNO0T5/C11?timeout=0' as user 'SAPC11DB'.
+Feb 11, 2004 11:44:41... Error: ERROR: Connect failed to database jdbc:sapdb://NITNO0T5/C11?timeout=0 as user SAPC11DB (com.sap.dbtech.jdbc.exceptions.JDBCDriverException/SAP DBTech JDBC: Cannot connect to jdbc:sapdb://NITNO0T5/C11 [Cannot connect to host NITNO0T5 [Connection refused: connect], -813.].)
+Feb 11, 2004 11:44:41... Info: ++------------------------------------------------++
+Feb 11, 2004 11:44:41... Info: ----- At least one of the Deployments failed -------
+Feb 11, 2004 11:44:41... Info: ++------------------------------------------------++
+Feb 11, 2004 11:44:41... Info: Summarizing the deployment results:
+Feb 11, 2004 11:44:41... Error: Aborted: C:\usr\sap\C11\JC00\SDM\root\origin\sap.com\com.sap.engine.jddischema\SAP AG\6.30.20030509162139.0000\J2EE_JDDSCHEMA.SDA
+Feb 11, 2004 11:44:41... Error: Aborted: C:\usr\sap\C11\JC00\SDM\root\origin\sap.com\synclog\SAP AG\6.30.20030416093355.0000\SYNCLOG.SDA
+Feb 11, 2004 11:44:41... Error: Aborted: C:\usr\sap\C11\JC00\SDM\root\origin\sap.com\com.sap.security.dbschema\SAP AG\6.30.20030416180604.0000\COM.SAP.SECURITY.DBSCHEMA.SDA
+Feb 11, 2004 11:44:41... Error: Aborted: C:\usr\sap\C11\JC00\SDM\root\origin\sap.com\tc\TechSrv\XML_DAS_Schema\SAP AG\6.30.20030430181003.0000\XML_DAS_SCHEMA.SDA
+Feb 11, 2004 11:44:41... Error: Aborted: C:\usr\sap\C11\JC00\SDM\root\origin\sap.com\com.sap.jms.jddi.schema\SAP AG\6.30.20030509162139.0000\JMS_JDDSCHEMA.SDA
+Feb 11, 2004 11:44:41... Error: Processing error. Return code: 4
