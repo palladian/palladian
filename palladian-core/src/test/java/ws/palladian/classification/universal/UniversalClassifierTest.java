@@ -45,8 +45,8 @@ public class UniversalClassifierTest {
         UniversalClassifierModel model = objectOfClassUnderTest.train(trainingSet);
 
         ConfusionMatrix matrix = ClassifierEvaluation.evaluate(objectOfClassUnderTest, model, instances);
-        System.out.println("Precision: " + matrix.getPrecisionForCategory("1"));
-        System.out.println("Recall: " + matrix.getRecallForCategory("1"));
-        System.out.println("F1: " + matrix.getFForCategory("1", 0.5));
+        System.out.println("Precision: " + matrix.getPrecision("1"));
+        System.out.println("Recall: " + matrix.getRecall("1"));
+        System.out.println("F1: " + matrix.getF("1", 0.5));
     }
 }
