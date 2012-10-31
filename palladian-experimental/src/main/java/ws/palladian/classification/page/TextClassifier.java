@@ -60,7 +60,7 @@ public abstract class TextClassifier extends ClassifierOld<UniversalInstance> {
 
     /** whether or not the program runs in benchmark mode */
     protected boolean benchmark = false;
-    
+
     public static final String UNASSIGNED = "UNASSIGNED";
 
     /**
@@ -394,11 +394,11 @@ public abstract class TextClassifier extends ClassifierOld<UniversalInstance> {
             document.sortCategoriesByRelevance();
 
             show.append(document.getContent() + "\n\treal (" + document.getClassifiedAsReadable() + "): ")
-                    .append(document.getRealCategoriesString()).append("\n\tclassified:");
+            .append(document.getRealCategoriesString()).append("\n\tclassified:");
             while (j.hasNext()) {
                 CategoryEntry categoryEntry = j.next();
                 show.append(categoryEntry.getCategory().getName()).append("(")
-                        .append(Math.round(100 * categoryEntry.getRelevance())).append("%) ");
+                .append(Math.round(100 * categoryEntry.getRelevance())).append("%) ");
             }
 
             if (getClassificationType() == ClassificationTypeSetting.TAG) {
@@ -432,7 +432,7 @@ public abstract class TextClassifier extends ClassifierOld<UniversalInstance> {
                     result = "CORRECT";
                 }
                 show.append("=> ").append(document.getMainCategoryEntry().getCategory().getName()).append(" ")
-                        .append(result).append("\n");
+                .append(result).append("\n");
                 // structuredOutput.append(" #").append(document.getMainCategoryEntry().getCategory().getName()).append("\n");
             }
         }
@@ -550,7 +550,7 @@ public abstract class TextClassifier extends ClassifierOld<UniversalInstance> {
         return getPerformance();
     }
 
-    private void readTestData(final Dataset dataset) {
+    public ClassificationDocuments readTestData(final Dataset dataset) {
 
         // reset training and testing documents as well as learned categories
         setTestDocuments(new ClassificationDocuments());
@@ -646,6 +646,8 @@ public abstract class TextClassifier extends ClassifierOld<UniversalInstance> {
 
         // calculate the prior for all categories
         getCategories().calculatePriors();
+
+        return getTestDocuments();
     }
 
     @Override

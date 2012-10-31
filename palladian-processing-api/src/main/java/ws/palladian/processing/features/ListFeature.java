@@ -16,7 +16,7 @@ import java.util.List;
  * @version 1.0
  * @since 3.0.0
  */
-public final class ListFeature<T> extends Feature<List<T>> {
+public class ListFeature<T> extends Feature<List<T>> {
 
     /**
      * {@inheritDoc #ListFeature(FeatureDescriptor, List)}

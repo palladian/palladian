@@ -31,8 +31,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public final class DuplicateTokenConsolidator extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     public final static FeatureDescriptor<TextAnnotationFeature> DUPLICATES = FeatureDescriptorBuilder.build("duplicates",
             TextAnnotationFeature.class);
 

@@ -77,7 +77,7 @@ public class QueryCompiler {
 
         for (String item : items.uniqueItems()) {
             // remove those, which only occur once
-            int numOccur = items.get(item);
+            int numOccur = items.getCount(item);
             if (numOccur > minOccurence) {
                 result.add(item);
             }

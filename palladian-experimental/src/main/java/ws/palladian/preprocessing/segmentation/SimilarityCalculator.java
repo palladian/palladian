@@ -42,11 +42,11 @@ public class SimilarityCalculator {
             // If both maps contain same key, exermine if there is a difference in the value
             if (page2.contains(qGram)) {
                 // Calculate the difference in the value
-                if (page2.get(qGram) == page1.get(qGram)) {
+                if (page2.getCount(qGram) == page1.getCount(qGram)) {
                     variance.add(new Double(0));
                 } else {
-                    Integer value = page1.get(qGram);
-                    Integer value2 = page2.get(qGram);
+                    Integer value = page1.getCount(qGram);
+                    Integer value2 = page2.getCount(qGram);
 
                     double d = 0;
                     if (value > value2)

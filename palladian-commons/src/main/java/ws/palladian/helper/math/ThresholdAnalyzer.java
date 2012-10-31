@@ -125,7 +125,7 @@ public class ThresholdAnalyzer {
     int getRetrievedAt(double threshold) {
         int retrieved = 0;
         for (int i = getBin(threshold); i <= numBins; i++) {
-            retrieved += retrievedItems.get(i);
+            retrieved += retrievedItems.getCount(i);
         }
         return retrieved;
     }
@@ -133,7 +133,7 @@ public class ThresholdAnalyzer {
     int getTruePositiveAt(double threshold) {
         int truePositive = 0;
         for (int i = getBin(threshold); i <= numBins; i++) {
-            truePositive += truePositiveItems.get(i);
+            truePositive += truePositiveItems.getCount(i);
         }
         return truePositive;
     }
@@ -147,6 +147,10 @@ public class ThresholdAnalyzer {
             double threshold = (double)i / numBins;
             double pr = getPrecision(threshold);
             double rc = getRecall(threshold);
+            if (rc == 0) {
+                // no more useful information from here, stop.
+                break;
+            }
             double f1 = getF1(threshold);
             sb.append(format.format(threshold)).append('\t');
             sb.append(format.format(pr)).append('\t');

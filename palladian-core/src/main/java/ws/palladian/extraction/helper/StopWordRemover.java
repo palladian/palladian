@@ -12,8 +12,6 @@ import ws.palladian.processing.PipelineDocument;
 
 public class StopWordRemover extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 5014188120999997379L;
-
     private List<String> stopWords;
 
     public StopWordRemover() {

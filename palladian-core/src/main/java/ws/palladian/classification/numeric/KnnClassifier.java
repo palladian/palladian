@@ -115,7 +115,6 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         for (Entry<String, Double> entry : relevances.entrySet()) {
             categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue()));
         }
-        System.out.println(categoryEntries);
         return categoryEntries;
     }
 

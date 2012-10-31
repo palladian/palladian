@@ -1,19 +1,19 @@
 package ws.palladian.classification.nominal;
 
 import ws.palladian.classification.Model;
-import ws.palladian.helper.collection.CountMap2D;
+import ws.palladian.helper.collection.CountMatrix;
 
 public final class NominalClassifierModel implements Model {
 
     private static final long serialVersionUID = 1L;
 
-    private final CountMap2D<String> cooccurrenceMatrix;
+    private final CountMatrix<String> cooccurrenceMatrix;
 
-    public NominalClassifierModel(CountMap2D<String> cooccurrenceMatrix) {
+    public NominalClassifierModel(CountMatrix<String> cooccurrenceMatrix) {
         this.cooccurrenceMatrix = cooccurrenceMatrix;
     }
 
-    public CountMap2D<String> getCooccurrenceMatrix() {
+    public CountMatrix<String> getCooccurrenceMatrix() {
         return cooccurrenceMatrix;
     }
 

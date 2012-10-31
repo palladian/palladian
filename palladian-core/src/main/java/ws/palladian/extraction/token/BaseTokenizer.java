@@ -23,8 +23,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * <p>
      * The identifier of the feature provided by this {@link PipelineProcessor}.

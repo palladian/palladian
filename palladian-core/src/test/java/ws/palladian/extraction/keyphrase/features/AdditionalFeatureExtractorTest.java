@@ -14,6 +14,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 
 public class AdditionalFeatureExtractorTest {
@@ -25,7 +26,7 @@ public class AdditionalFeatureExtractorTest {
         pipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
         pipeline.add(new DuplicateTokenConsolidator());
         pipeline.add(new AdditionalFeatureExtractor());
-        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
+        TextDocument document = pipeline.process(new TextDocument("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
         List<Annotation<String>> tokenAnnotations = RegExTokenizer.getTokenAnnotations(document);
         assertEquals(9, tokenAnnotations.size());
     }

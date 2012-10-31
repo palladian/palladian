@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.constants.Language;
@@ -15,6 +16,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * 
  */
+@Ignore
 public class FlickrSearcherTest {
 
     private static final String TEST_API_KEY = "3bb508b5d6a50a1b30726e5107de7855";

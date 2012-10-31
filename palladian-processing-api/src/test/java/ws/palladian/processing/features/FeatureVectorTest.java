@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 public class FeatureVectorTest {
 
@@ -30,7 +30,7 @@ public class FeatureVectorTest {
     @Test
     public void testRetrieveFeaturesByPath() {
 
-        PipelineDocument<String> document = new PipelineDocument<String>("hello world");
+        TextDocument document = new TextDocument("hello world");
         
         
         PositionAnnotation annotation1 = new PositionAnnotation(document, 0, 5);

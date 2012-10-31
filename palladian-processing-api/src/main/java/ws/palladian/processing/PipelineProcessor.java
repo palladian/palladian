@@ -1,6 +1,5 @@
 package ws.palladian.processing;
 
-import java.io.Serializable;
 import java.util.List;
 
 import ws.palladian.processing.features.FeatureVector;
@@ -21,7 +20,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @version 3.0
  * @since 0.0.8
  */
-public interface PipelineProcessor extends Serializable {
+public interface PipelineProcessor {
 
     static final String DEFAULT_INPUT_PORT_IDENTIFIER = "ws.palladian.inputport";
     static final String DEFAULT_OUTPUT_PORT_IDENTIFIER = "ws.palladian.outputport";

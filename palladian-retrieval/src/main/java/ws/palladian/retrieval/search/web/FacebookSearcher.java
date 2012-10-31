@@ -38,6 +38,29 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
 
     /** Pattern used for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
+    
+    /** Determine which results to return; URLs to exernal resources or URLs to posts within Facebook. */
+    public static enum ResultType {
+        /** Provide URLs as result, which link to the Facebook posts. To access them, authentication is necessary. */
+        FACEBOOK_URLS, 
+        /** Provide resolved URLs as result, that means, links to external content referenced in the Facebook posts. */
+        RESOLVED_URLS
+    }
+    
+    /** Type of result to return, see {@link ResultType}. */
+    private final ResultType resultType;
+
+
+    public FacebookSearcher() {
+        this(ResultType.FACEBOOK_URLS);
+    }
+    
+    /**
+     * @param resultType
+     */
+    public FacebookSearcher(ResultType resultType) {
+        this.resultType = resultType;
+    }
 
     @Override
     public String getName() {
@@ -70,21 +93,20 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
 
                 for (int i = 0; i < jsonData.length(); i++) {
                     JSONObject jsonEntry = jsonData.getJSONObject(i);
-
-                    String url = JsonHelper.getString(jsonEntry, "link");
-
-                    if (url == null) {
+                    
+                    WebResult webResult;
+                    if (resultType == ResultType.RESOLVED_URLS) {
+                        webResult = processUrls(jsonEntry);
+                    } else {
+                        webResult = processPosts(jsonEntry);
+                    }
+                    if (webResult == null) {
                         continue; // ignore entries without URLs for now.
                     }
-                    if (!urlDeduplication.add(url)) {
+                    if (!urlDeduplication.add(webResult.getUrl())) {
                         continue; // we already had this URL.
                     }
-
-                    String title = JsonHelper.getString(jsonEntry, "name");
-                    String summary = JsonHelper.getString(jsonEntry, "caption");
-                    Date date = parseDate(jsonEntry.getString("created_time"));
-
-                    result.add(new WebResult(url, title, summary, date, SEARCHER_NAME));
+                    result.add(webResult);
 
                     if (result.size() == resultCount) {
                         break;
@@ -97,6 +119,27 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
             }
         }
         return result;
+    }
+
+    private WebResult processPosts(JSONObject jsonEntry) throws JSONException {
+        String id = JsonHelper.getString(jsonEntry, "id");
+        // http://stackoverflow.com/questions/4729477/what-is-the-url-to-a-facebook-open-graph-post
+        String url = String.format("http://www.facebook.com/%s", id);
+        String message = JsonHelper.getString(jsonEntry, "message");
+        // String description = JsonHelper.getString(jsonEntry, "description");
+        Date date = parseDate(jsonEntry.getString("created_time"));
+        return new WebResult(url, message, null, date, SEARCHER_NAME);
+    }
+
+    private WebResult processUrls(JSONObject jsonEntry) throws JSONException {
+        String url = JsonHelper.getString(jsonEntry, "link");
+        if (url == null) {
+            return null; // ignore entries without URLs for now.
+        }
+        String title = JsonHelper.getString(jsonEntry, "name");
+        String summary = JsonHelper.getString(jsonEntry, "caption");
+        Date date = parseDate(jsonEntry.getString("created_time"));
+        return new WebResult(url, title, summary, date, SEARCHER_NAME);
     }
 
     public String buildRequestUrl(String query, int page) {

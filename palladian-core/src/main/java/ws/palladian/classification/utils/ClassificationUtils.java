@@ -2,7 +2,6 @@ package ws.palladian.classification.utils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -211,7 +210,7 @@ public final class ClassificationUtils {
      * @return The random subset from {@code list}.
      */
     public static <T> List<T> drawRandomSubset(final List<T> list, final int fraction) {
-        Random rnd = new Random(Calendar.getInstance().getTimeInMillis());
+        Random rnd = new Random(System.currentTimeMillis());
 //        int m = (fraction * list.size()) / 100;
 //        for (int i = 0; i < list.size(); i++) {
 //            int pos = i + rnd.nextInt(list.size() - i);

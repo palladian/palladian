@@ -23,8 +23,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public abstract class AbstractTokenProcessor extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public final void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();

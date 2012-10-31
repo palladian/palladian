@@ -24,9 +24,6 @@ import ws.palladian.retrieval.feeds.Feed;
  */
 public abstract class BaseFeedParser implements FeedParser {
 
-    protected BaseFeedParser() {
-    }
-
     /*
      * (non-Javadoc)
      * @see ws.palladian.retrieval.feeds.parser.FeedParser#getFeed(java.io.File, boolean)
