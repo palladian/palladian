@@ -57,6 +57,11 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
                 String requestUrl = "http://www.google.com/search?hl=en&safe=off&output=search&start="
                         + entriesPerPage * page + "&q=" + UrlHelper.urlEncode(query);
                 HttpResult httpResult = retriever.httpGet(requestUrl);
+
+                if (httpResult.getStatusCode() >= 500) {
+                    throw new SearcherException("Google blocks the search requests");
+                }
+
                 Document document = parser.parse(httpResult);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
@@ -126,7 +131,7 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
         // List<String> urls = scroogleSearcher.searchUrls("capital germany", 11);
         // List<String> urls = scroogleSearcher.searchUrls("\"the population of germany is\"", 5);
         // List<String> urls = scroogleSearcher.searchUrls("\"eelee.com/sagem-puma-phone\"", 5);
-        List<String> urls = scroogleSearcher.searchUrls("\"eelee.com/wnd-wind-duo-2200-reviews\"", 5);
+        List<String> urls = scroogleSearcher.searchUrls("\"http://eelee.com/htc-vivid\"", 5);
         CollectionHelper.print(urls);
     }
 }

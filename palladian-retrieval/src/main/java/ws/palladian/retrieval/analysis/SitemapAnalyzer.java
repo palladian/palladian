@@ -32,9 +32,7 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.services.SemRush;
-import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
 
 /**
  * <p>
@@ -120,21 +118,22 @@ public class SitemapAnalyzer {
                 String noHtml = HtmlHelper.stripHtmlTags(htmlText);
                 int wordCount = StringHelper.countWords(noHtml);
 
-                int indexed = 0;
-                List<WebResult> searchResults = CollectionHelper.newArrayList();
-                try {
-                    searchResults = googleSearcher.search("\"" + document.getDocumentURI().replace("http://", "")
-                            + "\"", 1);
-                    if (!searchResults.isEmpty()) {
-                        WebResult webResult = searchResults.get(0);
-                        if (webResult.getUrl().equalsIgnoreCase(document.getDocumentURI())) {
-                            indexed = 1;
-                        }
-                    }
-                    pause();
-                } catch (SearcherException e) {
-                    LOGGER.error(e.getMessage());
-                }
+                // int indexed = 0;
+                // List<WebResult> searchResults = CollectionHelper.newArrayList();
+                // try {
+                // searchResults = googleSearcher.search("\"" + document.getDocumentURI().replace("http://", "")
+                // + "\"", 1);
+                // if (!searchResults.isEmpty()) {
+                // WebResult webResult = searchResults.get(0);
+                // if (webResult.getUrl().equalsIgnoreCase(document.getDocumentURI())) {
+                // indexed = 1;
+                // }
+                // }
+                // pause();
+                // } catch (SearcherException e) {
+                // LOGGER.error(e.getMessage());
+                // indexed = -1;
+                // }
                 SemRush semRush = new SemRush();
                 Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
 
@@ -143,9 +142,8 @@ public class SitemapAnalyzer {
                 map.put("out-ext", outExt.size());
                 map.put("#words", wordCount);
                 map.put("size", SizeUnit.BYTES.toKilobytes(htmlText.length()));
-                map.put("indexed", indexed);
-
-                LOGGER.info(document.getDocumentURI() + " => indexed: " + indexed);
+                // map.put("indexed", indexed);
+                // LOGGER.debug(document.getDocumentURI() + " => indexed: " + indexed);
 
                 resultTable.put(document.getDocumentURI(), map);
 
@@ -188,7 +186,8 @@ public class SitemapAnalyzer {
                 writer.append(entry.getValue().get("out-ext") + ";");
                 writer.append(entry.getValue().get("#words") + ";");
                 writer.append(entry.getValue().get("size") + ";");
-                writer.append(entry.getValue().get("indexed") + "\n");
+                // writer.append(entry.getValue().get("indexed"));
+                writer.append("\n");
             }
         } catch (IOException e) {
             LOGGER.error(e);
@@ -199,7 +198,7 @@ public class SitemapAnalyzer {
 
     public static void main(String[] args) {
         SitemapAnalyzer sitemapAnalyzer = new SitemapAnalyzer();
-        sitemapAnalyzer.setNumThreads(5);
+        sitemapAnalyzer.setNumThreads(10);
         sitemapAnalyzer.analyzeSitemap("http://webknox.com/sitemapIndex.xml", "sitemapAnalysis.csv");
     }
 }

@@ -126,4 +126,11 @@ public class JsonObjectWrapper {
         return result;
     }
 
+    public void put(String key, Object value) {
+        try {
+            jsonObject.put(key, value);
+        } catch (Exception e) {
+        }
+    }
+
 }
