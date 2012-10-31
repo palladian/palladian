@@ -11,6 +11,7 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 
 public class DuplicateTokenConsolidatorTest {
@@ -22,7 +23,7 @@ public class DuplicateTokenConsolidatorTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new DuplicateTokenConsolidator());
-        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>(SAMPLE_TEXT));
+        PipelineDocument<String> document = pipeline.process(new TextDocument(SAMPLE_TEXT));
         
         List<Annotation<String>> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
         Annotation<String> token1 = tokenAnnotations.get(0);

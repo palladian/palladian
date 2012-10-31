@@ -181,8 +181,8 @@ public class ContentExtractionEvaluation {
 
         LOGGER.info("------------- stats ------------------");
         for (WebPageContentExtractor extractor : extractors) {
-            LOGGER.info(" " + extractor.getExtractorName() + "\t#wins:" + wins.get(extractor) + "\t#errors:"
-                    + errors.get(extractor) + "\tavg. score:" + (double) stats.get(extractor) / dataset.size());
+            LOGGER.info(" " + extractor.getExtractorName() + "\t#wins:" + wins.getCount(extractor) + "\t#errors:"
+                    + errors.getCount(extractor) + "\tavg. score:" + (double) stats.get(extractor) / dataset.size());
         }
 
         return sb.toString();

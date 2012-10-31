@@ -29,6 +29,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
@@ -66,7 +67,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             trainingPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
@@ -97,7 +98,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             extractionPipeline.process(document);
         } catch (DocumentUnprocessableException e) {

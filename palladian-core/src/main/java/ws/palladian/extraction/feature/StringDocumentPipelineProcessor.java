@@ -13,10 +13,6 @@ import ws.palladian.processing.PipelineDocument;
  * @since 0.1.7
  */
 public abstract class StringDocumentPipelineProcessor extends AbstractPipelineProcessor<String> {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 5839622925654060268L;
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {

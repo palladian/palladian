@@ -34,13 +34,6 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object, NumericFeature> {
 
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set changes.
-     * </p>
-     */
-    private static final long serialVersionUID = 3094845412635456119L;
-
     public static final String INPUT_PORT_ONE_IDENTIFIER = "input1";
     public static final String INPUT_PORT_TWO_IDENTIFIER = "input2";
 

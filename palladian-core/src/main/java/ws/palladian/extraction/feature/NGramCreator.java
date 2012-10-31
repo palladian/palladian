@@ -31,8 +31,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public class NGramCreator extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     private final int minLength;
     private final int maxLength;
     private final FeatureDescriptor<NominalFeature>[] considerableFeatureDescriptors;

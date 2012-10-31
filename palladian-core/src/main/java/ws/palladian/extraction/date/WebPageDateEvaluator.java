@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -13,7 +15,10 @@ import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.ContentDateRater;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -32,14 +37,14 @@ import ws.palladian.retrieval.parser.ParserFactory;
  */
 public final class WebPageDateEvaluator {
 
-    private static final double THRESHOLD_GROUP_1 = 0.15;
-    private static final double THRESHOLD_GROUP_2 = 0.24;
-    private static final double THRESHOLD_GROUP_3 = 0.18;
-    private static final double THRESHOLD_GROUP_4 = 0.16;
-    private static final double THRESHOLD_GROUP_5 = 0.14;
-    private static final double THRESHOLD_GROUP_6 = 0.13;
-    private static final double THRESHOLD_GROUP_7 = 0.17;
-    private static final double THRESHOLD_GROUP_8 = 0.26;
+//    private static final double THRESHOLD_GROUP_1 = 0.15;
+//    private static final double THRESHOLD_GROUP_2 = 0.24;
+//    private static final double THRESHOLD_GROUP_3 = 0.18;
+//    private static final double THRESHOLD_GROUP_4 = 0.16;
+//    private static final double THRESHOLD_GROUP_5 = 0.14;
+//    private static final double THRESHOLD_GROUP_6 = 0.13;
+//    private static final double THRESHOLD_GROUP_7 = 0.17;
+//    private static final double THRESHOLD_GROUP_8 = 0.26;
 
     private WebPageDateEvaluator() {
         // helper class, prevent instantiation.
@@ -65,33 +70,75 @@ public final class WebPageDateEvaluator {
         List<RatedDate<ExtractedDate>> dates = getDates(document, type);
         if (dates.size() > 0) {
             RatedDate<ExtractedDate> bestRatedDate = dates.get(0);
-            ExtractedDate bestDate = bestRatedDate.getDate();
-            if (bestDate instanceof ContentDate) {
-                ContentDate bestContentDate = (ContentDate)bestDate;
-                double size = 1 / bestContentDate.getRelSize();
-                double limit = 0;
+            return bestRatedDate;
+            
+//            ExtractedDate bestDate = bestRatedDate.getDate();
+//            if (bestDate instanceof ContentDate) {
+//                ContentDate bestContentDate = (ContentDate)bestDate;
+//                double size = 1 / bestContentDate.getRelSize();
+//                double limit = 0;
+//
+//                // XXX are those strange thresholds really necessary?
+//
+//                if (0 < size && size <= 1) {
+//                    limit = THRESHOLD_GROUP_1;
+//                } else if (1 < size && size <= 2) {
+//                    limit = THRESHOLD_GROUP_2;
+//                } else if (2 < size && size <= 3) {
+//                    limit = THRESHOLD_GROUP_3;
+//                } else if (3 < size && size <= 5) {
+//                    limit = THRESHOLD_GROUP_4;
+//                } else if (5 < size && size <= 10) {
+//                    limit = THRESHOLD_GROUP_5;
+//                } else if (10 < size && size <= 20) {
+//                    limit = THRESHOLD_GROUP_6;
+//                } else if (20 < size && size <= 50) {
+//                    limit = THRESHOLD_GROUP_7;
+//                } else if (50 < size) {
+//                    limit = THRESHOLD_GROUP_8;
+//                }
+//                if (bestRatedDate.getRate() >= limit) {
+//                    return bestRatedDate;
+//                }
+//            }
+        }
+        return null;
+    }
+    
+    /**
+     * <p>
+     * Quick and dirty method to get the publication date from an HTML5 webpage, by looking for <code>article</code>
+     * nodes with <code>datetime</code> nodes.
+     * </p>
+     * 
+     * @param document The HTML5 document from which to extract the publication date, not <code>null</code>.
+     * @return The publictation date, if it could be extracted from the document, or <code>null</code>.
+     */
+    public static ExtractedDate getBestPubDateHtml5(Document document) {
+        Validate.notNull(document, "document must not be null");
 
-                // XXX are those strange thresholds really necessary?
+        List<Node> articleNodes = XPathHelper.getXhtmlChildNodes(document, "//article");
+        
+        // determine the longest article node.
+        Node mainArticle = null;
+        int longest = -1;
+        for (Node articleNode : articleNodes) {
+            int articleLength = HtmlHelper.getInnerXml(articleNode).length();
+            if (articleLength > longest) {
+                mainArticle = articleNode;
+                longest = articleLength;
+            }
+        }
 
-                if (0 < size && size <= 1) {
-                    limit = THRESHOLD_GROUP_1;
-                } else if (1 < size && size <= 2) {
-                    limit = THRESHOLD_GROUP_2;
-                } else if (2 < size && size <= 3) {
-                    limit = THRESHOLD_GROUP_3;
-                } else if (3 < size && size <= 5) {
-                    limit = THRESHOLD_GROUP_4;
-                } else if (5 < size && size <= 10) {
-                    limit = THRESHOLD_GROUP_5;
-                } else if (10 < size && size <= 20) {
-                    limit = THRESHOLD_GROUP_6;
-                } else if (20 < size && size <= 50) {
-                    limit = THRESHOLD_GROUP_7;
-                } else if (50 < size) {
-                    limit = THRESHOLD_GROUP_8;
-                }
-                if (bestRatedDate.getRate() >= limit) {
-                    return bestRatedDate;
+        if (mainArticle != null) {
+            List<Node> timeNodes = XPathHelper.getXhtmlChildNodes(mainArticle, ".//time");
+            for (Node timeNode : timeNodes) {
+                NamedNodeMap attributes = timeNode.getAttributes();
+                if (attributes.getNamedItem("pubdate") != null) {
+                    Node dateTime = attributes.getNamedItem("datetime");
+                    if (dateTime != null) {
+                        return DateParser.parseDate(dateTime.getTextContent());
+                    }
                 }
             }
         }

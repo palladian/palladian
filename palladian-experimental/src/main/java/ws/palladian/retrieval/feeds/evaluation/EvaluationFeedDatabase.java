@@ -152,7 +152,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
                 EvaluationFeedItem item = new EvaluationFeedItem();
 
                 item.setFeedId(resultSet.getInt("feedId"));
-                item.setHash(resultSet.getString("extendedItemHash"), true);
+                item.setHash(resultSet.getString("extendedItemHash"));
 
                 return item;
 

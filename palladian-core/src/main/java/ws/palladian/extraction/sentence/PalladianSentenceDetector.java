@@ -8,8 +8,6 @@ import ws.palladian.processing.features.PositionAnnotation;
 
 public class PalladianSentenceDetector extends AbstractSentenceDetector {
 
-    private static final long serialVersionUID = 2651862330142408510L;
-
     @Override
     public AbstractSentenceDetector detect(String text) {
 

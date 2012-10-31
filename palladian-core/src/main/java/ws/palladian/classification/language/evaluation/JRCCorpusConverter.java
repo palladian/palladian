@@ -196,7 +196,7 @@ public class JRCCorpusConverter {
                     return;
                 }
 
-                if (((CountMap<String>) obj[1]).get(parts[1]) >= (Integer) obj[2]) {
+                if (((CountMap<String>) obj[1]).getCount(parts[1]) >= (Integer) obj[2]) {
                     return;
                 }
 
