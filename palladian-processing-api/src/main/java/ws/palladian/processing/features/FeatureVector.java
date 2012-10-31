@@ -275,7 +275,9 @@ class FeatureIterator implements Iterator<Feature<?>> {
 
         this.vector = vector;
         iteratorStack = new Stack<Iterator<? extends Feature<?>>>();
-        iteratorStack.push(vector.getFeatures().iterator());
+        if (!vector.getFeatures().isEmpty()) {
+            iteratorStack.push(vector.getFeatures().iterator());
+        }
     }
 
     @Override
@@ -286,18 +288,20 @@ class FeatureIterator implements Iterator<Feature<?>> {
     @Override
     public Feature<?> next() {
         try {
-            Iterator<? extends Feature<?>> currentIterator = iteratorStack.pop();
+            Iterator<? extends Feature<?>> currentIterator = iteratorStack.peek();
             Feature<?> feature = currentIterator.next();
+
+            if (!currentIterator.hasNext()) {
+                iteratorStack.pop();
+            }
 
             if (feature instanceof AnnotationFeature<?>) {
                 AnnotationFeature<?> annotationFeature = (AnnotationFeature)feature;
                 for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
-                    iteratorStack.push(annotation.getFeatureVector().iterator());
+                    if (!annotation.getFeatureVector().getFeatures().isEmpty()) {
+                        iteratorStack.push(annotation.getFeatureVector().iterator());
+                    }
                 }
-            }
-
-            if (currentIterator.hasNext()) {
-                iteratorStack.push(currentIterator);
             }
 
             return feature;
