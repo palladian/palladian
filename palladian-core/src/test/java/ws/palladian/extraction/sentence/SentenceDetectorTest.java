@@ -2,6 +2,7 @@ package ws.palladian.extraction.sentence;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,7 +13,6 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.PositionAnnotation;
 
 public class SentenceDetectorTest {
@@ -73,13 +73,13 @@ public class SentenceDetectorTest {
     }
 
     @Test
-    public void testPalladianSentenceChunker() {
+    public void testPalladianSentenceChunker() throws FileNotFoundException {
         objectOfClassUnderTest = new PalladianSentenceDetector();
         objectOfClassUnderTest.detect(fixture2);
         PositionAnnotation[] sentences = objectOfClassUnderTest.getSentences();
         Assert.assertThat(sentences.length, Matchers.is(269));
         Assert.assertThat(sentences[sentences.length - 1].getValue(),
-                Matchers.is("DBConnection disconnect\nINFO: disconnected\n"));
+                Matchers.is("DBConnection disconnect\nINFO: disconnected"));
     }
 
     @Test
@@ -90,6 +90,16 @@ public class SentenceDetectorTest {
         PositionAnnotation[] sentences = objectOfClassUnderTest.getSentences();
         Assert.assertThat(sentences.length, Matchers.is(5));
         Assert.assertThat(sentences[sentences.length - 1].getValue(),
-                Matchers.is(" This applications can also be used in 4.7."));
+                Matchers.is("This applications can also be used in 4.7."));
+    }
+
+    @Test
+    public void testPalladianSentenceChunkerWithLineBreakAtEndOfText() throws FileNotFoundException {
+        objectOfClassUnderTest = new PalladianSentenceDetector();
+        String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/contribution03.txt"));
+        objectOfClassUnderTest.detect(text);
+        PositionAnnotation[] sentences = objectOfClassUnderTest.getSentences();
+        Assert.assertThat(sentences.length, Matchers.is(81));
+        Assert.assertThat(sentences[sentences.length - 1].getValue(), Matchers.is("Return code: 4"));
     }
 }
