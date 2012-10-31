@@ -21,25 +21,25 @@ public class ConfusionMatrixTest {
         confusionMatrix.add("rabbit", "dog", 2);
         confusionMatrix.add("rabbit", "rabbit", 11);
 
-        assertEquals(8, confusionMatrix.getRealNumberOfCategory("cat"));
-        assertEquals(6, confusionMatrix.getRealNumberOfCategory("dog"));
-        assertEquals(13, confusionMatrix.getRealNumberOfCategory("rabbit"));
+        assertEquals(8, confusionMatrix.getRealDocuments("cat"));
+        assertEquals(6, confusionMatrix.getRealDocuments("dog"));
+        assertEquals(13, confusionMatrix.getRealDocuments("rabbit"));
 
-        assertEquals(7, confusionMatrix.getClassifiedNumberOfCategory("cat"));
-        assertEquals(8, confusionMatrix.getClassifiedNumberOfCategory("dog"));
-        assertEquals(12, confusionMatrix.getClassifiedNumberOfCategory("rabbit"));
+        assertEquals(7, confusionMatrix.getClassifiedDocuments("cat"));
+        assertEquals(8, confusionMatrix.getClassifiedDocuments("dog"));
+        assertEquals(12, confusionMatrix.getClassifiedDocuments("rabbit"));
 
-        assertEquals(19, confusionMatrix.getCorrectlyClassified());
+        assertEquals(19, confusionMatrix.getTotalCorrect());
         assertEquals(19. / 27, confusionMatrix.getAccuracy(), DELTA);
 
-        assertEquals(5, confusionMatrix.getNumberOfCorrectClassifiedDocumentsInCategory("cat"));
-        assertEquals(3, confusionMatrix.getNumberOfCorrectClassifiedDocumentsInCategory("dog"));
-        assertEquals(11, confusionMatrix.getNumberOfCorrectClassifiedDocumentsInCategory("rabbit"));
+        assertEquals(5, confusionMatrix.getCorrectlyClassifiedDocuments("cat"));
+        assertEquals(3, confusionMatrix.getCorrectlyClassifiedDocuments("dog"));
+        assertEquals(11, confusionMatrix.getCorrectlyClassifiedDocuments("rabbit"));
 
-        assertEquals(0, confusionMatrix.getNumberOfConfusionsBetween("cat", "rabbit"));
-        assertEquals(3, confusionMatrix.getNumberOfConfusionsBetween("cat", "dog"));
-        assertEquals(2, confusionMatrix.getNumberOfConfusionsBetween("rabbit", "dog"));
-        assertEquals(1, confusionMatrix.getNumberOfConfusionsBetween("dog", "rabbit"));
+        assertEquals(0, confusionMatrix.getConfusions("cat", "rabbit"));
+        assertEquals(3, confusionMatrix.getConfusions("cat", "dog"));
+        assertEquals(2, confusionMatrix.getConfusions("rabbit", "dog"));
+        assertEquals(1, confusionMatrix.getConfusions("dog", "rabbit"));
 
         assertEquals(3, confusionMatrix.getCategories().size());
 
@@ -47,24 +47,24 @@ public class ConfusionMatrixTest {
 
         assertEquals(13. / 27, confusionMatrix.getHighestPrior(), DELTA);
 
-        assertEquals(5. / 7, confusionMatrix.getPrecisionForCategory("cat"), DELTA);
-        assertEquals(5. / 8, confusionMatrix.getRecallForCategory("cat"), DELTA);
-        assertEquals(22. / 27, confusionMatrix.getAccuracyForCategory("cat"), DELTA);
-        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getFForCategory("cat", 0.5), DELTA);
+        assertEquals(5. / 7, confusionMatrix.getPrecision("cat"), DELTA);
+        assertEquals(5. / 8, confusionMatrix.getRecall("cat"), DELTA);
+        assertEquals(22. / 27, confusionMatrix.getAccuracy("cat"), DELTA);
+        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getF("cat", 0.5), DELTA);
 
-        assertEquals(3. / 8, confusionMatrix.getPrecisionForCategory("dog"), DELTA);
-        assertEquals(3. / 6, confusionMatrix.getRecallForCategory("dog"), DELTA);
-        assertEquals(19. / 27, confusionMatrix.getAccuracyForCategory("dog"), DELTA);
-        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getFForCategory("dog", 0.5), DELTA);
+        assertEquals(3. / 8, confusionMatrix.getPrecision("dog"), DELTA);
+        assertEquals(3. / 6, confusionMatrix.getRecall("dog"), DELTA);
+        assertEquals(19. / 27, confusionMatrix.getAccuracy("dog"), DELTA);
+        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getF("dog", 0.5), DELTA);
 
-        assertEquals(11. / 12, confusionMatrix.getPrecisionForCategory("rabbit"), DELTA);
-        assertEquals(11. / 13, confusionMatrix.getRecallForCategory("rabbit"), DELTA);
-        assertEquals(24. / 27, confusionMatrix.getAccuracyForCategory("rabbit"), DELTA);
-        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getFForCategory("rabbit", 0.5), DELTA);
+        assertEquals(11. / 12, confusionMatrix.getPrecision("rabbit"), DELTA);
+        assertEquals(11. / 13, confusionMatrix.getRecall("rabbit"), DELTA);
+        assertEquals(24. / 27, confusionMatrix.getAccuracy("rabbit"), DELTA);
+        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getF("rabbit", 0.5), DELTA);
 
-        assertEquals(8. / 27, confusionMatrix.getWeightForCategory("cat"), DELTA);
-        assertEquals(6. / 27, confusionMatrix.getWeightForCategory("dog"), DELTA);
-        assertEquals(13. / 27, confusionMatrix.getWeightForCategory("rabbit"), DELTA);
+        assertEquals(8. / 27, confusionMatrix.getPrior("cat"), DELTA);
+        assertEquals(6. / 27, confusionMatrix.getPrior("dog"), DELTA);
+        assertEquals(13. / 27, confusionMatrix.getPrior("rabbit"), DELTA);
 
         assertEquals((5. / 7 + 3. / 8 + 11. / 12) / 3, confusionMatrix.getAveragePrecision(false), DELTA);
         assertEquals((5. / 8 + 3. / 6 + 11. / 13) / 3, confusionMatrix.getAverageRecall(false), DELTA);
