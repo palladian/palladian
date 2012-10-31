@@ -1,6 +1,7 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,6 +80,9 @@ public final class FeatureVector implements Iterable<Feature<?>> {
      * @return
      */
     public Feature<?> getFeature(String featurePath) {
+        if (featurePath.startsWith("/")) {
+            featurePath = featurePath.substring(1);
+        }
         String[] pathElements = featurePath.split("/");
         List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
         if (selectedFeatures == null) {
@@ -220,8 +224,12 @@ public final class FeatureVector implements Iterable<Feature<?>> {
     }
 
     public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
 
         String[] pathElements = path.split("/");
+        // System.out.println(Arrays.toString(pathElements));
         List<T> collectedFeatures = new LinkedList<T>();
 
         List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
