@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
@@ -18,6 +19,7 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.constants.SizeUnit;
@@ -25,10 +27,12 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
-import ws.palladian.retrieval.ranking.services.GoogleIndexedPage;
 import ws.palladian.retrieval.ranking.services.SemRush;
+import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 
 /**
  * <p>
@@ -70,6 +74,11 @@ public class SitemapAnalyzer {
         this.numThreads = numThreads;
     }
 
+    private static void pause() {
+        long milliseconds = TimeUnit.SECONDS.toMillis((long)(Math.random() * 5 + 1));
+        ThreadHelper.deepSleep(milliseconds);
+    }
+
     public void analyzeSitemap(String sitemapUrl, String analysisResultFilePath) {
 
         final StopWatch stopWatch = new StopWatch();
@@ -79,6 +88,8 @@ public class SitemapAnalyzer {
         final int totalCount = urls.size();
 
         final AtomicInteger count = new AtomicInteger(1);
+
+        final GoogleScraperSearcher googleSearcher = new GoogleScraperSearcher();
 
         RetrieverCallback<Document> retrieverCallback = new RetrieverCallback<Document>() {
 
@@ -107,8 +118,22 @@ public class SitemapAnalyzer {
                 String noHtml = HtmlHelper.stripHtmlTags(htmlText);
                 int wordCount = StringHelper.countWords(noHtml);
 
-                GoogleIndexedPage googleIndexedPage = new GoogleIndexedPage();
-                Ranking ranking = googleIndexedPage.getRanking(document.getDocumentURI());
+                // int indexed = 0;
+                // List<WebResult> searchResults = CollectionHelper.newArrayList();
+                // try {
+                // searchResults = googleSearcher.search("\"" + document.getDocumentURI().replace("http://", "")
+                // + "\"", 1);
+                // if (!searchResults.isEmpty()) {
+                // WebResult webResult = searchResults.get(0);
+                // if (webResult.getUrl().equalsIgnoreCase(document.getDocumentURI())) {
+                // indexed = 1;
+                // }
+                // }
+                // pause();
+                // } catch (SearcherException e) {
+                // LOGGER.error(e.getMessage());
+                // indexed = -1;
+                // }
                 SemRush semRush = new SemRush();
                 Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
 
@@ -117,18 +142,22 @@ public class SitemapAnalyzer {
                 map.put("out-ext", outExt.size());
                 map.put("#words", wordCount);
                 map.put("size", SizeUnit.BYTES.toKilobytes(htmlText.length()));
-                map.put("indexed", ranking.getValues().get(GoogleIndexedPage.GOOGLEINDEXED));
+                // map.put("indexed", indexed);
+                // LOGGER.debug(document.getDocumentURI() + " => indexed: " + indexed);
 
                 resultTable.put(document.getDocumentURI(), map);
 
-                ProgressHelper.showProgress(count.intValue(), totalCount, 1, stopWatch);
+                ProgressHelper.showProgress(count.intValue(), totalCount, .2, stopWatch);
                 count.incrementAndGet();
             }
         };
 
         LOGGER.info("starting to process each page (" + urls.size() + " in total), time elapsed: "
                 + stopWatch.getElapsedTimeString());
-        DocumentRetriever documentRetriever = new DocumentRetriever();
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        httpRetriever.setConnectionTimeout(TimeUnit.SECONDS.toMillis(120));
+        httpRetriever.setSocketTimeout(TimeUnit.SECONDS.toMillis(120));
+        DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
         documentRetriever.setNumThreads(getNumThreads());
         documentRetriever.getWebDocuments(urls, retrieverCallback);
 
@@ -157,7 +186,8 @@ public class SitemapAnalyzer {
                 writer.append(entry.getValue().get("out-ext") + ";");
                 writer.append(entry.getValue().get("#words") + ";");
                 writer.append(entry.getValue().get("size") + ";");
-                writer.append(entry.getValue().get("indexed") + "\n");
+                // writer.append(entry.getValue().get("indexed"));
+                writer.append("\n");
             }
         } catch (IOException e) {
             LOGGER.error(e);
@@ -169,6 +199,6 @@ public class SitemapAnalyzer {
     public static void main(String[] args) {
         SitemapAnalyzer sitemapAnalyzer = new SitemapAnalyzer();
         sitemapAnalyzer.setNumThreads(10);
-        sitemapAnalyzer.analyzeSitemap("http://eelee.com/sitemapIndex.xml", "sitemapAnalysis.csv");
+        sitemapAnalyzer.analyzeSitemap("http://webknox.com/sitemapIndex.xml", "sitemapAnalysis.csv");
     }
 }
