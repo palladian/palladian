@@ -244,7 +244,7 @@ public final class FeedReader {
             @Override
             public boolean performAction(Feed feed, HttpResult httpResult) {
                 List<FeedItem> items = feed.getItems();
-                int addedItems = feedStore.addFeedItems(feed, items);
+                int addedItems = feedStore.addFeedItems(items);
                 newItems.addAndGet(addedItems);
                 return true;
             }

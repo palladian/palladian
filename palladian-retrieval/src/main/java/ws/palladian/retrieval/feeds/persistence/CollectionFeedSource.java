@@ -86,7 +86,7 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public boolean addFeedItem(Feed feed, FeedItem entry) {
+    public boolean addFeedItem(FeedItem feedItem) {
         // TODO Auto-generated method stub
         return true;
     }
@@ -104,7 +104,7 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public int addFeedItems(Feed feed, List<FeedItem> items) {
+    public int addFeedItems(List<FeedItem> items) {
         // TODO Auto-generated method stub
         return 0;
     }

@@ -133,8 +133,8 @@ public class FeedImporter {
                     added = store.addFeed(feed);
 
                     if (added && storeItems) {
-                        for (FeedItem feedEntry : feed.getItems()) {
-                            added = store.addFeedItem(feed, feedEntry);
+                        for (FeedItem feedItem : feed.getItems()) {
+                            added = store.addFeedItem(feedItem);
                         }
                     }
 
