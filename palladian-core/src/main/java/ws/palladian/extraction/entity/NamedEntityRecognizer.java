@@ -24,7 +24,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -285,6 +284,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
                 LOGGER.fatal("found: " + correctText);
                 LOGGER.fatal("instead of: " + annotation.getEntity() + "(" + annotation + ")");
                 LOGGER.fatal("last annotation: " + lastAnnotation);
+                System.err.println("stopping application because of misaligned tagging");
                 System.exit(1);
             }
 
@@ -605,7 +605,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
             // precision, recall, and F1 for exact match
             results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(
-            ";");
+                    ";");
             results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(";");
             results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(";");
 
@@ -778,13 +778,13 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
             if (correctCharacter.charValue() == 10) {
                 alignedContent = alignedContent.substring(0, alignIndex) + "\n"
-                + alignedContent.substring(alignIndex, alignedContent.length());
+                        + alignedContent.substring(alignIndex, alignedContent.length());
                 // alignIndex--;
             } else
                 if (Character.isWhitespace(alignedCharacter)) {
 
                     alignedContent = alignedContent.substring(0, alignIndex)
-                    + alignedContent.substring(alignIndex + 1, alignedContent.length());
+                            + alignedContent.substring(alignIndex + 1, alignedContent.length());
                     if (nextAlignedCharacter.charValue() == 60) {
                         alignIndex--;
                         jumpOne = true;
@@ -794,7 +794,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
                 } else {
                     alignedContent = alignedContent.substring(0, alignIndex) + " "
-                    + alignedContent.substring(alignIndex, alignedContent.length());
+                            + alignedContent.substring(alignIndex, alignedContent.length());
                 }
 
             FileHelper.writeToFile(alignFilePath, alignedContent);
@@ -802,23 +802,23 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
         FileHelper.writeToFile(alignFilePath, alignedContent);
     }
-    
+
     @Override
     public void processDocument(PipelineDocument<String> document)
-    		throws DocumentUnprocessableException {
-    	String content = document.getContent();
-    	// TODO merge annotation classes
-    	Annotations annotations = getAnnotations(content);
-    	
-    	List<ws.palladian.processing.features.Annotation<String>> annotationsList = new ArrayList<ws.palladian.processing.features.Annotation<String>>(annotations.size());
-    	for(Annotation nerAnnotation:annotations) {
-    		ws.palladian.processing.features.Annotation<String> procAnnotation = new PositionAnnotation(document, nerAnnotation.getOffset(), nerAnnotation.getEndIndex(), -1, nerAnnotation.getMostLikelyTagName());
-    		annotationsList.add(procAnnotation);
-    		
-    	}
-    	
-    	TextAnnotationFeature feature = new TextAnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, annotationsList);
-    	document.addFeature(feature);
+            throws DocumentUnprocessableException {
+        String content = document.getContent();
+        // TODO merge annotation classes
+        Annotations annotations = getAnnotations(content);
+
+        List<ws.palladian.processing.features.Annotation<String>> annotationsList = new ArrayList<ws.palladian.processing.features.Annotation<String>>(annotations.size());
+        for(Annotation nerAnnotation:annotations) {
+            ws.palladian.processing.features.Annotation<String> procAnnotation = new PositionAnnotation(document, nerAnnotation.getOffset(), nerAnnotation.getEndIndex(), -1, nerAnnotation.getMostLikelyTagName());
+            annotationsList.add(procAnnotation);
+
+        }
+
+        TextAnnotationFeature feature = new TextAnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, annotationsList);
+        document.addFeature(feature);
     }
 
     public void setName(String name) {
