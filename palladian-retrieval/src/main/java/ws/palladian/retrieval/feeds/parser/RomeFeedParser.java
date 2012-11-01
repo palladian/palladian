@@ -287,7 +287,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         // we could not get the ID from the SyndEntry, so we take the link as identification instead
         if (rawId == null) {
             rawId = syndEntry.getLink();
-            LOGGER.debug("id is missing, taking link instead");
+            LOGGER.trace("id is missing, taking link instead");
         }
 
         // we could ultimately get no ID
@@ -437,7 +437,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
             feedInput.setPreserveWireFeed(true);
 
             SyndFeed syndFeed = feedInput.build(feedDocument);
-            LOGGER.debug("feed type is " + syndFeed.getFeedType());
+            LOGGER.trace("feed type is " + syndFeed.getFeedType());
 
             return syndFeed;
 
