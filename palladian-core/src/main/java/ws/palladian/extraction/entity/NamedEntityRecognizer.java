@@ -24,7 +24,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -281,11 +280,13 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
             String correctText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
 
             if (!correctText.equalsIgnoreCase(annotation.getEntity()) && correctText.indexOf("\n") == -1) {
-                LOGGER.fatal("alignment error, the annotation candidates don't match the text:");
-                LOGGER.fatal("found: " + correctText);
-                LOGGER.fatal("instead of: " + annotation.getEntity() + "(" + annotation + ")");
-                LOGGER.fatal("last annotation: " + lastAnnotation);
-                System.exit(1);
+                StringBuilder errorString = new StringBuilder();
+                errorString.append("alignment error, the annotation candidates don't match the text:\n");
+                errorString.append("found: " + correctText + "\n");
+                errorString.append("instead of: " + annotation.getEntity() + "(" + annotation + ")\n");
+                errorString.append("last annotation: " + lastAnnotation);
+                //System.exit(1);
+                throw new IllegalStateException(errorString.toString());
             }
 
             if (format == TaggingFormat.XML) {
