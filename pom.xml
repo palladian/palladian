@@ -267,11 +267,6 @@
 				<version>3.9.2</version>
 			</dependency>
 			<dependency>
-				<groupId>edu.stanford</groupId>
-				<artifactId>stanfordner</artifactId>
-				<version>1.0</version>
-			</dependency>
-			<dependency>
 				<groupId>edu.illinois</groupId>
 				<artifactId>lbj2library</artifactId>
 				<version>1.0</version>

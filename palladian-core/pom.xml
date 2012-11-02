@@ -83,8 +83,9 @@
 			<artifactId>lbj2library</artifactId>
 		</dependency -->
 		<dependency>
-			<groupId>edu.stanford</groupId>
-			<artifactId>stanfordner</artifactId>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-ner</artifactId>
+			<version>1.2.6</version>
 		</dependency>
 		<!-- dependency>
 			<groupId>trove</groupId>
