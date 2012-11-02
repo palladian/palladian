@@ -21,6 +21,7 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.NominalFeature;
 
 /**
  * <p>
@@ -60,7 +61,8 @@ public class PalladianPosTagger extends BasePosTagger {
         String previousTag = "";
         for (Annotation<String> annotation : annotations) {
 
-            UniversalInstance instance = new UniversalInstance();
+            // TODO this should only be a featureVector
+            Instance instance = new Instance("test");
             setFeatures(instance, previousTag, annotation.getValue());
 
             CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
@@ -137,9 +139,9 @@ public class PalladianPosTagger extends BasePosTagger {
                     continue;
                 }
 
-                UniversalInstance instance = new UniversalInstance();
+                Instance instance = new Instance(normalizeTag(wordAndTag[1]));
                 setFeatures(instance, previousTag, wordAndTag[0]);
-                instance.setInstanceCategory(normalizeTag(wordAndTag[1]));
+//                instance.setInstanceCategory();
 
                 trainingInstances.add(instance);
 
@@ -160,15 +162,16 @@ public class PalladianPosTagger extends BasePosTagger {
         LOGGER.info("finished training tagger in " + stopWatch.getElapsedTimeString());
     }
 
-    private void setFeatures(UniversalInstance instance, String previousTag, String word) {
+    private void setFeatures(Instance instance, String previousTag, String word) {
 
         String lastTwo = "";
         if (word.length() > 1) {
             lastTwo = word.substring(word.length() - 2);
         }
 
-        instance.setTextFeature(word);
-        instance.setNominalFeatures(Arrays.asList(/*
+//        instance.setTextFeature(word);
+        
+        List<String> nominalFeatures = Arrays.asList(/*
          * previousTag,
          */String.valueOf(StringHelper.startsUppercase(word)),
          String.valueOf(word.length() == 1), String.valueOf(word.length() == 2),
@@ -176,10 +179,14 @@ public class PalladianPosTagger extends BasePosTagger {
          String.valueOf(StringHelper.isNumberOrNumberWord(word)),
          String.valueOf(StringHelper.isCompletelyUppercase(word)),
          String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()),
-         word.substring(word.length() - 1), word.substring(0, 1), lastTwo, word));
+         word.substring(word.length() - 1), word.substring(0, 1), lastTwo, word);
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));
-
+        
+        for (String nominalFeature : nominalFeatures) {
+            String name = "nom" + instance.getFeatureVector().size();
+            instance.getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
+        }
     }
 
     public void evaluate(String folderPath, String modelFilePath) {
@@ -195,7 +202,7 @@ public class PalladianPosTagger extends BasePosTagger {
         int correct = 0;
         int total = 0;
 
-        List<UniversalInstance> instances = CollectionHelper.newArrayList();
+//        List<UniversalInstance> instances = CollectionHelper.newArrayList();
 
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {
@@ -221,7 +228,8 @@ public class PalladianPosTagger extends BasePosTagger {
 
                 // TextInstance result = tagger.classify(wordAndTag[0]);
 
-                UniversalInstance instance = new UniversalInstance();
+                // TODO this should only be a FeatureVector and no instance.
+                Instance instance = new Instance("test");
                 setFeatures(instance, previousTag, wordAndTag[0]);
 
                 CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
