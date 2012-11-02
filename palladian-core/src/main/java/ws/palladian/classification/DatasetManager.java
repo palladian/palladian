@@ -124,7 +124,7 @@ public final class DatasetManager {
                     return;
                 }
 
-                if (cm.get(parts[parts.length - 1]) >= instancesPerClass) {
+                if (cm.getCount(parts[parts.length - 1]) >= instancesPerClass) {
                     return;
                 }
 
@@ -521,7 +521,7 @@ public final class DatasetManager {
         
         StringBuilder csv = new StringBuilder();
         for (String entry : classCounts) {
-            csv.append(entry).append(";").append(classCounts.get(entry)).append("\n");
+            csv.append(entry).append(";").append(classCounts.getCount(entry)).append("\n");
         }
         
         FileHelper.writeToFile(csvPath, csv);

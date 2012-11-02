@@ -13,8 +13,8 @@ import org.junit.Test;
 
 import ws.palladian.extraction.feature.CsvWriter;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -36,7 +36,7 @@ public class CsvWriterTest {
         File csvFile = File.createTempFile("csvwritertest", "csv");
         CsvWriter objectOfClassUnderTest = new CsvWriter(csvFile.getCanonicalPath(), "test1", "test2", "test3");
 
-        PipelineDocument<String> document = new PipelineDocument<String>("");
+        TextDocument document = new TextDocument("");
         document.addFeature(new NominalFeature("test1", "test1-1"));
         document.addFeature(new NumericFeature("test1", 12.0));
         document.addFeature(new NominalFeature("test2", "test2"));

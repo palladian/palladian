@@ -37,8 +37,6 @@ import com.aliasi.util.FastCache;
  */
 public final class LingPipePosTagger extends BasePosTagger {
 
-    private static final long serialVersionUID = 1L;
-
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(LingPipePosTagger.class);
 

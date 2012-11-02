@@ -53,14 +53,6 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
 
     /**
      * <p>
-     * Used for serializing and deserializing this object. Do change this value if the objects attributes change and
-     * thus old serialized version are no longer compatible.
-     * </p>
-     */
-    private static final long serialVersionUID = -8764960870080954781L;
-
-    /**
-     * <p>
      * The world wide unique identifier of the {@link Feature}s created by this annotator.
      * </p>
      */

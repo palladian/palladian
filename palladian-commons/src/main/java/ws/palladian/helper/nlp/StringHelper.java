@@ -254,6 +254,29 @@ public final class StringHelper {
 
     /**
      * <p>
+     * Replace a certain string only within a substring of a text.
+     * </p>
+     * 
+     * @param text The text in which something should be replaced.
+     * @param start The start of the substring in which we want to replace something.
+     * @param end The end of the substring in which we want to replace something.
+     * @param searchString The string we want to replace.
+     * @param replacement The replacement.
+     * @return The string with the replaced search string.
+     */
+    public static String replaceWithin(String text, int start, int end, String searchString, String replacement) {
+
+        String retText = text.substring(0, start);
+
+        retText += text.substring(start, end).replace(searchString, replacement);
+
+        retText += text.substring(end);
+
+        return retText;
+    }
+
+    /**
+     * <p>
      * Transform a name For example: jim carrey => Jim Carrey, university of los angeles => University of Los Angeles
      * </p>
      * <p>
@@ -851,15 +874,8 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"}; // whitespace is also
-        // unwanted but
-        // trim() handles
-        // that, " "
-        // here is
-        // another
-        // character
-        // (ASCII code
-        // 160)
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"};
+        // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
         // Pattern p = Pattern.compile("((\\d)+'')|('(\\s)?(\\d)+\")");
@@ -914,15 +930,15 @@ public final class StringHelper {
         // remove all control characters from string
         // string = removeControlCharacters(string);
 
-        string = replaceProtectedSpace(string);
+        // string = replaceProtectedSpace(string);
 
         // close spaces gap that might have arisen
-        string = removeDoubleWhitespaces(string);
+        // string = removeDoubleWhitespaces(string);
 
         // string = string.replaceAll("'\\)\\)","").replaceAll("'\\)",""); //
         // values are in javascript text sometimes e.g. ...('80GB')
 
-        return string;
+        return string.trim();
     }
 
     /**
@@ -952,6 +968,7 @@ public final class StringHelper {
      * <li>Unescape HTML (&_lt; becomes >)</li>
      * <li>Remove control characters.</li>
      * <li>Remove protected spaces.</li>
+     * <li>Remove double white spaces.</li>
      * <li>Remove HTML tags (<b>stop</B> becomes stop).</li> </li>
      * 
      * @param text The text that should be cleansed.
@@ -963,6 +980,7 @@ public final class StringHelper {
         text = StringEscapeUtils.unescapeHtml(text);
         text = removeControlCharacters(text);
         text = replaceProtectedSpace(text);
+        text = removeDoubleWhitespaces(text);
         // text = removeNonAsciiCharacters(text);
 
         // trim but keep sentence delimiters
@@ -1475,23 +1493,37 @@ public final class StringHelper {
             return "";
         }
 
-        Pattern p;
+        Pattern pattern;
 
         if (caseInsensitive) {
             if (dotAll) {
-                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+                pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
             } else {
-                p = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+                pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
             }
         } else {
             if (dotAll) {
-                p = Pattern.compile(regexp, Pattern.DOTALL);
+                pattern = Pattern.compile(regexp, Pattern.DOTALL);
             } else {
-                p = Pattern.compile(regexp);
+                pattern = Pattern.compile(regexp);
             }
         }
 
-        Matcher m = p.matcher(text);
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+
+        return "";
+    }
+
+    public static String getRegexpMatch(Pattern regexpPattern, String text) {
+
+        if (text == null) {
+            return "";
+        }
+
+        Matcher m = regexpPattern.matcher(text);
         if (m.find()) {
             return m.group();
         }
@@ -1503,19 +1535,22 @@ public final class StringHelper {
      * <p>
      * Find matches of the given regular expression in the given text.
      * </p>
-     * <p>
      * 
-     * @param regexpPattern The regular expression as a compiled pattern.
+     * @param pattern The regular expression as a compiled pattern.
      * @param text The text on which the regular expression should be evaluated.
      * @return A list of string matches.
      */
-    public static List<String> getRegexpMatches(Pattern regexpPattern, String text) {
+    public static List<String> getRegexpMatches(Pattern pattern, String text) {
 
         List<String> matches = new ArrayList<String>();
 
-        Matcher m = regexpPattern.matcher(text);
-        while (m.find()) {
-            matches.add(m.group());
+        if (text == null) {
+            return matches;
+        }
+
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            matches.add(matcher.group());
         }
 
         return matches;
@@ -1535,8 +1570,8 @@ public final class StringHelper {
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
-        Pattern p = Pattern.compile(regexp);
-        return getRegexpMatches(p, text);
+        Pattern pattern = Pattern.compile(regexp);
+        return getRegexpMatches(pattern, text);
     }
 
     /**
@@ -1655,11 +1690,51 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
+     * Trims whitespace characters from the left side of a {@code String}.
+     * </p>
+     * 
+     * @param s The {@code String} to trim.
+     * @return The trimmed {@code String}.
+     */
+    public static String ltrim(String s) {
+        int i = 0;
+        while (i < s.length() && Character.isWhitespace(s.charAt(i))) {
+            i++;
+        }
+        return s.substring(i);
+    }
+
+    /**
+     * <p>
+     * Trims whitespace characters from the right side of a {@code String}.
+     * </p>
+     * 
+     * @param s The {@code String} to trim.
+     * @return The trimmed {@code String}.
+     */
+    public static String rtrim(String s) {
+        int i = s.length() - 1;
+        while (i > 0 && Character.isWhitespace(s.charAt(i))) {
+            i--;
+        }
+        return s.substring(0, i + 1);
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments
      */
     public static void main(String[] args) {
+
+        StopWatch sw = new StopWatch();
+        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                                       ";
+        for (int i = 0; i < 1000; i++) {
+            StringHelper.removeDoubleWhitespaces(text);
+        }
+        System.out.println(sw.getElapsedTimeString());
+        System.exit(0);
 
         // String word = "test";
         // String allowedNeighbors = "[\\s,.;-]";
@@ -1672,16 +1747,16 @@ public final class StringHelper {
         // } catch (PatternSyntaxException e) {
         // }
 
-        String word = "([^\\s,.;-?!()]+?)";
-        String allowedNeighbors = "[\\s,.;-?!()]";
-        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
-                + allowedNeighbors + word + "$)|(^" + word + "$)";
+        // String word = "([^\\s,.;-?!()]+?)";
+        // String allowedNeighbors = "[\\s,.;-?!()]";
+        // String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
+        // + allowedNeighbors + word + "$)|(^" + word + "$)";
 
-        Pattern pat = null;
-        try {
-            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
-        } catch (PatternSyntaxException e) {
-        }
+        // Pattern pat = null;
+        // try {
+        // pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+        // } catch (PatternSyntaxException e) {
+        // }
 
         StopWatch stopWatch = new StopWatch();
 

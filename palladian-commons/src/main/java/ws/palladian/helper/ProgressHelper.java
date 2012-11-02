@@ -24,6 +24,8 @@ import ws.palladian.helper.math.MathHelper;
  * @author Philipp Katz
  */
 public final class ProgressHelper {
+    
+    private final static char PROGRESS_CHAR = '\u25A0';
 
     private ProgressHelper() {
         // no instances.
@@ -89,7 +91,7 @@ public final class ProgressHelper {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
         int scaledPercent = (int)Math.round(percent / 2);
-        stringBuilder.append(StringUtils.repeat('=', scaledPercent));
+        stringBuilder.append(StringUtils.repeat(PROGRESS_CHAR, scaledPercent));
         stringBuilder.append(StringUtils.repeat(' ', 50 - scaledPercent));
         stringBuilder.append(']');
         return stringBuilder.toString();

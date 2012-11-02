@@ -194,5 +194,12 @@ public class WebPageDateEvaluatorTest {
 //
 //        }
 //    }
+    
+    @Test
+    public void testGetDateHtml5() throws FileNotFoundException, ParserException {
+        Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/dateExtraction/nbcnews.html"));
+        ExtractedDate date = WebPageDateEvaluator.getBestPubDateHtml5(document);
+        assertEquals("2012-09-07 08:33:12", date.getNormalizedDateString());
+    }
 
 }

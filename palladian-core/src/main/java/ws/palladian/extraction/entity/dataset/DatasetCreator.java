@@ -249,7 +249,7 @@ public class DatasetCreator {
             String entitiesWithFewMentions = "";
             int totalMentions = 0;
             for (String item : countMap) {
-                int count = countMap.get(item);
+                int count = countMap.getCount(item);
                 if (count < getMentionsPerEntity()) {
                     entitiesWithFewMentions += item + "(" + count + "), ";
                 }

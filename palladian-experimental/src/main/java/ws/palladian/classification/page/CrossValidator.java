@@ -167,7 +167,7 @@ public class CrossValidator {
 
                 // add the performances to the evaluation maps
                 HashSet<ClassifierPerformance> cfp = performancesFolds
-                        .get(dataset.getPath() + "_"
+                        .getCount(dataset.getPath() + "_"
                                 + trainingPercentage);
                 if (cfp == null) {
                     cfp = new HashSet<ClassifierPerformance>();
@@ -180,7 +180,7 @@ public class CrossValidator {
                 trainingPercentageLoop++;
             }
 
-            HashSet<ClassifierPerformance> cfp = performancesTrainingFolds.get(dataset.getPath());
+            HashSet<ClassifierPerformance> cfp = performancesTrainingFolds.getCount(dataset.getPath());
             if (cfp == null) {
                 cfp = new HashSet<ClassifierPerformance>();
             }

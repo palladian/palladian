@@ -1,5 +1,7 @@
 package ws.palladian.helper.math;
 
+import ws.palladian.helper.collection.Matrix;
+
 public class NumericMatrix<K> extends Matrix<K, Double> {
 
     private static final long serialVersionUID = 1L;

@@ -21,6 +21,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationGroup;
 import ws.palladian.processing.features.TextAnnotationFeature;
@@ -42,7 +43,7 @@ public class NGramCreatorTest {
 
     @Before
     public void setUp() {
-        document = new PipelineDocument<String>("the quick brown fox jumps over the lazy dog");
+        document = new TextDocument("the quick brown fox jumps over the lazy dog");
         pipeline = new ProcessingPipeline();
     }
 

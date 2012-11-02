@@ -34,8 +34,6 @@ import ws.palladian.processing.features.NominalFeature;
  */
 public class PalladianPosTagger extends BasePosTagger {
 
-    private static final long serialVersionUID = -1692291622423394544L;
-
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianPosTagger.class);
 

@@ -10,7 +10,7 @@ import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.collection.CountMap2D;
+import ws.palladian.helper.collection.CountMatrix;
 
 /**
  * <p>
@@ -25,7 +25,7 @@ public final class DictionaryModel implements Model {
     private static final long serialVersionUID = 1L;
 
     /** Term-category combinations with their counts. */
-    private final CountMap2D<String> termCategories = CountMap2D.create();
+    private final CountMatrix<String> termCategories = CountMatrix.create();
 
     /** Categories with their counts. */
     private final CountMap<String> categories = CountMap.create();
@@ -46,7 +46,7 @@ public final class DictionaryModel implements Model {
     }
 
     public void updateTerm(String term, String category) {
-        termCategories.increment(category, term);
+        termCategories.add(category, term);
     }
 
     public CategoryEntries getCategoryEntries(String term) {
@@ -82,7 +82,7 @@ public final class DictionaryModel implements Model {
     }
 
     public double getPrior(String category) {
-        return (double)categories.get(category) / categories.totalSize();
+        return (double)categories.getCount(category) / categories.totalSize();
     }
 
     /**

@@ -681,11 +681,11 @@ public class FeedStatisticCreator {
         String sql = "CREATE TABLE tempTableMin AS SELECT DISTINCT a.feedID FROM "
                 + "feed_evaluation2_adaptive_min_time a, feed_evaluation2_fix1440_max_min_time b "
                 + "WHERE a.feedID = b.feedID " + "AND a.pollTimestamp BETWEEN "
-                + FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / DateHelper.SECOND_MS + " AND "
-                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS
+                + FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / 1000 + " AND "
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000
                 + " AND b.pollTimestamp BETWEEN " + FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND
-                / DateHelper.SECOND_MS + " AND " + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND
-                / DateHelper.SECOND_MS;
+ / 1000 + " AND "
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000;
 
         Logger.getRootLogger().info(sql);
         dbm.runUpdate(sql);
@@ -940,9 +940,9 @@ public class FeedStatisticCreator {
         String chartDataLabels = "";
         String chartColors = "";
         for (FeedActivityPattern o : updateClassCounts.uniqueItems()) {
-            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.get(o))
+            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.getCount(o))
                     .append("\n");
-            chartData += updateClassCounts.get(o) + ",";
+            chartData += updateClassCounts.getCount(o) + ",";
             chartDataLabels += o + "|";
             chartColors += colors.get(o.getIdentifier()) + "|";
         }

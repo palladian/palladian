@@ -281,7 +281,7 @@ public final class CollectionHelper {
     /**
      * <p>
      * Apply a {@link Filter} to an {@link Iterable}; after applying this method, the Iterable only contains the items
-     * which matched the filter.
+     * which matched the filter, i.e. the filtering is done in place, modifying the Iterable.
      * </p>
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
@@ -304,6 +304,18 @@ public final class CollectionHelper {
         return modified;
     }
 
+    /**
+     * <p>
+     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}. In
+     * contrast to {@link #filter(Iterable, Filter)}, this does not modify the supplied Iterabel.
+     * </p>
+     * 
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param filter The filter to apply, not <code>null</code>.
+     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *            {@link HashSet}, not <code>null</code>.
+     * @return The supplied output Collection with the items that passed the filter.
+     */
     public static <T> Collection<T> filter(Iterable<T> iterable, Filter<T> filter, Collection<T> output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
@@ -317,6 +329,19 @@ public final class CollectionHelper {
         return output;
     }
 
+    /**
+     * <p>
+     * Apply a type filter to an {@link Iterable} and return the filtered result as new {@link Collection}. An example
+     * scenario for this method might be a Collection of {@link Number}s, from which you only want to obtain
+     * {@link Double} values.
+     * </p>
+     * 
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param type The type which should be filtered, not <code>null</code>.
+     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *            {@link HashSet}, not <code>null</code>.
+     * @return The supplied output Collection with the items that passed the type filter.
+     */
     public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(type, "type must not be null");
@@ -336,7 +361,7 @@ public final class CollectionHelper {
      * </p>
      * 
      * @param list The List from which to get the element, not <code>null</code>.
-     * @return The first element, or <code>null</code> if List was empty.
+     * @return The first element, or <code>null</code> if the list was empty.
      */
     public static <T> T getFirst(List<T> list) {
         Validate.notNull(list, "list must not be null");
@@ -344,6 +369,22 @@ public final class CollectionHelper {
             return null;
         }
         return list.get(0);
+    }
+
+    /**
+     * <p>
+     * Get the last element in a {@link List}.
+     * </p>
+     * 
+     * @param list The List from which to get the element, not <code>null</code>.
+     * @return The last element, or <code>null</code> if the list was empty.
+     */
+    public static <T> T getLast(List<T> list) {
+        Validate.notNull(list, "list must not be null");
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(list.size() - 1);
     }
 
 }

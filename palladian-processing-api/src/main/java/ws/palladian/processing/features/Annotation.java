@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.PipelineDocument;
 
 /**
@@ -14,7 +15,7 @@ import ws.palladian.processing.PipelineDocument;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public abstract class Annotation<T> implements Comparable<Annotation<T>> {
+public abstract class Annotation<T> implements Classifiable, Comparable<Annotation<T>> {
 
     /**
      * <p>
@@ -109,6 +110,7 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * 
      * @return A {@link FeatureVector} containing this {@link Annotation}.
      */
+    @Override
     public final FeatureVector getFeatureVector() {
         return featureVector;
     }

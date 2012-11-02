@@ -23,8 +23,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public final class DuplicateTokenRemover extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         TextAnnotationFeature annotationFeature = document.getFeatureVector().get(

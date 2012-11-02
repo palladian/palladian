@@ -58,7 +58,7 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
 
         CategoryEntries result = new CategoryEntries();
         for (String categoryName : categories.uniqueItems()) {
-            double confidence = (double)categories.get(categoryName) / categories.totalSize();;
+            double confidence = (double)categories.getCount(categoryName) / categories.totalSize();;
             result.add(new CategoryEntry(categoryName, confidence));
         }
         return result;

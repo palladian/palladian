@@ -5,7 +5,7 @@ package ws.palladian.extraction.sentence;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
@@ -32,13 +32,6 @@ import com.aliasi.tokenizer.TokenizerFactory;
  * @since 0.0.1
  */
 public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
-
-    /**
-     * <p>
-     * Unique identifier to serialize and deserialize objects of this type to and from a file.
-     * </p>
-     */
-    private static final long serialVersionUID = 4827188441005628492L;
 
     /**
      * <p>
@@ -84,7 +77,7 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
         Chunking chunking = sentenceChunker.chunk(text);
         PositionAnnotation[] sentences = new PositionAnnotation[chunking.chunkSet().size()];
-        PipelineDocument<String> document = new PipelineDocument<String>(text);
+        TextDocument document = new TextDocument(text);
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
             String sentence = text.substring(chunk.start(), chunk.end());

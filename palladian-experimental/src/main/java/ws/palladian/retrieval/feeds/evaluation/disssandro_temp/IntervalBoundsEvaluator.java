@@ -4,11 +4,9 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
@@ -95,7 +93,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
             // IndHist
             else if (strategy.equalsIgnoreCase("IndHist")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
-                updateStrategy = new IndHistUpdateStrategy(indHistTheta, (FeedDatabase) feedStore);
+                updateStrategy = new IndHistUpdateStrategy(indHistTheta, feedStore);
                 logMsg.append(updateStrategy.getName());
 
             }
@@ -143,7 +141,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
             int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
             int benchmarkSampleSize = 100;
             // FeedReader wakeupInterval, used for debugging
-            long wakeUpInterval = (long) (60 * DateHelper.SECOND_MS);
+            long wakeUpInterval = (60 * 1000);
 
             for (int lowerBound : lowerBounds) {
                 for (int upperBound : upperBounds) {

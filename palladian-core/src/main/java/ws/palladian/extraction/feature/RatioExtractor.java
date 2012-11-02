@@ -28,10 +28,6 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public final class RatioExtractor extends StringDocumentPipelineProcessor {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 6202637952980283673L;
     private final FeatureDescriptor<NumericFeature> featureDescriptor;
     private final FeatureDescriptor<? extends Feature<?>> dividendFeatureDescriptor;
     private final FeatureDescriptor<? extends Feature<?>> divisorFeatureDescriptor;

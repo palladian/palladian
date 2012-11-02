@@ -32,11 +32,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public final class NounAnnotator extends StringDocumentPipelineProcessor {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -9032354669004873512L;
-
     private final static String[] NOUN_TAGS = new String[] {"NN", "NN$", "NNS", "NNS$", "NP", "NP$", "NPS", "NPS$"};
 
     private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;

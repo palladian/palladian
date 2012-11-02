@@ -24,8 +24,7 @@ import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
  * @author Philipp Katz
  */
 public class TweetNlpPosTagger extends BasePosTagger {
-
-    private static final long serialVersionUID = 1L;
+    
     private static final String TAGGER_NAME = "ark-tweet-nlp";
     private static final TwokenizeTokenizer TOKENIZER = new TwokenizeTokenizer();
 

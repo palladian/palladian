@@ -20,8 +20,6 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public final class TfIdfAnnotator extends AbstractTokenProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
             "ws.palladian.preprocessing.tokens.tfidf", NumericFeature.class);
 

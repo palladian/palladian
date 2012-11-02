@@ -2,29 +2,74 @@ package ws.palladian.helper.math;
 
 import java.util.Set;
 
-import ws.palladian.helper.collection.CountMap2D;
+import ws.palladian.helper.collection.CountMatrix;
 
+/**
+ * <p>
+ * A confusion matrix which can be used to evaluate classification results.
+ * </p>
+ * 
+ * @author Philipp Katz
+ * @author David Urbansky
+ * @see <a href="http://en.wikipedia.org/wiki/Confusion_matrix">Wikipedia: Confusion matrix</a>
+ */
 public class ConfusionMatrix {
 
-    private final CountMap2D<String> confusionMatrix;
+    private final CountMatrix<String> confusionMatrix;
 
+    /**
+     * <p>
+     * Create a new, empty confusion matrix.
+     * </p>
+     */
     public ConfusionMatrix() {
-        this.confusionMatrix = CountMap2D.create();
+        this.confusionMatrix = CountMatrix.create();
     }
 
+    /**
+     * <p>
+     * Add a classification result to this confusion matrix.
+     * </p>
+     * 
+     * @param realCategory The real category of the item.
+     * @param predictedCategory The category which was predicted by the classification.
+     */
     public void add(String realCategory, String predictedCategory) {
         add(realCategory, predictedCategory, 1);
     }
 
+    /**
+     * <p>
+     * Add a classification result to this confusion matrix.
+     * </p>
+     * 
+     * @param realCategory The real category of the item.
+     * @param predictedCategory The category which was predicted by the classification.
+     * @param count The number of the classification.
+     */
     public void add(String realCategory, String predictedCategory, int count) {
-        confusionMatrix.increment(predictedCategory, realCategory, count);
+        confusionMatrix.add(predictedCategory, realCategory, count);
     }
 
+    /**
+     * <p>
+     * Get the accuracy which is defined as <code>accuracy = |correctlyClassified| / |totalDocuments|</code>.
+     * </p>
+     * 
+     * @return The accuracy.
+     */
     public double getAccuracy() {
-        return (double)getCorrectlyClassified() / getTotalDocuments();
+        return (double)getTotalCorrect() / getTotalDocuments();
     }
 
-    public int getCorrectlyClassified() {
+    /**
+     * <p>
+     * Get the number of correctly classified documents.
+     * </p>
+     * 
+     * @return Number of correctly classified documents.
+     */
+    public int getTotalCorrect() {
         int correct = 0;
         for (String value : getCategories()) {
             correct += confusionMatrix.getCount(value, value);
@@ -34,32 +79,71 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Get the number of correct classified documents in a given category.
+     * Get the number of correctly classified documents in a given category.
      * </p>
      * 
      * @param category The category.
      * @return Number of correct classified documents in a given category.
      */
-    public int getNumberOfCorrectClassifiedDocumentsInCategory(String category) {
+    public int getCorrectlyClassifiedDocuments(String category) {
         return confusionMatrix.getCount(category, category);
     }
 
-    public int getClassifiedNumberOfCategory(String category) {
+    /**
+     * <p>
+     * Get the number of documents classified in a given category.
+     * </p>
+     * 
+     * @param category The category.
+     * @return Number of documents classified in the given category.
+     */
+    public int getClassifiedDocuments(String category) {
         return confusionMatrix.getColumnSum(category);
     }
 
-    public int getRealNumberOfCategory(String category) {
+    /**
+     * <p>
+     * Get the number of documents which are actually in the given category.
+     * </p>
+     * 
+     * @param category The category.
+     * @return Number of documents in the given category.
+     */
+    public int getRealDocuments(String category) {
         return confusionMatrix.getRowSum(category);
     }
 
-    public int getNumberOfConfusionsBetween(String realCategory, String predictedCategory) {
+    /**
+     * <p>
+     * Get the number of confusions between two categories.
+     * </p>
+     * 
+     * @param realCategory The real category.
+     * @param predictedCategory The category which was predicted by the classifier.
+     * @return The number of confusions between the real and the predicted category.
+     */
+    public int getConfusions(String realCategory, String predictedCategory) {
         return confusionMatrix.getCount(predictedCategory, realCategory);
     }
 
+    /**
+     * <p>
+     * Get all categories in the data set.
+     * </p>
+     * 
+     * @return The categories in the data set.
+     */
     public Set<String> getCategories() {
         return confusionMatrix.getKeysX();
     }
 
+    /**
+     * <p>
+     * Get the total number of documents in this confusion matrix.
+     * </p>
+     * 
+     * @return The number of documents in the matrix.
+     */
     public int getTotalDocuments() {
         int total = 0;
         for (String value : confusionMatrix.getKeysX()) {
@@ -70,8 +154,8 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Get the prior of the most likely category. In a dataset with evenly distributed classes the highest prior should
-     * be 1/#classes.
+     * Get the prior of the most likely category. In a data set with evenly distributed classes the highest prior should
+     * be <code>1/|categories|</code>.
      * </p>
      * 
      * @return The highest prior.
@@ -88,21 +172,32 @@ public class ConfusionMatrix {
         return (double)max / sum;
     }
 
+    /**
+     * <p>
+     * Get the superiority for the classification result. Superiority is the factor with which the classifier is better
+     * than the highest prior in the data set: <code>superiority
+     * = percentCorrectlyClassified / percentHighestPrior</code>. A superiority of 1 means it doesn't make sense
+     * classifying at all since we could simply always take the category with the highest prior. A superiority smaller 1
+     * means the classifier is harmful.
+     * </p>
+     * 
+     * @return The superiority.
+     */
     public double getSuperiority() {
         return getAccuracy() / getHighestPrior();
     }
 
     /**
      * <p>
-     * Calculate and return the precision for a given category.
+     * Get the precision for a given category. <code>precision = |TP| / (|TP| + |FP|)</code>.
      * </p>
      * 
-     * @param category
-     * @return the precision for a given category
+     * @param category The category.
+     * @return The precision for a given category.
      */
-    public double getPrecisionForCategory(String category) {
-        int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-        int classified = getClassifiedNumberOfCategory(category);
+    public double getPrecision(String category) {
+        int correct = getCorrectlyClassifiedDocuments(category);
+        int classified = getClassifiedDocuments(category);
         if (classified == 0) {
             return -1;
         }
@@ -111,15 +206,15 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Calculate and return the recall for a given category.
+     * Get the recall for a given category. <code>recall = |TP| / (|TP| + |FN|)</code>.
      * </p>
      * 
-     * @param category
-     * @return the recall for a given category
+     * @param category The category.
+     * @return The recall for a given category.
      */
-    public double getRecallForCategory(String category) {
-        int correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-        int real = getRealNumberOfCategory(category);
+    public double getRecall(String category) {
+        int correct = getCorrectlyClassifiedDocuments(category);
+        int real = getRealDocuments(category);
         if (real == 1.0) {
             return -1;
         }
@@ -128,16 +223,16 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Calculate and return the F for a given category.
+     * Get the F measure for a given category.
      * </p>
      * 
      * @param category The category.
      * @param alpha A value between 0 and 1 to weight precision and recall (0.5 for F1).
-     * @return F for a given category.
+     * @return The F measure for a given category.
      */
-    public double getFForCategory(String category, double alpha) {
-        double precision = getPrecisionForCategory(category);
-        double recall = getRecallForCategory(category);
+    public double getF(String category, double alpha) {
+        double precision = getPrecision(category);
+        double recall = getRecall(category);
         if (precision < 0 || recall < 0) {
             return -1;
         }
@@ -146,17 +241,17 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Calculate the sensitivity for a given category. Sensitivity = TP / (TP + FN). Sensitivity specifies what
-     * percentage of actual category members were found. 100% sensitivity means that all actual documents belonging to
-     * the category were classified correctly.
+     * Calculate the sensitivity for a given category. <code>sensitivity = |TP| / (|TP| + |FN|)</code>. Sensitivity
+     * specifies what percentage of actual category members were found. 100 % sensitivity means that all actual
+     * documents belonging to the category were classified correctly.
      * </p>
      * 
      * @param category The category.
-     * @return
+     * @return The sensitivity for the given category.
      */
-    public double getSensitivityForCategory(String category) {
-        int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-        int realPositives = getRealNumberOfCategory(category);
+    public double getSensitivity(String category) {
+        int truePositives = getCorrectlyClassifiedDocuments(category);
+        int realPositives = getRealDocuments(category);
         int falseNegatives = realPositives - truePositives;
         if (truePositives + falseNegatives == 0) {
             return -1.0;
@@ -166,18 +261,18 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Calculate the specificity for a given category. Specificity = (TN) / (TN + FP). Specificity specifies what
-     * percentage of not-category members were recognized as such. 100% specificity means that there were no documents
-     * classified as category member when they were actually not.
+     * Calculate the specificity for a given category. <code>specificity = |TN| / (|TN| + |FP|)</code>. Specificity
+     * specifies what percentage of not-category members were recognized as such. 100 % specificity means that there
+     * were no documents classified as category member when they were actually not.
      * </p>
      * 
      * @param category The category.
-     * @return The specificity.
+     * @return The specificity for the given category.
      */
-    public double getSpecificityForCategory(String category) {
-        int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-        int realPositives = getRealNumberOfCategory(category);
-        int classifiedPositives = getClassifiedNumberOfCategory(category);
+    public double getSpecificity(String category) {
+        int truePositives = getCorrectlyClassifiedDocuments(category);
+        int realPositives = getRealDocuments(category);
+        int classifiedPositives = getClassifiedDocuments(category);
 
         int falsePositives = classifiedPositives - truePositives;
         int falseNegatives = realPositives - truePositives;
@@ -192,16 +287,16 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Calculate the accuracy for a given category. Accuracy = (TP + TN) / (TP + TN + FP + FN).
+     * Calculate the accuracy for a given category. <code>accuracy = (|TP| + |TN|) / (|TP| + |TN| + |FP| + |FN|)</code>.
      * </p>
      * 
      * @param category The category.
-     * @return The accuracy.
+     * @return The accuracy for the given category.
      */
-    public double getAccuracyForCategory(String category) {
-        int truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-        int realPositives = getRealNumberOfCategory(category);
-        int classifiedPositives = getClassifiedNumberOfCategory(category);
+    public double getAccuracy(String category) {
+        int truePositives = getCorrectlyClassifiedDocuments(category);
+        int realPositives = getRealDocuments(category);
+        int classifiedPositives = getClassifiedDocuments(category);
 
         int falsePositives = classifiedPositives - truePositives;
         int falseNegatives = realPositives - truePositives;
@@ -218,24 +313,18 @@ public class ConfusionMatrix {
     /**
      * <p>
      * Calculate the prior for the given category. The prior is determined by calculating the frequency of the category
-     * in the training and test set and dividing it by the total number of documents.
+     * in the data set and dividing it by the total number of documents.
      * </p>
      * 
      * @param category The category for which the prior should be determined.
-     * @return The prior for the category.
+     * @return The prior for the given category.
      */
-    public double getWeightForCategory(String category) {
-
-        // the number of documents that belong to the given category
-        int documentCount = getRealNumberOfCategory(category);
-
-        // the total number of documents assigned to categories
+    public double getPrior(String category) {
+        int documentCount = getRealDocuments(category);
         int totalAssigned = getTotalDocuments();
-
         if (totalAssigned == 0) {
             return 0;
         }
-
         return (double)documentCount / totalAssigned;
     }
 
@@ -244,36 +333,27 @@ public class ConfusionMatrix {
      * Get the average precision of all categories.
      * </p>
      * 
+     * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
+     *            each category equally.
      * @return The average precision of all categories.
      */
     public double getAveragePrecision(boolean weighted) {
         double precision = 0.0;
-
-        int count = 0;
-
         for (String category : getCategories()) {
-
-            double pfc = getPrecisionForCategory(category);
-            if (pfc < 0) {
+            double precisionForCategory = getPrecision(category);
+            if (precisionForCategory < 0) {
                 continue;
             }
-
-            if (weighted) {
-                precision += getWeightForCategory(category) * pfc;
-            } else {
-                precision += pfc;
-            }
-            ++count;
+            double weight = weighted ? getPrior(category) : 1;
+            precision += precisionForCategory * weight;
         }
-
         if (weighted) {
             return precision;
         }
-
+        int count = getCategories().size();
         if (count == 0) {
             return -1.0;
         }
-
         return precision / count;
     }
 
@@ -282,76 +362,57 @@ public class ConfusionMatrix {
      * Get the average recall of all categories.
      * </p>
      * 
+     * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
+     *            each category equally.
      * @return The average recall of all categories.
      */
     public double getAverageRecall(boolean weighted) {
         double recall = 0.0;
-
-        int count = 0;
-
         for (String category : getCategories()) {
-
-            double rfc = getRecallForCategory(category);
-            if (rfc < 0.0) {
+            double recallForCategory = getRecall(category);
+            if (recallForCategory < 0.0) {
                 continue;
             }
-
-            if (weighted) {
-                recall += getWeightForCategory(category) * rfc;
-            } else {
-                recall += rfc;
-            }
-            ++count;
+            double weight = weighted ? getPrior(category) : 1;
+            recall += recallForCategory * weight;
         }
-
         if (weighted) {
             return recall;
         }
-
+        int count = getCategories().size();
         if (count == 0) {
             return -1.0;
         }
-
         return recall / count;
     }
 
     /**
      * <p>
-     * Get the average F of all categories.
+     * Get the average F measure of all categories.
      * </p>
      * 
-     * @param alpha To weight precision and recall (0.5 for F1).
+     * @param alpha To weight precision and recall (0.5 for F1 measure).
+     * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
+     *            each category equally.
      * @return The average F of all categories.
      */
     public double getAverageF(double alpha, boolean weighted) {
         double f = 0.0;
-
-        int count = 0;
         for (String category : getCategories()) {
-
-            double ffc = getFForCategory(category, alpha);
-
-            if (ffc < 0.0) {
+            double fForCategory = getF(category, alpha);
+            if (fForCategory < 0.0) {
                 continue;
             }
-
-            if (weighted) {
-                f += getWeightForCategory(category) * ffc;
-            } else {
-                f += ffc;
-            }
-
-            ++count;
+            double weight = weighted ? getPrior(category) : 1;
+            f += fForCategory * weight;
         }
-
         if (weighted) {
             return f;
         }
-
+        int count = getCategories().size();
         if (count == 0) {
             return -1.0;
         }
-
         return f / count;
     }
 
@@ -360,38 +421,27 @@ public class ConfusionMatrix {
      * Calculate the average sensitivity.
      * </p>
      * 
-     * @param weighted If true, the average sensitivity is weighted using the priors of the categories.
-     * @return The (weighted) average sensitivity.
+     * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
+     *            each category equally.
+     * @return The average sensitivity for all categories.
      */
     public double getAverageSensitivity(boolean weighted) {
         double sensitivity = 0.0;
-
-        int count = 0;
         for (String category : getCategories()) {
-
-            double sfc = getSensitivityForCategory(category);
-
-            if (sfc < 0.0) {
+            double sensitivityForCategory = getSensitivity(category);
+            if (sensitivityForCategory < 0.0) {
                 continue;
             }
-
-            if (weighted) {
-                sensitivity += getWeightForCategory(category) * sfc;
-            } else {
-                sensitivity += sfc;
-            }
-
-            ++count;
+            double weight = weighted ? getPrior(category) : 1;
+            sensitivity += sensitivityForCategory * weight;
         }
-
         if (weighted) {
             return sensitivity;
         }
-
+        int count = getCategories().size();
         if (count == 0) {
             return -1.0;
         }
-
         return sensitivity / count;
     }
 
@@ -400,38 +450,27 @@ public class ConfusionMatrix {
      * Calculate the average specificity.
      * </p>
      * 
-     * @param weighted If true, the average accuracy is weighted using the priors of the categories.
-     * @return The (weighted) average accuracy.
+     * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
+     *            each category equally.
+     * @return The average accuracy for all categories.
      */
     public double getAverageSpecificity(boolean weighted) {
         double specificity = 0.0;
-
-        int count = 0;
         for (String category : getCategories()) {
-
-            double sfc = getSpecificityForCategory(category);
-
-            if (sfc < 0) {
+            double specifityForCategory = getSpecificity(category);
+            if (specifityForCategory < 0) {
                 return -1.0;
             }
-
-            if (weighted) {
-                specificity += getWeightForCategory(category) * sfc;
-            } else {
-                specificity += sfc;
-            }
-
-            ++count;
+            double weight = weighted ? getPrior(category) : 1;
+            specificity += specifityForCategory * weight;
         }
-
         if (weighted) {
             return specificity;
         }
-
+        int count = getCategories().size();
         if (count == 0) {
             return -1.0;
         }
-
         return specificity / count;
     }
 
@@ -440,38 +479,27 @@ public class ConfusionMatrix {
      * Calculate the average accuracy.
      * </p>
      * 
-     * @param weighted If true, the average accuracy is weighted using the priors of the categories.
-     * @return The (weighted) average accuracy.
+     * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
+     *            each category equally.
+     * @return The average accuracy for all categories.
      */
     public double getAverageAccuracy(boolean weighted) {
         double accuracy = 0.0;
-
-        int count = 0;
         for (String category : getCategories()) {
-
-            double afc = getAccuracyForCategory(category);
-
-            if (afc < 0.0) {
+            double accuracyForCategory = getAccuracy(category);
+            if (accuracyForCategory < 0.0) {
                 return -1.0;
             }
-
-            if (weighted) {
-                accuracy += getWeightForCategory(category) * afc;
-            } else {
-                accuracy += afc;
-            }
-
-            ++count;
+            double weight = weighted ? getPrior(category) : 1;
+            accuracy += accuracyForCategory * weight;
         }
-
         if (weighted) {
             return accuracy;
         }
-
+        int count = getCategories().size();
         if (count == 0) {
             return -1.0;
         }
-
         return accuracy / count;
     }
 
@@ -501,15 +529,15 @@ public class ConfusionMatrix {
 
             // iterate through all columns (x)
             for (String predictedCategory : getCategories()) {
-                builder.append(getNumberOfConfusionsBetween(realCategory, predictedCategory)).append("\t");
+                builder.append(getConfusions(realCategory, predictedCategory)).append("\t");
             }
-            builder.append(MathHelper.round(getPrecisionForCategory(realCategory), 4)).append("\t");
+            builder.append(MathHelper.round(getPrecision(realCategory), 4)).append("\t");
             builder.append("\n");
         }
 
         builder.append("<Recall>\t");
         for (String predictedCategory : getCategories()) {
-            builder.append(MathHelper.round(getRecallForCategory(predictedCategory), 4)).append("\t");
+            builder.append(MathHelper.round(getRecall(predictedCategory), 4)).append("\t");
         }
 
         builder.append("\n\n\n");
@@ -523,7 +551,7 @@ public class ConfusionMatrix {
         builder.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append("\n");
         builder.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append("\n");
         builder.append("# Documents:\t").append(getTotalDocuments()).append("\n");
-        builder.append("# Correctly Classified:\t").append(getCorrectlyClassified()).append("\n");
+        builder.append("# Correctly Classified:\t").append(getTotalCorrect()).append("\n");
         return builder.toString();
 
     }

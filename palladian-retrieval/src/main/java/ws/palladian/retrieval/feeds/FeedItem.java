@@ -216,12 +216,9 @@ public class FeedItem {
      * </p>
      * 
      * @param itemHash New item hash to set.
-     * @param iKowWhatImDoing Confirm that you know what you are doing :)
      */
-    public void setHash(String itemHash, boolean iKowWhatImDoing) {
-        if (iKowWhatImDoing) {
-            this.itemHash = itemHash;
-        }
+    public void setHash(String itemHash) {
+        this.itemHash = itemHash;
     }
 
     /**
