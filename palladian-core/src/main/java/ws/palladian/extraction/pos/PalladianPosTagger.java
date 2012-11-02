@@ -106,8 +106,8 @@ public class PalladianPosTagger extends BasePosTagger {
 
         tagger = new UniversalClassifier();
         tagger.setUseNumericClassifier(false);
-        // tagger.setUseNominalClassifier(false);
-        // tagger.setUseTextClassifier(false);
+        tagger.setUseNominalClassifier(true);
+        tagger.setUseTextClassifier(false);
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(7);
@@ -266,7 +266,7 @@ public class PalladianPosTagger extends BasePosTagger {
         // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
         // /palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
         // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
-        // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
+        palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
         palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
 
         // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")
