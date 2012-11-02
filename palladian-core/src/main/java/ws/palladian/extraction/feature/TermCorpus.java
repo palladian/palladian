@@ -74,7 +74,7 @@ public final class TermCorpus {
      * @return The number of documents containing the specified term.
      */
     public int getCount(String term) {
-        return terms.get(term);
+        return terms.getCount(term);
     }
 
     /**
@@ -166,7 +166,7 @@ public final class TermCorpus {
             printWriter.println("numDocs" + SEPARATOR + getNumDocs());
             printWriter.println();
             for (String term : terms.uniqueItems()) {
-                int count = terms.get(term);
+                int count = terms.getCount(term);
                 String line = term + SEPARATOR + count;
                 printWriter.println(line);
             }

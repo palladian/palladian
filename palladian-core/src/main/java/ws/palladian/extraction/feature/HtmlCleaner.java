@@ -21,13 +21,6 @@ import ws.palladian.processing.PipelineDocument;
  */
 public final class HtmlCleaner extends StringDocumentPipelineProcessor {
 
-    /**
-     * <p>
-     * Used to serialize objects of this class. Should only change of the set of attributes of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -111859833221808261L;
-
     @Override
     public final void processDocument(PipelineDocument<String> document) {
         String text = document.getContent();

@@ -11,8 +11,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
 
 public final class TokenOverlapRemover extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();

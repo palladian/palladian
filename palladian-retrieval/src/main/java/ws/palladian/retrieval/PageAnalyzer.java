@@ -23,7 +23,6 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -971,53 +970,53 @@ public class PageAnalyzer {
         return currentString;
     }
 
-    private StringBuilder getChildHTMLContents(Node node, StringBuilder currentString) {
-        Node child = node.getFirstChild();
-
-        int maximumTags = 50;
-        int tagCount = 0;
-        while (child != null && tagCount < maximumTags) {
-            // System.out.println(child.getNodeType() + " " + child.getNodeName());
-            // do not consider comment nodes (type 8)
-            if (child.getNodeType() == 3 || child.getNodeType() == 1) {
-                if (child.getNodeValue() != null && child.getNodeName().startsWith("#")) {
-                    if (!child.getNodeName().startsWith("#")) {
-                        currentString.append("<");
-                        currentString.append(child.getNodeName());
-                        currentString.append(">");
-                        currentString.append(child.getNodeValue());
-                        currentString.append("</");
-                        currentString.append(child.getNodeName());
-                        currentString.append(">");
-                    } else {
-                        currentString.append(child.getNodeValue());
-                    }
-                } else {
-
-                    currentString.append("<").append(child.getNodeName()).append(" ");
-
-                    // add attributes
-                    NamedNodeMap nnm = child.getAttributes();
-                    for (int i = 0; i < nnm.getLength(); i++) {
-                        Node attributeNode = nnm.item(i);
-                        currentString.append(attributeNode.getNodeName());
-                        currentString.append("=\"");
-                        currentString.append(attributeNode.getTextContent()).append("\" ");
-                    }
-
-                    currentString.append("/>");
-                }
-            }
-
-            currentString = getChildHTMLContents(child, currentString);
-            child = child.getNextSibling();
-            tagCount++;
-        }
-
-        // if (currentString.endsWith(", ")) currentString = currentString.substring(0,currentString.length()-2);
-
-        return currentString;
-    }
+//    private StringBuilder getChildHTMLContents(Node node, StringBuilder currentString) {
+//        Node child = node.getFirstChild();
+//
+//        int maximumTags = 50;
+//        int tagCount = 0;
+//        while (child != null && tagCount < maximumTags) {
+//            // System.out.println(child.getNodeType() + " " + child.getNodeName());
+//            // do not consider comment nodes (type 8)
+//            if (child.getNodeType() == 3 || child.getNodeType() == 1) {
+//                if (child.getNodeValue() != null && child.getNodeName().startsWith("#")) {
+//                    if (!child.getNodeName().startsWith("#")) {
+//                        currentString.append("<");
+//                        currentString.append(child.getNodeName());
+//                        currentString.append(">");
+//                        currentString.append(child.getNodeValue());
+//                        currentString.append("</");
+//                        currentString.append(child.getNodeName());
+//                        currentString.append(">");
+//                    } else {
+//                        currentString.append(child.getNodeValue());
+//                    }
+//                } else {
+//
+//                    currentString.append("<").append(child.getNodeName()).append(" ");
+//
+//                    // add attributes
+//                    NamedNodeMap nnm = child.getAttributes();
+//                    for (int i = 0; i < nnm.getLength(); i++) {
+//                        Node attributeNode = nnm.item(i);
+//                        currentString.append(attributeNode.getNodeName());
+//                        currentString.append("=\"");
+//                        currentString.append(attributeNode.getTextContent()).append("\" ");
+//                    }
+//
+//                    currentString.append("/>");
+//                }
+//            }
+//
+//            currentString = getChildHTMLContents(child, currentString);
+//            child = child.getNextSibling();
+//            tagCount++;
+//        }
+//
+//        // if (currentString.endsWith(", ")) currentString = currentString.substring(0,currentString.length()-2);
+//
+//        return currentString;
+//    }
 
     /**
      * If an xPath points to several (sibling) nodes, get the text of each node and add it to a list.
@@ -1269,58 +1268,21 @@ public class PageAnalyzer {
 
         List<String> keywords = new ArrayList<String>();
 
-        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//meta");
+        List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
-            if (metaNode.getAttributes().getNamedItem("name") != null
-                    && metaNode.getAttributes().getNamedItem("content") != null
-                    && metaNode.getAttributes().getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
-                String keywordString = metaNode.getAttributes().getNamedItem("content").getTextContent();
+            NamedNodeMap attrs = metaNode.getAttributes();
+            if (attrs.getNamedItem("name") != null && attrs.getNamedItem("content") != null
+                    && attrs.getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
+                String keywordString = attrs.getNamedItem("content").getTextContent();
                 String[] keywordArray = keywordString.split(",");
-                for (String string : keywordArray) {
-                    keywords.add(string.trim());
+                for (String keyword : keywordArray) {
+                    keywords.add(keyword.trim());
                 }
                 break;
             }
         }
 
         return keywords;
-    }
-
-    /**
-     * 
-     * Extracts the content of the body out of a given pageContent; textOnly-Parameter allows to get the textual content
-     * FIXME: other versions of this exist
-     * 
-     */
-    public static String extractBodyContent(String pageContent, boolean textOnly) {
-
-        String bodyContent = "";
-        List<String> tempList = HtmlHelper.getConcreteTags(pageContent, "body");
-
-        if (tempList.size() > 0) {
-            bodyContent = tempList.get(0);
-        } else {
-            LOGGER.error("========Fehler bei extractBodyContent===== ");
-            LOGGER.error("body could not extracted");
-            // return "error" to divide between empty string and error
-            return "error";
-        }
-
-        if (textOnly) {
-            boolean stripTags = true;
-            boolean stripComments = true;
-            boolean stripJSAndCSS = true;
-            boolean joinTagsAndRemoveNewlines = false;
-
-            // Remove all tags, comments, JS and CSS from body
-            bodyContent = HtmlHelper.stripHtmlTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
-                    joinTagsAndRemoveNewlines);
-            bodyContent = bodyContent.replaceAll("&nbsp;", " ");
-            bodyContent = bodyContent.replaceAll("&amp;", "&");
-            return bodyContent;
-        }
-
-        return bodyContent;
     }
 
     public static String removeXPathIndices(String xPath) {

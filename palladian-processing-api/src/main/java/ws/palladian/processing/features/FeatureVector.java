@@ -1,6 +1,7 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,6 +80,9 @@ public final class FeatureVector implements Iterable<Feature<?>> {
      * @return
      */
     public Feature<?> getFeature(String featurePath) {
+        if (featurePath.startsWith("/")) {
+            featurePath = featurePath.substring(1);
+        }
         String[] pathElements = featurePath.split("/");
         List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
         if (selectedFeatures == null) {
@@ -220,8 +224,12 @@ public final class FeatureVector implements Iterable<Feature<?>> {
     }
 
     public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
 
         String[] pathElements = path.split("/");
+        // System.out.println(Arrays.toString(pathElements));
         List<T> collectedFeatures = new LinkedList<T>();
 
         List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
@@ -275,7 +283,9 @@ class FeatureIterator implements Iterator<Feature<?>> {
 
         this.vector = vector;
         iteratorStack = new Stack<Iterator<? extends Feature<?>>>();
-        iteratorStack.push(vector.getFeatures().iterator());
+        if (!vector.getFeatures().isEmpty()) {
+            iteratorStack.push(vector.getFeatures().iterator());
+        }
     }
 
     @Override
@@ -286,18 +296,20 @@ class FeatureIterator implements Iterator<Feature<?>> {
     @Override
     public Feature<?> next() {
         try {
-            Iterator<? extends Feature<?>> currentIterator = iteratorStack.pop();
+            Iterator<? extends Feature<?>> currentIterator = iteratorStack.peek();
             Feature<?> feature = currentIterator.next();
+
+            if (!currentIterator.hasNext()) {
+                iteratorStack.pop();
+            }
 
             if (feature instanceof AnnotationFeature<?>) {
                 AnnotationFeature<?> annotationFeature = (AnnotationFeature)feature;
                 for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
-                    iteratorStack.push(annotation.getFeatureVector().iterator());
+                    if (!annotation.getFeatureVector().getFeatures().isEmpty()) {
+                        iteratorStack.push(annotation.getFeatureVector().iterator());
+                    }
                 }
-            }
-
-            if (currentIterator.hasNext()) {
-                iteratorStack.push(currentIterator);
             }
 
             return feature;

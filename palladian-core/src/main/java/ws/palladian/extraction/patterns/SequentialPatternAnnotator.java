@@ -55,19 +55,13 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @since 0.1.7
  */
 public final class SequentialPatternAnnotator extends StringDocumentPipelineProcessor {
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -1433065329363584974L;
 
     private Set<String> keywords;
 
-    public static final String PROVIDED_FEATURE = "ws.palladian.lsp";
+    public static final String PROVIDED_FEATURE = "lsp";
 
-    public static final FeatureDescriptor<SequentialPatternsFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build(PROVIDED_FEATURE, SequentialPatternsFeature.class);
+    public static final FeatureDescriptor<SequentialPattern> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+            .build(PROVIDED_FEATURE, SequentialPattern.class);
 
     private Integer maxSequentialPatternSize = 0;
 

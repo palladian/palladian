@@ -12,9 +12,9 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Matrix;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.Matrix;
 
 public class ClassifierEvaluator {
 

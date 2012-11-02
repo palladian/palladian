@@ -30,6 +30,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 
 /**
@@ -219,7 +220,7 @@ public class SequentialPatternAnnotatorTest {
         processingPipeline.add(new SequentialPatternAnnotator(keywords, 1, 4,
                 new LabeledSequentialPatternExtractionStrategy()));
 
-        PipelineDocument document = new PipelineDocument(inputText);
+        TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
 
@@ -240,7 +241,7 @@ public class SequentialPatternAnnotatorTest {
         processingPipeline.add(new OpenNlpPosTagger(ResourceHelper.getResourceFile("/model/en-pos-maxent.bin")));
         processingPipeline.add(new SequentialPatternAnnotator(keywords, 3, 4, new NGramPatternExtractionStrategy()));
 
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
 

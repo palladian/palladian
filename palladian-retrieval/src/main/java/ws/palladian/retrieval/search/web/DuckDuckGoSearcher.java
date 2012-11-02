@@ -42,8 +42,8 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
     @Override
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
-        Set<String> urls = new HashSet<String>();
         List<WebResult> result = new ArrayList<WebResult>();
+        Set<String> urlDeduplication = new HashSet<String>();
 
         paging: for (int page = 0; page <= 999; page++) {
 
@@ -58,19 +58,22 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                         + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
             }
             String content = HttpHelper.getStringContent(httpResult);
-            content = content.substring(content.indexOf("[{\"a\":"));
-            content = content.replace("}]);", "}])");
+            String jsonContent = content.substring(content.indexOf("[{\"a\":"));
+            jsonContent = jsonContent.replace("}]);", "}]");
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
             try {
-                JSONArray jsonArray = new JSONArray(content);
+                JSONArray jsonArray = new JSONArray(jsonContent);
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject object = jsonArray.getJSONObject(i);
 
-                    if (!urls.add(object.getString("u"))) {
+                    if (!object.has("u")) {
+                        continue; // if object in array contains no URL, it is paging information
+                    }
+
+                    if (!urlDeduplication.add(object.getString("u"))) {
                         break paging;
-                        // continue;
                     }
                     String summary = stripAndUnescape(object.getString("a"));
                     String title = stripAndUnescape(object.getString("t"));
@@ -84,7 +87,8 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                 }
             } catch (JSONException e) {
                 throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
-                        + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
+                        + " (request URL: \"" + requestUrl + "\", result String: \"" + content + "\"): "
+                        + e.getMessage(), e);
             }
         }
 

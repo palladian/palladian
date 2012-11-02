@@ -90,7 +90,7 @@ public class InformativenessAssigner {
             }
 
             for (String token : tokenFrequencyMap.uniqueItems()) {
-                int count = tokenFrequencyMap.get(token);
+                int count = tokenFrequencyMap.getCount(token);
                 tokenFrequencies.put(token, (double) count / totalTokens);
             }
 
@@ -166,7 +166,7 @@ public class InformativenessAssigner {
         // normalize frequency using the token with the highest frequency as upper cap = 1
         int highestFrequency = 1;
         for (String item : cm.uniqueItems()) {
-            int frequency = cm.get(item);
+            int frequency = cm.getCount(item);
             if (frequency > highestFrequency) {
                 highestFrequency = frequency;
             }
@@ -174,7 +174,7 @@ public class InformativenessAssigner {
 
         Map<String, Double> informativenessMap = new HashMap<String, Double>();
         for (String item : cm.uniqueItems()) {
-            int count = cm.get(item);
+            int count = cm.getCount(item);
             informativenessMap.put(item, (double) count / highestFrequency);
         }
 

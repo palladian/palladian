@@ -10,7 +10,7 @@ import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.ConstantFactory;
-import ws.palladian.helper.collection.CountMap2D;
+import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -24,13 +24,13 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
     @Override
     public NominalClassifierModel train(List<Instance> instances) {
 
-        CountMap2D<String> cooccurrenceMatrix = CountMap2D.create();
+        CountMatrix<String> cooccurrenceMatrix = CountMatrix.create();
 
         for (Instance instance : instances) {
             String className = instance.getTargetClass();
             List<NominalFeature> nominalFeatures = instance.getFeatureVector().getAll(NominalFeature.class);
             for (NominalFeature nominalFeature : nominalFeatures) {
-                cooccurrenceMatrix.increment(className, nominalFeature.getValue());
+                cooccurrenceMatrix.add(className, nominalFeature.getValue());
             }
         }
 
@@ -46,7 +46,7 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
     @Override
     public CategoryEntries classify(FeatureVector vector, NominalClassifierModel model) {
 
-        CountMap2D<String> cooccurrenceMatrix = model.getCooccurrenceMatrix();
+        CountMatrix<String> cooccurrenceMatrix = model.getCooccurrenceMatrix();
 
         // category-probability map, initialized with zeros
         Map<String, Double> scores = LazyMap.create(ConstantFactory.create(0.));

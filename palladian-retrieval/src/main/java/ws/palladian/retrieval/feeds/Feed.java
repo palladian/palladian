@@ -206,7 +206,6 @@ public class Feed {
 
     public Feed(String feedUrl) {
         this();
-//        setFeedUrl(feedUrl, true);
         this.feedUrl = feedUrl;
     }
 
@@ -228,24 +227,8 @@ public class Feed {
      * @param feedUrl
      */
     public void setFeedUrl(String feedUrl) {
-//        setFeedUrl(feedUrl, false);
         this.feedUrl = feedUrl;
     }
-
-//    /**
-//     * Set the feed's URL. Optionally, set the feed's domain as site url if the site url was null.
-//     * 
-//     * @param feedUrl
-//     */
-//    public void setFeedUrl(String feedUrl, boolean setSiteUrl) {
-//        this.feedUrl = feedUrl;
-//        if (setSiteUrl && getMetaInformation().getSiteUrl() == null) {
-//            String siteURL = UrlHelper.getDomain(feedUrl);
-//            if (!siteURL.isEmpty()) {
-//                getMetaInformation().setSiteUrl(siteURL);
-//            }
-//        }
-//    }
 
     /**
      * Replace the feed's items with the provided items. Make sure the items' properties such as windowSize or httpDate
@@ -811,8 +794,6 @@ public class Feed {
         builder.append(lastFeedEntry);
         builder.append(", httpLastModified=");
         builder.append(httpLastModified);
-//        builder.append(", pollDataSeries=");
-//        builder.append(pollDataSeries);
         builder.append(", meticulousPostDistribution=");
         builder.append(meticulousPostDistribution);
         builder.append(", oneFullDayOfItemsSeen=");
@@ -923,7 +904,6 @@ public class Feed {
         result = prime * result + ((lastSuccessfulCheckTime == null) ? 0 : lastSuccessfulCheckTime.hashCode());
         result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
         result = prime * result + misses;
-        // result = prime * result + ((newItem == null) ? 0 : newItem.hashCode());
         result = prime * result + ((newestItemHash == null) ? 0 : newestItemHash.hashCode());
         result = prime * result + numberOfItemsReceived;
         result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
@@ -1112,14 +1092,6 @@ public class Feed {
         setBenchmarkLastLookupTime(benchmarkLookupTime);
         benchmarkLookupTime += checkInterval;
     }
-
-//    public void setPollDataSeries(PollDataSeries pollDataSeries) {
-//        this.pollDataSeries = pollDataSeries;
-//    }
-//
-//    public PollDataSeries getPollDataSeries() {
-//        return pollDataSeries;
-//    }
 
     public long getBenchmarkLookupTime() {
         return benchmarkLookupTime;
@@ -1322,45 +1294,6 @@ public class Feed {
         numberOfItemsReceived += numberOfNewItems;
     }
 
-    /**
-     * Print feed with content in human readable form.
-     * 
-     * @param includeText
-     */
-    public void print(boolean includeText) {
-
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(getMetaInformation().getTitle()).append("\n");
-        builder.append("feedUrl : ").append(getFeedUrl()).append("\n");
-        builder.append("siteUrl : ").append(getMetaInformation().getSiteUrl()).append("\n");
-        builder.append("-----------------------------------").append("\n");
-        List<FeedItem> items = getItems();
-        if (items != null) {
-            for (FeedItem item : items) {
-                builder.append(item.getTitle()).append("\t");
-                if (includeText) {
-                    builder.append(item.getDescription()).append("\t");
-                    builder.append(item.getText()).append("\t");
-                }
-                builder.append(item.getLink()).append("\t");
-                builder.append(item.getPublished()).append("\t");
-                builder.append(item.getAuthors()).append("\n");
-            }
-            builder.append("-----------------------------------").append("\n");
-            builder.append("# entries: ").append(items.size());
-        }
-
-        System.out.println(builder.toString());
-    }
-
-    /**
-     * Print feed with content in human readable form.
-     */
-    public void print() {
-        print(false);
-    }
-
     public void setAdditionalData(Map<String, Object> additionalData) {
         this.additionalData = additionalData;
     }
@@ -1421,17 +1354,6 @@ public class Feed {
     public final void setLastFeedTaskResult(FeedTaskResult lastFeedTaskResult) {
         this.lastFeedTaskResult = lastFeedTaskResult;
     }
-
-//    /**
-//     * Set enum from String.
-//     * 
-//     * @param lastFeedTaskResult the recentFeedTaskResult to set
-//     * @deprecated Use {@link #setLastFeedTaskResult(FeedTaskResult)}
-//     */
-//    @Deprecated
-//    public final void setLastFeedTaskResult(String lastFeedTaskResult) {
-//        this.lastFeedTaskResult = EnumHelper.getEnumFromString(FeedTaskResult.class, lastFeedTaskResult);
-//    }
 
     /**
      * The HTTP header's date value of the last poll (The current system time of the feed server)

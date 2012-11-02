@@ -55,11 +55,11 @@ public final class CooccurrenceMatrix<T> implements Serializable {
     }
 
     public int getCount(T item) {
-        return items.get(item);
+        return items.getCount(item);
     }
 
     public int getCount(T itemA, T itemB) {
-        return pairs.get(UnorderedPair.of(itemA, itemB));
+        return pairs.getCount(UnorderedPair.of(itemA, itemB));
     }
 
     public int getNumItems() {

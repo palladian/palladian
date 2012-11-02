@@ -18,8 +18,6 @@ import ws.palladian.processing.features.Annotation;
  */
 public final class TokenFilter extends AbstractTokenRemover {
 
-    private static final long serialVersionUID = 1L;
-
     private final Set<String> vocabulary = new HashSet<String>();
 
     public TokenFilter(File vocabularyFile) {

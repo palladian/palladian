@@ -17,8 +17,6 @@ import ws.palladian.processing.features.Annotation;
  */
 public class RegExTokenRemover extends AbstractTokenRemover {
 
-    private static final long serialVersionUID = 1L;
-
     /** The {@link Pattern} used to determine whether to remove an {@link Annotation}. */
     private final Pattern pattern;
 

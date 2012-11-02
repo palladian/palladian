@@ -12,8 +12,7 @@ import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
 public class TermCorpusBuilder extends StringDocumentPipelineProcessor {
-
-    private static final long serialVersionUID = 1L;
+    
     private final TermCorpus termCorpus;
 
     public TermCorpusBuilder() {

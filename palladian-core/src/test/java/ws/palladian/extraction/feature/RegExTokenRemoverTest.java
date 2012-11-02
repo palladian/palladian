@@ -11,6 +11,7 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
@@ -19,7 +20,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public class RegExTokenRemoverTest {
 
-    private static final PipelineDocument<String> DOCUMENT = new PipelineDocument<String>("test 273 t_est ; •");
+    private static final TextDocument DOCUMENT = new TextDocument("test 273 t_est ; •");
     private ProcessingPipeline pipeline;
 
     @Before

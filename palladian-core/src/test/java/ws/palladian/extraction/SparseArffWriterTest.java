@@ -14,8 +14,8 @@ import org.junit.Test;
 
 import ws.palladian.extraction.feature.SparseArffWriter;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
@@ -43,7 +43,7 @@ public class SparseArffWriterTest {
                 NumericFeature.class);
         FeatureDescriptor<ListFeature> listFeatureDescriptor = FeatureDescriptorBuilder.build("listFeature",
                 ListFeature.class);
-        PipelineDocument<String> document = new PipelineDocument<String>("This is some test document.");
+        TextDocument document = new TextDocument("This is some test document.");
         document.addFeature(new NominalFeature(nominalFeatureDescriptor, "a"));
         document.addFeature(new NumericFeature(numericFeatureDescriptor, 0.78));
         // la should be only once in the result ARFF.

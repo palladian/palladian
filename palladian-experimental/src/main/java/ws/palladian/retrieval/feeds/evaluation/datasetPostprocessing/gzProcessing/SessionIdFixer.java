@@ -5,7 +5,6 @@ import java.util.Timer;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
@@ -33,7 +32,7 @@ public class SessionIdFixer {
     /**
      * Defines the time in milliseconds when the checkScheduler should wake up to see if all feeds processed.
      */
-    private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
+    private final long wakeUpInterval = 60 * 1000;
 
     public SessionIdFixer() {
         checkScheduler = new Timer();

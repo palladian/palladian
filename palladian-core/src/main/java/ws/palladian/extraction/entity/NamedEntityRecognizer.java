@@ -592,8 +592,8 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
             // write frequencies of confusion matrix
             for (String tagName : tagOrder) {
-                results.append(cm.get(tagName)).append(";");
-                totalNumber += cm.get(tagName);
+                results.append(cm.getCount(tagName)).append(";");
+                totalNumber += cm.getCount(tagName);
             }
 
             // total number of real tags in test set
@@ -618,7 +618,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
         for (String tagName : tagOrder) {
             int totalAssignments = 0;
             for (CountMap<String> countMap : evaluationResult.getAssignments().values()) {
-                totalAssignments += countMap.get(tagName);
+                totalAssignments += countMap.getCount(tagName);
             }
             results.append(totalAssignments).append(";");
         }
@@ -676,7 +676,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
 
             CountMap<String> cm = getAnnotationCountForTag(annotationErrors.get(errorTypeEntry.getKey()));
             for (String item : cm) {
-                results.append(item).append(":; ").append(cm.get(item)).append("\n");
+                results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
             }
             results.append("\n");
             for (Annotation annotation : annotationErrors.get(errorTypeEntry.getKey())) {

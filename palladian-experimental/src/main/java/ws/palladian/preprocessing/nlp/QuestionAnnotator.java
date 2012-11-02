@@ -38,11 +38,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @since 0.1.7
  */
 public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
-
-    /**
-     * Unique identifier to serialize and deserialize objects of this type to and from a file.
-     */
-    private static final long serialVersionUID = -2998306515098026978L;
+    
     /**
      * The world wide unique identifier of the {@link Feature}s created by this annotator.
      */
