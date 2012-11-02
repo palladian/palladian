@@ -85,16 +85,16 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
         Collection<Feature<Number>> numericFeatures = fv.getAll(Number.class);
         
         // add numeric features
-        for (Feature<Number> numericFeature : numericFeatures) {            
-            universalInstance.getNumericFeatures().add(numericFeature.getValue().doubleValue());            
+        for (Feature<Number> numericFeature : numericFeatures) {
+            universalInstance.getNumericFeatures().add(numericFeature.getValue().doubleValue());
         }
         
         //Collection<Feature<String>> nominalFeatures = fv.getNominalFeatures();
         Collection<Feature<String>> nominalFeatures = fv.getAll(String.class);
         
         // add nominal features
-        for (Feature<String> nominalFeature : nominalFeatures) {            
-            universalInstance.getNominalFeatures().add(nominalFeature.getValue());            
+        for (Feature<String> nominalFeature : nominalFeatures) {
+            universalInstance.getNominalFeatures().add(nominalFeature.getValue());
         }
         return universalInstance;
     }
@@ -324,12 +324,18 @@ public class NaiveBayesClassifier extends Classifier<UniversalInstance> implemen
                 Double prob = (Double) bayesProbabilityTensor
                         .get(featureIndex, category.getName(), nominalFeatureValue);
 
+                if (category.getName().equals("nr$") || category.getName().equals("at")) {
+                    System.out.print("stop");
+                }
+                
                 // if there was nothing learned for the featureValue class combination, we set the probability to 0
                 if (prob == null) {
                     // TODO La Place Smoothing
-                    prob = 0.0000000000001;
+                    prob = 0.0000000000001; // <-- better
+                    // prob = 0.; <-- leads to similar results as in branch
                 }
-                probabilities.put(category, probabilities.get(category) * prob);
+                double prior = probabilities.get(category);
+                probabilities.put(category, prior * prob);
 
             }
 
