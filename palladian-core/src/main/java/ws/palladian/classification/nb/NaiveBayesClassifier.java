@@ -91,12 +91,17 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
 
+            if (category.equals("nr$") || category.equals("at")) {
+                System.out.println("dsdfs");
+            }
+
             for (Feature<?> feature : vector) {
                 String featureName = feature.getName();
 
                 if (feature instanceof NominalFeature) {
                     NominalFeature nominalFeature = (NominalFeature)feature;
-                    probability *= model.getProbability(featureName, nominalFeature.getValue(), category);
+                    double probability2 = model.getProbability(featureName, nominalFeature.getValue(), category);
+                    probability *= probability2;
                 }
 
                 if (feature instanceof NumericFeature) {
