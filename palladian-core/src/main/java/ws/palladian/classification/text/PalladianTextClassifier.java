@@ -14,6 +14,7 @@ import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -39,10 +40,11 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     public DictionaryModel train(List<Instance> instances, FeatureSetting featureSetting) {
         Validate.notNull(featureSetting, "fs must not be null");
-        
+
         DictionaryModel model = new DictionaryModel(featureSetting);
         for (Instance instance : instances) {
-            List<NominalFeature> terms = instance.getFeatureVector().getFeatures(NominalFeature.class, "term");
+            List<NominalFeature> terms = instance.getFeatureVector().getFeatures(NominalFeature.class,
+                    UniversalClassifier.FEATURE_TERM);
             for (NominalFeature term : terms) {
                 model.updateTerm(term.getValue(), instance.getTargetClass());
             }
@@ -58,27 +60,29 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     @Override
     public CategoryEntries classify(FeatureVector vector, DictionaryModel model) {
-        
+
         // initialize probability Map with mutable double objects, so we can add relevance values to them
         Map<String, MutableDouble> probabilities = CollectionHelper.newHashMap();
         for (String category : model.getCategories()) {
             probabilities.put(category, new MutableDouble());
         }
-        
+
         // sum up the probabilities for normalization
         double probabilitySum = 0.;
-        
+
         // iterate through all terms in the document
-        for (NominalFeature termFeature : vector.getFeatures(NominalFeature.class, "term")) {
+        for (NominalFeature termFeature : vector.getFeatures(NominalFeature.class, UniversalClassifier.FEATURE_TERM)) {
             CategoryEntries categoryFrequencies = model.getCategoryEntries(termFeature.getValue());
             for (CategoryEntry category : categoryFrequencies) {
                 double categoryFrequency = category.getProbability();
-                double weight = categoryFrequency * categoryFrequency;
-                probabilities.get(category.getName()).add(weight);
-                probabilitySum += weight;
+                if (categoryFrequency > 0) {
+                    double weight = categoryFrequency * categoryFrequency;
+                    probabilities.get(category.getName()).add(weight);
+                    probabilitySum += weight;
+                }
             }
         }
-        
+
         CategoryEntries categories = new CategoryEntries();
 
         // If we have a category weight by matching terms from the document, use them to create the probability

@@ -34,8 +34,11 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
 
+    public static final String FEATURE_TERM = "ws.palladian.feature.term";
+
     public static final FeatureDescriptor<NominalFeature> TEXT_FEATURE = FeatureDescriptorBuilder.build(
-            "ws.palladian.feature.text", NominalFeature.class);
+            FEATURE_TERM,
+            NominalFeature.class);
 
     public static enum UniversalClassifierSettings {
         USE_NUMERIC, USE_TEXT, USE_NOMINAL
@@ -122,19 +125,13 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
     protected UniversalClassificationResult internalClassify(FeatureVector featureVector, UniversalClassifierModel model) {
 
-        // separate instance in feature types
-        String textFeature = "";
-        if (featureVector.get(TEXT_FEATURE) != null) {
-            textFeature = featureVector.get(TEXT_FEATURE).getValue();
-        }
-
         CategoryEntries text = null;
         CategoryEntries numeric = null;
         CategoryEntries nominal = null;
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
-            text = textClassifier.classify(textFeature, model.getDictionaryModel());
+            text = textClassifier.classify(featureVector, model.getDictionaryModel());
         }
 
         // classify numeric features with the KNN
@@ -229,7 +226,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
         UniversalClassifierModel model = new UniversalClassifierModel(nominalModel, numericModel, textModel);
         LOGGER.debug("learning classifier weights");
-        learnClassifierWeights(instances, model);
+        // learnClassifierWeights(instances, model);
         return model;
     }
 
@@ -242,6 +239,10 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     public CategoryEntries classify(FeatureVector vector, UniversalClassifierModel model) {
         UniversalClassificationResult result = internalClassify(vector, model);
         return mergeResults(result, model);
+    }
+
+    public FeatureSetting getFeatureSetting() {
+        return this.featureSetting;
     }
 
 }

@@ -2,15 +2,16 @@ package ws.palladian.extraction.pos;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.classification.universal.UniversalClassifier;
+import ws.palladian.classification.universal.UniversalClassifier.UniversalClassifierSettings;
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
@@ -43,11 +44,12 @@ public class PalladianPosTagger extends BasePosTagger {
     private UniversalClassifierModel model;
 
     public PalladianPosTagger(String modelFilePath) {
-        tagger = (UniversalClassifier)Cache.getInstance().getDataObject(modelFilePath);
-        if (tagger == null) {
-            tagger = FileHelper.deserialize(modelFilePath);
-            Cache.getInstance().putDataObject(modelFilePath, tagger);
+        model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath);
+        if (model == null) {
+            model = FileHelper.deserialize(modelFilePath);
+            Cache.getInstance().putDataObject(modelFilePath, model);
         }
+        tagger = getTagger();
     }
 
     public PalladianPosTagger() {
@@ -100,18 +102,25 @@ public class PalladianPosTagger extends BasePosTagger {
     // return this;
     // }
 
+    private UniversalClassifier getTagger() {
+        FeatureSetting featureSetting = new FeatureSetting();
+        featureSetting.setMinNGramLength(1);
+        featureSetting.setMaxNGramLength(7);
+        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        // tagger = new UniversalClassifier(EnumSet.of(UniversalClassifierSettings.USE_TEXT,
+        // UniversalClassifierSettings.USE_NOMINAL), featureSetting);
+        // tagger = new UniversalClassifier(EnumSet.of(UniversalClassifierSettings.USE_TEXT), featureSetting);
+        tagger = new UniversalClassifier(EnumSet.of(UniversalClassifierSettings.USE_NOMINAL), featureSetting);
+
+        return tagger;
+    }
+
     public void trainModel(String folderPath, String modelFilePath) {
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
 
-        // FIXME
-        // tagger.switchClassifiers(true, false, true);
-        FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setMinNGramLength(1);
-        featureSetting.setMaxNGramLength(7);
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-        tagger = new UniversalClassifier(featureSetting);
+        tagger = getTagger();
         List<Instance> trainingInstances = CollectionHelper.newArrayList();
 
         int c = 1;
@@ -139,7 +148,7 @@ public class PalladianPosTagger extends BasePosTagger {
 
                 Instance instance = new Instance(normalizeTag(wordAndTag[1]));
                 setFeatures(instance, previousTag, wordAndTag[0]);
-//                instance.setInstanceCategory();
+                //                instance.setInstanceCategory();
 
                 trainingInstances.add(instance);
 
@@ -167,8 +176,8 @@ public class PalladianPosTagger extends BasePosTagger {
             lastTwo = word.substring(word.length() - 2);
         }
 
-//        instance.setTextFeature(word);
-        
+        //        instance.setTextFeature(word);
+
         List<String> nominalFeatures = Arrays.asList(/*
          * previousTag,
          */String.valueOf(StringHelper.startsUppercase(word)),
@@ -180,16 +189,22 @@ public class PalladianPosTagger extends BasePosTagger {
          word.substring(word.length() - 1), word.substring(0, 1), lastTwo, word);
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));
-        
+
         for (String nominalFeature : nominalFeatures) {
             String name = "nom" + instance.getFeatureVector().size();
             instance.getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
         }
+
+        // FIXME in
+        // FeatureVector fv = Preprocessor.preProcessDocument(word, tagger.getFeatureSetting());
+        // for (Feature<?> feature : fv) {
+        // instance.getFeatureVector().add(feature);
+        // }
     }
 
     public void evaluate(String folderPath, String modelFilePath) {
 
-        tagger = (UniversalClassifier)Cache.getInstance().getDataObject(modelFilePath, new File(modelFilePath));
+        model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath, new File(modelFilePath));
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start evaluating the tagger");
@@ -200,7 +215,7 @@ public class PalladianPosTagger extends BasePosTagger {
         int correct = 0;
         int total = 0;
 
-//        List<UniversalInstance> instances = CollectionHelper.newArrayList();
+        //        List<UniversalInstance> instances = CollectionHelper.newArrayList();
 
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {
@@ -261,10 +276,11 @@ public class PalladianPosTagger extends BasePosTagger {
 
     public static void main(String[] args) {
         PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
+
         // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
-        // /palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
+        // palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
         // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
-        // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
+        palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
         palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
 
         // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")

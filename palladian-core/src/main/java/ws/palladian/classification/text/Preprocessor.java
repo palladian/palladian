@@ -3,6 +3,7 @@ package ws.palladian.classification.text;
 import java.util.Set;
 
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.ProcessingPipeline;
@@ -69,7 +70,7 @@ public final class Preprocessor {
                 continue;
             }
 
-            NominalFeature textFeature = new NominalFeature("term", ngram.toLowerCase());
+            NominalFeature textFeature = new NominalFeature(UniversalClassifier.FEATURE_TERM, ngram.toLowerCase());
             featureVector.add(textFeature);
             termCount++;
         }
