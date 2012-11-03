@@ -36,12 +36,11 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
     public static final String FEATURE_TERM = "ws.palladian.feature.term";
 
-    public static final FeatureDescriptor<NominalFeature> TEXT_FEATURE = FeatureDescriptorBuilder.build(
-            FEATURE_TERM,
+    public static final FeatureDescriptor<NominalFeature> TEXT_FEATURE = FeatureDescriptorBuilder.build(FEATURE_TERM,
             NominalFeature.class);
 
-    public static enum UniversalClassifierSettings {
-        USE_NUMERIC, USE_TEXT, USE_NOMINAL
+    public static enum ClassifierSetting {
+        NUMERIC, TEXT, NOMINAL
     }
 
     /** The text classifier which is used to classify the textual feature parts of the instances. */
@@ -55,21 +54,21 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
     private final FeatureSetting featureSetting;
 
-    private final EnumSet<UniversalClassifierSettings> settings;
+    private final EnumSet<ClassifierSetting> settings;
 
     public UniversalClassifier() {
-        this(EnumSet.allOf(UniversalClassifierSettings.class), new FeatureSetting());
+        this(EnumSet.allOf(ClassifierSetting.class), new FeatureSetting());
     }
 
     public UniversalClassifier(FeatureSetting featureSetting) {
-        this(EnumSet.allOf(UniversalClassifierSettings.class), featureSetting);
+        this(EnumSet.allOf(ClassifierSetting.class), featureSetting);
     }
 
-    public UniversalClassifier(EnumSet<UniversalClassifierSettings> settings) {
+    public UniversalClassifier(EnumSet<ClassifierSetting> settings) {
         this(settings, new FeatureSetting());
     }
 
-    public UniversalClassifier(EnumSet<UniversalClassifierSettings> settings, FeatureSetting featureSetting) {
+    public UniversalClassifier(EnumSet<ClassifierSetting> settings, FeatureSetting featureSetting) {
         textClassifier = new PalladianTextClassifier();
         this.featureSetting = featureSetting;
         numericClassifier = new KnnClassifier();
@@ -128,6 +127,9 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         CategoryEntries text = null;
         CategoryEntries numeric = null;
         CategoryEntries nominal = null;
+        
+        FeatureVector featureVectorWithoutTerms = new FeatureVector(featureVector);
+        featureVectorWithoutTerms.removeAll(FEATURE_TERM);
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
@@ -136,12 +138,12 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
         // classify numeric features with the KNN
         if (model.getKnnModel() != null) {
-            numeric = numericClassifier.classify(featureVector, model.getKnnModel());
+            numeric = numericClassifier.classify(featureVectorWithoutTerms, model.getKnnModel());
         }
 
         // classify nominal features with the Bayes classifier
         if (model.getBayesModel() != null) {
-            nominal = nominalClassifier.classify(featureVector, model.getBayesModel());
+            nominal = nominalClassifier.classify(featureVectorWithoutTerms, model.getBayesModel());
         }
         return new UniversalClassificationResult(text, numeric, nominal);
     }
@@ -206,20 +208,27 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         KnnModel numericModel = null;
         DictionaryModel textModel = null;
 
+
         // train the text classifier
-        if (settings.contains(UniversalClassifierSettings.USE_TEXT)) {
+        if (settings.contains(ClassifierSetting.TEXT)) {
             LOGGER.debug("training text classifier");
             textModel = textClassifier.train(instances, featureSetting);
         }
+        
+        // XXX thats not really nice because we alter the original feature vector,
+        // better would be to supply a filter or view on the existing one.
+        for (Instance instance : instances) {
+            instance.getFeatureVector().removeAll(FEATURE_TERM);
+        }
 
         // train the numeric classifier
-        if (settings.contains(UniversalClassifierSettings.USE_NUMERIC)) {
+        if (settings.contains(ClassifierSetting.NUMERIC)) {
             LOGGER.debug("training numeric classifier");
             numericModel = numericClassifier.train(instances);
         }
 
         // train the nominal classifier
-        if (settings.contains(UniversalClassifierSettings.USE_NOMINAL)) {
+        if (settings.contains(ClassifierSetting.NOMINAL)) {
             LOGGER.debug("training nominal classifier");
             nominalModel = nominalClassifier.train(instances);
         }

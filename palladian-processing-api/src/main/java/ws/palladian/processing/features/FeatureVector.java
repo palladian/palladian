@@ -1,7 +1,6 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -188,15 +187,14 @@ public final class FeatureVector implements Iterable<Feature<?>> {
 
     /**
      * <p>
-     * Removes a {@link Feature} from this {@link FeatureVector}.
+     * Removes all {@link Feature}s with the specified name from this {@link FeatureVector}.
      * </p>
      * 
-     * @param name
-     *            The {@link FeatureVector} wide unique identifier of the {@link Feature} to remove.
+     * @param name The name of the {@link Feature}s to remove.
      * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
      *         specified identifier to remove.
      */
-    public boolean remove(String name) {
+    public boolean removeAll(String name) {
         return features.remove(name) != null;
     }
 
