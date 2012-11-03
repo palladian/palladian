@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.Validate;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -32,6 +33,35 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  */
 public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
+    
+    /** The default value for the Laplace smoothing. */
+    private static final double DEFAULT_LAPLACE_CORRECTOR = 0.00001;
+    
+    /** The corrector for the Laplace smoothing. */
+    private final double laplace;
+    
+    /**
+     * <p>
+     * Create a new Naive Bayes classifier with a value of {@value #DEFAULT_LAPLACE_CORRECTOR} for the Laplace
+     * smoothing.
+     * </p>
+     */
+    public NaiveBayesClassifier() {
+        this(DEFAULT_LAPLACE_CORRECTOR);
+    }
+
+    /**
+     * <p>
+     * Create a new Naive Bayes classifier.
+     * </p>
+     * 
+     * @param laplaceCorrector The Laplace corrector for smoothing. Must be greater or equal to zero. A value of zero
+     *            means no smoothing.
+     */
+    public NaiveBayesClassifier(double laplaceCorrector) {
+        Validate.isTrue(laplaceCorrector >= 0, "The Laplace corrector must be equal or greater than zero.");
+        this.laplace = laplaceCorrector;
+    }
 
     @Override
     public NaiveBayesModel train(List<Instance> instances) {
@@ -54,7 +84,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
             for (Feature<?> feature : instance.getFeatureVector()) {
                 String featureName = feature.getName();
-
+                
                 if (feature instanceof NominalFeature) {
                     String nominalValue = ((NominalFeature)feature).getValue();
                     nominalCounts.add(new Triplet<String, String, String>(featureName, nominalValue, category));
@@ -91,22 +121,20 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
 
-            if (category.equals("nr$") || category.equals("at")) {
-                System.out.println("dsdfs");
-            }
-
             for (Feature<?> feature : vector) {
                 String featureName = feature.getName();
 
                 if (feature instanceof NominalFeature) {
                     NominalFeature nominalFeature = (NominalFeature)feature;
-                    double probability2 = model.getProbability(featureName, nominalFeature.getValue(), category);
-                    probability *= probability2;
+                    probability *= model.getProbability(featureName, nominalFeature.getValue(), category, laplace);
                 }
 
                 if (feature instanceof NumericFeature) {
                     NumericFeature numericFeature = (NumericFeature)feature;
-                    probability *= model.getDensity(featureName, numericFeature.getValue(), category);
+                    double density = model.getDensity(featureName, numericFeature.getValue(), category);
+                    if (density > 0) {
+                        probability *= density;
+                    }
                 }
             }
 
@@ -119,7 +147,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         for (Entry<String, Double> entry : probabilities.entrySet()) {
             categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue() / evidence));
         }
-
+       
         return categoryEntries;
     }
 
@@ -151,6 +179,9 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         }
 
         public double getStandardDeviation() {
+            if (values.size() == 1) {
+                return 0.;
+            }
             double mean = getMean();
             double standardDeviation = 0;
             for (double value : values) {
