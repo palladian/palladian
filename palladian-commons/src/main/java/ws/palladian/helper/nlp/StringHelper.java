@@ -18,8 +18,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;

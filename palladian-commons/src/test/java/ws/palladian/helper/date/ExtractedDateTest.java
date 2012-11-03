@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.RegExp;
 
 public class ExtractedDateTest {
 

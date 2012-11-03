@@ -1,4 +1,4 @@
-package ws.palladian.extraction.date.helper;
+package ws.palladian.extraction.date.rater;
 
 import java.util.Arrays;
 
@@ -17,7 +17,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class DateInstanceFactory {
+final class DateInstanceFactory {
     
     private DateInstanceFactory() {
         // no instances.
