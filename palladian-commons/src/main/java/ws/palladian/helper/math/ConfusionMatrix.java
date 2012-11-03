@@ -215,7 +215,7 @@ public class ConfusionMatrix {
     public double getRecall(String category) {
         int correct = getCorrectlyClassifiedDocuments(category);
         int real = getRealDocuments(category);
-        if (real == 1.0) {
+        if (real == 0) {
             return -1;
         }
         return (double)correct / real;
@@ -518,40 +518,51 @@ public class ConfusionMatrix {
                 builder.append("Real\\Predicted\t");
 
                 for (String key : getCategories()) {
-                    builder.append(key).append("\t");
+                    builder.append(key).append('\t');
                 }
-                builder.append("<Precision>\n");
+                builder.append('\n');
+                // builder.append("<Precision>\n");
 
                 headWritten = true;
             }
 
-            builder.append(realCategory).append("\t");
+            builder.append(realCategory).append('\t');
 
             // iterate through all columns (x)
             for (String predictedCategory : getCategories()) {
-                builder.append(getConfusions(realCategory, predictedCategory)).append("\t");
+                builder.append(getConfusions(realCategory, predictedCategory)).append('\t');
             }
-            builder.append(MathHelper.round(getPrecision(realCategory), 4)).append("\t");
-            builder.append("\n");
+//            builder.append(MathHelper.round(getPrecision(realCategory), 4)).append("\t");
+            builder.append('\n');
         }
 
-        builder.append("<Recall>\t");
-        for (String predictedCategory : getCategories()) {
-            builder.append(MathHelper.round(getRecall(predictedCategory), 4)).append("\t");
-        }
+//        builder.append("<Recall>\t");
+//        for (String predictedCategory : getCategories()) {
+//            builder.append(MathHelper.round(getRecall(predictedCategory), 4)).append("\t");
+//        }
 
         builder.append("\n\n\n");
-
-        builder.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append("\n");
-        builder.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append("\n");
-        builder.append("Average F1:\t").append(MathHelper.round(getAverageF(0.5, true), 4)).append("\n");
-        builder.append("Average Sensitivity:\t").append(MathHelper.round(getAverageSensitivity(true), 4)).append("\n");
-        builder.append("Average Specificity:\t").append(MathHelper.round(getAverageSpecificity(true), 4)).append("\n");
-        builder.append("Average Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append("\n");
-        builder.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append("\n");
-        builder.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append("\n");
-        builder.append("# Documents:\t").append(getTotalDocuments()).append("\n");
-        builder.append("# Correctly Classified:\t").append(getTotalCorrect()).append("\n");
+        
+        builder.append("Category\tPrior\tPrecision\tRecall\tF1\n");
+        for (String category : getCategories()) {
+            builder.append(category).append('\t');
+            builder.append(MathHelper.round(getPrior(category), 4)).append('\t');
+            builder.append(MathHelper.round(getPrecision(category), 4)).append('\t');
+            builder.append(MathHelper.round(getRecall(category), 4)).append('\t');
+            builder.append(MathHelper.round(getF(category, 0.5), 4)).append('\n');
+        }
+        
+        builder.append("\n\n\n");
+        builder.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
+        builder.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
+        builder.append("Average F1:\t").append(MathHelper.round(getAverageF(0.5, true), 4)).append('\n');
+        builder.append("Average Sensitivity:\t").append(MathHelper.round(getAverageSensitivity(true), 4)).append('\n');
+        builder.append("Average Specificity:\t").append(MathHelper.round(getAverageSpecificity(true), 4)).append('\n');
+        builder.append("Average Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append('\n');
+        builder.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append('\n');
+        builder.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
+        builder.append("# Documents:\t").append(getTotalDocuments()).append('\n');
+        builder.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
         return builder.toString();
 
     }
