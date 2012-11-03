@@ -71,7 +71,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
      */
     @Override
     public boolean add(T item) {
-        Validate.notNull(map, "map must not be null");
+        Validate.notNull(item, "item must not be null");
 
         Integer count = getCount(item);
         int counter = count.intValue();
@@ -89,7 +89,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
      * @param increment The count by which to increment (negative values decrement).
      */
     public void add(T item, int increment) {
-        Validate.notNull(map, "map must not be null");
+        Validate.notNull(item, "item must not be null");
         
         if (increment == 0) {
             return;
