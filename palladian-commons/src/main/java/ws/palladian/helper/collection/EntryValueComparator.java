@@ -7,7 +7,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * <p>
- * Compare {@link Entry}s or {@link Pair}s by their values.
+ * Compare {@link Entry}s or {@link Pair}s by their values. Use the static factory methods {@link #ascending()} or
+ * {@link #descending()} to obtain an instance: <code>
+ * Collections.sort(list, EntryValueComparator.<K, V> ascending())
+ * </code>
  * </p>
  * 
  * @author Philipp Katz
@@ -19,12 +22,30 @@ public final class EntryValueComparator<K, V extends Comparable<V>> implements C
 
     private final boolean ascending;
 
-    public EntryValueComparator(boolean ascending) {
-        this.ascending = ascending;
+    /**
+     * <p>
+     * Create an {@link EntryValueComparator} for sorting in an ascending way.
+     * </p>
+     * 
+     * @return The comparator.
+     */
+    public static <K, V extends Comparable<V>> EntryValueComparator<K, V> ascending() {
+        return new EntryValueComparator<K, V>(true);
     }
 
-    public EntryValueComparator() {
-        this(true);
+    /**
+     * <p>
+     * Create an {@link EntryValueComparator} for sorting in a descending way.
+     * </p>
+     * 
+     * @return The comparator.
+     */
+    public static <K, V extends Comparable<V>> EntryValueComparator<K, V> descending() {
+        return new EntryValueComparator<K, V>(false);
+    }
+
+    private EntryValueComparator(boolean ascending) {
+        this.ascending = ascending;
     }
 
     @Override

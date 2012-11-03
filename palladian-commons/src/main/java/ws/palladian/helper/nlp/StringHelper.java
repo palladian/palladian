@@ -1690,6 +1690,38 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
+     * Trims whitespace characters from the left side of a {@code String}.
+     * </p>
+     * 
+     * @param s The {@code String} to trim.
+     * @return The trimmed {@code String}.
+     */
+    public static String ltrim(String s) {
+        int i = 0;
+        while (i < s.length() && Character.isWhitespace(s.charAt(i))) {
+            i++;
+        }
+        return s.substring(i);
+    }
+
+    /**
+     * <p>
+     * Trims whitespace characters from the right side of a {@code String}.
+     * </p>
+     * 
+     * @param s The {@code String} to trim.
+     * @return The trimmed {@code String}.
+     */
+    public static String rtrim(String s) {
+        int i = s.length() - 1;
+        while (i > 0 && Character.isWhitespace(s.charAt(i))) {
+            i--;
+        }
+        return s.substring(0, i + 1);
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments

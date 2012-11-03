@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ws.palladian.helper.math.Matrix;
+import ws.palladian.helper.math.NumericMatrix;
 
 public class HeatGridGenerator {
     
@@ -95,19 +95,19 @@ public class HeatGridGenerator {
      * @param data The data matrix with intensity values in the range [0,1].
      * @param imagePath The path where the image should be saved to.
      */
-    public void generateHeatGrid(Matrix data, String imagePath) {
+    public void generateHeatGrid(NumericMatrix<String> data, String imagePath) {
         
         //final int IMAGE_WIDTH = 400;
         //final int IMAGE_HEIGHT = 400;
         
-        Map<Object, Map<Object, Object>> matrix = data.getMatrix();
+//        Map<String, Map<String, Number>> matrix = data.getMatrix();
         //final int tileWidth = IMAGE_WIDTH / matrix.size();
         //final int tileHeight = IMAGE_HEIGHT / matrix.entrySet().size();
         
         final int tileWidth = 30;
         final int tileHeight = 30;
-        final int IMAGE_WIDTH = matrix.size() * tileWidth;
-        final int IMAGE_HEIGHT = matrix.entrySet().iterator().next().getValue().size() * tileHeight;
+        final int IMAGE_WIDTH = data.sizeX() * tileWidth;
+        final int IMAGE_HEIGHT = data.sizeY() * tileHeight;
         
         BufferedImage bufferedImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
@@ -117,12 +117,12 @@ public class HeatGridGenerator {
         g2.setPaint(Color.RED);
         
         int columnNumber = 0;
-        for (Entry<Object, Map<Object, Object>> column : matrix.entrySet()) {
+        for (String column : data.getKeysX()) {
             //System.out.println("column " + columnNumber + " : " + column.getKey());
             int rowNumber = 0;
-            for (Entry<Object, Object> row : column.getValue().entrySet()) {
+            for (String row : data.getKeysY()) {
             	//System.out.println("row " + rowNumber + " : " + row.getKey());
-                double intensity = (Double) row.getValue();
+                double intensity = data.get(column, row);
                 int intensityScaled = (int) (intensity * 255); 
                 g2.setColor(getColor(intensityScaled));              
                 
@@ -139,18 +139,18 @@ public class HeatGridGenerator {
     
     public static void main(String[] args) {
         
-        Matrix data = new Matrix();
-        data.set(0, 0, 0.1);
-        data.set(1, 0, 0.3);
-        data.set(0, 1, 0.5);
-        data.set(1, 1, 0.7);
+        NumericMatrix<String> data = new NumericMatrix<String>();
+        data.set("0", "0", 0.1);
+        data.set("1", "0", 0.3);
+        data.set("0", "1", 0.5);
+        data.set("1", "1", 0.7);
         System.out.println(data);
-        System.out.println(data.get(0,0));
+        System.out.println(data.get("0", "0"));
         
         // generate random heat grid data
         for (int i = 0; i < 100; i++) {
             for (int j = 0; j < 100; j++) {
-                data.set(i, j, Math.random());
+                data.set(i+"", j+"", Math.random());
             }
         }
         

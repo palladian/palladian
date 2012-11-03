@@ -30,8 +30,6 @@ import ws.palladian.processing.features.Annotation;
  */
 public final class StopTokenRemover extends AbstractTokenRemover {
 
-    private static final long serialVersionUID = 1L;
-
     private final Set<String> stopwords;
 
     /**

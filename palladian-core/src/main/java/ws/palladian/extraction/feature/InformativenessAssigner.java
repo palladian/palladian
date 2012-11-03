@@ -10,7 +10,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.TokenFrequencyMap;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.token.Tokenizer;
@@ -26,8 +25,8 @@ public class InformativenessAssigner {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(InformativenessAssigner.class);
 
-    private TokenFrequencyMap tokenFrequencies = new TokenFrequencyMap();
-    private Map<String, Double> normalizedTokenFrequencies = new HashMap<String, Double>();
+    private HashMap<String, Double> tokenFrequencies = CollectionHelper.newHashMap();
+    private Map<String, Double> normalizedTokenFrequencies = CollectionHelper.newHashMap();
 
     private InformativenessAssigner() {
         // loadFrequencyMap();
@@ -72,7 +71,7 @@ public class InformativenessAssigner {
 
     public void initTokenFrequencyMap() {
 
-        CountMap tokenFrequencyMap = new CountMap();
+        CountMap<String> tokenFrequencyMap = CountMap.create();
 
         for (int i = 0; i < 2; i++) {
             // get texts from web pages
@@ -84,14 +83,15 @@ public class InformativenessAssigner {
                 List<String> tokens = Tokenizer.tokenize(text);
 
                 for (String token : tokens) {
-                    tokenFrequencyMap.increment(token);
+                    tokenFrequencyMap.add(token);
                 }
 
                 totalTokens += tokens.size();
             }
 
-            for (Entry<Object, Integer> entry : tokenFrequencyMap.entrySet()) {
-                tokenFrequencies.put(entry.getKey().toString(), entry.getValue() / (double)totalTokens);
+            for (String token : tokenFrequencyMap.uniqueItems()) {
+                int count = tokenFrequencyMap.getCount(token);
+                tokenFrequencies.put(token, (double) count / totalTokens);
             }
 
             LOGGER.debug("added another set of " + texts.size() + " texts, number of tokens now "
@@ -106,7 +106,7 @@ public class InformativenessAssigner {
         saveFrequencyMap();
 
         FileHelper.writeToFile("data/temp/tfmap.txt",
-                CollectionHelper.getPrint(CollectionHelper.sortByValue(tokenFrequencyMap).entrySet()));
+                CollectionHelper.getPrint(tokenFrequencyMap.getSortedMap().entrySet()));
     }
 
     private List<String> getTexts() {
@@ -158,22 +158,24 @@ public class InformativenessAssigner {
         List<String> tokens = Tokenizer.tokenize(text);
 
         // count the occurrences of the tokens
-        CountMap cm = new CountMap();
+        CountMap<String> cm = CountMap.create();
         for (String token : tokens) {
-            cm.increment(token);
+            cm.add(token);
         }
 
         // normalize frequency using the token with the highest frequency as upper cap = 1
         int highestFrequency = 1;
-        for (Integer frequency : cm.values()) {
+        for (String item : cm.uniqueItems()) {
+            int frequency = cm.getCount(item);
             if (frequency > highestFrequency) {
                 highestFrequency = frequency;
             }
         }
 
         Map<String, Double> informativenessMap = new HashMap<String, Double>();
-        for (Entry<Object, Integer> entry : cm.entrySet()) {
-            informativenessMap.put(entry.getKey().toString(), entry.getValue() / (double)highestFrequency);
+        for (String item : cm.uniqueItems()) {
+            int count = cm.getCount(item);
+            informativenessMap.put(item, (double) count / highestFrequency);
         }
 
         StringBuilder sb = new StringBuilder();

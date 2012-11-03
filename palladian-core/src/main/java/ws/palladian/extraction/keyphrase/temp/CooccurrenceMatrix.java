@@ -6,12 +6,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.UnorderedPair;
 
 /**
@@ -27,12 +26,12 @@ public final class CooccurrenceMatrix<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final Bag<UnorderedPair<T>> pairs;
-    private final Bag<T> items;
+    private final CountMap<UnorderedPair<T>> pairs;
+    private final CountMap<T> items;
 
     public CooccurrenceMatrix() {
-        pairs = new HashBag<UnorderedPair<T>>();
-        items = new HashBag<T>();
+        pairs = CountMap.create();
+        items = CountMap.create();
     }
 
     public void add(T itemA, T itemB) {
@@ -64,15 +63,15 @@ public final class CooccurrenceMatrix<T> implements Serializable {
     }
 
     public int getNumItems() {
-        return items.size();
+        return items.totalSize();
     }
 
     public int getNumUniqueItems() {
-        return items.uniqueSet().size();
+        return items.uniqueSize();
     }
 
     public int getNumPairs() {
-        return pairs.size();
+        return pairs.totalSize();
     }
 
     public double getProbability(T item) {
@@ -147,11 +146,11 @@ public final class CooccurrenceMatrix<T> implements Serializable {
      */
     public List<Pair<T, Double>> getHighest(T item, int num) {
         List<Pair<T, Double>> result = CollectionHelper.newArrayList();
-        Bag<T> temp = new HashBag<T>(items);
+        CountMap<T> temp = CountMap.create(items);
         for (int i = 0; i < num; i++) {
             T highestItem = null;
             double highestProbability = Integer.MIN_VALUE;
-            for (T current : temp.uniqueSet()) {
+            for (T current : temp.uniqueItems()) {
                 if (current.equals(item)) {
                     continue;
                 }

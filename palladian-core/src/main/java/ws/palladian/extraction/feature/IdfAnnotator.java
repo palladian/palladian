@@ -4,6 +4,7 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureDescriptorBuilder;
@@ -20,8 +21,6 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  */
 public final class IdfAnnotator extends AbstractTokenProcessor {
-
-    private static final long serialVersionUID = 1L;
 
     public static final String PROVIDED_FEATURE = "ws.palladian.preprocessing.tokens.idf";
 

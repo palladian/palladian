@@ -33,8 +33,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public final class OpenNlpTokenizer extends BaseTokenizer {
 
-    private static final long serialVersionUID = 1L;
-
     /** The OpenNLP Tokenizer to use. */
     private final opennlp.tools.tokenize.Tokenizer tokenizer;
 

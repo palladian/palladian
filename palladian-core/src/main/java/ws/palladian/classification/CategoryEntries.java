@@ -1,230 +1,138 @@
 package ws.palladian.classification;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.MathHelper;
 
 /**
- * Hold a number of category entries. For example, a word could have a list of relevant categories attached. Each category has a certain relevance for the word
- * which is expressed in the CategoryEntry.
+ * <p>
+ * Hold a number of categories. For example, a word could have a list of relevant categories attached. Each category has
+ * a certain relevance which is expressed in the {@link CategoryEntry}.
+ * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
-public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implements Serializable {
+public final class CategoryEntries implements Iterable<CategoryEntry> {
 
-	/** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(CategoryEntries.class);
-    
-    private static final long serialVersionUID = 4321001999458490582L;
+    private final Map<String, Double> categoryEntries = CollectionHelper.newHashMap();
 
-    private boolean relevancesInPercent = false;
-
-    // in order to avoid recalculating all relative relevance scores for each category entry
-    // we update them only if new entries were added
-    private boolean relevancesUpToDate = false;
-
-    /** Comparator to sort categories by relevance. */
-    private Comparator<CategoryEntry> comparator = new CategoryEntryComparator();
-
-    public boolean isRelevancesUpToDate() {
-        return relevancesUpToDate;
-    }
-
-    public void setRelevancesUpToDate(boolean relevancesUpToDate) {
-        this.relevancesUpToDate = relevancesUpToDate;
-    }
-
-    public CategoryEntry getCategoryEntry(Category category) {
-        return getCategoryEntry(category.getName());
-    }
-
+    /**
+     * <p>
+     * Retrieve a {@link CategoryEntry} by its name.
+     * </p>
+     * 
+     * @param categoryName The name of the CategoryEntry to retrieve, not <code>null</code>.
+     * @return The CategoryEntry with the specified name, or <code>null</code> if no such entry exists.
+     */
     public CategoryEntry getCategoryEntry(String categoryName) {
-        for (CategoryEntry ce : this) {
-            if (ce.getCategory().getName().equals(categoryName)) {
-                return ce;
-            }
+        Validate.notNull(categoryName, "categoryName must not be null");
+        Double probability = categoryEntries.get(categoryName);
+        if (probability == null) {
+            return null;
         }
-        return null;
-    }
-
-    public void setRelevancesInPercent(boolean relevancesInPercent) {
-        this.relevancesInPercent = relevancesInPercent;
+        return new CategoryEntry(categoryName, probability);
     }
 
     /**
-     * This method calculates the percentage for every category in the ArrayList. The sum of percentages of all categories must be 100% (+-1% round).
+     * <p>
+     * Adds a new {@link CategoryEntry} to the list. If a CategoryEntry with the specified name already exists, it is
+     * replaced by the supplied one.
+     * </p>
      * 
-     * @parameter spread If true, percentages get spread.
+     * @param categoryEntry The CategoryEntry to add, not <code>null</code>.
      */
-    public void transformRelevancesInPercent(boolean spread) {
-
+    public void add(CategoryEntry categoryEntry) {
+        Validate.notNull(categoryEntry, "categoryEntry must not be null");
+        categoryEntries.put(categoryEntry.getName(), categoryEntry.getProbability());
     }
-
-    @Override
-    /**
-     * If a CategoryEntry is entered, the relative relevances are not up to date anymore.
-     */
-    public boolean add(CategoryEntry e) {
-        if (e == null) {
-            return false;
-        }
-        setRelevancesUpToDate(false);
-        return super.add(e);
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends CategoryEntry> c) {
-        boolean listChanged = false;
-
-        setRelevancesUpToDate(false);
-
-        for (CategoryEntry newCategoryEntry : c) {
-            if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
-                CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
-                ce.addAbsoluteRelevance(newCategoryEntry.getAbsoluteRelevance());
-            } else {
-                super.add(new CategoryEntry(this, newCategoryEntry.getCategory(), newCategoryEntry
-                        .getAbsoluteRelevance()));
-            }
-            listChanged = true;
-        }
-
-        return listChanged;
-    }
-
-    public boolean addAllRelative(Collection<? extends CategoryEntry> c) {
-        return addAllRelative(1.0, c);
-    }
-
-    public boolean addAllRelative(double coefficient, Collection<? extends CategoryEntry> categoryEntries) {
-        boolean listChanged = false;
-
-        setRelevancesUpToDate(false);
-
-        for (CategoryEntry newCategoryEntry : categoryEntries) {
-            if (newCategoryEntry == null) {
-                continue;
-            }
-            double relevance = newCategoryEntry.getRelevance();
-            if (relevance < 0) {
-                relevance = 0;
-            }
-            if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
-                CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
-                if (ce != null) {
-                    ce.addAbsoluteRelevance(coefficient * relevance);
-                } else {
-                    CategoryEntry categoryEntry = new CategoryEntry(this, newCategoryEntry.getCategory(), coefficient
-                            * relevance);
-                    this.add(categoryEntry);
-                }
-            } else {
-                CategoryEntry newCategoryEntry2 = new CategoryEntry(this, newCategoryEntry.getCategory(), 0);
-                newCategoryEntry2.addAbsoluteRelevance(coefficient * relevance);
-                this.add(newCategoryEntry2);
-            }
-            listChanged = true;
-        }
-
-        return listChanged;
-    }
-
-    /*
-     * public boolean addMerge(CategoryEntry e) { if (e == null) { return false; } CategoryEntry c = this.getCategoryEntry(e.getCategory().getName()); if (c ==
-     * null) { add(e); } else { c.addAbsoluteRelevance(e.getAbsoluteRelevance()); } setRelevancesUpToDate(false); if (c == null) { return true; } return false;
-     * //return (c == null) true? false }
-     */
 
     /**
-     * The relevance for a category entry is a sum of absolute relevance scores so far. To normalize the relevance to a value between 0 and 1 we need to divide
-     * it by the total absolute relevances of all category entries that are in the same category entries group.
+     * <p>
+     * Retrieves the {@link CategoryEntry} with the highest relevance.
+     * </p>
+     * 
+     * @return The CategoryEntry with the highest relevance, or <code>null</code> no entries exist.
      */
-    public void calculateRelativeRelevances() {
-
-        Logger.getRootLogger().debug("recalculate category entries relevances");
-
-        // normalize
-        Double totalRelevance = 0.0;
-        for (CategoryEntry entry : this) {
-            totalRelevance += entry.getAbsoluteRelevance();
-        }
-
-        for (CategoryEntry entry : this) {
-            if (totalRelevance > 0) {
-                entry.setRelativeRelevance(entry.getAbsoluteRelevance() / totalRelevance);
-            } else {
-                entry.setRelativeRelevance(-1.0);
-            }
-        }
-
-        setRelevancesUpToDate(true);
-
-        // spread, often percentages are very close such as 23,24,26,27 (4 categories) but they can be polarized so that the differences are more visible
-        /*
-         * if (spread) { double lowestRelevance = 100; for (Category category : this) { if (category.getRelevance() < lowestRelevance) lowestRelevance =
-         * category.getRelevance(); } double totalPlusRelevance = 0; for (Category category : this) { totalPlusRelevance += category.getRelevance() -
-         * lowestRelevance; } if (totalPlusRelevance > 0) { for (Category category : this) { category.setRelevance((category.getRelevance()-lowestRelevance) /
-         * totalPlusRelevance); } } }
-         */
-    }
-
-    public void sortByRelevance() {
-        Collections.sort(this, comparator);
-    }
-
     public CategoryEntry getMostLikelyCategoryEntry() {
-        sortByRelevance();
-        //XXX
-        if (size() > 0) {
-        	return get(0);
+        if (categoryEntries.isEmpty()) {
+            return null;
         }
-        LOGGER.warn("no most likey category entry found");
-        return new CategoryEntry(this, new Category(""), 1);
-    }
-
-    /**
-     * Get the percentage of all absolute term weights for all category entries in the given category. The percentage tells what ratio of term weights were
-     * relevant for the given category in this entry set.
-     * 
-     * @param category The category entry.
-     * @return The percentage.
-     */
-    public double getTermWeight(Category category) {
-
-        double entriesWeights = 0.0;
-        for (CategoryEntry e : this) {
-            if (e.getCategory().getName().equalsIgnoreCase(category.getName())) {
-                entriesWeights += e.getAbsoluteRelevance();
+        double maxProbability = 0;
+        String maxName = null;
+        for (Entry<String, Double> entry : categoryEntries.entrySet()) {
+            if (entry.getValue() > maxProbability) {
+                maxProbability = entry.getValue();
+                maxName = entry.getKey();
             }
         }
-
-        return entriesWeights / category.getTotalTermWeight();
-    }
-
-    public boolean hasEntryWithCategory(Category category) {
-        boolean hasEntry = false;
-
-        for (CategoryEntry ce : this) {
-            if (ce.getCategory().getName().equals(category.getName())) {
-                hasEntry = true;
-                break;
-            }
-        }
-
-        return hasEntry;
+        return new CategoryEntry(maxName, maxProbability);
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (CategoryEntry ce : this) {
-            sb.append(ce).append("\n");
+        StringBuilder toStringBuilder = new StringBuilder();
+        toStringBuilder.append("CategoryEntries [");
+        boolean first = true;
+        for (CategoryEntry categoryEntry : this) {
+            if (first) {
+                first = false;
+            } else {
+                toStringBuilder.append(", ");
+            }
+            toStringBuilder.append(categoryEntry.getName());
+            toStringBuilder.append("=");
+            toStringBuilder.append(MathHelper.round(categoryEntry.getProbability(), 4));
         }
-        return sb.toString();
+        toStringBuilder.append("]");
+        return toStringBuilder.toString();
     }
+
+    @Override
+    public Iterator<CategoryEntry> iterator() {
+        final Iterator<Entry<String, Double>> iterator = categoryEntries.entrySet().iterator();
+        return new Iterator<CategoryEntry>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public CategoryEntry next() {
+                Entry<String, Double> entry = iterator.next();
+                return new CategoryEntry(entry.getKey(), entry.getValue());
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Modifications are not allowed.");
+            }
+        };
+    }
+
+    /**
+     * <p>
+     * Retrieve the number of {@link CategoryEntry}s
+     * </p>
+     * 
+     * @return The number of CategoryEntries.
+     */
+    public int size() {
+        return categoryEntries.size();
+    }
+
+//    /**
+//     * @param entry The entry to search for.
+//     * @return {@code true} if the {@code CategoryEntries} contain the provided {@code CategoryEntry} and {@code false}
+//     *         otherwise.
+//     */
+//    public boolean contains(CategoryEntry entry) {
+//        return categoryEntries.containsKey(entry);
+//    }
 
 }

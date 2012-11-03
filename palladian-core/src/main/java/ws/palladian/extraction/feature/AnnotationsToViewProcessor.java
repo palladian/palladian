@@ -37,10 +37,11 @@ public final class AnnotationsToViewProcessor<F extends Feature<?>> extends Stri
     @Override
     public void processDocument(PipelineDocument<String> document) {
         FeatureVector vector = document.getFeatureVector();
-        List<Feature<F>> features = vector.getAll(featureDescriptor.getType());
+
+        List<F> features = vector.getAll(featureDescriptor.getType());
 
         StringBuilder ret = new StringBuilder();
-        for (Feature<F> feature : features) {
+        for (F feature : features) {
             ret.append(feature.getValue());
             ret.append(" ");
         }
