@@ -2,14 +2,11 @@ package ws.palladian.extraction.date.helper;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.classification.Instance;
+import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -26,7 +23,7 @@ public final class DateInstanceFactory {
         // no instances.
     }
 
-    public static Instance createInstance(ContentDate date) {
+    public static FeatureVector createFeatureVector(ContentDate date) {
 
         String formatString = date.getFormat();
         if (!isNormalFormat(formatString)) {
@@ -48,68 +45,43 @@ public final class DateInstanceFactory {
             keywordString = "null";
         }
 
-        String hour = (date.get(ContentDate.HOUR) > -1) ? "1.0" : "0.0";
-        String minute = (date.get(ContentDate.HOUR) > -1) ? "1.0" : "0.0";
-        String second = (date.get(ContentDate.HOUR) > -1) ? "1.0" : "0.0";
-
-        String relDocPos = String.valueOf(date.getRelDocPos());
-        String ordDocPos = String.valueOf(date.getOrdDocPos());
-        String ordAgePos = String.valueOf(date.getOrdAgePos());
-
-        int keyPrio = KeyWords.getKeywordPriority(date.getKeyword());
-        keyPrio = keyPrio == -1 ? 0 : keyPrio;
-        String keyClassString = String.valueOf(keyPrio);
-        String keyLoc = date.getKeyLoc();
-        String keyDiff = String.valueOf(date.getKeyDiff());
-
-        String simpleTag = date.getSimpleTag() + ".0";
-        String hTag = date.getHTag() + ".0";
-        String tagName = tagNameString;
-
-        String hasStructureDate = date.hasStructureDate() ? "1.0" : "0.0";
-        String inMetaDates = date.isInMetaDates() ? "1.0" : "0.0";
-        String inUrl = date.isInUrl() ? "1.0" : "0.0";
-
-        String relCntSame = String.valueOf(date.getRelCntSame());
-        String relSize = String.valueOf(date.getRelSize());
-
-        String distPosBefore = String.valueOf(date.getDistPosBefore());
-        String distPosAfter = String.valueOf(date.getDistPosAfter());
-        String distAgeBefore = String.valueOf(date.getDistAgeBefore());
-        // String distAgeAfter = String.valueOf(date.getDistAgeAfter());
-
-        // String distAgeBefore = date.getDistAgeBefore();
-        // String distAgeAfter = date.getDistAgeAfter();
-
-        // if formatString .index(,) > -1 then ''
-        // else if fomratstring.ind (" " > -1 then ''
-        String format = formatString;
         if (formatString.indexOf(",") > -1 || formatString.indexOf(" ") > -1) {
-            format = "'" + formatString + "'";
+            formatString = "'" + formatString + "'";
         }
 
-        String keyword = (keywordString.indexOf(" ") > -1) ? "'" + keywordString + "'" : keywordString;
-        String excatness = String.valueOf(date.getExactness().getValue());
-
-        String keyLoc201 = date.getKeyLoc201() + ".0";
-        String keyLoc202 = date.getKeyLoc202() + ".0";
-
-        String isKeyClass1 = date.getIsKeyClass1() + ".0";
-        String isKeyClass2 = date.getIsKeyClass2() + ".0";
-        String isKeyClass3 = date.getIsKeyClass3() + ".0";
-
-        String dateString = hour + ";" + minute + ";" + second + ";" + relDocPos + ";" + ordDocPos + ";" + ordAgePos
-                + ";" + keyClassString + ";" + keyLoc + ";" + keyDiff + ";" + simpleTag + ";" + hTag + ";" + tagName
-                + ";" + hasStructureDate + ";" + inMetaDates + ";" + inUrl + ";" + relCntSame + ";" + relSize + ";"
-                + distPosBefore + ";" + distPosAfter + ";" + distAgeBefore + ";" + /* distAgeAfter + ";" + */format
-                + ";" + keyword + ";" + excatness + ";" + keyLoc201 + ";" + keyLoc202 + ";" + isKeyClass1 + ";"
-                + isKeyClass2 + ";" + isKeyClass3 + ";0"; // FIXME
+        String keyword = keywordString.indexOf(" ") > -1 ? "'" + keywordString + "'" : keywordString;
         
-        
-        String[] names = "hour;minute;second;relDocPos;ordDocPos;ordAgePos;keyClass;keyLoc;keyDiff;simpleTag;hTag;tagName;hasStructureDate;inMetaDates;inUrl;relCntSame;relSize;distPosBefore;distPosAfter;distAgeBefore;format;keyword;excatness;keyLoc201;keyLoc202;isKeyClass1;isKeyClass2;isKeyClass3;isPublishedClass".split(";");
-        Instance instance = readLine(dateString, names);
-        
-        return instance;
+        // XXX replace numeric to nominal where applicable (needs new model).
+        InstanceBuilder instanceBuilder = new InstanceBuilder();
+        instanceBuilder.set("hour", date.get(ExtractedDate.HOUR) > -1 ? 1.0 : 0.0);
+        instanceBuilder.set("minute", date.get(ExtractedDate.HOUR) > -1 ? 1.0 : 0.0);
+        instanceBuilder.set("second", date.get(ExtractedDate.HOUR) > -1 ? 1.0 : 0.0);
+        instanceBuilder.set("relDocPos", date.getRelDocPos());
+        instanceBuilder.set("ordDocPos", date.getOrdDocPos());
+        instanceBuilder.set("ordAgePos", date.getOrdAgePos());
+        instanceBuilder.set("keyClass", (double)Math.max(0, KeyWords.getKeywordPriority(date.getKeyword())));
+        instanceBuilder.set("keyLoc", (double)date.getKeyLoc());
+        instanceBuilder.set("keyDiff", date.getKeyDiff());
+        instanceBuilder.set("simpleTag", date.isSimpleTag() ? 1.0 : 0.0);
+        instanceBuilder.set("hTag", date.isHTag() ? 1.0 : 0.0);
+        instanceBuilder.set("tagName", tagNameString);
+        instanceBuilder.set("hasStructureDate", date.hasStructureDate() ? 1.0 : 0.0);
+        instanceBuilder.set("inMetaDates", date.isInMetaDates() ? 1.0 : 0.0);
+        instanceBuilder.set("inUrl", date.isInUrl() ? 1.0 : 0.0);
+        instanceBuilder.set("relCntSame", date.getRelCntSame());
+        instanceBuilder.set("relSize", date.getRelSize());
+        instanceBuilder.set("distPosBefore", (double)date.getDistPosBefore());
+        instanceBuilder.set("distPosAfter", (double)date.getDistPosAfter());
+        instanceBuilder.set("distAgeBefore", (double)date.getDistAgeBefore());
+        instanceBuilder.set("format", formatString);
+        instanceBuilder.set("keyword", keyword);
+        instanceBuilder.set("excatness", (double)date.getExactness().getValue());
+        instanceBuilder.set("keyLoc201", date.isKeyLoc201() ? 1.0 : 0.0);
+        instanceBuilder.set("keyLoc202", date.isKeyLoc202() ? 1.0 : 0.0);
+        instanceBuilder.set("isKeyClass1", date.isKeyClass1() ? 1.0 : 0.0);
+        instanceBuilder.set("isKeyClass2", date.isKeyClass2() ? 1.0 : 0.0);
+        instanceBuilder.set("isKeyClass3", date.isKeyClass3() ? 1.0 : 0.0);
+        return instanceBuilder.create();
 
     }
 
@@ -175,28 +147,6 @@ public final class DateInstanceFactory {
             result = "YYYY-MM-DD";
         }
         return result;
-    }
-    
-    public static Instance readLine(String line, String[] names) {
-        Validate.notNull(names, "names must not be null");
-        
-        String[] split = line.split(";");
-        FeatureVector fv = new FeatureVector();
-        for (int i = 0; i < split.length - 1; i++) {
-            String column = split[i];
-            String name = names == null ? "col" + i : names[i];
-            
-            Double doubleValue;
-            // FIXME make better.
-            try {
-                doubleValue = Double.valueOf(column);
-                fv.add(new NumericFeature(name, doubleValue));
-            } catch (NumberFormatException e) {
-                fv.add(new NominalFeature(name, column));
-            }
-        }
-        String targetClass = split[split.length - 1];
-        return new Instance(targetClass, fv);
     }
 
 }
