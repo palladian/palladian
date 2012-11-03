@@ -2,10 +2,14 @@ package ws.palladian.extraction.date.helper;
 
 import java.util.Arrays;
 
-import ws.palladian.classification.Instance2;
-import ws.palladian.classification.dt.CsvInstanceReader;
+import org.apache.commons.lang3.Validate;
+
+import ws.palladian.classification.Instance;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -22,7 +26,7 @@ public final class DateInstanceFactory {
         // no instances.
     }
 
-    public static Instance2<String> createInstance(ContentDate date) {
+    public static Instance createInstance(ContentDate date) {
 
         String formatString = date.getFormat();
         if (!isNormalFormat(formatString)) {
@@ -103,7 +107,7 @@ public final class DateInstanceFactory {
         
         
         String[] names = "hour;minute;second;relDocPos;ordDocPos;ordAgePos;keyClass;keyLoc;keyDiff;simpleTag;hTag;tagName;hasStructureDate;inMetaDates;inUrl;relCntSame;relSize;distPosBefore;distPosAfter;distAgeBefore;format;keyword;excatness;keyLoc201;keyLoc202;isKeyClass1;isKeyClass2;isKeyClass3;isPublishedClass".split(";");
-        Instance2<String> instance = CsvInstanceReader.readLine(dateString, names);
+        Instance instance = readLine(dateString, names);
         
         return instance;
 
@@ -171,6 +175,28 @@ public final class DateInstanceFactory {
             result = "YYYY-MM-DD";
         }
         return result;
+    }
+    
+    public static Instance readLine(String line, String[] names) {
+        Validate.notNull(names, "names must not be null");
+        
+        String[] split = line.split(";");
+        FeatureVector fv = new FeatureVector();
+        for (int i = 0; i < split.length - 1; i++) {
+            String column = split[i];
+            String name = names == null ? "col" + i : names[i];
+            
+            Double doubleValue;
+            // FIXME make better.
+            try {
+                doubleValue = Double.valueOf(column);
+                fv.add(new NumericFeature(name, doubleValue));
+            } catch (NumberFormatException e) {
+                fv.add(new NominalFeature(name, column));
+            }
+        }
+        String targetClass = split[split.length - 1];
+        return new Instance(targetClass, fv);
     }
 
 }

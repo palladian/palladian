@@ -1,23 +1,20 @@
 package ws.palladian.classification.dt;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import quickdt.Attributes;
-import quickdt.Instance;
 import quickdt.Leaf;
 import quickdt.Node;
 import quickdt.TreeBuilder;
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instance2;
-import ws.palladian.classification.Predictor;
+import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Instance;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -28,17 +25,11 @@ import ws.palladian.processing.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public final class DecisionTreeClassifier implements Predictor<String> {
-
-    private static final long serialVersionUID = 1L;
+public final class DecisionTreeClassifier implements Classifier<DecisionTreeModel> {
 
     private final int maxDepth;
 
     private final double minProbability;
-
-    private final Set<Instance> trainingInstances;
-
-    private Node tree;
 
     /**
      * <p>
@@ -51,7 +42,6 @@ public final class DecisionTreeClassifier implements Predictor<String> {
     public DecisionTreeClassifier(int maxDepth, double minProbability) {
         this.maxDepth = maxDepth;
         this.minProbability = minProbability;
-        this.trainingInstances = new HashSet<Instance>();
     }
 
     /**
@@ -64,19 +54,14 @@ public final class DecisionTreeClassifier implements Predictor<String> {
     }
 
     @Override
-    public void learn(List<Instance2<String>> instances) {
-        for (Instance2<String> instance2 : instances) {
-            addTrainingInstance(instance2);
+    public DecisionTreeModel train(List<Instance> instances) {
+        Set<quickdt.Instance> trainingInstances = CollectionHelper.newHashSet();
+        for (Instance instance : instances) {
+            Serializable[] input = getInput(instance.getFeatureVector());
+            trainingInstances.add(Attributes.create(input).classification(instance.getTargetClass()));
         }
-        build();
-        
-        // added to save memory
-        trainingInstances.clear();
-    }
-
-    private void addTrainingInstance(Instance2<String> instance) {
-        Serializable[] input = getInput(instance.featureVector);
-        trainingInstances.add(Attributes.create(input).classification(instance.target));
+        Node tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
+        return new DecisionTreeModel(tree);
     }
 
     private Serializable[] getInput(FeatureVector featureVector) {
@@ -90,26 +75,18 @@ public final class DecisionTreeClassifier implements Predictor<String> {
         return inputs.toArray(new Serializable[inputs.size()]);
     }
 
-    private void build() {
-        tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
-    }
-
     @Override
-    public CategoryEntries predict(FeatureVector featureVector) {
-        Leaf leaf = tree.getLeaf(Attributes.create(getInput(featureVector)));
+    public CategoryEntries classify(FeatureVector featureVector, DecisionTreeModel decisionTreeModel) {
+        Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(featureVector)));
         CategoryEntries categoryEntries = new CategoryEntries();
-        Category category = new Category((String)leaf.classification);
-        CategoryEntry categoryEntry = new CategoryEntry(categoryEntries, category, leaf.probability);
-        categoryEntries.add(categoryEntry);
+        categoryEntries.add(new CategoryEntry((String)leaf.classification, leaf.probability));
         return categoryEntries;
     }
 
     @Override
-    public String toString() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(out);
-        tree.dump(printStream);
-        return out.toString();
+    public DecisionTreeModel train(Dataset dataset) {
+        // FIXME
+        return null;
     }
 
 }

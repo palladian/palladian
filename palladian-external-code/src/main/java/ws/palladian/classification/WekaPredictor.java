@@ -9,8 +9,7 @@ import org.apache.commons.lang3.Validate;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -21,7 +20,7 @@ import ws.palladian.processing.features.NumericFeature;
  * Predictor implementation using Weka.
  * </p>
  * <p>
- * Use {@link #learn(List)} to train a new classifier based on a list of example instances and
+ * Use {@link #train(List)} to train a new classifier based on a list of example instances and
  * {@link #predict(FeatureVector)} to classify a {@link FeatureVector}. The {@code FeatureVector} used for training
  * requires the class to be the last {@link Feature} in each instances {@code FeatureVector}.
  * </p>
@@ -30,11 +29,11 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public final class WekaPredictor implements Predictor<String> {
+public final class WekaPredictor implements ws.palladian.classification.Classifier<WekaModel> {
 
     private final Classifier classifier;
     private FastVector featureVector;
-    private Instances trainInstances;
+    private weka.core.Instances trainInstances;
 
     /**
      * <p>
@@ -49,15 +48,16 @@ public final class WekaPredictor implements Predictor<String> {
     }
 
     @Override
-    public void learn(List<Instance2<String>> instances) {
+    public WekaModel train(List<Instance> instances) {
         if (instances.size() > 0) {
             featureVector = declareFeatureVector(instances);
-            trainInstances = new Instances("rel", featureVector, instances.size());
+            trainInstances = new weka.core.Instances("rel", featureVector, instances.size());
             // last is classindex
-            trainInstances.setClassIndex(instances.get(0).featureVector.size());
+            trainInstances.setClassIndex(instances.get(0).getFeatureVector().size());
 
-            for (Instance2<String> instance2 : instances) {
-                Instance wekaInstance = makeWekaInstance(featureVector, instance2.featureVector, instance2.target);
+            for (Instance instance : instances) {
+                weka.core.Instance wekaInstance = makeWekaInstance(featureVector, instance.getFeatureVector(),
+                        instance.getTargetClass());
                 trainInstances.add(wekaInstance);
             }
             try {
@@ -67,10 +67,11 @@ public final class WekaPredictor implements Predictor<String> {
                         + e.getMessage(), e);
             }
         }
+        return new WekaModel(classifier);
     }
 
-    private Instance makeWekaInstance(FastVector featureVector, FeatureVector fv, String target) {
-        Instance wekaInstance = new Instance(fv.size() + 1);
+    private weka.core.Instance makeWekaInstance(FastVector featureVector, FeatureVector fv, String target) {
+        weka.core.Instance wekaInstance = new weka.core.Instance(fv.size() + 1);
         int i = 0;
 
         for (Feature<?> f : fv.toArray()) {
@@ -91,8 +92,8 @@ public final class WekaPredictor implements Predictor<String> {
         return wekaInstance;
     }
 
-    private FastVector declareFeatureVector(List<Instance2<String>> instances) {
-        FeatureVector featureVector = instances.get(0).featureVector;
+    private FastVector declareFeatureVector(List<Instance> instances) {
+        FeatureVector featureVector = instances.get(0).getFeatureVector();
         FastVector ret = new FastVector(featureVector.size() + 1);
         for (Feature<?> feature : featureVector.toArray()) {
             if (feature instanceof NominalFeature) {
@@ -112,15 +113,14 @@ public final class WekaPredictor implements Predictor<String> {
         return ret;
     }
 
-    private FastVector getValues(String name, List<Instance2<String>> instances) {
+    // get domain for nominal feature, i.e. possible values
+    private FastVector getValues(String name, List<Instance> instances) {
         Set<String> nominalValues = new HashSet<String>();
-        for (Instance2<String> instance : instances) {
-            @SuppressWarnings("deprecation")
-            Feature<?> feature2 = instance.featureVector.get(name);
-            if (feature2 == null) {
+        for (Instance instance : instances) {
+            NominalFeature feature = instance.getFeatureVector().getFeature(NominalFeature.class, name);
+            if (feature == null) {
                 continue;
             }
-            NominalFeature feature = (NominalFeature)feature2;
             nominalValues.add(feature.getValue());
         }
         FastVector fvNominalValues = new FastVector(nominalValues.size());
@@ -131,14 +131,14 @@ public final class WekaPredictor implements Predictor<String> {
     }
 
     @Override
-    public CategoryEntries predict(FeatureVector vector) {
+    public CategoryEntries classify(FeatureVector vector, WekaModel model) {
         CategoryEntries ret = new CategoryEntries();
-        Instance instance = makeWekaInstance(featureVector, vector, null);
+        weka.core.Instance instance = makeWekaInstance(featureVector, vector, null);
         instance.setDataset(trainInstances);
         try {
             double[] distributionForInstance = classifier.distributionForInstance(instance);
-            ret.add(new CategoryEntry(ret, new Category("true"), distributionForInstance[0]));
-            ret.add(new CategoryEntry(ret, new Category("false"), distributionForInstance[1]));
+            ret.add(new CategoryEntry("true", distributionForInstance[0]));
+            ret.add(new CategoryEntry("false", distributionForInstance[1]));
         } catch (Exception e) {
             throw new IllegalStateException("An exception occurred while predicting: " + e.getMessage(), e);
         }
@@ -148,6 +148,12 @@ public final class WekaPredictor implements Predictor<String> {
     @Override
     public String toString() {
         return classifier.toString();
+    }
+
+    @Override
+    public WekaModel train(Dataset dataset) {
+        // FIXME
+        return null;
     }
 
 }

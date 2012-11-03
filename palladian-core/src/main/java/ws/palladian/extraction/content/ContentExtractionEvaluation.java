@@ -9,13 +9,11 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -44,7 +42,8 @@ public class ContentExtractionEvaluation {
 
     public static void main(String[] args) {
 
-        ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation();
+        String datasetPath = "";
+        ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation(datasetPath);
 
         // extractors to evaluate
         evaluation.addExtractor(new BoilerpipeContentExtractor());
@@ -101,8 +100,8 @@ public class ContentExtractionEvaluation {
      */
     private boolean mainContentOnly = true;
 
-    public ContentExtractionEvaluation() {
-        datasetPath = ConfigHolder.getInstance().getConfig().getString("datasets.boilerplate");
+    public ContentExtractionEvaluation(String datasetPath) {
+        this.datasetPath = datasetPath;
     }
 
     public void addExtractor(WebPageContentExtractor extractor) {
@@ -123,8 +122,8 @@ public class ContentExtractionEvaluation {
         boolean writeHeader = true;
 
         // keep statistics
-        Bag<WebPageContentExtractor> wins = new HashBag<WebPageContentExtractor>();
-        Bag<WebPageContentExtractor> errors = new HashBag<WebPageContentExtractor>();
+        CountMap<WebPageContentExtractor> wins = CountMap.create();
+        CountMap<WebPageContentExtractor> errors = CountMap.create();
         Map<WebPageContentExtractor, Double> stats = new HashMap<WebPageContentExtractor, Double>();
 
         // loop through the dataset

@@ -138,9 +138,9 @@ public class ProcessingPipeline implements Serializable {
      *         pipeline.
      */
     // Convenience Method
-    public <T> PipelineDocument<T> process(PipelineDocument<T> document) throws DocumentUnprocessableException {
+    public <D extends PipelineDocument<?>> D process(D document) throws DocumentUnprocessableException {
         if (!pipelineProcessors.isEmpty()) {
-            ((Port<T>)pipelineProcessors.get(0).getInputPorts().get(0)).setPipelineDocument(document);
+            ((Port<D>)pipelineProcessors.get(0).getInputPorts().get(0)).setPipelineDocument((PipelineDocument<D>)document);
 
             process();
 
@@ -151,8 +151,8 @@ public class ProcessingPipeline implements Serializable {
             if (outputPorts.isEmpty()) {
                 return null;
             } else {
-                Port<T> defaultOutputPort = (Port<T>)outputPorts.get(0);
-                return defaultOutputPort.getPipelineDocument();
+                Port<D> defaultOutputPort = (Port<D>)outputPorts.get(0);
+                return (D)defaultOutputPort.getPipelineDocument();
             }
         } else {
             return document;
@@ -198,7 +198,7 @@ public class ProcessingPipeline implements Serializable {
             executableProcessors.removeAll(executedProcessors);
             executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
-        LOGGER.info("Finished pipeline.");
+        LOGGER.debug("Finished pipeline.");
         notifyProcessorsOfProcessFinished();
     }
 

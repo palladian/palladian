@@ -18,12 +18,6 @@ import org.apache.commons.lang3.Validate;
  * @version 2.0
  */
 public abstract class AbstractPipelineProcessor<T> implements PipelineProcessor {
-    /**
-     * <p>
-     * Unique identifier to serialize and deserialize objects of this type to and from a file.
-     * </p>
-     */
-    private static final long serialVersionUID = -7030337967596448903L;
 
     /**
      * <p>

@@ -6,18 +6,20 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections15.MultiMap;
-import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -90,7 +92,12 @@ public class FeedUrlsNearDuplicateEliminator {
         List<String> result = new ArrayList<String>();
 
         // map contains [ url-with-placeholder ; [ format1; format2; format3; ...] ]
-        MultiMap<String, String> temp = new MultiHashMap<String, String>();
+        Map<String, Collection<String>> temp = LazyMap.create(new Factory<Collection<String>>() {
+            @Override
+            public Collection<String> create() {
+                return CollectionHelper.newArrayList();
+            }
+        });
 
         for (String link : linkQueue) {
             if (IGNORE_PATTERN.matcher(link).find()) {
@@ -122,7 +129,7 @@ public class FeedUrlsNearDuplicateEliminator {
             } 
 
             if (format != null) {
-                temp.put(link, format);
+                temp.get(link).add(format);
             } else {
                 result.add(link);
             }

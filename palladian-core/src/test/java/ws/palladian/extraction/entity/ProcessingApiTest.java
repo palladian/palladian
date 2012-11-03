@@ -14,6 +14,7 @@ import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
@@ -55,7 +56,7 @@ public final class ProcessingApiTest {
         nerProcessor.loadModel(modelFile.getCanonicalPath());
 
         // Processing example Document
-        PipelineDocument<String> document = new PipelineDocument<String>(FIXTURE);
+        TextDocument document = new TextDocument(FIXTURE);
         nerProcessor.processDocument(document);
 
         // Checking results

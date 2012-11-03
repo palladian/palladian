@@ -1,11 +1,11 @@
 package ws.palladian.extraction.entity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instances;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.io.FileHelper;
 
@@ -15,7 +15,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * 
  */
-public class Annotations extends Instances<Annotation> {
+public class Annotations extends ArrayList<Annotation> {
 
     private static final long serialVersionUID = -628839540653937643L;
 
@@ -36,7 +36,7 @@ public class Annotations extends Instances<Annotation> {
             output.append(annotation.getLength()).append(";");
             output.append(annotation.getEndIndex()).append(";");
             output.append(annotation.getEntity()).append(";");
-            output.append(annotation.getMostLikelyTag().getCategory().getName()).append("\n");
+            output.append(annotation.getMostLikelyTagName()).append("\n");
 
         }
 
@@ -117,8 +117,8 @@ public class Annotations extends Instances<Annotation> {
     public void instanceCategoryToClassified() {
         for (Annotation annotation : this) {
             CategoryEntries ces = new CategoryEntries();
-            ces.add(new CategoryEntry(ces, annotation.getInstanceCategory(), 1));
-            annotation.assignCategoryEntries(ces);
+            ces.add(new CategoryEntry(annotation.getTargetClass(), 1));
+            annotation.setTags(ces);
         }
     }
 }

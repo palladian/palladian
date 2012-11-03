@@ -16,6 +16,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 
 /**
  * <p>
@@ -40,7 +41,7 @@ public class NGramPatternExtractorTest {
         processingPipeline.add(new OpenNlpPosTagger(ResourceHelper.getResourceFile("/model/en-pos-maxent.bin")));
         processingPipeline.add(new SequentialPatternAnnotator(KEYWORDS, 3, 4, new NGramPatternExtractionStrategy()));
 
-        PipelineDocument<String> document = new PipelineDocument<String>(testText);
+        PipelineDocument<String> document = new TextDocument(testText);
 
         processingPipeline.process(document);
 

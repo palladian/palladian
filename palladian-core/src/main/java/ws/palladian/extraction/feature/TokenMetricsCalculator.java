@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
-
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
@@ -30,8 +28,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public final class TokenMetricsCalculator extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     public static final FeatureDescriptor<NumericFeature> FIRST = FeatureDescriptorBuilder.build(
             "ws.palladian.features.tokens.first", NumericFeature.class);
     public static final FeatureDescriptor<NumericFeature> LAST = FeatureDescriptorBuilder.build(
@@ -49,14 +45,14 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        TextAnnotationFeature annotationFeature = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        TextAnnotationFeature annotationFeature = document.getFeatureVector().getFeature(TextAnnotationFeature.class,
+                BaseTokenizer.PROVIDED_FEATURE);
         if (annotationFeature == null) {
             throw new DocumentUnprocessableException("The required feature "
                     + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
         }
         List<Annotation<String>> annotations = annotationFeature.getValue();
-        Bag<String> occurrences = new HashBag<String>();
+        CountMap<String> occurrences = CountMap.create();
         Map<String, Integer> firstOccurrences = new HashMap<String, Integer>();
         Map<String, Integer> lastOccurrences = new HashMap<String, Integer>();
         int lastPosition = 0;
@@ -86,7 +82,7 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
 
         // calculate "normalized term frequency", see "Information Retrieval", Grossman/Frieder, p. 32
         int maxCount = 1;
-        for (String token : occurrences.uniqueSet()) {
+        for (String token : occurrences.uniqueItems()) {
             maxCount = Math.max(maxCount, occurrences.getCount(token));
         }
 

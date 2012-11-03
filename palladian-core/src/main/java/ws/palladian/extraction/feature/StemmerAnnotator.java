@@ -27,8 +27,6 @@ import ws.palladian.processing.features.NominalFeature;
  */
 public final class StemmerAnnotator extends AbstractTokenProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * <p>
      * The mode in which this {@link StemmerAnnotator} operates.
