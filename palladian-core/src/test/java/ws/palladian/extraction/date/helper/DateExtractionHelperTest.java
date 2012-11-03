@@ -16,7 +16,7 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.KeywordDate;
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.extraction.date.dates.UrlDate;
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;

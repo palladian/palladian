@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.RegExp;
 
 /** @formatter:off */
 public class DateParserTest {

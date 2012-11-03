@@ -5,9 +5,9 @@ import java.util.List;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.RatedDate;
-import ws.palladian.helper.RegExp;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
@@ -20,43 +20,32 @@ import ws.palladian.helper.date.ExtractedDateImpl;
  * @author Philipp Katz
  */
 public final class DateExtractionHelper {
-    
+
     private DateExtractionHelper() {
         // utility class, no instances.
     }
 
-    @SuppressWarnings("unchecked")
     public static <T extends ExtractedDate> List<T> filter(List<? extends ExtractedDate> dates, Class<T> filter) {
-        List<T> ret = new ArrayList<T>();
-        for (ExtractedDate date : dates) {
-            if (filter.isInstance(date)) {
-                ret.add((T)date);
-            }
-        }
-        return ret;
+        return CollectionHelper.filter(dates, filter, new ArrayList<T>());
     }
 
     public static <T extends ExtractedDate> List<T> filterByRange(List<T> dates) {
-        List<T> result = new ArrayList<T>(dates);
-        CollectionHelper.filter(result, new Filter<T>() {
+        return CollectionHelper.filter(dates, new Filter<T>() {
             @Override
             public boolean accept(T date) {
                 return isDateInRange(date);
             }
-        });
-        return result;
+        }, new ArrayList<T>());
     }
 
     public static <T extends ExtractedDate> List<T> filterFullDate(List<T> dates) {
-        List<T> result = new ArrayList<T>(dates);
-        CollectionHelper.filter(result, new Filter<T>() {
+        return CollectionHelper.filter(dates, new Filter<T>() {
             @Override
             public boolean accept(T date) {
                 return date.get(ExtractedDate.YEAR) != -1 && date.get(ExtractedDate.MONTH) != -1
                         && date.get(ExtractedDate.DAY) != -1;
             }
-        });
-        return result;
+        }, new ArrayList<T>());
     }
 
     /**
@@ -166,11 +155,12 @@ public final class DateExtractionHelper {
     }
 
     /**
-     * Check if all values of hashmap are zero.
+     * <p>
+     * Check if any of the {@link RatedDate}s has a rate higher than zero.
+     * </p>
      * 
-     * @param <T>
-     * @param dates
-     * @return
+     * @param dates The dates to check.
+     * @return <code>true</code> if at least one of the dates has a rate higher than zero, <code>false</code> otherwise.
      */
     public static boolean isAllZero(List<? extends RatedDate<?>> dates) {
         for (RatedDate<?> date : dates) {
@@ -205,18 +195,20 @@ public final class DateExtractionHelper {
         }
         return highest;
     }
-    
+
     /**
-     * Checks if a date is between 13th of November 1990, time 0:00 and now.
+     * <p>
+     * Checks if an {@link ExtractedDate} is between 13th of November 1990, time 0:00 and now.
+     * </p>
      * 
-     * @param date
-     * @return
+     * @param date The date to check.
+     * @return <code>true</code> if date is between 1990-11-13 and now, <code>false</code> otherwise.
      */
     public static boolean isDateInRange(ExtractedDate date) {
         ExtractedDate begin = DateParser.parseDate("1990-11-13T00:00:00Z", RegExp.DATE_ISO8601_YMD_T);
         ExtractedDate end = new ExtractedDateImpl();
         DateExactness compareDepth = DateExactness.DAY;
-        if  (date.getExactness() != DateExactness.UNSET) {
+        if (date.getExactness() != DateExactness.UNSET) {
             compareDepth = DateExactness.getCommonExactness(DateExactness.DAY, date.getExactness());
         }
         DateComparator dateComparator = new DateComparator(compareDepth);
@@ -225,15 +217,15 @@ public final class DateExtractionHelper {
         return gt && lt;
     }
 
-
-
     /**
-     * Sets for all dates from {@link List} the rate-value to given value in map.
+     * <p>
+     * Create {@link RatedDate}s for all supplied {@link ExtractedDate}s with the specified weights.
+     * </p>
      * 
-     * @param <T>
-     * @param dates
-     * @param rate
-     * @return 
+     * @param <T> The specific type of the {@link ExtractedDate}s.
+     * @param dates The dates for which to create {@link RatedDate}s.
+     * @param rate The rate with which to initialize the {@link RatedDate}s.
+     * @return A list with the {@link RatedDate}s.
      */
     public static <T extends ExtractedDate> List<RatedDate<T>> setRate(List<T> dates, double rate) {
         List<RatedDate<T>> result = CollectionHelper.newArrayList();
