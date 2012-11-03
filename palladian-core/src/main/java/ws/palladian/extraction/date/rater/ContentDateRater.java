@@ -21,6 +21,7 @@ import ws.palladian.extraction.date.helper.DateInstanceFactory;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -85,12 +86,12 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             if (dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
                 result.add(RatedDate.create(date, 1.0));
             } else {
-                Instance instance = DateInstanceFactory.createInstance(date);
+                FeatureVector featureVector = DateInstanceFactory.createFeatureVector(date);
                 try {
-                    CategoryEntries dbl = predictor.classify(instance.getFeatureVector(), model);
+                    CategoryEntries dbl = predictor.classify(featureVector, model);
                     result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getProbability()));
                 } catch (Exception e) {
-                    LOGGER.error("Exception " + date.getDateString() + " " + instance, e);
+                    LOGGER.error("Exception " + date.getDateString() + " " + featureVector, e);
                 }
             }
 
