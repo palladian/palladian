@@ -48,7 +48,7 @@ public class NaiveBayesClassifierTest {
         instances.add(new InstanceBuilder().set("outlook", "overcast").set("temp", "hot").set("humidity", "normal").set("windy", "false").create("yes"));
         instances.add(new InstanceBuilder().set("outlook", "rainy").set("temp", "mild").set("humidity", "high").set("windy", "true").create("no"));
 
-        NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
+        NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier(1);
         NaiveBayesModel model = bayesClassifier.train(instances);
         FeatureVector featureVector = new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);

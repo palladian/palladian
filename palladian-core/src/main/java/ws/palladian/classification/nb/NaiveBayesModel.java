@@ -83,21 +83,24 @@ public final class NaiveBayesModel implements Model {
      * @param featureName The name of the nominal feature, not <code>null</code>.
      * @param featureValue The value of the nominal feature, not <code>null</code>.
      * @param category The category for which to determine the probability.
+     * @param laplace The Laplace corrector, equal or greater than zero, zero denotes no correction.
      * @return The probability value for the specified feature/name in the specified category.
      */
-    public double getProbability(String featureName, String featureValue, String category) {
+    public double getProbability(String featureName, String featureValue, String category, double laplace) {
         Validate.notNull(featureName, "featureName must not be null");
         Validate.notNull(featureValue, "featureValue must not be null");
         Validate.notNull(category, "category must not be null");
+        Validate.isTrue(laplace >= 0, "laplace corrector must be equal or greater than zero");
 
         int count = nominalCounts.getCount(new Triplet<String, String, String>(featureName, featureValue, category));
-        
+
         // Laplace smoothing:
         // pretend we have seen each result once more than we actually did;
         // therefore, we must also add the number of categories to the denominator:
         // P(X = i) = n_i / N becomes P(X = i) = (n_i + 1) / (N + K)
-        
-        return (double)(count + 1) / (categories.getCount(category) + categories.uniqueSize());
+
+        // return (double)(count + 1) / (categories.getCount(category) + categories.uniqueSize());
+        return (double)(count + laplace) / (categories.getCount(category) + laplace * categories.uniqueSize());
     }
 
     /**
@@ -107,9 +110,10 @@ public final class NaiveBayesModel implements Model {
      * 
      * @param featureName Name of the numeric feature for which to get the standard deviation, not <code>null</code>.
      * @param category The category, not <code>null</code>.
-     * @return The standard deviation for the specified numeric feature in the specified category.
+     * @return The standard deviation for the specified numeric feature in the specified category, or <code>null</code>
+     *         if no value exists.
      */
-    private double getStandardDeviation(String featureName, String category) {
+    private Double getStandardDeviation(String featureName, String category) {
         return standardDeviations.get(new Pair<String, String>(featureName, category));
     }
 
@@ -120,9 +124,10 @@ public final class NaiveBayesModel implements Model {
      * 
      * @param featureName Name of the numeric feature for which to get the mean, not <code>null</code>.
      * @param category The category, not <code>null</code>.
-     * @return The mean for the specified numeric feature in the specified category.
+     * @return The mean for the specified numeric feature in the specified category, or <code>null</code> if no value
+     *         exists.
      */
-    private double getMean(String featureName, String category) {
+    private Double getMean(String featureName, String category) {
         return sampleMeans.get(new Pair<String, String>(featureName, category));
     }
 
@@ -140,8 +145,18 @@ public final class NaiveBayesModel implements Model {
         Validate.notNull(featureName, "featureName must not be null");
         Validate.notNull(category, "category must not be null");
 
-        double standardDeviation = getStandardDeviation(featureName, category);
-        double mean = getMean(featureName, category);
+        Double standardDeviation = getStandardDeviation(featureName, category);
+        Double mean = getMean(featureName, category);
+
+        // I am currently not sure how to handle the case, when:
+        // a) we have no values for [feature, category] combination, b) we have a standard deviation of zero.
+        // Here, I just return zero and do not consider it for probability calculation. This seems to work, but I'm not
+        // sure if Mr. Bayes would agree to this method. See also:
+        // http://stackoverflow.com/questions/12344375/probability-density-function-with-zero-standard-deviation
+        // http://stats.stackexchange.com/questions/35694/naive-bayes-fails-with-a-perfect-predictor
+        if (standardDeviation == null || standardDeviation == 0) {
+            return 0;
+        }
 
         return 1 / (Math.sqrt(2 * Math.PI) * standardDeviation)
                 * Math.pow(Math.E, -Math.pow(featureValue - mean, 2) / (2 * Math.pow(standardDeviation, 2)));
