@@ -55,7 +55,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     private BaggedDecisionTreeModel loadModel(String classifierModel) {
-        BaggedDecisionTreeModel model = (BaggedDecisionTreeModel) Cache.getInstance().getDataObject(classifierModel);
+        BaggedDecisionTreeModel model = (BaggedDecisionTreeModel)Cache.getInstance().getDataObject(classifierModel);
         if (model == null) {
             InputStream inputStream = this.getClass().getResourceAsStream(CLASSIFIER_MODEL_PUB);
             if (inputStream == null) {
@@ -82,7 +82,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         List<RatedDate<ContentDate>> result = CollectionHelper.newArrayList();
 
         for (ContentDate date : list) {
-            if (this.dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
+            if (dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
                 result.add(RatedDate.create(date, 1.0));
             } else {
                 Instance instance = DateInstanceFactory.createInstance(date);
@@ -98,18 +98,26 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         return result;
     }
 
-    public static void main(String[] args) {
-
-        String filePath = "/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv";
-        List<Instance> instances = ClassificationUtils.createInstances(filePath, true);
+    /**
+     * <p>
+     * Build the model files for the classifier from the training CSV.
+     * </p>
+     * 
+     * @param inputCsv The path to the CSV file.
+     * @param outputPath The path and filename for the model file.
+     */
+    private static void buildModel(String inputCsv, String outputPath) {
+        List<Instance> instances = ClassificationUtils.createInstances(inputCsv, true);
         BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
         BaggedDecisionTreeModel model = classifier.train(instances);
-        FileHelper.serialize(model, "/Users/pk/Desktop/dates_mod_model.gz");
-
-        filePath = "/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_pub.csv";
-        instances = ClassificationUtils.createInstances(filePath, true);
-        model = classifier.train(instances);
-        FileHelper.serialize(model, "/Users/pk/Desktop/dates_pub_model.gz");
-
+        FileHelper.serialize(model, outputPath);
     }
+
+    public static void main(String[] args) {
+        buildModel("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv",
+                "src/main/resources/dates_mod_model.gz");
+        buildModel("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_pub.csv",
+                "src/main/resources/dates_pub_model.gz");
+    }
+
 }

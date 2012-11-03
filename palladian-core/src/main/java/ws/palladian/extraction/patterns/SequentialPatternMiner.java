@@ -88,15 +88,15 @@ public class SequentialPatternMiner extends ProcessingPipeline {
      * @return All {@code LabeledSequentialPattern}s from {@code document} or an empty {@code Collection} if no
      *         {@code LabeledSequentialPattern}s were extracted from {@code document} yet.
      */
-    public static Collection<SequentialPatternsFeature> getExtractedPatterns(PipelineDocument<String> document) {
-        Collection<SequentialPatternsFeature> ret = new HashSet<SequentialPatternsFeature>();
+    public static Collection<SequentialPattern> getExtractedPatterns(PipelineDocument<String> document) {
+        Collection<SequentialPattern> ret = new HashSet<SequentialPattern>();
         TextAnnotationFeature sentencesFeature = document.getFeatureVector().get(
                 AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
         if (sentencesFeature != null) {
             List<Annotation<String>> sentenceAnnotations = sentencesFeature.getValue();
 
             for (Annotation<String> annotation : sentenceAnnotations) {
-                SequentialPatternsFeature lspFeature = annotation
+                SequentialPattern lspFeature = annotation
                         .getFeature(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
                 if (lspFeature != null) {
                     ret.add(lspFeature);

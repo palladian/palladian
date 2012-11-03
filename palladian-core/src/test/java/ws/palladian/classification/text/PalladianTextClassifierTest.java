@@ -123,7 +123,7 @@ public class PalladianTextClassifierTest {
         double accuracy = evaluate(dictionaryClassifier1, model, dataset2);
 
         System.out.println("accuracy char ng: " + accuracy);
-        assertTrue(accuracy >= 0.8894952251023193); // 0.8882825526754585
+        assertTrue(accuracy >= 0.8893436410489617); // 0.8882825526754585
     }
 
     @Test

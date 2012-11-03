@@ -198,7 +198,7 @@ public class ProcessingPipeline implements Serializable {
             executableProcessors.removeAll(executedProcessors);
             executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
-        LOGGER.info("Finished pipeline.");
+        LOGGER.debug("Finished pipeline.");
         notifyProcessorsOfProcessFinished();
     }
 

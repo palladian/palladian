@@ -19,6 +19,8 @@ public class LanguageDetectionEvaluation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(LanguageDetectionEvaluation.class);
+    
+    private static final String PALLADIAN_MODEL_PATH = "";
 
     /**
      * Evaluate two language detectors on a set of strings.
@@ -35,7 +37,7 @@ public class LanguageDetectionEvaluation {
         LanguageClassifier jLangDetectClassifier = new JLangDetect();
         // LanguageClassifier googleLanguageClassifier = new GoogleLangDetect();
         // LanguageClassifier alchemyLanguageClassifier = new AlchemyLangDetect();
-        LanguageClassifier palladianClassifier = new PalladianLangDetect();
+        LanguageClassifier palladianClassifier = new PalladianLangDetect(PALLADIAN_MODEL_PATH);
         LanguageClassifier tagTheNetClassifier = new TagTheNetLangDetect();
 
         // we tell Palladian that only a subset of the learned languages is allowed for this evaluation, otherwise
