@@ -96,7 +96,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     /** The serial vesion id. */
     private static final long serialVersionUID = -8793232373094322955L;
 
-    private transient PalladianTextClassifier textClassifier = new PalladianTextClassifier();
+    private transient PalladianTextClassifier textClassifier;
 
     /** This dictionary contains the entity terms as they are. */
     private DictionaryModel entityDictionary;
@@ -195,6 +195,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // keep the case dictionary from the training data
         caseDictionary = new DictionaryModel(null);
 
+        textClassifier = new PalladianTextClassifier();
+
         // with entity 2-8 and context 4-7: 173MB model
         // precision MUC: 79.93%, recall MUC: 85.55%, F1 MUC: 82.64%
         // precision exact: 70.66%, recall exact: 75.63%, F1 exact: 73.06%
@@ -253,10 +255,14 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // assign all properties from the loaded model to the current instance
         this.entityDictionary = n.entityDictionary;
+        this.annotationModel = n.annotationModel;
         this.caseDictionary = n.caseDictionary;
         this.leftContextMap = n.leftContextMap;
+        this.contextModel = n.contextModel;
         this.patternProbabilityMatrix = n.patternProbabilityMatrix;
         this.removeAnnotations = n.removeAnnotations;
+
+        textClassifier = new PalladianTextClassifier();
 
         // assign the learning features
         this.removeDates = n.removeDates;
@@ -675,7 +681,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         //        FileHelper.writeToFile("data/temp/ner/palladianNerOutput.txt", tagText(inputText, annotations));
 
-        LOGGER.info("got annotations in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("got " + annotations.size() + " annotations in " + stopWatch.getElapsedTimeString());
 
         return annotations;
     }
