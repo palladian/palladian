@@ -3,10 +3,12 @@
  */
 package ws.palladian.extraction;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * <p>
@@ -33,7 +35,7 @@ public class ParserTest {
      */
     @Before
     public void setUp() throws Exception {
-        fixture = IOUtils.toString(ParserTest.class.getResource("/texts/contribution01.txt").openStream());
+        fixture = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/contribution01.txt"));
     }
 
     // TODO add some small models for testing purposes. This test will only work with a valid model but existing examples are way too large.

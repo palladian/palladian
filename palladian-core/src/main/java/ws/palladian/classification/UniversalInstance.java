@@ -1,9 +1,5 @@
 package ws.palladian.classification;
 
-import java.util.List;
-
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * The document representation.
@@ -31,12 +27,12 @@ public class UniversalInstance extends Instance {
 //        return result;
 //    }
 
-    public void setNumericFeatures(List<Double> numericFeatures) {
-        for (Double numericFeature : numericFeatures) {
-            String name = "num" + getFeatureVector().size();
-            getFeatureVector().add(new NumericFeature(name.intern(), numericFeature));
-        }
-    }
+//    public void setNumericFeatures(List<Double> numericFeatures) {
+//        for (Double numericFeature : numericFeatures) {
+//            String name = "num" + getFeatureVector().size();
+//            getFeatureVector().add(new NumericFeature(name.intern(), numericFeature));
+//        }
+//    }
 
 //    public List<String> getNominalFeatures() {
 //        List<String> result = CollectionHelper.newArrayList();
@@ -47,12 +43,12 @@ public class UniversalInstance extends Instance {
 //        return result;
 //    }
 
-    public void setNominalFeatures(List<String> nominalFeatures) {
-        for (String nominalFeature : nominalFeatures) {
-            String name = "nom" + getFeatureVector().size();
-            getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
-        }
-    }
+//    public void setNominalFeatures(List<String> nominalFeatures) {
+//        for (String nominalFeature : nominalFeatures) {
+//            String name = "nom" + getFeatureVector().size();
+//            getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
+//        }
+//    }
 
     public String getTextFeature() {
         return textFeature;

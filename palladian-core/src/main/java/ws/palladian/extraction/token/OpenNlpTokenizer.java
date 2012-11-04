@@ -10,9 +10,9 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Annotation;
@@ -78,7 +78,7 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
             throw new IllegalStateException("Error initializing OpenNLP Tokenizer from \""
                     + modelFile.getAbsolutePath() + "\": " + e.getMessage());
         } finally {
-            IOUtils.closeQuietly(modelIn);
+            FileHelper.close(modelIn);
         }
         this.tokenizer = new TokenizerME(model);
     }

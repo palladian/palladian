@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
@@ -156,7 +156,7 @@ public final class ConfigHolder {
             throw new IllegalStateException("Palladian configuration under " + CONFIG_PATH
                     + " could not be loaded completely.", e);
         } finally {
-            IOUtils.closeQuietly(propertiesInput);
+            FileHelper.close(propertiesInput);
         }
     }
 

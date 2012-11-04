@@ -3,7 +3,6 @@ package ws.palladian.extraction.keyphrase.evaluation;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +15,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -50,9 +48,10 @@ public class DatasetConverter {
         };
         Map<String, CountMap<String>> filenameKeyphrases = LazyMap.create(new TreeMap<String, CountMap<String>>(), factory);
 
-        Collection<File> tagFiles = FileUtils.listFiles(taggerDirectory, new String[] {"tags"}, true);
+        File[] tagFiles = FileHelper.getFiles(taggerDirectory.getAbsolutePath(), "tags", true, false);
+        // Collection<File> tagFiles = FileUtils.listFiles(taggerDirectory, new String[] {"tags"}, true);
         for (File tagFile : tagFiles) {
-            List<String> tags = FileUtils.readLines(tagFile);
+            List<String> tags = FileHelper.readFileToArray(tagFile);
             String filename = tagFile.getName().replace(".tags", ".txt");
             CountMap<String> documentTags = filenameKeyphrases.get(filename);
             for (String tag : tags) {
@@ -76,7 +75,7 @@ public class DatasetConverter {
             builder.append(StringUtils.join(entry.getValue().uniqueItems(), SEPARATOR));
             builder.append(NEWLINE);
         }
-        FileUtils.write(indexOutput, builder);
+        FileHelper.writeToFile(indexOutput.getAbsolutePath(), builder);
     }
     
     public static void createSemEval2010(File keyphraseFileInput, File indexFileOutput) throws IOException {
@@ -100,7 +99,7 @@ public class DatasetConverter {
             stringBuilder.append(StringUtils.join(entry.getValue(), SEPARATOR));
             stringBuilder.append(NEWLINE);
         }
-        FileUtils.write(indexFileOutput, stringBuilder);
+        FileHelper.writeToFile(indexFileOutput.getAbsolutePath(), stringBuilder);
     }
 
     public static void createFAO(String pathToRawFiles, String resultFile) {

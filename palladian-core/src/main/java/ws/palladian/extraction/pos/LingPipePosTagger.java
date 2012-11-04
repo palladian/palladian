@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
@@ -80,7 +79,7 @@ public final class LingPipePosTagger extends BasePosTagger {
                 throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
                         + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
         return ret;

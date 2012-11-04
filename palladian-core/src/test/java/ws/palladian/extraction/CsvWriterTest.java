@@ -6,12 +6,12 @@ package ws.palladian.extraction;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.extraction.feature.CsvWriter;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
@@ -43,7 +43,7 @@ public class CsvWriterTest {
         objectOfClassUnderTest.setInput(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER, document);
         objectOfClassUnderTest.process();
 
-        String content = FileUtils.readFileToString(csvFile);
+        String content = FileHelper.readFileToString(csvFile);
 
         Assert.assertThat(content, Matchers.is(expectedResult));
     }

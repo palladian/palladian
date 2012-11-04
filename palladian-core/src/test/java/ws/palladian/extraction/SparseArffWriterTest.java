@@ -3,26 +3,12 @@
  */
 package ws.palladian.extraction;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.extraction.feature.SparseArffWriter;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>

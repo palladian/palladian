@@ -3,17 +3,16 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.Port;
@@ -44,7 +43,7 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
      * @throws IOException
      * 
      */
-    public CsvWriter(String csvFilePath, Collection<String> featurePaths) throws IOException {
+    public CsvWriter(String csvFilePath, Collection<String> featurePaths) {
         super(Arrays.asList(new Port<?>[] {new Port<Object>(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port<?>>());
 
         this.featurePaths = new ArrayList<String>(featurePaths);
@@ -54,7 +53,11 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
             header.append("\"" + featurePath + "\",");
         }
         header.replace(header.length() - 1, header.length(), "\n");
-        FileUtils.write(new File(csvFilePath), header);
+
+        boolean success = FileHelper.writeToFile(csvFilePath, header);
+        if (!success) {
+            throw new IllegalStateException("Error writing to \"" + csvFilePath);
+        }
     }
 
     public CsvWriter(String csvFilePath, String... featurePaths) throws IOException {
@@ -63,21 +66,20 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        try {
-            StringBuffer dataLine = new StringBuffer("");
-            for (String featurePath : featurePaths) {
-                Feature<?> feature = getDefaultInput().getFeatureVector().getFeature(featurePath);
-                if (feature == null) {
-                    LOGGER.warn("Unable to find feature for feature path: " + featurePath);
-                    dataLine.append("?,");
-                } else {
-                    dataLine.append(feature.getValue() + ",");
-                }
+        StringBuffer dataLine = new StringBuffer("");
+        for (String featurePath : featurePaths) {
+            Feature<?> feature = getDefaultInput().getFeatureVector().getFeature(featurePath);
+            if (feature == null) {
+                LOGGER.warn("Unable to find feature for feature path: " + featurePath);
+                dataLine.append("?,");
+            } else {
+                dataLine.append(feature.getValue() + ",");
             }
-            dataLine.replace(dataLine.length() - 1, dataLine.length(), "\n");
-            FileUtils.write(new File(csvFilePath), dataLine, true);
-        } catch (IOException e) {
-            throw new DocumentUnprocessableException(e);
+        }
+        dataLine.replace(dataLine.length() - 1, dataLine.length(), "\n");
+        boolean success = FileHelper.appendFile(csvFilePath, dataLine);
+        if (!success) {
+            throw new DocumentUnprocessableException("Error appending file \"" + csvFilePath + "\"");
         }
     }
 

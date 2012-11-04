@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.token.BaseTokenizer;
@@ -81,7 +80,7 @@ public final class StopTokenRemover extends AbstractTokenRemover {
         try {
             return loadStopwords(inputStream);
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            FileHelper.close(inputStream);
         }
     }
 
