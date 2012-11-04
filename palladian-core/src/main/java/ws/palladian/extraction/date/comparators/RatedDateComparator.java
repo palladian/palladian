@@ -11,27 +11,28 @@ import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
 
 /**
- * Compare rated dates.<br>
- * First parameter are rates of dates. <br>
- * If these are equal. Contentdates will be compared by position in document. <br>
- * All other dates will be compared by technique. For order check out static TECH properties of {@link ExtractedDate}.<br>
- * If these are equal too, last comparison is age.<br>
+ * <p>
+ * Comparator for {@link RatedDate}s. Comparison is done in the following order:
+ * <ul>
+ * <li>Rate of the date.</li>
+ * <li>{@link ContentDate}s are compared by their position in the document.</li>
+ * <li>Other {@link ExtractedDate}s are compared by their technique.</li>
+ * <li>Age.</li>
+ * </ul>
  * <br>
- * Be careful to set rates before using this comparator. If no rates are set, the all will be equal with -1.
- * 
+ * <b>Be careful to set rates before using this comparator.</b>
+ * </p>
  * 
  * @author Martin Gregor
  * @author Philipp Katz
- * 
- * @param <T>
  */
 public class RatedDateComparator implements Comparator<RatedDate<? extends ExtractedDate>> {
-    
+
     @Override
     public int compare(RatedDate<?> ratedDate1, RatedDate<?> ratedDate2) {
         ExtractedDate date1 = ratedDate1.getDate();
         ExtractedDate date2 = ratedDate2.getDate();
-        
+
         int result = compareRate(ratedDate1, ratedDate2);
         if (result == 0) {
             if (date1 instanceof ContentDate && date2 instanceof ContentDate) {

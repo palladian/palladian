@@ -72,14 +72,14 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
         List<StructureDate> middleRatedDates = DateExtractionHelper.getRatedDates(result, -1);
         List<StructureDate> lowRatedDates = DateExtractionHelper.getRatedDates(result, -2);
         if (highRatedDates.size() > 0) {
-            setRateWhightedByGroups(highRatedDates, result, DateExactness.MINUTE);
+            setRateWheightedByGroups(highRatedDates, result, DateExactness.MINUTE);
             result.addAll(DateExtractionHelper.setRate(middleRatedDates, 0.0));
             result.addAll(DateExtractionHelper.setRate(lowRatedDates, 0.0));
         } else if (middleRatedDates.size() > 0) {
-            setRateWhightedByGroups(middleRatedDates, result, DateExactness.MINUTE);
+            setRateWheightedByGroups(middleRatedDates, result, DateExactness.MINUTE);
             result.addAll(DateExtractionHelper.setRate(lowRatedDates, 0.0));
         } else {
-            setRateWhightedByGroups(lowRatedDates, result, DateExactness.MINUTE);
+            setRateWheightedByGroups(lowRatedDates, result, DateExactness.MINUTE);
         }
         return result;
     }
@@ -93,7 +93,7 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * @param datesToSet
      * @param dates
      */
-    private static <T extends ExtractedDate> void setRateWhightedByGroups(List<T> datesToSet, List<RatedDate<T>> dates,
+    private static <T extends ExtractedDate> void setRateWheightedByGroups(List<T> datesToSet, List<RatedDate<T>> dates,
             DateExactness compareDepth) {
         List<List<T>> groupedDates = DateExtractionHelper.cluster(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {

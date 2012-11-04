@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 

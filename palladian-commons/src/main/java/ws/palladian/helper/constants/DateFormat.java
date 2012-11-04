@@ -1,4 +1,4 @@
-package ws.palladian.helper;
+package ws.palladian.helper.constants;
 
 import java.util.regex.Pattern;
 
@@ -96,7 +96,5 @@ public final class DateFormat {
             return false;
         return true;
     }
-    
-    
 
 }

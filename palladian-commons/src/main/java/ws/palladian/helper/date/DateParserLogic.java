@@ -5,8 +5,8 @@ import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.palladian.helper.DateFormat;
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
 
 /**
  * <p>
