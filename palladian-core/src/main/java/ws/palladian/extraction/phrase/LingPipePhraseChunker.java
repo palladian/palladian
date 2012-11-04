@@ -9,11 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
-
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.io.FileHelper;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.ChunkFactory;
@@ -357,7 +356,7 @@ public final class LingPipePhraseChunker implements PhraseChunker {
                 throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
                         + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
         return hmm;

@@ -16,10 +16,10 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.XmlParser;
@@ -128,9 +128,7 @@ public class MetaInformationExtractor {
         } catch (IOException e) {
             LOGGER.error("Could not process content in http result. " + e.getMessage());
         } finally {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(writer);
-            IOUtils.closeQuietly(writer);
+            FileHelper.close(inputStream, writer);
         }
         return content;
     }

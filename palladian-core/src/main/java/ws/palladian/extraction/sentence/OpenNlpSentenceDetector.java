@@ -9,10 +9,10 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -57,7 +57,7 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
                 throw new IllegalStateException("Error initializing OpenNLP Sentence Detector from \""
                         + modelFile.getAbsolutePath() + "\": " + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(modelIn);
+                FileHelper.close(modelIn);
             }
         }
         return sdetector;

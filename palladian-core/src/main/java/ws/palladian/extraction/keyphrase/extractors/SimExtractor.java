@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -28,6 +27,7 @@ import org.apache.lucene.util.Version;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.io.FileHelper;
 
 public class SimExtractor extends KeyphraseExtractor {
 
@@ -60,7 +60,7 @@ public class SimExtractor extends KeyphraseExtractor {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } finally {
-            IOUtils.closeQuietly(indexWriter);
+            FileHelper.close(indexWriter);
         }
     }
 
@@ -93,8 +93,7 @@ public class SimExtractor extends KeyphraseExtractor {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } finally {
-            IOUtils.closeQuietly(searcher);
-            IOUtils.closeQuietly(reader);
+            FileHelper.close(searcher, reader);
         }
         return ret;
     }

@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.io.IOUtils;
-
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -153,7 +151,7 @@ public final class TermCorpus {
                 }
             });
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            FileHelper.close(inputStream);
         }
     }
 
@@ -171,8 +169,7 @@ public final class TermCorpus {
                 printWriter.println(line);
             }
         } finally {
-            IOUtils.closeQuietly(printWriter);
-            IOUtils.closeQuietly(outputStream);
+            FileHelper.close(printWriter, outputStream);
         }
     }
 

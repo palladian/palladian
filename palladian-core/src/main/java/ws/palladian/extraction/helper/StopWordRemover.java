@@ -3,8 +3,6 @@ package ws.palladian.extraction.helper;
 import java.io.InputStream;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -20,7 +18,7 @@ public class StopWordRemover extends StringDocumentPipelineProcessor {
             inputStream = this.getClass().getResourceAsStream("/stopwords_en.txt");
             stopWords = FileHelper.readFileToArray(inputStream);
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            FileHelper.close(inputStream);
         }
     }
 

@@ -5,10 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.log4j.Logger;
@@ -29,6 +26,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -288,13 +286,11 @@ public class DocumentRetriever {
     public String getText(String url) {
 
         String contentString = null;
-        Reader reader = null;
 
         if (downloadFilter.isAcceptedFileType(url)) {
             try {
                 if (isFile(url)) {
-                    reader = new FileReader(url);
-                    contentString = IOUtils.toString(reader);
+                    contentString = FileHelper.readFileToString(url);
                 } else {
                     HttpResult httpResult = httpRetriever.httpGet(url, globalHeaders);
                     contentString = new String(httpResult.getContent());
@@ -303,8 +299,6 @@ public class DocumentRetriever {
                 LOGGER.error(url + ", " + e.getMessage());
             } catch (Exception e) {
                 LOGGER.error(url + ", " + e.getMessage());
-            } finally {
-                IOUtils.closeQuietly(reader);
             }
         }
 
@@ -411,7 +405,7 @@ public class DocumentRetriever {
             } catch (HttpException e) {
                 LOGGER.error(url + ", " + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
 

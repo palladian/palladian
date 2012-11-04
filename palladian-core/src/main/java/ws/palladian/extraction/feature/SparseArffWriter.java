@@ -3,9 +3,11 @@
  */
 package ws.palladian.extraction.feature;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,8 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.helper.collection.BidiMap;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
@@ -260,7 +261,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * 
      */
     private void readExistingArffFile() throws IOException {
-        List<String> lines = FileUtils.readLines(targetFile);
+        List<String> lines = FileHelper.readFileToArray(targetFile);
 
         int currentLineIndex = 0;
         String currentLine = lines.get(0).trim();
@@ -333,7 +334,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
     private void saveModel() throws IOException {
         LOGGER.info("Saving attributes:");
         FileOutputStream arffFileStream = new FileOutputStream(targetFile);
-        IOUtils.write("@relation model\n\n ", arffFileStream);
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(arffFileStream));
+        writer.write("@relation model\n\n ");
         try {
             for (Integer i = 0; i < featuresAdded; i++) {
                 String featureType = featureTypes.getKey(i);
@@ -353,13 +355,13 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                     featureTypeBuilder.append("}");
                 }
 
-                IOUtils.write("@attribute " + featureTypeBuilder.toString() + "\n", arffFileStream);
+                writer.write("@attribute " + featureTypeBuilder.toString() + "\n");
 
                 LOGGER.debug("Saved {}% of schema to ARFF file.",
                         i.doubleValue() * 100.0d / featuresAdded.doubleValue());
             }
 
-            IOUtils.write("\n@data\n", arffFileStream);
+            writer.write("\n@data\n");
 
             LOGGER.info("Saving instances:");
             Integer instanceCounter = 0;
@@ -378,14 +380,14 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                     instanceBuilder.append(feature.getRight());
                 }
                 instanceBuilder.append("}\n");
-                IOUtils.write(instanceBuilder.toString(), arffFileStream);
+                writer.write(instanceBuilder.toString());
 
                 LOGGER.debug("Saved {}% of all instances to ARFF file.", instanceCounter.doubleValue() * 100.0d
                         / instances.size());
                 instanceCounter++;
             }
         } finally {
-            IOUtils.closeQuietly(arffFileStream);
+            FileHelper.close(arffFileStream, writer);
         }
     }
 
