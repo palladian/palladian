@@ -298,6 +298,10 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return map.entrySet().toArray(a);
     }
 
+    public Set<Entry<T, Integer>> entrySet() {
+        return map.entrySet();
+    }
+
     /*
      * (non-Javadoc)
      * @see java.lang.Object#toString()

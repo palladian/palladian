@@ -1,5 +1,6 @@
 package ws.palladian.classification;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,7 +21,7 @@ import ws.palladian.helper.math.MathHelper;
  */
 public final class CategoryEntries implements Iterable<CategoryEntry> {
 
-    private final Map<String, Double> categoryEntries = CollectionHelper.newHashMap();
+    private Map<String, Double> categoryEntries = CollectionHelper.newHashMap();
 
     /**
      * <p>
@@ -50,6 +51,37 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
     public void add(CategoryEntry categoryEntry) {
         Validate.notNull(categoryEntry, "categoryEntry must not be null");
         categoryEntries.put(categoryEntry.getName(), categoryEntry.getProbability());
+        sort();
+    }
+
+    private void sort() {
+        categoryEntries = CollectionHelper.sortByValue(categoryEntries, false);
+    }
+
+    /**
+     * <p>
+     * Adds multiple {@link CategoryEntry} objects to the list.
+     * </p>
+     * 
+     * @param categoryEntries
+     */
+    public void addAll(CategoryEntries categoryEntries) {
+        for (CategoryEntry categoryEntry : categoryEntries) {
+            add(categoryEntry);
+        }
+    }
+
+    /**
+     * <p>
+     * Adds multiple {@link CategoryEntry} objects to the list.
+     * </p>
+     * 
+     * @param categoryEntries
+     */
+    public void addAll(Collection<CategoryEntry> categoryEntries) {
+        for (CategoryEntry categoryEntry : categoryEntries) {
+            add(categoryEntry);
+        }
     }
 
     /**
@@ -63,7 +95,7 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
         if (categoryEntries.isEmpty()) {
             return null;
         }
-        double maxProbability = 0;
+        double maxProbability = -1;
         String maxName = null;
         for (Entry<String, Double> entry : categoryEntries.entrySet()) {
             if (entry.getValue() > maxProbability) {

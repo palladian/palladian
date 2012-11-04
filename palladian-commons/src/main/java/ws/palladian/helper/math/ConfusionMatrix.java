@@ -552,6 +552,11 @@ public class ConfusionMatrix {
             builder.append(MathHelper.round(getF(category, 0.5), 4)).append('\n');
         }
         
+        double correct = 0.;
+        if (getTotalDocuments() > 0) {
+            correct = (double)getTotalCorrect() / (double)getTotalDocuments();
+        }
+
         builder.append("\n\n\n");
         builder.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
         builder.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
@@ -563,6 +568,8 @@ public class ConfusionMatrix {
         builder.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
         builder.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         builder.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
+        builder.append("=>:\t").append(MathHelper.round(100 * correct, 2)).append("%\n");
+
         return builder.toString();
 
     }
