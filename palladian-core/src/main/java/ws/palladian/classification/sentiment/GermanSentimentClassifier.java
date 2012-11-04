@@ -228,6 +228,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         gsc.setConfidenceThreshold(0.6);
         CategoryEntry result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
         result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");
+        result = gsc.getPolarity("Die Deutsche-Bahn ist scheisse!!!");
         // result =
         // gsc.getPolarity("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder Unternehmen");
         // result = gsc.getPolarity(FileHelper.readFileToString("data/temp/opiniontext.TXT"));
