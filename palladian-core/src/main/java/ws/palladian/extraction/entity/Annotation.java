@@ -5,7 +5,6 @@ import java.util.List;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -46,14 +45,6 @@ public class Annotation extends UniversalInstance {
         entity = annotation.getEntity();
         tags = annotation.getTags();
     }
-
-//    public Annotation(Annotation annotation, List<UniversalInstance> instances) {
-//        super(annotation.getTargetClass());
-//        offset = annotation.getOffset();
-//        length = annotation.getLength();
-//        entity = annotation.getEntity();
-//        tags = annotation.getTags();
-//    }
 
     public Annotation(int offset, String entityName, String tagName) {
         super(tagName);
@@ -568,128 +559,5 @@ public class Annotation extends UniversalInstance {
         builder.append("]");
         return builder.toString();
     }
-
-    /**
-     * Try to find which of the given annotation are part of this entity. For example: "New York City and Dresden"
-     * contains two entities that might be in the given annotation set. If so, we return the found annotations.
-     * 
-     * @param annotations The annotations we are searching for in this entity.
-     * @return A set of annotations found in this annotation.
-     */
-    public Annotations unwrapAnnotations(Annotations annotations, DictionaryModel entityDictionary) {
-        Annotations unwrappedAnnotations = new Annotations();
-
-        boolean isAllUppercase = StringHelper.isCompletelyUppercase(getEntity());
-
-        if (!isAllUppercase) {
-            return unwrappedAnnotations;
-        }
-
-        String entityName = getEntity().toLowerCase();
-        int length = entityName.length();
-
-        // annotations.sortByLength();
-
-        for (Annotation annotation : annotations) {
-            if (annotation.getLength() < length) {
-                int index = entityName.indexOf(" " + annotation.getEntity().toLowerCase() + " ");
-                if (index > -1 && annotation.getEntity().length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity(),
-                            annotation.getMostLikelyTagName(), annotations);
-//                    wrappedAnnotation.createFeatures();
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(annotation.getEntity().toLowerCase() + " ");
-                if (index == 0 && annotation.getEntity().length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index, annotation.getEntity(),
-                            annotation.getMostLikelyTagName(), annotations);
-//                    wrappedAnnotation.createFeatures();
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(" " + annotation.getEntity().toLowerCase());
-                if (index == entityName.length() - annotation.getEntity().length() - 1
-                        && annotation.getEntity().length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity(),
-                            annotation.getMostLikelyTagName(), annotations);
-//                    wrappedAnnotation.createFeatures();
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-            }
-        }
-
-        // go through the entity dictionary
-        for (String term : entityDictionary.getTerms()) {
-            if (term.length() < length) {
-                int index = entityName.indexOf(" " + term.toLowerCase() + " ");
-                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
-                String mostLikelyCategory = categoryEntries.getMostLikelyCategoryEntry().getName();
-                if (index > -1 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, term, mostLikelyCategory, annotations);
-//                    wrappedAnnotation.createFeatures();
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(term.toLowerCase() + " ");
-                if (index == 0 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index, term, mostLikelyCategory, annotations);
-//                    wrappedAnnotation.createFeatures();
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(" " + term.toLowerCase());
-                if (index == entityName.length() - term.length() - 1 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, term, mostLikelyCategory, annotations);
-//                    wrappedAnnotation.createFeatures();
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-            }
-        }
-
-        return unwrappedAnnotations;
-    }
-
-//    public Annotations unwrapAnnotations(PalladianTextClassifier classifier, Preprocessor preprocessor) {
-//        Annotations unwrappedAnnotations = new Annotations();
-//
-//        if (getEntity().indexOf(" ") == -1) {
-//            return unwrappedAnnotations;
-//        }
-//
-//        String[] words = getEntity().split(" ");
-//        String[] tags = new String[words.length];
-//
-//        // classify each word
-//        for (int i = 0; i < words.length; i++) {
-//
-//            tags[i] = classifier.classify(words[i]).getMostLikelyCategoryEntry().getCategory().getName();
-//            // TextInstance document = preprocessor.preProcessDocument(words[i]);
-//            // tags[i] = document.getMainCategoryEntry().getCategory().getName();
-//
-//        }
-//
-//        // create annotations
-//        Annotation lastAnnotation = new Annotation(0, "", "");
-//        for (int i = 0; i < words.length; i++) {
-//            String tag = tags[i];
-//
-//            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
-//                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
-//                int offsetPlus = 0;
-//                if (i > 0) {
-//                    offsetPlus = indexList.get(i - 1) + 1;
-//                }
-//                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i], tags[i]);
-//                unwrappedAnnotations.add(lastAnnotation);
-//            } else {
-//                // update last annotation
-//                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
-//                lastAnnotation.setLength(lastAnnotation.getEntity().length());
-//            }
-//        }
-//
-//        return unwrappedAnnotations;
-//    }
 
 }

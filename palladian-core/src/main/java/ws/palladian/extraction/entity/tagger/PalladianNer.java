@@ -42,8 +42,10 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -385,15 +387,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      */
     public boolean train(String trainingFilePath, Annotations annotations, String modelFilePath) {
 
-        // create instances, instances are annotations
-        List<UniversalInstance> textInstances = CollectionHelper.newArrayList();
-
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
-        for (Annotation annotation : annotations) {
-            UniversalInstance textInstance = new UniversalInstance(annotation.getTargetClass());
-            textInstance.setTextFeature(annotation.getEntity());
-            textInstances.add(textInstance);
-        }
 
         // save training entities in a dedicated dictionary
         for (Annotation annotation : annotations) {
@@ -606,7 +600,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             Annotations wrappedAnnotations = new Annotations();
 
             if (unwrapEntities) {
-                wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
+                wrappedAnnotations = unwrapAnnotations(annotation, annotations);
             }
 
             if (!wrappedAnnotations.isEmpty()) {
@@ -872,7 +866,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             // Math.min(12, annotation.getEntity().length())))) {
 
             if (unwrapEntities) {
-                Annotations wrappedAnnotations = annotation.unwrapAnnotations(annotations, entityDictionary);
+                Annotations wrappedAnnotations = unwrapAnnotations(annotation, annotations);
 
                 if (!wrappedAnnotations.isEmpty()) {
                     for (Annotation annotation2 : wrappedAnnotations) {
@@ -1137,20 +1131,16 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
     
     private CategoryEntries merge(CategoryEntries... categoryEntries) {
-        Map<String, Double> map = CollectionHelper.newHashMap();
+        Map<String, Double> categoryEntryMap = LazyMap.create(ConstantFactory.create(0.));
         for (CategoryEntries ces : categoryEntries) {
             for (CategoryEntry ce : ces) {
-                Double value = map.get(ce.getName());
-                if (value == null) {
-                    map.put(ce.getName(), ce.getProbability());
-                } else {
-                    map.put(ce.getName(), value + ce.getProbability());
-                }
+                Double value = categoryEntryMap.get(ce.getName());
+                categoryEntryMap.put(ce.getName(), value + ce.getProbability());
             }
         }
         CategoryEntries ceMerge = new CategoryEntries();
-        for (String name : map.keySet()) {
-            ceMerge.add(new CategoryEntry(name, map.get(name)));
+        for (String categoryName : categoryEntryMap.keySet()) {
+            ceMerge.add(new CategoryEntry(categoryName, categoryEntryMap.get(categoryName)));
         }
         return ceMerge;
     }
@@ -1438,6 +1428,84 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     public boolean isTagDates() {
         return tagDates;
+    }
+    
+    /**
+     * <p>
+     * Try to find which of the given annotation are part of this entity. For example: "New York City and Dresden"
+     * contains two entities that might be in the given annotation set. If so, we return the found annotations.
+     * </p>
+     * 
+     * @param annotation The annotation to check.
+     * @param annotations The annotations we are searching for in this entity.
+     * @return A set of annotations found in this annotation.
+     */
+    private Annotations unwrapAnnotations(Annotation annotation, Annotations annotations) {
+        Annotations unwrappedAnnotations = new Annotations();
+
+        boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getEntity());
+
+        if (!isAllUppercase) {
+            return unwrappedAnnotations;
+        }
+
+        String entityName = annotation.getEntity().toLowerCase();
+        int length = entityName.length();
+
+        // annotations.sortByLength();
+
+        for (Annotation currentAnnotation : annotations) {
+            if (currentAnnotation.getLength() < length) {
+                int index = entityName.indexOf(" " + currentAnnotation.getEntity().toLowerCase() + " ");
+                if (index > -1 && currentAnnotation.getEntity().length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, currentAnnotation.getEntity(),
+                            currentAnnotation.getMostLikelyTagName(), annotations);
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
+
+                index = entityName.indexOf(currentAnnotation.getEntity().toLowerCase() + " ");
+                if (index == 0 && currentAnnotation.getEntity().length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index, currentAnnotation.getEntity(),
+                            currentAnnotation.getMostLikelyTagName(), annotations);
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
+
+                index = entityName.indexOf(" " + currentAnnotation.getEntity().toLowerCase());
+                if (index == entityName.length() - currentAnnotation.getEntity().length() - 1
+                        && currentAnnotation.getEntity().length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, currentAnnotation.getEntity(),
+                            currentAnnotation.getMostLikelyTagName(), annotations);
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
+            }
+        }
+
+        // go through the entity dictionary
+        for (String term : entityDictionary.getTerms()) {
+            if (term.length() < length) {
+                int index = entityName.indexOf(" " + term.toLowerCase() + " ");
+                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
+                String mostLikelyCategory = categoryEntries.getMostLikelyCategoryEntry().getName();
+                if (index > -1 && term.length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory, annotations);
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
+
+                index = entityName.indexOf(term.toLowerCase() + " ");
+                if (index == 0 && term.length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index, term, mostLikelyCategory, annotations);
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
+
+                index = entityName.indexOf(" " + term.toLowerCase());
+                if (index == entityName.length() - term.length() - 1 && term.length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory, annotations);
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
+            }
+        }
+
+        return unwrappedAnnotations;
     }
 
     /**
@@ -1772,7 +1840,5 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
     }
-    
-    
 
 }
