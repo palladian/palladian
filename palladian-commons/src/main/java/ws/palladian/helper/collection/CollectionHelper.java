@@ -316,7 +316,7 @@ public final class CollectionHelper {
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the filter.
      */
-    public static <T> Collection<T> filter(Iterable<T> iterable, Filter<T> filter, Collection<T> output) {
+    public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Filter<T> filter, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
         Validate.notNull(output, "output must not be null");

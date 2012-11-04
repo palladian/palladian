@@ -25,9 +25,9 @@ import ws.palladian.extraction.date.rater.MetaDateRater;
 import ws.palladian.extraction.date.rater.ReferenceDateRater;
 import ws.palladian.extraction.date.rater.StructureDateRater;
 import ws.palladian.extraction.date.rater.UrlDateRater;
-import ws.palladian.helper.DateFormat;
-import ws.palladian.helper.RegExp;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
 

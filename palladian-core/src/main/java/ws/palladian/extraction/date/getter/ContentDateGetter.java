@@ -20,9 +20,9 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
-import ws.palladian.helper.DateFormat;
-import ws.palladian.helper.RegExp;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.HtmlHelper;
@@ -184,8 +184,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
             date.setTag(tag.getNodeName());
 
-            date.setSimpleTag(HtmlHelper.isSimpleElement(tag) ? "1" : "0");
-            date.setHTag(HtmlHelper.isHeadlineTag(tag) ? "1" : "0");
+            date.setSimpleTag(HtmlHelper.isSimpleElement(tag));
+            date.setHTag(HtmlHelper.isHeadlineTag(tag));
 
             if (index != -1) {
                 int absDocPos = index + date.get(ContentDate.DATEPOS_IN_TAGTEXT);
@@ -202,16 +202,16 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             if (keyword != null) {
                 keyword3Class = KeyWords.getKeywordPriority(keyword) == KeyWords.OTHER_KEYWORD;
                 date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
-                date.setKeyLoc("1");
-                date.setKeyLoc201("1");
+                date.setKeyLoc(1);
+                date.setKeyLoc201(true);
             }
 
             if (keyword == null || keyword3Class) {
                 setClosestKeyword(date, documentString, contentKeywords);
                 if (date.getKeyword() != null) {
                     date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_CONTENT);
-                    date.setKeyLoc("2");
-                    date.setKeyLoc202("1");
+                    date.setKeyLoc(2);
+                    date.setKeyLoc202(true);
                     keyword = date.getKeyword();
                 }
             }
@@ -220,13 +220,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 date.setKeyword(keyword);
                 switch (KeyWords.getKeywordPriority(keyword)) {
                     case 1:
-                        date.setIsKeyClass1("1");
+                        date.setKeyClass1(true);
                         break;
                     case 2:
-                        date.setIsKeyClass2("1");
+                        date.setKeyClass2(true);
                         break;
                     case 3:
-                        date.setIsKeyClass3("1");
+                        date.setKeyClass3(true);
                         break;
                 }
             }

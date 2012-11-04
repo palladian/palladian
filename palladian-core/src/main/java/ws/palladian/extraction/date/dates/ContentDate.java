@@ -2,14 +2,12 @@ package ws.palladian.extraction.date.dates;
 
 import ws.palladian.helper.date.ExtractedDate;
 
-
-
 /**
  * @author Martin Gregor
  * 
  */
 public final class ContentDate extends AbstractBodyDate {
-	
+
     /** Keyword found in attribute of surrounding tag. */
     public static final int KEY_LOC_ATTR = 201;
     /** Keyword found in text (content) of surrounding tag. */
@@ -32,37 +30,36 @@ public final class ContentDate extends AbstractBodyDate {
     private int keywordLocation = -1;
     /** Position of datestring in the document it was found. */
     private int positionInDocument = -1;
-   
+
     private double relDocPos = 0;
     private double ordDocPos = 0;
     private double ordAgePos = 0;
-    
-    private String keyClass = "0";
-    private String keyLoc = "0";
+
+    private int keyLoc = 0;
     private double keyDiff = 0;
-	
-    private String simpleTag = "0";
-    private String hTag = "0";
-	
+
+    private boolean simpleTag = false;
+    private boolean hTag = false;
+
     private double relCntSame = 0;
-	private double relSize = 0;
-	
-	private long distPosBefore = -1;
-	private long distPosAfter = -1;
-	private long distAgeBefore = -1;
-	private long distAgeAfter = -1;
-	
-	private String keyLoc201 = "0";
-	private String keyLoc202 = "0";
-	
-	private String isKeyClass1 = "0";
-	private String isKeyClass2 = "0";
-	private String isKeyClass3 = "0";
-    
+    private double relSize = 0;
+
+    private long distPosBefore = -1;
+    private long distPosAfter = -1;
+    private long distAgeBefore = -1;
+    private long distAgeAfter = -1;
+
+    private boolean keyLoc201 = false;
+    private boolean keyLoc202 = false;
+
+    private boolean isKeyClass1 = false;
+    private boolean isKeyClass2 = false;
+    private boolean isKeyClass3 = false;
+
     private boolean hasStructureDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
-   
+
     public ContentDate(ExtractedDate date) {
         super(date);
     }
@@ -122,183 +119,173 @@ public final class ContentDate extends AbstractBodyDate {
         }
 
     }
-    
+
     public void setHasStructureDate(boolean hasStructureDate) {
         this.hasStructureDate = hasStructureDate;
     }
 
-	public boolean hasStructureDate() {
-		return hasStructureDate;
-	}
+    public boolean hasStructureDate() {
+        return hasStructureDate;
+    }
 
-	public void setInMetaDates(boolean inMetaDates) {
-		this.inMetaDates = inMetaDates;
-	}
+    public void setInMetaDates(boolean inMetaDates) {
+        this.inMetaDates = inMetaDates;
+    }
 
-	public boolean isInMetaDates() {
-		return inMetaDates;
-	}
+    public boolean isInMetaDates() {
+        return inMetaDates;
+    }
 
-	public void setInUrl(boolean inUrl) {
-		this.inUrl = inUrl;
-	}
+    public void setInUrl(boolean inUrl) {
+        this.inUrl = inUrl;
+    }
 
-	public boolean isInUrl() {
-		return inUrl;
-	}
+    public boolean isInUrl() {
+        return inUrl;
+    }
 
-	public void setRelDocPos(double relDocPos) {
-		this.relDocPos = relDocPos;
-	}
+    public void setRelDocPos(double relDocPos) {
+        this.relDocPos = relDocPos;
+    }
 
-	public double getRelDocPos() {
-		return relDocPos;
-	}
+    public double getRelDocPos() {
+        return relDocPos;
+    }
 
-	public void setOrdDocPos(double ordDocPos) {
-		this.ordDocPos = ordDocPos;
-	}
+    public void setOrdDocPos(double ordDocPos) {
+        this.ordDocPos = ordDocPos;
+    }
 
-	public double getOrdDocPos() {
-		return ordDocPos;
-	}
+    public double getOrdDocPos() {
+        return ordDocPos;
+    }
 
-	public void setOrdAgePos(double ordAgePos) {
-		this.ordAgePos = ordAgePos;
-	}
+    public void setOrdAgePos(double ordAgePos) {
+        this.ordAgePos = ordAgePos;
+    }
 
-	public double getOrdAgePos() {
-		return ordAgePos;
-	}
+    public double getOrdAgePos() {
+        return ordAgePos;
+    }
 
-	public void setKeyClass(String keyClass) {
-		this.keyClass = keyClass;
-	}
+    public void setKeyLoc(int keyLoc) {
+        this.keyLoc = keyLoc;
+    }
 
-	public String getKeyClass() {
-		return keyClass;
-	}
+    public int getKeyLoc() {
+        return keyLoc;
+    }
 
-	public void setKeyLoc(String keyLoc) {
-		this.keyLoc = keyLoc;
-	}
+    public void setKeyDiff(double keyDiff) {
+        this.keyDiff = keyDiff;
+    }
 
-	public String getKeyLoc() {
-		return keyLoc;
-	}
+    public double getKeyDiff() {
+        return keyDiff;
+    }
 
-	public void setKeyDiff(double keyDiff) {
-		this.keyDiff = keyDiff;
-	}
+    public void setSimpleTag(boolean simpleTag) {
+        this.simpleTag = simpleTag;
+    }
 
-	public double getKeyDiff() {
-		return keyDiff;
-	}
+    public boolean isSimpleTag() {
+        return simpleTag;
+    }
 
-	public void setSimpleTag(String simpleTag) {
-		this.simpleTag = simpleTag;
-	}
+    public void setHTag(boolean hTag) {
+        this.hTag = hTag;
+    }
 
-	public String getSimpleTag() {
-		return simpleTag;
-	}
+    public boolean isHTag() {
+        return hTag;
+    }
 
-	public void setHTag(String hTag) {
-		this.hTag = hTag;
-	}
+    public void setRelCntSame(double relCntSame) {
+        this.relCntSame = relCntSame;
+    }
 
-	public String getHTag() {
-		return hTag;
-	}
+    public double getRelCntSame() {
+        return relCntSame;
+    }
 
-	public void setRelCntSame(double relCntSame) {
-		this.relCntSame = relCntSame;
-	}
+    public void setRelSize(double relSize) {
+        this.relSize = relSize;
+    }
 
-	public double getRelCntSame() {
-		return relCntSame;
-	}
+    public double getRelSize() {
+        return relSize;
+    }
 
-	public void setRelSize(double relSize) {
-		this.relSize = relSize;
-	}
+    public void setDistPosBefore(int distPosBefore) {
+        this.distPosBefore = distPosBefore;
+    }
 
-	public double getRelSize() {
-		return relSize;
-	}
+    public long getDistPosBefore() {
+        return distPosBefore;
+    }
 
-	public void setDistPosBefore(int distPosBefore) {
-		this.distPosBefore = distPosBefore;
-	}
+    public void setDistPosAfter(long distPosAfter) {
+        this.distPosAfter = distPosAfter;
+    }
 
-	public long getDistPosBefore() {
-		return distPosBefore;
-	}
+    public long getDistPosAfter() {
+        return distPosAfter;
+    }
 
-	public void setDistPosAfter(long distPosAfter) {
-		this.distPosAfter = distPosAfter;
-	}
+    public void setDistAgeBefore(long distAgeBefore) {
+        this.distAgeBefore = distAgeBefore;
+    }
 
-	public long getDistPosAfter() {
-		return distPosAfter;
-	}
+    public long getDistAgeBefore() {
+        return distAgeBefore;
+    }
 
-	public void setDistAgeBefore(long distAgeBefore) {
-		this.distAgeBefore = distAgeBefore;
-	}
+    public void setKeyClass1(boolean isKeyClass1) {
+        this.isKeyClass1 = isKeyClass1;
+    }
 
-	public long getDistAgeBefore() {
-		return distAgeBefore;
-	}
+    public boolean isKeyClass1() {
+        return isKeyClass1;
+    }
 
-	public void setIsKeyClass1(String isKeyClass1) {
-		this.isKeyClass1 = isKeyClass1;
-	}
+    public void setKeyLoc202(boolean keyLoc202) {
+        this.keyLoc202 = keyLoc202;
+    }
 
-	public String getIsKeyClass1() {
-		return isKeyClass1;
-	}
+    public boolean isKeyLoc202() {
+        return keyLoc202;
+    }
 
-	public void setKeyLoc202(String keyLoc202) {
-		this.keyLoc202 = keyLoc202;
-	}
+    public void setKeyClass2(boolean isKeyClass2) {
+        this.isKeyClass2 = isKeyClass2;
+    }
 
-	public String getKeyLoc202() {
-		return keyLoc202;
-	}
+    public boolean isKeyClass2() {
+        return isKeyClass2;
+    }
 
-	public void setIsKeyClass2(String isKeyClass2) {
-		this.isKeyClass2 = isKeyClass2;
-	}
+    public void setKeyLoc201(boolean keyLoc201) {
+        this.keyLoc201 = keyLoc201;
+    }
 
-	public String getIsKeyClass2() {
-		return isKeyClass2;
-	}
+    public boolean isKeyLoc201() {
+        return keyLoc201;
+    }
 
-	public void setKeyLoc201(String keyLoc201) {
-		this.keyLoc201 = keyLoc201;
-	}
+    public void setKeyClass3(boolean isKeyClass3) {
+        this.isKeyClass3 = isKeyClass3;
+    }
 
-	public String getKeyLoc201() {
-		return keyLoc201;
-	}
+    public boolean isKeyClass3() {
+        return isKeyClass3;
+    }
 
-	public void setIsKeyClass3(String isKeyClass3) {
-		this.isKeyClass3 = isKeyClass3;
-	}
+    public void setDistAgeAfter(long distAgeAfter) {
+        this.distAgeAfter = distAgeAfter;
+    }
 
-	public String getIsKeyClass3() {
-		return isKeyClass3;
-	}
-
-	public void setDistAgeAfter(long distAgeAfter) {
-		this.distAgeAfter = distAgeAfter;
-	}
-
-	public long getDistAgeAfter() {
-		return distAgeAfter;
-	}
-
-
+    public long getDistAgeAfter() {
+        return distAgeAfter;
+    }
 
 }

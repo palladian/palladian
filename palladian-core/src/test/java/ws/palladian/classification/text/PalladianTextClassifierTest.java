@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
@@ -13,6 +14,7 @@ import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
 
+@Ignore
 public class PalladianTextClassifierTest {
 
     private static final String JRC_TRAIN_FILE = "/Users/pk/Desktop/data/Wikipedia76Languages/languageDocumentIndex_random1000_train.txt";
