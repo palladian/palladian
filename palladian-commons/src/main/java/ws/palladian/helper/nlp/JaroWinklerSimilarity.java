@@ -1,5 +1,7 @@
 package ws.palladian.helper.nlp;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -10,9 +12,11 @@ import org.apache.commons.lang3.Validate;
  * Winkler, 1990 and "Overview of Record Linkage and Current Research Directions", William E. Winkler, 2006.
  * </p>
  * 
+ * @see <a href="http://web.archive.org/web/20100227020019/http://www.census.gov/geo/msb/stand/strcmp.c">Original
+ *      Jaro-Winkler implementation in C</a>
  * @author Philipp Katz
  */
-public class JaroWinklerDistance implements StringSimilarity {
+public class JaroWinklerSimilarity implements StringSimilarity {
 
     @Override
     public double getSimilarity(String s1, String s2) {
@@ -44,19 +48,20 @@ public class JaroWinklerDistance implements StringSimilarity {
             l2 = s2.length();
         }
 
-        int range = l2 / 2;
-        int m = 0; // # of matching characters
-        int t = 0; // # of transpositions
-        int prevMatch = -1;
+        boolean[] s1flag = new boolean[l2];
+        boolean[] s2flag = new boolean[l2];
+        Arrays.fill(s1flag, false);
+        Arrays.fill(s2flag, false);
 
+        // # of matching characters
+        int m = 0;
+        int range = l2 / 2;
         for (int i = 0; i < l1; i++) {
             for (int j = Math.max(0, i - range); j < Math.min(l2, i + range); j++) {
-                if (s1.charAt(i) == s2.charAt(j)) {
+                if (!s2flag[j] && s1.charAt(i) == s2.charAt(j)) {
+                    s2flag[j] = true;
+                    s1flag[i] = true;
                     m++;
-                    if (prevMatch != -1 && j < prevMatch) {
-                        t++;
-                    }
-                    prevMatch = j;
                     break;
                 }
             }
@@ -66,13 +71,31 @@ public class JaroWinklerDistance implements StringSimilarity {
             return 0;
         }
 
+        // get # of transpositions
+        int t = 0;
+        int k = 0;
+        for (int i = 0; i < l1; i++) {
+            if (s1flag[i]) {
+                int j;
+                for (j = k; j < l2; j++) {
+                    if (s2flag[j]) {
+                        k = j + 1;
+                        break;
+                    }
+                }
+                if (s1.charAt(i) != s2.charAt(j)) {
+                    t++;
+                }
+            }
+        }
+        t /= 2;
+
         double jaro = ((double)m / l1 + (double)m / l2 + (double)(m - t) / m) / 3;
 
         // length of common prefix, up to 4 characters max.
         int l = 0;
-        for (l = 0; l < 4 && l < s1.length() && s1.charAt(l) == s2.charAt(l); l++) {
+        for (l = 0; l < Math.min(4, s1.length()) && s1.charAt(l) == s2.charAt(l); l++) {
         }
-
         return jaro + l * 0.1 * (1. - jaro);
     }
 
