@@ -24,13 +24,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @since 0.1.7
  */
 public final class RegExTokenizer extends BaseTokenizer {
-
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only be changed if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = 1L;
+    
     /**
      * <p>
      * The pattern that needs to match for a token to be extracted as a new {@code Annotation}.

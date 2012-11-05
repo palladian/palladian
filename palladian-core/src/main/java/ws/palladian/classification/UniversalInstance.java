@@ -1,44 +1,54 @@
 package ws.palladian.classification;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import ws.palladian.classification.numeric.MinMaxNormalization;
-
+/**
+ * The document representation.
+ * 
+ * @author David Urbansky
+ */
+@Deprecated
 public class UniversalInstance extends Instance {
 
-    /** The serial versionID. */
-    private static final long serialVersionUID = 55203846826273834L;
-
-    private List<Double> numericFeatures = new ArrayList<Double>();
-    private List<String> nominalFeatures = new ArrayList<String>();
     private String textFeature = "";
 
-    /** The class of the instance. This can be nominal or numeric. */
-    private Object instanceClass;
-
-    /** Whether or not the class of the instance is nominal. */
-    private boolean classNominal = false;
-
-    public <T> UniversalInstance(Instances<T> instances) {
-        setInstances(instances);
+    /**
+     * The constructor.
+     */
+    public UniversalInstance(String targetClass) {
+        super(targetClass);
     }
 
-    public List<Double> getNumericFeatures() {
-        return numericFeatures;
-    }
+//    public List<Double> getNumericFeatures() {
+//        List<Double> result = CollectionHelper.newArrayList();
+//        List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
+//        for (NumericFeature numericFeature : numericFeatures) {
+//            result.add(numericFeature.getValue());
+//        }
+//        return result;
+//    }
 
-    public void setNumericFeatures(List<Double> numericFeatures) {
-        this.numericFeatures = numericFeatures;
-    }
+//    public void setNumericFeatures(List<Double> numericFeatures) {
+//        for (Double numericFeature : numericFeatures) {
+//            String name = "num" + getFeatureVector().size();
+//            getFeatureVector().add(new NumericFeature(name.intern(), numericFeature));
+//        }
+//    }
 
-    public List<String> getNominalFeatures() {
-        return nominalFeatures;
-    }
+//    public List<String> getNominalFeatures() {
+//        List<String> result = CollectionHelper.newArrayList();
+//        List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
+//        for (NominalFeature nominalFeature : nominalFeatures) {
+//            result.add(nominalFeature.getValue());
+//        }
+//        return result;
+//    }
 
-    public void setNominalFeatures(List<String> nominalFeatures) {
-        this.nominalFeatures = nominalFeatures;
-    }
+//    public void setNominalFeatures(List<String> nominalFeatures) {
+//        for (String nominalFeature : nominalFeatures) {
+//            String name = "nom" + getFeatureVector().size();
+//            getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
+//        }
+//    }
 
     public String getTextFeature() {
         return textFeature;
@@ -46,41 +56,6 @@ public class UniversalInstance extends Instance {
 
     public void setTextFeature(String textFeature) {
         this.textFeature = textFeature;
-    }
-
-    public boolean isClassNominal() {
-        return classNominal;
-    }
-
-    public void setClassNominal(boolean classNominal) {
-        this.classNominal = classNominal;
-    }
-
-    public void normalize(MinMaxNormalization normalization) {
-
-        List<Double> features = getNumericFeatures();
-
-        for (int i = 0; i < features.size(); i++) {
-
-            double featureValue = features.get(i);
-            double normalizedValue = (featureValue - normalization.getMinValueMap().get(i))
-                    / normalization.getNormalizationMap().get(i);
-
-            features.set(i, normalizedValue);
-        }
-
-    }
-
-    /**
-     * <p>
-     * Free memory
-     * </p>
-     */
-    public void empty() {
-        setInstanceCategory("");
-        setNumericFeatures(null);
-        setNominalFeatures(null);
-        setTextFeature(null);
     }
 
 }

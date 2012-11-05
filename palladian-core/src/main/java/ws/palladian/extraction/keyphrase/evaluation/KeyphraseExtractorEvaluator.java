@@ -1,14 +1,12 @@
 package ws.palladian.extraction.keyphrase.evaluation;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
@@ -20,6 +18,7 @@ import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetHelper;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
+import ws.palladian.helper.io.FileHelper;
 
 public class KeyphraseExtractorEvaluator {
 
@@ -107,15 +106,15 @@ public class KeyphraseExtractorEvaluator {
             stemmedRealKeyphrases.addAll(realKeyphrases);
 
             String text;
-            try {
-                text = FileUtils.readFileToString(item.getFile());
+//            try {
+                text = FileHelper.readFileToString(item.getFile());
 //                if (item.getFile().getName().endsWith(".html")) {
 //                    text = HtmlHelper.stripHtmlTags(text);
 //                    text = StringEscapeUtils.unescapeHtml(text);
 //                }
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+//            } catch (IOException e) {
+//                throw new IllegalStateException(e);
+//            }
 
             List<Keyphrase> assignedKeyphrases = extractor.extract(text);
             

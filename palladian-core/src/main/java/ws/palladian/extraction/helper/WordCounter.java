@@ -7,8 +7,6 @@ import ws.palladian.processing.features.NumericFeature;
 
 public class WordCounter extends StringDocumentPipelineProcessor {
 
-    private static final long serialVersionUID = 4592668328026315402L;
-
     @Override
     public void processDocument(PipelineDocument<String> document) {
 

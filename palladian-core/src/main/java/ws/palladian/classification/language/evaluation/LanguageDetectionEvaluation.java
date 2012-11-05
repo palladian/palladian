@@ -10,7 +10,7 @@ import ws.palladian.classification.language.JLangDetect;
 import ws.palladian.classification.language.LanguageClassifier;
 import ws.palladian.classification.language.PalladianLangDetect;
 import ws.palladian.classification.language.TagTheNetLangDetect;
-import ws.palladian.classification.page.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -19,6 +19,8 @@ public class LanguageDetectionEvaluation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(LanguageDetectionEvaluation.class);
+    
+    private static final String PALLADIAN_MODEL_PATH = "";
 
     /**
      * Evaluate two language detectors on a set of strings.
@@ -35,7 +37,7 @@ public class LanguageDetectionEvaluation {
         LanguageClassifier jLangDetectClassifier = new JLangDetect();
         // LanguageClassifier googleLanguageClassifier = new GoogleLangDetect();
         // LanguageClassifier alchemyLanguageClassifier = new AlchemyLangDetect();
-        LanguageClassifier palladianClassifier = new PalladianLangDetect();
+        LanguageClassifier palladianClassifier = new PalladianLangDetect(PALLADIAN_MODEL_PATH);
         LanguageClassifier tagTheNetClassifier = new TagTheNetLangDetect();
 
         // we tell Palladian that only a subset of the learned languages is allowed for this evaluation, otherwise

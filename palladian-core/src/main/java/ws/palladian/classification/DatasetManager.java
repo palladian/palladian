@@ -14,17 +14,21 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.page.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 
-public class DatasetManager {
+public final class DatasetManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatasetManager.class);
+    
+    private DatasetManager() {
+        
+    }
 
     /**
      * Create an index of file location [space] class name.
@@ -32,7 +36,7 @@ public class DatasetManager {
      * @param corpusRootFolder The path to the root folder of the dataset.
      * @throws IOException
      */
-    public void createIndex(String corpusRootFolder) throws IOException {
+    public static void createIndex(String corpusRootFolder) throws IOException {
         createIndex(corpusRootFolder, null);
     }
 
@@ -43,7 +47,7 @@ public class DatasetManager {
      * @param includeClasses The class names that should be included in the index.
      * @throws IOException
      */
-    public String createIndex(String corpusRootFolderPath, String[] includeClasses) throws IOException {
+    public static String createIndex(String corpusRootFolderPath, String[] includeClasses) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -100,7 +104,7 @@ public class DatasetManager {
      * @param instancesPerClass The number of instances per class.
      * @throws IOException
      */
-    public String createIndexExcerpt(String indexFilePath, final String separator, final int instancesPerClass)
+    public static String createIndexExcerpt(String indexFilePath, final String separator, final int instancesPerClass)
             throws IOException {
 
         StopWatch sw = new StopWatch();
@@ -109,7 +113,7 @@ public class DatasetManager {
         final FileWriter indexFile = new FileWriter(indexFilename);
 
         // number of instances for each class
-        final CountMap cm = new CountMap();
+        final CountMap<String> cm = CountMap.create();
 
         LineAction la = new LineAction() {
 
@@ -120,7 +124,7 @@ public class DatasetManager {
                     return;
                 }
 
-                if (cm.get(parts[parts.length - 1]) >= instancesPerClass) {
+                if (cm.getCount(parts[parts.length - 1]) >= instancesPerClass) {
                     return;
                 }
 
@@ -130,7 +134,7 @@ public class DatasetManager {
                     LOGGER.error(e.getMessage());
                 }
 
-                cm.increment(parts[parts.length - 1]);
+                cm.add(parts[parts.length - 1]);
             }
 
         };
@@ -157,7 +161,7 @@ public class DatasetManager {
      * @param totalInstances The total number of instances.
      * @throws IOException
      */
-    public String createIndexExcerptRandom(String indexFilePath, final String separator, final int totalInstances)
+    public static String createIndexExcerptRandom(String indexFilePath, final String separator, final int totalInstances)
             throws IOException {
 
         StopWatch sw = new StopWatch();
@@ -229,7 +233,7 @@ public class DatasetManager {
      * @return The list of files used for the folds.
      * @throws IOException
      */
-    public List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds, int numberOfInstances)
+    public static List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds, int numberOfInstances)
             throws IOException {
 
         List<String[]> fileSplits = new ArrayList<String[]>();
@@ -290,7 +294,7 @@ public class DatasetManager {
      * @param splitPercentage The percentage of the first part. The second part is 100 - splitPercentage.
      * @throws IOException
      */
-    public String[] splitIndex(String indexFilePath, int splitPercentage) throws IOException {
+    public static String[] splitIndex(String indexFilePath, int splitPercentage) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -366,7 +370,7 @@ public class DatasetManager {
      * @param indexFilePath The path to the file which should be split.
      * @throws IOException
      */
-    public void splitIndexParts(String indexFilePath) throws IOException {
+    public static void splitIndexParts(String indexFilePath) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -420,7 +424,7 @@ public class DatasetManager {
      * 
      * @param corpusRootFolderPath The path to the root of the corpus.
      */
-    public void cleanDataset(String corpusRootFolderPath) {
+    public static void cleanDataset(String corpusRootFolderPath) {
 
         StopWatch sw = new StopWatch();
 
@@ -456,7 +460,7 @@ public class DatasetManager {
      * @param dataset The dataset to split.
      * @param percentageTraining The percentage that should be used for training, e.g. 0.3 = 30%.
      */
-    public void splitDataset(Dataset dataset, double percentageTraining) {
+    public static void splitDataset(Dataset dataset, double percentageTraining) {
 
         if (dataset.isFirstFieldLink()) {
             LOGGER.warn("can only split datasets which consist of one file");
@@ -496,9 +500,9 @@ public class DatasetManager {
      * @param datasetPath The path to the dataset index file.
      * @param csvPath The path where the csv file should be saved to.
      */
-    public CountMap calculateClassDistribution(final Dataset dataset, String csvPath) {
+    public static CountMap<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
 
-        final CountMap classCounts = new CountMap();
+        final CountMap<String> classCounts = CountMap.create();
         LineAction la = new LineAction() {
 
             @Override
@@ -508,7 +512,7 @@ public class DatasetManager {
                     return;
                 }
 
-                classCounts.increment(parts[parts.length - 1]);
+                classCounts.add(parts[parts.length - 1]);
             }
 
         };
@@ -516,8 +520,8 @@ public class DatasetManager {
         FileHelper.performActionOnEveryLine(dataset.getPath(), la);
         
         StringBuilder csv = new StringBuilder();
-        for (Entry<Object, Integer> entry : classCounts.entrySet()) {
-            csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
+        for (String entry : classCounts) {
+            csv.append(entry).append(";").append(classCounts.getCount(entry)).append("\n");
         }
         
         FileHelper.writeToFile(csvPath, csv);
@@ -525,7 +529,7 @@ public class DatasetManager {
         return classCounts;
     }
 
-    public int countClasses(final Dataset dataset) {
+    public static int countClasses(final Dataset dataset) {
 
         final Set<String> classes = new HashSet<String>();
         LineAction la = new LineAction() {
@@ -560,7 +564,7 @@ public class DatasetManager {
      * @param minFrequency The minimal frequency.
      * @return The new dataset.
      */
-    public Dataset filterLowFrequencyCategories(Dataset dataset, int minFrequency) {
+    public static Dataset filterLowFrequencyCategories(Dataset dataset, int minFrequency) {
 
         final String separationString = dataset.getSeparationString();
 
@@ -569,9 +573,9 @@ public class DatasetManager {
         modifiedDataset.setName(dataset.getName());
 
         // get class distribution to remove categories that appear not frequently enough
-        CountMap cd = calculateClassDistribution(dataset, "data/distributionFull.csv");
+        CountMap<String> cd = calculateClassDistribution(dataset, "data/distributionFull.csv");
 
-        Set<Object> keepClasses = cd.getObjectsWithHigherCountThan(minFrequency - 1);
+        Set<String> keepClasses = cd.getObjectsWithHigherCountThan(minFrequency - 1);
         StringBuilder keepClassesString = new StringBuilder();
         for (Object keepClass : keepClasses) {
             keepClassesString.append("#").append((String)keepClass).append("#");
@@ -604,18 +608,16 @@ public class DatasetManager {
      */
     public static void main(String[] args) throws IOException {
 
-        DatasetManager dsm = new DatasetManager();
-
         Dataset dataset = new Dataset();
         dataset.setPath("data/temp/trainCollection.csv");
         dataset.setSeparationString("<###>");
-        dsm.splitForCrossValidation(dataset, 3, 10);
+        splitForCrossValidation(dataset, 3, 10);
         System.exit(0);
 
         String corpusRootFolderPath = "data/datasets/ner/www_test2/";
-        dsm.cleanDataset(corpusRootFolderPath);
-        dsm.createIndex(corpusRootFolderPath);
-        dsm.splitIndex(corpusRootFolderPath + "index.txt", 50);
+        cleanDataset(corpusRootFolderPath);
+        createIndex(corpusRootFolderPath);
+        splitIndex(corpusRootFolderPath + "index.txt", 50);
         // dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
 
     }

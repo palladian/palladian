@@ -19,13 +19,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.apache.commons.collections15.Bag;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -59,7 +60,7 @@ public class PageSegmenterTrainer {
         PageSegmenter seg = new PageSegmenter();
 
         File files[] = readURLsFromDisc(place);
-        Bag<String> page1 = seg.createFingerprint(c.getWebDocument(orgURL), numberOfQgrams,
+        CountMap<String> page1 = seg.createFingerprint(c.getWebDocument(orgURL), numberOfQgrams,
                 lengthOfQgrams);
 
         BufferedWriter doc1 = new BufferedWriter(new FileWriter(place + "results_" + numberOfQgrams + "_"
@@ -72,12 +73,12 @@ public class PageSegmenterTrainer {
         doc1.newLine();
 
         for (int i = 0; i < files.length; i++) {
-            Bag<String> page2 = seg.createFingerprint(c.getWebDocument(files[i].toString()),
+            CountMap<String> page2 = seg.createFingerprint(c.getWebDocument(files[i].toString()),
                     numberOfQgrams, lengthOfQgrams);
             LOGGER.info(page2);
 
             Double vari = Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100) / 100.0;
-            Double jacc = Math.round(SimilarityCalculator.calculateJaccard(page1, page2) * 100) / 100.0;
+            Double jacc = Math.round(MathHelper.computeJaccardSimilarity(page1.uniqueItems(), page2.uniqueItems()) * 100) / 100.0;
 
             Double aver = Math.round((vari + jacc) / 2 * 100) / 100.0;
 
@@ -114,15 +115,15 @@ public class PageSegmenterTrainer {
         ArrayList<Double> average = new ArrayList<Double>();
 
         File files[] = readURLsFromDisc(place);
-        Bag<String> page1 = seg.createFingerprint(c.getWebDocument(orgURL), numberOfQgrams,
+        CountMap<String> page1 = seg.createFingerprint(c.getWebDocument(orgURL), numberOfQgrams,
                 lengthOfQgrams);
 
         for (int i = 0; i < files.length; i++) {
-            Bag<String> page2 = seg.createFingerprint(c.getWebDocument(files[i].toString()),
+            CountMap<String> page2 = seg.createFingerprint(c.getWebDocument(files[i].toString()),
                     numberOfQgrams, lengthOfQgrams);
 
             Double vari = Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100) / 100.0;
-            Double jacc = Math.round(SimilarityCalculator.calculateJaccard(page1, page2) * 100) / 100.0;
+            Double jacc = Math.round(MathHelper.computeJaccardSimilarity(page1.uniqueItems(), page2.uniqueItems()) * 100) / 100.0;
 
             Double aver = Math.round((vari + jacc) / 2 * 100) / 100.0;
 

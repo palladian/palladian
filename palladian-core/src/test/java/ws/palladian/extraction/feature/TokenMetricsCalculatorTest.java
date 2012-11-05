@@ -10,6 +10,7 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
 
@@ -22,7 +23,7 @@ public class TokenMetricsCalculatorTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new TokenMetricsCalculator());
-        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>(SAMPLE_TEXT));
+        TextDocument document = pipeline.process(new TextDocument(SAMPLE_TEXT));
 
         AnnotationFeature<String> annotations = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation<String>> tokens = annotations.getValue();

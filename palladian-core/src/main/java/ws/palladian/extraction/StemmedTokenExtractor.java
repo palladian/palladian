@@ -14,8 +14,8 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -58,9 +58,9 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
      * @return {@link Map} containing the stemmed token values as keys, their frequencies as values.
      */
     public Map<String, Double> getTokens(String text) {
-        PipelineDocument<String> document;
+        TextDocument document;
         try {
-            document = process(new PipelineDocument<String>(text));
+            document = process(new TextDocument(text));
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }

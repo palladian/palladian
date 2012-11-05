@@ -1,6 +1,6 @@
 package ws.palladian.experimental;
 
-import ws.palladian.classification.page.evaluation.TrainingDataSeparation;
+import ws.palladian.classification.text.evaluation.TrainingDataSeparation;
 import ws.palladian.helper.io.FileHelper;
 
 /**

@@ -7,20 +7,21 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.functors.InstanceofPredicate;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.pos.LingPipePosTagger;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationGroup;
 import ws.palladian.processing.features.TextAnnotationFeature;
@@ -42,7 +43,7 @@ public class NGramCreatorTest {
 
     @Before
     public void setUp() {
-        document = new PipelineDocument<String>("the quick brown fox jumps over the lazy dog");
+        document = new TextDocument("the quick brown fox jumps over the lazy dog");
         pipeline = new ProcessingPipeline();
     }
 
@@ -52,6 +53,7 @@ public class NGramCreatorTest {
     }
 
     @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void testNGramCreator() throws DocumentUnprocessableException {
         pipeline.add(new RegExTokenizer());
         pipeline.add(new StopTokenRemover(Language.ENGLISH));
@@ -63,18 +65,16 @@ public class NGramCreatorTest {
         List<Annotation<String>> annotations = annotationFeature.getValue();
 
         // get all AnnotationGroups
-        @SuppressWarnings("unchecked")
-        List<AnnotationGroup<String>> annotationGroups = new ArrayList<AnnotationGroup<String>>(CollectionUtils.select(annotations,
-                new InstanceofPredicate(AnnotationGroup.class)));
+        List<AnnotationGroup> annotationGroups = CollectionHelper.filter(annotations, AnnotationGroup.class, new ArrayList<AnnotationGroup>());
 
         for (AnnotationGroup<String> annotationGroup : annotationGroups) {
             System.out.println(annotationGroup.getValue());
         }
         assertEquals(4, annotationGroups.size(), 4);
-        assertEquals("quick brown", annotationGroups.get(0).getValue());
-        assertEquals("brown fox", annotationGroups.get(1).getValue());
-        assertEquals("fox jumps", annotationGroups.get(2).getValue());
-        assertEquals("lazy dog", annotationGroups.get(3).getValue());
+        assertEquals("quick brown", ((AnnotationGroup<String>)annotationGroups.get(0)).getValue());
+        assertEquals("brown fox", ((AnnotationGroup<String>)annotationGroups.get(1)).getValue());
+        assertEquals("fox jumps", ((AnnotationGroup<String>)annotationGroups.get(2)).getValue());
+        assertEquals("lazy dog", ((AnnotationGroup<String>)annotationGroups.get(3)).getValue());
     }
 
     /**
@@ -89,15 +89,14 @@ public class NGramCreatorTest {
         pipeline.add(new LingPipeTokenizer());
         pipeline.add(new LingPipePosTagger(ResourceHelper
                 .getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel")));
-        pipeline.add(new NGramCreator(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR));
+        pipeline.add(new NGramCreator(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR));
         pipeline.process(document);
 
         TextAnnotationFeature annotationFeature = document.getFeatureVector()
                 .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         List<Annotation<String>> annotations = annotationFeature.getValue();
 
-        List<AnnotationGroup<String>> annotationGroups = new ArrayList<AnnotationGroup<String>>(CollectionUtils.select(annotations,
-                new InstanceofPredicate(AnnotationGroup.class)));
+        List<AnnotationGroup> annotationGroups = CollectionHelper.filter(annotations, AnnotationGroup.class, new ArrayList<AnnotationGroup>());
         assertEquals(annotationGroups.size(), 8);
         assertEquals("the quick", annotationGroups.get(0).getValue());
         assertEquals("quick brown", annotationGroups.get(1).getValue());
@@ -106,17 +105,17 @@ public class NGramCreatorTest {
 
         assertThat(annotationGroups.get(0).getAnnotations().size(), is(2));
         assertThat(
-                (String)annotationGroups.get(0).getAnnotations().get(0)
-                        .getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("AT"));
+                ((AnnotationGroup<String>)annotationGroups.get(0)).getAnnotations().get(0)
+                        .getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("AT"));
         assertThat(
-                (String)annotationGroups.get(0).getAnnotations().get(1)
-                        .getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJ"));
+                ((AnnotationGroup<String>)annotationGroups.get(0)).getAnnotations().get(1)
+                        .getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJ"));
         
-        assertThat((String)annotationGroups.get(0).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("ATJJ"));
-        assertThat((String)annotationGroups.get(1).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJJJ"));
-        assertThat((String)annotationGroups.get(2).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJNN"));
-        assertThat((String)annotationGroups.get(3).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNNNS"));
-        assertThat((String)annotationGroups.get(4).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNSIN"));
+        assertThat((String)annotationGroups.get(0).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("ATJJ"));
+        assertThat((String)annotationGroups.get(1).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJJJ"));
+        assertThat((String)annotationGroups.get(2).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJNN"));
+        assertThat((String)annotationGroups.get(3).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNNNS"));
+        assertThat((String)annotationGroups.get(4).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNSIN"));
     }
 
 }

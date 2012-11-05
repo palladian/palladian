@@ -27,12 +27,6 @@ public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends A
         FeatureProvider<F> {
     /**
      * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = 7816865382026826466L;
-    /**
-     * <p>
      * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      * </p>
      */

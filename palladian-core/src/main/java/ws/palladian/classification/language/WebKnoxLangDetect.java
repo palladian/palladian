@@ -25,16 +25,13 @@ public class WebKnoxLangDetect extends LanguageClassifier {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(WebKnoxLangDetect.class);
 
-    private final String appId;
     private final String apiKey;
 
-    public WebKnoxLangDetect(String appId, String apiKey) {
-        this.appId = appId;
+    public WebKnoxLangDetect(String apiKey) {
         this.apiKey = apiKey;
     }
 
     public WebKnoxLangDetect(Configuration configuration) {
-        this.appId = configuration.getString("api.webknox.appId");
         this.apiKey = configuration.getString("api.webknox.apiKey");
     }
 
@@ -43,8 +40,7 @@ public class WebKnoxLangDetect extends LanguageClassifier {
 
         DocumentRetriever retriever = new DocumentRetriever();
         String url = "http://webknox.com/api/text/language?text=";
-            url += UrlHelper.urlEncode(text);
-        url += "&appId=" + appId;
+        url += UrlHelper.urlEncode(text);
         url += "&apiKey=" + apiKey;
         JSONArray result = retriever.getJsonArray(url);
 
@@ -59,10 +55,8 @@ public class WebKnoxLangDetect extends LanguageClassifier {
     }
 
     public static void main(String[] args) throws IOException {
-
         WebKnoxLangDetect webKnoxLangDetect = new WebKnoxLangDetect(ConfigHolder.getInstance().getConfig());
         System.out.println(webKnoxLangDetect.classify("Dies ist ein ganz deutscher Text, soviel ist klar"));
-
     }
 
 }

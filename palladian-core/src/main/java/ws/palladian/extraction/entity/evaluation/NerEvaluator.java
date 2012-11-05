@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.page.evaluation.Dataset;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.helper.StopWatch;

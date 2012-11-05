@@ -19,8 +19,6 @@ import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
  */
 public final class TwokenizeTokenizer extends BaseTokenizer {
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
         String text = document.getContent();

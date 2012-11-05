@@ -13,14 +13,15 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.JaroWinklerSimilarity;
+import ws.palladian.helper.nlp.NGramSimilarity;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.nlp.StringSimilarity;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
@@ -125,7 +126,7 @@ public class ListDiscoverer {
             if (xPathMap.entrySet().size() > 0) {
                 LinkedHashMap<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
                 // QGramsDistance stringDistanceMetric = new QGramsDistance();
-                JaroWinkler stringDistanceMetric = new JaroWinkler();
+                StringSimilarity stringDistanceMetric = new JaroWinklerSimilarity();
                 Iterator<Map.Entry<String, Integer>> xPathMapIterator = xPathMap.entrySet().iterator();
                 while (xPathMapIterator.hasNext()) {
                     Map.Entry<String, Integer> entry = xPathMapIterator.next();
@@ -166,7 +167,7 @@ public class ListDiscoverer {
                             hrefText1 = currentHrefText;
                         } else {
                             hrefText2 = currentHrefText;
-                            float hrefSimilarity = stringDistanceMetric.getSimilarity(hrefText1, hrefText2);
+                            double hrefSimilarity = stringDistanceMetric.getSimilarity(hrefText1, hrefText2);
                             similaritySum += hrefSimilarity;
                             comparisons++;
                         }
@@ -293,12 +294,12 @@ public class ListDiscoverer {
      * </p>
      */
     private void filterPaginationUrls() {
-        CountMap countMap = new CountMap();
+        CountMap<Integer> countMap = CountMap.create();
         for (String url : paginationURLs) {
-            countMap.increment(url.length());
+            countMap.add(url.length());
         }
 
-        if (countMap.size() == 0) {
+        if (countMap.uniqueSize() == 0) {
             return;
         }
 
@@ -495,8 +496,8 @@ public class ListDiscoverer {
                 String text2 = pa.getTextByXPath(siblingDocument, entry.getKey());
                 text2 = text2.substring(0, Math.min(200, text2.length()));
                 // OverlapCoefficient oc = new OverlapCoefficient();
-                QGramsDistance qg = new QGramsDistance();
-                float sim = qg.getSimilarity(text1, text2);
+                StringSimilarity qg = new NGramSimilarity(3);
+                double sim = qg.getSimilarity(text1, text2);
                 // System.out.println("estimated time: "+oc.getSimilarityTimingEstimated(text1, text2));
                 // float sim = oc.getSimilarity(text1, text2);
                 // System.out.println("similarity: "+sim+" ("+entry.getKey().toLowerCase()+")");

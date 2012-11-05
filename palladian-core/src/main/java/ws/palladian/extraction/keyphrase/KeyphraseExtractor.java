@@ -1,22 +1,19 @@
 package ws.palladian.extraction.keyphrase;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
-
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
+import ws.palladian.helper.io.FileHelper;
 
 public abstract class KeyphraseExtractor {
 
     /** Maximum number of keyphrases to assign. */
     private int keyphraseCount = 10;
     
-    @SuppressWarnings("unchecked")
     public final void train(Dataset2 dataset) {
         startTraining();
         int i = 0;
@@ -25,8 +22,8 @@ public abstract class KeyphraseExtractor {
             System.out.println(i + "/" + dataset.size() + ":" + item.getFile().getAbsolutePath());
             String[] categories = item.getCategories();
             String text;
-            try {
-                text = FileUtils.readFileToString(item.getFile());
+//            try {
+                text = FileHelper.readFileToString(item.getFile());
                 // in case we have HTML files, strip HTML tags and unescape. Added to allow easy processing of HTML
                 // files, would be better to let the extractors decide how to work with the supplied data though, e.g.
                 // special HTML feature extraction in the future.
@@ -34,9 +31,9 @@ public abstract class KeyphraseExtractor {
 //                    text = HtmlHelper.stripHtmlTags(text);
 //                    text = StringEscapeUtils.unescapeHtml(text);
 //                }
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+//            } catch (IOException e) {
+//                throw new IllegalStateException(e);
+//            }
             train(text, new HashSet<String>(Arrays.asList(categories)));
         }
         endTraining();

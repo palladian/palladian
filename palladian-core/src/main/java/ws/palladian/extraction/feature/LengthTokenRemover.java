@@ -15,8 +15,6 @@ import ws.palladian.processing.features.Annotation;
  */
 public final class LengthTokenRemover extends AbstractTokenRemover {
 
-    private static final long serialVersionUID = 1L;
-
     private final int minLength;
     private final int maxLength;
 

@@ -20,7 +20,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public class PipelineDocument<T> {
+public abstract class PipelineDocument<T> implements Classifiable {
 
     /**
      * <p>
@@ -37,7 +37,7 @@ public class PipelineDocument<T> {
      * {@link ProcessingPipeline}.
      * </p>
      * 
-     * @param originalContent The content of this {@code PipelineDocument}.
+     * @param content The content of this {@code PipelineDocument}.
      */
     public PipelineDocument(T content) {
         super();
@@ -54,6 +54,7 @@ public class PipelineDocument<T> {
      * 
      * @return A vector of all features extracted for this document by some pipeline.
      */
+    @Override
     public FeatureVector getFeatureVector() {
         return featureVector;
     }

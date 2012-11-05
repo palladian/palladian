@@ -21,9 +21,9 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.TextAnnotationFeature;
 
@@ -45,7 +45,7 @@ public class LingPipePosTaggerTest {
      * </p>
      */
     private static final String MODEL = "/model/pos-en-general-brown.HiddenMarkovModel";
-    private final PipelineDocument<String> document;
+    private final TextDocument document;
     private final String[] expectedTags;
 
     @Parameters
@@ -66,7 +66,7 @@ public class LingPipePosTaggerTest {
     public LingPipePosTaggerTest(String document, String[] expectedTags) {
         super();
 
-        this.document = new PipelineDocument<String>(document);
+        this.document = new TextDocument(document);
         this.expectedTags = expectedTags;
     }
 

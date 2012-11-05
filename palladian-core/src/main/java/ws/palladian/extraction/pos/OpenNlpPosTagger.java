@@ -6,13 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.Validate;
-
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
 import opennlp.tools.postag.POSTaggerME;
+
+import org.apache.commons.lang.Validate;
+
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Annotation;
 
 /**
@@ -25,8 +26,6 @@ import ws.palladian.processing.features.Annotation;
  * @author Philipp Katz
  */
 public final class OpenNlpPosTagger extends BasePosTagger {
-
-    private static final long serialVersionUID = 1L;
 
     /** The name of this POS tagger. */
     private static final String TAGGER_NAME = "OpenNLP POS-Tagger";
@@ -53,7 +52,7 @@ public final class OpenNlpPosTagger extends BasePosTagger {
                 throw new IllegalStateException("Error initializing OpenNLP POS Tagger from \"" + modelPath + "\": "
                         + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
         return model;
