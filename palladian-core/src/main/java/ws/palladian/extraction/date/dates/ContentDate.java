@@ -8,17 +8,8 @@ import ws.palladian.helper.date.ExtractedDate;
  */
 public final class ContentDate extends AbstractBodyDate {
 
-    /** Keyword found in attribute of surrounding tag. */
-    public static final int KEY_LOC_ATTR = 201;
-    /** Keyword found in text (content) of surrounding tag. */
-    public static final int KEY_LOC_CONTENT = 202;
-
     /** Position of datestring in text of found tag. */
     public static final int DATEPOS_IN_TAGTEXT = 201;
-    /** Distance between datestring and nearst found keyword. */
-    public static final int DISTANCE_DATE_KEYWORD = 202;
-    /** Location of keyword. In tagtext (content), atribute or tagname. */
-    public static final int KEYWORDLOCATION = 203;
     /** Position of datestring in text of whole document. */
     public static final int DATEPOS_IN_DOC = 204;
 
@@ -26,8 +17,6 @@ public final class ContentDate extends AbstractBodyDate {
     private int positionInTagtext = -1;
     /** If a keyword was found in near content, this is the distance between keyword and datestring. */
     private int distanceToContext = -1;
-    /** If a keyword was found in content or surrounding tag it will be set to correspond value (see above). */
-    private int keywordLocation = -1;
     /** Position of datestring in the document it was found. */
     private int positionInDocument = -1;
 
@@ -35,6 +24,10 @@ public final class ContentDate extends AbstractBodyDate {
     private double ordDocPos = 0;
     private double ordAgePos = 0;
 
+    /**
+     * A value of 1 indicates a keyword found in attribute of surrounding tag, a value of 2 indicates a keyword found in
+     * text content of surrounding tag.
+     */
     private int keyLoc = 0;
     private double keyDiff = 0;
 
@@ -49,16 +42,10 @@ public final class ContentDate extends AbstractBodyDate {
     private long distAgeBefore = -1;
     private long distAgeAfter = -1;
 
-    private boolean keyLoc201 = false;
-    private boolean keyLoc202 = false;
-
-    private boolean isKeyClass1 = false;
-    private boolean isKeyClass2 = false;
-    private boolean isKeyClass3 = false;
-
     private boolean hasStructureDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
+    private byte keywordPriority = -1;
 
     public ContentDate(ExtractedDate date) {
         super(date);
@@ -71,7 +58,6 @@ public final class ContentDate extends AbstractBodyDate {
         builder.append(", positionInDocument=").append(positionInDocument);
         builder.append(", positionInTagtext=").append(positionInTagtext);
         builder.append(", distanceToContext=").append(distanceToContext);
-        builder.append(", keyLoc=").append(keywordLocation);
         return builder.toString();
     }
 
@@ -84,12 +70,6 @@ public final class ContentDate extends AbstractBodyDate {
                 break;
             case DATEPOS_IN_TAGTEXT:
                 value = this.positionInTagtext;
-                break;
-            case DISTANCE_DATE_KEYWORD:
-                value = this.distanceToContext;
-                break;
-            case KEYWORDLOCATION:
-                value = this.keywordLocation;
                 break;
             default:
                 value = super.get(field);
@@ -107,17 +87,9 @@ public final class ContentDate extends AbstractBodyDate {
             case DATEPOS_IN_TAGTEXT:
                 this.positionInTagtext = value;
                 break;
-            case DISTANCE_DATE_KEYWORD:
-                this.distanceToContext = value;
-                break;
-            case KEYWORDLOCATION:
-                this.keywordLocation = value;
-                break;
             default:
                 super.set(field, value);
-
         }
-
     }
 
     public void setHasStructureDate(boolean hasStructureDate) {
@@ -240,52 +212,20 @@ public final class ContentDate extends AbstractBodyDate {
         return distAgeBefore;
     }
 
-    public void setKeyClass1(boolean isKeyClass1) {
-        this.isKeyClass1 = isKeyClass1;
-    }
-
-    public boolean isKeyClass1() {
-        return isKeyClass1;
-    }
-
-    public void setKeyLoc202(boolean keyLoc202) {
-        this.keyLoc202 = keyLoc202;
-    }
-
-    public boolean isKeyLoc202() {
-        return keyLoc202;
-    }
-
-    public void setKeyClass2(boolean isKeyClass2) {
-        this.isKeyClass2 = isKeyClass2;
-    }
-
-    public boolean isKeyClass2() {
-        return isKeyClass2;
-    }
-
-    public void setKeyLoc201(boolean keyLoc201) {
-        this.keyLoc201 = keyLoc201;
-    }
-
-    public boolean isKeyLoc201() {
-        return keyLoc201;
-    }
-
-    public void setKeyClass3(boolean isKeyClass3) {
-        this.isKeyClass3 = isKeyClass3;
-    }
-
-    public boolean isKeyClass3() {
-        return isKeyClass3;
-    }
-
     public void setDistAgeAfter(long distAgeAfter) {
         this.distAgeAfter = distAgeAfter;
     }
 
     public long getDistAgeAfter() {
         return distAgeAfter;
+    }
+
+    public void setKeywordPriority(byte keywordPriority) {
+        this.keywordPriority  = keywordPriority;
+    }
+    
+    public byte getKeywordPriority() {
+        return keywordPriority;
     }
 
 }
