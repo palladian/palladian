@@ -9,12 +9,11 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.helper.Cache;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -28,13 +27,6 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author Philipp Katz
  */
 public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
-
-    /**
-     * <p>
-     * Unique identifier to serialize and deserialize objects of this type to and from a file.
-     * </p>
-     */
-    private static final long serialVersionUID = -673731236797308512L;
 
     /** The sentence detector object. */
     private final SentenceDetectorME model;
@@ -65,7 +57,7 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
                 throw new IllegalStateException("Error initializing OpenNLP Sentence Detector from \""
                         + modelFile.getAbsolutePath() + "\": " + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(modelIn);
+                FileHelper.close(modelIn);
             }
         }
         return sdetector;
@@ -74,9 +66,8 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
     @Override
     public OpenNlpSentenceDetector detect(String text) {
         Span[] sentenceBoundaries = model.sentPosDetect(text);
-        @SuppressWarnings("unchecked")
-        Annotation<String>[] sentenceAnnotations = new Annotation[sentenceBoundaries.length];
-        PipelineDocument<String> document = new PipelineDocument<String>(text);
+        PositionAnnotation[] sentenceAnnotations = new PositionAnnotation[sentenceBoundaries.length];
+        TextDocument document = new TextDocument(text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {
             int start = sentenceBoundaries[i].getStart();
             int end = sentenceBoundaries[i].getEnd();

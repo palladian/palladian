@@ -34,13 +34,6 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String, T
 
     /**
      * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = 2190396926017567035L;
-
-    /**
-     * <p>
      * The dictionary to match token against.
      * </p>
      */

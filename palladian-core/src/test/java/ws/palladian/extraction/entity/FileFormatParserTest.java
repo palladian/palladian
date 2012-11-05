@@ -23,7 +23,7 @@ public class FileFormatParserTest {
         assertEquals(60, annotations.get(10).getOffset());
         assertEquals(5, annotations.get(10).getLength());
         assertEquals("Peter", annotations.get(10).getEntity());
-        assertEquals("PER", annotations.get(10).getInstanceCategoryName());
+        assertEquals("PER", annotations.get(10).getTargetClass());
     }
 
     @Test
@@ -35,12 +35,12 @@ public class FileFormatParserTest {
         assertEquals(12, annotations.get(0).getOffset());
         assertEquals(2, annotations.get(0).getLength());
         assertEquals("EU", annotations.get(0).getEntity());
-        assertEquals("ORG", annotations.get(0).getInstanceCategoryName());
+        assertEquals("ORG", annotations.get(0).getTargetClass());
 
         assertEquals(188581, annotations.get(4594).getOffset());
         assertEquals(11, annotations.get(4594).getLength());
         assertEquals("Sri Lankans", annotations.get(4594).getEntity());
-        assertEquals("MISC", annotations.get(4594).getInstanceCategoryName());
+        assertEquals("MISC", annotations.get(4594).getTargetClass());
     }
 
 }

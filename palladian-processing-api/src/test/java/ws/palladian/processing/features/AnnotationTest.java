@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 public class AnnotationTest {
     
@@ -14,7 +14,7 @@ public class AnnotationTest {
         FeatureDescriptor<NominalFeature> stopwordFeatureDescriptor = FeatureDescriptorBuilder.build("stopword", NominalFeature.class);
         FeatureDescriptor<NumericFeature> lengthFeatureDescriptor = FeatureDescriptorBuilder.build("length", NumericFeature.class);
         
-        PipelineDocument<String> document = new PipelineDocument<String>("The quick brown fox.");
+        TextDocument document = new TextDocument("The quick brown fox.");
         Annotation<String> annotation = new PositionAnnotation(document, 0, 3);
         assertEquals("The", annotation.getValue());
         

@@ -37,7 +37,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
@@ -265,6 +264,7 @@ public final class FileHelper {
      * @param file The file that should be read.
      * @return The string content of the file.
      */
+    // TODO throw exception if file cannot be accessed.
     public static String readFileToString(File file) {
 
         StringBuilder contents = new StringBuilder();
@@ -499,7 +499,7 @@ public final class FileHelper {
 
             FileHelper.performActionOnEveryLine(inputFilePath, la);
             
-            IOUtils.closeQuietly(writer);
+            close(writer);
             
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
@@ -550,7 +550,7 @@ public final class FileHelper {
         } catch (FileNotFoundException e) {
             LOGGER.error("Encountered FileNotFoundException for \"" + filePath + "\": " + e.getMessage(), e);
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            close(inputStream);
         }
         return lineNumber;
     }
@@ -1642,6 +1642,7 @@ public final class FileHelper {
         File newFile = new File(filePath);
         if (!newFile.exists()) {
 
+            // FIXME fails with NPE if no parent directory is given (filePath = just the file name).
             File directories = new File(newFile.getParent());
             boolean directoriesExists = false;
 
@@ -1705,12 +1706,12 @@ public final class FileHelper {
     }
 
     /**
-     * Close all given closeables.
+     * <p>
+     * Close all given closeables, check for <code>null</code>, catch potential {@link IOException}s.
+     * </p>
      * 
      * @param closeables All objects which are closeable.
-     * @deprecated Use {@link IOUtils#closeQuietly(Closeable)} instead.
      */
-    @Deprecated
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {

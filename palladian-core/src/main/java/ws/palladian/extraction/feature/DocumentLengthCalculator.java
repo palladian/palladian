@@ -24,13 +24,6 @@ public final class DocumentLengthCalculator extends StringDocumentPipelineProces
 
     /**
      * <p>
-     * Used for serializing objects of this class. This should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -1616045495717647235L;
-
-    /**
-     * <p>
      * The identifier for the {@link Feature} extracted by this {@link PipelineProcessor}.
      * </p>
      */

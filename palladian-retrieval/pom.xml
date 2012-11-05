@@ -35,10 +35,12 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
+			<version>20090211</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
+			<version>4.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -48,10 +50,12 @@
 		<dependency>
 			<groupId>net.java.dev.rome</groupId>
 			<artifactId>rome</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
+			<version>1.9.15</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>

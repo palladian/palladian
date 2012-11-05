@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -24,6 +23,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
@@ -56,14 +56,14 @@ public class SitemapAnalyzer {
     private final ConcurrentHashMap<String, Map<String, Object>> resultTable;
 
     /** We need to keep track of the internal links while crawling all pages from the sitemap. */
-    private final CountMap internalInboundLinkMap;
+    private final CountMap<String> internalInboundLinkMap;
 
     /** The number of threads that will be used to crawl the documents from the sitemap. */
     private int numThreads = 10;
 
     public SitemapAnalyzer() {
         resultTable = new ConcurrentHashMap<String, Map<String, Object>>();
-        internalInboundLinkMap = new CountMap();
+        internalInboundLinkMap = CountMap.create();
     }
 
     public int getNumThreads() {
@@ -103,7 +103,7 @@ public class SitemapAnalyzer {
                 synchronized (internalInboundLinkMap) {
                     for (String internalOutLink : outInt) {
                         if (!internalOutLink.equalsIgnoreCase(document.getDocumentURI())) {
-                            internalInboundLinkMap.increment(internalOutLink);
+                            internalInboundLinkMap.add(internalOutLink);
                         }
                     }
                 }
@@ -166,7 +166,7 @@ public class SitemapAnalyzer {
         for (String url : urls) {
             Map<String, Object> map = resultTable.get(url);
             if (map != null) {
-                Integer value = internalInboundLinkMap.get(url);
+                Integer value = internalInboundLinkMap.getCount(url);
                 map.put("in-int", value);
             }
         }
@@ -192,7 +192,7 @@ public class SitemapAnalyzer {
         } catch (IOException e) {
             LOGGER.error(e);
         } finally {
-            IOUtils.closeQuietly(writer);
+            FileHelper.close(writer);
         }
     }
 

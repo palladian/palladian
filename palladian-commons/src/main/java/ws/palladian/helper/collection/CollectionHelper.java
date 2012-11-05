@@ -14,15 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * <p>
  * This class provides some helper methods for working with collections. <b>Important:</b> If you are looking for a
- * functionality which is not provided here, look in {@link Collections}, {@link Arrays} and {@link CollectionUtils}
- * first, before adding new, redundant methods here!
+ * functionality which is not provided here, look in {@link Collections}, {@link Arrays} first, before adding new,
+ * redundant methods here!
  * </p>
  * 
  * @author David Urbansky
@@ -54,7 +53,11 @@ public final class CollectionHelper {
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        Collections.sort(list, new EntryValueComparator<K, V>(ascending));
+        if (ascending) {
+            Collections.sort(list, EntryValueComparator.<K, V> ascending());
+        } else {
+            Collections.sort(list, EntryValueComparator.<K, V> descending());
+        }
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
@@ -313,7 +316,7 @@ public final class CollectionHelper {
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the filter.
      */
-    public static <T> Collection<T> filter(Iterable<T> iterable, Filter<T> filter, Collection<T> output) {
+    public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Filter<T> filter, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
         Validate.notNull(output, "output must not be null");
@@ -339,7 +342,7 @@ public final class CollectionHelper {
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the type filter.
      */
-    public static <I, O> Collection<O> filter(Iterable<I> iterable, Class<O> type, Collection<O> output) {
+    public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(type, "type must not be null");
         Validate.notNull(output, "output must not be null");

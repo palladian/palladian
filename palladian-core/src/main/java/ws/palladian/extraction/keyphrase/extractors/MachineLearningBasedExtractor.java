@@ -16,9 +16,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instance2;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.Predictor;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -46,6 +47,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.Feature;
@@ -73,7 +75,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private StemmerAnnotator stemmer;
     private int trainCount;
     private final Map<PipelineDocument<String>, Set<String>> trainDocuments;
-    private Predictor<String> classifier;
+    private BaggedDecisionTreeClassifier classifier;
+    private BaggedDecisionTreeModel model;
 
     public MachineLearningBasedExtractor() {
         termCorpus = new TermCorpus();
@@ -124,8 +127,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     }
 
-    private Predictor<String> createClassifier() {
-        return new BaggedDecisionTreeClassifier(10);
+    private BaggedDecisionTreeClassifier createClassifier() {
+        BaggedDecisionTreeClassifier baggedClassifier = new BaggedDecisionTreeClassifier();
+        return baggedClassifier;
     }
 
     @Override
@@ -141,7 +145,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             corpusGenerationPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
@@ -190,26 +194,25 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         System.out.println("% sample coverage: " + (double)totallyMarked / totalKeyphrases);
         int posSamples = 0;
         int negSamples = 0;
-        List<Instance2<String>> instances = new ArrayList<Instance2<String>>();
+        List<Instance> instances = new ArrayList<Instance>();
         for (Annotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            Instance2<String> instance = new Instance2<String>();
-            instance.target = featureVector.get(IS_KEYWORD).getValue();
+            String targetClass = featureVector.get(IS_KEYWORD).getValue();
             FeatureVector cleanedFv = cleanFeatureVector(featureVector);
-            if ("true".equals(instance.target)) {
+            if ("true".equals(targetClass)) {
                 posSamples++;
             } else {
                 negSamples++;
             }
-            instance.featureVector = cleanedFv;
+            Instance instance = new Instance(targetClass,cleanedFv);
             instances.add(instance);
         }
         System.out.println("# negative samples: " + negSamples);
         System.out.println("# positive samples: " + posSamples);
         System.out.println("% positive sample rate: " + (double)posSamples / (negSamples + posSamples));
         System.out.println("building classifier ...");
-        classifier.learn(instances);
-        System.out.println(classifier.toString());
+        this.model = classifier.train(instances);
+        System.out.println(model.toString());
         System.out.println("... finished building classifier.");
     }
 
@@ -338,7 +341,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             corpusGenerationPipeline.process(document);
             candidateGenerationPipeline.process(document);
@@ -352,10 +355,10 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         for (Annotation<String> annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
             FeatureVector cleanFv = cleanFeatureVector(featureVector);
-            CategoryEntries predictionResult = classifier.predict(cleanFv);
+            CategoryEntries predictionResult = classifier.classify(cleanFv, model);
             CategoryEntry trueCategory = predictionResult.getCategoryEntry("true");
             if (trueCategory != null) {
-                keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getAbsoluteRelevance()));
+                keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getProbability()));
             }
         }
         reRankCooccurrences(keywords);

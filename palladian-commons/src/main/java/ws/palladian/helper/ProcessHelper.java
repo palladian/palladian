@@ -3,9 +3,9 @@ package ws.palladian.helper;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringOutputStream;
 
 /**
@@ -46,8 +46,7 @@ public class ProcessHelper {
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
-            IOUtils.closeQuietly(in);
-            IOUtils.closeQuietly(stringOutputStream);
+            FileHelper.close(in, stringOutputStream);
             if (p != null) {
                 p.destroy();
             }

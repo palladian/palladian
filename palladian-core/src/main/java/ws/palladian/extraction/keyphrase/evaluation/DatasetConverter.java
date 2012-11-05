@@ -3,7 +3,6 @@ package ws.palladian.extraction.keyphrase.evaluation;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,15 +15,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.bag.HashBag;
-import org.apache.commons.collections15.map.LazyMap;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -43,19 +40,20 @@ public class DatasetConverter {
     static final char SEPARATOR = '#';
 
     public static void createCiteULike(File taggerDirectory, File indexOutput) throws IOException {
-        Factory<Bag<String>> factory = new Factory<Bag<String>>() {
+        Factory<CountMap<String>> factory = new Factory<CountMap<String>>() {
             @Override
-            public Bag<String> create() {
-                return new HashBag<String>();
+            public CountMap<String> create() {
+                return CountMap.create();
             }
         };
-        Map<String, Bag<String>> filenameKeyphrases = LazyMap.decorate(new TreeMap<String, Bag<String>>(), factory);
+        Map<String, CountMap<String>> filenameKeyphrases = LazyMap.create(new TreeMap<String, CountMap<String>>(), factory);
 
-        Collection<File> tagFiles = FileUtils.listFiles(taggerDirectory, new String[] {"tags"}, true);
+        File[] tagFiles = FileHelper.getFiles(taggerDirectory.getAbsolutePath(), "tags", true, false);
+        // Collection<File> tagFiles = FileUtils.listFiles(taggerDirectory, new String[] {"tags"}, true);
         for (File tagFile : tagFiles) {
-            List<String> tags = FileUtils.readLines(tagFile);
+            List<String> tags = FileHelper.readFileToArray(tagFile);
             String filename = tagFile.getName().replace(".tags", ".txt");
-            Bag<String> documentTags = filenameKeyphrases.get(filename);
+            CountMap<String> documentTags = filenameKeyphrases.get(filename);
             for (String tag : tags) {
                 if (tag.length() > 0) {
                     // some .tag files in the dataset contain junk,
@@ -72,12 +70,12 @@ public class DatasetConverter {
         // write index file
         StringBuilder builder = new StringBuilder();
 
-        for (Entry<String, Bag<String>> entry : filenameKeyphrases.entrySet()) {
+        for (Entry<String, CountMap<String>> entry : filenameKeyphrases.entrySet()) {
             builder.append(entry.getKey()).append(SEPARATOR);
-            builder.append(StringUtils.join(entry.getValue().uniqueSet(), SEPARATOR));
+            builder.append(StringUtils.join(entry.getValue().uniqueItems(), SEPARATOR));
             builder.append(NEWLINE);
         }
-        FileUtils.write(indexOutput, builder);
+        FileHelper.writeToFile(indexOutput.getAbsolutePath(), builder);
     }
     
     public static void createSemEval2010(File keyphraseFileInput, File indexFileOutput) throws IOException {
@@ -101,7 +99,7 @@ public class DatasetConverter {
             stringBuilder.append(StringUtils.join(entry.getValue(), SEPARATOR));
             stringBuilder.append(NEWLINE);
         }
-        FileUtils.write(indexFileOutput, stringBuilder);
+        FileHelper.writeToFile(indexFileOutput.getAbsolutePath(), stringBuilder);
     }
 
     public static void createFAO(String pathToRawFiles, String resultFile) {

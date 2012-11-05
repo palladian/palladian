@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
@@ -36,8 +35,6 @@ import com.aliasi.util.FastCache;
  * @author Philipp Katz
  */
 public final class LingPipePosTagger extends BasePosTagger {
-
-    private static final long serialVersionUID = 1L;
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(LingPipePosTagger.class);
@@ -82,7 +79,7 @@ public final class LingPipePosTagger extends BasePosTagger {
                 throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
                         + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
         return ret;
@@ -145,7 +142,7 @@ public final class LingPipePosTagger extends BasePosTagger {
                 String assignedTag = tagging.tags().get(0);
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
-                matrix.increment(correctTag, assignedTag);
+                matrix.add(correctTag, assignedTag);
 
                 if (assignedTag.equals(correctTag)) {
                     correct++;

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.PipelineDocument;
 
 /**
@@ -14,7 +15,7 @@ import ws.palladian.processing.PipelineDocument;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public abstract class Annotation<T> implements Comparable<Annotation<T>> {
+public abstract class Annotation<T> implements Classifiable, Comparable<Annotation<T>> {
 
     /**
      * <p>
@@ -109,6 +110,7 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * 
      * @return A {@link FeatureVector} containing this {@link Annotation}.
      */
+    @Override
     public final FeatureVector getFeatureVector() {
         return featureVector;
     }
@@ -136,13 +138,17 @@ public abstract class Annotation<T> implements Comparable<Annotation<T>> {
      * @param descriptor The {@code FeatureDescriptor} identifying the desired {@code Feature}
      * @return
      */
+    @Deprecated
     public final <F extends Feature<?>> F getFeature(FeatureDescriptor<F> descriptor) {
         Validate.notNull(descriptor, "descriptor must not be null");
         return getFeatureVector().get(descriptor);
     }
 
     /**
-     * <p>Adds a new {@link Feature} to this Annotation's {@link FeatureVector}.</p>
+     * <p>
+     * Adds a new {@link Feature} to this Annotation's {@link FeatureVector}.
+     * </p>
+     * 
      * @param feature The feature to add, not <code>null</code>.
      */
     public final void addFeature(final Feature<?> feature) {

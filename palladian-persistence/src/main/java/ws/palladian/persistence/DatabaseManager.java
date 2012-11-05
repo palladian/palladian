@@ -616,7 +616,7 @@ public class DatabaseManager {
      */
     protected static final void logError(SQLException exception, String sql, Object... args) {
         StringBuilder errorLog = new StringBuilder();
-        errorLog.append("Exception " + exception.getMessage() + " when updating SQL \"" + sql + "\"");
+        errorLog.append("Exception " + exception.getMessage() + " when performing SQL \"" + sql + "\"");
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }

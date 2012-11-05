@@ -1,75 +1,184 @@
 package ws.palladian.helper.collection;
 
-import java.util.HashMap;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-// FIXME make this generic, or better use org.apache.commons.collections15.Bag<E> instead
-public class CountMap extends HashMap<Object, Integer> {
+import org.apache.commons.lang3.Validate;
+
+/**
+ * <p>
+ * A CountMap is a collection which allows counting equal items, it behaves similar to a {@link Set}, but counts the
+ * occurrences of identical item. It is also often referred to as a "Bag". Typical use cases might be a "bag of words"
+ * model for text document, for example.
+ * </p>
+ * 
+ * @param <T> The type of the items in this CountMap.
+ * 
+ * @author David Urbansky
+ * @author Philipp Katz
+ */
+public class CountMap<T> implements Collection<T>, Serializable {
 
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
 
-    public LinkedHashMap<Object, Integer> getSortedMap() {
-        return CollectionHelper.sortByValue(this);
+    private final Map<T, Integer> map = CollectionHelper.newHashMap();
+
+    @SuppressWarnings("deprecation")
+    public LinkedHashMap<T, Integer> getSortedMap() {
+        return CollectionHelper.sortByValue(map);
     }
 
-    public LinkedHashMap<Object, Integer> getSortedMapDescending() {
-        return CollectionHelper.sortByValue(this, false);
+    @SuppressWarnings("deprecation")
+    public LinkedHashMap<T, Integer> getSortedMapDescending() {
+        return CollectionHelper.sortByValue(map, false);
     }
 
     /**
-     * Increment the entry with the key by one.
-     * 
-     * @param key The key of the value that should be incremented.
+     * <p>
+     * Create a new {@link CountMap}.
+     * </p>
      */
-    public void increment(Object key) {
-        Integer count = get(key);
+    public static <T> CountMap<T> create() {
+        return new CountMap<T>();
+    }
+
+    public static <T> CountMap<T> create(Collection<T> collection) {
+        CountMap<T> countMap = new CountMap<T>();
+        for (T item : collection) {
+            countMap.add(item);
+        }
+        return countMap;
+    }
+
+//    /** Private constructor, use {@link #create()} instead. */
+//    private CountMap() {
+//
+//    }
+
+    /**
+     * <p>
+     * Increment the count of the specified item by one.
+     * </p>
+     * 
+     * @param item The item which count that should be incremented, not <code>null</code>.
+     */
+    @Override
+    public boolean add(T item) {
+        Validate.notNull(item, "item must not be null");
+
+        Integer count = getCount(item);
         int counter = count.intValue();
         counter++;
-        put(key, counter);
+        map.put(item, counter);
+        return true;
     }
 
     /**
-     * Increment the entry with the key by a certain number.
+     * <p>
+     * Increment the count of the specified item by a certain number.
+     * </p>
      * 
-     * @param key The key of the value that should be incremented.
-     * @param increment The number of increments.
+     * @param item The item which count should be incremented, not <code>null</code>.
+     * @param increment The count by which to increment (negative values decrement).
      */
-    public void increment(Object key, int increment) {
-        Integer count = get(key);
+    public void add(T item, int increment) {
+        Validate.notNull(item, "item must not be null");
+        
+        if (increment == 0) {
+            return;
+        }
+
+        Integer count = getCount(item);
         int counter = count.intValue();
         counter += increment;
-        put(key, counter);
+        map.put(item, counter);
     }
 
     @Override
-    public Integer get(Object key) {
-        Integer count = super.get(key);
-
-        if (count == null) {
-            count = 0;
+    public boolean addAll(Collection<? extends T> c) {
+        for (T item : c) {
+            add(item);
         }
-
-        return count;
+        return true;
     }
 
     /**
-     * Returns the sum of all counts in the CountMap. Where in contrast, {@link #size()} returns the number of
-     * <i>unique</i> items in the CountMap.
+     * <p>
+     * Set the count of the specified item to a certain number.
+     * </p>
      * 
-     * @return
+     * @param item The item which count should be set, not <code>null</code>.
+     * @param count The count which to set.
+     */
+    public void set(T item, int count) {
+        Validate.notNull(item, "item must not be null");
+        if (count == 0) {
+            map.remove(item);
+        } else {
+            map.put(item, count);
+        }
+    }
+
+    /**
+     * <p>
+     * Get the count of the specified item.
+     * </p>
+     * 
+     * @param item The item for which to get the count, not <code>null</code>.
+     * @return The count of the specified item.
+     */
+    public int getCount(T item) {
+        Validate.notNull(item, "item must not be null");
+
+        Integer count = map.get(item);
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * <p>
+     * Get the number of unique items.
+     * </p>
+     * 
+     * @return The number of unique items.
+     */
+    public int uniqueSize() {
+        return map.size();
+    }
+
+    /**
+     * <p>
+     * Get the all unique items.
+     * </p>
+     * 
+     * @return Unique items in this {@link CountMap}.
+     */
+    public Set<T> uniqueItems() {
+        return map.keySet();
+    }
+
+    /**
+     * <p>
+     * Returns the sum of all counts. Where in contrast, {@link #uniqueSize()} returns the number of <i>unique</i>
+     * items.
+     * </p>
+     * 
+     * @return The number of items.
      */
     public int totalSize() {
         int totalSize = 0;
-        for (Entry<Object, Integer> entry : entrySet()) {
+        for (Entry<T, Integer> entry : map.entrySet()) {
             totalSize += entry.getValue();
         }
         return totalSize;
     }
-    
+
     /**
      * <p>
      * Get all objects that have more than a certain count.
@@ -78,15 +187,14 @@ public class CountMap extends HashMap<Object, Integer> {
      * @param count Objects must have a count greater than count.
      * @return A set of objects with a higher count than specified.
      */
-    public Set<Object> getObjectsWithHigherCountThan(int count) {
-        
-        Set<Object> highCountSet = new HashSet<Object>();
-        for (java.util.Map.Entry<Object, Integer> entry : entrySet()) {
+    public Set<T> getObjectsWithHigherCountThan(int count) {
+        Set<T> highCountSet = new HashSet<T>();
+        for (Entry<T, Integer> entry : map.entrySet()) {
             if (entry.getValue() > count) {
                 highCountSet.add(entry.getKey());
             }
         }
-        
+
         return highCountSet;
     }
 
@@ -99,16 +207,112 @@ public class CountMap extends HashMap<Object, Integer> {
      * @param maxCount Objects must have a count less or equal than maxCount.
      * @return A set of objects with a higher count than specified.
      */
-    public <T> Set<T> getObjectsWithCountBetween(int minCount, int maxCount) {
-
+    public Set<T> getObjectsWithCountBetween(int minCount, int maxCount) {
         Set<T> validCountSet = new HashSet<T>();
-        for (java.util.Map.Entry<Object, Integer> entry : entrySet()) {
+        for (Entry<T, Integer> entry : map.entrySet()) {
             if (entry.getValue() >= minCount && entry.getValue() <= maxCount) {
-                validCountSet.add((T)entry.getKey());
+                validCountSet.add(entry.getKey());
             }
         }
 
         return validCountSet;
+    }
+
+    public T getHighest() {
+        int highest = 0;
+        T result = null;
+        for (T item : uniqueItems()) {
+            int current = getCount(item);
+            if (current > highest) {
+                result = item;
+                highest = current;
+            }
+        }
+        return result;
+    }
+
+    public CountMap<T> getHighest(int num) {
+        LinkedHashMap<T, Integer> descendingItems = getSortedMapDescending();
+        CountMap<T> result = CountMap.create();
+        for (Entry<T, Integer> entry : descendingItems.entrySet()) {
+            result.add(entry.getKey(), entry.getValue());
+            if (result.uniqueItems().size() == num) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void clear() {
+        map.clear();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return map.containsKey(o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return map.keySet().containsAll(c);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return map.keySet().iterator();
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return map.remove(o) != null;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return map.entrySet().removeAll(c);
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return map.entrySet().retainAll(c);
+    }
+
+    @Override
+    public int size() {
+        return totalSize();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return map.entrySet().toArray();
+    }
+
+    @Override
+    public <A> A[] toArray(A[] a) {
+        return map.entrySet().toArray(a);
+    }
+
+    public Set<Entry<T, Integer>> entrySet() {
+        return map.entrySet();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CountMap [");
+        builder.append(map);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

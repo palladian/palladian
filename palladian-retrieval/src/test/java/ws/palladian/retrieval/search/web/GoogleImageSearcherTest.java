@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.constants.Language;
@@ -13,6 +14,7 @@ import ws.palladian.helper.constants.Language;
  * @author Sebastian Sprenger
  * @author David Urbansky
  */
+@Ignore
 public class GoogleImageSearcherTest {
 
     private GoogleImageSearcher googleImageSearcher;

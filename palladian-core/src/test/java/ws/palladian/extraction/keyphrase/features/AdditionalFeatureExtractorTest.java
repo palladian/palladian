@@ -10,11 +10,11 @@ import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
 
 public class AdditionalFeatureExtractorTest {
@@ -26,23 +26,23 @@ public class AdditionalFeatureExtractorTest {
         pipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
         pipeline.add(new DuplicateTokenConsolidator());
         pipeline.add(new AdditionalFeatureExtractor());
-        PipelineDocument<String> document = pipeline.process(new PipelineDocument<String>("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
+        TextDocument document = pipeline.process(new TextDocument("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
         List<Annotation<String>> tokenAnnotations = RegExTokenizer.getTokenAnnotations(document);
-        CollectionHelper.print(tokenAnnotations);
+        assertEquals(9, tokenAnnotations.size());
     }
-    
+
     @Test
     public void testGetPunctuationPercentage() {
         assertEquals(0.5, AdditionalFeatureExtractor.getPunctuationPercentage("a.a.a."), 0);
         assertEquals(0, AdditionalFeatureExtractor.getPunctuationPercentage("aaa"), 0);
         assertEquals(1, AdditionalFeatureExtractor.getPunctuationPercentage("..."), 0);
     }
-    
+
     @Test
     public void testGetDigitPercentage() {
         assertEquals(0.25, AdditionalFeatureExtractor.getDigitPercentage("abc1"), 0);
     }
-    
+
     @Test
     public void testGetUniqueCharacterPercentage() {
         assertEquals(0, AdditionalFeatureExtractor.getUniqueCharacterPercentage("a"), 0);

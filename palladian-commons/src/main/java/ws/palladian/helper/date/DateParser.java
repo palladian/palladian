@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.DateFormat;
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**

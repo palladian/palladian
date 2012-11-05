@@ -2,6 +2,7 @@ package ws.palladian.extraction;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * <p>
@@ -21,6 +25,8 @@ import ws.palladian.retrieval.DocumentRetriever;
  * @author David Urbansky
  */
 public class ListDiscovererTest {
+    
+    private final DocumentParser htmlParser = ParserFactory.createHtmlParser();
 
     @Test
     public void testEntriesUniform() {
@@ -64,45 +70,40 @@ public class ListDiscovererTest {
     // TODO
     @Test
     @Ignore
-    public void testFindEntityColumn() {
+    public void testFindEntityColumn() throws FileNotFoundException, ParserException {
         ListDiscoverer ld = new ListDiscoverer();
         Document document = null;
-        DocumentRetriever retriever = new DocumentRetriever();
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website3.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website3.html"));
         // System.out.println(ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));
         // assertEquals(2, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website5.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website5.html"));
         assertEquals(1, ld.findEntityColumn(document, "/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD/P"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website9.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website9.html"));
         assertEquals(0,
                 ld.findEntityColumn(document, "/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A/B"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website11.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website11.html"));
         assertEquals(1, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website17.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website17.html"));
         assertEquals(0, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[4]/TR/TD/UL/LI/A"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website27.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website27.html"));
         assertEquals(
                 3,
                 ld.findEntityColumn(
                         document,
                         "/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website29.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website29.html"));
         assertEquals(-1,
                 ld.findEntityColumn(document, "/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website33.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website33.html"));
         assertEquals(2,
                 ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website67.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website67.html"));
         assertEquals(2, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD/I/A"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website69.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website69.html"));
         assertEquals(3, ld.findEntityColumn(document,
                 "/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
-        document = retriever.getWebDocument("data/benchmarkSelection/entities/google8/website87.html");
+        document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website87.html"));
         assertEquals(0, ld.findEntityColumn(document, "/HTML/BODY/TABLE[3]/TR/TD/UL/LI"));
-    }
-
-    private String getTestFile(String filename) {
-        return ListDiscovererTest.class.getResource("/webPages/" + filename).getFile();
     }
 
     @Test
@@ -128,11 +129,9 @@ public class ListDiscovererTest {
      * <p>current precision': 34/44 ~ 0.7727 (correct assignment or empty path although pass expected)<br>
      *  current accuracy: 34/60 ~ 0.5667 total tests: 60</p>
      */
-    public void testDiscoverEntityXPath() {
+    public void testDiscoverEntityXPath() throws FileNotFoundException, ParserException {
 
         ListDiscoverer ld = new ListDiscoverer();
-
-        DocumentRetriever retriever = new DocumentRetriever();
 
         String url = "http://www.example.com/";
         ld.setUrl(url);
@@ -141,7 +140,7 @@ public class ListDiscovererTest {
         String discoverdEntityXPath = "";
         List<Node> nodes = null;
 
-        document = retriever.getWebDocument(getTestFile("webPageEntityList22.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/webPageEntityList22.html"));
         discoverdEntityXPath = ld.discoverEntityXPath(document);
         nodes = XPathHelper.getXhtmlNodes(document, discoverdEntityXPath);
         // System.out.println(discoverdEntityXPath);
@@ -154,7 +153,7 @@ public class ListDiscovererTest {
         assertEquals(644, nodes.size());
         assertEquals("A Beautiful Life (2008)", nodes.get(0).getTextContent());
 
-        document = retriever.getWebDocument(getTestFile("webPageEntityList21.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/webPageEntityList21.html"));
         discoverdEntityXPath = ld.discoverEntityXPath(document);
         nodes = XPathHelper.getXhtmlNodes(document, discoverdEntityXPath);
         // System.out.println(discoverdEntityXPath);
@@ -166,7 +165,7 @@ public class ListDiscovererTest {
         assertEquals(81, nodes.size());
         assertEquals("\nDiszaray", nodes.get(77).getTextContent());
 
-        document = retriever.getWebDocument(getTestFile("pagination13.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination13.html"));
         discoverdEntityXPath = ld.discoverEntityXPath(document);
         nodes = XPathHelper.getXhtmlNodes(document, discoverdEntityXPath);
         assertEquals("//center/table[7]/tbody/tr/td/table[2]/tbody/tr/td/table[6]/tbody/tr/td/table[1]/tbody/tr/td/table/tbody/tr/td[2]/font/a",
@@ -852,9 +851,7 @@ public class ListDiscovererTest {
      * <p>Test the accuracy of recognizing pagination xPaths.</p>
      * <p>Current accuracy: 17/17 = 1.0, total tests: 17</p>
      */
-    public void testGetPaginationXPath() {
-
-        DocumentRetriever retriever = new DocumentRetriever();
+    public void testGetPaginationXPath() throws FileNotFoundException, ParserException {
 
         ListDiscoverer ld = new ListDiscoverer();
         String url = "http://www.example.com/";
@@ -862,7 +859,7 @@ public class ListDiscovererTest {
 
         Document document = null;
 
-        document = retriever.getWebDocument(getTestFile("pagination15.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination15.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
@@ -872,35 +869,35 @@ public class ListDiscovererTest {
         assertEquals("//div[1]/div[3]/div[1]/div[1]/div[2]/div[1]/div[2]/div[1]/p/a/@href", ld.getPaginationXPath());
         assertEquals(26, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination14.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination14.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//table[1]/tbody/tr/td/table[1]/tbody/tr/td/div[1]/p/a/@href", ld.getPaginationXPath());
         assertEquals(25, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination13.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination13.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//center/table[7]/tbody/tr/td/table[2]/tbody/tr/td/table[3]/tbody/tr/td/font/a/@href", ld.getPaginationXPath());
         assertEquals(26, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination12.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination12.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//div[3]/div[3]/div[4]/table[1]/tbody/tr/td/a/@href", ld.getPaginationXPath());
         assertEquals(14, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination11.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination11.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//div[2]/div[6]/div[1]/ul[1]/li/a/@href", ld.getPaginationXPath());
         assertEquals(25, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination10.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination10.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
@@ -908,42 +905,42 @@ public class ListDiscovererTest {
         assertEquals("//div[1]/div[4]/div[2]/div/div[1]/div[2]/a/@href", ld.getPaginationXPath());
         assertEquals(5, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination8.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination8.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//div[2]/div[1]/div[2]/div[1]/div[1]/div[3]/ul[1]/li/a/@href", ld.getPaginationXPath());
         assertEquals(1, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination7.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination7.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//div[2]/div[3]/div[1]/div[1]/div[4]/div[5]/div[1]/div[1]/span/a/@href", ld.getPaginationXPath());
         assertEquals(2, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination6.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination6.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//div[1]/div[2]/div[2]/div[1]/div[7]/div[1]/div[1]/a/@href", ld.getPaginationXPath());
         assertEquals(6, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination5.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination5.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//table[4]/tbody/tr/td/table[1]/tbody/tr/td/table[4]/tbody/tr/td/a/@href", ld.getPaginationXPath());
         assertEquals(7, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination4.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination4.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//div[1]/div[3]/div[1]/a/@href", ld.getPaginationXPath());
         assertEquals(7, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination3.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination3.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
@@ -951,21 +948,21 @@ public class ListDiscovererTest {
                 ld.getPaginationXPath());
         assertEquals(4, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("webPageEntityList5.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/webPageEntityList5.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("", ld.getPaginationXPath());
         assertEquals(0, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination2.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination2.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
         assertEquals("//div[2]/div[7]/p/span/strong/a/@href", ld.getPaginationXPath());
         assertEquals(26, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("pagination1.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination1.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
@@ -973,7 +970,7 @@ public class ListDiscovererTest {
                 ld.getPaginationXPath());
         assertEquals(24, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("website2.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/website2.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
@@ -981,7 +978,7 @@ public class ListDiscovererTest {
                 ld.getPaginationXPath());
         assertEquals(49, ld.getPaginationURLs().size());
 
-        document = retriever.getWebDocument(getTestFile("website4.html"));
+        document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/website4.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();

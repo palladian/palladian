@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.constants.Language;
@@ -14,6 +15,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * 
  */
+@Ignore
 public class WebKnoxSearcherTest extends WebSearcherTest {
 
     private WebKnoxSearcher searcher;

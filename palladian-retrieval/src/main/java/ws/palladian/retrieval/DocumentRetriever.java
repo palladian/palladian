@@ -5,10 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.log4j.Logger;
@@ -29,6 +26,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -136,14 +134,33 @@ public class DocumentRetriever {
      * @param urls the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
-    public void getWebDocuments(Collection<String> urls, RetrieverCallback<Document> callback) {
+    public void getWebDocuments(Collection<String> urls, final RetrieverCallback<Document> callback) {
 
-        BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
+        final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < numThreads; i++) {
-            Runnable runnable = new DocumentRetrieverThread(urlQueue, callback, this);
-            threads[i] = new Thread(runnable);
+            threads[i] = new Thread() {
+                @Override
+                public void run() {
+                    // keep running, until the queue is empty
+                    while (urlQueue.size() > 0) {
+                        String url = urlQueue.poll();
+                        if (url == null) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                LOGGER.error(e);
+                            }
+                            continue;
+                        }
+                        Document document = getWebDocument(url);
+                        if (document != null) {
+                            callback.onFinishRetrieval(document);
+                        }
+                    }
+                }
+            };
             threads[i].start();
         }
 
@@ -288,13 +305,11 @@ public class DocumentRetriever {
     public String getText(String url) {
 
         String contentString = null;
-        Reader reader = null;
 
         if (downloadFilter.isAcceptedFileType(url)) {
             try {
                 if (isFile(url)) {
-                    reader = new FileReader(url);
-                    contentString = IOUtils.toString(reader);
+                    contentString = FileHelper.readFileToString(url);
                 } else {
                     HttpResult httpResult = httpRetriever.httpGet(url, globalHeaders);
                     contentString = new String(httpResult.getContent());
@@ -303,8 +318,6 @@ public class DocumentRetriever {
                 LOGGER.error(url + ", " + e.getMessage());
             } catch (Exception e) {
                 LOGGER.error(url + ", " + e.getMessage());
-            } finally {
-                IOUtils.closeQuietly(reader);
             }
         }
 
@@ -320,14 +333,32 @@ public class DocumentRetriever {
      * @param urls The URLs to download.
      * @param callback The callback to be called for each finished download.
      */
-    public void getTexts(Collection<String> urls, RetrieverCallback<String> callback) {
+    public void getTexts(Collection<String> urls, final RetrieverCallback<String> callback) {
 
-        BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
+        final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < numThreads; i++) {
-            Runnable runnable = new TextRetrieverThread(urlQueue, callback, this);
-            threads[i] = new Thread(runnable);
+            threads[i] = new Thread() {
+                @Override
+                public void run() {
+                    while (urlQueue.size() > 0) {
+                        String url = urlQueue.poll();
+                        if (url == null) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                LOGGER.error(e);
+                            }
+                            continue;
+                        }
+                        String text = getText(url);
+                        if (text != null) {
+                            callback.onFinishRetrieval(text);
+                        }
+                    }
+                }
+            };
             threads[i].start();
         }
 
@@ -411,7 +442,7 @@ public class DocumentRetriever {
             } catch (HttpException e) {
                 LOGGER.error(url + ", " + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
 

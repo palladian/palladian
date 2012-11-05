@@ -7,8 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
-
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -44,7 +43,7 @@ public abstract class BaseFeedParser implements FeedParser {
             } catch (FileNotFoundException e) {
                 throw new FeedParserException("File \"" + file + "\" not found");
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
     }

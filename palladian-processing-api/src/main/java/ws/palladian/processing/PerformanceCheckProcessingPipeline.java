@@ -20,7 +20,7 @@ public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
     private static final long serialVersionUID = 1L;
 
     /** Store cumulated processing times for each single PipelineProcessor. */
-    private HashMap<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
+    private final HashMap<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
     private long started;
 
     @Override

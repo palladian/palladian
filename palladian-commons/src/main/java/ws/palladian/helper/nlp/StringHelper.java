@@ -18,8 +18,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.RegExp;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
@@ -1687,6 +1687,38 @@ public final class StringHelper {
             return null;
         }
         return string.replaceAll("[^\u0000-\uD7FF\uE000-\uFFFF]", "");
+    }
+
+    /**
+     * <p>
+     * Trims whitespace characters from the left side of a {@code String}.
+     * </p>
+     * 
+     * @param s The {@code String} to trim.
+     * @return The trimmed {@code String}.
+     */
+    public static String ltrim(String s) {
+        int i = 0;
+        while (i < s.length() && Character.isWhitespace(s.charAt(i))) {
+            i++;
+        }
+        return s.substring(i);
+    }
+
+    /**
+     * <p>
+     * Trims whitespace characters from the right side of a {@code String}.
+     * </p>
+     * 
+     * @param s The {@code String} to trim.
+     * @return The trimmed {@code String}.
+     */
+    public static String rtrim(String s) {
+        int i = s.length() - 1;
+        while (i > 0 && Character.isWhitespace(s.charAt(i))) {
+            i--;
+        }
+        return s.substring(0, i + 1);
     }
 
     /**
