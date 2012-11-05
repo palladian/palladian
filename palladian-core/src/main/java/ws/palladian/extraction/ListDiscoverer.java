@@ -100,7 +100,6 @@ public class ListDiscoverer {
             paginationURLs = new HashSet<String>();
 
             XPathSet paginationPaths = new XPathSet();
-            PageAnalyzer pa = new PageAnalyzer();
             String[] removeCountElements = {"a", "tr", "td", "p", "span", "li"};
             List<Node> paginationCandidates = XPathHelper.getXhtmlNodes(document, "//a");
             if (paginationCandidates == null) {
@@ -117,7 +116,7 @@ public class ListDiscoverer {
                                 && StringHelper.isCompletelyUppercase(nodeText) || nodeText.toLowerCase().indexOf(
                                 "next") > -1
                                 && nodeText.length() < 8)) {
-                    paginationPaths.add(PageAnalyzer.removeXPathIndices(pa.constructXPath(currentNode),
+                    paginationPaths.add(PageAnalyzer.removeXPathIndices(PageAnalyzer.constructXPath(currentNode),
                             removeCountElements));
                 }
             }
@@ -192,7 +191,7 @@ public class ListDiscoverer {
                                * || (count == 2 && !StringHelper.trim(pa.getTextByXpath(document,
                                * paginationXPath)).equals("1,2"))
                                */) {
-                    String pathText = StringHelper.trim(pa.getTextByXPath(document, paginationXPath));
+                    String pathText = StringHelper.trim(PageAnalyzer.getTextByXPath(document, paginationXPath));
                     if (pathText.toLowerCase().indexOf("next") == -1 && !pathText.equals("1")) {
                         paginationXPath = "";
                         return paginationURLs;
@@ -333,7 +332,6 @@ public class ListDiscoverer {
     public XPathSet getXPathSet(Document document) {
         String[] listElements = {"//ul/li", "//ol/li", "//td", "//h2", "//h3", "//h4", "//h5", "//h6", "//a", "//i",
                 "//div", "//strong", "//span"};
-        PageAnalyzer pa = new PageAnalyzer();
         XPathSet xPathSet = new XPathSet();
 
         // pa.printDOM(document.getLastChild()," ");
@@ -351,7 +349,7 @@ public class ListDiscoverer {
                 String[] rcElements = {"table"}; // TODO! get more than one table?:
                 // http://www.blu-ray.com/movies/movies.php?genre=action AND
                 // http://www.nytimes.com/ref/movies/1000best.html
-                String xPath = PageAnalyzer.removeXPathIndicesNot(pa.constructXPath(currentNode), rcElements);
+                String xPath = PageAnalyzer.removeXPathIndicesNot(PageAnalyzer.constructXPath(currentNode), rcElements);
                 // System.out.println(pa.constructXPath(currentNode)+" / "+xPath);
                 xPathSet.add(xPath);
             }
@@ -377,7 +375,6 @@ public class ListDiscoverer {
 
     public String discoverEntityXPath(Document document) {
         String entityXPath = "";
-        PageAnalyzer pa = new PageAnalyzer();
 
         this.url = document.getDocumentURI();
         this.document = document;
@@ -399,7 +396,7 @@ public class ListDiscoverer {
         entityXPath = removeHtmlBody(entityXPath);
 
         // if xPath ends on td, the correct column has to be found
-        if (pa.nodeInTable(entityXPath, 6)) {
+        if (PageAnalyzer.nodeInTable(entityXPath, 6)) {
             int column = findEntityColumn(document, entityXPath);
 
             // no column is uniform, return empty xPath
@@ -442,8 +439,7 @@ public class ListDiscoverer {
     public XPathSet removeSiblingPagePaths(XPathSet xPathSet, String url, Document document) {
         XPathSet reducedXPathSet = new XPathSet();
 
-        PageAnalyzer pa = new PageAnalyzer();
-        String siblingURL = pa.getSiblingPage(document);
+        String siblingURL = PageAnalyzer.getSiblingPage(document);
         if (siblingURL.length() == 0) {
             return xPathSet;
         }
@@ -491,9 +487,9 @@ public class ListDiscoverer {
                 // reducedXPathSet.addEntry(entry);
                 // }
 
-                String text1 = pa.getTextByXPath(document, entry.getKey());
+                String text1 = PageAnalyzer.getTextByXPath(document, entry.getKey());
                 text1 = text1.substring(0, Math.min(200, text1.length()));
-                String text2 = pa.getTextByXPath(siblingDocument, entry.getKey());
+                String text2 = PageAnalyzer.getTextByXPath(siblingDocument, entry.getKey());
                 text2 = text2.substring(0, Math.min(200, text2.length()));
                 // OverlapCoefficient oc = new OverlapCoefficient();
                 StringSimilarity qg = new NGramSimilarity(3);
@@ -522,10 +518,9 @@ public class ListDiscoverer {
     public int findEntityColumn(Document document, String entityXPath) {
         int entityColumn = 0; // 0 means all columns are uniform and can be taken for extraction
 
-        PageAnalyzer pa = new PageAnalyzer();
 
         // find out how many columns the table has
-        int columnCount = pa.getNumberOfTableColumns(document, entityXPath);
+        int columnCount = PageAnalyzer.getNumberOfTableColumns(document, entityXPath);
 
         List<Integer> uniformColumns = new ArrayList<Integer>();
 
@@ -536,7 +531,7 @@ public class ListDiscoverer {
             List<String> columnEntries = new ArrayList<String>();
             List<Node> columnNodes = XPathHelper.getXhtmlNodes(document, setIndex(entityXPath, "td", i));
             List<Node> pureColumnNodes = XPathHelper.getXhtmlNodes(document,
-                    pa.getTableCellPath(setIndex(entityXPath, "td", i)));
+                    PageAnalyzer.getTableCellPath(setIndex(entityXPath, "td", i)));
             for (int j = 0; j < columnNodes.size(); j++) {
                 columnEntries.add(columnNodes.get(j).getTextContent());
             }
@@ -723,10 +718,9 @@ public class ListDiscoverer {
             System.out.println("path: " + path);
         }
 
-        PageAnalyzer pa = new PageAnalyzer();
         DocumentRetriever crawler = new DocumentRetriever();
         Document document = crawler.getWebDocument(url);
-        System.out.println(pa.getTextByXPath(document, path));
+        System.out.println(PageAnalyzer.getTextByXPath(document, path));
 
         List<Node> nodes = XPathHelper.getXhtmlNodes(document, path);
         for (Node n : nodes) {
@@ -734,7 +728,7 @@ public class ListDiscoverer {
         }
 
         ld.findPaginationURLs(url);
-        System.out.println(pa.getTextByXPath(document, ld.getPaginationXPath().replaceAll("/@href", "")));
+        System.out.println(PageAnalyzer.getTextByXPath(document, ld.getPaginationXPath().replaceAll("/@href", "")));
         System.out.println("pagination xpath: " + ld.getPaginationXPath().toLowerCase());
     }
 }
