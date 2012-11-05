@@ -82,6 +82,9 @@ public final class CooccurrenceMatrix<T> implements Serializable {
         return (double)getCount(itemA, itemB) / getNumPairs();
     }
 
+    public CountMap<UnorderedPair<T>> getPairs(){
+        return pairs;
+    }
     /**
      * <p>
      * Get the conditional probability <code>P(itemA|itemB)</code>.
