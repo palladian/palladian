@@ -21,18 +21,29 @@ import ws.palladian.helper.constants.Language;
  */
 public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
 
+    /** If true, only news are returned, that contain the search term exactly as given in their titles. */
+    private boolean onlyExactMatchesInTitle = false;
+
     /**
+     * @param apiKey The API key.
+     * @param onlyExactMatchesInTitle If true, only news are returned, that contain the search term exactly as given in
+     *            their titles.
+     * 
      * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(String)
      */
-    public WebKnoxNewsSearcher(String appId, String apiKey) {
-        super(appId, apiKey);
+    public WebKnoxNewsSearcher(String apiKey, boolean onlyExactMatchesInTitle) {
+        super(apiKey);
+        setOnlyExactMatchesInTitle(onlyExactMatchesInTitle);
     }
 
     /**
+     * @param onlyExactMatchesInTitle If true, only news are returned, that contain the search term exactly as given in
+     *            their titles.
      * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(Configuration)
      */
-    public WebKnoxNewsSearcher(Configuration configuration) {
+    public WebKnoxNewsSearcher(Configuration configuration, boolean onlyExactMatchesInTitle) {
         super(configuration);
+        setOnlyExactMatchesInTitle(onlyExactMatchesInTitle);
     }
 
     @Override
@@ -42,8 +53,14 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
         urlBuilder.append("?query=").append(UrlHelper.urlEncode(query));
         urlBuilder.append("&offset=").append(offset);
         urlBuilder.append("&numResults=").append(Math.min(count, 100));
+
+        if (isOnlyExactMatchesInTitle()) {
+            urlBuilder.append("&exactTitleMatch=true");
+        } else {
+            urlBuilder.append("&exactTitleMatch=false");
+        }
+
         urlBuilder.append("&apiKey=").append(apiKey);
-        urlBuilder.append("&appId=").append(appId);
 
         // System.out.println(urlBuilder);
 
@@ -72,8 +89,17 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
         return "WebKnox News";
     }
 
+    public boolean isOnlyExactMatchesInTitle() {
+        return onlyExactMatchesInTitle;
+    }
+
+    public void setOnlyExactMatchesInTitle(boolean onlyExactMatchesInTitle) {
+        this.onlyExactMatchesInTitle = onlyExactMatchesInTitle;
+    }
+
     // public static void main(String[] args) throws SearcherException {
-    // WebKnoxNewsSearcher webKnoxSearcher = new WebKnoxNewsSearcher(ConfigHolder.getInstance().getConfig());
+    // WebKnoxNewsSearcher webKnoxSearcher = new WebKnoxNewsSearcher(ConfigHolder.getInstance().getConfig(), true);
     // CollectionHelper.print(webKnoxSearcher.search("Nokia Lumia 920", 10));
     // }
+
 }

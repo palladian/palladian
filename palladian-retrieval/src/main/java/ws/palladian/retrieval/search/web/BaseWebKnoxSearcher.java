@@ -36,10 +36,6 @@ abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.webknox.apiKey";
 
-    /** Key of the {@link Configuration} key for the API key. */
-    public static final String CONFIG_APP_ID = "api.webknox.appId";
-
-    protected final String appId;
     protected final String apiKey;
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
@@ -49,14 +45,11 @@ abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
      * Creates a new WebKnox searcher.
      * </p>
      * 
-     * @param appId The app id for accessing WebKnox.
      * @param apiKey The api key for accessing WebKnox.
      */
-    public BaseWebKnoxSearcher(String appId, String apiKey) {
+    public BaseWebKnoxSearcher(String apiKey) {
         super();
-        Validate.notEmpty(appId, "app id must not be empty");
         Validate.notEmpty(apiKey, "api key must not be empty");
-        this.appId = appId;
         this.apiKey = apiKey;
     }
 
@@ -69,7 +62,7 @@ abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
      *            provided as string via key <tt>api.webknox.apiKey</tt> in the configuration.
      */
     public BaseWebKnoxSearcher(Configuration configuration) {
-        this(configuration.getString(CONFIG_APP_ID), configuration.getString(CONFIG_API_KEY));
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     /**
