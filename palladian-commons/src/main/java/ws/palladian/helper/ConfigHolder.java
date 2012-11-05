@@ -28,12 +28,9 @@ import ws.palladian.helper.io.ResourceHelper;
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
- * @deprecated Will be removed in future versions of Palladian.
  * 
  */
-@Deprecated
 public final class ConfigHolder {
-
     /**
      * <p>
      * Wrapper class for thread safe singleton handling. See "Effective Java", item 48.
