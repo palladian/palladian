@@ -37,6 +37,7 @@ import javax.media.jai.operator.ScaleDescriptor;
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
+import org.imgscalr.Scalr;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -161,7 +162,7 @@ public class ImageHandler {
             Collections.sort(normalizedImages, new Comparator<ExtractedImage>() {
                 @Override
                 public int compare(ExtractedImage image1, ExtractedImage image2) {
-                    return (int) (1000 * image2.getRanking() - 1000 * image1.getRanking());
+                    return (int)(1000 * image2.getRanking() - 1000 * image1.getRanking());
                 }
             });
             // CollectionHelper.print(normalizedImages);
@@ -180,6 +181,73 @@ public class ImageHandler {
         }
 
         return new String[0];
+    }
+
+    /**
+     * <p>
+     * Rescale an image to fit a in a given bounding box. The image will <b>not</b> be stretched so the rest of the box
+     * might be empty.
+     * </p>
+     * <p>
+     * Example 1: a 600x120 image is transformed to 200x40 to fit a 200x100 box.
+     * </p>
+     * <p>
+     * Example 2: a 100x400 image is transformed to 25x100 to fit a 200x100 box.
+     * </p>
+     * 
+     * @param image The buffered image which should be transformed.
+     * @param boxWidth The width of the box in which the image should be positioned.
+     * @param boxHeight The height of the box in which the image should be positioned.
+     * @return The transformed buffered image.
+     */
+    public static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight) {
+        return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, boxWidth, boxHeight, Scalr.OP_ANTIALIAS);
+    }
+
+    /**
+     * <p>
+     * Rescale an image to completely so that the image's shorter side fills the box's side. The image is then centered
+     * and everything outside of the box is cropped.
+     * </p>
+     * <p>
+     * Example 1: a 600x200 image is transformed to 300x100 to fit a 200x100 box. 50px to the left and right will be
+     * cropped (300-200/2).
+     * </p>
+     * <p>
+     * Example 2: a 100x400 image is transformed to 200x800 to fit a 200x100 box. 200px at the top and bottom will be
+     * cropped (800-400/2).
+     * </p>
+     * 
+     * @param image The buffered image which should be transformed.
+     * @param boxWidth The width of the box in which the image should be positioned.
+     * @param boxHeight The height of the box in which the image should be positioned.
+     * @return The transformed buffered image.
+     */
+    public static BufferedImage boxCrop(BufferedImage image, int boxWidth, int boxHeight) {
+
+        // scale to fill the target box completely
+        double scale = Math.max((double)boxWidth / (double)image.getWidth(), (double)boxHeight / (double)image.getHeight());
+
+        int targetWidth = (int)(image.getWidth() * scale);
+        int targetHeight = (int)(image.getHeight() * scale);
+
+        image = boxFit(image, targetWidth, targetHeight);
+
+        int iWidth = image.getWidth();
+        int iHeight = image.getHeight();
+
+        // vertically center the image in the box if the height is greater than the box height
+        double yOffset = (iHeight - boxHeight) / 2.0;
+
+        // horizontally center the image in the box if the width is greater than the box width
+        double xOffset = (iWidth - boxWidth) / 2.0;
+
+        // nothing to crop
+        if (yOffset <= 0 && xOffset <= 0) {
+            return image;
+        }
+
+        return image.getSubimage((int)xOffset, (int)yOffset, boxWidth, boxHeight);
     }
 
     public static BufferedImage rescaleImage(String imageURL, int width) {
@@ -271,6 +339,8 @@ public class ImageHandler {
 
         double scale = Math.min((double)boxWidth / (double)iWidth, (double)boxHeight / (double)iHeight);
 
+        // return Scalr.resize(bufferedImage, Scalr.Method.ULTRA_QUALITY, (int)(iWidth * scale), (int)(iHeight * scale),
+        // Scalr.OP_ANTIALIAS);
         return rescaleImage(bufferedImage, scale);
     }
 
@@ -343,15 +413,15 @@ public class ImageHandler {
         pb.add(new InterpolationBicubic(4));
         pb.add(bufferedImage);
 
-        RenderingHints qualityHints = new RenderingHints(RenderingHints.KEY_RENDERING,
+        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING,
                 RenderingHints.VALUE_RENDER_QUALITY);
 
         RenderedOp resizedImage = null;
 
         if (upscale) {
-            resizedImage = JAI.create("scale", pb, qualityHints);
+            resizedImage = JAI.create("scale", pb, qualityHints1);
         } else {
-            resizedImage = JAI.create("SubsampleAverage", pb, qualityHints);
+            resizedImage = JAI.create("SubsampleAverage", pb, qualityHints1);
         }
 
         return resizedImage.getAsBufferedImage();
@@ -365,7 +435,7 @@ public class ImageHandler {
      * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
-    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
+    private static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
 
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -396,7 +466,7 @@ public class ImageHandler {
      * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
-    public static BufferedImage rescaleImage2(BufferedImage bufferedImage, int newWidth, boolean fit) {
+    private static BufferedImage rescaleImage2(BufferedImage bufferedImage, int newWidth, boolean fit) {
 
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -431,7 +501,7 @@ public class ImageHandler {
         return renderedOp.getAsBufferedImage();
     }
 
-    public static BufferedImage rescaleImage2(BufferedImage bufferedImage, int newWidth) {
+    private static BufferedImage rescaleImage2(BufferedImage bufferedImage, int newWidth) {
         return rescaleImage2(bufferedImage, newWidth, false);
     }
 
@@ -445,7 +515,7 @@ public class ImageHandler {
      * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
-    public static BufferedImage rescaleImageSmooth(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
+    private static BufferedImage rescaleImageSmooth(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
 
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -605,7 +675,7 @@ public class ImageHandler {
         return 0.0;
     }
 
-    public static double getMeanSquareError(BufferedImage image1, BufferedImage image2) {
+    private static double getMeanSquareError(BufferedImage image1, BufferedImage image2) {
         // normalize size if not done already
         if (image1.getWidth() != image2.getWidth()) {
             image1 = rescaleImage(image1, 200);
@@ -628,7 +698,7 @@ public class ImageHandler {
         return meanSquareError;
     }
 
-    public static double getMinkowskiSimilarity(BufferedImage image1, BufferedImage image2) {
+    private static double getMinkowskiSimilarity(BufferedImage image1, BufferedImage image2) {
         // normalize size if not done already
         if (image1.getWidth() != image2.getWidth()) {
             image1 = rescaleImage(image1, 200);
@@ -654,7 +724,7 @@ public class ImageHandler {
         return 1 - meanSquareError;
     }
 
-    public static double getGrayDifference(BufferedImage image1, BufferedImage image2) {
+    private static double getGrayDifference(BufferedImage image1, BufferedImage image2) {
         // normalize size if not done already
         if (image1.getWidth() != image2.getWidth()) {
             image1 = rescaleImage(image1, 200);
@@ -774,7 +844,9 @@ public class ImageHandler {
     }
 
     /**
+     * <p>
      * Save an image to disk. This methods wraps the JAI.create method and does error handling.
+     * </p>
      * 
      * @param image The image to save.
      * @param fileType The image type (e.g. "jpg")

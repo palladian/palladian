@@ -165,6 +165,13 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.6.4</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.imgscalr</groupId>
+		    <artifactId>imgscalr-lib</artifactId>
+		    <version>4.2</version>
+		    <type>jar</type>
+		    <scope>compile</scope>
+		  </dependency>
 	</dependencies>
 </project>
 
