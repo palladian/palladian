@@ -22,8 +22,8 @@ public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebResult> {
     /**
      * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(String)
      */
-    public WebKnoxSearcher(String appId, String apiKey) {
-        super(appId, apiKey);
+    public WebKnoxSearcher(String apiKey) {
+        super(apiKey);
     }
 
     /**
@@ -41,7 +41,6 @@ public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebResult> {
         urlBuilder.append("&offset=").append(offset);
         urlBuilder.append("&numResults=").append(Math.min(count, 100));
         urlBuilder.append("&apiKey=").append(apiKey);
-        urlBuilder.append("&appId=").append(appId);
 
         // System.out.println(urlBuilder);
 
