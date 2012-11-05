@@ -41,7 +41,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
     // "https://graph.facebook.com/fql?q=SELECT+total_count,like_count,comment_count,share_count+FROM+link_stat+WHERE+";
 
     /** The id of this service. */
-    private static final String SERVICE_ID = "facebook";
+    public static final String SERVICE_ID = "facebook";
 
     /** The ranking value types of this service **/
     public static final RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
