@@ -132,10 +132,9 @@ public class XPathSet {
 
         // check whether there is text content at the specified path, otherwise move stages up until
         // text content is found or the highest count xpath is reached
-        PageAnalyzer pa = new PageAnalyzer();
         while (stages > 0) {
             // System.out.println(longestHighCountXPath+": "+pa.getTextByXpath(document, longestHighCountXPath));
-            if (StringHelper.trim(pa.getTextByXPath(document, longestHighCountXPath)).length() > 0) {
+            if (StringHelper.trim(PageAnalyzer.getTextByXPath(document, longestHighCountXPath)).length() > 0) {
                 break;
             }
             longestHighCountXPath = PageAnalyzer.getParentNode(longestHighCountXPath);

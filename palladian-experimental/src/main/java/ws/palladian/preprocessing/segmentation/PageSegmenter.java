@@ -307,8 +307,6 @@ public class PageSegmenter {
         NodeList helpList1 = document1.getFirstChild().getChildNodes();
         NodeList helpList2 = document2.getFirstChild().getChildNodes();
 
-        PageAnalyzer pa = new PageAnalyzer();
-
         for (int i = 0; i < helpList1.getLength(); i++) {
             Node n1 = helpList1.item(i);
             if (n1.getTextContent().length() == 0) {
@@ -323,7 +321,7 @@ public class PageSegmenter {
                 n2 = helpList2.item(i);
             }
 
-            String constructXPath = pa.constructXPath(n1);
+            String constructXPath = PageAnalyzer.constructXPath(n1);
 
             // delete nodename of itself from the beginning of the path
             if (constructXPath.contains("/")) {
@@ -758,7 +756,6 @@ public class PageSegmenter {
     public List<String> makeMutual(List<Segment> allSegments, int level) {
 
         List<String> xPathList = new ArrayList<String>();
-        PageAnalyzer pa2 = new PageAnalyzer();
 
         Set<String> s = new HashSet<String>();
         for (int i = 0; i < allSegments.size(); i++) {
@@ -768,7 +765,7 @@ public class PageSegmenter {
 
         for (int l = 0; l < level; l++) {
 
-            String mutual = pa2.makeMutualXPath(s);
+            String mutual = PageAnalyzer.makeMutualXPath(s);
             LOGGER.info("mutual: " + mutual);
 
             String xp = mutual;
@@ -780,7 +777,7 @@ public class PageSegmenter {
             LOGGER.info("--------------\n" + xp + "\nS.size: " + s.size() + "\n---------------");
             for (int i = 0; i < list.size(); i++) {
                 Node n = list.get(i);
-                String constructXPath = pa2.constructXPath(n);
+                String constructXPath = PageAnalyzer.constructXPath(n);
                 LOGGER.info(constructXPath);
                 xPathList.add(constructXPath);
                 s.remove(constructXPath);

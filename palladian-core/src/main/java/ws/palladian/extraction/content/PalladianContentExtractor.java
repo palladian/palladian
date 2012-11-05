@@ -92,13 +92,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             sentences = Tokenizer.getSentences(content, true);
 
             // try to find the main content in absence of HTML5 article node
-            PageAnalyzer pa = new PageAnalyzer();
-            pa.setDocument(getDocument());
             XPathSet xpathset = new XPathSet();
 
             Set<String> uniqueSentences = new HashSet<String>(sentences);
             for (String sentence : uniqueSentences) {
-                Set<String> xPaths = pa.constructAllXPaths(sentence);
+                Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
                 for (String xPath : xPaths) {
                     xPath = PageAnalyzer.removeXPathIndicesFromLastCountNode(xPath);
                     xpathset.add(xPath);
