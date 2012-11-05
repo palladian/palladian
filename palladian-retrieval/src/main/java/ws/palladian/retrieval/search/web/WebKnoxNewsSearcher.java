@@ -76,7 +76,7 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
         String publishTimestamp = currentResult.getString("timestamp");
         if (!publishTimestamp.isEmpty()) {
             try {
-                date = new Date(Long.valueOf(publishTimestamp));
+                date = new Date(Long.valueOf(publishTimestamp) * 1000);
             } catch(Exception e) {}
         }
         WebResult webResult = new WebResult(url, title, summary, date, getName());
@@ -99,7 +99,7 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
 
     // public static void main(String[] args) throws SearcherException {
     // WebKnoxNewsSearcher webKnoxSearcher = new WebKnoxNewsSearcher(ConfigHolder.getInstance().getConfig(), true);
-    // CollectionHelper.print(webKnoxSearcher.search("Nokia Lumia 920", 10));
+    // CollectionHelper.print(webKnoxSearcher.search("Apple iPhone 5", 10));
     // }
 
 }
