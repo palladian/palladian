@@ -24,7 +24,7 @@ public class WebKnoxSearcherTest extends WebSearcherTest {
     @Before
     public void setUp() {
         this.searcher = new WebKnoxSearcher(getConfig());
-        this.newsSearcher = new WebKnoxNewsSearcher(getConfig());
+        this.newsSearcher = new WebKnoxNewsSearcher(getConfig(), false);
     }
 
     @Test
