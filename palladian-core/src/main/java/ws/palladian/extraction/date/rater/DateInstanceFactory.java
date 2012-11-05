@@ -76,11 +76,11 @@ final class DateInstanceFactory {
         instanceBuilder.set("format", formatString);
         instanceBuilder.set("keyword", keyword);
         instanceBuilder.set("excatness", (double)date.getExactness().getValue());
-        instanceBuilder.set("keyLoc201", date.isKeyLoc201() ? 1.0 : 0.0);
-        instanceBuilder.set("keyLoc202", date.isKeyLoc202() ? 1.0 : 0.0);
-        instanceBuilder.set("isKeyClass1", date.isKeyClass1() ? 1.0 : 0.0);
-        instanceBuilder.set("isKeyClass2", date.isKeyClass2() ? 1.0 : 0.0);
-        instanceBuilder.set("isKeyClass3", date.isKeyClass3() ? 1.0 : 0.0);
+        instanceBuilder.set("keyLoc201", date.getKeyLoc() == 1 ? 1.0 : 0.0);
+        instanceBuilder.set("keyLoc202", date.getKeyLoc() == 2 ? 1.0 : 0.0);
+        instanceBuilder.set("isKeyClass1", date.getKeywordPriority() == 1 ? 1.0 : 0.0);
+        instanceBuilder.set("isKeyClass2", date.getKeywordPriority() == 2 ? 1.0 : 0.0);
+        instanceBuilder.set("isKeyClass3", date.getKeywordPriority() == 3 ? 1.0 : 0.0);
         return instanceBuilder.create();
 
     }

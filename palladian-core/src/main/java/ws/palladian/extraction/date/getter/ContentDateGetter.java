@@ -201,34 +201,20 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
             if (keyword != null) {
                 keyword3Class = KeyWords.getKeywordPriority(keyword) == KeyWords.OTHER_KEYWORD;
-                date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
                 date.setKeyLoc(1);
-                date.setKeyLoc201(true);
             }
 
             if (keyword == null || keyword3Class) {
                 setClosestKeyword(date, documentString, contentKeywords);
                 if (date.getKeyword() != null) {
-                    date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_CONTENT);
                     date.setKeyLoc(2);
-                    date.setKeyLoc202(true);
                     keyword = date.getKeyword();
                 }
             }
 
             if (keyword != null) {
                 date.setKeyword(keyword);
-                switch (KeyWords.getKeywordPriority(keyword)) {
-                    case 1:
-                        date.setKeyClass1(true);
-                        break;
-                    case 2:
-                        date.setKeyClass2(true);
-                        break;
-                    case 3:
-                        date.setKeyClass3(true);
-                        break;
-                }
+                date.setKeywordPriority(KeyWords.getKeywordPriority(keyword));
             }
         }
         return dates;
@@ -299,7 +285,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         if (keyword != null) {
             date.setKeyword(keyword);
             int diff = StringHelper.countWhitespaces(documentString.substring(subStart, subEnd));
-            date.set(ContentDate.DISTANCE_DATE_KEYWORD, diff);
             if (diff >= 30 || diff == -1) {
                 date.setKeyDiff(0.0);
             } else {
