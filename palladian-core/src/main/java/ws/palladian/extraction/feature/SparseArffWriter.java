@@ -32,8 +32,6 @@ import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.Port;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
@@ -74,7 +72,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when saving.
      * </p>
      */
-    private final List<FeatureDescriptor<? extends Feature<?>>> featureDescriptors;
+    private final List<String> featurePaths;
 
     /**
      * <p>
@@ -114,13 +112,10 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * </p>
      * 
      * @param fileName The name of the target ARFF file this writer should write to.
-     * @param featureDescriptors The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when
-     *            saving.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final FeatureDescriptor<? extends Feature<?>>... featureDescriptors)
-            throws IOException {
-        this(fileName, true, 1, featureDescriptors);
+    public SparseArffWriter(final String fileName, final String... featurePaths) throws IOException {
+        this(fileName, true, 1, featurePaths);
     }
 
     /**
@@ -133,13 +128,11 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param fileName The name of the target ARFF file this writer should write to.
      * @param overwrite If {@code true} overwrites the ARFF file created by this ARFF writer. If {@code false} appends
      *            new data to the created ARFF file if it already exists.
-     * @param featureDescriptors The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when
-     *            saving.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final Boolean overwrite,
-            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) throws IOException {
-        this(fileName, overwrite, 1, featureDescriptors);
+    public SparseArffWriter(final String fileName, final Boolean overwrite, final String... featurePaths)
+            throws IOException {
+        this(fileName, overwrite, 1, featurePaths);
     }
 
     /**
@@ -156,13 +149,11 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param batchSize The number of documents this ARFF writer should remember when used inside a continuous
      *            processing run, until data is written to the ARFF file. A larger {@code batchSize} reduces disk access
      *            and thus improves performance but requires more memory.
-     * @param featureDescriptors The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when
-     *            saving.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final Integer batchSize,
-            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) throws IOException {
-        this(fileName, true, batchSize, featureDescriptors);
+    public SparseArffWriter(final String fileName, final Integer batchSize, final String... featurePaths)
+            throws IOException {
+        this(fileName, true, batchSize, featurePaths);
     }
 
     /**
@@ -181,13 +172,11 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param batchSize The number of documents this ARFF writer should remember when used inside a continuous
      *            processing run, until data is written to the ARFF file. A larger {@code batchSize} reduces disk access
      *            and thus improves performance but requires more memory.
-     * @param featureDescriptors The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when
-     *            saving.
      * @throws IOException If the target file could not be initialized successfully.
      */
     public SparseArffWriter(final String fileName, final Boolean overwrite, final Integer batchSize,
-            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) throws IOException {
-        this(new File(fileName), overwrite, batchSize, featureDescriptors);
+            final String... featurePaths) throws IOException {
+        this(new File(fileName), overwrite, batchSize, featurePaths);
     }
 
     /**
@@ -206,16 +195,14 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param batchSize The number of documents this ARFF writer should remember when used inside a continuous
      *            processing run, until data is written to the ARFF file. A larger {@code batchSize} reduces disk access
      *            and thus improves performance but requires more memory.
-     * @param featureDescriptors The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when
-     *            saving.
      * @throws IOException If the target file could not be initialized successfully.
      */
     public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final Integer batchSize,
-            FeatureDescriptor<? extends Feature<?>>[] featureDescriptors) throws IOException {
+            String[] featurePaths) throws IOException {
         super(Arrays.asList(new Port<?>[] {new Port<Object>(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port<?>>());
 
         Validate.notNull(modelArffFile, "fileName must not be null");
-        Validate.notEmpty(featureDescriptors, "featureDescriptors must not be empty");
+        Validate.notEmpty(featurePaths, "featureDescriptors must not be empty");
 
         featureTypes = new BidiMap<String, Integer>();
         instances = new LinkedList<List<Pair<Integer, String>>>();
@@ -230,7 +217,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                 readExistingArffFile();
             }
         }
-        this.featureDescriptors = Arrays.asList(featureDescriptors);
+        this.featurePaths = Arrays.asList(featurePaths);
     }
 
     /**
@@ -243,13 +230,11 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param modelArffFile The name of the target ARFF file this writer should write to.
      * @param overwrite If {@code true} overwrites the ARFF file created by this ARFF writer. If {@code false} appends
      *            new data to the created ARFF file if it already exists.
-     * @param featureDescriptors The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when
-     *            saving.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final File modelArffFile, final Boolean overwrite,
-            final FeatureDescriptor<? extends Feature<?>>... featureDescriptors) throws IOException {
-        this(modelArffFile, overwrite, 1, featureDescriptors);
+    public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final String... featurePaths)
+            throws IOException {
+        this(modelArffFile, overwrite, 1, featurePaths);
     }
 
     /**
@@ -318,8 +303,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
     protected void processDocument() throws DocumentUnprocessableException {
         PipelineDocument<Object> document = getDefaultInput();
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
-        for (Feature<?> feature : document.getFeatureVector()) {
-            handleFeature(feature, newInstance);
+        for (String featurePath : featurePaths) {
+            List<? extends Feature<?>> features = document.getFeatureVector().getFeatures(featurePath);
+            handleFeature(features, newInstance);
         }
         instances.add(newInstance);
     }
@@ -400,32 +386,23 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param newInstance The instance the feature should be handled for. This is basically a {@code List} of already
      *            handled {@code Feature}s to which the current {@code Feature} is added.
      */
-    private void handleFeature(final Feature<?> feature, final List<Pair<Integer, String>> newInstance) {
-        FeatureDescriptor<?> descriptor = feature.getDescriptor();
-        if (feature instanceof AnnotationFeature) {
-            AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)feature;
-            for (Annotation<?> annotation : annotationFeature.getValue()) {
-                for (Feature<?> subFeature : annotation.getFeatureVector()) {
-                    handleFeature(subFeature, newInstance);
-                }
+    private void handleFeature(final List<? extends Feature<?>> features, final List<Pair<Integer, String>> newInstance) {
+        if (features.size() == 1) {
+            Feature<?> feature = features.get(0);
+            if (feature instanceof NumericFeature) {
+                handleNumericFeature((NumericFeature)feature, newInstance);
+                // } else if (feature instanceof AnnotationFeature) {
+                // AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)feature;
+                // handleAnnotationFeature(annotationFeature, newInstance);
+            } else if (feature instanceof BooleanFeature) {
+                handleBooleanFeature((BooleanFeature)feature, newInstance);
+            } else if (feature instanceof NominalFeature) {
+                handleNominalFeature((NominalFeature)feature, newInstance);
+            } else if (feature instanceof SequentialPattern) {
+                handleSequentialPattern((SequentialPattern)feature, newInstance);
             }
-        }
-
-        if (!featureDescriptors.contains(descriptor)) {
-            return;
-        }
-
-        if (feature instanceof NumericFeature) {
-            handleNumericFeature((NumericFeature)feature, newInstance);
-        } else if (feature instanceof AnnotationFeature) {
-            AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)feature;
-            handleAnnotationFeature(annotationFeature, newInstance);
-        } else if (feature instanceof BooleanFeature) {
-            handleBooleanFeature((BooleanFeature)feature, newInstance);
-        } else if (feature instanceof NominalFeature) {
-            handleNominalFeature((NominalFeature)feature, newInstance);
-        } else if (feature instanceof SequentialPattern) {
-            handleSequentialPatterns((SequentialPattern)feature, newInstance);
+        } else {
+            handleAnnotationFeature(features, newInstance);
         }
     }
 
@@ -439,7 +416,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param newInstance
      *            {@see #handleFeature(Feature, List)}
      */
-    private void handleSequentialPatterns(final SequentialPattern feature, final List<Pair<Integer, String>> newInstance) {
+    private void handleSequentialPattern(final SequentialPattern feature, final List<Pair<Integer, String>> newInstance) {
         String featureType = "\"" + feature.getStringValue() + "\" numeric";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
@@ -530,9 +507,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      * @param model
      * @param schema
      */
-    private void handleAnnotationFeature(AnnotationFeature<?> feature, List<Pair<Integer, String>> newInstance) {
-        for (Annotation<?> annotation : feature.getValue()) {
-            String featureType = "\"" + annotation.getValue() + "\" numeric";
+    private void handleAnnotationFeature(List<? extends Feature<?>> features, List<Pair<Integer, String>> newInstance) {
+        for (Feature<?> feature : features) {
+            String featureType = "\"" + feature.getValue() + "\" numeric";
 
             Integer featureTypeIndex = featureTypes.get(featureType);
             if (featureTypeIndex == null) {

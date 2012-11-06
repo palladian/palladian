@@ -23,15 +23,12 @@ import ws.palladian.extraction.patterns.NGramPatternExtractionStrategy;
 import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.extraction.patterns.SequentialPatternAnnotator;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
-import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -72,15 +69,10 @@ public class SequentialPatternAnnotatorTest {
         List<String> fifthPattern = new ArrayList<String>();
 
         firstPattern.addAll(Arrays.asList(new String[] {"This", "VBZ", "DT", "test"}));
-        secondPattern.addAll(Arrays.asList(new String[] {"RB", ",", "this", "VBZ", "the", "RBS", "JJ", "NN", "IN",
-                "DT", "NNP", "NN", "PRP", "''", "JJ", "RB", "VBN", "."}));
-        thirdPattern.addAll(Arrays.asList(new String[] {"PRP", "VBP", ":", "IN", "JJ", "NN", "VBZ", "DT", "NN", "NNP",
-                "NN", ":", "IN", "PRP", "RB", "VB", "JJR", "IN", "DT", "NN", "RB", "IN", "PRP", "VBZ", "VBG", "WRB",
-                "DT", "NNS", "VBP", "VBN", "."}));
-        fourthPattern.addAll(Arrays.asList(new String[] {"PRP", "MD", "VB", "TO", "NN", "DT", "NNP", "NN", "CC", "RB",
-                "VB", "PRP", "IN", "DT", "NN", "PRP", "VBP", "."}));
-        fifthPattern.addAll(Arrays.asList(new String[] {"JJ", "NN", "VBZ", "DT", "JJS", "IN", "PRP$", "NNS", "RB",
-                "RB", ":"}));
+        secondPattern.addAll(Arrays.asList(new String[] {"RB", ",", "this", "VBZ"}));
+        thirdPattern.addAll(Arrays.asList(new String[] {"PRP", "VBP", ":", "IN"}));
+        fourthPattern.addAll(Arrays.asList(new String[] {"PRP", "MD", "VB", "TO"}));
+        fifthPattern.addAll(Arrays.asList(new String[] {"JJ", "NN", "VBZ", "DT"}));
 
         firstExtractedPatterns.add(new SequentialPattern("firstPattern", firstPattern));
         secondExtractedPatterns.add(new SequentialPattern("secondPattern", secondPattern));
@@ -209,33 +201,26 @@ public class SequentialPatternAnnotatorTest {
                                 thirdExtractedPatterns, thirdRunNGrams});
     }
 
-    
-    //
-    // FIXME doesn't compile
-    //
-    
     // TODO since the LSP algorithm is so slow this test should not run regularly.
-//    @Test
-//    @Ignore
-//    public final void testWithLSPExtractionStrategy() throws Exception {
-//        ProcessingPipeline processingPipeline = new ProcessingPipeline();
-//        processingPipeline.add(new PalladianSentenceDetector());
-//        processingPipeline.add(new RegExTokenizer());
-//        processingPipeline.add(new OpenNlpPosTagger(ResourceHelper.getResourceFile("/model/en-pos-maxent.bin")));
-//        processingPipeline.add(new SequentialPatternAnnotator(keywords, 1, 4,
-//                new LabeledSequentialPatternExtractionStrategy()));
-//
-//        TextDocument document = new TextDocument(inputText);
-//
-//        processingPipeline.process(document);
-//
-//        for (Annotation<String> annotation : document.getFeatureVector()
-//                .get(AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR).getValue()) {
-//            SequentialPattern lsp = annotation.getFeature(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR)
-//                    .getValue().get(0);
-//            Assert.assertThat(lsp, Matchers.isIn(expectedPatterns));
-//        }
-//    }
+    @Test
+    @Ignore
+    public final void testWithLSPExtractionStrategy() throws Exception {
+        ProcessingPipeline processingPipeline = new ProcessingPipeline();
+        processingPipeline.add(new PalladianSentenceDetector());
+        processingPipeline.add(new RegExTokenizer());
+        processingPipeline.add(new OpenNlpPosTagger(ResourceHelper.getResourceFile("/model/en-pos-maxent.bin")));
+        processingPipeline.add(new SequentialPatternAnnotator(keywords, 1, 4,
+                new LabeledSequentialPatternExtractionStrategy()));
+
+        TextDocument document = new TextDocument(inputText);
+
+        processingPipeline.process(document);
+        List<SequentialPattern> patterns = document.getFeatureVector().getFeatures(SequentialPattern.class,
+                "ws.palladian.features.sentence/lsp");
+        for (SequentialPattern pattern : expectedPatterns) {
+            Assert.assertThat(pattern, Matchers.isIn(patterns));
+        }
+    }
 
     @Test
     public void testWithNGramExtractionStrategy() throws FileNotFoundException, DocumentUnprocessableException {
@@ -252,14 +237,6 @@ public class SequentialPatternAnnotatorTest {
 
         List<SequentialPattern> extractedPatterns = document.getFeatureVector().getFeatures(SequentialPattern.class,
                 "ws.palladian.features.sentence/lsp");
-        // for (Annotation<String> annotation : document.getFeatureVector()
-        // .get(AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR).getValue()) {
-        // SequentialPatternsFeature patternsFeature = annotation
-        // .getFeature(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
-        // for (SequentialPattern pattern : patternsFeature.getValue()) {
-        // extractedPatterns.add(pattern);
-        // }
-        // }
         Assert.assertThat(extractedPatterns,
                 Matchers.hasItems(expectedNGramPatterns.toArray(new SequentialPattern[expectedNGramPatterns.size()])));
     }

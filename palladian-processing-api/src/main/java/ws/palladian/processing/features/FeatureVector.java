@@ -246,6 +246,31 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return collectedFeatures;
     }
 
+    public List<? extends Feature<?>> getFeatures(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        String[] pathElements = path.split("/");
+        // System.out.println(Arrays.toString(pathElements));
+        List<Feature<?>> collectedFeatures = new LinkedList<Feature<?>>();
+
+        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
+        if (selectedFeatures != null) {
+
+            for (Feature<?> selectedFeature : selectedFeatures) {
+                if (selectedFeature instanceof AnnotationFeature) {
+                    collectedFeatures.addAll(((AnnotationFeature)selectedFeature).getFeatures(path.substring(path
+                            .indexOf("/") + 1)));
+                } else {
+                    collectedFeatures.add(selectedFeature);
+                }
+            }
+        }
+
+        return collectedFeatures;
+    }
+
     public List<? extends Feature<?>> getFeatures() {
         List<Feature<?>> ret = new ArrayList<Feature<?>>();
         for (Entry<String, List<Feature<?>>> entry : features.entrySet()) {
