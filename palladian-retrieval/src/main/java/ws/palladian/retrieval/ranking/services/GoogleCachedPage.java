@@ -28,14 +28,14 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
     private static final Logger LOGGER = Logger.getLogger(GoogleCachedPage.class);
 
     /** The id of this service. */
-    private static final String SERVICE_ID = "googleindexed";
+    private static final String SERVICE_ID = "Google Cache";
 
     /** The ranking value types of this service **/
-    public static final RankingType GOOGLEINDEXED = new RankingType("googleindexed", "Google Indexed",
+    public static final RankingType GOOGLE_CACHED = new RankingType("googlecached", "Google Indexed",
             "Whether the page is in Google's Cache");
 
     /** All available ranking types by {@link GoogleCachedPage}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(GOOGLEINDEXED);
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(GOOGLE_CACHED);
 
     /** Fields to check the service availability. */
     private long sleepTime = TimeUnit.SECONDS.toMillis(10);
@@ -86,7 +86,7 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
             LOGGER.error(e.getMessage());
         }
 
-        results.put(GOOGLEINDEXED, (float)indexed);
+        results.put(GOOGLE_CACHED, (float)indexed);
         return ranking;
     }
 
@@ -134,7 +134,7 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
 
         ranking = gpl.getRanking("http://webknox.com/p/best-funny-comic-strips");
         System.out.println(ranking);
-        System.out.println(ranking.getValues().get(GoogleCachedPage.GOOGLEINDEXED) + " -> indexed");
+        System.out.println(ranking.getValues().get(GoogleCachedPage.GOOGLE_CACHED) + " -> indexed");
     }
 
 }
