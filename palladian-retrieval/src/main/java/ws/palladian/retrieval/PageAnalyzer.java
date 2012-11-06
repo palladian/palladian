@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -430,6 +431,48 @@ public final class PageAnalyzer {
 
         // Logger.getInstance().log("constructed xpath: "+xpath.toLowerCase(),false);
         return xpath;
+    }
+    
+    /**
+     * <p>
+     * Constructs an XPath with id and class attributes for the supplied {@link Node}, like
+     * <code>/html/body/div#cnnContainer/div.cnn_maincntnr/div.cnn_contentarea</code>.
+     * </p>
+     * 
+     * @param node The start node, not <code>null</code>.
+     * @return The string of the constructed XPath.
+     */
+    public static String constructIdClassXPath(Node node) {
+        Validate.notNull(node, "node must not be null");
+        
+        StringBuilder result = new StringBuilder();
+        while (node != null) {
+            StringBuilder current = new StringBuilder();
+            String nodeName = node.getNodeName();
+            if (nodeName.equals("#document")) {
+                break;
+            }
+            current.append(nodeName);
+            if (node.getAttributes() != null) {
+                Node idAttributes = node.getAttributes().getNamedItem("id");
+                if (idAttributes != null) {
+                    String idValues = idAttributes.getNodeValue();
+                    for (String id : idValues.split("\\s")) {
+                        current.append('#').append(id);
+                    }
+                }
+                Node classAttributes = node.getAttributes().getNamedItem("class");
+                if (classAttributes != null) {
+                    String classValues = classAttributes.getNodeValue();
+                    for (String classValue : classValues.split("\\s")) {
+                        current.append('.').append(classValue);
+                    }
+                }
+            }
+            result.append(StringHelper.reverseString(current.toString())).append('/');
+            node = node.getParentNode();
+        }
+        return StringHelper.reverseString(result.toString());
     }
 
     /**
