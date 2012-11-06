@@ -387,7 +387,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
                 instanceCounter++;
             }
         } finally {
-            FileHelper.close(arffFileStream, writer);
+            FileHelper.close(writer, arffFileStream);
         }
     }
 
