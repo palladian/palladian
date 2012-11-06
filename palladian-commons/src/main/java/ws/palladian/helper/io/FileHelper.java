@@ -1718,7 +1718,7 @@ public final class FileHelper {
                 try {
                     closeable.close();
                 } catch (IOException e) {
-                    LOGGER.error(e);
+                    LOGGER.error("Error closing " + closeable + ": " + e);
                 }
             }
         }
