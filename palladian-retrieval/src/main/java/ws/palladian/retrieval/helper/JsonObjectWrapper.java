@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.helper;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -19,6 +20,15 @@ public class JsonObjectWrapper {
     public JsonObjectWrapper(JSONObject jsonObject) {
         super();
         this.jsonObject = jsonObject;
+    }
+
+    public JsonObjectWrapper(String jsonString) {
+        super();
+        try {
+            this.jsonObject = new JSONObject(jsonString);
+        } catch (JSONException e) {
+            this.jsonObject = new JSONObject();
+        }
     }
 
     public JSONObject getJsonObject() {
@@ -101,11 +111,11 @@ public class JsonObjectWrapper {
         return result;
     }
 
-    public JSONObject getJSONObject(String key) {
-        JSONObject result = null;
+    public JsonObjectWrapper getJSONObject(String key) {
+        JsonObjectWrapper result = null;
         if (jsonObject.has(key)) {
             try {
-                result = jsonObject.getJSONObject(key);
+                result = new JsonObjectWrapper(jsonObject.getJSONObject(key));
             } catch (Exception e) {
             }
         }
