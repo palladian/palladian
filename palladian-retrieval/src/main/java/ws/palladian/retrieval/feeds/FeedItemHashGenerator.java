@@ -29,8 +29,8 @@ public abstract class FeedItemHashGenerator {
 
             StringBuilder hash = new StringBuilder();
             hash.append(feedItem.getTitle());
-            hash.append(UrlHelper.removeSessionId(feedItem.getLink(), false));
-            hash.append(UrlHelper.removeSessionId(feedItem.getRawId(), true));
+            hash.append(UrlHelper.removeSessionId(feedItem.getLink()));
+            hash.append(UrlHelper.removeSessionId(feedItem.getRawId()));
             // if (getFeed().getActivityPattern() != FeedClassifier.CLASS_UNKNOWN
             // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
             // hash.append(getPublished().toString());

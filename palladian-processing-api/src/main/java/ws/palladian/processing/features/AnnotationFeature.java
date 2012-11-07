@@ -1,6 +1,7 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ws.palladian.processing.PipelineDocument;
@@ -146,6 +147,16 @@ public abstract class AnnotationFeature<T> extends ListFeature<Annotation<T>> {
             sb.append(annotations.get(i).getValue());
         }
         return sb.toString();
+    }
+
+    public Collection<? extends Feature<?>> getFeatures(String path) {
+        List<Feature<?>> features = new ArrayList<Feature<?>>();
+        for (Annotation<T> current : getValue()) {
+            List<? extends Feature<?>> selectedFeatures = current.getFeatureVector().getFeatures(path);
+            features.addAll(selectedFeatures);
+        }
+
+        return features;
     }
 
 }
