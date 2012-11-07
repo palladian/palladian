@@ -36,6 +36,7 @@ import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ScaleDescriptor;
 import javax.swing.ImageIcon;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.imgscalr.Scalr;
 
@@ -201,6 +202,7 @@ public class ImageHandler {
      * @return The transformed buffered image.
      */
     public static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight) {
+        Validate.notNull(image);
         return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, boxWidth, boxHeight, Scalr.OP_ANTIALIAS);
     }
 
@@ -224,6 +226,8 @@ public class ImageHandler {
      * @return The transformed buffered image.
      */
     public static BufferedImage boxCrop(BufferedImage image, int boxWidth, int boxHeight) {
+
+        Validate.notNull(image);
 
         // scale to fill the target box completely
         double scale = Math.max((double)boxWidth / (double)image.getWidth(), (double)boxHeight / (double)image.getHeight());
