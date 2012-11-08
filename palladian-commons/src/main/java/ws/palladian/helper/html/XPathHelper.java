@@ -3,12 +3,10 @@ package ws.palladian.helper.html;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.xml.namespace.NamespaceContext;
@@ -580,7 +578,7 @@ public final class XPathHelper {
         
         List<String> xPathParts = new ArrayList<String>();
         StringBuilder buf = new StringBuilder();
-        Set<Character> split = new HashSet<Character>(Arrays.asList('/', ' ', '[', ']'));
+        List<Character> split = Arrays.asList('/', ' ', '[', ']', '|');
 
         for (int i = 0; i < xPath.length(); i++) {
             char currentChar = xPath.charAt(i);
