@@ -1,6 +1,6 @@
 package ws.palladian.extraction.content;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,99 +13,52 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.nlp.LevenshteinSimilarity;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.helper.nlp.StringSimilarity;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
- * Evaluates two page content extraction techniques:
- * 
- * 
- * 2) PageContentExtractor from Palladian which was ported from Readability available from
- * http://lab.arc90.com/experiments/readability
- * 
- * We use the data set which is provided by the authors of Boilerpipe and available on the project's web page. It
+ * <p>
+ * Evaluates different {@link WebPageContentExtractor}s. The data set is provided by the authors of Boilerpipe. It
  * contains 621 web pages where humans manually annotated relevant content areas. For the evaluation we compare the data
- * from the data set which the extracted text by Boilerpipe and PageContentExtractor. Therefore we use the Levenshtein
- * similarity, the higher the similarity, the better the extraction result, obviously.
+ * from the data set which the extracted text using the Levenshtein similarity; the higher the similarity, the better
+ * the extraction result, obviously.
+ * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class ContentExtractionEvaluation {
+public final class ContentExtractionEvaluation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ContentExtractionEvaluation.class);
-
-    public static void main(String[] args) {
-
-        String datasetPath = "";
-        ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation(datasetPath);
-
-        // extractors to evaluate
-        evaluation.addExtractor(new BoilerpipeContentExtractor());
-        evaluation.addExtractor(new ReadabilityContentExtractor());
-        evaluation.addExtractor(new PalladianContentExtractor());
-
-        // String text = evaluation.getRealText("ec407a8c-7d1b-4485-816d-39a1887f84b3");
-        // text = normalizeString(text);
-        // System.out.println(text);
-        //
-        // System.exit(0);
-
-        // ////////////////////////////////////////////////////////////////////////////////
-
-        Map<String, String> dataset = evaluation.readIndexFile();
-        evaluation.setMainContentOnly(true);
-        String result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv", result);
-
-        System.exit(0);
-
-        evaluation.setMainContentOnly(false);
-        result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainAndUserContent.tsv", result);
-    }
-
-    /**
-     * Normalizes the supplied string by stripping new lines, multiple white spaces. Also protected white space
-     * characters are removed, as they cause trouble in conjunction with Simmetrics library.
-     * 
-     * @param input
-     * @return
-     */
-    public static String normalizeString(String input) {
-
-        input = StringHelper.replaceProtectedSpace(input);
-        input = input.replace("\n", " ");
-        input = input.replaceAll(" {2,}", " ");
-        return input;
-
-    }
-
-    /** Base path with the evaluation data set. */
-    private final String datasetPath;
-
-    /** Use the Crawler to retrieve documents. */
-    private DocumentRetriever crawler = new DocumentRetriever();
-
-    private List<WebPageContentExtractor> extractors = new ArrayList<WebPageContentExtractor>();
 
     /**
      * Whether only a comparison of the main content block should be done. If false, also user generated content is
      * compared.
      */
-    private boolean mainContentOnly = true;
-
-    public ContentExtractionEvaluation(String datasetPath) {
-        this.datasetPath = datasetPath;
+    private final Mode mode;
+    
+    public static enum Mode {
+        MAIN_CONTENT, WHOLE_CONTENT
     }
-
-    public void addExtractor(WebPageContentExtractor extractor) {
-        this.extractors.add(extractor);
+    
+    /** Base path with the evaluation data set. */
+    private final String datasetPath;
+    
+    private final List<WebPageContentExtractor> extractors;
+    
+    public ContentExtractionEvaluation(String datasetPath, Mode mode, List<WebPageContentExtractor> extractors) {
+        this.datasetPath = datasetPath;
+        this.mode = mode;
+        this.extractors = extractors;
     }
 
     /**
@@ -188,20 +141,11 @@ public class ContentExtractionEvaluation {
         return sb.toString();
     }
 
-    /**
-     * Return:<br>
-     * 
-     * float[0] -> Boilerplate score<br>
-     * float[1] -> Palladian score<br>
-     * 
-     * @param uuid
-     * @return
-     */
     private LinkedHashMap<WebPageContentExtractor, Float> evaluate(String uuid) {
 
         LinkedHashMap<WebPageContentExtractor, Float> result = new LinkedHashMap<WebPageContentExtractor, Float>();
         String realText = getRealText(uuid);
-        String testDataPath = datasetPath + "original/" + uuid + ".html";
+        String testDataPath = datasetPath + "/original/" + uuid + ".html";
 
         for (WebPageContentExtractor extractor : extractors) {
 
@@ -209,7 +153,7 @@ public class ContentExtractionEvaluation {
 
             try {
                 String resultText = extractor.setDocument(testDataPath).getResultText();
-                score = getScore(realText, resultText);
+                score = (float) getScore(realText, resultText);
             } catch (Exception e) {
                 // ignore. show error in results.
             }
@@ -227,14 +171,20 @@ public class ContentExtractionEvaluation {
         StringBuilder sb = new StringBuilder();
 
         // get the manually annotated document from the data set
-        Document annotatedDocument = crawler.getWebDocument(datasetPath + "annotated/" + uuid + ".html");
+        String fileName = datasetPath + "/annotated/" + uuid + ".html";
+        Document annotatedDocument = null;
+        try {
+            annotatedDocument = ParserFactory.createHtmlParser().parse(new File(fileName));
+        } catch (ParserException e) {
+            LOGGER.warn("Error parsing " + fileName);
+        }
 
         if (annotatedDocument != null) {
 
             // get the real content data, which is wrapped in <SPAN> tags with class 'x-nc-sel2' and the additional user
             // data from tags with 'x-nc-sel5'
             String xPath;
-            if (isMainContentOnly()) {
+            if (mode == Mode.MAIN_CONTENT) {
                 xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2']";
             } else {
                 xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2' or ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel5']";
@@ -257,7 +207,7 @@ public class ContentExtractionEvaluation {
      * @param extracted The extracted text.
      * @return The similarity score between the two texts.
      */
-    private float getScore(String real, String extracted) {
+    private double getScore(String real, String extracted) {
 
         real = normalizeString(real);
         extracted = normalizeString(extracted);
@@ -265,11 +215,8 @@ public class ContentExtractionEvaluation {
         // getting StackOverflow for Simmetrics, use StringUtils instead.
         // return similarityMetric.getSimilarity(real, extracted);
 
-        return StringHelper.getLevenshteinSim(real, extracted);
-    }
-
-    public boolean isMainContentOnly() {
-        return mainContentOnly;
+        StringSimilarity similarity = new LevenshteinSimilarity();
+        return similarity.getSimilarity(real, extracted);
     }
 
     /**
@@ -301,9 +248,41 @@ public class ContentExtractionEvaluation {
         return data;
 
     }
+    
+    /**
+     * Normalizes the supplied string by stripping new lines, multiple white spaces. Also protected white space
+     * characters are removed, as they cause trouble in conjunction with Simmetrics library.
+     * 
+     * @param input
+     * @return
+     */
+    private static String normalizeString(String input) {
+        input = StringHelper.replaceProtectedSpace(input);
+        input = input.replace("\n", " ");
+        return input.replaceAll(" {2,}", " ");
+    }
+    
+    public static void main(String[] args) {
 
-    public void setMainContentOnly(boolean mainContentOnly) {
-        this.mainContentOnly = mainContentOnly;
+        List<WebPageContentExtractor> extractors = CollectionHelper.newArrayList();
+        // extractors to evaluate
+//        extractors.add(new BoilerpipeContentExtractor());
+//        extractors.add(new ReadabilityContentExtractor());
+//        extractors.add(new PalladianContentExtractor());
+        extractors.add(new NewsseecrContentExtractor());
+        
+        String datasetPath = "/Users/pk/Desktop/L3S-GN1-20100130203947-00001";
+
+        // ////////////////////////////////////////////////////////////////////////////////
+
+        ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation(datasetPath, Mode.MAIN_CONTENT, extractors);
+        Map<String, String> dataset = evaluation.readIndexFile();
+        String result = evaluation.evaluate(dataset);
+        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv", result);
+
+        evaluation = new ContentExtractionEvaluation(datasetPath, Mode.WHOLE_CONTENT, extractors);
+        result = evaluation.evaluate(dataset);
+        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainAndUserContent.tsv", result);
     }
 
 }
