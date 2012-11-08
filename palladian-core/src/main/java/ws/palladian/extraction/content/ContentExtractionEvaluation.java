@@ -266,10 +266,9 @@ public final class ContentExtractionEvaluation {
 
         List<WebPageContentExtractor> extractors = CollectionHelper.newArrayList();
         // extractors to evaluate
-//        extractors.add(new BoilerpipeContentExtractor());
-//        extractors.add(new ReadabilityContentExtractor());
-//        extractors.add(new PalladianContentExtractor());
-        extractors.add(new NewsseecrContentExtractor());
+        extractors.add(new BoilerpipeContentExtractor());
+        extractors.add(new ReadabilityContentExtractor());
+        extractors.add(new PalladianContentExtractor());
         
         String datasetPath = "/Users/pk/Desktop/L3S-GN1-20100130203947-00001";
 
