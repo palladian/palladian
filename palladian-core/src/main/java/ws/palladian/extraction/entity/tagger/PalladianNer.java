@@ -95,7 +95,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianNer.class);
 
-    /** The serial vesion id. */
+    /** The serial version id. */
     private static final long serialVersionUID = -8793232373094322955L;
 
     private transient PalladianTextClassifier textClassifier;
@@ -369,11 +369,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
-        if (languageMode.equals(LanguageMode.English)) {
-            return trainEnglish(trainingFilePath, modelFilePath);
-        } else {
-            return trainLanguageIndependent(trainingFilePath, modelFilePath);
-        }
+        return train(trainingFilePath, new Annotations(), modelFilePath);
     }
 
     /**
@@ -393,8 +389,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         for (Annotation annotation : annotations) {
             addToEntityDictionary(annotation);
         }
-
-        return train(trainingFilePath, modelFilePath);
+        
+        if (languageMode.equals(LanguageMode.English)) {
+            return trainEnglish(trainingFilePath, modelFilePath, annotations);
+        } else {
+            return trainLanguageIndependent(trainingFilePath, modelFilePath);
+        }
     }
 
     /**
@@ -583,7 +583,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     private boolean hasAssignedType(CategoryEntries ces) {
-        return !ces.getMostLikelyCategoryEntry().getName().equalsIgnoreCase(NO_ENTITY);
+        CategoryEntry mostLikelyCategoryEntry = ces.getMostLikelyCategoryEntry();
+        if (mostLikelyCategoryEntry == null) {
+            return false;
+        }
+        return !mostLikelyCategoryEntry.getName().equalsIgnoreCase(NO_ENTITY);
     }
 
     /**
@@ -834,7 +838,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             stopWatch.start();
 
             for (Annotation annotation : annotations) {
-
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
                 if (categoryEntries != null && categoryEntries.size() > 0) {
                     annotation.setTags(categoryEntries);
