@@ -3,12 +3,10 @@ package ws.palladian.helper.html;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.xml.namespace.NamespaceContext;
@@ -23,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -184,12 +184,8 @@ public final class XPathHelper {
     public static Node getNode(Node node, String xPath, Map<String, String> namespaces) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
-        Node targetNode = null;
         List<Node> nodeList = getNodes(node, xPath, namespaces);
-        if (nodeList.iterator().hasNext()) {
-            targetNode = nodeList.iterator().next();
-        }
-        return targetNode;
+        return CollectionHelper.getFirst(nodeList);
     }
 
     /**
@@ -329,11 +325,7 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
         List<Node> childNodes = getChildNodes(node, xPath);
-        Node childNode = null;
-        if (childNodes.iterator().hasNext()) {
-            childNode = childNodes.iterator().next();
-        }
-        return childNode;
+        return CollectionHelper.getFirst(childNodes);
     }
 
     /**
@@ -499,12 +491,7 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
         List<Node> childNodes = getXhtmlChildNodes(node, xPath);
-        Node childNode = null;
-        Iterator<Node> iterator = childNodes.iterator();
-        if (iterator.hasNext()) {
-            childNode = iterator.next();
-        }
-        return childNode;
+        return CollectionHelper.getFirst(childNodes);
     }
 
     /**
@@ -580,7 +567,7 @@ public final class XPathHelper {
         
         List<String> xPathParts = new ArrayList<String>();
         StringBuilder buf = new StringBuilder();
-        Set<Character> split = new HashSet<Character>(Arrays.asList('/', ' ', '[', ']'));
+        List<Character> split = Arrays.asList('/', ' ', '[', ']', '|');
 
         for (int i = 0; i < xPath.length(); i++) {
             char currentChar = xPath.charAt(i);
