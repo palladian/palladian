@@ -48,7 +48,9 @@ public class XPathHelperTest {
         assertEquals(
                 "//xhtml:link[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and (translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]", 
                 XPathHelper.addXhtmlNsToXPath("//link[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and (translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]"));
-
+        
+        assertEquals("//xhtml:div|//xhtml:p", XPathHelper.addXhtmlNsToXPath("//div|//p"));
+        assertEquals("//xhtml:div/xhtml:a|//xhtml:p/xhtml:a", XPathHelper.addXhtmlNsToXPath("//div/a|//p/a"));
     }
 
     @Test

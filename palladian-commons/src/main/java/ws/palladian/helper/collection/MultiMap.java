@@ -22,12 +22,23 @@ public class MultiMap<K, V> implements Map<K, List<V>> {
     private final Map<K, List<V>> map;
 
     /**
+     * <p>
+     * Convenience constructor which allows omitting the redundant type parameters.
+     * </p>
+     * 
+     * @return A new instance of MultiMap.
+     */
+    public static <K, V> MultiMap<K, V> create() {
+        return new MultiMap<K, V>();
+    }
+
+    /**
      * @param map
      */
     public MultiMap() {
         this.map = new HashMap<K, List<V>>();
     }
-    
+
     // java.Util.Map API
 
     /**
@@ -162,9 +173,9 @@ public class MultiMap<K, V> implements Map<K, List<V>> {
     public Collection<List<V>> values() {
         return map.values();
     }
-    
+
     // MultiMap specific API
-    
+
     public void add(K key, V value) {
         List<V> values = map.get(key);
         if (values == null) {
@@ -173,7 +184,7 @@ public class MultiMap<K, V> implements Map<K, List<V>> {
         }
         values.add(value);
     }
-    
+
     public List<V> allValues() {
         List<V> values = new ArrayList<V>();
         for (List<V> value : map.values()) {
