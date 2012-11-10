@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 import ws.palladian.retrieval.ranking.Ranking;
@@ -98,7 +97,7 @@ public final class Foursquare extends BaseRankingService implements RankingServi
             likes = venue.getJSONObject("likes").getDouble("count");
             
 
-        } catch (HttpException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
 
@@ -139,7 +138,7 @@ public final class Foursquare extends BaseRankingService implements RankingServi
         Foursquare gpl = new Foursquare(ConfigHolder.getInstance().getConfig());
         Ranking ranking = null;
 
-        ranking = gpl.getRanking("4fb78f37e4b0ef4941436a1e");
+        ranking = gpl.getRanking("4d5314d8169bcbff48131cf9");
         System.out.println(ranking);
         System.out.println(ranking.getValues().get(Foursquare.FOURSQUARE_CHECKINS) + " -> Foursquare checkins");
         System.out.println(ranking.getValues().get(Foursquare.FOURSQUARE_LIKES) + " -> Foursquare likes");
