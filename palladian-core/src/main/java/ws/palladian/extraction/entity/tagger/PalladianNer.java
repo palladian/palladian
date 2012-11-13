@@ -2,6 +2,7 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -95,7 +96,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianNer.class);
 
-    /** The serial vesion id. */
+    /** The serial version id. */
     private static final long serialVersionUID = -8793232373094322955L;
 
     private transient PalladianTextClassifier textClassifier;
@@ -103,6 +104,9 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     /** This dictionary contains the entity terms as they are. */
     private DictionaryModel entityDictionary;
     
+    /** A list containing the order of likelihood of the concepts. */
+    private List<String> conceptLikelihoodOrder = new ArrayList<String>();
+
     /** This dictionary contains the n-grams of the entity terms, create by the text classifier. */
     private DictionaryModel annotationModel;
     
@@ -199,6 +203,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         textClassifier = new PalladianTextClassifier();
 
+        conceptLikelihoodOrder = CollectionHelper.newArrayList();
+
         // with entity 2-8 and context 4-7: 173MB model
         // precision MUC: 79.93%, recall MUC: 85.55%, F1 MUC: 82.64%
         // precision exact: 70.66%, recall exact: 75.63%, F1 exact: 73.06%
@@ -257,6 +263,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // assign all properties from the loaded model to the current instance
         this.entityDictionary = n.entityDictionary;
+        this.conceptLikelihoodOrder = n.conceptLikelihoodOrder;
         this.annotationModel = n.annotationModel;
         this.caseDictionary = n.caseDictionary;
         this.leftContextMap = n.leftContextMap;
@@ -303,6 +310,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         }
 
         PalladianNer tagger = (PalladianNer) FileHelper.deserialize(modelPath);
+        tagger.textClassifier = new PalladianTextClassifier();
         LOGGER.info("loaded tagger successfully in " + stopWatch.getElapsedTimeString());
 
         return tagger;
@@ -348,7 +356,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      * @param annotation The complete annotation from the training data.
      */
     private void addToEntityDictionary(Annotation annotation) {
-        entityDictionary.updateTerm(annotation.getEntity(), annotation.getTargetClass());
+        addToEntityDictionary(annotation.getEntity(), annotation.getTargetClass());
+    }
+
+    private void addToEntityDictionary(String entity, String concept) {
+        entityDictionary.updateTerm(entity, concept);
     }
 
     /**
@@ -369,11 +381,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
-        if (languageMode.equals(LanguageMode.English)) {
-            return trainEnglish(trainingFilePath, modelFilePath);
-        } else {
-            return trainLanguageIndependent(trainingFilePath, modelFilePath);
-        }
+        return train(trainingFilePath, new Annotations(), modelFilePath);
     }
 
     /**
@@ -393,8 +401,69 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         for (Annotation annotation : annotations) {
             addToEntityDictionary(annotation);
         }
+        
+        if (languageMode.equals(LanguageMode.English)) {
+            return trainEnglish(trainingFilePath, modelFilePath, annotations);
+        } else {
+            return trainLanguageIndependent(trainingFilePath, modelFilePath);
+        }
+    }
 
-        return train(trainingFilePath, modelFilePath);
+    /**
+     * <p>
+     * Replace the trained entity dictionary with the one from the file. The file must contain a header with information
+     * about the concept importance as follows:
+     * </p>
+     * 
+     * <pre>
+     * CONCEPT1>CONCEPT2>CONCEPT3>CONCEPT4>CONCEPT5>...
+     * per>org>country>city>loc
+     * </pre>
+     * 
+     * <p>
+     * The concept importance is used when a candidate is ambiguous. For example, "Buddha" is usually used to refer to
+     * the person but it is also the name of a city. Increasing the importance of the person concept above the city
+     * concept we can make sure it will not be tagged incorrectly.
+     * </p>
+     * 
+     * <p>
+     * All subsequent lines must contain one entity and concept in the following format:
+     * </p>
+     * 
+     * <pre>
+     *   CONCEPT###ENTITY
+     *   City###Dresden
+     * </pre>
+     * 
+     * @param filePath The path to the dictionary file.
+     */
+    public void setEntityDictionary(String filePath) {
+        this.entityDictionary = new DictionaryModel(null);
+
+        StopWatch stopWatch = new StopWatch();
+        List<String> dictionaryEntries = FileHelper.readFileToArray(filePath);
+
+        int i = 1;
+        for (String dictionaryEntry : dictionaryEntries) {
+
+            // fill the likelihood list
+            if (i == 1) {
+                conceptLikelihoodOrder = CollectionHelper.newArrayList();
+                conceptLikelihoodOrder.addAll(Arrays.asList(dictionaryEntry.split("\\>")));
+                i++;
+                continue;
+            }
+
+            String[] split = dictionaryEntry.split("###");
+            if (split.length < 2) {
+                continue;
+            }
+            addToEntityDictionary(split[1], split[0]);
+            ProgressHelper.showProgress(i++, dictionaryEntries.size(), 1, stopWatch);
+        }
+
+        LOGGER.info("added " + (i - 2) + " entities to the dictionary in "
+                + stopWatch.getElapsedTimeString());
     }
 
     /**
@@ -583,7 +652,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     private boolean hasAssignedType(CategoryEntries ces) {
-        return !ces.getMostLikelyCategoryEntry().getName().equalsIgnoreCase(NO_ENTITY);
+        CategoryEntry mostLikelyCategoryEntry = ces.getMostLikelyCategoryEntry();
+        if (mostLikelyCategoryEntry == null) {
+            return false;
+        }
+        return !mostLikelyCategoryEntry.getName().equalsIgnoreCase(NO_ENTITY);
     }
 
     /**
@@ -837,6 +910,22 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
                 if (categoryEntries != null && categoryEntries.size() > 0) {
+
+                    // get only the most likely concept
+                    CategoryEntries mostLikelyCes = new CategoryEntries();
+                    ol: for (String conceptName : conceptLikelihoodOrder) {
+                        for (CategoryEntry categoryEntry : categoryEntries) {
+                            if (categoryEntry.getProbability() > 0
+                                    && categoryEntry.getName().equalsIgnoreCase(conceptName)) {
+                                mostLikelyCes.add(categoryEntry);
+                                break ol;
+                            }
+                        }
+                    }
+                    if (mostLikelyCes.size() > 0) {
+                        categoryEntries = mostLikelyCes;
+                    }
+
                     annotation.setTags(categoryEntries);
                     changed++;
                 }
