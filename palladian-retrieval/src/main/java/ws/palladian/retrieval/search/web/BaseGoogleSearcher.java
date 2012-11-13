@@ -151,9 +151,9 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
      */
     private int getAvailablePages(JSONObject responseData) throws JSONException {
         int availablePages = -1;
-        if (responseData.getJSONObject("cursor") != null) {
+        if (responseData.has("cursor")) {
             JSONObject cursor = responseData.getJSONObject("cursor");
-            if (cursor.getJSONArray("pages") != null) {
+            if (cursor.has("pages")) {
                 JSONArray pages = cursor.getJSONArray("pages");
                 availablePages = pages.length();
             }
@@ -176,7 +176,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         String responseData = getResponseData(query, null, 0);
         try {
             JSONObject responseJson = new JSONObject(responseData);
-            if (responseJson.getJSONObject("cursor") != null) {
+            if (responseJson.has("cursor")) {
                 JSONObject cursor = responseJson.getJSONObject("cursor");
                 if (cursor.has("estimatedResultCount")) {
                     hitCount = cursor.getInt("estimatedResultCount");
