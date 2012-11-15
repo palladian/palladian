@@ -453,26 +453,58 @@ public final class PageAnalyzer {
                 break;
             }
             current.append(nodeName);
-            if (node.getAttributes() != null) {
-                Node idAttributes = node.getAttributes().getNamedItem("id");
-                if (idAttributes != null) {
-                    String idValues = idAttributes.getNodeValue();
-                    for (String id : idValues.split("\\s")) {
-                        current.append('#').append(id);
-                    }
-                }
-                Node classAttributes = node.getAttributes().getNamedItem("class");
-                if (classAttributes != null) {
-                    String classValues = classAttributes.getNodeValue();
-                    for (String classValue : classValues.split("\\s")) {
-                        current.append('.').append(classValue);
-                    }
-                }
-            }
+            current.append(createIdClassString(node));
+//            if (node.getAttributes() != null) {
+//                Node idAttributes = node.getAttributes().getNamedItem("id");
+//                if (idAttributes != null) {
+//                    String idValues = idAttributes.getNodeValue();
+//                    for (String id : idValues.split("\\s")) {
+//                        current.append('#').append(id);
+//                    }
+//                }
+//                Node classAttributes = node.getAttributes().getNamedItem("class");
+//                if (classAttributes != null) {
+//                    String classValues = classAttributes.getNodeValue();
+//                    for (String classValue : classValues.split("\\s")) {
+//                        current.append('.').append(classValue);
+//                    }
+//                }
+//            }
             result.append(StringHelper.reverseString(current.toString())).append('/');
             node = node.getParentNode();
         }
         return StringHelper.reverseString(result.toString());
+    }
+    
+    /**
+     * <p>
+     * Create a string with id and class attribute for an XHTML node, like <code>#id5.class1.class2</code>.
+     * </p>
+     * 
+     * @param node The node for which to create id/class string, not <code>null</code>.
+     * @return The id/class string.
+     */
+    public static String createIdClassString(Node node) {
+        Validate.notNull(node, "node must not be null");
+        
+        StringBuilder result = new StringBuilder();
+        if (node.getAttributes() != null) {
+            Node idAttributes = node.getAttributes().getNamedItem("id");
+            if (idAttributes != null) {
+                String idValues = idAttributes.getNodeValue().trim();
+                for (String id : idValues.split("\\s+")) {
+                    result.append('#').append(id);
+                }
+            }
+            Node classAttributes = node.getAttributes().getNamedItem("class");
+            if (classAttributes != null) {
+                String classValues = classAttributes.getNodeValue().trim();
+                for (String classValue : classValues.split("\\s+")) {
+                    result.append('.').append(classValue);
+                }
+            }
+        }
+        return result.toString();
     }
 
     /**
