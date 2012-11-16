@@ -13,7 +13,7 @@ import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -39,7 +39,7 @@ public final class NounAnnotator extends StringDocumentPipelineProcessor {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         List<PositionAnnotation> ret = CollectionHelper.newArrayList();
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
         int index = 0;

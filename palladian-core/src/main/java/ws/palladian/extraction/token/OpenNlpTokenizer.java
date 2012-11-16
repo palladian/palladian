@@ -14,7 +14,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -82,7 +82,7 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         String content = document.getContent();
         FeatureVector featureVector = document.getFeatureVector();
         Span[] spans = tokenizer.tokenizePos(content);

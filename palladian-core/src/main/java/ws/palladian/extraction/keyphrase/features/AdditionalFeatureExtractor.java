@@ -13,7 +13,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -58,7 +58,7 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         for (int i = 0; i < annotations.size(); i++) {
             PositionAnnotation annotation = annotations.get(i);

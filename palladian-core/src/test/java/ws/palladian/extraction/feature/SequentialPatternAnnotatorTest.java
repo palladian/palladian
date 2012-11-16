@@ -215,7 +215,7 @@ public class SequentialPatternAnnotatorTest {
         TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
-        List<SequentialPattern> patterns = document.getFeatureVector().getFeatures(SequentialPattern.class,
+        List<SequentialPattern> patterns = document.getFeatureVector().getAll(SequentialPattern.class,
                 "ws.palladian.features.sentence/lsp");
         for (SequentialPattern pattern : expectedPatterns) {
             Assert.assertThat(pattern, Matchers.isIn(patterns));
@@ -235,7 +235,7 @@ public class SequentialPatternAnnotatorTest {
 
         processingPipeline.process(document);
 
-        List<SequentialPattern> extractedPatterns = document.getFeatureVector().getFeatures(SequentialPattern.class,
+        List<SequentialPattern> extractedPatterns = document.getFeatureVector().getAll(SequentialPattern.class,
                 "ws.palladian.features.sentence/lsp");
         Assert.assertThat(extractedPatterns,
                 Matchers.hasItems(expectedNGramPatterns.toArray(new SequentialPattern[expectedNGramPatterns.size()])));

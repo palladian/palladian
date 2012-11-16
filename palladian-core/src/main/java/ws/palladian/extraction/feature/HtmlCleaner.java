@@ -6,7 +6,7 @@ package ws.palladian.extraction.feature;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 /**
  * <p>
@@ -22,7 +22,7 @@ import ws.palladian.processing.PipelineDocument;
 public final class HtmlCleaner extends StringDocumentPipelineProcessor {
 
     @Override
-    public final void processDocument(PipelineDocument<String> document) {
+    public final void processDocument(TextDocument document) {
         String text = document.getContent();
         String cleanedText = HtmlHelper.stripHtmlTags(text);
         cleanedText = cleanedText.replaceAll("<br\\s*/?>", "\n");

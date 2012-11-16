@@ -7,8 +7,8 @@ import java.util.Map;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -35,7 +35,7 @@ public final class TokenMetricsCalculator extends StringDocumentPipelineProcesso
     public static final String WORD_LENGTH = "ws.palladian.features.tokens.length.word";
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
 //        TextAnnotationFeature annotationFeature = document.getFeatureVector().getFeature(TextAnnotationFeature.class,
 //                BaseTokenizer.PROVIDED_FEATURE);
 //        if (annotationFeature == null) {

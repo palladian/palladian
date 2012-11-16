@@ -9,7 +9,6 @@ import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
@@ -105,7 +104,7 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
     // ////////////////////////////////////////////
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         List<PositionAnnotation> annotationFeature = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
 //        if (annotationFeature == null) {

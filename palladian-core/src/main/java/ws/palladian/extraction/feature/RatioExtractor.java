@@ -6,19 +6,18 @@ package ws.palladian.extraction.feature;
 import java.util.Collection;
 
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
  * Calculates the ratio between two {@link Feature}s. The {@code Feature}s may either be {@link NumericFeature}s or
  * {@link AnnotationFeature}s. The processor either takes the value of the {@code Feature} described by the dividend
  * {@link FeatureDescriptor} and divides it by the {@code Feature} described by divisor {@code FeatureDescriptor}. If
- * either {@code FeatureDescriptor} is an {@link AnnotationFeature} the {@link Annotation}s of that {@code Feature} are
+ * either {@code FeatureDescriptor} is an {@link AnnotationFeature} the {@link PositionAnnotation}s of that {@code Feature} are
  * counted and the count is used.
  * </p>
  * 
@@ -43,7 +42,7 @@ public final class RatioExtractor extends StringDocumentPipelineProcessor {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         Feature<?> dividendFeature = document.getFeature(dividendFeatureDescriptor);
         Feature<?> divisorFeature = document.getFeature(divisorFeatureDescriptor);
 

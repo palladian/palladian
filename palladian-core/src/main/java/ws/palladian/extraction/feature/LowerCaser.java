@@ -3,7 +3,7 @@
  */
 package ws.palladian.extraction.feature;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 /**
  * <p>
@@ -16,15 +16,8 @@ import ws.palladian.processing.PipelineDocument;
  */
 public final class LowerCaser extends StringDocumentPipelineProcessor {
 
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
-     */
-    public LowerCaser() {
-        super();
-    }
-
     @Override
-    public void processDocument(PipelineDocument<String> document) {
+    public void processDocument(TextDocument document) {
         String text = document.getContent();
         String modifiedText = text.toLowerCase();
         document.setContent(modifiedText);
