@@ -8,11 +8,11 @@ import org.junit.Test;
 
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 public class TokenMetricsCalculatorTest {
 
@@ -25,18 +25,18 @@ public class TokenMetricsCalculatorTest {
         pipeline.add(new TokenMetricsCalculator());
         TextDocument document = pipeline.process(new TextDocument(SAMPLE_TEXT));
 
-        AnnotationFeature<String> annotations = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> tokens = annotations.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, RegExTokenizer.PROVIDED_FEATURE);
 
-        Annotation<String> token = tokens.get(1);
+        PositionAnnotation token = annotations.get(1);
+        FeatureVector tokenFeatureVector = token.getFeatureVector();
         assertEquals("Reh", token.getValue());
-        assertEquals(1. / 18, (double)token.getFeature(TokenMetricsCalculator.FIRST).getValue(), 0);
-        assertEquals(6. / 18., (double)token.getFeature(TokenMetricsCalculator.LAST).getValue(), 0);
-        assertEquals(2, (double)token.getFeature(TokenMetricsCalculator.COUNT).getValue(), 0);
-        assertEquals(1, (double)token.getFeature(TokenMetricsCalculator.FREQUENCY).getValue(), 0);
-        assertEquals(5. / 18., (double)token.getFeature(TokenMetricsCalculator.SPREAD).getValue(), 0);
-        assertEquals(3, (double)token.getFeature(TokenMetricsCalculator.CHAR_LENGTH).getValue(), 0);
-        assertEquals(1., (double)token.getFeature(TokenMetricsCalculator.WORD_LENGTH).getValue(), 0);
+        assertEquals(1. / 18, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FIRST).getValue(), 0);
+        assertEquals(6. / 18., (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.LAST).getValue(), 0);
+        assertEquals(2, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.COUNT).getValue(), 0);
+        assertEquals(1, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FREQUENCY).getValue(), 0);
+        assertEquals(5. / 18., (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.SPREAD).getValue(), 0);
+        assertEquals(3, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.CHAR_LENGTH).getValue(), 0);
+        assertEquals(1., (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.WORD_LENGTH).getValue(), 0);
     }
 
 }

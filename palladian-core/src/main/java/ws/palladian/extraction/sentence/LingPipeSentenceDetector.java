@@ -6,11 +6,9 @@ package ws.palladian.extraction.sentence;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
@@ -57,14 +55,14 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
     /**
      * <p>
-     * Creates a new {@code LingPipeSentenceDetector} annotating sentences and saving those {@link Annotation}s as a
+     * Creates a new {@code LingPipeSentenceDetector} annotating sentences and saving those {@link PositionAnnotationn}s as a
      * {@link Feature} described by the provided {@link FeatureDescriptor}.
      * </p>
      * 
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public LingPipeSentenceDetector(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor) {
-        super(featureDescriptor);
+    public LingPipeSentenceDetector(String featureIdentifier) {
+        super(featureIdentifier);
 
         TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
@@ -81,7 +79,7 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
         int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
             String sentence = text.substring(chunk.start(), chunk.end());
-            sentences[ite] = new PositionAnnotation(document, chunk.start(), chunk.end(), sentence);
+            sentences[ite] = new PositionAnnotation(providedFeature, document, chunk.start(), chunk.end(), sentence);
             ite++;
         }
         setSentences(sentences);

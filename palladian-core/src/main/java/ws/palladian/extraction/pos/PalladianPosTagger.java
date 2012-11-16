@@ -22,10 +22,10 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -60,10 +60,10 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation<String>> annotations) {
+    public void tag(List<PositionAnnotation> annotations) {
 
         String previousTag = "";
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
 
             // TODO this should only be a featureVector
             Instance instance = new Instance("test");

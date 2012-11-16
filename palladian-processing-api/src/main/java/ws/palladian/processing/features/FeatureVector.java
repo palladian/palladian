@@ -1,15 +1,12 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
-import java.util.EmptyStackException;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.SortedMap;
-import java.util.Stack;
 import java.util.TreeMap;
 
 /**
@@ -69,38 +66,44 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         }
         list.add(feature);
     }
-
-    /**
-     * <p>
-     * Provides the first feature matching the provided path ignoring the class of the {@code Feature}.
-     * </p>
-     * 
-     * @param featurePath
-     * @return
-     */
-    public Feature<?> getFeature(String featurePath) {
-        if (featurePath.startsWith("/")) {
-            featurePath = featurePath.substring(1);
+    
+    public void addAll(Iterable<? extends Feature<?>> features) {
+        for (Feature<?> feature : features) {
+            add(feature);
         }
-        String[] pathElements = featurePath.split("/");
-        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
-        if (selectedFeatures == null) {
-            return null;
-        }
-        Feature<?> selectedFeature = selectedFeatures.get(0);
-        if (pathElements.length > 1) {
-            AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)selectedFeature;
-            for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
-                selectedFeature = annotation.getFeatureVector().getFeature(
-                        featurePath.substring(featurePath.indexOf("/") + 1));
-                if (selectedFeature != null) {
-                    return selectedFeature;
-                }
-            }
-        }
-
-        return selectedFeature;
     }
+
+//    /**
+//     * <p>
+//     * Provides the first feature matching the provided path ignoring the class of the {@code Feature}.
+//     * </p>
+//     * 
+//     * @param featurePath
+//     * @return
+//     */
+//    public Feature<?> getFeature(String featurePath) {
+//        if (featurePath.startsWith("/")) {
+//            featurePath = featurePath.substring(1);
+//        }
+//        String[] pathElements = featurePath.split("/");
+//        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
+//        if (selectedFeatures == null) {
+//            return null;
+//        }
+//        Feature<?> selectedFeature = selectedFeatures.get(0);
+//        if (pathElements.length > 1) {
+//            AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)selectedFeature;
+//            for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
+//                selectedFeature = annotation.getFeatureVector().getFeature(
+//                        featurePath.substring(featurePath.indexOf("/") + 1));
+//                if (selectedFeature != null) {
+//                    return selectedFeature;
+//                }
+//            }
+//        }
+//
+//        return selectedFeature;
+//    }
 
     public <T extends Feature<?>> T getFeature(Class<T> type, String name) {
         List<T> selectedFeatures = getAll(type, name);
@@ -117,7 +120,9 @@ public final class FeatureVector implements Iterable<Feature<?>> {
                 selectedFeatures.add(type.cast(feature));
             }
         }
-        return selectedFeatures;
+        // return selectedFeatures;
+        // changed this to a immutable list, else wise it might cause confusion, because the returned list is not intended to be modified -- Philipp, 2012-11-16.
+        return Collections.unmodifiableList(selectedFeatures);
     }
 
     /**
@@ -221,30 +226,30 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return result;
     }
 
-    public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-
-        String[] pathElements = path.split("/");
-        // System.out.println(Arrays.toString(pathElements));
-        List<T> collectedFeatures = new LinkedList<T>();
-
-        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
-        if (selectedFeatures != null) {
-
-            for (Feature<?> selectedFeature : selectedFeatures) {
-                if (selectedFeature instanceof AnnotationFeature) {
-                    collectedFeatures.addAll(((AnnotationFeature)selectedFeature).getFeatures(type,
-                            path.substring(path.indexOf("/") + 1)));
-                } else {
-                    collectedFeatures.add(type.cast(selectedFeature));
-                }
-            }
-        }
-
-        return collectedFeatures;
-    }
+//    public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
+//        if (path.startsWith("/")) {
+//            path = path.substring(1);
+//        }
+//
+//        String[] pathElements = path.split("/");
+//        // System.out.println(Arrays.toString(pathElements));
+//        List<T> collectedFeatures = new LinkedList<T>();
+//
+//        List<Feature<?>> selectedFeatures = features.get(pathElements[0]);
+//        if (selectedFeatures != null) {
+//
+//            for (Feature<?> selectedFeature : selectedFeatures) {
+//                if (selectedFeature instanceof AnnotationFeature) {
+//                    collectedFeatures.addAll(((AnnotationFeature)selectedFeature).getFeatures(type,
+//                            path.substring(path.indexOf("/") + 1)));
+//                } else {
+//                    collectedFeatures.add(type.cast(selectedFeature));
+//                }
+//            }
+//        }
+//
+//        return collectedFeatures;
+//    }
 
     public List<? extends Feature<?>> getFeatures(String path) {
         if (path.startsWith("/")) {
@@ -259,12 +264,12 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         if (selectedFeatures != null) {
 
             for (Feature<?> selectedFeature : selectedFeatures) {
-                if (selectedFeature instanceof AnnotationFeature) {
-                    collectedFeatures.addAll(((AnnotationFeature)selectedFeature).getFeatures(path.substring(path
-                            .indexOf("/") + 1)));
-                } else {
+//                if (selectedFeature instanceof AnnotationFeature) {
+//                    collectedFeatures.addAll(((AnnotationFeature)selectedFeature).getFeatures(path.substring(path
+//                            .indexOf("/") + 1)));
+//                } else {
                     collectedFeatures.add(selectedFeature);
-                }
+//                }
             }
         }
 
@@ -279,71 +284,67 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return ret;
     }
 
-    public <T> Set<? extends Feature<T>> getFeatureBag(Class<? extends Feature<T>> featureClass, String featurePath) {
-        return new HashSet<Feature<T>>(getFeatures(featureClass, featurePath));
-    }
+//    public <T> Set<? extends Feature<T>> getFeatureBag(Class<? extends Feature<T>> featureClass, String featurePath) {
+//        return new HashSet<Feature<T>>(getFeatures(featureClass, featurePath));
+//    }
 
     @Override
     public Iterator<Feature<?>> iterator() {
-        // return getFlat().iterator();
-        return new FeatureIterator(this);
+        return getFlat().iterator();
+        // return new FeatureIterator(this);
     }
 }
 
-class FeatureIterator implements Iterator<Feature<?>> {
-
-    private final FeatureVector vector;
-    private final Stack<Iterator<? extends Feature<?>>> iteratorStack;
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
-    public FeatureIterator(FeatureVector vector) {
-        super();
-
-        this.vector = vector;
-        iteratorStack = new Stack<Iterator<? extends Feature<?>>>();
-        if (!vector.getFeatures().isEmpty()) {
-            iteratorStack.push(vector.getFeatures().iterator());
-        }
-    }
-
-    @Override
-    public boolean hasNext() {
-        return !iteratorStack.isEmpty();
-    }
-
-    @Override
-    public Feature<?> next() {
-        try {
-            Iterator<? extends Feature<?>> currentIterator = iteratorStack.peek();
-            Feature<?> feature = currentIterator.next();
-
-            if (!currentIterator.hasNext()) {
-                iteratorStack.pop();
-            }
-
-            if (feature instanceof AnnotationFeature<?>) {
-                AnnotationFeature<?> annotationFeature = (AnnotationFeature)feature;
-                for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
-                    if (!annotation.getFeatureVector().getFeatures().isEmpty()) {
-                        iteratorStack.push(annotation.getFeatureVector().iterator());
-                    }
-                }
-            }
-
-            return feature;
-        } catch (EmptyStackException e) {
-            throw new IllegalStateException("Iterator has no more elements");
-        }
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException("This operation is not supported by the FeatureIterator");
-    }
-
-}
+//class FeatureIterator implements Iterator<Feature<?>> {
+//
+//    private final FeatureVector vector;
+//    private final Stack<Iterator<? extends Feature<?>>> iteratorStack;
+//
+//    /**
+//     * <p>
+//     * 
+//     * </p>
+//     * 
+//     */
+//    public FeatureIterator(FeatureVector vector) {
+//        super();
+//
+//        this.vector = vector;
+//        iteratorStack = new Stack<Iterator<? extends Feature<?>>>();
+//        iteratorStack.push(vector.getFeatures().iterator());
+//    }
+//
+//    @Override
+//    public boolean hasNext() {
+//        return !iteratorStack.isEmpty();
+//    }
+//
+//    @Override
+//    public Feature<?> next() {
+//        try {
+//            Iterator<? extends Feature<?>> currentIterator = iteratorStack.pop();
+//            Feature<?> feature = currentIterator.next();
+//
+//            if (feature instanceof AnnotationFeature<?>) {
+//                AnnotationFeature<?> annotationFeature = (AnnotationFeature)feature;
+//                for (Annotation<?> annotation : annotationFeature.getAnnotations()) {
+//                    iteratorStack.push(annotation.getFeatureVector().iterator());
+//                }
+//            }
+//
+//            if (currentIterator.hasNext()) {
+//                iteratorStack.push(currentIterator);
+//            }
+//
+//            return feature;
+//        } catch (EmptyStackException e) {
+//            throw new IllegalStateException("Iterator has no more elements");
+//        }
+//    }
+//
+//    @Override
+//    public void remove() {
+//        throw new UnsupportedOperationException("This operation is not supported by the FeatureIterator");
+//    }
+//
+//}

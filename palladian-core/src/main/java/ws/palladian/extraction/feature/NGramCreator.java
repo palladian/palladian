@@ -7,22 +7,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationGroup;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
  * The NGramCreator creates token/word n-grams and stores them as {@link AnnotationGroup}s. For example, using an n-gram
- * length of 2, for the list of {@link Annotation}s [<i>the, quick, brown, fox, jumps, over, the, lazy, dog</i>], the
+ * length of 2, for the list of {@link PositionAnnotation}s [<i>the, quick, brown, fox, jumps, over, the, lazy, dog</i>], the
  * following {@link AnnotationGroup}s will be created: [<i>the quick</i>, <i>quick brown</i>, <i>brown fox</i>, ...].
- * {@link AnnotationGroup}s will only be created for <i>consecutive</i> {@link Annotation}s determined by their
- * {@link Annotation#getIndex()}. This means, if there are holes between the supplied annotations (e.g. by stopwords
+ * {@link AnnotationGroup}s will only be created for <i>consecutive</i> {@link PositionAnnotation}s determined by their
+ * {@link PositionAnnotation#getIndex()}. This means, if there are holes between the supplied annotations (e.g. by stopwords
  * which have been removed in advance), no {@link AnnotationGroup}s are created spanning these holes.
  * </p>
  * 
@@ -33,14 +30,14 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
 
     private final int minLength;
     private final int maxLength;
-    private final FeatureDescriptor<NominalFeature>[] considerableFeatureDescriptors;
+    private final String[] considerableFeatureDescriptors;
 
     /**
      * <p>
      * Create a new {@link NGramCreator} which calculates 2-grams.
      * </p>
      */
-    public NGramCreator(final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+    public NGramCreator(String... considerableFeatureDescriptors) {
         this(2, 2, considerableFeatureDescriptors);
     }
 
@@ -51,7 +48,7 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
      * 
      * @param maxLength
      */
-    public NGramCreator(int maxLength, final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+    public NGramCreator(int maxLength, String... considerableFeatureDescriptors) {
         this(2, maxLength, considerableFeatureDescriptors);
     }
 
@@ -64,8 +61,7 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
      * @param maxLength
      * @param considerableFeatureDescriptors
      */
-    public NGramCreator(int minLength, int maxLength,
-            final FeatureDescriptor<NominalFeature>... considerableFeatureDescriptors) {
+    public NGramCreator(int minLength, int maxLength, String... considerableFeatureDescriptors) {
         super();
 
         Validate.notNull(considerableFeatureDescriptors, "considerableFeatureDescriptors must not be null");
@@ -79,19 +75,21 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature "
-                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
-        }
-        List<Annotation<String>> annotations = annotationFeature.getValue();
-        List<AnnotationGroup<String>> gramTokens = new ArrayList<AnnotationGroup<String>>();
+//        FeatureVector featureVector = document.getFeatureVector();
+//        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+//        if (annotationFeature == null) {
+//            throw new DocumentUnprocessableException("The required feature "
+//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
+//        }
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+//        List<AnnotationGroup<String>> gramTokens = new ArrayList<AnnotationGroup<String>>();
+        List<PositionAnnotation> gramTokens = CollectionHelper.newArrayList();
         for (int i = minLength; i <= maxLength; i++) {
-            List<AnnotationGroup<String>> nGramTokens = createNGrams(document, annotations, i);
+            List<PositionAnnotation> nGramTokens = createNGrams(document, annotations, i);
             gramTokens.addAll(nGramTokens);
         }
-        annotations.addAll(gramTokens);
+//        annotations.addAll(gramTokens);
+        document.getFeatureVector().addAll(gramTokens);
     }
 
     /**
@@ -104,19 +102,18 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
      * @param length
      * @return
      */
-    private List<AnnotationGroup<String>> createNGrams(PipelineDocument<String> document, List<Annotation<String>> annotations,
+    private List<PositionAnnotation> createNGrams(PipelineDocument<String> document, List<PositionAnnotation> annotations,
             int length) {
-        List<AnnotationGroup<String>> gramTokens = new ArrayList<AnnotationGroup<String>>();
-        @SuppressWarnings("unchecked")
-        Annotation<String>[] tokensArray = annotations.toArray(new Annotation[annotations.size()]);
+        List<PositionAnnotation> gramTokens = CollectionHelper.newArrayList();
+        PositionAnnotation[] tokensArray = annotations.toArray(new PositionAnnotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length - length + 1; i++) {
-            AnnotationGroup<String> gramToken = new AnnotationGroup<String>(document);
+            List<PositionAnnotation> group = CollectionHelper.newArrayList();
             for (int j = i; j < i + length; j++) {
-                gramToken.add(tokensArray[j]);
+                group.add(tokensArray[j]);
             }
-            if (isConsecutive(gramToken)) {
-                postProcess(gramToken);
-                gramTokens.add(gramToken);
+            if (isConsecutive(group)) {
+                PositionAnnotation mergedGroup = postProcess(group);
+                gramTokens.add(mergedGroup);
             }
         }
         return gramTokens;
@@ -126,7 +123,7 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
      * <p>
      * Re-create {@link NominalFeature}s for the created {@link AnnotationGroup}. This is done by simply concatenating
      * the {@link NominalFeature}s together. E.g. an {@link AnnotationGroup} of size two, with the
-     * {@link NominalFeature}s "AT" and "JJ" for POS tags of its {@link Annotation}s get an annotation "ATJJ".
+     * {@link NominalFeature}s "AT" and "JJ" for POS tags of its {@link PositionAnnotation}s get an annotation "ATJJ".
      * </p>
      * 
      * @param gramToken
@@ -136,31 +133,71 @@ public class NGramCreator extends StringDocumentPipelineProcessor {
     // introduce a "CombinationStrategy" which can be also applied to NumericFeatures, e.g. by taking average/min/max
     // etc. -- Philipp, 2012-06-19
     //
-    protected void postProcess(AnnotationGroup<String> gramToken) {
-        for (FeatureDescriptor<NominalFeature> descriptor : considerableFeatureDescriptors) {
-            List<String> components = new ArrayList<String>();
-            for (Annotation<String> annotation : gramToken.getAnnotations()) {
-                String value = annotation.getFeature(descriptor).getValue();
+    protected PositionAnnotation postProcess(List<PositionAnnotation> gramToken) {
+        String name = null;
+        int newStart = -1;
+        int newEnd = -1;
+        StringBuilder newValue = new StringBuilder();
+        for (int i = 0; i < gramToken.size(); i++) {
+            PositionAnnotation current = gramToken.get(i);
+            if (i == 0) {
+                name = current.getName();
+                newStart = current.getStartPosition();
+            }
+            if (i == gramToken.size() - 1) {
+                newEnd = current.getEndPosition();
+            }
+            newValue.append(current.getValue()).append(' ');
+        }
+        
+        if (name == null || newStart == -1 || newEnd == -1) {
+            throw new IllegalStateException("Yo, something is fucked up.");
+        }
+        
+        PositionAnnotation ret = new PositionAnnotation(name, newStart, newEnd, 0, newValue.toString().trim());
+        
+        // combine NominalFeatures
+        for (String descriptor : considerableFeatureDescriptors) {
+            List<String> components = CollectionHelper.newArrayList();
+            for (PositionAnnotation annotation : gramToken) {
+                String value = annotation.getFeatureVector().getFeature(NominalFeature.class, descriptor).getValue();
                 components.add(value);
             }
             NominalFeature newFeature = new NominalFeature(descriptor, StringUtils.join(components, ""));
-            gramToken.addFeature(newFeature);
+            ret.getFeatureVector().add(newFeature);
         }
+        
+        
+//        PositionAnnotation firstAnnotation = CollectionHelper.getFirst(gramToken);
+//        PositionAnnotation lastAnnotation = CollectionHelper.getLast(gramToken);
+//        PositionAnnotation ret = new PositionAnnotation(firstAnnotation.getName(), firstAnnotation.getStartPosition(), lastAnnotation.getEndPosition(), firstAnnotation.getIndex());
+//        for (String descriptor : considerableFeatureDescriptors) {
+//            List<String> components = new ArrayList<String>();
+//            for (PositionAnnotation annotation : gramToken) {
+//                String value = annotation.getFeatureVector().getFeature(NominalFeature.class, descriptor).getValue();
+//                components.add(value);
+//            }
+//            NominalFeature newFeature = new NominalFeature(descriptor, StringUtils.join(components, ""));
+//            ret.getFeatureVector().add(newFeature);
+//            //gramToken.addFeature(newFeature);
+//        }
+        
+        return ret;
     }
 
     /**
      * <p>
-     * Check, whether the {@link Annotation}s in the supplied {@link AnnotationGroup} are consecutive, i.e. the
-     * difference between two following {@link Annotation}s in the group is one for each pair.
+     * Check, whether the {@link PositionAnnotation}s in the supplied {@link AnnotationGroup} are consecutive, i.e. the
+     * difference between two following {@link PositionAnnotation}s in the group is one for each pair.
      * </p>
      * 
-     * @param annotationGroup The {@link AnnotationGroup} for which to verify consecutiveness of {@link Annotation}s.
-     * @return <code>true</code>, if {@link Annotation}s are consecutive, <code>false</code> otherwise.
+     * @param annotationGroup The {@link AnnotationGroup} for which to verify consecutiveness of {@link PositionAnnotation}s.
+     * @return <code>true</code>, if {@link PositionAnnotation}s are consecutive, <code>false</code> otherwise.
      */
-    private boolean isConsecutive(AnnotationGroup<String> annotationGroup) {
+    private boolean isConsecutive(List<PositionAnnotation> annotationGroup) {
         boolean ret = true;
         int index = -1;
-        for (Annotation<String> annotation : annotationGroup.getAnnotations()) {
+        for (PositionAnnotation annotation : annotationGroup) {
             int currentIndex = annotation.getIndex();
             if (index != -1 && index + 1 != currentIndex) {
                 ret = false;

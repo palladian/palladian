@@ -1,16 +1,16 @@
 package ws.palladian.extraction.feature;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -25,21 +25,25 @@ public final class DuplicateTokenRemover extends StringDocumentPipelineProcessor
 
     @Override
     public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
-                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \""
-                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing.");
-        }
+//        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
+//                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+//        if (annotationFeature == null) {
+//            throw new DocumentUnprocessableException("The required feature \""
+//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing.");
+//        }
         Set<String> tokenValues = new HashSet<String>();
-        List<Annotation<String>> resultTokens = new ArrayList<Annotation<String>>();
-        for (Annotation<String> annotation : annotationFeature.getValue()) {
+        FeatureVector featureVector = document.getFeatureVector();
+        List<PositionAnnotation> inputTokens = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> resultTokens = CollectionHelper.newArrayList();
+        for (PositionAnnotation annotation : inputTokens) {
             String tokenValue = annotation.getValue().toLowerCase();
             if (tokenValues.add(tokenValue)) {
                 resultTokens.add(annotation);
             }
         }
-        annotationFeature.setValue(resultTokens);
+        featureVector.removeAll(BaseTokenizer.PROVIDED_FEATURE);
+        featureVector.addAll(resultTokens);
+//        annotationFeature.setValue(resultTokens);
     }
 
 }

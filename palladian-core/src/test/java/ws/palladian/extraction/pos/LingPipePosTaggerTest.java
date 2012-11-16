@@ -24,8 +24,9 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -81,11 +82,13 @@ public class LingPipePosTaggerTest {
         pipeline.add(objectOfClassUnderTest);
 
         pipeline.process(document);
-        TextAnnotationFeature featureVector = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> tokens = featureVector.getValue();
+        FeatureVector featureVector = document.getFeatureVector();
+        List<PositionAnnotation> tokens = featureVector
+                .getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         for (int i = 0; i < tokens.size(); i++) {
-            Assert.assertThat(tokens.get(i).getFeature(LingPipePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(),
+            Assert.assertThat(
+                    tokens.get(i).getFeatureVector()
+                            .getFeature(NominalFeature.class, LingPipePosTagger.PROVIDED_FEATURE).getValue(),
                     Matchers.is(expectedTags[i]));
         }
     }
