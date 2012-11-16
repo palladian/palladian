@@ -7,7 +7,6 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.PositionAnnotation;
 
 import com.aliasi.chunk.Chunk;
@@ -56,10 +55,10 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
     /**
      * <p>
      * Creates a new {@code LingPipeSentenceDetector} annotating sentences and saving those {@link PositionAnnotationn}s as a
-     * {@link Feature} described by the provided {@link FeatureDescriptor}.
+     * {@link Feature} described by the provided feature identifiers.
      * </p>
      * 
-     * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
+     * @param featureDescriptor The identifier for the created {@code Feature}.
      */
     public LingPipeSentenceDetector(String featureIdentifier) {
         super(featureIdentifier);

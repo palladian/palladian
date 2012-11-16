@@ -5,10 +5,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -70,7 +68,7 @@ public final class RegExTokenizer extends BaseTokenizer {
     /**
      * <p>
      * The no argument constructor using {@link Tokenizer#SPLIT_PATTERN} to annotate token and saving them as
-     * {@link Feature} with the {@link FeatureDescriptor} {@link BaseTokenizer#PROVIDED_FEATURE_DESCRIPTOR}.
+     * {@link Feature} with the identifier {@link BaseTokenizer#PROVIDED_FEATURE}.
      * </p>
      * 
      */
@@ -81,7 +79,7 @@ public final class RegExTokenizer extends BaseTokenizer {
     /**
      * <p>
      * Creates a new {@code RegExTokenizer} creating token {@code Annotation}s with the provided
-     * {@link FeatureDescriptor} and annotating token matching the provided {@code pattern}.
+     * identifier and annotating token matching the provided {@code pattern}.
      * </p>
      * 
      * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
