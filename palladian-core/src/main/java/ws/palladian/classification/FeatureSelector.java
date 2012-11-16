@@ -54,7 +54,10 @@ public final class FeatureSelector {
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
         for (Instance instance : instances) {
-            Collection<? extends Feature<T>> features = instance.getFeatureVector().getFeatureBag(featureType,
+//            Collection<? extends Feature<T>> features = instance.getFeatureVector().getFeatureBag(featureType,
+//                    featurePath);
+            // XXX changed, untested -- 2012-11-17 -- Philipp
+            Collection<? extends Feature<T>> features = instance.getFeatureVector().getAll(featureType,
                     featurePath);
             for (Feature<T> value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);

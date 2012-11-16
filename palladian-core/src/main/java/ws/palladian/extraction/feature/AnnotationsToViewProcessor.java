@@ -7,7 +7,6 @@ import java.util.List;
 
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -22,26 +21,24 @@ import ws.palladian.processing.features.FeatureVector;
  * @since 0.1.7
  * 
  */
-public final class AnnotationsToViewProcessor<F extends Feature<?>> extends StringDocumentPipelineProcessor {
+public final class AnnotationsToViewProcessor extends StringDocumentPipelineProcessor {
 
-    private final FeatureDescriptor<F> featureDescriptor;
+    private final String featureIdentifier;
 
     /**
      * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
      */
-    public AnnotationsToViewProcessor(FeatureDescriptor<F> featureDescriptor) {
-        super();
-        this.featureDescriptor = featureDescriptor;
+    public AnnotationsToViewProcessor(String featureIdentifier) {
+        this.featureIdentifier = featureIdentifier;
     }
 
     @Override
     public void processDocument(TextDocument document) {
         FeatureVector vector = document.getFeatureVector();
-
-        List<F> features = vector.getAll(featureDescriptor.getType());
+        List<Feature<?>> features = vector.getAll(featureIdentifier);
 
         StringBuilder ret = new StringBuilder();
-        for (F feature : features) {
+        for (Feature<?> feature : features) {
             ret.append(feature.getValue());
             ret.append(" ");
         }

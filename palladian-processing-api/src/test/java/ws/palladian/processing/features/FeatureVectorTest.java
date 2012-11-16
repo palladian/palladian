@@ -50,8 +50,8 @@ public class FeatureVectorTest {
         // add features
 //        document.addFeature(documentFeature);
 //        document.addFeature(annotationFeature);
-        document.addFeature(annotation1);
-        document.addFeature(annotation2);
+        document.getFeatureVector().add(annotation1);
+        document.getFeatureVector().add(annotation2);
 
 //        NominalFeature feature = document.getFeatureVector().getFeature(NominalFeature.class, "term");
 //

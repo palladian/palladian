@@ -6,7 +6,7 @@ import java.util.List;
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 public class StopWordRemover extends StringDocumentPipelineProcessor {
 
@@ -38,7 +38,7 @@ public class StopWordRemover extends StringDocumentPipelineProcessor {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) {
+    public void processDocument(TextDocument document) {
         String content = document.getContent();
 
         content = removeStopWords(content);

@@ -15,6 +15,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -37,9 +38,10 @@ public class CsvWriterTest {
         CsvWriter objectOfClassUnderTest = new CsvWriter(csvFile.getCanonicalPath(), "test1", "test2", "test3");
 
         TextDocument document = new TextDocument("");
-        document.addFeature(new NominalFeature("test1", "test1-1"));
-        document.addFeature(new NumericFeature("test1", 12.0));
-        document.addFeature(new NominalFeature("test2", "test2"));
+        FeatureVector featureVector = document.getFeatureVector();
+        featureVector.add(new NominalFeature("test1", "test1-1"));
+        featureVector.add(new NumericFeature("test1", 12.0));
+        featureVector.add(new NominalFeature("test2", "test2"));
         objectOfClassUnderTest.setInput(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER, document);
         objectOfClassUnderTest.process();
 

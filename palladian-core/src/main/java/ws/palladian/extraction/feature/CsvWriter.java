@@ -68,12 +68,15 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
     protected void processDocument() throws DocumentUnprocessableException {
         StringBuffer dataLine = new StringBuffer("");
         for (String featurePath : featurePaths) {
-            Feature<?> feature = getDefaultInput().getFeatureVector().getFeature(featurePath);
-            if (feature == null) {
+            List<Feature<?>> feature = getDefaultInput().getFeatureVector().getAll(featurePath);
+            if (feature.isEmpty()) {
+//                if (feature == null) {
                 LOGGER.warn("Unable to find feature for feature path: " + featurePath);
                 dataLine.append("?,");
             } else {
-                dataLine.append(feature.getValue() + ",");
+                // XXX only take the first feature currently
+                Object featureValue = feature.get(0).getValue();
+                dataLine.append(featureValue + ",");
             }
         }
         dataLine.replace(dataLine.length() - 1, dataLine.length(), "\n");

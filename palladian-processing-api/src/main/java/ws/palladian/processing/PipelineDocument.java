@@ -2,8 +2,6 @@ package ws.palladian.processing;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -95,16 +93,16 @@ public abstract class PipelineDocument<T> implements Classifiable {
         this.content = content;
     }
 
-    public void addFeature(final Feature<?> feature) {
-        Validate.notNull(feature);
-        featureVector.add(feature);
-    }
-
-    public <F extends Feature<?>> F getFeature(final FeatureDescriptor<F> descriptor) {
-        Validate.notNull(descriptor);
-
-        return featureVector.get(descriptor);
-    }
+//    public void addFeature(final Feature<?> feature) {
+//        Validate.notNull(feature);
+//        featureVector.add(feature);
+//    }
+//
+//    public <F extends Feature<?>> F getFeature(final FeatureDescriptor<F> descriptor) {
+//        Validate.notNull(descriptor);
+//
+//        return featureVector.get(descriptor);
+//    }
 
     @Override
     public String toString() {

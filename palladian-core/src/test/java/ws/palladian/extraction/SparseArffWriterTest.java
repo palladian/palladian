@@ -16,6 +16,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -39,13 +40,14 @@ public class SparseArffWriterTest {
         String numericFeatureName = "numericFeature";
         String listFeatureName = "listFeature";
         TextDocument document = new TextDocument("This is some test document.");
-        document.addFeature(new NominalFeature(nominalFeatureName, "a"));
-        document.addFeature(new NumericFeature(numericFeatureName, 0.78));
+        FeatureVector featureVector = document.getFeatureVector();
+        featureVector.add(new NominalFeature(nominalFeatureName, "a"));
+        featureVector.add(new NumericFeature(numericFeatureName, 0.78));
         // la should be only once in the result ARFF.
-        document.addFeature(new NominalFeature(listFeatureName, "la"));
-        document.addFeature(new NominalFeature(listFeatureName, "blah"));
-        document.addFeature(new NominalFeature(listFeatureName, "da"));
-        document.addFeature(new NominalFeature(listFeatureName, "la"));
+        featureVector.add(new NominalFeature(listFeatureName, "la"));
+        featureVector.add(new NominalFeature(listFeatureName, "blah"));
+        featureVector.add(new NominalFeature(listFeatureName, "da"));
+        featureVector.add(new NominalFeature(listFeatureName, "la"));
 
         String[] featureNames = new String[] {nominalFeatureName, numericFeatureName, listFeatureName};
 

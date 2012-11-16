@@ -3,7 +3,6 @@
  */
 package ws.palladian.processing.features;
 
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 
 /**

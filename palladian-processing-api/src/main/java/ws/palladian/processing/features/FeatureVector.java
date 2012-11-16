@@ -112,6 +112,14 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         }
         return selectedFeatures.get(0);
     }
+    
+    public Feature<?> getFeature(String name) {
+        List<Feature<?>> selectedFeatures = getAll(name);
+        if (selectedFeatures.isEmpty()) {
+            return null;
+        }
+        return selectedFeatures.get(0);
+    }
 
     public <T extends Feature<?>> List<T> getAll(Class<T> type, String name) {
         List<T> selectedFeatures = new ArrayList<T>();
@@ -144,6 +152,14 @@ public final class FeatureVector implements Iterable<Feature<?>> {
             }
         }
         return selectedFeatures;
+    }
+    
+    public List<Feature<?>> getAll(String name) {
+        List<Feature<?>> featureList = features.get(name);
+        if (featureList != null) {
+        return Collections.unmodifiableList(featureList);
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -293,6 +309,8 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return getFlat().iterator();
         // return new FeatureIterator(this);
     }
+
+
 }
 
 //class FeatureIterator implements Iterator<Feature<?>> {

@@ -23,17 +23,17 @@ public final class NumericFeature extends Feature<Double> {
         super(name, value);
     }
 
-    /**
-     * <p>
-     * Creates a new {@code NumericFeature} instance with all attributes initialized.
-     * </p>
-     * 
-     * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
-     *            {@code Feature}.
-     * @param value The {@code Double} value of this {@code Feature}.
-     */
-    public NumericFeature(FeatureDescriptor<NumericFeature> descriptor, Double value) {
-        this(descriptor.getIdentifier(), value);
-    }
+//    /**
+//     * <p>
+//     * Creates a new {@code NumericFeature} instance with all attributes initialized.
+//     * </p>
+//     * 
+//     * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
+//     *            {@code Feature}.
+//     * @param value The {@code Double} value of this {@code Feature}.
+//     */
+//    public NumericFeature(FeatureDescriptor<NumericFeature> descriptor, Double value) {
+//        this(descriptor.getIdentifier(), value);
+//    }
 
 }

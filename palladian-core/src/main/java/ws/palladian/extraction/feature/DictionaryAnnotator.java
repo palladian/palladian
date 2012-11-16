@@ -15,7 +15,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.AbstractFeatureProvider;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -38,19 +37,17 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String> {
 
     /**
      * <p>
-     * Creates a new {@code DictionaryAnnotator} saving all {@link PositionAnnotation}s to a new {@link AnnotationFeature}
-     * identified by {@code featureDescriptor}. The new {@code DictionaryAnnotator} also uses the provided
-     * {@code dictionary} to match token.
+     * Creates a new {@code DictionaryAnnotator} saving all {@link PositionAnnotation}s to a new
+     * {@link AnnotationFeature}. The new {@code DictionaryAnnotator} also uses the provided {@code dictionary} to match
+     * token.
      * </p>
      * 
-     * @param featureDescriptor The {@link FeatureDescriptor} used to save matching tokens as new {@link PositionAnnotation}s.
+     * @param featureDescriptor The identifier used to save matching tokens as new {@link PositionAnnotation}s.
      * @param dictionary The dictionary to match token agains.
      */
     public DictionaryAnnotator(String featureIdentifier, String[] dictionary) {
         super(featureIdentifier);
-
         Validate.notNull(dictionary, "dictionary must not be null");
-
         this.dictionary = new HashSet<String>(Arrays.asList(dictionary));
     }
 

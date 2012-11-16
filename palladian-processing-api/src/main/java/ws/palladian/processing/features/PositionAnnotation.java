@@ -3,7 +3,7 @@ package ws.palladian.processing.features;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 /**
  * <p>
@@ -17,7 +17,7 @@ import ws.palladian.processing.PipelineDocument;
  * @since 0.1.7
  */
 // TODO rename to TextAnnotation
-public /*final*/ class PositionAnnotation extends Feature<String> implements Classifiable {
+public final class PositionAnnotation extends Feature<String> implements Classifiable {
 
     /**
      * <p>
@@ -76,7 +76,7 @@ public /*final*/ class PositionAnnotation extends Feature<String> implements Cla
 //        this(name, document, startPosition, endPosition, -1);
 //    }
 
-    public PositionAnnotation(String name, PipelineDocument<String> document, int startPosition, int endPosition, String value) {
+    public PositionAnnotation(String name, TextDocument document, int startPosition, int endPosition, String value) {
         this(name, document, startPosition, endPosition, -1, value);
     }
 
@@ -92,7 +92,7 @@ public /*final*/ class PositionAnnotation extends Feature<String> implements Cla
      * @param index The running index of this {@link Annotation}.
      * @param value The text value of this {@link Annotation}.
      */
-    public PositionAnnotation(String name, PipelineDocument<String> document, int startPosition, int endPosition, int index,
+    public PositionAnnotation(String name, TextDocument document, int startPosition, int endPosition, int index,
             String value) {
         super(name, value);
         // super(document);

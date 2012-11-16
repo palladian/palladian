@@ -45,17 +45,17 @@ public abstract class Feature<T> {
         this.value = value;
     }
 
-    /**
-     * <p>
-     * Creates a new {@link Feature} with all attributes initialized.
-     * 
-     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and type information for this
-     *            {@link Feature}.
-     * @param value The {@link Feature}'s value containing concrete extracted data from a document.
-     */
-    public Feature(FeatureDescriptor<? extends Feature<T>> descriptor, T value) {
-        this(descriptor.getIdentifier(), value);
-    }
+//    /**
+//     * <p>
+//     * Creates a new {@link Feature} with all attributes initialized.
+//     * 
+//     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and type information for this
+//     *            {@link Feature}.
+//     * @param value The {@link Feature}'s value containing concrete extracted data from a document.
+//     */
+//    public Feature(FeatureDescriptor<? extends Feature<T>> descriptor, T value) {
+//        this(descriptor.getIdentifier(), value);
+//    }
 
     /**
      * <p>
@@ -118,12 +118,12 @@ public abstract class Feature<T> {
         return builder.toString();
     }
 
-    /**
-     * @return The {@link FeatureDescriptor} for this class.
-     */
-    public FeatureDescriptor<?> getDescriptor() {
-        return FeatureDescriptorBuilder.build(getName(), this.getClass());
-    }
+//    /**
+//     * @return The {@link FeatureDescriptor} for this class.
+//     */
+//    public FeatureDescriptor<?> getDescriptor() {
+//        return FeatureDescriptorBuilder.build(getName(), this.getClass());
+//    }
 
     /*
      * (non-Javadoc)
