@@ -34,7 +34,6 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.Port;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -69,7 +68,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
     private final File targetFile;
     /**
      * <p>
-     * The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when saving.
+     * The identifiers of the {@link Feature} the writer should consider when saving.
      * </p>
      */
     private final List<String> featurePaths;
@@ -106,7 +105,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
      * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
      * exists.
      * </p>
@@ -120,7 +119,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
      * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
      * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
@@ -137,7 +136,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
      * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
      * exists.
      * </p>
@@ -158,7 +157,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
      * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
      * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
@@ -181,7 +180,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
      * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
      * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
@@ -222,7 +221,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
      * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
      * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>

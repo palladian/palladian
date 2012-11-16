@@ -22,8 +22,6 @@ import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -58,9 +56,6 @@ public final class SequentialPatternAnnotator extends StringDocumentPipelineProc
     private Set<String> keywords;
 
     public static final String PROVIDED_FEATURE = "lsp";
-
-    public static final FeatureDescriptor<SequentialPattern> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build(PROVIDED_FEATURE, SequentialPattern.class);
 
     private Integer maxSequentialPatternSize = 0;
 

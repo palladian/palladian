@@ -162,21 +162,21 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return Collections.emptyList();
     }
 
-    /**
-     * <p>
-     * Provides a {@link Feature} from this {@link FeatureVector}.
-     * </p>
-     * 
-     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and the concrete type of the
-     *            requested {@link Feature}.
-     * @return The {@link Feature} for the specified {@link FeatureDescriptor} or <code>null</code> if no such
-     *         {@link Feature} exists.
-     * @deprecated Will be removed in the future.
-     */
-    @Deprecated
-    public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
-        return getFeature(descriptor.getType(), descriptor.getIdentifier());
-    }
+//    /**
+//     * <p>
+//     * Provides a {@link Feature} from this {@link FeatureVector}.
+//     * </p>
+//     * 
+//     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and the concrete type of the
+//     *            requested {@link Feature}.
+//     * @return The {@link Feature} for the specified {@link FeatureDescriptor} or <code>null</code> if no such
+//     *         {@link Feature} exists.
+//     * @deprecated Will be removed in the future.
+//     */
+//    @Deprecated
+//    public <T extends Feature<?>> T get(FeatureDescriptor<T> descriptor) {
+//        return getFeature(descriptor.getType(), descriptor.getIdentifier());
+//    }
 
     @Override
     public String toString() {
@@ -219,20 +219,20 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return features.remove(name) != null;
     }
 
-    /**
-     * <p>
-     * Removes a {@link Feature} from this {@link FeatureVector}.
-     * </p>
-     * 
-     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and the concrete type of the
-     *            {@link Feature} to remove.
-     * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
-     *         specified identifier to remove.
-     */
-    @Deprecated
-    public boolean remove(FeatureDescriptor<?> featureDescriptor) {
-        return features.remove(featureDescriptor.getIdentifier()) != null;
-    }
+//    /**
+//     * <p>
+//     * Removes a {@link Feature} from this {@link FeatureVector}.
+//     * </p>
+//     * 
+//     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and the concrete type of the
+//     *            {@link Feature} to remove.
+//     * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
+//     *         specified identifier to remove.
+//     */
+//    @Deprecated
+//    public boolean remove(FeatureDescriptor<?> featureDescriptor) {
+//        return features.remove(featureDescriptor.getIdentifier()) != null;
+//    }
 
     private List<Feature<?>> getFlat() {
         List<Feature<?>> result = new ArrayList<Feature<?>>();
@@ -292,13 +292,13 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return collectedFeatures;
     }
 
-    public List<? extends Feature<?>> getFeatures() {
-        List<Feature<?>> ret = new ArrayList<Feature<?>>();
-        for (Entry<String, List<Feature<?>>> entry : features.entrySet()) {
-            ret.addAll(entry.getValue());
-        }
-        return ret;
-    }
+//    public List<? extends Feature<?>> getFeatures() {
+//        List<Feature<?>> ret = new ArrayList<Feature<?>>();
+//        for (Entry<String, List<Feature<?>>> entry : features.entrySet()) {
+//            ret.addAll(entry.getValue());
+//        }
+//        return ret;
+//    }
 
 //    public <T> Set<? extends Feature<T>> getFeatureBag(Class<? extends Feature<T>> featureClass, String featurePath) {
 //        return new HashSet<Feature<T>>(getFeatures(featureClass, featurePath));
