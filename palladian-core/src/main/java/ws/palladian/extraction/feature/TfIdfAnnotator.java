@@ -29,7 +29,7 @@ public final class TfIdfAnnotator extends AbstractTokenProcessor {
         }
         NumericFeature idfFeature = annotation.getFeatureVector().getFeature(NumericFeature.class, IdfAnnotator.PROVIDED_FEATURE);
         if (idfFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \"" + IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR
+            throw new DocumentUnprocessableException("The required feature \"" + IdfAnnotator.PROVIDED_FEATURE
                     + "\" is missing.");
         }
         double tf = tfFeature.getValue();

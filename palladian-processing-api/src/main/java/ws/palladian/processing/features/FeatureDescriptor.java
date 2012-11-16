@@ -22,7 +22,9 @@ import ws.palladian.processing.PipelineProcessor;
  * @author Philipp Katz
  * 
  * @param <T> The specific feature type which this {@link FeatureDescriptor} describes.
+ * @deprecated Not supported any longer.
  */
+@Deprecated
 public interface FeatureDescriptor<T extends Feature<?>> {
 
     /**

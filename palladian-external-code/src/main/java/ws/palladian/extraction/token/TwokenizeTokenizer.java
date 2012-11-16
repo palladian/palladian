@@ -3,7 +3,7 @@ package ws.palladian.extraction.token;
 import java.util.List;
 
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
@@ -20,7 +20,7 @@ import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 public final class TwokenizeTokenizer extends BaseTokenizer {
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         String text = document.getContent();
         FeatureVector featureVector = document.getFeatureVector();
         List<String> tokens = Twokenize.tokenizeForTagger_J(text);
@@ -37,7 +37,7 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
             }
             
             endPosition = startPosition + token.length();
-            featureVector.add(new PositionAnnotation(PROVIDED_FEATURE, startPosition, endPosition, index++));
+            featureVector.add(new PositionAnnotation(PROVIDED_FEATURE, startPosition, endPosition, index++, token));
         }
     }
 

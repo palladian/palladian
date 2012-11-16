@@ -8,7 +8,6 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.Port;
 
 /**

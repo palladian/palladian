@@ -8,8 +8,6 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -29,15 +27,14 @@ public final class DocumentLengthCalculator extends StringDocumentPipelineProces
      * The identifier for the {@link Feature} extracted by this {@link PipelineProcessor}.
      * </p>
      */
-    public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
-            "ws.palladian.documentlength", NumericFeature.class);
+    public static final String PROVIDED_FEATURE = "ws.palladian.documentlength";
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         int length = document.getContent().length();
         double doubleValue = Integer.valueOf(length).doubleValue();
-        NumericFeature feature = new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, doubleValue);
-        document.addFeature(feature);
+        NumericFeature feature = new NumericFeature(PROVIDED_FEATURE, doubleValue);
+        document.getFeatureVector().add(feature);
     }
 
 }

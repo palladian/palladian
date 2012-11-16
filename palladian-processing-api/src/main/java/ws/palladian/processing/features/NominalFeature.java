@@ -26,18 +26,18 @@ public final class NominalFeature extends Feature<String> {
         super(name, value);
     }
 
-    /**
-     * <p>
-     * Creates a new {@code NominalFeature} instance with all attributes initialized.
-     * </p>
-     * 
-     * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
-     *            {@code Feature}.
-     * @param value The {@code String} value of this {@code Feature}.
-     * @param The values this {@code NominalFeature} can take on.
-     */
-    public NominalFeature(final FeatureDescriptor<NominalFeature> descriptor, final String value) {
-        this(descriptor.getIdentifier(), value);
-    }
+//    /**
+//     * <p>
+//     * Creates a new {@code NominalFeature} instance with all attributes initialized.
+//     * </p>
+//     * 
+//     * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
+//     *            {@code Feature}.
+//     * @param value The {@code String} value of this {@code Feature}.
+//     * @param The values this {@code NominalFeature} can take on.
+//     */
+//    public NominalFeature(final FeatureDescriptor<NominalFeature> descriptor, final String value) {
+//        this(descriptor.getIdentifier(), value);
+//    }
 
 }

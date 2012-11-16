@@ -18,8 +18,8 @@ public final class BooleanFeature extends Feature<Boolean> {
         super(name, value);
     }
 
-    public BooleanFeature(FeatureDescriptor<BooleanFeature> descriptor, Boolean value) {
-        super(descriptor.getIdentifier(), value);
-    }
+//    public BooleanFeature(FeatureDescriptor<BooleanFeature> descriptor, Boolean value) {
+//        super(descriptor.getIdentifier(), value);
+//    }
 
 }
