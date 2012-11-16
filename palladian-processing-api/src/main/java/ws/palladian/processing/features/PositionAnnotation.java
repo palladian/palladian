@@ -2,6 +2,7 @@ package ws.palladian.processing.features;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.PipelineDocument;
 
 /**
@@ -16,7 +17,7 @@ import ws.palladian.processing.PipelineDocument;
  * @since 0.1.7
  */
 // TODO rename to TextAnnotation
-public final class PositionAnnotation extends Annotation<String> {
+public /*final*/ class PositionAnnotation extends Feature<String> implements Classifiable {
 
     /**
      * <p>
@@ -43,38 +44,40 @@ public final class PositionAnnotation extends Annotation<String> {
      * The text value of this {@link Annotation}.
      * </p>
      */
-    private String value;
+//    private String value;
+    
+    private final FeatureVector featureVector = new FeatureVector();
 
-    /**
-     * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized.
-     * </p>
-     * 
-     * @param document The document this {@code Annotation} points to.
-     * @param startPosition The position of the first character of this {@code Annotation}.
-     * @param endPosition The position of the first character after the end of this {@code Annotation}.
-     * @param index The running index of this {@link Annotation}.
-     */
-    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, int index) {
-        this(document, startPosition, endPosition, index, null);
-    }
+//    /**
+//     * <p>
+//     * Creates a new {@code PositionAnnotation} completely initialized.
+//     * </p>
+//     * 
+//     * @param document The document this {@code Annotation} points to.
+//     * @param startPosition The position of the first character of this {@code Annotation}.
+//     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+//     * @param index The running index of this {@link Annotation}.
+//     */
+//    public PositionAnnotation(String name, PipelineDocument<String> document, int startPosition, int endPosition, int index) {
+//        this(name, document, startPosition, endPosition, index, null);
+//    }
 
-    /**
-     * <p>
-     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
-     * provided {@code PipelineDocument}.
-     * </p>
-     * 
-     * @param document The document this {@code Annotation} points to.
-     * @param startPosition The position of the first character of this {@code Annotation}.
-     * @param endPosition The position of the first character after the end of this {@code Annotation}.
-     */
-    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition) {
-        this(document, startPosition, endPosition, -1);
-    }
+//    /**
+//     * <p>
+//     * Creates a new {@code PositionAnnotation} completely initialized and pointing to the "originalContent" view of the
+//     * provided {@code PipelineDocument}.
+//     * </p>
+//     * 
+//     * @param document The document this {@code Annotation} points to.
+//     * @param startPosition The position of the first character of this {@code Annotation}.
+//     * @param endPosition The position of the first character after the end of this {@code Annotation}.
+//     */
+//    public PositionAnnotation(String name, PipelineDocument<String> document, int startPosition, int endPosition) {
+//        this(name, document, startPosition, endPosition, -1);
+//    }
 
-    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, String value) {
-        this(document, startPosition, endPosition, -1, value);
+    public PositionAnnotation(String name, PipelineDocument<String> document, int startPosition, int endPosition, String value) {
+        this(name, document, startPosition, endPosition, -1, value);
     }
 
     /**
@@ -89,52 +92,65 @@ public final class PositionAnnotation extends Annotation<String> {
      * @param index The running index of this {@link Annotation}.
      * @param value The text value of this {@link Annotation}.
      */
-    public <F> PositionAnnotation(PipelineDocument<String> document, int startPosition, int endPosition, int index,
+    public PositionAnnotation(String name, PipelineDocument<String> document, int startPosition, int endPosition, int index,
             String value) {
-        super(document);
+        super(name, value);
+        // super(document);
         
-        Validate.notNull(document, "document must not be null.");
+//        Validate.notNull(document, "document must not be null.");
         Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
         Validate.isTrue(endPosition > startPosition, "endPosition must be greater than startPosition.");
+        
+        
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.index = index;
-        this.value = value;
+//        this.value = value;
+    }
+    
+    // XXX create dedicated factory?
+//    private PositionAnnotation(String name, PipelineDocument<String> document, int startPosition, int endPosition, int index) {
+//        this(name,document,startPosition,endPosition,index,document.getContent().substring(startPosition, endPosition));
+//    }
+    public PositionAnnotation(String name, int startPosition, int endPosition, int index, String value) {
+        this(name,null,startPosition,endPosition,index,value);
     }
 
-    @Override
+    // @Override
     public Integer getStartPosition() {
         return startPosition;
     }
 
-    @Override
+    // @Override
     public Integer getEndPosition() {
         return endPosition;
     }
 
-    @Override
+    // @Override
     public Integer getIndex() {
         return index;
     }
 
-    @Override
-    public String getValue() {
-    	if (value == null) {
-    		value = getDocument().getContent().substring(startPosition, endPosition);
-    	}
-        return value;
-    }
+    // @Override
+//    public String getValue() {
+//    	if (value == null) {
+//    		value = getDocument().getContent().substring(startPosition, endPosition);
+//    	}
+//        return value;
+//    }
 
-    @Override
-    public void setValue(String value) {
-        this.value = value;
-    }
+//    @Override
+//    public void setValue(String value) {
+//        this.value = value;
+//    }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Annotation [value=");
+        builder.append("Annotation [name=");
+        builder.append(getName());
+        builder.append(", value=");
         builder.append(getValue());
         builder.append(", startPosition=");
         builder.append(getStartPosition());
@@ -160,7 +176,7 @@ public final class PositionAnnotation extends Annotation<String> {
         result = prime * result + endPosition;
         result = prime * result + startPosition;
         result = prime * result + index;
-        result = prime * result + ((getDocument() == null) ? 0 : getDocument().hashCode());
+//        result = prime * result + ((getDocument() == null) ? 0 : getDocument().hashCode());
         return result;
     }
 
@@ -185,14 +201,19 @@ public final class PositionAnnotation extends Annotation<String> {
         if (index != other.index) {
             return false;
         }
-        if (getDocument() == null) {
-            if (other.getDocument() != null) {
-                return false;
-            }
-        } else if (!getDocument().equals(other.getDocument())) {
-            return false;
-        }
+//        if (getDocument() == null) {
+//            if (other.getDocument() != null) {
+//                return false;
+//            }
+//        } else if (!getDocument().equals(other.getDocument())) {
+//            return false;
+//        }
         return true;
+    }
+
+    @Override
+    public FeatureVector getFeatureVector() {
+        return featureVector;
     }
 
 }

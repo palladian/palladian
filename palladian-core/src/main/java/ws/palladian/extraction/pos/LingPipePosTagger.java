@@ -18,7 +18,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 import com.aliasi.hmm.HiddenMarkovModel;
 import com.aliasi.hmm.HmmDecoder;
@@ -86,7 +86,7 @@ public final class LingPipePosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation<String>> annotations) {
+    public void tag(List<PositionAnnotation> annotations) {
 
         int cacheSize = Integer.valueOf(100);
         FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);

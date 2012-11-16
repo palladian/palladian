@@ -23,14 +23,16 @@ import ws.palladian.processing.Port;
  * @param <T> Type of default in- and output.
  * @param <F> Type of the {@link Feature} this component supplies.
  */
-public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends AbstractPipelineProcessor<T> implements
-        FeatureProvider<F> {
-    /**
-     * <p>
-     * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
-     * </p>
-     */
-    private final FeatureDescriptor<F> featureDescriptor;
+public abstract class AbstractFeatureProvider<T> extends AbstractPipelineProcessor<T> implements
+        FeatureProvider {
+private final String featureIdentifier;
+
+//    /**
+//     * <p>
+//     * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
+//     * </p>
+//     */
+//    private final FeatureDescriptor<F> featureDescriptor;
 
     /**
      * <p>
@@ -39,12 +41,12 @@ public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends A
      * 
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public AbstractFeatureProvider(final FeatureDescriptor<F> featureDescriptor) {
+    public AbstractFeatureProvider(String featureIdentifier) {
         super();
 
-        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
+        Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
 
-        this.featureDescriptor = featureDescriptor;
+        this.featureIdentifier = featureIdentifier;
     }
 
     /**
@@ -58,17 +60,16 @@ public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends A
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
     public AbstractFeatureProvider(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts,
-            final FeatureDescriptor<F> featureDescriptor) {
+            String featureIdentifier) {
         super(inputPorts, outputPorts);
 
-        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
-
-        this.featureDescriptor = featureDescriptor;
+        Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
+        this.featureIdentifier = featureIdentifier;
     }
 
     @Override
-    public FeatureDescriptor<F> getDescriptor() {
-        return featureDescriptor;
+    public String getDescriptor() {
+        return featureIdentifier;
     }
 
 }

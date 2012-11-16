@@ -24,10 +24,8 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -43,8 +41,10 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = Logger.getLogger(NamedEntityRecognizer.class);
 
-    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);
+//    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+//            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);
+    
+    public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
 
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
@@ -809,15 +809,14 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
     	// TODO merge annotation classes
     	Annotations annotations = getAnnotations(content);
     	
-    	List<ws.palladian.processing.features.Annotation<String>> annotationsList = new ArrayList<ws.palladian.processing.features.Annotation<String>>(annotations.size());
+    	FeatureVector featureVector = document.getFeatureVector();
+    	
+    	//List<PositionAnnotation> annotationsList = CollectionHelper.newArrayList();
     	for(Annotation nerAnnotation:annotations) {
-    		ws.palladian.processing.features.Annotation<String> procAnnotation = new PositionAnnotation(document, nerAnnotation.getOffset(), nerAnnotation.getEndIndex(), -1, nerAnnotation.getMostLikelyTagName());
-    		annotationsList.add(procAnnotation);
+    		PositionAnnotation procAnnotation = new PositionAnnotation(PROVIDED_FEATURE, document, nerAnnotation.getOffset(), nerAnnotation.getEndIndex(), -1, nerAnnotation.getMostLikelyTagName());
+    		featureVector.add(procAnnotation);
     		
     	}
-    	
-    	TextAnnotationFeature feature = new TextAnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, annotationsList);
-    	document.addFeature(feature);
     }
 
     public void setName(String name) {

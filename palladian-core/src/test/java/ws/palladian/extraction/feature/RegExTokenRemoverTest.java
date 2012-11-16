@@ -7,12 +7,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * @author Philipp Katz
@@ -33,9 +33,7 @@ public class RegExTokenRemoverTest {
     public void testRegExTokenRemover() throws DocumentUnprocessableException {
         pipeline.add(new RegExTokenRemover("[A-Za-z0-9-]+"));
         pipeline.process(document);
-        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
-                RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = annotationFeature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         assertEquals(2, annotations.size());
         assertEquals("test", annotations.get(0).getValue());
         assertEquals("273", annotations.get(1).getValue());
@@ -46,10 +44,7 @@ public class RegExTokenRemoverTest {
     public void testRegExTokenRemoverInverse() throws DocumentUnprocessableException {
         pipeline.add(new RegExTokenRemover("\\d+", true));
         document = pipeline.process(document);
-        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
-                RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = annotationFeature.getValue();
-        System.out.println(annotations);
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         assertEquals(4, annotations.size());
     }
 

@@ -15,13 +15,11 @@ public class FeatureVectorTest {
     @Test
     public void testRetrieveFeaturesByDescriptor() {
         FeatureVector featureVector = new FeatureVector();
-        FeatureDescriptor<NominalFeature> featureDescriptor = FeatureDescriptorBuilder.build("myNominalFeature",
-                NominalFeature.class);
-
-        NominalFeature nominalFeature = new NominalFeature(featureDescriptor, "test");
+        
+        NominalFeature nominalFeature = new NominalFeature("testFeature", "test");
         featureVector.add(nominalFeature);
 
-        NominalFeature retrievedFeature = featureVector.get(featureDescriptor);
+        NominalFeature retrievedFeature = featureVector.getFeature(NominalFeature.class, "testFeature");
 
         assertEquals("test", retrievedFeature.getValue());
         assertEquals(NominalFeature.class, retrievedFeature.getClass());
@@ -32,38 +30,39 @@ public class FeatureVectorTest {
 
         TextDocument document = new TextDocument("hello world");
         
-        
-        PositionAnnotation annotation1 = new PositionAnnotation(document, 0, 5);
-        PositionAnnotation annotation2 = new PositionAnnotation(document, 6, 11);
+        PositionAnnotation annotation1 = new PositionAnnotation("term", document, 0, 5, "hello");
+        PositionAnnotation annotation2 = new PositionAnnotation("term", document, 6, 11, "world");
         
         // features for terms
-        NominalFeature feature1 = new NominalFeature("feature1", "value1");
-        annotation1.addFeature(feature1);
+//        NominalFeature feature1 = new NominalFeature("feature1", "value1");
+//        annotation1.getFeatureVector().add(feature1);
         
-        NominalFeature feature2 = new NominalFeature("feature1", "value2");
-        annotation2.addFeature(feature2);
+//        NominalFeature feature2 = new NominalFeature("feature1", "value2");
+//        annotation2.getFeatureVector().add(feature2);
         
-        TextAnnotationFeature annotationFeature = new TextAnnotationFeature("terms");
-        annotationFeature.add(annotation1);
-        annotationFeature.add(annotation2);
+//        TextAnnotationFeature annotationFeature = new TextAnnotationFeature("terms");
+//        annotationFeature.add(annotation1);
+//        annotationFeature.add(annotation2);
 
         // feature for document
-        NominalFeature documentFeature = new NominalFeature("term", "testTerm");
+//        NominalFeature documentFeature = new NominalFeature("term", "testTerm");
 
         // add features
-        document.addFeature(documentFeature);
-        document.addFeature(annotationFeature);
+//        document.addFeature(documentFeature);
+//        document.addFeature(annotationFeature);
+        document.addFeature(annotation1);
+        document.addFeature(annotation2);
 
-        NominalFeature feature = document.getFeatureVector().getFeature(NominalFeature.class, "term");
+//        NominalFeature feature = document.getFeatureVector().getFeature(NominalFeature.class, "term");
+//
+//        assertEquals("testTerm", feature.getValue());
+//        
+//        System.out.println(document.getFeatureVector());
 
-        assertEquals("testTerm", feature.getValue());
-        
-        System.out.println(document.getFeatureVector());
-
-        List<NominalFeature> features = document.getFeatureVector().getFeatures(NominalFeature.class, "terms/feature1");
+        List<PositionAnnotation> features = document.getFeatureVector().getAll(PositionAnnotation.class, "term");
         assertEquals(2, features.size());
-        assertEquals("value1", features.get(0).getValue());
-        assertEquals("value2", features.get(1).getValue());
+        assertEquals("hello", features.get(0).getValue());
+        assertEquals("world", features.get(1).getValue());
 
     }
 
