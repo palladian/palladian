@@ -23,7 +23,7 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -803,7 +803,7 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
     }
     
     @Override
-    public void processDocument(PipelineDocument<String> document)
+    public void processDocument(TextDocument document)
     		throws DocumentUnprocessableException {
     	String content = document.getContent();
     	// TODO merge annotation classes

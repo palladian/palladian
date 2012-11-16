@@ -5,7 +5,7 @@ package ws.palladian.extraction.feature;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 /**
  * @author Klemens Muthmann
@@ -16,10 +16,10 @@ public abstract class StringDocumentPipelineProcessor extends AbstractPipelinePr
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<String> document = getDefaultInput();
+        TextDocument document = (TextDocument) getDefaultInput();
         processDocument(document);
         setDefaultOutput(document);
     }
 
-    public abstract void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException;
+    public abstract void processDocument(TextDocument document) throws DocumentUnprocessableException;
 }

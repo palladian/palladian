@@ -11,6 +11,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -29,7 +30,7 @@ public final class DuplicateTokenConsolidator extends StringDocumentPipelineProc
 //    public final static String DUPLICATES = "ws.palladian.features.tokens.duplicates";
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
 //        TextAnnotationFeature annotationFeature = document.getFeatureVector()
 //                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
 //        if (annotationFeature == null) {

@@ -9,6 +9,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -24,7 +25,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 public final class DuplicateTokenRemover extends StringDocumentPipelineProcessor {
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
 //        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
 //                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
 //        if (annotationFeature == null) {

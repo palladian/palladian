@@ -4,9 +4,9 @@ import java.util.List;
 
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -23,7 +23,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 public abstract class AbstractTokenProcessor extends StringDocumentPipelineProcessor {
 
     @Override
-    public final void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
 //        if (annotationFeature == null) {
 //            throw new DocumentUnprocessableException("The required feature \""

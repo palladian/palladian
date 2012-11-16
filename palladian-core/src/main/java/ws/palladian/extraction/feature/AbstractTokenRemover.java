@@ -7,6 +7,7 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -33,7 +34,7 @@ public abstract class AbstractTokenRemover extends StringDocumentPipelineProcess
     protected abstract boolean remove(PositionAnnotation annotation);
 
     @Override
-    public final void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
 //        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
 //        if (annotationFeature == null) {

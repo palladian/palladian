@@ -5,7 +5,7 @@ package ws.palladian.extraction.feature;
 
 import java.util.List;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
@@ -35,7 +35,7 @@ public final class AnnotationsToViewProcessor<F extends Feature<?>> extends Stri
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) {
+    public void processDocument(TextDocument document) {
         FeatureVector vector = document.getFeatureVector();
 
         List<F> features = vector.getAll(featureDescriptor.getType());

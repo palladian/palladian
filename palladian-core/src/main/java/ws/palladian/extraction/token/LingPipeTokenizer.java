@@ -1,6 +1,6 @@
 package ws.palladian.extraction.token;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -26,7 +26,7 @@ public final class LingPipeTokenizer extends BaseTokenizer {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) {
+    public void processDocument(TextDocument document) {
         String text = document.getContent();
         FeatureVector featureVector = document.getFeatureVector();
         com.aliasi.tokenizer.Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());

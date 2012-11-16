@@ -10,6 +10,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -126,7 +127,7 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
     }
 
     @Override
-    public final void processDocument(PipelineDocument<String> document) {
+    public final void processDocument(TextDocument document) {
         Validate.notNull(document, "document must not be null");
 
         detect(document.getContent());

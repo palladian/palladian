@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
@@ -97,7 +98,7 @@ public final class RegExTokenizer extends BaseTokenizer {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) {
+    public void processDocument(TextDocument document) {
         Validate.notNull(document, "document must not be null");
 
         String text = document.getContent();
