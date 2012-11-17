@@ -20,7 +20,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractTokenProcessor extends StringDocumentPipelineProcessor {
+public abstract class AbstractTokenProcessor extends TextDocumentPipelineProcessor {
 
     @Override
     public final void processDocument(TextDocument document) throws DocumentUnprocessableException {

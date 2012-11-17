@@ -23,7 +23,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 1.0
  * @since 0.1.7
  */
-public final class RatioExtractor extends StringDocumentPipelineProcessor {
+public final class RatioExtractor extends TextDocumentPipelineProcessor {
 
     private final String featureIdentifier;
     private final String dividendFeatureIdentifier;

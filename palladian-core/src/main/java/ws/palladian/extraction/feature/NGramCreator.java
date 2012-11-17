@@ -26,7 +26,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public class NGramCreator extends StringDocumentPipelineProcessor {
+public class NGramCreator extends TextDocumentPipelineProcessor {
 
     private final int minLength;
     private final int maxLength;

@@ -30,7 +30,7 @@ import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
 import ws.palladian.extraction.feature.StopTokenRemover;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
@@ -106,7 +106,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         candidateGenerationPipeline.add(new TfIdfAnnotator());
 //        candidateGenerationPipeline.add(new PhrasenessAnnotator());
         candidateGenerationPipeline.add(new AdditionalFeatureExtractor());
-        candidateGenerationPipeline.add(new StringDocumentPipelineProcessor() {
+        candidateGenerationPipeline.add(new TextDocumentPipelineProcessor() {
 
             @Override
             public void processDocument(TextDocument document) throws DocumentUnprocessableException {

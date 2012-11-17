@@ -19,7 +19,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractTokenRemover extends StringDocumentPipelineProcessor {
+public abstract class AbstractTokenRemover extends TextDocumentPipelineProcessor {
 
     /**
      * <p>

@@ -19,7 +19,7 @@ import ws.palladian.processing.TextDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public final class HtmlCleaner extends StringDocumentPipelineProcessor {
+public final class HtmlCleaner extends TextDocumentPipelineProcessor {
 
     @Override
     public final void processDocument(TextDocument document) {

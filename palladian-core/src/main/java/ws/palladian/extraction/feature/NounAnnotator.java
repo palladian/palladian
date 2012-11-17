@@ -27,7 +27,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 1.0
  * @since 0.1.7
  */
-public final class NounAnnotator extends StringDocumentPipelineProcessor {
+public final class NounAnnotator extends TextDocumentPipelineProcessor {
 
     private final static String[] NOUN_TAGS = new String[] {"NN", "NN$", "NNS", "NNS$", "NP", "NP$", "NPS", "NPS$"};
 

@@ -12,7 +12,7 @@ import ws.palladian.processing.TextDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public abstract class StringDocumentPipelineProcessor extends AbstractPipelineProcessor<String> {
+public abstract class TextDocumentPipelineProcessor extends AbstractPipelineProcessor<String> {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {

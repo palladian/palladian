@@ -20,7 +20,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 0.1.7
  */
-public final class DocumentLengthCalculator extends StringDocumentPipelineProcessor {
+public final class DocumentLengthCalculator extends TextDocumentPipelineProcessor {
 
     /**
      * <p>

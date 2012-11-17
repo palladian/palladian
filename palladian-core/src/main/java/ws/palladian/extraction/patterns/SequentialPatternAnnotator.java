@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
@@ -51,7 +51,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 1.0
  * @since 0.1.7
  */
-public final class SequentialPatternAnnotator extends StringDocumentPipelineProcessor {
+public final class SequentialPatternAnnotator extends TextDocumentPipelineProcessor {
 
     private Set<String> keywords;
 

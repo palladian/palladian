@@ -21,7 +21,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @since 0.1.7
  * 
  */
-public final class AnnotationsToViewProcessor extends StringDocumentPipelineProcessor {
+public final class AnnotationsToViewProcessor extends TextDocumentPipelineProcessor {
 
     private final String featureIdentifier;
 

@@ -43,7 +43,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class TokenDistributionStatisticsCalculator extends StringDocumentPipelineProcessor {
+public final class TokenDistributionStatisticsCalculator extends TextDocumentPipelineProcessor {
 
     /** Identifier for the feature provided by this class. */
     public static final String LEVEL_STATISTICS = "ws.palladian.features.tokens.level";

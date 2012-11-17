@@ -8,7 +8,7 @@ import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
-public final class TokenOverlapRemover extends StringDocumentPipelineProcessor {
+public final class TokenOverlapRemover extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {

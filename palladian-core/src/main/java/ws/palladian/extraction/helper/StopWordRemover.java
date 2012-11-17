@@ -3,12 +3,12 @@ package ws.palladian.extraction.helper;
 import java.io.InputStream;
 import java.util.List;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
 
-public class StopWordRemover extends StringDocumentPipelineProcessor {
+public class StopWordRemover extends TextDocumentPipelineProcessor {
 
     private List<String> stopWords;
 

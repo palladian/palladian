@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.FeatureVector;
@@ -18,7 +18,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseTokenizer extends StringDocumentPipelineProcessor {
+public abstract class BaseTokenizer extends TextDocumentPipelineProcessor {
 
     /**
      * <p>
