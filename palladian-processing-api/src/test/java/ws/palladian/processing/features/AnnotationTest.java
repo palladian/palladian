@@ -4,15 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.processing.TextDocument;
-
 public class AnnotationTest {
 
     @Test
     public void testGetFeature() {
 
-        TextDocument document = new TextDocument("The quick brown fox.");
-        PositionAnnotation annotation = new PositionAnnotation("term", document, 0, 3, "The");
+        PositionAnnotation annotation = new PositionAnnotation("term", 0, 3, 0, "The");
         assertEquals("The", annotation.getValue());
 
         NominalFeature stopwordFeature = new NominalFeature("stopword", "true");

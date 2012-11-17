@@ -8,7 +8,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -62,8 +61,6 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
      * @param considerableFeatureDescriptors
      */
     public NGramCreator(int minLength, int maxLength, String... considerableFeatureDescriptors) {
-        super();
-
         Validate.notNull(considerableFeatureDescriptors, "considerableFeatureDescriptors must not be null");
         Validate.inclusiveBetween(1, Integer.MAX_VALUE, minLength);
         Validate.inclusiveBetween(minLength, Integer.MAX_VALUE, maxLength);
@@ -75,20 +72,12 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-//        FeatureVector featureVector = document.getFeatureVector();
-//        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-//        if (annotationFeature == null) {
-//            throw new DocumentUnprocessableException("The required feature "
-//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
-//        }
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
-//        List<AnnotationGroup<String>> gramTokens = new ArrayList<AnnotationGroup<String>>();
+        List<PositionAnnotation> annotations = BaseTokenizer.getTokenAnnotations(document);
         List<PositionAnnotation> gramTokens = CollectionHelper.newArrayList();
         for (int i = minLength; i <= maxLength; i++) {
             List<PositionAnnotation> nGramTokens = createNGrams(document, annotations, i);
             gramTokens.addAll(nGramTokens);
         }
-//        annotations.addAll(gramTokens);
         document.getFeatureVector().addAll(gramTokens);
     }
 
@@ -99,22 +88,30 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
      * 
      * @param document
      * @param annotations
-     * @param length
+     * @param n
      * @return
      */
-    private List<PositionAnnotation> createNGrams(PipelineDocument<String> document, List<PositionAnnotation> annotations,
-            int length) {
+    private List<PositionAnnotation> createNGrams(TextDocument document, List<PositionAnnotation> annotations, int n) {
         List<PositionAnnotation> gramTokens = CollectionHelper.newArrayList();
         PositionAnnotation[] tokensArray = annotations.toArray(new PositionAnnotation[annotations.size()]);
-        for (int i = 0; i < tokensArray.length - length + 1; i++) {
+        tokenLoop: for (int i = 0; i < tokensArray.length - n + 1; i++) {
             List<PositionAnnotation> group = CollectionHelper.newArrayList();
-            for (int j = i; j < i + length; j++) {
+
+            // for checking, if we have consecutive annotations
+            int indexCheck = tokensArray[i].getIndex();
+
+            for (int j = i; j < i + n; j++) {
                 group.add(tokensArray[j]);
+                if (j > i) {
+                    int currentIndex = tokensArray[j].getIndex();
+                    if (indexCheck + 1 != currentIndex) {
+                        continue tokenLoop; // skip adding this n-gram, as its tokens were not consecutive
+                    }
+                    indexCheck = currentIndex;
+                }
             }
-            if (isConsecutive(group)) {
-                PositionAnnotation mergedGroup = postProcess(group);
-                gramTokens.add(mergedGroup);
-            }
+            PositionAnnotation mergedGroup = postProcess(group);
+            gramTokens.add(mergedGroup);
         }
         return gramTokens;
     }
@@ -166,47 +163,29 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
             NominalFeature newFeature = new NominalFeature(descriptor, StringUtils.join(components, ""));
             ret.getFeatureVector().add(newFeature);
         }
-        
-        
-//        PositionAnnotation firstAnnotation = CollectionHelper.getFirst(gramToken);
-//        PositionAnnotation lastAnnotation = CollectionHelper.getLast(gramToken);
-//        PositionAnnotation ret = new PositionAnnotation(firstAnnotation.getName(), firstAnnotation.getStartPosition(), lastAnnotation.getEndPosition(), firstAnnotation.getIndex());
-//        for (String descriptor : considerableFeatureDescriptors) {
-//            List<String> components = new ArrayList<String>();
-//            for (PositionAnnotation annotation : gramToken) {
-//                String value = annotation.getFeatureVector().getFeature(NominalFeature.class, descriptor).getValue();
-//                components.add(value);
-//            }
-//            NominalFeature newFeature = new NominalFeature(descriptor, StringUtils.join(components, ""));
-//            ret.getFeatureVector().add(newFeature);
-//            //gramToken.addFeature(newFeature);
-//        }
-        
         return ret;
     }
 
-    /**
-     * <p>
-     * Check, whether the {@link PositionAnnotation}s in the supplied {@link AnnotationGroup} are consecutive, i.e. the
-     * difference between two following {@link PositionAnnotation}s in the group is one for each pair.
-     * </p>
-     * 
-     * @param annotationGroup The {@link AnnotationGroup} for which to verify consecutiveness of {@link PositionAnnotation}s.
-     * @return <code>true</code>, if {@link PositionAnnotation}s are consecutive, <code>false</code> otherwise.
-     */
-    private boolean isConsecutive(List<PositionAnnotation> annotationGroup) {
-        boolean ret = true;
-        int index = -1;
-        for (PositionAnnotation annotation : annotationGroup) {
-            int currentIndex = annotation.getIndex();
-            if (index != -1 && index + 1 != currentIndex) {
-                ret = false;
-                break;
-            }
-            index = currentIndex;
-        }
-        return ret;
-    }
+//    /**
+//     * <p>
+//     * Check, whether the {@link PositionAnnotation}s in the supplied {@link AnnotationGroup} are consecutive, i.e. the
+//     * difference between two following {@link PositionAnnotation}s in the group is one for each pair.
+//     * </p>
+//     * 
+//     * @param annotationGroup The {@link AnnotationGroup} for which to verify consecutiveness of {@link PositionAnnotation}s.
+//     * @return <code>true</code>, if {@link PositionAnnotation}s are consecutive, <code>false</code> otherwise.
+//     */
+//    private boolean isConsecutive(List<PositionAnnotation> annotationGroup) {
+//        int index = -1;
+//        for (PositionAnnotation annotation : annotationGroup) {
+//            int currentIndex = annotation.getIndex();
+//            if (index != -1 && index + 1 != currentIndex) {
+//                return false;
+//            }
+//            index = currentIndex;
+//        }
+//        return true;
+//    }
 
     /*
      * (non-Javadoc)

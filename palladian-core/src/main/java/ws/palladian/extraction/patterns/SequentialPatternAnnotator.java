@@ -24,6 +24,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -118,10 +119,10 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
             Integer i = sentenceStartPosition;
             while (i < sentenceEndPosition) {
                 // check for next keyword or part of speech tag.
-                if (currentMarkedKeyword != null && currentMarkedKeyword.getStartPosition().equals(i)) {
+                if (currentMarkedKeyword != null && Integer.valueOf(currentMarkedKeyword.getStartPosition()).equals(i)) {
                     sequentialPattern.add(currentMarkedKeyword.getValue());
                     i = currentMarkedKeyword.getEndPosition();
-                } else if (currentPosTag != null && currentPosTag.getStartPosition().equals(i)) {
+                } else if (currentPosTag != null && Integer.valueOf(currentPosTag.getStartPosition()).equals(i)) {
                     sequentialPattern.add(currentPosTag.getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                             .getValue());
                     i = currentPosTag.getEndPosition();
@@ -161,12 +162,12 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
         List<PositionAnnotation> markedKeywords = new LinkedList<PositionAnnotation>();
         String originalContent = document.getContent();
         String originalContentLowerCased = originalContent.toLowerCase();
-        int index = 0;
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory("keyword", document);
         for (String keyword : keywords) {
             Pattern keywordPattern = Pattern.compile(keyword.toLowerCase());
             Matcher keywordMatcher = keywordPattern.matcher(originalContentLowerCased);
             if (keywordMatcher.find()) {
-                markedKeywords.add(new PositionAnnotation("keyword", keywordMatcher.start(), keywordMatcher.end(), index++, keywordMatcher.group()));
+                markedKeywords.add(annotationFactory.create(keywordMatcher.start(), keywordMatcher.end()));
             }
         }
         return markedKeywords;

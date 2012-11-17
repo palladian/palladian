@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -22,48 +22,15 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @since 0.1.7
  */
 public final class RegExTokenizer extends BaseTokenizer {
-    
+
     /**
      * <p>
      * The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      * </p>
      */
     private final Pattern pattern;
-    
-    
+
     private final String featureName;
-//    /**
-//     * <p>
-//     * The descriptor for the {@code Feature} this {@code PipelineProcessor} creates.
-//     * </p>
-//     */
-//    private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
-
-//    /**
-//     * <p>
-//     * Creates a new {@code RegExTokenizer} creating token {@code Annotation}s with the provided
-//     * {@link FeatureDescriptor} and annotating token matching the provided {@code pattern}.
-//     * </p>
-//     * 
-//     * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
-//     * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
-//     */
-//    public RegExTokenizer(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor, final String pattern) {
-//        this(featureDescriptor, Pattern.compile(pattern));
-//    }
-
-//    /**
-//     * <p>
-//     * Creates a new {@code RegExTokenizer} creating token {@code Annotation}s with the provided
-//     * {@link FeatureDescriptor} and annotating token matching {@link Tokenizer#SPLIT_PATTERN}.
-//     * </p>
-//     * 
-//     * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
-//     */
-//    public RegExTokenizer(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor) {
-//        // The default case to keep compatibility to old code.
-//        this(featureDescriptor, Tokenizer.SPLIT_PATTERN);
-//    }
 
     /**
      * <p>
@@ -78,16 +45,14 @@ public final class RegExTokenizer extends BaseTokenizer {
 
     /**
      * <p>
-     * Creates a new {@code RegExTokenizer} creating token {@code Annotation}s with the provided
-     * identifier and annotating token matching the provided {@code pattern}.
+     * Creates a new {@code RegExTokenizer} creating token {@code Annotation}s with the provided identifier and
+     * annotating token matching the provided {@code pattern}.
      * </p>
      * 
      * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
      * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      */
     public RegExTokenizer(String featureName, Pattern pattern) {
-        super();
-
         Validate.notNull(featureName, "featureName must not be null");
         Validate.notNull(pattern, "pattern must not be null");
 
@@ -102,21 +67,10 @@ public final class RegExTokenizer extends BaseTokenizer {
         String text = document.getContent();
         FeatureVector featureVector = document.getFeatureVector();
         Matcher matcher = pattern.matcher(text);
-        int index = 0;
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(featureName, document);
         while (matcher.find()) {
-            int startPosition = matcher.start();
-            int endPosition = matcher.end();
-            String value = text.substring(startPosition, endPosition);
-            PositionAnnotation annotation = new PositionAnnotation(featureName, startPosition, endPosition, index++, value);
-            featureVector.add(annotation);
+            featureVector.add(annotationFactory.create(matcher.start(), matcher.end()));
         }
     }
-
-//    /**
-//     * @return the {@link FeatureDescriptor} used to identify the extracted {@code AnnotationFeature}.
-//     */
-//    public FeatureDescriptor<TextAnnotationFeature> getFeatureDescriptor() {
-//        return featureDescriptor;
-//    }
 
 }

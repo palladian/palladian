@@ -5,7 +5,7 @@ import java.util.List;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 
 /**
@@ -24,8 +24,8 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
         String text = document.getContent();
         FeatureVector featureVector = document.getFeatureVector();
         List<String> tokens = Twokenize.tokenizeForTagger_J(text);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
         int endPosition = 0;
-        int index = 0;
         for (String token : tokens) {
             int startPosition = text.indexOf(token, endPosition);
 
@@ -37,7 +37,7 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
             }
             
             endPosition = startPosition + token.length();
-            featureVector.add(new PositionAnnotation(PROVIDED_FEATURE, startPosition, endPosition, index++, token));
+            featureVector.add(annotationFactory.create(startPosition, endPosition));
         }
     }
 

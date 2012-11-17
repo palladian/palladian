@@ -26,6 +26,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -811,9 +812,9 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     	
     	FeatureVector featureVector = document.getFeatureVector();
     	
-    	//List<PositionAnnotation> annotationsList = CollectionHelper.newArrayList();
+    	PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
     	for(Annotation nerAnnotation:annotations) {
-    		PositionAnnotation procAnnotation = new PositionAnnotation(PROVIDED_FEATURE, document, nerAnnotation.getOffset(), nerAnnotation.getEndIndex(), -1, nerAnnotation.getMostLikelyTagName());
+    		PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getOffset(), nerAnnotation.getEndIndex());
     		featureVector.add(procAnnotation);
     		
     	}

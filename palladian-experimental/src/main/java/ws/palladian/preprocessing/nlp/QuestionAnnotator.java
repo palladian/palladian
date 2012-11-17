@@ -10,6 +10,7 @@ import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -47,29 +48,17 @@ public final class QuestionAnnotator extends TextDocumentPipelineProcessor {
         List<PositionAnnotation> sentences = document.getFeatureVector().getAll(PositionAnnotation.class,
                 AbstractSentenceDetector.PROVIDED_FEATURE);
         List<PositionAnnotation> questions = CollectionHelper.newArrayList();
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(FEATURE_IDENTIFIER, document);
         for (PositionAnnotation sentence : sentences) {
             String coveredText = sentence.getValue();
             if (coveredText.endsWith("?") || coveredText.toLowerCase().startsWith("what")
                     || coveredText.toLowerCase().startsWith("who") || coveredText.toLowerCase().startsWith("where")
                     || coveredText.toLowerCase().startsWith("how ") || coveredText.toLowerCase().startsWith("why")) {
-
-                questions.add(createQuestion(sentence));
+                questions.add(annotationFactory.create(sentence.getStartPosition(), sentence.getEndPosition()));
             }
         }
         document.getFeatureVector().addAll(questions);
     }
 
-    /**
-     * <p>
-     * Creates a new question {@code Annotation} based on an existing sentence {@code Annotation}.
-     * </p>
-     * 
-     * @param sentence The sentence {@code Annotation} representing the new question.
-     * @return A new annotation of the question type spanning the same area as the provided sentence.
-     */
-    private PositionAnnotation createQuestion(PositionAnnotation sentence) {
-        return new PositionAnnotation(FEATURE_IDENTIFIER, sentence.getStartPosition(), sentence.getEndPosition(),
-                -1, sentence.getValue());
-    }
 
 }

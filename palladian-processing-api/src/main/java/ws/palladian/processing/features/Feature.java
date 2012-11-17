@@ -1,6 +1,5 @@
 package ws.palladian.processing.features;
 
-
 /**
  * <p>
  * The base class for all features used by different Information Retrieval and Extraction components inside Palladian. A
@@ -21,6 +20,7 @@ public abstract class Feature<T> {
      * </p>
      */
     private final String name;
+
     /**
      * <p>
      * The {@code Feature}'s value containing concrete extracted data from a document.
@@ -45,18 +45,6 @@ public abstract class Feature<T> {
         this.value = value;
     }
 
-//    /**
-//     * <p>
-//     * Creates a new {@link Feature} with all attributes initialized.
-//     * 
-//     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and type information for this
-//     *            {@link Feature}.
-//     * @param value The {@link Feature}'s value containing concrete extracted data from a document.
-//     */
-//    public Feature(FeatureDescriptor<? extends Feature<T>> descriptor, T value) {
-//        this(descriptor.getIdentifier(), value);
-//    }
-
     /**
      * <p>
      * Provides the {@link FeatureVector} wide unique identifier of this {@code Feature}.
@@ -67,18 +55,6 @@ public abstract class Feature<T> {
     public final String getName() {
         return name;
     }
-
-//    /**
-//     * <p>
-//     * Resets this {@code Feature}'s identifier overwriting the old one. Use with care!
-//     * </p>
-//     * 
-//     * @param name
-//     *            The {@link FeatureVector} wide unique identifier of this {@code Feature}.
-//     */
-//    public final void setName(String name) {
-//        this.name = name;
-//    }
 
     /**
      * <p>
@@ -117,13 +93,6 @@ public abstract class Feature<T> {
         builder.append(value);
         return builder.toString();
     }
-
-//    /**
-//     * @return The {@link FeatureDescriptor} for this class.
-//     */
-//    public FeatureDescriptor<?> getDescriptor() {
-//        return FeatureDescriptorBuilder.build(getName(), this.getClass());
-//    }
 
     /*
      * (non-Javadoc)

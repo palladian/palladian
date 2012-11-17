@@ -66,7 +66,7 @@ public final class TokenDistributionStatisticsCalculator extends TextDocumentPip
 
         // collect all positions for specific tokens in text
         for (PositionAnnotation token : tokens) {
-            tokenPositions.put(token.getValue(), token.getStartPosition().longValue());
+            tokenPositions.put(token.getValue(), Long.valueOf(token.getStartPosition()));
         }
 
         // calculate level statistics for all token values

@@ -2,7 +2,7 @@ package ws.palladian.extraction.token;
 
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
@@ -30,12 +30,12 @@ public final class LingPipeTokenizer extends BaseTokenizer {
         String text = document.getContent();
         FeatureVector featureVector = document.getFeatureVector();
         com.aliasi.tokenizer.Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
-        int index = 0;
         String nextToken = tokenizer.nextToken();
+        PositionAnnotationFactory factory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
         while (nextToken != null) {
             int startPosition = tokenizer.lastTokenStartPosition();
             int endPosition = tokenizer.lastTokenEndPosition();
-            featureVector.add(new PositionAnnotation(PROVIDED_FEATURE, document, startPosition, endPosition, index++, nextToken));
+            featureVector.add(factory.create(startPosition, endPosition));
             nextToken = tokenizer.nextToken();
         }
     }

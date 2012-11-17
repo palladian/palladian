@@ -30,8 +30,8 @@ public class DuplicateTokenConsolidatorTest {
         assertEquals("Das", token1.getValue());
         List<PositionAnnotation> duplicates1 = DuplicateTokenConsolidator.getDuplicateAnnotations(token1);
         assertEquals(1, duplicates1.size());
-        assertEquals((Integer) 22, duplicates1.get(0).getStartPosition());
-        assertEquals((Integer) 25, duplicates1.get(0).getEndPosition());
+        assertEquals(22, duplicates1.get(0).getStartPosition());
+        assertEquals(25, duplicates1.get(0).getEndPosition());
         assertEquals("das", duplicates1.get(0).getValue());
     }
 
