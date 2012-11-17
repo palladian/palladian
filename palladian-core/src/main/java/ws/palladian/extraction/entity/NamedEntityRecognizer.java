@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap;
@@ -36,7 +36,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author David Urbansky
  * 
  */
-public abstract class NamedEntityRecognizer extends StringDocumentPipelineProcessor {
+public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor {
 
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = Logger.getLogger(NamedEntityRecognizer.class);

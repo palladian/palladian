@@ -25,7 +25,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class DuplicateTokenConsolidator extends StringDocumentPipelineProcessor {
+public final class DuplicateTokenConsolidator extends TextDocumentPipelineProcessor {
 
 //    public final static String DUPLICATES = "ws.palladian.features.tokens.duplicates";
 

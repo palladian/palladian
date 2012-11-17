@@ -24,7 +24,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class TokenMetricsCalculator extends StringDocumentPipelineProcessor {
+public final class TokenMetricsCalculator extends TextDocumentPipelineProcessor {
 
     public static final String FIRST =  "ws.palladian.features.tokens.first";
     public static final String LAST = "ws.palladian.features.tokens.last";

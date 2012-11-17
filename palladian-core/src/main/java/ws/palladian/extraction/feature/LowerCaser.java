@@ -14,7 +14,7 @@ import ws.palladian.processing.TextDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public final class LowerCaser extends StringDocumentPipelineProcessor {
+public final class LowerCaser extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) {

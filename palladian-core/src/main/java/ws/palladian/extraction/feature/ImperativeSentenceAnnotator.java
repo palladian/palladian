@@ -23,7 +23,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 1.0
  * @since 0.1.7
  */
-public final class ImperativeSentenceAnnotator extends StringDocumentPipelineProcessor {
+public final class ImperativeSentenceAnnotator extends TextDocumentPipelineProcessor {
 
     private static final String[] IMPERATIVE_TAGS = new String[] {"VB", "DO"};
 

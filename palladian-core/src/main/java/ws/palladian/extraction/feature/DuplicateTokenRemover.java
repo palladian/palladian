@@ -22,7 +22,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class DuplicateTokenRemover extends StringDocumentPipelineProcessor {
+public final class DuplicateTokenRemover extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {

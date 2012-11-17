@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -28,7 +28,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class AdditionalFeatureExtractor extends StringDocumentPipelineProcessor {
+public final class AdditionalFeatureExtractor extends TextDocumentPipelineProcessor {
 
     /** Denotes the percentage a term instance starts with an upper case letter. */
     public static final String STARTS_UPPERCASE_PERCENTAGE = "startsUppercase";

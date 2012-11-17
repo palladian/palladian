@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
@@ -44,7 +44,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public abstract class AbstractSentenceDetector extends StringDocumentPipelineProcessor/*  implements
+public abstract class AbstractSentenceDetector extends TextDocumentPipelineProcessor/*  implements
         FeatureProvider<TextAnnotationFeature> */ {
 
     /**

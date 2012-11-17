@@ -10,7 +10,7 @@ import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
-public class TermCorpusBuilder extends StringDocumentPipelineProcessor {
+public class TermCorpusBuilder extends TextDocumentPipelineProcessor {
     
     private final TermCorpus termCorpus;
 

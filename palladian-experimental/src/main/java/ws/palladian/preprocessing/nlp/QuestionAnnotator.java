@@ -2,7 +2,7 @@ package ws.palladian.preprocessing.nlp;
 
 import java.util.List;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.PipelineProcessor;
@@ -35,7 +35,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 2.0
  * @since 0.1.7
  */
-public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
+public final class QuestionAnnotator extends TextDocumentPipelineProcessor {
     
     /**
      * The world wide unique identifier of the {@link Feature}s created by this annotator.

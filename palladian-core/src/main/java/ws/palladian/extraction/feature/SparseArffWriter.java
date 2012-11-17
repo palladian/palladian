@@ -303,7 +303,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
         PipelineDocument<Object> document = getDefaultInput();
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
         for (String featurePath : featurePaths) {
-            List<? extends Feature<?>> features = document.getFeatureVector().getFeatures(featurePath);
+            List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);
             handleFeature(features, newInstance);
         }
         instances.add(newInstance);

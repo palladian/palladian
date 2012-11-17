@@ -5,7 +5,7 @@ import java.util.List;
 
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
@@ -35,7 +35,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public abstract class BasePosTagger extends StringDocumentPipelineProcessor implements PosTagger {
+public abstract class BasePosTagger extends TextDocumentPipelineProcessor implements PosTagger {
 
     /**
      * <p>
