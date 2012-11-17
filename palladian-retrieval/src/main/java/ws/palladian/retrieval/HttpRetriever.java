@@ -40,7 +40,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -560,15 +559,16 @@ public class HttpRetriever {
 
         List<String> ret = new ArrayList<String>();
 
-        HttpClient client = new DefaultHttpClient(connectionManager);
+        DecompressingHttpClient client = new DecompressingHttpClient(backend);
         HttpParams params = client.getParams();
         params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-
+        
         HttpConnectionParams.setSoTimeout(params, (int)getSocketTimeoutRedirects());
         HttpConnectionParams.setConnectionTimeout(params, (int)getConnectionTimeoutRedirects());
-
+        
         for (;;) {
             HttpHead headRequest;
+            LOGGER.debug("checking " + url);
             try {
                 headRequest = new HttpHead(url);
             } catch (IllegalArgumentException e) {
