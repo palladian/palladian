@@ -16,6 +16,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -42,14 +43,14 @@ public final class NounAnnotator extends TextDocumentPipelineProcessor {
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         List<PositionAnnotation> ret = CollectionHelper.newArrayList();
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
-        int index = 0;
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(featureIdentifier, document);
         for (PositionAnnotation token : document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE)) {
             NominalFeature posTag = token.getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE);
             if (posTag == null) {
                 throw new DocumentUnprocessableException(
                         "At least one token has not PoS tag. The noun annotator requires the pipeline to call a PoSTagger in advance.");
             } else if (nounTagList.contains(posTag.getValue())) {
-                ret.add(new PositionAnnotation(featureIdentifier, token.getStartPosition(), token.getEndPosition(), index++, token.getValue()));
+                ret.add(annotationFactory.create(token.getStartPosition(), token.getEndPosition()));
             }
         }
         document.getFeatureVector().addAll(ret);

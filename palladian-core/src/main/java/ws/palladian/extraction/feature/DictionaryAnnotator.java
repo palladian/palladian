@@ -13,9 +13,10 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.AbstractFeatureProvider;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -53,17 +54,18 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String> {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<String> document = getDefaultInput();
+        TextDocument document = (TextDocument)getDefaultInput();
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         List<PositionAnnotation> matchingToken = CollectionHelper.newArrayList();
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(getDescriptor(), document);
         for (PositionAnnotation tokenAnnotation : annotations) {
             String token = tokenAnnotation.getValue();
             if (dictionary.contains(token)) {
                 int startPosition = tokenAnnotation.getStartPosition();
                 int endPosition = tokenAnnotation.getEndPosition();
-                PositionAnnotation match = new PositionAnnotation(getDescriptor(), startPosition, endPosition, 0, token);
-                matchingToken.add(match);
+                PositionAnnotation annotation = annotationFactory.create(startPosition, endPosition);
+                matchingToken.add(annotation);
             }
         }
         

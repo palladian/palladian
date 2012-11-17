@@ -16,7 +16,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -86,11 +86,9 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
         String content = document.getContent();
         FeatureVector featureVector = document.getFeatureVector();
         Span[] spans = tokenizer.tokenizePos(content);
-        int index = 0;
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
         for (Span span : spans) {
-            String value = content.substring(span.getStart(), span.getEnd());
-            PositionAnnotation annotation = new PositionAnnotation(PROVIDED_FEATURE, span.getStart(), span.getEnd(), index++, value);
-            featureVector.add(annotation);
+            featureVector.add(annotationFactory.create(span.getStart(), span.getEnd()));
         }
     }
 

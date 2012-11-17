@@ -5,9 +5,9 @@ package ws.palladian.extraction.sentence;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
@@ -74,11 +74,10 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
         Chunking chunking = sentenceChunker.chunk(text);
         PositionAnnotation[] sentences = new PositionAnnotation[chunking.chunkSet().size()];
-        TextDocument document = new TextDocument(text);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(providedFeature, text);
         int ite = 0;
-        for (final Chunk chunk : chunking.chunkSet()) {
-            String sentence = text.substring(chunk.start(), chunk.end());
-            sentences[ite] = new PositionAnnotation(providedFeature, document, chunk.start(), chunk.end(), sentence);
+        for (Chunk chunk : chunking.chunkSet()) {
+            sentences[ite] = annotationFactory.create(chunk.start(), chunk.end());
             ite++;
         }
         setSentences(sentences);

@@ -8,7 +8,7 @@ package ws.palladian.processing.features;
  * @version 1.0
  * @since 0.1.7
  */
-public final class BooleanFeature extends Feature<Boolean> {
+public class BooleanFeature extends Feature<Boolean> {
 
     /**
      * @param name
@@ -17,9 +17,5 @@ public final class BooleanFeature extends Feature<Boolean> {
     public BooleanFeature(String name, Boolean value) {
         super(name, value);
     }
-
-//    public BooleanFeature(FeatureDescriptor<BooleanFeature> descriptor, Boolean value) {
-//        super(descriptor.getIdentifier(), value);
-//    }
 
 }

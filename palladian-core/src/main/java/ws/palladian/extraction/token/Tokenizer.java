@@ -607,7 +607,7 @@ public final class Tokenizer {
 
             @Override
             public int compare(PositionAnnotation o1, PositionAnnotation o2) {
-                return o1.getStartPosition().compareTo(o2.getStartPosition());
+                return Integer.valueOf(o1.getStartPosition()).compareTo(o2.getStartPosition());
             }
         });
         return recalculatePositions(inputDocument, maskedText, masks, sentences);

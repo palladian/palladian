@@ -13,6 +13,7 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -36,6 +37,7 @@ public final class ImperativeSentenceAnnotator extends TextDocumentPipelineProce
         List<PositionAnnotation> ret = new LinkedList<PositionAnnotation>();
 
         Iterator<PositionAnnotation> posTagsIterator = tokenAnnotations.iterator();
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
         for (PositionAnnotation sentence : sentences) {
             String firstTagInSentence = null;
             while (posTagsIterator.hasNext()) {
@@ -50,8 +52,7 @@ public final class ImperativeSentenceAnnotator extends TextDocumentPipelineProce
                 break;
             }
             if (Arrays.asList(IMPERATIVE_TAGS).contains(firstTagInSentence)) {
-                ret.add(new PositionAnnotation(PROVIDED_FEATURE, sentence.getStartPosition(), sentence.getEndPosition(),
-                        0, sentence.getValue()));
+                ret.add(annotationFactory.create(sentence.getStartPosition(), sentence.getEndPosition()));
             }
         }
         document.getFeatureVector().addAll(ret);

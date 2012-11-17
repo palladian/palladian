@@ -30,8 +30,8 @@ public class FeatureVectorTest {
 
         TextDocument document = new TextDocument("hello world");
         
-        PositionAnnotation annotation1 = new PositionAnnotation("term", document, 0, 5, "hello");
-        PositionAnnotation annotation2 = new PositionAnnotation("term", document, 6, 11, "world");
+        PositionAnnotation annotation1 = new PositionAnnotation("term", 0, 5, 0, "hello");
+        PositionAnnotation annotation2 = new PositionAnnotation("term", 6, 11, 1, "world");
         
         // features for terms
 //        NominalFeature feature1 = new NominalFeature("feature1", "value1");

@@ -14,6 +14,7 @@ import org.apache.commons.lang.Validate;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -66,12 +67,11 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
     public OpenNlpSentenceDetector detect(String text) {
         Span[] sentenceBoundaries = model.sentPosDetect(text);
         PositionAnnotation[] sentenceAnnotations = new PositionAnnotation[sentenceBoundaries.length];
-        //TextDocument document = new TextDocument(text);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(providedFeature, text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {
             int start = sentenceBoundaries[i].getStart();
             int end = sentenceBoundaries[i].getEnd();
-            String value = text.substring(start, end);
-            sentenceAnnotations[i] = new PositionAnnotation(providedFeature, start, end, i, value);
+            sentenceAnnotations[i] = annotationFactory.create(start, end);
         }
         setSentences(sentenceAnnotations);
         return this;
