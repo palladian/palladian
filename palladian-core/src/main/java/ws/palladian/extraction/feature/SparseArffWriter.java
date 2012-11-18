@@ -198,7 +198,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      */
     public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final Integer batchSize,
             String[] featurePaths) throws IOException {
-        super(Arrays.asList(new Port<?>[] {new Port<Object>(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port<?>>());
+        super(Arrays.asList(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port>());
 
         Validate.notNull(modelArffFile, "fileName must not be null");
         Validate.notEmpty(featurePaths, "featureDescriptors must not be empty");

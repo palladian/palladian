@@ -25,7 +25,7 @@ public abstract class PipelineDocument<T> implements Classifiable {
      * A vector of all features extracted for this document by some pipeline.
      * </p>
      */
-    private FeatureVector featureVector;
+    private final FeatureVector featureVector;
 
     private T content;
 
@@ -37,10 +37,8 @@ public abstract class PipelineDocument<T> implements Classifiable {
      * 
      * @param content The content of this {@code PipelineDocument}.
      */
-    public PipelineDocument(T content) {
-        super();
+    protected PipelineDocument(T content) {
         Validate.notNull(content);
-
         this.featureVector = new FeatureVector();
         this.content = content;
     }
@@ -57,16 +55,16 @@ public abstract class PipelineDocument<T> implements Classifiable {
         return featureVector;
     }
 
-    /**
-     * <p>
-     * Resets this document's {@code FeatureVector} overwriting all features previously extracted.
-     * </p>
-     * 
-     * @param featureVector The new {@code FeatureVector} of this document.
-     */
-    public final void setFeatureVector(FeatureVector featureVector) {
-        this.featureVector = featureVector;
-    }
+//    /**
+//     * <p>
+//     * Resets this document's {@code FeatureVector} overwriting all features previously extracted.
+//     * </p>
+//     * 
+//     * @param featureVector The new {@code FeatureVector} of this document.
+//     */
+//    public final void setFeatureVector(FeatureVector featureVector) {
+//        this.featureVector = featureVector;
+//    }
 
     /**
      * <p>
@@ -92,17 +90,6 @@ public abstract class PipelineDocument<T> implements Classifiable {
 
         this.content = content;
     }
-
-//    public void addFeature(final Feature<?> feature) {
-//        Validate.notNull(feature);
-//        featureVector.add(feature);
-//    }
-//
-//    public <F extends Feature<?>> F getFeature(final FeatureDescriptor<F> descriptor) {
-//        Validate.notNull(descriptor);
-//
-//        return featureVector.get(descriptor);
-//    }
 
     @Override
     public String toString() {

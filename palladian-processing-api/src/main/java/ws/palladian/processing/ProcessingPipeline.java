@@ -1,6 +1,5 @@
 package ws.palladian.processing;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,15 +19,15 @@ import org.apache.log4j.Logger;
  * @version 3.0
  * @since 0.0.8
  */
-public class ProcessingPipeline implements Serializable {
+public class ProcessingPipeline {
 
-    /**
-     * <p>
-     * Unique number used to identify serialized versions of this object. This value change only but each time the
-     * serialized schema of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -6173687204106619909L;
+//    /**
+//     * <p>
+//     * Unique number used to identify serialized versions of this object. This value change only but each time the
+//     * serialized schema of this class changes.
+//     * </p>
+//     */
+//    private static final long serialVersionUID = -6173687204106619909L;
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ProcessingPipeline.class);
@@ -44,7 +43,7 @@ public class ProcessingPipeline implements Serializable {
      * The {@link Pipe}s connecting the {@link PipelineProcessors} of this {@code ProcessingPipeline}.
      * </p>
      */
-    private final List<Pipe<?>> pipes;
+    private final List<Pipe> pipes;
 
     /**
      * <p>
@@ -54,7 +53,7 @@ public class ProcessingPipeline implements Serializable {
      */
     public ProcessingPipeline() {
         pipelineProcessors = new ArrayList<PipelineProcessor>();
-        pipes = new ArrayList<Pipe<?>>();
+        pipes = new ArrayList<Pipe>();
     }
 
     /**
@@ -70,7 +69,7 @@ public class ProcessingPipeline implements Serializable {
      */
     public ProcessingPipeline(ProcessingPipeline processingPipeline) {
         pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.getPipelineProcessors());
-        pipes = new ArrayList<Pipe<?>>(processingPipeline.pipes);
+        pipes = new ArrayList<Pipe>(processingPipeline.pipes);
     }
 
     /**
@@ -83,13 +82,13 @@ public class ProcessingPipeline implements Serializable {
     public final <T> void add(PipelineProcessor pipelineProcessor) {
         // Begin Convenience Code
         if (!pipelineProcessors.isEmpty()) {
-            Port<T> previousOutputPort = (Port<T>)pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
+            Port previousOutputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
                     PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
             if (previousOutputPort != null) {
-                Port<T> inputPort = (Port<T>)pipelineProcessor
+                Port inputPort =  pipelineProcessor
                         .getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER);
                 if (inputPort != null) {
-                    pipes.add(new Pipe<T>(previousOutputPort, inputPort));
+                    pipes.add(new Pipe(previousOutputPort, inputPort));
                 }
             }
         }
@@ -107,9 +106,9 @@ public class ProcessingPipeline implements Serializable {
      * @param pipelineProcessor The new processor to add.
      * @param pipes The input {@code Pipe}s to use for the new {@code PipelineProcessor}.
      */
-    public final void add(PipelineProcessor pipelineProcessor, Pipe<?>... pipes) {
+    public final void add(PipelineProcessor pipelineProcessor, Pipe... pipes) {
         pipelineProcessors.add(pipelineProcessor);
-        for (Pipe<?> pipe : pipes) {
+        for (Pipe pipe : pipes) {
             this.pipes.add(pipe);
         }
     }
@@ -140,18 +139,18 @@ public class ProcessingPipeline implements Serializable {
     // Convenience Method
     public <D extends PipelineDocument<?>> D process(D document) throws DocumentUnprocessableException {
         if (!pipelineProcessors.isEmpty()) {
-            ((Port<D>)pipelineProcessors.get(0).getInputPorts().get(0)).setPipelineDocument((PipelineDocument<D>)document);
+            pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
 
             process();
 
-            List<Port<?>> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
+            List<Port> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
 
             // Check if default output is available. This might not be the case if a writer was used to process the
             // final data.
             if (outputPorts.isEmpty()) {
                 return null;
             } else {
-                Port<D> defaultOutputPort = (Port<D>)outputPorts.get(0);
+                Port defaultOutputPort = outputPorts.get(0);
                 return (D)defaultOutputPort.getPipelineDocument();
             }
         } else {
@@ -170,9 +169,9 @@ public class ProcessingPipeline implements Serializable {
      */
     public void process() throws DocumentUnprocessableException {
         Collection<PipelineProcessor> executableProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors);
-        Collection<Pipe<?>> executablePipes = new ArrayList<Pipe<?>>(pipes);
+        Collection<Pipe> executablePipes = new ArrayList<Pipe>(pipes);
         Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>();
-        Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>();
+        Collection<Pipe> executedPipes = new ArrayList<Pipe>();
         cleanOutputPorts(); // This is necessary if there are results from previous processing runs.
 
         do {
@@ -187,7 +186,7 @@ public class ProcessingPipeline implements Serializable {
                     executedProcessors.add(processor);
                 }
             }
-            for (Pipe<?> pipe : executablePipes) {
+            for (Pipe pipe : executablePipes) {
                 if (pipe.canFire()) {
                     pipe.transit();
                     executedPipes.add(pipe);
@@ -212,7 +211,7 @@ public class ProcessingPipeline implements Serializable {
      */
     private void cleanOutputPorts() {
         for (PipelineProcessor processor : pipelineProcessors) {
-            for (Port<?> port : processor.getOutputPorts()) {
+            for (Port port : processor.getOutputPorts()) {
                 port.setPipelineDocument(null);
             }
         }
@@ -228,7 +227,7 @@ public class ProcessingPipeline implements Serializable {
      */
     public void processContinuous() throws DocumentUnprocessableException {
         Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors.size());
-        Collection<Pipe<?>> executedPipes = new ArrayList<Pipe<?>>(pipes.size());
+        Collection<Pipe> executedPipes = new ArrayList<Pipe>(pipes.size());
         // TODO actually this needs to be done after every complete run of the workflow. However I am currently not able
         // to know when a complete run is over.
         cleanOutputPorts();
@@ -244,7 +243,7 @@ public class ProcessingPipeline implements Serializable {
                     executedProcessors.add(processor);
                 }
             }
-            for (Pipe<?> pipe : pipes) {
+            for (Pipe pipe : pipes) {
                 if (pipe.canFire()) {
                     pipe.transit();
                     executedPipes.add(pipe);
@@ -262,11 +261,10 @@ public class ProcessingPipeline implements Serializable {
      * 
      * @param pipes The {@code Pipe}s to reset.
      */
-    private void resetPipes(Collection<Pipe<?>> pipes) {
-        for (Pipe<?> pipe : pipes) {
+    private void resetPipes(Collection<Pipe> pipes) {
+        for (Pipe pipe : pipes) {
             pipe.clearInput();
         }
-
     }
 
     /**

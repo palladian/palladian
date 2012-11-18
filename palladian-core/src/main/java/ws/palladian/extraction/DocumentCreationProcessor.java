@@ -30,7 +30,7 @@ public final class DocumentCreationProcessor<T> extends AbstractPipelineProcesso
      * @param document The {@code PipelineDocument} this {@code PipelineProcessor} should output.
      */
     public DocumentCreationProcessor(final PipelineDocument<T> document) {
-        super(new ArrayList<Port<?>>(), Arrays.asList(new Port<?>[] {new Port<T>("newDocument")}));
+        super(new ArrayList<Port>(), Arrays.asList(new Port[] {new Port("newDocument")}));
         Validate.notNull(document);
 
         this.document = document;
@@ -38,7 +38,7 @@ public final class DocumentCreationProcessor<T> extends AbstractPipelineProcesso
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        ((Port<T>)getOutputPorts().get(0)).setPipelineDocument(document);
+        getOutputPorts().get(0).setPipelineDocument(document);
     }
 
 }

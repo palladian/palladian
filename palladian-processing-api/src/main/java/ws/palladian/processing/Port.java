@@ -3,8 +3,6 @@
  */
 package ws.palladian.processing;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -12,21 +10,13 @@ import org.apache.commons.lang3.Validate;
  * @version 1.0
  * @since 1.7.0
  */
-public final class Port<T> implements Serializable{
+public final class Port {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -7410558916771910632L;
-	private PipelineDocument<T> document;
+	private PipelineDocument<?> document;
     private final String name;
 
     public Port(String name) {
-        super();
-
-        Validate.notNull(name);
         Validate.notEmpty(name);
-
         this.name = name;
     }
 
@@ -34,11 +24,11 @@ public final class Port<T> implements Serializable{
         return name;
     }
 
-    public PipelineDocument<T> getPipelineDocument() {
+    public PipelineDocument<?> getPipelineDocument() {
         return document;
     }
 
-    public void setPipelineDocument(final PipelineDocument<T> document) {
+    public void setPipelineDocument(PipelineDocument<?> document) {
         this.document = document;
     }
 

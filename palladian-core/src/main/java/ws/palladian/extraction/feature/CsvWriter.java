@@ -44,7 +44,7 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
      * 
      */
     public CsvWriter(String csvFilePath, Collection<String> featurePaths) {
-        super(Arrays.asList(new Port<?>[] {new Port<Object>(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port<?>>());
+        super(Arrays.asList(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port>());
 
         this.featurePaths = new ArrayList<String>(featurePaths);
         this.csvFilePath = csvFilePath;

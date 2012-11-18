@@ -27,34 +27,34 @@ public interface PipelineProcessor {
 
     void process() throws DocumentUnprocessableException;
 
-    List<Port<?>> getInputPorts();
+    List<Port> getInputPorts();
 
-    List<Port<?>> getOutputPorts();
+    List<Port> getOutputPorts();
 
-    Port<?> getOutputPort(final String outputPortIdentifier);
+    Port getOutputPort(String outputPortIdentifier);
 
-    PipelineDocument<?> getOutput(final String outputPortIdentifier);
+//    PipelineDocument<?> getOutput(String outputPortIdentifier);
 
-    Boolean isExecutable();
+    boolean isExecutable();
 
-    /**
-     * <p>
-     * Sets the input at the input port with index {@code inputPortIndex}.
-     * </p>
-     * 
-     * @param inputPortIndex The index of the input port to set the document at.
-     * @param document The document to set at the port specified by {@code inputPortIndex}.
-     */
-    void setInput(final Integer inputPortIndex, final PipelineDocument<?> document);
+//    /**
+//     * <p>
+//     * Sets the input at the input port with index {@code inputPortIndex}.
+//     * </p>
+//     * 
+//     * @param inputPortIndex The index of the input port to set the document at.
+//     * @param document The document to set at the port specified by {@code inputPortIndex}.
+//     */
+//    void setInput(Integer inputPortIndex, PipelineDocument<?> document);
 
-    void setInput(final String inputPortIdentifier, final PipelineDocument<?> document);
+    void setInput(String inputPortIdentifier, PipelineDocument<?> document);
 
-    Port<?> getInputPort(final String name);
+    Port getInputPort(String name);
 
     /**
      * <p>
      * Notifies the implementing class, that the observed {@link ProcessingPipeline} finished its work.
      * </p>
      */
-    public void processingFinished();
+    void processingFinished();
 }
