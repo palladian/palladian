@@ -66,7 +66,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      */
     private final void allInputPortsAvailable() throws DocumentUnprocessableException {
         for (Port inputPort : getInputPorts()) {
-            if (inputPort.getPipelineDocument() == null) {
+            if (!inputPort.hasDocument()) {
                 throw new DocumentUnprocessableException("Input port " + inputPort + " at " + toString()
                         + " does not provide required input.");
             }
@@ -82,8 +82,8 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      */
     private final void allOutputPortsAvailable() throws DocumentUnprocessableException {
         for (Port outputPort : getOutputPorts()) {
-            if (outputPort.getPipelineDocument() == null) {
-                throw new DocumentUnprocessableException("Output port: " + outputPort + " at " + toString()
+            if (!outputPort.hasDocument()) {
+                throw new DocumentUnprocessableException("Output port " + outputPort + " at " + toString()
                         + " does not provide required output.");
             }
         }
@@ -91,7 +91,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
 
     private final void cleanInputPorts() {
         for (Port inputPort : getInputPorts()) {
-            inputPort.setPipelineDocument(null);
+            inputPort.poll();
         }
     }
 
@@ -131,14 +131,14 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     public final boolean isExecutable() {
         // There must be a document at each input port.
         for (Port inputPort : getInputPorts()) {
-            if (inputPort.getPipelineDocument() == null) {
+            if (!inputPort.hasDocument()) {
                 return false;
             }
         }
 
         // Each output port needs to be empty and ready to receive data.
         for (Port outputPort : getOutputPorts()) {
-            if (outputPort.getPipelineDocument() != null) {
+            if (outputPort.hasDocument()) {
                 return false;
             }
         }
@@ -169,13 +169,6 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
         return getClass().getSimpleName();
     }
 
-    /**
-     * <p>
-     * Notifies the implementing class, that the observed {@link ProcessingPipeline} finished its work. May be
-     * overridden as necessary.
-     * </p>
-     * 
-     */
     @Override
     public void processingFinished() {
     }

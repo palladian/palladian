@@ -54,7 +54,7 @@ public class SparseArffWriterTest {
         File tempFile = File.createTempFile("sparsearffwritertext", "arff");
 
         SparseArffWriter objectOfClassUnderTest = new SparseArffWriter(tempFile.getAbsolutePath(), featureNames);
-        objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).setPipelineDocument(document);
+        objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
         objectOfClassUnderTest.process();
         objectOfClassUnderTest.processingFinished();
 
