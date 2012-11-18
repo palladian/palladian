@@ -32,8 +32,7 @@ public final class DocumentLengthCalculator extends TextDocumentPipelineProcesso
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         int length = document.getContent().length();
-        double doubleValue = Integer.valueOf(length).doubleValue();
-        NumericFeature feature = new NumericFeature(PROVIDED_FEATURE, doubleValue);
+        NumericFeature feature = new NumericFeature(PROVIDED_FEATURE, length);
         document.getFeatureVector().add(feature);
     }
 

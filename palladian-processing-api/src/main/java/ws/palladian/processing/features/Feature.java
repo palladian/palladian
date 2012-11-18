@@ -39,7 +39,7 @@ public abstract class Feature<T> {
      *            The {@code Feature}'s value containing concrete extracted data
      *            from a document.
      */
-    public Feature(String name, T value) {
+    protected Feature(String name, T value) {
         super();
         this.name = name;
         this.value = value;

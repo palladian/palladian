@@ -19,8 +19,8 @@ public class NumericFeature extends Feature<Double> {
      * @param name The {@link FeatureVector} wide unique identifier of this {@code Feature}.
      * @param value The numeric value of this {@code Feature}.
      */
-    public NumericFeature(String name, Double value) {
-        super(name, value);
+    public NumericFeature(String name, Number value) {
+        super(name, value != null ? value.doubleValue() : null);
     }
 
 }
