@@ -9,7 +9,6 @@ import org.junit.Test;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -23,7 +22,7 @@ public class DuplicateTokenConsolidatorTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new DuplicateTokenConsolidator());
-        PipelineDocument<String> document = pipeline.process(new TextDocument(SAMPLE_TEXT));
+        TextDocument document = (TextDocument)pipeline.process(new TextDocument(SAMPLE_TEXT));
         
         List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
         PositionAnnotation token1 = tokenAnnotations.get(0);

@@ -10,7 +10,6 @@ import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
@@ -26,7 +25,7 @@ public class AdditionalFeatureExtractorTest {
         pipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
         pipeline.add(new DuplicateTokenConsolidator());
         pipeline.add(new AdditionalFeatureExtractor());
-        TextDocument document = pipeline.process(new TextDocument("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
+        TextDocument document = (TextDocument)pipeline.process(new TextDocument("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
         List<PositionAnnotation> tokenAnnotations = RegExTokenizer.getTokenAnnotations(document);
         assertEquals(9, tokenAnnotations.size());
     }

@@ -43,7 +43,7 @@ public class RegExTokenRemoverTest {
     @Test
     public void testRegExTokenRemoverInverse() throws DocumentUnprocessableException {
         pipeline.add(new RegExTokenRemover("\\d+", true));
-        document = pipeline.process(document);
+        document = (TextDocument)pipeline.process(document);
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         assertEquals(4, annotations.size());
     }
