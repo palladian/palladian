@@ -24,20 +24,20 @@ import ws.palladian.processing.features.FeatureVector;
 public interface PipelineProcessor {
 
     static final String DEFAULT_INPUT_PORT_IDENTIFIER = "ws.palladian.inputport";
-    
-    static final String DEFAULT_OUTPUT_PORT_IDENTIFIER = "ws.palladian.outputport";
 
-    void process() throws DocumentUnprocessableException;
+    static final String DEFAULT_OUTPUT_PORT_IDENTIFIER = "ws.palladian.outputport";
 
     List<Port> getInputPorts();
 
+    Port getInputPort(String portIdentifier);
+
     List<Port> getOutputPorts();
 
-    Port getOutputPort(String outputPortIdentifier);
+    Port getOutputPort(String portIdentifier);
 
     boolean isExecutable();
 
-    Port getInputPort(String name);
+    void process() throws DocumentUnprocessableException;
 
     /**
      * <p>

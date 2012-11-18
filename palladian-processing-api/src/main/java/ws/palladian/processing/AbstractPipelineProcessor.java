@@ -96,10 +96,10 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     }
 
     @Override
-    public final Port getInputPort(String name) {
-        Validate.notEmpty(name, "name must not be empty");
+    public final Port getInputPort(String portIdentifier) {
+        Validate.notEmpty(portIdentifier, "portIdentifier must not be empty");
         for (Port inputPort : inputPorts) {
-            if (name.equals(inputPort.getName())) {
+            if (portIdentifier.equals(inputPort.getIdentifier())) {
                 return inputPort;
             }
         }
@@ -112,10 +112,10 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     }
 
     @Override
-    public final Port getOutputPort(String name) {
-        Validate.notEmpty(name, "name must not be empty");
+    public final Port getOutputPort(String portIdentifier) {
+        Validate.notEmpty(portIdentifier, "portIdentifier must not be empty");
         for (Port port : outputPorts) {
-            if (name.equals(port.getName())) {
+            if (portIdentifier.equals(port.getIdentifier())) {
                 return port;
             }
         }
