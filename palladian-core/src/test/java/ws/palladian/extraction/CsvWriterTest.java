@@ -42,7 +42,7 @@ public class CsvWriterTest {
         featureVector.add(new NominalFeature("test1", "test1-1"));
         featureVector.add(new NumericFeature("test1", 12.0));
         featureVector.add(new NominalFeature("test2", "test2"));
-        objectOfClassUnderTest.setInput(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER, document);
+        objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).setPipelineDocument(document);
         objectOfClassUnderTest.process();
 
         String content = FileHelper.readFileToString(csvFile);

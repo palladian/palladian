@@ -128,19 +128,26 @@ public class ProcessingPipeline {
             return document;
         }
 
-        pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
+        //pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
+        pipelineProcessors.get(0).getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).setPipelineDocument(document);
 
         process();
 
-        List<Port> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
+        // List<Port> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
+        Port outputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
 
         // Check if default output is available. This might not be the case if a writer was used to process the
         // final data.
-        if (outputPorts.isEmpty()) {
-            return null;
-        } else {
-            return outputPorts.get(0).getPipelineDocument();
+//        if (outputPorts.isEmpty()) {
+//            return null;
+//        } else {
+//            return outputPorts.get(0).getPipelineDocument();
+//        }
+        if (outputPort != null) {
+            return outputPort.getPipelineDocument();
         }
+        
+        return null;
     }
 
     /**
