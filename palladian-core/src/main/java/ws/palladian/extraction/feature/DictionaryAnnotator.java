@@ -27,7 +27,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * @version 1.0
  * @since 0.1.7
  */
-public final class DictionaryAnnotator extends AbstractFeatureProvider<String> {
+public final class DictionaryAnnotator extends AbstractFeatureProvider {
 
     /**
      * <p>
@@ -54,7 +54,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider<String> {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        TextDocument document = (TextDocument)getDefaultInput();
+        TextDocument document = (TextDocument)getDefaultInputPort().getPipelineDocument();
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         List<PositionAnnotation> matchingToken = CollectionHelper.newArrayList();

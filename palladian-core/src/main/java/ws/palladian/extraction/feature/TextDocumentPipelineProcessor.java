@@ -5,6 +5,7 @@ package ws.palladian.extraction.feature;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 
 /**
@@ -12,13 +13,18 @@ import ws.palladian.processing.TextDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public abstract class TextDocumentPipelineProcessor extends AbstractPipelineProcessor<String> {
+public abstract class TextDocumentPipelineProcessor extends AbstractPipelineProcessor {
 
     @Override
-    protected void processDocument() throws DocumentUnprocessableException {
-        TextDocument document = (TextDocument) getDefaultInput();
-        processDocument(document);
-        setDefaultOutput(document);
+    protected final void processDocument() throws DocumentUnprocessableException {
+        PipelineDocument<?> pipelineDocument = getDefaultInputPort().getPipelineDocument();
+        if (pipelineDocument instanceof TextDocument) {
+            TextDocument textDocument = (TextDocument)pipelineDocument;
+            processDocument(textDocument);
+            setDefaultOutput(textDocument);
+        }
+        throw new DocumentUnprocessableException("Unexpected document type: "
+                + pipelineDocument.getClass().getSimpleName());
     }
 
     public abstract void processDocument(TextDocument document) throws DocumentUnprocessableException;

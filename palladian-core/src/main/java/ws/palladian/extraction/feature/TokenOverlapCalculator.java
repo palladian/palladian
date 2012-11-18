@@ -3,7 +3,6 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 1.0
  * @since 0.1.7
  */
-public final class TokenOverlapCalculator extends AbstractFeatureProvider<NumericFeature> {
+public final class TokenOverlapCalculator extends AbstractFeatureProvider {
 
     public static final String INPUT_PORT_ONE_IDENTIFIER = "input1";
     public static final String INPUT_PORT_TWO_IDENTIFIER = "input2";
@@ -50,15 +49,10 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Numeri
      * @param input1FeatureDescriptor The descriptor for the first input {@code Feature}.
      * @param input2FeatureDescriptor The descriptor for the second input {@code Feature}.
      */
-    public TokenOverlapCalculator(String featureDescriptor,
-            String input1FeatureIdentifier,
+    public TokenOverlapCalculator(String featureDescriptor, String input1FeatureIdentifier,
             String input2FeatureIdentifier) {
-        // Ports parameterized with Objects since it does not matter which type they have, because the Calculator only
-        // uses the feature vector.
-        // FIXME omfg, we have to think of a cleaner solution here, look at all those warning! -- 2012-08-24, Philipp
-        super((List)Arrays.asList(new Port[] {new Port(INPUT_PORT_ONE_IDENTIFIER),
-                new Port(INPUT_PORT_TWO_IDENTIFIER)}), (List)Arrays.asList(new Port[] {new Port(
-                PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}), featureDescriptor);
+        super(new Port[] {new Port(INPUT_PORT_ONE_IDENTIFIER), new Port(INPUT_PORT_TWO_IDENTIFIER)}, 
+                new Port[] {new Port(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}, featureDescriptor);
         
         this.input1FeatureIdentifier = input1FeatureIdentifier;
         this.input2FeatureIdentifier = input2FeatureIdentifier;
@@ -94,9 +88,9 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Numeri
         Double jaccardSimilarity = Integer.valueOf(overlap.size()).doubleValue()
                 / Integer.valueOf(union.size()).doubleValue();
         // TODO Remove debug code
-        if (jaccardSimilarity > 1.0) {
-            System.out.println("+++++++++++++++++");
-        }
+//        if (jaccardSimilarity > 1.0) {
+//            System.out.println("+++++++++++++++++");
+//        }
 
         document1.getFeatureVector().add(new NumericFeature(getDescriptor(), jaccardSimilarity));
         setOutput(DEFAULT_OUTPUT_PORT_IDENTIFIER, document1);

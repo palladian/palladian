@@ -52,7 +52,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 0.1.7
  */
-public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
+public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
@@ -198,7 +198,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      */
     public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final Integer batchSize,
             String[] featurePaths) throws IOException {
-        super(Arrays.asList(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port>());
+        super(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}, new Port[0]);
 
         Validate.notNull(modelArffFile, "fileName must not be null");
         Validate.notEmpty(featurePaths, "featureDescriptors must not be empty");
@@ -300,7 +300,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<Object> document = getDefaultInput();
+        PipelineDocument<?> document = getDefaultInputPort().getPipelineDocument();
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
         for (String featurePath : featurePaths) {
             List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);
