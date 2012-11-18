@@ -22,9 +22,10 @@ public abstract class TextDocumentPipelineProcessor extends AbstractPipelineProc
             TextDocument textDocument = (TextDocument)pipelineDocument;
             processDocument(textDocument);
             setDefaultOutput(textDocument);
+        } else {
+            throw new DocumentUnprocessableException("Unexpected document type: "
+                    + pipelineDocument.getClass().getSimpleName());
         }
-        throw new DocumentUnprocessableException("Unexpected document type: "
-                + pipelineDocument.getClass().getSimpleName());
     }
 
     public abstract void processDocument(TextDocument document) throws DocumentUnprocessableException;

@@ -23,7 +23,7 @@ public class TokenMetricsCalculatorTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
         pipeline.add(new TokenMetricsCalculator());
-        TextDocument document = pipeline.process(new TextDocument(SAMPLE_TEXT));
+        TextDocument document = (TextDocument)pipeline.process(new TextDocument(SAMPLE_TEXT));
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, RegExTokenizer.PROVIDED_FEATURE);
 

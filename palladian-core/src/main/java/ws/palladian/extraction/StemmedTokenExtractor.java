@@ -30,8 +30,6 @@ import ws.palladian.processing.features.PositionAnnotation;
  */
 public class StemmedTokenExtractor extends ProcessingPipeline {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * <p>
      * Create a new {@link StemmedTokenExtractor} for the specified language.
@@ -60,7 +58,7 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
     public Map<String, Double> getTokens(String text) {
         TextDocument document;
         try {
-            document = process(new TextDocument(text));
+            document = (TextDocument)process(new TextDocument(text));
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }

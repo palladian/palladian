@@ -122,24 +122,24 @@ public class ProcessingPipeline {
      *         pipeline.
      */
     // Convenience Method
-    public <D extends PipelineDocument<?>> D process(D document) throws DocumentUnprocessableException {
-        if (!pipelineProcessors.isEmpty()) {
-            pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
+    public PipelineDocument<?> process(PipelineDocument<?> document) throws DocumentUnprocessableException {
 
-            process();
-
-            List<Port> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
-
-            // Check if default output is available. This might not be the case if a writer was used to process the
-            // final data.
-            if (outputPorts.isEmpty()) {
-                return null;
-            } else {
-                Port defaultOutputPort = outputPorts.get(0);
-                return (D)defaultOutputPort.getPipelineDocument();
-            }
-        } else {
+        if (pipelineProcessors.isEmpty()) {
             return document;
+        }
+
+        pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
+
+        process();
+
+        List<Port> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
+
+        // Check if default output is available. This might not be the case if a writer was used to process the
+        // final data.
+        if (outputPorts.isEmpty()) {
+            return null;
+        } else {
+            return outputPorts.get(0).getPipelineDocument();
         }
     }
 
@@ -260,7 +260,7 @@ public class ProcessingPipeline {
      * 
      * @param processor The {@code PipelineProcessor} that finished running directly before this method was called.
      */
-    protected void executePostProcessingHook(final PipelineProcessor processor) {
+    protected void executePostProcessingHook(PipelineProcessor processor) {
         // Subclasses should add code they want to run after the execution of every processor here.
         LOGGER.debug("Start processing on " + processor.getClass().getName());
     }
@@ -273,7 +273,7 @@ public class ProcessingPipeline {
      * 
      * @param processor The {@code PipelineProcessor} that is about to run after this method returns.
      */
-    protected void executePreProcessingHook(final PipelineProcessor processor) {
+    protected void executePreProcessingHook(PipelineProcessor processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
         LOGGER.debug("Finished processing on " + processor.getClass().getName());
     }

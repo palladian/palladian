@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 

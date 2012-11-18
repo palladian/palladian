@@ -189,14 +189,14 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     /**
      * @return The default output port identified by {@code DEFAULT_OUTPUT_PORT_IDENTIFIER}.
      */
-    public final Port getDefaultOutputPort() {
+    protected final Port getDefaultOutputPort() {
         return getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER);
     }
 
     /**
      * @return The default input port identified by {@code DEFAULT_INPUT_PORT_IDENTIFIER}.
      */
-    public final Port getDefaultInputPort() {
+    protected final Port getDefaultInputPort() {
         return getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER);
     }
 
