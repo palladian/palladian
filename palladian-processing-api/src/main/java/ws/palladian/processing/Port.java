@@ -12,16 +12,17 @@ import org.apache.commons.lang3.Validate;
  */
 public final class Port {
 
+    private final String identifier;
+    
 	private PipelineDocument<?> document;
-    private final String name;
 
-    public Port(String name) {
-        Validate.notEmpty(name);
-        this.name = name;
+    public Port(String identifier) {
+        Validate.notEmpty(identifier, "identifier must not be empty");
+        this.identifier = identifier;
     }
 
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
 
     public PipelineDocument<?> getPipelineDocument() {
@@ -35,8 +36,8 @@ public final class Port {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Port [name=");
-        builder.append(name);
+        builder.append("Port [identifier=");
+        builder.append(identifier);
         builder.append("]");
         return builder.toString();
     }
