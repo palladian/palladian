@@ -14,7 +14,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * <p>
  * Base class for token remover implementations. The {@link AbstractTokenRemover} operates on the
  * {@link AnnotationFeature} provided by {@link BaseTokenizer}s. Subclasses implement {@link #remove(PositionAnnotation)} to
- * determine, whether to remove an {@link PositionAnnotation}.
+ * determine, whether to remove a {@link PositionAnnotation}.
  * </p>
  * 
  * @author Philipp Katz

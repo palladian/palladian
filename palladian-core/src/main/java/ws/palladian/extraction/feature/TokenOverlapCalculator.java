@@ -56,8 +56,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Numeri
         // Ports parameterized with Objects since it does not matter which type they have, because the Calculator only
         // uses the feature vector.
         // FIXME omfg, we have to think of a cleaner solution here, look at all those warning! -- 2012-08-24, Philipp
-        super((List)Arrays.asList(new Port[] {new Port<Object>(INPUT_PORT_ONE_IDENTIFIER),
-                new Port<Object>(INPUT_PORT_TWO_IDENTIFIER)}), (List)Arrays.asList(new Port[] {new Port<Object>(
+        super((List)Arrays.asList(new Port[] {new Port(INPUT_PORT_ONE_IDENTIFIER),
+                new Port(INPUT_PORT_TWO_IDENTIFIER)}), (List)Arrays.asList(new Port[] {new Port(
                 PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}), featureDescriptor);
         
         this.input1FeatureIdentifier = input1FeatureIdentifier;

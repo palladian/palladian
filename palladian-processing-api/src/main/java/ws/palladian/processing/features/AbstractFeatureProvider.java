@@ -3,11 +3,13 @@
  */
 package ws.palladian.processing.features;
 
+import java.beans.FeatureDescriptor;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
+import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.Port;
 
 /**
@@ -58,10 +60,8 @@ private final String featureIdentifier;
      * @param outputPorts The output {@link Port}s this processor writes results to.
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public AbstractFeatureProvider(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts,
-            String featureIdentifier) {
+    public AbstractFeatureProvider(List<Port> inputPorts, List<Port> outputPorts, String featureIdentifier) {
         super(inputPorts, outputPorts);
-
         Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
         this.featureIdentifier = featureIdentifier;
     }

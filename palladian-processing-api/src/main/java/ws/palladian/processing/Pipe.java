@@ -10,56 +10,29 @@ import org.apache.commons.lang3.Validate;
  * @version 1.0
  * @since 0.1.7
  */
-public final class Pipe<T> {
-    /**
-     * <p>
-     * 
-     * </p>
-     */
-    private final Port<T> inputPort;
-    /**
-     * <p>
-     * 
-     * </p>
-     */
-    private final Port<T> outputPort;
+public final class Pipe {
+
+    private final Port inputPort;
+
+    private final Port outputPort;
 
     /**
-     * <p>
-     * 
-     * </p>
-     * 
      * @param inputPort
      * @param outputPort
      */
-    public Pipe(final Port<T> inputPort, final Port<T> outputPort) {
-        super();
+    public Pipe(Port inputPort, Port outputPort) {
         Validate.notNull(inputPort);
         Validate.notNull(outputPort);
-
         this.inputPort = inputPort;
         this.outputPort = outputPort;
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
     public void transit() {
         Validate.notNull(inputPort.getPipelineDocument());
         outputPort.setPipelineDocument(inputPort.getPipelineDocument());
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @return
-     */
-    public Boolean canFire() {
+    public boolean canFire() {
         return inputPort.getPipelineDocument() != null;
     }
 
@@ -68,13 +41,8 @@ public final class Pipe<T> {
         return "Pipe [inputPort=" + inputPort + ", outputPort=" + outputPort + "]";
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
     public void clearInput() {
-        this.inputPort.setPipelineDocument(null);
+        inputPort.setPipelineDocument(null);
     }
+    
 }
