@@ -21,28 +21,13 @@ import org.apache.log4j.Logger;
  */
 public class ProcessingPipeline {
 
-//    /**
-//     * <p>
-//     * Unique number used to identify serialized versions of this object. This value change only but each time the
-//     * serialized schema of this class changes.
-//     * </p>
-//     */
-//    private static final long serialVersionUID = -6173687204106619909L;
-
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ProcessingPipeline.class);
 
-    /**
-     * <p>
-     * The processors this pipeline will execute as ordered by this list from the first to the last.
-     * </p>
-     */
+    /** The processors this pipeline will execute as ordered by this list from the first to the last. */
     private final List<PipelineProcessor> pipelineProcessors;
-    /**
-     * <p>
-     * The {@link Pipe}s connecting the {@link PipelineProcessors} of this {@code ProcessingPipeline}.
-     * </p>
-     */
+    
+    /** The {@link Pipe}s connecting the {@link PipelineProcessors} of this {@code ProcessingPipeline}. */
     private final List<Pipe> pipes;
 
     /**
@@ -68,7 +53,7 @@ public class ProcessingPipeline {
      *            to the newly created instance.
      */
     public ProcessingPipeline(ProcessingPipeline processingPipeline) {
-        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.getPipelineProcessors());
+        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.pipelineProcessors);
         pipes = new ArrayList<Pipe>(processingPipeline.pipes);
     }
 
@@ -79,7 +64,7 @@ public class ProcessingPipeline {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final <T> void add(PipelineProcessor pipelineProcessor) {
+    public final void add(PipelineProcessor pipelineProcessor) {
         // Begin Convenience Code
         if (!pipelineProcessors.isEmpty()) {
             Port previousOutputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(

@@ -3,9 +3,6 @@
  */
 package ws.palladian.extraction;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
@@ -18,8 +15,9 @@ import ws.palladian.processing.Port;
  * @version 1.0
  * @since 0.1.7
  */
-public final class DocumentCreationProcessor<T> extends AbstractPipelineProcessor<T> {
-    private PipelineDocument<T> document;
+public final class DocumentCreationProcessor extends AbstractPipelineProcessor {
+
+    private final PipelineDocument<?> document;
 
     /**
      * <p>
@@ -29,10 +27,9 @@ public final class DocumentCreationProcessor<T> extends AbstractPipelineProcesso
      * 
      * @param document The {@code PipelineDocument} this {@code PipelineProcessor} should output.
      */
-    public DocumentCreationProcessor(final PipelineDocument<T> document) {
-        super(new ArrayList<Port>(), Arrays.asList(new Port[] {new Port("newDocument")}));
+    public DocumentCreationProcessor(PipelineDocument<?> document) {
+        super(new Port[0], new Port[] {new Port("newDocument")});
         Validate.notNull(document);
-
         this.document = document;
     }
 

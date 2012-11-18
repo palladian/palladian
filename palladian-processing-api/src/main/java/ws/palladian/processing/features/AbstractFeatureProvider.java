@@ -4,7 +4,6 @@
 package ws.palladian.processing.features;
 
 import java.beans.FeatureDescriptor;
-import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
@@ -22,18 +21,10 @@ import ws.palladian.processing.Port;
  * @version 1.0
  * @since 0.1.7
  * @param <T> Type of default in- and output.
- * @param <F> Type of the {@link Feature} this component supplies.
  */
-public abstract class AbstractFeatureProvider<T> extends AbstractPipelineProcessor<T> implements
-        FeatureProvider {
-private final String featureIdentifier;
+public abstract class AbstractFeatureProvider extends AbstractPipelineProcessor implements FeatureProvider {
 
-//    /**
-//     * <p>
-//     * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
-//     * </p>
-//     */
-//    private final FeatureDescriptor<F> featureDescriptor;
+    private final String featureIdentifier;
 
     /**
      * <p>
@@ -43,10 +34,7 @@ private final String featureIdentifier;
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
     public AbstractFeatureProvider(String featureIdentifier) {
-        super();
-
         Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
-
         this.featureIdentifier = featureIdentifier;
     }
 
@@ -60,7 +48,7 @@ private final String featureIdentifier;
      * @param outputPorts The output {@link Port}s this processor writes results to.
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public AbstractFeatureProvider(List<Port> inputPorts, List<Port> outputPorts, String featureIdentifier) {
+    public AbstractFeatureProvider(Port[] inputPorts, Port[] outputPorts, String featureIdentifier) {
         super(inputPorts, outputPorts);
         Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
         this.featureIdentifier = featureIdentifier;

@@ -28,7 +28,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @version 1.0
  * @since 0.1.8
  */
-public final class CsvWriter extends AbstractPipelineProcessor<Object> {
+public final class CsvWriter extends AbstractPipelineProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvWriter.class);
 
@@ -44,7 +44,7 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
      * 
      */
     public CsvWriter(String csvFilePath, Collection<String> featurePaths) {
-        super(Arrays.asList(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port>());
+        super(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}, new Port[0]);
 
         this.featurePaths = new ArrayList<String>(featurePaths);
         this.csvFilePath = csvFilePath;
@@ -68,14 +68,14 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
     protected void processDocument() throws DocumentUnprocessableException {
         StringBuffer dataLine = new StringBuffer("");
         for (String featurePath : featurePaths) {
-            List<Feature<?>> feature = getDefaultInput().getFeatureVector().getAll(featurePath);
-            if (feature.isEmpty()) {
+            List<Feature<?>> features = getDefaultInputPort().getPipelineDocument().getFeatureVector().getAll(featurePath);
+            if (features.isEmpty()) {
 //                if (feature == null) {
                 LOGGER.warn("Unable to find feature for feature path: " + featurePath);
                 dataLine.append("?,");
             } else {
                 // XXX only take the first feature currently
-                Object featureValue = feature.get(0).getValue();
+                Object featureValue = features.get(0).getValue();
                 dataLine.append(featureValue + ",");
             }
         }

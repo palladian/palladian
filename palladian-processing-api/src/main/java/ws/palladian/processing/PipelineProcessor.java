@@ -17,12 +17,14 @@ import ws.palladian.processing.features.FeatureVector;
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 3.0
  * @since 0.0.8
  */
 public interface PipelineProcessor {
 
     static final String DEFAULT_INPUT_PORT_IDENTIFIER = "ws.palladian.inputport";
+    
     static final String DEFAULT_OUTPUT_PORT_IDENTIFIER = "ws.palladian.outputport";
 
     void process() throws DocumentUnprocessableException;
@@ -33,19 +35,7 @@ public interface PipelineProcessor {
 
     Port getOutputPort(String outputPortIdentifier);
 
-//    PipelineDocument<?> getOutput(String outputPortIdentifier);
-
     boolean isExecutable();
-
-//    /**
-//     * <p>
-//     * Sets the input at the input port with index {@code inputPortIndex}.
-//     * </p>
-//     * 
-//     * @param inputPortIndex The index of the input port to set the document at.
-//     * @param document The document to set at the port specified by {@code inputPortIndex}.
-//     */
-//    void setInput(Integer inputPortIndex, PipelineDocument<?> document);
 
     void setInput(String inputPortIdentifier, PipelineDocument<?> document);
 
