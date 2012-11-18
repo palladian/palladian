@@ -9,13 +9,8 @@ public class WordCounter extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) {
-
         int wordCount = StringHelper.countWords(document.getContent());
-
-        NumericFeature numericFeature = new NumericFeature("wordCount", (double)wordCount);
-
-        document.getFeatureVector().add(numericFeature);
-
+        document.getFeatureVector().add(new NumericFeature("wordCount", wordCount));
     }
 
 }

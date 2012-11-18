@@ -11,7 +11,7 @@ import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
- * Abstract base class for pipeline processors. Handles the mapping between input and output ports.
+ * Abstract base class for {@link PipelineProcessor} implementations.
  * </p>
  * 
  * @author Klemens Muthmann
