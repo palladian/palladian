@@ -129,7 +129,7 @@ public class ProcessingPipeline {
         }
 
         //pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
-        pipelineProcessors.get(0).getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).setPipelineDocument(document);
+        pipelineProcessors.get(0).getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
 
         process();
 
@@ -144,7 +144,7 @@ public class ProcessingPipeline {
 //            return outputPorts.get(0).getPipelineDocument();
 //        }
         if (outputPort != null) {
-            return outputPort.getPipelineDocument();
+            return outputPort.poll();
         }
         
         return null;
@@ -184,8 +184,8 @@ public class ProcessingPipeline {
                     executedPipes.add(pipe);
                 }
             }
-            resetPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
-                                       // iteration again.
+//            resetPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
+//                                       // iteration again.
             executableProcessors.removeAll(executedProcessors);
             executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
@@ -204,7 +204,7 @@ public class ProcessingPipeline {
     private void cleanOutputPorts() {
         for (PipelineProcessor processor : pipelineProcessors) {
             for (Port port : processor.getOutputPorts()) {
-                port.setPipelineDocument(null);
+                port.put(null);
             }
         }
     }
@@ -241,23 +241,23 @@ public class ProcessingPipeline {
                     executedPipes.add(pipe);
                 }
             }
-            resetPipes(executedPipes);
+//            resetPipes(executedPipes);
         } while (!executedProcessors.isEmpty() || !executedPipes.isEmpty());
         notifyProcessorsOfProcessFinished();
     }
 
-    /**
-     * <p>
-     * Resets the provided {@code Pipe}s so they can fire again.
-     * </p>
-     * 
-     * @param pipes The {@code Pipe}s to reset.
-     */
-    private void resetPipes(Collection<Pipe> pipes) {
-        for (Pipe pipe : pipes) {
-            pipe.clearInput();
-        }
-    }
+//    /**
+//     * <p>
+//     * Resets the provided {@code Pipe}s so they can fire again.
+//     * </p>
+//     * 
+//     * @param pipes The {@code Pipe}s to reset.
+//     */
+//    private void resetPipes(Collection<Pipe> pipes) {
+//        for (Pipe pipe : pipes) {
+//            pipe.clearInput();
+//        }
+//    }
 
     /**
      * <p>

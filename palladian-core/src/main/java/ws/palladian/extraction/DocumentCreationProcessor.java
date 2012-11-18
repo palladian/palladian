@@ -17,6 +17,8 @@ import ws.palladian.processing.Port;
  */
 public final class DocumentCreationProcessor extends AbstractPipelineProcessor {
 
+    private static final String OUTPUT_PORT_IDENTIFIER = "newDocument";
+    
     private final PipelineDocument<?> document;
 
     /**
@@ -28,14 +30,14 @@ public final class DocumentCreationProcessor extends AbstractPipelineProcessor {
      * @param document The {@code PipelineDocument} this {@code PipelineProcessor} should output.
      */
     public DocumentCreationProcessor(PipelineDocument<?> document) {
-        super(new Port[0], new Port[] {new Port("newDocument")});
+        super(new Port[0], new Port[] {new Port(OUTPUT_PORT_IDENTIFIER)});
         Validate.notNull(document);
         this.document = document;
     }
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        getOutputPorts().get(0).setPipelineDocument(document);
+        getOutputPort(OUTPUT_PORT_IDENTIFIER).put(document);
     }
 
 }

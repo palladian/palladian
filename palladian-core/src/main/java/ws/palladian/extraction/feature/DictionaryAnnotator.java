@@ -54,7 +54,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        TextDocument document = (TextDocument)getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).getPipelineDocument();
+        TextDocument document = (TextDocument)getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         List<PositionAnnotation> matchingToken = CollectionHelper.newArrayList();
@@ -72,7 +72,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
         document.getFeatureVector().addAll(matchingToken);
 
         // document.addFeature(new TextAnnotationFeature(getDescriptor(), matchingToken));
-        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).setPipelineDocument(document);
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document);
     }
 
 }

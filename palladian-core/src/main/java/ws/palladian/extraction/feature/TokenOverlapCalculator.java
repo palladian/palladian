@@ -60,8 +60,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).getPipelineDocument();
-        PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).getPipelineDocument();
+        PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).poll();
+        PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).poll();
 
 //        AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
 //        Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
@@ -93,6 +93,6 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
 //        }
 
         document1.getFeatureVector().add(new NumericFeature(getDescriptor(), jaccardSimilarity));
-        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).setPipelineDocument(document1);
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document1);
     }
 }

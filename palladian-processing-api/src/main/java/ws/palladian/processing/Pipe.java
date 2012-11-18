@@ -28,12 +28,12 @@ public final class Pipe {
     }
 
     public void transit() {
-        Validate.notNull(inputPort.getPipelineDocument());
-        outputPort.setPipelineDocument(inputPort.getPipelineDocument());
+        PipelineDocument<?> document = inputPort.poll();
+        outputPort.put(document);
     }
 
     public boolean canFire() {
-        return inputPort.getPipelineDocument() != null;
+        return inputPort.hasDocument();
     }
 
     @Override
@@ -41,8 +41,4 @@ public final class Pipe {
         return "Pipe [inputPort=" + inputPort + ", outputPort=" + outputPort + "]";
     }
 
-    public void clearInput() {
-        inputPort.setPipelineDocument(null);
-    }
-    
 }

@@ -300,7 +300,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).getPipelineDocument();
+        PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
         for (String featurePath : featurePaths) {
             List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);

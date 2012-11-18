@@ -17,11 +17,11 @@ public abstract class TextDocumentPipelineProcessor extends AbstractPipelineProc
 
     @Override
     protected final void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<?> pipelineDocument = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).getPipelineDocument();
+        PipelineDocument<?> pipelineDocument = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
         if (pipelineDocument instanceof TextDocument) {
             TextDocument textDocument = (TextDocument)pipelineDocument;
             processDocument(textDocument);
-            getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).setPipelineDocument(textDocument);
+            getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(textDocument);
         } else {
             throw new DocumentUnprocessableException("Unexpected document type: "
                     + pipelineDocument.getClass().getSimpleName());
