@@ -93,6 +93,6 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
 //        }
 
         document1.getFeatureVector().add(new NumericFeature(getDescriptor(), jaccardSimilarity));
-        setOutput(DEFAULT_OUTPUT_PORT_IDENTIFIER, document1);
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).setPipelineDocument(document1);
     }
 }

@@ -68,7 +68,7 @@ public final class CsvWriter extends AbstractPipelineProcessor {
     protected void processDocument() throws DocumentUnprocessableException {
         StringBuffer dataLine = new StringBuffer("");
         for (String featurePath : featurePaths) {
-            List<Feature<?>> features = getDefaultInputPort().getPipelineDocument().getFeatureVector().getAll(featurePath);
+            List<Feature<?>> features = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).getPipelineDocument().getFeatureVector().getAll(featurePath);
             if (features.isEmpty()) {
 //                if (feature == null) {
                 LOGGER.warn("Unable to find feature for feature path: " + featurePath);

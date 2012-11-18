@@ -164,27 +164,9 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      */
     protected abstract void processDocument() throws DocumentUnprocessableException;
 
-    protected final void setOutput(String outputPortName, PipelineDocument<?> document) {
-        getOutputPort(outputPortName).setPipelineDocument(document);
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName();
-    }
-
-    /**
-     * @return The default output port identified by {@code DEFAULT_OUTPUT_PORT_IDENTIFIER}.
-     */
-    protected final Port getDefaultOutputPort() {
-        return getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER);
-    }
-
-    /**
-     * @return The default input port identified by {@code DEFAULT_INPUT_PORT_IDENTIFIER}.
-     */
-    protected final Port getDefaultInputPort() {
-        return getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER);
     }
 
     /**
