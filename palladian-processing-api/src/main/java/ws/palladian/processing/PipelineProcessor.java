@@ -37,8 +37,6 @@ public interface PipelineProcessor {
 
     boolean isExecutable();
 
-    void setInput(String inputPortIdentifier, PipelineDocument<?> document);
-
     Port getInputPort(String name);
 
     /**

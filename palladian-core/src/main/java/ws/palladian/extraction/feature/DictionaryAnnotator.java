@@ -72,7 +72,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
         document.getFeatureVector().addAll(matchingToken);
 
         // document.addFeature(new TextAnnotationFeature(getDescriptor(), matchingToken));
-        setDefaultOutput(document);
+        getDefaultOutputPort().setPipelineDocument(document);
     }
 
 }

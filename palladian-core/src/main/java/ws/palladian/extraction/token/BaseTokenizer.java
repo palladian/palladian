@@ -27,14 +27,6 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor {
      */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.tokens";
 
-//    /**
-//     * <p>
-//     * The descriptor of the feature provided by this {@link PipelineProcessor}.
-//     * </p>
-//     */
-//    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-//            .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
-
     /**
      * <p>
      * Shortcut method to retrieve {@link PositionAnnotation}s which were supplied by one of the {@link BaseTokenizer}
@@ -48,13 +40,7 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor {
     public static List<PositionAnnotation> getTokenAnnotations(PipelineDocument<String> document) {
         Validate.notNull(document, "document must not be null");
         FeatureVector featureVector = document.getFeatureVector();
-        List<PositionAnnotation> annotations = featureVector.getAll(PositionAnnotation.class, PROVIDED_FEATURE);
-//        if (annotationFeature == null) {
-//            throw new IllegalStateException(
-//                    "The document does not provide token annotations, process it with a Tokenizer annotator first.");
-//        }
-//        return annotationFeature.getValue();
-        return annotations;
+        return featureVector.getAll(PositionAnnotation.class, PROVIDED_FEATURE);
     }
 
     /**

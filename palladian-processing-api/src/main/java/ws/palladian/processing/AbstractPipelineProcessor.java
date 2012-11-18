@@ -23,7 +23,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
 
     /** The input {@link Port}s this processor reads {@link PipelineDocument}s from. */
     private final List<Port> inputPorts;
-    
+
     /** The output {@link Port}s this processor writes results to. */
     private final List<Port> outputPorts;
 
@@ -67,7 +67,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     private final void allInputPortsAvailable() throws DocumentUnprocessableException {
         for (Port inputPort : getInputPorts()) {
             if (inputPort.getPipelineDocument() == null) {
-                throw new DocumentUnprocessableException("Input port: " + inputPort
+                throw new DocumentUnprocessableException("Input port " + inputPort + " at " + toString()
                         + " does not provide required input.");
             }
         }
@@ -83,8 +83,8 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     private final void allOutputPortsAvailable() throws DocumentUnprocessableException {
         for (Port outputPort : getOutputPorts()) {
             if (outputPort.getPipelineDocument() == null) {
-                throw new DocumentUnprocessableException("Output port: " + outputPort + " for class: "
-                        + this.getClass() + " does not provide required output.");
+                throw new DocumentUnprocessableException("Output port: " + outputPort + " at " + toString()
+                        + " does not provide required output.");
             }
         }
     }
@@ -97,6 +97,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
 
     @Override
     public final Port getInputPort(String name) {
+        Validate.notEmpty(name, "name must not be empty");
         for (Port inputPort : inputPorts) {
             if (name.equals(inputPort.getName())) {
                 return inputPort;
@@ -112,8 +113,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
 
     @Override
     public final Port getOutputPort(String name) {
-        Validate.notEmpty(name);
-
+        Validate.notEmpty(name, "name must not be empty");
         for (Port port : outputPorts) {
             if (name.equals(port.getName())) {
                 return port;
@@ -164,10 +164,6 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      */
     protected abstract void processDocument() throws DocumentUnprocessableException;
 
-    protected final void setDefaultOutput(PipelineDocument<?> document) {
-        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).setPipelineDocument(document);
-    }
-
     protected final void setOutput(String outputPortName, PipelineDocument<?> document) {
         getOutputPort(outputPortName).setPipelineDocument(document);
     }
@@ -175,15 +171,6 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     @Override
     public String toString() {
         return getClass().getSimpleName();
-    }
-
-    @Override
-    public final void setInput(String inputPortIdentifier, PipelineDocument<?> document) {
-        for (Port port : inputPorts) {
-            if (port.getName().equals(inputPortIdentifier)) {
-                port.setPipelineDocument(document);
-            }
-        }
     }
 
     /**

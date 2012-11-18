@@ -21,7 +21,7 @@ public abstract class TextDocumentPipelineProcessor extends AbstractPipelineProc
         if (pipelineDocument instanceof TextDocument) {
             TextDocument textDocument = (TextDocument)pipelineDocument;
             processDocument(textDocument);
-            setDefaultOutput(textDocument);
+            getDefaultOutputPort().setPipelineDocument(textDocument);
         } else {
             throw new DocumentUnprocessableException("Unexpected document type: "
                     + pipelineDocument.getClass().getSimpleName());
