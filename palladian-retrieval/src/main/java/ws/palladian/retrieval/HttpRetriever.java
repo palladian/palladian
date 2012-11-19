@@ -54,6 +54,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -97,6 +98,9 @@ public class HttpRetriever {
 
     /** The user agent string that is used by the crawler. */
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
+
+    /** The user agent used when resolving redirects. */
+    private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
     /** The default timeout for a connection to be established, in milliseconds. */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(10);
@@ -559,16 +563,22 @@ public class HttpRetriever {
 
         List<String> ret = new ArrayList<String>();
 
-        DecompressingHttpClient client = new DecompressingHttpClient(backend);
-        HttpParams params = client.getParams();
+        // DecompressingHttpClient client = new DecompressingHttpClient(backend);
+        // HttpParams params = client.getParams();
+
+        // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
+        // see: https://dev.twitter.com/docs/tco-redirection-behavior
+        HttpParams params = new BasicHttpParams();
         params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-        
+        HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
+
         HttpConnectionParams.setSoTimeout(params, (int)getSocketTimeoutRedirects());
         HttpConnectionParams.setConnectionTimeout(params, (int)getConnectionTimeoutRedirects());
-        
+
+        DecompressingHttpClient client = new DecompressingHttpClient(new DefaultHttpClient(connectionManager, params));
+
         for (;;) {
             HttpHead headRequest;
-            LOGGER.debug("checking " + url);
             try {
                 headRequest = new HttpHead(url);
             } catch (IllegalArgumentException e) {
@@ -577,6 +587,7 @@ public class HttpRetriever {
             try {
                 HttpResponse response = client.execute(headRequest);
                 int statusCode = response.getStatusLine().getStatusCode();
+                LOGGER.debug("checked " + url + "; result " + statusCode);
                 if (statusCode >= 300 && statusCode < 400) {
                     Header[] locationHeaders = response.getHeaders("location");
                     if (locationHeaders.length == 0) {
@@ -969,8 +980,7 @@ public class HttpRetriever {
     }
 
     public String getUserAgent() {
-        String userAgent = (String)backend.getParams().getParameter(HttpProtocolParams.USER_AGENT);
-        return userAgent;
+        return (String)backend.getParams().getParameter(HttpProtocolParams.USER_AGENT);
     }
 
     public void setUserAgent(String userAgent) {

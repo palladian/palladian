@@ -65,6 +65,15 @@ public class HttpRetrieverTest {
         List<String> redirectUrls = httpRetriever.getRedirectUrls(url);
         CollectionHelper.print(redirectUrls);
     }
+
+    /** See: https://dev.twitter.com/docs/tco-redirection-behavior */
+    @Test
+    @Ignore
+    public void testRedirects_tco() throws Exception {
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        List<String> urls = httpRetriever.getRedirectUrls("http://t.co/RGJg5LjK");
+        CollectionHelper.print(urls);
+    }
     
     // TODO add further tests.
 
