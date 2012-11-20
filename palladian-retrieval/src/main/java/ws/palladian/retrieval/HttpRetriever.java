@@ -453,6 +453,7 @@ public class HttpRetriever {
 
             int statusCode = response.getStatusLine().getStatusCode();
             long receivedBytes = metrics.getReceivedBytesCount();
+            metrics.reset();
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
 
