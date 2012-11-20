@@ -48,5 +48,25 @@ public class CountMapTest {
         assertEquals(1, countMap.uniqueSize());
 
     }
+    
+    @Test
+    public void testCountMapAdd() {
+        CountMap<String> countMap1 = CountMap.create();
+        countMap1.add("one", 5);
+        countMap1.add("two", 3);
+        countMap1.add("three", 1);
+        
+        CountMap<String> countMap2 = CountMap.create();
+        countMap2.add("one", 10);
+        countMap2.add("two", 5);
+        countMap2.add("four", 7);
+        
+        countMap1.addAll(countMap2);
+        
+        assertEquals(15, countMap1.getCount("one"));
+        assertEquals(8, countMap1.getCount("two"));
+        assertEquals(1, countMap1.getCount("three"));
+        assertEquals(7, countMap1.getCount("four"));
+    }
 
 }
