@@ -103,8 +103,28 @@ public class CountMap<T> implements Collection<T>, Serializable {
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
+        Validate.notNull(c, "c must not be null");
+        
         for (T item : c) {
             add(item);
+        }
+        return true;
+    }
+
+    /**
+     * <p>
+     * Add all items from a {@link CountMap}. The counts are added, this means the count of an existing item is
+     * incremented by the count of the item in the given CountMap.
+     * </p>
+     * 
+     * @param c The CountMap from which to add items, not <code>null</code>.
+     * @return <code>true</code> (XXX always :)
+     */
+    public boolean addAll(CountMap<? extends T> c) {
+        Validate.notNull(c, "c must not be null");
+        
+        for (T item : c) {
+            add(item, c.getCount(item));
         }
         return true;
     }
@@ -134,7 +154,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
      * @param item The item for which to get the count, not <code>null</code>.
      * @return The count of the specified item.
      */
-    public int getCount(T item) {
+    public int getCount(Object item) {
         Validate.notNull(item, "item must not be null");
 
         Integer count = map.get(item);
