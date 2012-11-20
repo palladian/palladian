@@ -78,14 +78,14 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
         for (PositionAnnotation annotation : input2Annotations) {
             setOfInput2.add(annotation.getValue());
         }
-        final Set<String> overlap = new HashSet<String>();
-        overlap.addAll(setOfInput1);
-        overlap.retainAll(setOfInput2);
+        final Set<String> intersection = new HashSet<String>();
+        intersection.addAll(setOfInput1);
+        intersection.retainAll(setOfInput2);
         final Set<String> union = new HashSet<String>();
         union.addAll(setOfInput1);
         union.addAll(setOfInput2);
 
-        Double jaccardSimilarity = Integer.valueOf(overlap.size()).doubleValue()
+        Double jaccardSimilarity = Integer.valueOf(intersection.size()).doubleValue()
                 / Integer.valueOf(union.size()).doubleValue();
         // TODO Remove debug code
 //        if (jaccardSimilarity > 1.0) {

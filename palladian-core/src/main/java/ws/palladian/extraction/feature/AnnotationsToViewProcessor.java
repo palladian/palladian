@@ -16,7 +16,7 @@ import ws.palladian.processing.features.FeatureVector;
  * "The fox".
  * </p>
  * 
- * @author Klemens
+ * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
  * 
@@ -42,6 +42,7 @@ public final class AnnotationsToViewProcessor extends TextDocumentPipelineProces
             ret.append(feature.getValue());
             ret.append(" ");
         }
+        ret.replace(ret.length() - 1, ret.length(), "");
         document.setContent(ret.toString());
     }
 }

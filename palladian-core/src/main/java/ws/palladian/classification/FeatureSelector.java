@@ -5,15 +5,12 @@ package ws.palladian.classification;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
 
 /**
  * <p>
@@ -54,11 +51,10 @@ public final class FeatureSelector {
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
         for (Instance instance : instances) {
-//            Collection<? extends Feature<T>> features = instance.getFeatureVector().getFeatureBag(featureType,
-//                    featurePath);
+            // Collection<? extends Feature<T>> features = instance.getFeatureVector().getFeatureBag(featureType,
+            // featurePath);
             // XXX changed, untested -- 2012-11-17 -- Philipp
-            Collection<? extends Feature<T>> features = instance.getFeatureVector().getAll(featureType,
-                    featurePath);
+            Collection<? extends Feature<T>> features = instance.getFeatureVector().getAll(featureType, featurePath);
             for (Feature<T> value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
             }
@@ -183,35 +179,6 @@ public final class FeatureSelector {
     }
 
     public static void main(String[] args) {
-        FeatureVector fv1 = new FeatureVector();
-        FeatureVector fv2 = new FeatureVector();
-        FeatureVector fv3 = new FeatureVector();
 
-        fv1.add(new NominalFeature("testfeature", "a"));
-        fv1.add(new NominalFeature("testfeature", "b"));
-        fv1.add(new NominalFeature("testfeature", "c"));
-        fv1.add(new NominalFeature("testfeature", "a"));
-        fv1.add(new NominalFeature("testfeature", "d"));
-
-        fv2.add(new NominalFeature("testfeature", "a"));
-        fv2.add(new NominalFeature("testfeature", "b"));
-        fv2.add(new NominalFeature("testfeature", "c"));
-
-        fv3.add(new NominalFeature("testfeature", "d"));
-        fv3.add(new NominalFeature("testfeature", "e"));
-        fv3.add(new NominalFeature("testfeature", "f"));
-
-        Instance instance1 = new Instance("c1", fv1);
-        Instance instance2 = new Instance("c1", fv2);
-        Instance instance3 = new Instance("c2", fv3);
-
-        Collection<Instance> instances = new HashSet<Instance>();
-        instances.add(instance1);
-        instances.add(instance2);
-        instances.add(instance3);
-
-        Map<String, Map<String, Double>> chiSquareValues = calculateChiSquareValues("testfeature",
-                NominalFeature.class, instances);
-        System.out.println(chiSquareValues);
     }
 }
