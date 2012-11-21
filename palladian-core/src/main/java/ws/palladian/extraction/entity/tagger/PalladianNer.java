@@ -913,17 +913,19 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                     // get only the most likely concept
                     CategoryEntries mostLikelyCes = new CategoryEntries();
-                    ol: for (String conceptName : conceptLikelihoodOrder) {
-                        for (CategoryEntry categoryEntry : categoryEntries) {
-                            if (categoryEntry.getProbability() > 0
-                                    && categoryEntry.getName().equalsIgnoreCase(conceptName)) {
-                                mostLikelyCes.add(categoryEntry);
-                                break ol;
+                    if (conceptLikelihoodOrder != null) {
+                        ol: for (String conceptName : conceptLikelihoodOrder) {
+                            for (CategoryEntry categoryEntry : categoryEntries) {
+                                if (categoryEntry.getProbability() > 0
+                                        && categoryEntry.getName().equalsIgnoreCase(conceptName)) {
+                                    mostLikelyCes.add(categoryEntry);
+                                    break ol;
+                                }
                             }
                         }
-                    }
-                    if (mostLikelyCes.size() > 0) {
-                        categoryEntries = mostLikelyCes;
+                        if (mostLikelyCes.size() > 0) {
+                            categoryEntries = mostLikelyCes;
+                        }
                     }
 
                     annotation.setTags(categoryEntries);

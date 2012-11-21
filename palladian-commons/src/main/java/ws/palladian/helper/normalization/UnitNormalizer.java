@@ -335,10 +335,16 @@ public class UnitNormalizer {
                 || unit.equals("square meter") || unit.equals("square meters") || unit.equals("m²")) {
             multiplier = 1.0;
 
+            // volume (density of water) all to milli liter
+        } else if (unit.equals("liters") || unit.equals("liter") || unit.equals("l")) {
+            multiplier = 1000.;
+        } else if (unit.equals("milli liters") || unit.equals("ml")) {
+            multiplier = 1.;
+
             // technical, hp and kw to hp, mile per hour to kilometer per hour, lb-ft to Nm
         } else if (unit.equals("hp") || unit.equals("horsepower") || unit.equals("horses") || unit.equals("bhp")
                 || unit.equals("metric horsepower")) {
-            multiplier = 1;
+            multiplier = 1.;
         } else if (unit.equals("kw") || unit.equals("kilowatt") || unit.equals("kilowatts")) {
             multiplier = 1.3410;
         } else if (unit.equals("mph") || unit.equals("miles per hour")) {

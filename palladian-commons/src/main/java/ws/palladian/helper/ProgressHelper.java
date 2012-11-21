@@ -25,7 +25,7 @@ import ws.palladian.helper.math.MathHelper;
  */
 public final class ProgressHelper {
 
-    private final static char PROGRESS_CHAR = '\u25A0';
+    private final static char PROGRESS_CHAR = '■';
 
     private ProgressHelper() {
         // no instances.
