@@ -68,6 +68,10 @@ public class PalladianNerExperiments {
         FileHelper.writeToFile("data/temp/tagged_" + StringHelper.makeSafeName(url) + ".html", html);
     }
 
+    public void tagText(String text, PalladianNer tagger) {
+
+    }
+
     public static void main(String[] args) throws PageContentExtractorException {
 
         // FileHelper.removeDuplicateLines("data/temp/nerDictionary.csv");
@@ -79,7 +83,8 @@ public class PalladianNerExperiments {
         // exp.tag("http://www.bbc.co.uk/news/world-europe-20265166", tagger);
         // exp.tag("http://www.bbc.co.uk/news/uk-20277732", tagger);
         // exp.tag("http://www.bbc.com/travel/feature/20120925-following-the-buddha-around-bombay", tagger);
-        exp.tag("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands", tagger);
+        // exp.tag("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands", tagger);
+        System.out.println(tagger.tag("Ireland is north of France and Paris."));
 
     }
 
