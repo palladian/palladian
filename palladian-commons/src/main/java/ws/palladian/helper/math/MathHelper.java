@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
@@ -754,6 +756,116 @@ public final class MathHelper {
         double distance = earthRadius * c;
 
         return distance;
+    }
+
+    /**
+     * <p>
+     * Parse a numeric expression in a string to a double.
+     * </p>
+     * 
+     * <pre>
+     * "0.5" => 0.5
+     * "1/2" => 0.5
+     * "½" => 0.5
+     * "3 1/8" => 3.125
+     * "1½" => 1.5
+     * "1 ½" => 1.5
+     * </pre>
+     * 
+     * @param stringNumber The string containing the numeric expression.
+     * @return The parsed double.
+     */
+    public static double parseStringNumber(String stringNumber) {
+        Validate.notNull(stringNumber);
+
+        stringNumber = stringNumber.toLowerCase();
+
+        double value = 0.;
+
+        // find fraction characters
+        Set<String> remove = new HashSet<String>();
+        if (stringNumber.contains("¼")) {
+            value += 1 / 4.;
+            remove.add("¼");
+        }
+        if (stringNumber.contains("½")) {
+            value += 1 / 2.;
+            remove.add("½");
+        }
+        if (stringNumber.contains("¾")) {
+            value += 3 / 4.;
+            remove.add("¾");
+        }
+        if (stringNumber.contains("⅓")) {
+            value += 1 / 3.;
+            remove.add("⅓");
+        }
+        if (stringNumber.contains("⅔")) {
+            value += 2 / 3.;
+            remove.add("⅔");
+        }
+        if (stringNumber.contains("⅕")) {
+            value += 1 / 5.;
+            remove.add("⅕");
+        }
+        if (stringNumber.contains("⅖")) {
+            value += 2 / 5.;
+            remove.add("⅖");
+        }
+        if (stringNumber.contains("⅗")) {
+            value += 3 / 5.;
+            remove.add("⅗");
+        }
+        if (stringNumber.contains("⅘")) {
+            value += 4 / 5.;
+            remove.add("⅘");
+        }
+        if (stringNumber.contains("⅙")) {
+            value += 1 / 6.;
+            remove.add("⅙");
+        }
+        if (stringNumber.contains("⅚")) {
+            value += 5 / 6.;
+            remove.add("⅚");
+        }
+        if (stringNumber.contains("⅛")) {
+            value += 1 / 8.;
+            remove.add("⅛");
+        }
+        if (stringNumber.contains("⅜")) {
+            value += 3 / 8.;
+            remove.add("⅜");
+        }
+        if (stringNumber.contains("⅝")) {
+            value += 5 / 8.;
+            remove.add("⅝");
+        }
+        if (stringNumber.contains("⅞")) {
+            value += 7 / 8.;
+            remove.add("⅞");
+        }
+
+        for (String string : remove) {
+            stringNumber = stringNumber.replace(string, "");
+        }
+
+        // resolve fractions like "1/2"
+        Matcher matcher = Pattern.compile("(\\d+)/(\\d+)").matcher(stringNumber);
+        if (matcher.find()) {
+            int nominator = Integer.parseInt(matcher.group(1));
+            int denominator = Integer.parseInt(matcher.group(2));
+            value += nominator / (double)denominator;
+            stringNumber = stringNumber.replace(matcher.group(), "");
+        }
+
+        // parse the rest
+        stringNumber = stringNumber.replaceAll("[^0-9.]", "");
+        stringNumber = stringNumber.trim();
+        if (!stringNumber.isEmpty()) {
+            value += Double.parseDouble(stringNumber);
+        }
+
+        return value;
     }
 
 }
