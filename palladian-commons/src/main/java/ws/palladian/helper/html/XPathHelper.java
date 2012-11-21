@@ -57,16 +57,19 @@ public final class XPathHelper {
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<String, String>();
 
+        @Override
         public String getNamespaceURI(String prefix) {
             return namespaces.get(prefix);
         }
 
         // This method isn't necessary for XPath processing.
+        @Override
         public String getPrefix(String uri) {
             throw new UnsupportedOperationException();
         }
 
         // This method isn't necessary for XPath processing either.
+        @Override
         public Iterator<?> getPrefixes(String uri) {
             throw new UnsupportedOperationException();
         }
@@ -437,7 +440,12 @@ public final class XPathHelper {
         Validate.notNull(document, "document must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNodes(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
+    }
 
+    public static List<Node> getXhtmlNodes(Node node, String xPath) {
+        Validate.notNull(node, "node must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
+        return getNodes(node, addXhtmlNsToXPath(xPath));
     }
 
     /**
@@ -457,6 +465,12 @@ public final class XPathHelper {
         return getNode(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
 
+    public static Node getXhtmlNode(Node node, String xPath) {
+        Validate.notNull(node, "node must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
+        return getNode(node, addXhtmlNsToXPath(xPath));
+    }
+
     /**
      * <p>
      * Get a list of {@link Node}s from the supplied XHTML {@link Node} matching the given XPath expression. The XHTML
@@ -467,7 +481,9 @@ public final class XPathHelper {
      * @param xPath The XPath expression, not <code>null</code> or empty.
      * @return Matching nodes for the given XPath expression, or an empty {@link List} if no nodes match or an error
      *         occurred.
+     * @deprecated
      */
+    @Deprecated
     public static List<Node> getXhtmlChildNodes(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
@@ -485,7 +501,9 @@ public final class XPathHelper {
      * @param xPath The XPath expression, not <code>null</code> or empty.
      * @return Matching node for the given XPath expression, or <code>null</code> if no matching node or an error
      *         occurred.
+     * @deprecated
      */
+    @Deprecated
     public static Node getXhtmlChildNode(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");

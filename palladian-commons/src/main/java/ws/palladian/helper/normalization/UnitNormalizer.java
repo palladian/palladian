@@ -224,7 +224,11 @@ public class UnitNormalizer {
 
     public static double unitLookup(String unit) {
 
+        String origUnit = unit;
         unit = unit.toLowerCase().trim();
+        if (unit.endsWith(".")) {
+            unit = unit.substring(0, unit.length() - 1);
+        }
 
         // means no multiplier found (hint for other function that a shorter sequence for the unit string might bring a
         // result)
@@ -285,7 +289,7 @@ public class UnitNormalizer {
             multiplier = 1000.0;
         } else if (unit.equals("pound") || unit.equals("pounds") || unit.equals("lb") || unit.equals("lbs")) {
             multiplier = 453.59237;
-        } else if (unit.equals("ounce") || unit.equals("ounces") || unit.equals("oz")) {
+        } else if (unit.equals("ounce") || unit.equals("ounces") || unit.equals("oz") || unit.equals("ozs")) {
             multiplier = 28.3495231;
         } else if (unit.equals("gram") || unit.equals("grams") || unit.equals("g") || unit.equals("gr")) {
             multiplier = 1.0;
@@ -336,8 +340,16 @@ public class UnitNormalizer {
             multiplier = 1.0;
 
             // volume (density of water) all to milli liter
+        } else if (unit.equals("teaspoon") || unit.equals("teaspoons") || origUnit.equals("t") || unit.equals("tsp")
+                || unit.equals("tsps")) {
+            multiplier = 4.92892;
+        } else if (unit.equals("tablespoon") || unit.equals("tablespoons") || origUnit.equals("T")
+                || unit.equals("tbsp") || unit.equals("tbsps")) {
+            multiplier = 14.7868;
         } else if (unit.equals("liters") || unit.equals("liter") || unit.equals("l")) {
             multiplier = 1000.;
+        } else if (unit.equals("cups") || unit.equals("cup")) {
+            multiplier = 236.588;
         } else if (unit.equals("milli liters") || unit.equals("ml")) {
             multiplier = 1.;
 
