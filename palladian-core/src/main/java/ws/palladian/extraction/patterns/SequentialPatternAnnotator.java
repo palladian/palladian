@@ -94,14 +94,15 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
 
     @Override
     public void processDocument(TextDocument document) {
-        List<PositionAnnotation> posTags = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
-        List<PositionAnnotation> sentences = document.getFeatureVector().getAll(PositionAnnotation.class, AbstractSentenceDetector.PROVIDED_FEATURE);
-        List<PositionAnnotation> markedKeywords = markKeywords(document);
+        List<PositionAnnotation> posTags = new ArrayList<PositionAnnotation>(document.getFeatureVector().getAll(
+                PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE));
+        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>(document.getFeatureVector().getAll(
+                PositionAnnotation.class, AbstractSentenceDetector.PROVIDED_FEATURE));
+        List<PositionAnnotation> markedKeywords = new ArrayList<PositionAnnotation>(markKeywords(document));
 
-        // wtf?!?!?!?
-//        Collections.sort(posTags);
-//        Collections.sort(sentences);
-//        Collections.sort(markedKeywords);
+        Collections.sort(posTags);
+        Collections.sort(sentences);
+        Collections.sort(markedKeywords);
 
         Iterator<PositionAnnotation> posTagsIterator = posTags.iterator();
         Iterator<PositionAnnotation> markedKeywordsIterator = markedKeywords.iterator();
@@ -123,8 +124,8 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
                     sequentialPattern.add(currentMarkedKeyword.getValue());
                     i = currentMarkedKeyword.getEndPosition();
                 } else if (currentPosTag != null && Integer.valueOf(currentPosTag.getStartPosition()).equals(i)) {
-                    sequentialPattern.add(currentPosTag.getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                            .getValue());
+                    sequentialPattern.add(currentPosTag.getFeatureVector()
+                            .getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE).getValue());
                     i = currentPosTag.getEndPosition();
                 } else {
                     i++;

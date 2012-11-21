@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureUtils;
 
 /**
  * <p>
@@ -51,10 +52,12 @@ public final class FeatureSelector {
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
         for (Instance instance : instances) {
-            // Collection<? extends Feature<T>> features = instance.getFeatureVector().getFeatureBag(featureType,
-            // featurePath);
+            Collection<? extends Feature<T>> features = FeatureUtils.convertToSet(instance.getFeatureVector(),
+                    featureType, featurePath);
             // XXX changed, untested -- 2012-11-17 -- Philipp
-            Collection<? extends Feature<T>> features = instance.getFeatureVector().getAll(featureType, featurePath);
+            // XXX needs to be changed back since this allows duplicates in the Collection of features which causes
+            // errors -- 2012-11-20 -- Klemens
+            // Collection<? extends Feature<T>> features = instance.getFeatureVector().getAll(featureType, featurePath);
             for (Feature<T> value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
             }
@@ -164,6 +167,7 @@ public final class FeatureSelector {
     }
 
     private static void addCooccurence(String row, String column, Map<String, Map<String, Long>> correlationMatrix) {
+
         Map<String, Long> correlations = correlationMatrix.get(row);
         if (correlations == null) {
             correlations = new HashMap<String, Long>();

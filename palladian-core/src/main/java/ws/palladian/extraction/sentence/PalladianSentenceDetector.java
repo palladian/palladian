@@ -12,7 +12,7 @@ public class PalladianSentenceDetector extends AbstractSentenceDetector {
     public AbstractSentenceDetector detect(String text) {
 
         TextDocument document = new TextDocument(text);
-        List<PositionAnnotation> sentences = Tokenizer.getSentences(document);
+        List<PositionAnnotation> sentences = Tokenizer.getSentences(document, getCreatedFeatureName());
 
         PositionAnnotation[] sentencesArray = new PositionAnnotation[sentences.size()];
         setSentences(sentences.toArray(sentencesArray));

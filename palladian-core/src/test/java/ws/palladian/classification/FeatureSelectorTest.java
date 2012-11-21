@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.processing.features.FeatureVector;
@@ -54,9 +56,9 @@ public class FeatureSelectorTest {
 
         Map<String, Map<String, Double>> chiSquareValues = FeatureSelector.calculateChiSquareValues("testfeature",
                 NominalFeature.class, instances);
-        System.out.println(chiSquareValues);
+        // System.out.println(chiSquareValues);
 
-        // TODO add assertions here.
+        Assert.assertThat(chiSquareValues.get("a").get("c1"), Matchers.is(Matchers.closeTo(3.0, 0.0001)));
+        Assert.assertThat(chiSquareValues.get("d").get("c2"), Matchers.is(Matchers.closeTo(0.75, 0.0001)));
     }
-
 }

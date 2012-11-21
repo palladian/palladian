@@ -92,7 +92,7 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
 //            System.out.println("+++++++++++++++++");
 //        }
 
-        document1.getFeatureVector().add(new NumericFeature(getDescriptor(), jaccardSimilarity));
+        document1.getFeatureVector().add(new NumericFeature(getCreatedFeatureName(), jaccardSimilarity));
         getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document1);
     }
 }

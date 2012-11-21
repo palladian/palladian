@@ -26,7 +26,7 @@ public class ProcessingPipeline {
 
     /** The processors this pipeline will execute as ordered by this list from the first to the last. */
     private final List<PipelineProcessor> pipelineProcessors;
-    
+
     /** The {@link Pipe}s connecting the {@link PipelineProcessors} of this {@code ProcessingPipeline}. */
     private final List<Pipe> pipes;
 
@@ -70,8 +70,7 @@ public class ProcessingPipeline {
             Port previousOutputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
                     PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
             if (previousOutputPort != null) {
-                Port inputPort =  pipelineProcessor
-                        .getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER);
+                Port inputPort = pipelineProcessor.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER);
                 if (inputPort != null) {
                     pipes.add(new Pipe(previousOutputPort, inputPort));
                 }
@@ -128,25 +127,26 @@ public class ProcessingPipeline {
             return document;
         }
 
-        //pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
+        // pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
         pipelineProcessors.get(0).getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
 
         process();
 
         // List<Port> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
-        Port outputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
+        Port outputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
+                PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
 
         // Check if default output is available. This might not be the case if a writer was used to process the
         // final data.
-//        if (outputPorts.isEmpty()) {
-//            return null;
-//        } else {
-//            return outputPorts.get(0).getPipelineDocument();
-//        }
+        // if (outputPorts.isEmpty()) {
+        // return null;
+        // } else {
+        // return outputPorts.get(0).getPipelineDocument();
+        // }
         if (outputPort != null) {
             return outputPort.poll();
         }
-        
+
         return null;
     }
 
@@ -184,8 +184,8 @@ public class ProcessingPipeline {
                     executedPipes.add(pipe);
                 }
             }
-//            resetPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
-//                                       // iteration again.
+            // resetPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
+            // // iteration again.
             executableProcessors.removeAll(executedProcessors);
             executablePipes.removeAll(executedPipes);
         } while (!executedProcessors.isEmpty());
@@ -241,23 +241,23 @@ public class ProcessingPipeline {
                     executedPipes.add(pipe);
                 }
             }
-//            resetPipes(executedPipes);
+            // resetPipes(executedPipes);
         } while (!executedProcessors.isEmpty() || !executedPipes.isEmpty());
         notifyProcessorsOfProcessFinished();
     }
 
-//    /**
-//     * <p>
-//     * Resets the provided {@code Pipe}s so they can fire again.
-//     * </p>
-//     * 
-//     * @param pipes The {@code Pipe}s to reset.
-//     */
-//    private void resetPipes(Collection<Pipe> pipes) {
-//        for (Pipe pipe : pipes) {
-//            pipe.clearInput();
-//        }
-//    }
+    // /**
+    // * <p>
+    // * Resets the provided {@code Pipe}s so they can fire again.
+    // * </p>
+    // *
+    // * @param pipes The {@code Pipe}s to reset.
+    // */
+    // private void resetPipes(Collection<Pipe> pipes) {
+    // for (Pipe pipe : pipes) {
+    // pipe.clearInput();
+    // }
+    // }
 
     /**
      * <p>

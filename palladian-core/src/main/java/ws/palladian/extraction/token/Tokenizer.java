@@ -527,8 +527,8 @@ public final class Tokenizer {
      * @param inputDocument The {@link TextDocument} to split into sentences.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument) {
-        return getSentences(inputDocument, SENTENCE_SPLIT_PATTERN);
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName) {
+        return getSentences(inputDocument, SENTENCE_SPLIT_PATTERN, featureName);
     }
 
     // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
@@ -540,9 +540,10 @@ public final class Tokenizer {
      * 
      * @param inputDocument The {@link TextDocument} to split into sentences.
      * @param pattern The {@link Pattern} to use to split sentences.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, Pattern pattern) {
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, Pattern pattern, String featureName) {
         String inputText = inputDocument.getContent();
         String mask = "PALLADIANMASK";
         List<PositionAnnotation> masks = new ArrayList<PositionAnnotation>();
@@ -577,7 +578,7 @@ public final class Tokenizer {
 
             int leftIndex = lastIndex + leftOffset;
             int rightIndex = leftIndex + value.length();
-            PositionAnnotation sentence = new PositionAnnotation("sentence", leftIndex, rightIndex, index, value);
+            PositionAnnotation sentence = new PositionAnnotation(featureName, leftIndex, rightIndex, index, value);
             sentences.add(sentence);
             lastIndex = endPosition;
             index++;
@@ -596,8 +597,8 @@ public final class Tokenizer {
             if (!value.isEmpty()) {
                 int leftIndex = lastIndex + leftOffset;
                 int rightIndex = leftIndex + value.length();
-                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation("sentence", leftIndex,
-                        rightIndex, index, value);
+                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(featureName, leftIndex, rightIndex,
+                        index, value);
                 sentences.add(lastSentenceAnnotation);
             }
         }
@@ -610,7 +611,7 @@ public final class Tokenizer {
                 return Integer.valueOf(o1.getStartPosition()).compareTo(o2.getStartPosition());
             }
         });
-        return recalculatePositions(inputDocument, maskedText, masks, sentences);
+        return recalculatePositions(inputDocument, maskedText, masks, sentences, featureName);
     }
 
     /**
@@ -624,9 +625,10 @@ public final class Tokenizer {
      * @param maskAnnotations A list of masked {@link PositionAnnotation}s that must be sorted by start position.
      * @param sentences The extracted sentences on {@code maskedText}, which should be remapped to the text of the
      *            {@code inputDocument}.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
      */
     private static List<PositionAnnotation> recalculatePositions(TextDocument inputDocument, String maskedText,
-            List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences) {
+            List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences, String featureName) {
         List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
 
         int lastTransformedEndPosition = 0;
@@ -656,7 +658,7 @@ public final class Tokenizer {
 
             String transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
                     transformedEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation("sentence", transformedStartPosition,
+            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, transformedStartPosition,
                     transformedEndPosition, sentence.getIndex(), transformedValue);
             ret.add(transformedSentence);
             lastTransformedEndPosition = transformedEndPosition;
@@ -684,8 +686,8 @@ public final class Tokenizer {
             String value = annotation.getEntity();
             int startPosition = annotation.getOffset();
             int endPosition = annotation.getOffset() + annotation.getLength();
-            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition, index,
-                    value);
+            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
+                    index, value);
 
             ret.add(positionAnnotation);
         }
@@ -735,8 +737,8 @@ public final class Tokenizer {
                         && Character.isUpperCase(string.charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) || string
-.charAt(startIndex + 2) == '-' || string.charAt(startIndex + 2) == '=')
+                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2))
+                        || string.charAt(startIndex + 2) == '-' || string.charAt(startIndex + 2) == '=')
                         && string.charAt(startIndex + 1) == ' ';
             }
 

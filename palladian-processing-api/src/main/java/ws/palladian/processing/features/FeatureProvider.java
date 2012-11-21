@@ -3,6 +3,7 @@
  */
 package ws.palladian.processing.features;
 
+import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 
 /**
@@ -16,7 +17,7 @@ import ws.palladian.processing.PipelineProcessor;
  */
 public interface FeatureProvider extends PipelineProcessor {
     /**
-     * @return The {@link FeatureDescriptor} for the {@link Feature} extracted by this {@link PipelineProcessor}.
+     * @return The name for the {@link Feature} extracted by this {@link PipelineProcessor}.
      */
-    String getDescriptor();
+    String getCreatedFeatureName();
 }

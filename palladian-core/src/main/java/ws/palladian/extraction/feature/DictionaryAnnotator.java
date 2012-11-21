@@ -58,7 +58,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         List<PositionAnnotation> matchingToken = CollectionHelper.newArrayList();
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(getDescriptor(), document);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(getCreatedFeatureName(), document);
         for (PositionAnnotation tokenAnnotation : annotations) {
             String token = tokenAnnotation.getValue();
             if (dictionary.contains(token)) {
