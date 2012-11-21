@@ -7,6 +7,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
@@ -21,7 +22,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * @version 2.0
  * @since 0.1.7
  */
-public final class RegExTokenizer extends BaseTokenizer {
+public final class RegExTokenizer extends BaseTokenizer implements FeatureProvider {
 
     /**
      * <p>
@@ -49,7 +50,7 @@ public final class RegExTokenizer extends BaseTokenizer {
      * annotating token matching the provided {@code pattern}.
      * </p>
      * 
-     * @param featureDescriptor The {@code FeatureDescriptor} identifying the annotated token.
+     * @param featureName The name of the feature identifying the annotated token.
      * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      */
     public RegExTokenizer(String featureName, Pattern pattern) {
@@ -58,6 +59,20 @@ public final class RegExTokenizer extends BaseTokenizer {
 
         this.pattern = pattern;
         this.featureName = featureName;
+    }
+
+    /**
+     * <p>
+     * Creates a new {@code RegExTokenizer} creating token {@code Annotation}s with the provided identifier and
+     * annotating token matching the provided regular expression.
+     * </p>
+     * 
+     * @param featureName The name of the feature created to store the annotations.
+     * @param regex The regular expression to annotate in the input document. Refer to the {@link Pattern} class
+     *            documentation for the regex format.
+     */
+    public RegExTokenizer(String featureName, String regex) {
+        this(featureName, Pattern.compile(regex));
     }
 
     @Override
@@ -71,6 +86,11 @@ public final class RegExTokenizer extends BaseTokenizer {
         while (matcher.find()) {
             featureVector.add(annotationFactory.create(matcher.start(), matcher.end()));
         }
+    }
+
+    @Override
+    public String getCreatedFeatureName() {
+        return featureName;
     }
 
 }

@@ -128,7 +128,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     }
 
     @Override
-    public final boolean isExecutable() {
+    public boolean isExecutable() {
         // There must be a document at each input port.
         for (Port inputPort : getInputPorts()) {
             if (!inputPort.hasDocument()) {

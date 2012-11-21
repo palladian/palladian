@@ -55,7 +55,7 @@ public abstract class AbstractFeatureProvider extends AbstractPipelineProcessor 
     }
 
     @Override
-    public String getDescriptor() {
+    public String getCreatedFeatureName() {
         return featureIdentifier;
     }
 

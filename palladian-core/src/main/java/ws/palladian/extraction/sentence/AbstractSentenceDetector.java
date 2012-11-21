@@ -12,6 +12,7 @@ import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -44,8 +45,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public abstract class AbstractSentenceDetector extends TextDocumentPipelineProcessor/*  implements
-        FeatureProvider<TextAnnotationFeature> */ {
+public abstract class AbstractSentenceDetector extends TextDocumentPipelineProcessor implements FeatureProvider {
 
     /**
      * <p>
@@ -53,26 +53,27 @@ public abstract class AbstractSentenceDetector extends TextDocumentPipelineProce
      * </p>
      */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.sentence";
-    
+
     protected final String providedFeature;
 
-//    /**
-//     * <p>
-//     * The world wide unique feature descriptor of the {@link Feature} created by this annotator.
-//     * </p>
-//     */
-//    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-//            .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
+    // /**
+    // * <p>
+    // * The world wide unique feature descriptor of the {@link Feature} created by this annotator.
+    // * </p>
+    // */
+    // public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR =
+    // FeatureDescriptorBuilder
+    // .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
 
     /** holds the sentences. **/
     private PositionAnnotation[] sentences;
 
-//    /**
-//     * <p>
-//     * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
-//     * </p>
-//     */
-//    private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
+    // /**
+    // * <p>
+    // * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
+    // * </p>
+    // */
+    // private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
 
     /**
      * <p>
@@ -136,8 +137,8 @@ public abstract class AbstractSentenceDetector extends TextDocumentPipelineProce
         document.getFeatureVector().addAll(sentencesList);
     }
 
-//    @Override
-//    public FeatureDescriptor<TextAnnotationFeature> getDescriptor() {
-//        return featureDescriptor;
-//    }
+    @Override
+    public String getCreatedFeatureName() {
+        return providedFeature;
+    }
 }

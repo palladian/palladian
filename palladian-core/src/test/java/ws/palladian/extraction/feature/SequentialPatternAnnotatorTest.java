@@ -29,6 +29,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureUtils;
 
 /**
  * <p>
@@ -215,8 +216,8 @@ public class SequentialPatternAnnotatorTest {
         TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
-        List<SequentialPattern> patterns = document.getFeatureVector().getAll(SequentialPattern.class,
-                "ws.palladian.features.sentence/lsp");
+        List<SequentialPattern> patterns = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(),
+                SequentialPattern.class, "ws.palladian.features.sentence/lsp");
         for (SequentialPattern pattern : expectedPatterns) {
             Assert.assertThat(pattern, Matchers.isIn(patterns));
         }
@@ -235,8 +236,8 @@ public class SequentialPatternAnnotatorTest {
 
         processingPipeline.process(document);
 
-        List<SequentialPattern> extractedPatterns = document.getFeatureVector().getAll(SequentialPattern.class,
-                "ws.palladian.features.sentence/lsp");
+        List<SequentialPattern> extractedPatterns = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(),
+                SequentialPattern.class, "ws.palladian.features.sentence/lsp");
         Assert.assertThat(extractedPatterns,
                 Matchers.hasItems(expectedNGramPatterns.toArray(new SequentialPattern[expectedNGramPatterns.size()])));
     }
