@@ -20,38 +20,46 @@ public class AnnotatorTest {
     private final TextDocument document = new TextDocument("Let's try to stem some tokens in English language.");
 
     // XXX there is no exception triggered in this case any longer ...:
-    
-//    @Test(expected = DocumentUnprocessableException.class)
-//    public void testMissingTokenAnnotations() throws DocumentUnprocessableException {
-//        ProcessingPipeline pipeline = new ProcessingPipeline();
-//        pipeline.add(new StemmerAnnotator(Language.ENGLISH));
-//        pipeline.process(document);
-//    }
+
+    // @Test(expected = DocumentUnprocessableException.class)
+    // public void testMissingTokenAnnotations() throws DocumentUnprocessableException {
+    // ProcessingPipeline pipeline = new ProcessingPipeline();
+    // pipeline.add(new StemmerAnnotator(Language.ENGLISH));
+    // pipeline.process(document);
+    // }
 
     @Test
     public void testStemmerAnnotator() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new StemmerAnnotator(Language.ENGLISH));
+        pipeline.addWithDefaultConnection(new RegExTokenizer());
+        pipeline.addWithDefaultConnection(new StemmerAnnotator(Language.ENGLISH));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
 
         assertEquals(12, annotations.size());
-        assertEquals("tri", annotations.get(3).getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.STEM).getValue());
-        assertEquals("token", annotations.get(7).getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.STEM).getValue());
-        assertEquals("languag", annotations.get(10).getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.STEM).getValue());
-        
+        assertEquals("tri",
+                annotations.get(3).getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.STEM)
+                        .getValue());
+        assertEquals("token",
+                annotations.get(7).getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.STEM)
+                        .getValue());
+        assertEquals("languag",
+                annotations.get(10).getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.STEM)
+                        .getValue());
+
     }
 
     @Test
     public void testStopTokenRemover() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new StopTokenRemover(Language.ENGLISH));
+        pipeline.addWithDefaultConnection(new RegExTokenizer());
+        pipeline.addWithDefaultConnection(new StopTokenRemover(Language.ENGLISH));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
 
         assertEquals(7, annotations.size());
     }
@@ -59,11 +67,12 @@ public class AnnotatorTest {
     @Test
     public void testTokenLengthRemover() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new LengthTokenRemover(2));
+        pipeline.addWithDefaultConnection(new RegExTokenizer());
+        pipeline.addWithDefaultConnection(new LengthTokenRemover(2));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
 
         assertEquals(9, annotations.size());
     }

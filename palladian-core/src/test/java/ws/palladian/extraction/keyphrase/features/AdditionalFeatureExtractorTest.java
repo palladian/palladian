@@ -17,15 +17,16 @@ import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
 
 public class AdditionalFeatureExtractorTest {
-    
+
     @Test
     public void testExtractAdditionalFeatures() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
-        pipeline.add(new DuplicateTokenConsolidator());
-        pipeline.add(new AdditionalFeatureExtractor());
-        TextDocument document = (TextDocument)pipeline.process(new TextDocument("the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
+        pipeline.addWithDefaultConnection(new RegExTokenizer());
+        pipeline.addWithDefaultConnection(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
+        pipeline.addWithDefaultConnection(new DuplicateTokenConsolidator());
+        pipeline.addWithDefaultConnection(new AdditionalFeatureExtractor());
+        TextDocument document = (TextDocument)pipeline.process(new TextDocument(
+                "the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
         List<PositionAnnotation> tokenAnnotations = RegExTokenizer.getTokenAnnotations(document);
         assertEquals(9, tokenAnnotations.size());
     }
