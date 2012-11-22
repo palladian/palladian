@@ -31,9 +31,9 @@ public class TermCorpusBuilderTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         TermCorpus termCorpus = new TermCorpus();
 
-        pipeline.addWithDefaultConnection(new LowerCaser());
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new TermCorpusBuilder(termCorpus));
+        pipeline.connectToPreviousProcessor(new LowerCaser());
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new TermCorpusBuilder(termCorpus));
 
         pipeline.process(doc1);
         pipeline.process(doc2);

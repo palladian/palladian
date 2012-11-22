@@ -31,8 +31,8 @@ public class AnnotatorTest {
     @Test
     public void testStemmerAnnotator() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new StemmerAnnotator(Language.ENGLISH));
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new StemmerAnnotator(Language.ENGLISH));
         pipeline.process(document);
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
@@ -54,8 +54,8 @@ public class AnnotatorTest {
     @Test
     public void testStopTokenRemover() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new StopTokenRemover(Language.ENGLISH));
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new StopTokenRemover(Language.ENGLISH));
         pipeline.process(document);
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
@@ -67,8 +67,8 @@ public class AnnotatorTest {
     @Test
     public void testTokenLengthRemover() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new LengthTokenRemover(2));
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new LengthTokenRemover(2));
         pipeline.process(document);
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,

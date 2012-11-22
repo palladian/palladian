@@ -51,9 +51,9 @@ public class NGramCreatorTest {
 
     @Test
     public void testNGramCreator() throws DocumentUnprocessableException {
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new StopTokenRemover(Language.ENGLISH));
-        pipeline.addWithDefaultConnection(new NGramCreator(2));
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new StopTokenRemover(Language.ENGLISH));
+        pipeline.connectToPreviousProcessor(new NGramCreator(2));
         pipeline.process(document);
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
@@ -75,10 +75,10 @@ public class NGramCreatorTest {
      */
     @Test
     public void testNGramCreatorPreserveAnnotations() throws Exception {
-        pipeline.addWithDefaultConnection(new LingPipeTokenizer());
-        pipeline.addWithDefaultConnection(new LingPipePosTagger(ResourceHelper
+        pipeline.connectToPreviousProcessor(new LingPipeTokenizer());
+        pipeline.connectToPreviousProcessor(new LingPipePosTagger(ResourceHelper
                 .getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel")));
-        pipeline.addWithDefaultConnection(new NGramCreator(BasePosTagger.PROVIDED_FEATURE));
+        pipeline.connectToPreviousProcessor(new NGramCreator(BasePosTagger.PROVIDED_FEATURE));
         pipeline.process(document);
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,

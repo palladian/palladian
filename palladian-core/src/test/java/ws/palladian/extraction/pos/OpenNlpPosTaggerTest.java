@@ -30,8 +30,8 @@ public class OpenNlpPosTaggerTest {
     @Test
     public void testOpenNlpPosTagger() throws DocumentUnprocessableException {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
-        processingPipeline.addWithDefaultConnection(new RegExTokenizer());
-        processingPipeline.addWithDefaultConnection(new OpenNlpPosTagger(modelFile));
+        processingPipeline.connectToPreviousProcessor(new RegExTokenizer());
+        processingPipeline.connectToPreviousProcessor(new OpenNlpPosTagger(modelFile));
         processingPipeline.process(document);
 
         List<PositionAnnotation> annotations = RegExTokenizer.getTokenAnnotations(document);

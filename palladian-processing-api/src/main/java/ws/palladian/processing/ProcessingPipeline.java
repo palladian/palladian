@@ -58,7 +58,7 @@ public class ProcessingPipeline {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final void addWithDefaultConnection(PipelineProcessor pipelineProcessor) {
+    public final void connectToPreviousProcessor(PipelineProcessor pipelineProcessor) {
         // Begin Convenience Code
         if (!pipelineProcessors.isEmpty()) {
             OutputPort previousOutputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(

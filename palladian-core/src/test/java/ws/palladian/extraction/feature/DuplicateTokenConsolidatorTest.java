@@ -20,8 +20,8 @@ public class DuplicateTokenConsolidatorTest {
     @Test
     public void testDuplicateTokenConsolidator() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new DuplicateTokenConsolidator());
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new DuplicateTokenConsolidator());
         TextDocument document = (TextDocument)pipeline.process(new TextDocument(SAMPLE_TEXT));
 
         List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);

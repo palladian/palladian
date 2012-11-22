@@ -21,8 +21,8 @@ public class TokenMetricsCalculatorTest {
     @Test
     public void testTokenMetrics() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new TokenMetricsCalculator());
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new TokenMetricsCalculator());
         TextDocument document = (TextDocument)pipeline.process(new TextDocument(SAMPLE_TEXT));
 
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
