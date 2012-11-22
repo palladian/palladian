@@ -78,8 +78,8 @@ public class LingPipePosTaggerTest {
         PipelineProcessor objectOfClassUnderTest = new LingPipePosTagger(modelFile);
 
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(tokenizer);
-        pipeline.addWithDefaultConnection(objectOfClassUnderTest);
+        pipeline.connectToPreviousProcessor(tokenizer);
+        pipeline.connectToPreviousProcessor(objectOfClassUnderTest);
 
         pipeline.process(document);
         FeatureVector featureVector = document.getFeatureVector();

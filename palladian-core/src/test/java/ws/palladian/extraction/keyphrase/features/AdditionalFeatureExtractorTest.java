@@ -21,10 +21,10 @@ public class AdditionalFeatureExtractorTest {
     @Test
     public void testExtractAdditionalFeatures() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
-        pipeline.addWithDefaultConnection(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
-        pipeline.addWithDefaultConnection(new DuplicateTokenConsolidator());
-        pipeline.addWithDefaultConnection(new AdditionalFeatureExtractor());
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
+        pipeline.connectToPreviousProcessor(new DuplicateTokenConsolidator());
+        pipeline.connectToPreviousProcessor(new AdditionalFeatureExtractor());
         TextDocument document = (TextDocument)pipeline.process(new TextDocument(
                 "the quick brown Fox jumps over the lazy Dog. the quick brown Fox jumps over the lazy dog."));
         List<PositionAnnotation> tokenAnnotations = RegExTokenizer.getTokenAnnotations(document);

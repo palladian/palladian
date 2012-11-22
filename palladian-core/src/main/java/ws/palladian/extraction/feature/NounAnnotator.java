@@ -14,6 +14,7 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
@@ -28,7 +29,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * @version 1.0
  * @since 0.1.7
  */
-public final class NounAnnotator extends TextDocumentPipelineProcessor {
+public final class NounAnnotator extends TextDocumentPipelineProcessor implements FeatureProvider {
 
     private final static String[] NOUN_TAGS = new String[] {"NN", "NN$", "NNS", "NNS$", "NP", "NP$", "NPS", "NPS$"};
 
@@ -44,8 +45,10 @@ public final class NounAnnotator extends TextDocumentPipelineProcessor {
         List<PositionAnnotation> ret = CollectionHelper.newArrayList();
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(featureIdentifier, document);
-        for (PositionAnnotation token : document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE)) {
-            NominalFeature posTag = token.getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE);
+        for (PositionAnnotation token : document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE)) {
+            NominalFeature posTag = token.getFeatureVector().getFeature(NominalFeature.class,
+                    BasePosTagger.PROVIDED_FEATURE);
             if (posTag == null) {
                 throw new DocumentUnprocessableException(
                         "At least one token has not PoS tag. The noun annotator requires the pipeline to call a PoSTagger in advance.");
@@ -54,6 +57,11 @@ public final class NounAnnotator extends TextDocumentPipelineProcessor {
             }
         }
         document.getFeatureVector().addAll(ret);
+    }
+
+    @Override
+    public String getCreatedFeatureName() {
+        return featureIdentifier;
     }
 
 }

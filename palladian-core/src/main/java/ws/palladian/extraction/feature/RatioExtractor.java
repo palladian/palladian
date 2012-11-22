@@ -3,11 +3,12 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.util.Collection;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -23,15 +24,13 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @version 1.0
  * @since 0.1.7
  */
-public final class RatioExtractor extends TextDocumentPipelineProcessor {
+public final class RatioExtractor extends TextDocumentPipelineProcessor implements FeatureProvider {
 
     private final String featureIdentifier;
     private final String dividendFeatureIdentifier;
     private final String divisorFeatureIdentifier;
 
-    public RatioExtractor(String featureIdentifier,
-            String dividendFeatureIdentifier,
-            String divisorFeatureIdentifier) {
+    public RatioExtractor(String featureIdentifier, String dividendFeatureIdentifier, String divisorFeatureIdentifier) {
         this.featureIdentifier = featureIdentifier;
         this.dividendFeatureIdentifier = dividendFeatureIdentifier;
         this.divisorFeatureIdentifier = divisorFeatureIdentifier;
@@ -41,17 +40,24 @@ public final class RatioExtractor extends TextDocumentPipelineProcessor {
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         Feature<?> dividendFeature = document.getFeatureVector().getFeature(dividendFeatureIdentifier);
         Feature<?> divisorFeature = document.getFeatureVector().getFeature(divisorFeatureIdentifier);
+        Validate.notNull(dividendFeature, "Unable to calculate ratio since dividend %s is not set",
+                dividendFeatureIdentifier);
+        Validate.notNull(dividendFeature, "Unable to calculate ratio since divisor %s is not set",
+                divisorFeatureIdentifier);
 
         Double dividend = convertToNumber(dividendFeature.getValue());
         Double divisor = convertToNumber(divisorFeature.getValue());
+
+        Validate.notNull(dividend, "Unable to calculate ratio since dividend %s is no valid number. Data type is %s",
+                dividendFeatureIdentifier, dividendFeature.getValue().getClass().getName());
+        Validate.notNull(divisor, "Unable to calculate ratio since divisor %s is no valid number. Data type is %s",
+                divisorFeatureIdentifier, divisorFeature.getValue().getClass().getName());
 
         document.getFeatureVector().add(new NumericFeature(featureIdentifier, dividend / divisor));
     }
 
     private Double convertToNumber(Object value) {
-        if (value instanceof Collection) {
-            return Double.valueOf(((Collection<?>)value).size());
-        } else if (value instanceof Double) {
+        if (value instanceof Double) {
             return (Double)value;
         } else if (value instanceof Integer) {
             return ((Integer)value).doubleValue();
@@ -60,8 +66,8 @@ public final class RatioExtractor extends TextDocumentPipelineProcessor {
         }
     }
 
-//    public FeatureDescriptor<NumericFeature> getDescriptor() {
-//        return featureDescriptor;
-//    }
-
+    @Override
+    public String getCreatedFeatureName() {
+        return featureIdentifier;
+    }
 }

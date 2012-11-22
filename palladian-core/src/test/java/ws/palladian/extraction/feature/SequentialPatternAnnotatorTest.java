@@ -207,11 +207,11 @@ public class SequentialPatternAnnotatorTest {
     @Ignore
     public final void testWithLSPExtractionStrategy() throws Exception {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
-        processingPipeline.addWithDefaultConnection(new PalladianSentenceDetector());
-        processingPipeline.addWithDefaultConnection(new RegExTokenizer());
-        processingPipeline.addWithDefaultConnection(new OpenNlpPosTagger(ResourceHelper
+        processingPipeline.connectToPreviousProcessor(new PalladianSentenceDetector());
+        processingPipeline.connectToPreviousProcessor(new RegExTokenizer());
+        processingPipeline.connectToPreviousProcessor(new OpenNlpPosTagger(ResourceHelper
                 .getResourceFile("/model/en-pos-maxent.bin")));
-        processingPipeline.addWithDefaultConnection(new SequentialPatternAnnotator(keywords, 1, 4,
+        processingPipeline.connectToPreviousProcessor(new SequentialPatternAnnotator(keywords, 1, 4,
                 new LabeledSequentialPatternExtractionStrategy()));
 
         TextDocument document = new TextDocument(inputText);
@@ -227,12 +227,12 @@ public class SequentialPatternAnnotatorTest {
     @Test
     public void testWithNGramExtractionStrategy() throws FileNotFoundException, DocumentUnprocessableException {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
-        processingPipeline.addWithDefaultConnection(new PalladianSentenceDetector());
-        processingPipeline.addWithDefaultConnection(new LowerCaser());
-        processingPipeline.addWithDefaultConnection(new RegExTokenizer());
-        processingPipeline.addWithDefaultConnection(new OpenNlpPosTagger(ResourceHelper
+        processingPipeline.connectToPreviousProcessor(new PalladianSentenceDetector());
+        processingPipeline.connectToPreviousProcessor(new LowerCaser());
+        processingPipeline.connectToPreviousProcessor(new RegExTokenizer());
+        processingPipeline.connectToPreviousProcessor(new OpenNlpPosTagger(ResourceHelper
                 .getResourceFile("/model/en-pos-maxent.bin")));
-        processingPipeline.addWithDefaultConnection(new SequentialPatternAnnotator(keywords, 3, 4,
+        processingPipeline.connectToPreviousProcessor(new SequentialPatternAnnotator(keywords, 3, 4,
                 new NGramPatternExtractionStrategy()));
 
         TextDocument document = new TextDocument(inputText);

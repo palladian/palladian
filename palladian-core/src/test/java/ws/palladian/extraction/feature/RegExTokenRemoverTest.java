@@ -26,12 +26,12 @@ public class RegExTokenRemoverTest {
     public void setUp() {
         document = new TextDocument("test 273 t_est ; &");
         pipeline = new ProcessingPipeline();
-        pipeline.addWithDefaultConnection(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
     }
 
     @Test
     public void testRegExTokenRemover() throws DocumentUnprocessableException {
-        pipeline.addWithDefaultConnection(new RegExTokenRemover("[A-Za-z0-9-]+"));
+        pipeline.connectToPreviousProcessor(new RegExTokenRemover("[A-Za-z0-9-]+"));
         pipeline.process(document);
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
                 BaseTokenizer.PROVIDED_FEATURE);
@@ -43,7 +43,7 @@ public class RegExTokenRemoverTest {
 
     @Test
     public void testRegExTokenRemoverInverse() throws DocumentUnprocessableException {
-        pipeline.addWithDefaultConnection(new RegExTokenRemover("\\d+", true));
+        pipeline.connectToPreviousProcessor(new RegExTokenRemover("\\d+", true));
         document = (TextDocument)pipeline.process(document);
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
                 BaseTokenizer.PROVIDED_FEATURE);
