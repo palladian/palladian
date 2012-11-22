@@ -7,8 +7,9 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.Port;
 
 /**
  * @author Klemens Muthmann
@@ -18,7 +19,7 @@ import ws.palladian.processing.Port;
 public final class DocumentCreationProcessor extends AbstractPipelineProcessor {
 
     private static final String OUTPUT_PORT_IDENTIFIER = "newDocument";
-    
+
     private final PipelineDocument<?> document;
 
     /**
@@ -30,7 +31,7 @@ public final class DocumentCreationProcessor extends AbstractPipelineProcessor {
      * @param document The {@code PipelineDocument} this {@code PipelineProcessor} should output.
      */
     public DocumentCreationProcessor(PipelineDocument<?> document) {
-        super(new Port[0], new Port[] {new Port(OUTPUT_PORT_IDENTIFIER)});
+        super(new InputPort[0], new OutputPort[] {new OutputPort(OUTPUT_PORT_IDENTIFIER)});
         Validate.notNull(document);
         this.document = document;
     }

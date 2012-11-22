@@ -11,7 +11,7 @@ import org.apache.commons.lang3.Validate;
  * @version 1.0
  * @since 1.7.0
  */
-public final class Port {
+public abstract class Port {
 
     private final String identifier;
 

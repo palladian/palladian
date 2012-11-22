@@ -15,8 +15,9 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.Port;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -45,7 +46,7 @@ public final class CsvWriter extends AbstractPipelineProcessor {
      * 
      */
     public CsvWriter(String csvFilePath, Collection<String> featurePaths) {
-        super(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}, new Port[0]);
+        super(new InputPort[] {new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER)}, new OutputPort[0]);
 
         this.featurePaths = new ArrayList<String>(featurePaths);
         this.csvFilePath = csvFilePath;
@@ -72,7 +73,7 @@ public final class CsvWriter extends AbstractPipelineProcessor {
         for (String featurePath : featurePaths) {
             List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);
             if (features.isEmpty()) {
-//                if (feature == null) {
+                // if (feature == null) {
                 LOGGER.warn("Unable to find feature for feature path: " + featurePath);
                 dataLine.append("?,");
             } else {
