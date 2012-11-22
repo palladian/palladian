@@ -1,7 +1,6 @@
 package ws.palladian.processing;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,9 +26,6 @@ public class ProcessingPipeline {
     /** The processors this pipeline will execute as ordered by this list from the first to the last. */
     private final List<PipelineProcessor> pipelineProcessors;
 
-    /** The {@link Pipe}s connecting the {@link PipelineProcessors} of this {@code ProcessingPipeline}. */
-    private final List<Pipe> pipes;
-
     /**
      * <p>
      * Creates a new {@code ProcessingPipeline} without any {@code PipelineProcessor}s. Add processors using
@@ -38,7 +34,6 @@ public class ProcessingPipeline {
      */
     public ProcessingPipeline() {
         pipelineProcessors = new ArrayList<PipelineProcessor>();
-        pipes = new ArrayList<Pipe>();
     }
 
     /**
@@ -54,7 +49,6 @@ public class ProcessingPipeline {
      */
     public ProcessingPipeline(ProcessingPipeline processingPipeline) {
         pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.pipelineProcessors);
-        pipes = new ArrayList<Pipe>(processingPipeline.pipes);
     }
 
     /**
@@ -64,15 +58,15 @@ public class ProcessingPipeline {
      * 
      * @param pipelineProcessor The new processor to add.
      */
-    public final void add(PipelineProcessor pipelineProcessor) {
+    public final void addWithDefaultConnection(PipelineProcessor pipelineProcessor) {
         // Begin Convenience Code
         if (!pipelineProcessors.isEmpty()) {
-            Port previousOutputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
+            OutputPort previousOutputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
                     PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
             if (previousOutputPort != null) {
-                Port inputPort = pipelineProcessor.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER);
+                InputPort inputPort = pipelineProcessor.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER);
                 if (inputPort != null) {
-                    pipes.add(new Pipe(previousOutputPort, inputPort));
+                    previousOutputPort.connectWith(inputPort);
                 }
             }
         }
@@ -88,13 +82,12 @@ public class ProcessingPipeline {
      * </p>
      * 
      * @param pipelineProcessor The new processor to add.
-     * @param pipes The input {@code Pipe}s to use for the new {@code PipelineProcessor}.
      */
-    public final void add(PipelineProcessor pipelineProcessor, Pipe... pipes) {
+    public final void add(PipelineProcessor pipelineProcessor) {
         pipelineProcessors.add(pipelineProcessor);
-        for (Pipe pipe : pipes) {
-            this.pipes.add(pipe);
-        }
+        // for (OutputPort port : ports) {
+        // this.pipes.add(pipe);
+        // }
     }
 
     /**
@@ -160,91 +153,103 @@ public class ProcessingPipeline {
      * @see {@link #processContinuous()}
      */
     public void process() throws DocumentUnprocessableException {
-        Collection<PipelineProcessor> executableProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors);
-        Collection<Pipe> executablePipes = new ArrayList<Pipe>(pipes);
-        Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>();
-        Collection<Pipe> executedPipes = new ArrayList<Pipe>();
-        cleanOutputPorts(); // This is necessary if there are results from previous processing runs.
-
-        do {
-            executedProcessors.clear();
-            executedPipes.clear();
-
-            for (PipelineProcessor processor : executableProcessors) {
-                if (processor.isExecutable()) {
-                    executePreProcessingHook(processor);
-                    processor.process();
-                    executePostProcessingHook(processor);
-                    executedProcessors.add(processor);
-                }
-            }
-            for (Pipe pipe : executablePipes) {
-                if (pipe.canFire()) {
-                    pipe.transit();
-                    executedPipes.add(pipe);
-                }
-            }
-            // resetPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
-            // // iteration again.
-            executableProcessors.removeAll(executedProcessors);
-            executablePipes.removeAll(executedPipes);
-        } while (!executedProcessors.isEmpty());
-        LOGGER.debug("Finished pipeline.");
-        notifyProcessorsOfProcessFinished();
-    }
-
-    /**
-     * <p>
-     * A helper function removing the {@link PipelineDocument}s from all output {@link Port}s of all
-     * {@link PipelineProcessor}s of this {@code ProcessingPipeline}, so that all {@code PipelineProcessor}s are ready
-     * to restart processing documents, even if there result was not fetched by any {@code Pipe}.
-     * </p>
-     * 
-     */
-    private void cleanOutputPorts() {
         for (PipelineProcessor processor : pipelineProcessors) {
-            for (Port port : processor.getOutputPorts()) {
-                port.put(null);
+            // TODO
+            if (processor.isExecutable()) {
+                executePreProcessingHook(processor);
+                processor.process();
+                executePostProcessingHook(processor);
             }
         }
-    }
-
-    /**
-     * <p>
-     * Runs the pipeline continuous as long as at least one {@link PipelineProcessor} is executable. This is for example
-     * true as long as any source {@code PipelineProcessor} still has some input to process.
-     * </p>
-     * 
-     * @throws DocumentUnprocessableException If the process encounters a {@link PipelineDocument} it can not process.
-     */
-    public void processContinuous() throws DocumentUnprocessableException {
-        Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors.size());
-        Collection<Pipe> executedPipes = new ArrayList<Pipe>(pipes.size());
-        // TODO actually this needs to be done after every complete run of the workflow. However I am currently not able
-        // to know when a complete run is over.
-        cleanOutputPorts();
-
-        do {
-            executedProcessors.clear();
-            executedPipes.clear();
-            for (PipelineProcessor processor : pipelineProcessors) {
-                if (processor.isExecutable()) {
-                    executePreProcessingHook(processor);
-                    processor.process();
-                    executePostProcessingHook(processor);
-                    executedProcessors.add(processor);
-                }
-            }
-            for (Pipe pipe : pipes) {
-                if (pipe.canFire()) {
-                    pipe.transit();
-                    executedPipes.add(pipe);
-                }
-            }
-            // resetPipes(executedPipes);
-        } while (!executedProcessors.isEmpty() || !executedPipes.isEmpty());
+        LOGGER.debug("Finished pipeline.");
         notifyProcessorsOfProcessFinished();
+
+        // Collection<PipelineProcessor> executableProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors);
+        // Collection<Pipe> executablePipes = new ArrayList<Pipe>(pipes);
+        // Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>();
+        // Collection<Pipe> executedPipes = new ArrayList<Pipe>();
+        // cleanOutputPorts(); // This is necessary if there are results from previous processing runs.
+        //
+        // do {
+        // executedProcessors.clear();
+        // executedPipes.clear();
+        //
+        // for (PipelineProcessor processor : executableProcessors) {
+        // if (processor.isExecutable()) {
+        // executePreProcessingHook(processor);
+        // processor.process();
+        // executePostProcessingHook(processor);
+        // executedProcessors.add(processor);
+        // }
+        // }
+        // for (Pipe pipe : executablePipes) {
+        // if (pipe.canFire()) {
+        // pipe.transit();
+        // executedPipes.add(pipe);
+        // }
+        // }
+        // // resetPipes(executedPipes); // This is necessary so that already executed pipes do not fire on every
+        // // // iteration again.
+        // executableProcessors.removeAll(executedProcessors);
+        // executablePipes.removeAll(executedPipes);
+        // } while (!executedProcessors.isEmpty());
+        // LOGGER.debug("Finished pipeline.");
+        // notifyProcessorsOfProcessFinished();
     }
+
+    // /**
+    // * <p>
+    // * A helper function removing the {@link PipelineDocument}s from all output {@link Port}s of all
+    // * {@link PipelineProcessor}s of this {@code ProcessingPipeline}, so that all {@code PipelineProcessor}s are ready
+    // * to restart processing documents, even if there result was not fetched by any {@code Pipe}.
+    // * </p>
+    // *
+    // */
+    // private void cleanOutputPorts() {
+    // for (PipelineProcessor processor : pipelineProcessors) {
+    // for (Port port : processor.getOutputPorts()) {
+    // port.put(null);
+    // }
+    // }
+    // }
+
+    // /**
+    // * <p>
+    // * Runs the pipeline continuous as long as at least one {@link PipelineProcessor} is executable. This is for
+    // example
+    // * true as long as any source {@code PipelineProcessor} still has some input to process.
+    // * </p>
+    // *
+    // * @throws DocumentUnprocessableException If the process encounters a {@link PipelineDocument} it can not process.
+    // */
+    // public void processContinuous() throws DocumentUnprocessableException {
+    // Collection<PipelineProcessor> executedProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors.size());
+    // Collection<Pipe> executedPipes = new ArrayList<Pipe>(pipes.size());
+    // // TODO actually this needs to be done after every complete run of the workflow. However I am currently not able
+    // // to know when a complete run is over.
+    // cleanOutputPorts();
+    //
+    // do {
+    // executedProcessors.clear();
+    // executedPipes.clear();
+    // for (PipelineProcessor processor : pipelineProcessors) {
+    // if (processor.isExecutable()) {
+    // executePreProcessingHook(processor);
+    // processor.process();
+    // executePostProcessingHook(processor);
+    // executedProcessors.add(processor);
+    // }
+    // }
+    // for (Pipe pipe : pipes) {
+    // if (pipe.canFire()) {
+    // pipe.transit();
+    // executedPipes.add(pipe);
+    // }
+    // }
+    // // resetPipes(executedPipes);
+    // } while (!executedProcessors.isEmpty() || !executedPipes.isEmpty());
+    // notifyProcessorsOfProcessFinished();
+    // }
 
     // /**
     // * <p>

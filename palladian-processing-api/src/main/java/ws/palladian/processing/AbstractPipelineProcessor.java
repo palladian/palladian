@@ -22,10 +22,10 @@ import org.apache.commons.lang3.Validate;
 public abstract class AbstractPipelineProcessor implements PipelineProcessor {
 
     /** The input {@link Port}s this processor reads {@link PipelineDocument}s from. */
-    private final List<Port> inputPorts;
+    private final List<InputPort> inputPorts;
 
     /** The output {@link Port}s this processor writes results to. */
-    private final List<Port> outputPorts;
+    private final List<OutputPort> outputPorts;
 
     /**
      * <p>
@@ -35,8 +35,8 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      * </p>
      */
     public AbstractPipelineProcessor() {
-        inputPorts = Collections.singletonList(new Port(DEFAULT_INPUT_PORT_IDENTIFIER));
-        outputPorts = Collections.singletonList(new Port(DEFAULT_OUTPUT_PORT_IDENTIFIER));
+        inputPorts = Collections.singletonList(new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER));
+        outputPorts = Collections.singletonList(new OutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER));
     }
 
     /**
@@ -49,7 +49,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      * @param outputPorts The output {@link Port}s this processor writes results to. Empty array if this processor has
      *            no outputs, not <code>null</code>.
      */
-    public AbstractPipelineProcessor(Port[] inputPorts, Port[] outputPorts) {
+    public AbstractPipelineProcessor(InputPort[] inputPorts, OutputPort[] outputPorts) {
         Validate.notNull(inputPorts, "inputPorts must not be null");
         Validate.notNull(outputPorts, "outputPorts must not be null");
 
@@ -65,7 +65,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      * @throws DocumentUnprocessableException In case the document does not provide the required input port.
      */
     private final void allInputPortsAvailable() throws DocumentUnprocessableException {
-        for (Port inputPort : getInputPorts()) {
+        for (InputPort inputPort : getInputPorts()) {
             if (!inputPort.hasDocument()) {
                 throw new DocumentUnprocessableException("Input port " + inputPort + " at " + toString()
                         + " does not provide required input.");
@@ -81,7 +81,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      * @throws DocumentUnprocessableException In case the document does not provide the required output port.
      */
     private final void allOutputPortsAvailable() throws DocumentUnprocessableException {
-        for (Port outputPort : getOutputPorts()) {
+        for (OutputPort outputPort : getOutputPorts()) {
             if (!outputPort.hasDocument()) {
                 throw new DocumentUnprocessableException("Output port " + outputPort + " at " + toString()
                         + " does not provide required output.");
@@ -90,15 +90,15 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     }
 
     private final void cleanInputPorts() {
-        for (Port inputPort : getInputPorts()) {
+        for (InputPort inputPort : getInputPorts()) {
             inputPort.poll();
         }
     }
 
     @Override
-    public final Port getInputPort(String portIdentifier) {
+    public final InputPort getInputPort(String portIdentifier) {
         Validate.notEmpty(portIdentifier, "portIdentifier must not be empty");
-        for (Port inputPort : inputPorts) {
+        for (InputPort inputPort : inputPorts) {
             if (portIdentifier.equals(inputPort.getIdentifier())) {
                 return inputPort;
             }
@@ -107,14 +107,14 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     }
 
     @Override
-    public final List<Port> getInputPorts() {
+    public final List<InputPort> getInputPorts() {
         return inputPorts;
     }
 
     @Override
-    public final Port getOutputPort(String portIdentifier) {
+    public final OutputPort getOutputPort(String portIdentifier) {
         Validate.notEmpty(portIdentifier, "portIdentifier must not be empty");
-        for (Port port : outputPorts) {
+        for (OutputPort port : outputPorts) {
             if (portIdentifier.equals(port.getIdentifier())) {
                 return port;
             }
@@ -123,7 +123,7 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     }
 
     @Override
-    public final List<Port> getOutputPorts() {
+    public final List<OutputPort> getOutputPorts() {
         return outputPorts;
     }
 
@@ -151,6 +151,21 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
         processDocument();
         allOutputPortsAvailable();
         cleanInputPorts();
+        fireOutputPorts();
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     */
+    private void fireOutputPorts() {
+        for (OutputPort outputPort : outputPorts) {
+            if (outputPort.hasDocument()) {
+                outputPort.fire();
+            }
+        }
     }
 
     /**

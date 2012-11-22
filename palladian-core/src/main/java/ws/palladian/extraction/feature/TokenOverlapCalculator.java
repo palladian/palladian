@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.Port;
 import ws.palladian.processing.features.AbstractFeatureProvider;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -18,8 +19,8 @@ import ws.palladian.processing.features.PositionAnnotation;
 /**
  * <p>
  * Calculates the Jaccard similarity (see <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard index</a>) as a
- * measure of overlap between two sets of the same {@link PositionAnnotation} from two {@link PipelineDocument}s. The processor
- * provides two input ports identified by {@link #INPUT_PORT_ONE_IDENTIFIER} and
+ * measure of overlap between two sets of the same {@link PositionAnnotation} from two {@link PipelineDocument}s. The
+ * processor provides two input ports identified by {@link #INPUT_PORT_ONE_IDENTIFIER} and
  * {@link TokenOverlapCalculator#INPUT_PORT_TWO_IDENTIFIER}.
  * </p>
  * 
@@ -51,9 +52,9 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
      */
     public TokenOverlapCalculator(String featureDescriptor, String input1FeatureIdentifier,
             String input2FeatureIdentifier) {
-        super(new Port[] {new Port(INPUT_PORT_ONE_IDENTIFIER), new Port(INPUT_PORT_TWO_IDENTIFIER)}, 
-                new Port[] {new Port(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}, featureDescriptor);
-        
+        super(new InputPort[] {new InputPort(INPUT_PORT_ONE_IDENTIFIER), new InputPort(INPUT_PORT_TWO_IDENTIFIER)},
+                new OutputPort[] {new OutputPort(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}, featureDescriptor);
+
         this.input1FeatureIdentifier = input1FeatureIdentifier;
         this.input2FeatureIdentifier = input2FeatureIdentifier;
     }
@@ -63,12 +64,14 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
         PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).poll();
         PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).poll();
 
-//        AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
-//        Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
-        final List<PositionAnnotation> input1Annotations = document1.getFeatureVector().getAll(PositionAnnotation.class, input1FeatureIdentifier);
-//        AnnotationFeature feature2 = document2.getFeature(input2FeatureDescriptor);
-//        Validate.notNull(feature2, "No feature found for feature descriptor " + input2FeatureDescriptor);
-        final List<PositionAnnotation> input2Annotations = document2.getFeatureVector().getAll(PositionAnnotation.class, input2FeatureIdentifier);
+        // AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
+        // Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
+        final List<PositionAnnotation> input1Annotations = document1.getFeatureVector().getAll(
+                PositionAnnotation.class, input1FeatureIdentifier);
+        // AnnotationFeature feature2 = document2.getFeature(input2FeatureDescriptor);
+        // Validate.notNull(feature2, "No feature found for feature descriptor " + input2FeatureDescriptor);
+        final List<PositionAnnotation> input2Annotations = document2.getFeatureVector().getAll(
+                PositionAnnotation.class, input2FeatureIdentifier);
 
         Set<String> setOfInput1 = new HashSet<String>();
         Set<String> setOfInput2 = new HashSet<String>();
@@ -88,9 +91,9 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
         Double jaccardSimilarity = Integer.valueOf(intersection.size()).doubleValue()
                 / Integer.valueOf(union.size()).doubleValue();
         // TODO Remove debug code
-//        if (jaccardSimilarity > 1.0) {
-//            System.out.println("+++++++++++++++++");
-//        }
+        // if (jaccardSimilarity > 1.0) {
+        // System.out.println("+++++++++++++++++");
+        // }
 
         document1.getFeatureVector().add(new NumericFeature(getCreatedFeatureName(), jaccardSimilarity));
         getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document1);

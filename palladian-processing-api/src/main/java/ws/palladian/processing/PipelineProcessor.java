@@ -44,7 +44,7 @@ public interface PipelineProcessor {
      * 
      * @return List with input ports, or an empty list if no input ports exist, never <code>null</code>.
      */
-    List<Port> getInputPorts();
+    List<InputPort> getInputPorts();
 
     /**
      * <p>
@@ -54,7 +54,7 @@ public interface PipelineProcessor {
      * @param portIdentifier The identifier of the input port to retrieve, not <code>null</code>.
      * @return The port with the specified identifier, or <code>null</code> if no such port exists.
      */
-    Port getInputPort(String portIdentifier);
+    InputPort getInputPort(String portIdentifier);
 
     /**
      * <p>
@@ -63,7 +63,7 @@ public interface PipelineProcessor {
      * 
      * @return List with output ports, or an empty list if no output ports exist, never <code>null</code>.
      */
-    List<Port> getOutputPorts();
+    List<OutputPort> getOutputPorts();
 
     /**
      * <p>
@@ -73,7 +73,7 @@ public interface PipelineProcessor {
      * @param portIdentifier The identifier of the output port to retrieve, not <code>null</code>.
      * @return The port with the specified identifier, or <code>null</code> if no such port exists.
      */
-    Port getOutputPort(String portIdentifier);
+    OutputPort getOutputPort(String portIdentifier);
 
     /**
      * <p>

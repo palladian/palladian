@@ -30,8 +30,9 @@ import ws.palladian.helper.collection.BidiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.Port;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
@@ -105,9 +106,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
-     * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
-     * exists.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already exists.
      * </p>
      * 
      * @param fileName The name of the target ARFF file this writer should write to.
@@ -119,9 +119,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * 
      * @param fileName The name of the target ARFF file this writer should write to.
@@ -136,9 +136,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
-     * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
-     * exists.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already exists.
      * </p>
      * <p>
      * To speed up processing or save memory you can experiment with the value of {@code batchSize}.
@@ -157,9 +156,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * <p>
      * To speed up processing or save memory you can experiment with the value of {@code batchSize}.
@@ -180,9 +179,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * <p>
      * To speed up processing or save memory you can experiment with the value of {@code batchSize}.
@@ -198,7 +197,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      */
     public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final Integer batchSize,
             String[] featurePaths) throws IOException {
-        super(new Port[] {new Port(DEFAULT_INPUT_PORT_IDENTIFIER)}, new Port[0]);
+        super(new InputPort[] {new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER)}, new OutputPort[0]);
 
         Validate.notNull(modelArffFile, "fileName must not be null");
         Validate.notEmpty(featurePaths, "featureDescriptors must not be empty");
@@ -221,9 +220,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * 
      * @param modelArffFile The name of the target ARFF file this writer should write to.

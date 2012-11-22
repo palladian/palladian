@@ -8,6 +8,8 @@ import java.beans.FeatureDescriptor;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.Port;
 
@@ -48,7 +50,7 @@ public abstract class AbstractFeatureProvider extends AbstractPipelineProcessor 
      * @param outputPorts The output {@link Port}s this processor writes results to.
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public AbstractFeatureProvider(Port[] inputPorts, Port[] outputPorts, String featureIdentifier) {
+    public AbstractFeatureProvider(InputPort[] inputPorts, OutputPort[] outputPorts, String featureIdentifier) {
         super(inputPorts, outputPorts);
         Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
         this.featureIdentifier = featureIdentifier;
