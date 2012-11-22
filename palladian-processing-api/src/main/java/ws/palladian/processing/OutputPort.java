@@ -3,6 +3,7 @@
  */
 package ws.palladian.processing;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -37,12 +38,18 @@ public final class OutputPort extends Port {
 
     public OutputPort(String identifier) {
         super(identifier);
+
+        nextInput = new ArrayList<InputPort>();
     }
 
     public void fire() {
-        PipelineDocument<?> document = poll();
-        for (InputPort inputPort : nextInput) {
-            inputPort.put(document);
+        // An output port should only fire if there is an input to follow. Otherwise the document would be lost at the
+        // end of the workflow when there are not input ports anymore.
+        if (!nextInput.isEmpty()) {
+            PipelineDocument<?> document = poll();
+            for (InputPort inputPort : nextInput) {
+                inputPort.put(document);
+            }
         }
     }
 

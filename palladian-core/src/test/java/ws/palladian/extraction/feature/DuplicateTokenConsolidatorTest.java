@@ -14,16 +14,16 @@ import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
 
 public class DuplicateTokenConsolidatorTest {
-    
+
     private static final String SAMPLE_TEXT = "Das Reh springt hoch, das Reh springt weit. Warum auch nicht - es hat ja Zeit!";
-    
+
     @Test
     public void testDuplicateTokenConsolidator() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new DuplicateTokenConsolidator());
+        pipeline.addWithDefaultConnection(new RegExTokenizer());
+        pipeline.addWithDefaultConnection(new DuplicateTokenConsolidator());
         TextDocument document = (TextDocument)pipeline.process(new TextDocument(SAMPLE_TEXT));
-        
+
         List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
         PositionAnnotation token1 = tokenAnnotations.get(0);
         assertEquals("Das", token1.getValue());

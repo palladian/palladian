@@ -21,22 +21,31 @@ public class TokenMetricsCalculatorTest {
     @Test
     public void testTokenMetrics() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new TokenMetricsCalculator());
+        pipeline.addWithDefaultConnection(new RegExTokenizer());
+        pipeline.addWithDefaultConnection(new TokenMetricsCalculator());
         TextDocument document = (TextDocument)pipeline.process(new TextDocument(SAMPLE_TEXT));
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, RegExTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+                RegExTokenizer.PROVIDED_FEATURE);
 
         PositionAnnotation token = annotations.get(1);
         FeatureVector tokenFeatureVector = token.getFeatureVector();
         assertEquals("Reh", token.getValue());
-        assertEquals(1. / 18, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FIRST).getValue(), 0);
-        assertEquals(6. / 18., (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.LAST).getValue(), 0);
-        assertEquals(2, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.COUNT).getValue(), 0);
-        assertEquals(1, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FREQUENCY).getValue(), 0);
-        assertEquals(5. / 18., (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.SPREAD).getValue(), 0);
-        assertEquals(3, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.CHAR_LENGTH).getValue(), 0);
-        assertEquals(1., (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.WORD_LENGTH).getValue(), 0);
+        assertEquals(1. / 18, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FIRST)
+                .getValue(), 0);
+        assertEquals(6. / 18., (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.LAST)
+                .getValue(), 0);
+        assertEquals(2, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.COUNT)
+                .getValue(), 0);
+        assertEquals(1, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FREQUENCY)
+                .getValue(), 0);
+        assertEquals(5. / 18.,
+                (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.SPREAD).getValue(),
+                0);
+        assertEquals(3, (double)tokenFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.CHAR_LENGTH)
+                .getValue(), 0);
+        assertEquals(1., (double)tokenFeatureVector
+                .getFeature(NumericFeature.class, TokenMetricsCalculator.WORD_LENGTH).getValue(), 0);
     }
 
 }
