@@ -75,6 +75,28 @@ public final class FeatureUtils {
         }
         return ret;
     }
+
+    public static List<Feature<?>> getFeaturesAtPath(FeatureVector vector, String featurePath) {
+        int slashIndex = featurePath.indexOf("/");
+        String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
+        String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
+        List<Feature<?>> featureList = vector.getAll(leadingPathPart);
+
+        List<Feature<?>> ret = new ArrayList<Feature<?>>();
+        if (!trailingPathPart.isEmpty()) {
+            for (Feature<?> feature : featureList) {
+                if (feature instanceof Classifiable) {
+                    Classifiable classifiable = (Classifiable)feature;
+                    ret.addAll(getFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart));
+                }
+            }
+        } else {
+            for (Feature<?> feature : featureList) {
+                ret.add(feature);
+            }
+        }
+        return ret;
+    }
 }
 
 /**
