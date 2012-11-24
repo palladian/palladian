@@ -25,9 +25,9 @@ import ws.palladian.retrieval.resources.WebImage;
 
 /**
  * <p>
- * The PalladianContentExtractor extracts clean sentences from (English) texts. That is, short phrases are not included in
- * the output. Consider the {@link ReadabilityContentExtractor} for general content. The main difference is that this class
- * also finds sentences in comment sections of web pages.
+ * The PalladianContentExtractor extracts clean sentences from (English) texts. That is, short phrases are not included
+ * in the output. Consider the {@link ReadabilityContentExtractor} for general content. The main difference is that this
+ * class also finds sentences in comment sections of web pages.
  * </p>
  * 
  * <p>
@@ -46,18 +46,19 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private Node resultNode;
 
     private List<String> sentences = new ArrayList<String>();
-    private String mainContentHTML = "";
+    private String mainContentHtml = "";
     private String mainContentText = "";
 
     /**
+     * <p>
      * Extracted images will have a width and height. If the webmaster decides to specify these values in percentages we
      * take the following value as a guess of the container size in which the image is located in. Finding the real
      * width and height of the container would require too much effort and possibly CSS parsing.
+     * </p>
      */
     private static final int DEFAULT_IMAGE_CONTAINER_SIZE = 500;
 
     private List<WebImage> imageURLs;
-
 
     @Override
     public PalladianContentExtractor setDocument(Document document) throws PageContentExtractorException {
@@ -116,45 +117,70 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 }
             }
 
-            // String highestCountXPath = xpathset.getHighestCountXPath();
+            String parentXpath = shortestMatchingXPath;
 
             // in case we did not find anything, we take the body content
-            if (shortestMatchingXPath.isEmpty()) {
-                shortestMatchingXPath = "//body";
+            if (parentXpath.isEmpty()) {
+                parentXpath = "//body";
             } else {
-                shortestMatchingXPath = XPathHelper.getParentXPath(shortestMatchingXPath);
+                parentXpath = XPathHelper.getParentXPath(shortestMatchingXPath);
             }
-            shortestMatchingXPath = shortestMatchingXPath.replace("html/body", "");
-            shortestMatchingXPath = shortestMatchingXPath.replace("xhtml:html/xhtml:body", "");
+            parentXpath = parentXpath.replace("html/body", "");
+            parentXpath = parentXpath.replace("xhtml:html/xhtml:body", "");
 
             // in case we did not find anything, we take the body content
-            if (shortestMatchingXPath.isEmpty()) {
-                shortestMatchingXPath = "//body";
+            if (parentXpath.isEmpty()) {
+                parentXpath = "//body";
             }
 
-            // /xhtml:HTML/xhtml:BODY/xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT
-            // shortestMatchingXPath =
-            // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
-            // resultNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
-            // shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]/xhtml:tr[1]/xhtml:td[2]/xhtml:blockquote[2]";
-            // shortestMatchingXPath = "//xhtml:div[1]/xhtml:table[3]//tr//xhtml:td[2]//xhtml:blockquote[2]";
-            // shortestMatchingXPath = "//xhtml:tr";
-            // HtmlHelper.printDom(document);
-            // System.out.println(HtmlHelper.documentToString(document));
-            resultNode = XPathHelper.getXhtmlNode(getDocument(), shortestMatchingXPath);
+            resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
             if (resultNode == null) {
                 // System.out.println(content);
                 throw new PageContentExtractorException("could not get main content node for URL: "
                         + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
             }
 
+            // add possible headlines that are on the same level as the content nodes to the target text nodes
+            shortestMatchingXPath = addHeadlineSiblings(shortestMatchingXPath);
+
+            // get the clean text only
+            StringBuilder cleanText = new StringBuilder();
+            List<Node> contentNodes = XPathHelper.getXhtmlNodes(getDocument(), shortestMatchingXPath);
+            for (Node node : contentNodes) {
+                String textContent = node.getTextContent();
+                if (!textContent.isEmpty()) {
+                    cleanText.append(textContent).append("\n\n");
+                }
+            }
+
+            mainContentText = cleanText.toString();
         }
 
-        mainContentHTML = HtmlHelper.xmlToString(resultNode, true);
+        mainContentHtml = HtmlHelper.xmlToString(resultNode, true);
 
-        mainContentText = HtmlHelper.documentToReadableText(resultNode);
+        if (mainContentText.isEmpty()) {
+            mainContentText = HtmlHelper.documentToReadableText(resultNode);
+        }
     }
 
+    private String addHeadlineSiblings(String xPath) {
+        try {
+            String[] parts = xPath.split("/");
+            String lastPart = parts[parts.length - 1];
+            String xhtmlNs = "";
+            if (lastPart.contains("xhtml")) {
+                xhtmlNs = "xhtml:";
+            }
+            String newLastPart = "*[(self::" + lastPart + ") or (self::" + xhtmlNs + "h1) or (self::" + xhtmlNs
+                    + "h2) or (self::" + xhtmlNs + "h3) or (self::" + xhtmlNs + "h4) or (self::" + xhtmlNs
+                    + "h5) or (self::" + xhtmlNs + "h6) or (self::" + xhtmlNs + "span) or (self::" + xhtmlNs
+                    + "ul) or (self::" + xhtmlNs + "blockquote)]";
+            xPath = xPath.replace(lastPart, newLastPart);
+        } catch (Exception e) {
+        }
+
+        return xPath;
+    }
 
     public List<WebImage> getImages(String fileType) {
 
@@ -168,7 +194,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         return filteredImages;
     }
-
 
     public List<WebImage> getImages() {
         return getImages(resultNode);
@@ -188,12 +213,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
-        String imgXPath = "//img";
+        String imgXPath = ".//img";
         // if (XPathHelper.hasXhtmlNs(document)) {
         // imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
         // }
 
-        List<Node> imageNodes = XPathHelper.getXhtmlChildNodes(imageParentNode, imgXPath);
+        List<Node> imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
         for (Node node : imageNodes) {
             try {
 
@@ -243,7 +268,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         if (attributeText.indexOf("%") > -1) {
             attributeText = attributeText.replace("%", "");
             attributeText = StringHelper.trim(attributeText);
-            size = (int) (0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
+            size = (int)(0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
         } else {
             attributeText = attributeText.replace("px", "");
             attributeText = StringHelper.trim(attributeText);
@@ -259,12 +284,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public String getMainContentHtml() {
-        return mainContentHTML;
+        return mainContentHtml;
     }
 
-
     @Override
-    public String getResultText(){
+    public String getResultText() {
         return mainContentText;
     }
 
@@ -329,7 +353,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     }
 
-    
     /**
      * @param args
      * @throws PageContentExtractorException
@@ -347,17 +370,23 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // CollectionHelper.print(pe.getImages());
 
         PalladianContentExtractor pe = new PalladianContentExtractor();
-        //WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
+        // WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
         // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
         // pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
-//        pe.setDocument("http://www.absoluteastronomy.com/topics/Jet_Li");
-//        pe.setDocument("http://www.cinefreaks.com/news/692/Neun-interessante-Fakten%2C-die-du-nicht-%C3%BCber-die-Oscars-2012-wusstest");
+        // pe.setDocument("http://www.absoluteastronomy.com/topics/Jet_Li");
+        // pe.setDocument("http://www.cinefreaks.com/news/692/Neun-interessante-Fakten%2C-die-du-nicht-%C3%BCber-die-Oscars-2012-wusstest");
         // pe.setDocument("http://slotmachinebasics.com/");
-        pe.setDocument("http://www.cinefreaks.com/news/696/Die-Hard-5");
+        // pe.setDocument("http://www.cinefreaks.com/news/696/Die-Hard-5");
+        // pe.setDocument("http://edition.cnn.com/2012/11/23/world/meast/egypt-protests/index.html?hpt=hp_t1");
+        // pe.setDocument("http://www.bbc.co.uk/news/world-middle-east-20458148");
+        // pe.setDocument("http://lifehacker.com/5862004/heres-your-black-friday-survival-toolkit");
+        // pe.setDocument("http://www.reuters.com/article/2012/11/23/us-egypt-president-idUSBRE8AM0DO20121123");
+        // pe.setDocument("http://www.foxnews.com/us/2012/11/23/walmart-calls-black-friday-success-despite-protests-about-worker-conditions/");
+        pe.setDocument("http://www.seobythesea.com/2012/11/not-all-anchor-text-is-equal-other-co-citation-observations/");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
-        System.out.println("Title:"+pe.getResultTitle());
-        System.out.println("Result Text: "+pe.getResultText());
+        System.out.println("Title:" + pe.getResultTitle());
+        System.out.println("Result Text: " + pe.getResultText());
         // CollectionHelper.print(pe.getSentences());
 
         // CollectionHelper.print(pe.setDocument(
