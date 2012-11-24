@@ -147,10 +147,8 @@
 			<version>2.0.3</version>
 		</dependency>
 		<dependency>
-			<groupId>weka</groupId>
-			<artifactId>weka</artifactId>
-			<!-- <version>3.5.5</version> -->
-			<version>3.6.2</version>
+			<groupId>nz.ac.waikato.cms.weka</groupId>
+			<artifactId>weka-stable</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.wikipedia</groupId>
@@ -202,6 +200,10 @@
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-core</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
 		</dependency>
 	</dependencies>
 	<properties>
