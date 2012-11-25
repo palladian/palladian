@@ -24,10 +24,7 @@ import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
 
 public class UniversalClassifier implements Classifier<UniversalClassifierModel> {
 
@@ -35,9 +32,6 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
 
     public static final String FEATURE_TERM = "ws.palladian.feature.term";
-
-    public static final FeatureDescriptor<NominalFeature> TEXT_FEATURE = FeatureDescriptorBuilder.build(FEATURE_TERM,
-            NominalFeature.class);
 
     public static enum ClassifierSetting {
         NUMERIC, TEXT, NOMINAL

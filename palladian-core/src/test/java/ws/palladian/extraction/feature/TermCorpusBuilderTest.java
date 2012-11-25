@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 
@@ -32,9 +31,9 @@ public class TermCorpusBuilderTest {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         TermCorpus termCorpus = new TermCorpus();
 
-        pipeline.add(new LowerCaser());
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new TermCorpusBuilder(termCorpus));
+        pipeline.connectToPreviousProcessor(new LowerCaser());
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new TermCorpusBuilder(termCorpus));
 
         pipeline.process(doc1);
         pipeline.process(doc2);

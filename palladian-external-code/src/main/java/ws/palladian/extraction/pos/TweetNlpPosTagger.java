@@ -6,7 +6,7 @@ import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
 
 /**
@@ -34,7 +34,7 @@ public class TweetNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    protected void tag(List<Annotation<String>> annotations) {
+    protected void tag(List<PositionAnnotation> annotations) {
         TweetTaggerInstance tweetTagger = TweetTaggerInstance.getInstance();
         List<String> words = getTokenList(annotations);
         List<String> tags = tweetTagger.getTagsForOneSentence(words);

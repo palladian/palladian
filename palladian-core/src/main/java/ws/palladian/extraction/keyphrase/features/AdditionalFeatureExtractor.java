@@ -1,6 +1,5 @@
 package ws.palladian.extraction.keyphrase.features;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,18 +7,17 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -30,29 +28,22 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * 
  * @author Philipp Katz
  */
-public final class AdditionalFeatureExtractor extends StringDocumentPipelineProcessor {
+public final class AdditionalFeatureExtractor extends TextDocumentPipelineProcessor {
 
     /** Denotes the percentage a term instance starts with an upper case letter. */
-    public static final FeatureDescriptor<NumericFeature> STARTS_UPPERCASE_PERCENTAGE = FeatureDescriptorBuilder.build(
-            "startsUppercase", NumericFeature.class);
+    public static final String STARTS_UPPERCASE_PERCENTAGE = "startsUppercase";
     /** Denotes the percentage a term instance occurs completely upper cased. */
-    public static final FeatureDescriptor<NumericFeature> COMPLETE_UPPERCASE = FeatureDescriptorBuilder.build(
-            "completelyUppercase", NumericFeature.class);
+    public static final String COMPLETE_UPPERCASE = "completelyUppercase";
     /** Denotes the percentage of digits in a term. */
-    public static final FeatureDescriptor<NumericFeature> NUMBER_PERCENTAGE = FeatureDescriptorBuilder.build(
-            "containsNumbers", NumericFeature.class);
+    public static final String NUMBER_PERCENTAGE = "containsNumbers";
     /** Denotes whether the term is a number. */
-    public static final FeatureDescriptor<NominalFeature> IS_NUMBER = FeatureDescriptorBuilder.build("isNumber",
-            NominalFeature.class);
+    public static final String IS_NUMBER = "isNumber";
     /** Denotes the percentage of punctuation characters in the term. */
-    public static final FeatureDescriptor<NumericFeature> PUNCTUATION_PERCENTAGE = FeatureDescriptorBuilder.build(
-            "containsPunctuation", NumericFeature.class);
+    public static final String PUNCTUATION_PERCENTAGE = "containsPunctuation";
     /** Denotes the percentage of unique characters in the term. */
-    public static final FeatureDescriptor<NumericFeature> UNIQUE_CHARACTER_PERCENTAGE = FeatureDescriptorBuilder.build(
-            "uniqueCharacterPercentage", NumericFeature.class);
+    public static final String UNIQUE_CHARACTER_PERCENTAGE = "uniqueCharacterPercentage";
     /** Denotes the case signature of the must common variant of this term. */
-    public static final FeatureDescriptor<NominalFeature> CASE_SIGNATURE = FeatureDescriptorBuilder.build(
-            "caseSignature", NominalFeature.class);
+    public static final String CASE_SIGNATURE = "caseSignature";
 
     // further features to consider:
     // containsSpecialCharacters
@@ -67,13 +58,11 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        TextAnnotationFeature annotationFeature = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = annotationFeature.getValue();
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         for (int i = 0; i < annotations.size(); i++) {
-            Annotation<String> annotation = annotations.get(i);
-            String unstemValue = annotation.getFeature(StemmerAnnotator.UNSTEM).getValue();
+            PositionAnnotation annotation = annotations.get(i);
+            String unstemValue = annotation.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
             if (unstemValue == null) {
                 throw new DocumentUnprocessableException("The necessary feature \"" + StemmerAnnotator.UNSTEM
                         + "\" is missing for Annotation \"" + annotation.getValue() + "\"");
@@ -87,13 +76,14 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
             double punctuationPercentage = getPunctuationPercentage(unstemValue);
             double uniqueCharacterPercentage = getUniqueCharacterPercentage(unstemValue);
 
-            annotation.addFeature(new NumericFeature(STARTS_UPPERCASE_PERCENTAGE, startsUppercase));
-            annotation.addFeature(new NumericFeature(COMPLETE_UPPERCASE, completeUppercase));
-            annotation.addFeature(new NumericFeature(NUMBER_PERCENTAGE, numberCount));
-            annotation.addFeature(new NominalFeature(IS_NUMBER, isNumber));
-            annotation.addFeature(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, punctuationPercentage));
-            annotation.addFeature(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, uniqueCharacterPercentage));
-            annotation.addFeature(new NominalFeature(CASE_SIGNATURE, caseSignature));
+            FeatureVector featureVector = annotation.getFeatureVector();
+            featureVector.add(new NumericFeature(STARTS_UPPERCASE_PERCENTAGE, startsUppercase));
+            featureVector.add(new NumericFeature(COMPLETE_UPPERCASE, completeUppercase));
+            featureVector.add(new NumericFeature(NUMBER_PERCENTAGE, numberCount));
+            featureVector.add(new NominalFeature(IS_NUMBER, isNumber));
+            featureVector.add(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, punctuationPercentage));
+            featureVector.add(new NumericFeature(UNIQUE_CHARACTER_PERCENTAGE, uniqueCharacterPercentage));
+            featureVector.add(new NominalFeature(CASE_SIGNATURE, caseSignature));
         }
     }
 
@@ -135,14 +125,14 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
         return digitCount / value.length();
     }
 
-    private double getCompleteUppercase(Annotation<String> annotation) {
-        List<Annotation<String>> allAnnotations = new ArrayList<Annotation<String>>();
+    private double getCompleteUppercase(PositionAnnotation annotation) {
+        List<PositionAnnotation> allAnnotations = CollectionHelper.newArrayList();
         allAnnotations.add(annotation);
         allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
 
         double completeUppercaseCount = 0;
-        for (Annotation<String> current : allAnnotations) {
-            if (StringUtils.isAllUpperCase(current.getFeature(StemmerAnnotator.UNSTEM).getValue())) {
+        for (PositionAnnotation current : allAnnotations) {
+            if (StringUtils.isAllUpperCase(current.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
                 completeUppercaseCount++;
             }
         }
@@ -150,28 +140,28 @@ public final class AdditionalFeatureExtractor extends StringDocumentPipelineProc
         return completeUppercaseCount / allAnnotations.size() > 0.5 ? 1 : 0;
     }
 
-    private String getCaseSignature(Annotation<String> annotation) {
-        List<Annotation<String>> allAnnotations = new ArrayList<Annotation<String>>();
+    private String getCaseSignature(PositionAnnotation annotation) {
+        List<PositionAnnotation> allAnnotations = CollectionHelper.newArrayList();
         allAnnotations.add(annotation);
         allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
 
         CountMap<String> signatures = CountMap.create();
-        for (Annotation<String> current : allAnnotations) {
-            String caseSignature = StringHelper.getCaseSignature(current
-                    .getFeature(StemmerAnnotator.UNSTEM).getValue());
+        for (PositionAnnotation current : allAnnotations) {
+            String caseSignature = StringHelper.getCaseSignature(current.getFeatureVector()
+                    .getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue());
             signatures.add(caseSignature);
         }
         return signatures.getHighest();
     }
 
-    private double getStartsUppercase(Annotation<String> annotation) {
-        List<Annotation<String>> allAnnotations = new ArrayList<Annotation<String>>();
+    private double getStartsUppercase(PositionAnnotation annotation) {
+        List<PositionAnnotation> allAnnotations = CollectionHelper.newArrayList();
         allAnnotations.add(annotation);
         allAnnotations.addAll(DuplicateTokenConsolidator.getDuplicateAnnotations(annotation));
 
         double uppercaseCount = 0;
-        for (Annotation<String> current : allAnnotations) {
-            if (StringHelper.startsUppercase(current.getFeature(StemmerAnnotator.UNSTEM).getValue())) {
+        for (PositionAnnotation current : allAnnotations) {
+            if (StringHelper.startsUppercase(current.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
                 uppercaseCount++;
             }
         }

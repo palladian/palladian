@@ -11,7 +11,7 @@ package ws.palladian.processing.features;
  * @version 2.0
  * @since 0.1.7
  */
-public final class NominalFeature extends Feature<String> {
+public class NominalFeature extends Feature<String> {
 
     /**
      * <p>
@@ -24,20 +24,6 @@ public final class NominalFeature extends Feature<String> {
      */
     public NominalFeature(final String name, final String value) {
         super(name, value);
-    }
-
-    /**
-     * <p>
-     * Creates a new {@code NominalFeature} instance with all attributes initialized.
-     * </p>
-     * 
-     * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
-     *            {@code Feature}.
-     * @param value The {@code String} value of this {@code Feature}.
-     * @param The values this {@code NominalFeature} can take on.
-     */
-    public NominalFeature(final FeatureDescriptor<NominalFeature> descriptor, final String value) {
-        this(descriptor.getIdentifier(), value);
     }
 
 }

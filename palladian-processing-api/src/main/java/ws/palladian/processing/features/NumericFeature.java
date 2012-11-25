@@ -9,7 +9,7 @@ package ws.palladian.processing.features;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NumericFeature extends Feature<Double> {
+public class NumericFeature extends Feature<Double> {
 
     /**
      * <p>
@@ -19,21 +19,8 @@ public final class NumericFeature extends Feature<Double> {
      * @param name The {@link FeatureVector} wide unique identifier of this {@code Feature}.
      * @param value The numeric value of this {@code Feature}.
      */
-    public NumericFeature(String name, Double value) {
-        super(name, value);
-    }
-
-    /**
-     * <p>
-     * Creates a new {@code NumericFeature} instance with all attributes initialized.
-     * </p>
-     * 
-     * @param name The {@code FeatureDescriptor} with a {@link FeatureVector} wide unique identifier of this
-     *            {@code Feature}.
-     * @param value The {@code Double} value of this {@code Feature}.
-     */
-    public NumericFeature(FeatureDescriptor<NumericFeature> descriptor, Double value) {
-        this(descriptor.getIdentifier(), value);
+    public NumericFeature(String name, Number value) {
+        super(name, value != null ? value.doubleValue() : null);
     }
 
 }

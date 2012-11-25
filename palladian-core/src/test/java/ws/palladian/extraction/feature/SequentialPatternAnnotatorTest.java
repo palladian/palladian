@@ -29,6 +29,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureUtils;
 
 /**
  * <p>
@@ -206,17 +207,18 @@ public class SequentialPatternAnnotatorTest {
     @Ignore
     public final void testWithLSPExtractionStrategy() throws Exception {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
-        processingPipeline.add(new PalladianSentenceDetector());
-        processingPipeline.add(new RegExTokenizer());
-        processingPipeline.add(new OpenNlpPosTagger(ResourceHelper.getResourceFile("/model/en-pos-maxent.bin")));
-        processingPipeline.add(new SequentialPatternAnnotator(keywords, 1, 4,
+        processingPipeline.connectToPreviousProcessor(new PalladianSentenceDetector());
+        processingPipeline.connectToPreviousProcessor(new RegExTokenizer());
+        processingPipeline.connectToPreviousProcessor(new OpenNlpPosTagger(ResourceHelper
+                .getResourceFile("/model/en-pos-maxent.bin")));
+        processingPipeline.connectToPreviousProcessor(new SequentialPatternAnnotator(keywords, 1, 4,
                 new LabeledSequentialPatternExtractionStrategy()));
 
         TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
-        List<SequentialPattern> patterns = document.getFeatureVector().getFeatures(SequentialPattern.class,
-                "ws.palladian.features.sentence/lsp");
+        List<SequentialPattern> patterns = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(),
+                SequentialPattern.class, "ws.palladian.features.sentence/lsp");
         for (SequentialPattern pattern : expectedPatterns) {
             Assert.assertThat(pattern, Matchers.isIn(patterns));
         }
@@ -225,18 +227,20 @@ public class SequentialPatternAnnotatorTest {
     @Test
     public void testWithNGramExtractionStrategy() throws FileNotFoundException, DocumentUnprocessableException {
         ProcessingPipeline processingPipeline = new ProcessingPipeline();
-        processingPipeline.add(new PalladianSentenceDetector());
-        processingPipeline.add(new LowerCaser());
-        processingPipeline.add(new RegExTokenizer());
-        processingPipeline.add(new OpenNlpPosTagger(ResourceHelper.getResourceFile("/model/en-pos-maxent.bin")));
-        processingPipeline.add(new SequentialPatternAnnotator(keywords, 3, 4, new NGramPatternExtractionStrategy()));
+        processingPipeline.connectToPreviousProcessor(new PalladianSentenceDetector());
+        processingPipeline.connectToPreviousProcessor(new LowerCaser());
+        processingPipeline.connectToPreviousProcessor(new RegExTokenizer());
+        processingPipeline.connectToPreviousProcessor(new OpenNlpPosTagger(ResourceHelper
+                .getResourceFile("/model/en-pos-maxent.bin")));
+        processingPipeline.connectToPreviousProcessor(new SequentialPatternAnnotator(keywords, 3, 4,
+                new NGramPatternExtractionStrategy()));
 
         TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
 
-        List<SequentialPattern> extractedPatterns = document.getFeatureVector().getFeatures(SequentialPattern.class,
-                "ws.palladian.features.sentence/lsp");
+        List<SequentialPattern> extractedPatterns = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(),
+                SequentialPattern.class, "ws.palladian.features.sentence/lsp");
         Assert.assertThat(extractedPatterns,
                 Matchers.hasItems(expectedNGramPatterns.toArray(new SequentialPattern[expectedNGramPatterns.size()])));
     }
