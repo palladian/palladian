@@ -41,8 +41,6 @@ import ws.palladian.processing.features.NumericFeature;
 public final class WekaPredictor implements ws.palladian.classification.Classifier<WekaModel> {
 
     private final weka.classifiers.Classifier classifier;
-    private FastVector featureVector;
-    private weka.core.Instances trainInstances;
     private final List<String> normalFeaturePaths;
     private final List<String> sparseFeaturePaths;
 
