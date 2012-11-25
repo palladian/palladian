@@ -3,28 +3,24 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.Validate;
-
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.Port;
 import ws.palladian.processing.features.AbstractFeatureProvider;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
  * Calculates the Jaccard similarity (see <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard index</a>) as a
- * measure of overlap between two sets of the same {@link Annotation} from two {@link PipelineDocument}s. The processor
- * provides two input ports identified by {@link #INPUT_PORT_ONE_IDENTIFIER} and
+ * measure of overlap between two sets of the same {@link PositionAnnotation} from two {@link PipelineDocument}s. The
+ * processor provides two input ports identified by {@link #INPUT_PORT_ONE_IDENTIFIER} and
  * {@link TokenOverlapCalculator#INPUT_PORT_TWO_IDENTIFIER}.
  * </p>
  * 
@@ -32,13 +28,13 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 0.1.7
  */
-public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object, NumericFeature> {
+public final class TokenOverlapCalculator extends AbstractFeatureProvider {
 
     public static final String INPUT_PORT_ONE_IDENTIFIER = "input1";
     public static final String INPUT_PORT_TWO_IDENTIFIER = "input2";
 
-    private final FeatureDescriptor<? extends AnnotationFeature<?>> input1FeatureDescriptor;
-    private final FeatureDescriptor<? extends AnnotationFeature<?>> input2FeatureDescriptor;
+    private final String input1FeatureIdentifier;
+    private final String input2FeatureIdentifier;
 
     /**
      * <p>
@@ -54,55 +50,52 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider<Object
      * @param input1FeatureDescriptor The descriptor for the first input {@code Feature}.
      * @param input2FeatureDescriptor The descriptor for the second input {@code Feature}.
      */
-    public TokenOverlapCalculator(final FeatureDescriptor<NumericFeature> featureDescriptor,
-            final FeatureDescriptor<? extends AnnotationFeature<?>> input1FeatureDescriptor,
-            final FeatureDescriptor<? extends AnnotationFeature<?>> input2FeatureDescriptor) {
-        // Ports parameterized with Objects since it does not matter which type they have, because the Calculator only
-        // uses the feature vector.
-        // FIXME omfg, we have to think of a cleaner solution here, look at all those warning! -- 2012-08-24, Philipp
-        super((List)Arrays.asList(new Port[] {new Port<Object>(INPUT_PORT_ONE_IDENTIFIER),
-                new Port<Object>(INPUT_PORT_TWO_IDENTIFIER)}), (List)Arrays.asList(new Port[] {new Port<Object>(
-                PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}), featureDescriptor);
+    public TokenOverlapCalculator(String featureDescriptor, String input1FeatureIdentifier,
+            String input2FeatureIdentifier) {
+        super(new InputPort[] {new InputPort(INPUT_PORT_ONE_IDENTIFIER), new InputPort(INPUT_PORT_TWO_IDENTIFIER)},
+                new OutputPort[] {new OutputPort(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}, featureDescriptor);
 
-        this.input1FeatureDescriptor = input1FeatureDescriptor;
-        this.input2FeatureDescriptor = input2FeatureDescriptor;
+        this.input1FeatureIdentifier = input1FeatureIdentifier;
+        this.input2FeatureIdentifier = input2FeatureIdentifier;
     }
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).getPipelineDocument();
-        PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).getPipelineDocument();
+        PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).poll();
+        PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).poll();
 
-        AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
-        Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
-        final List<Annotation<?>> input1Annotations = (List<Annotation<?>>)feature1.getValue();
-        AnnotationFeature feature2 = document2.getFeature(input2FeatureDescriptor);
-        Validate.notNull(feature2, "No feature found for feature descriptor " + input2FeatureDescriptor);
-        final List<Annotation<?>> input2Annotations = (List<Annotation<?>>)feature2.getValue();
+        // AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
+        // Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
+        final List<PositionAnnotation> input1Annotations = document1.getFeatureVector().getAll(
+                PositionAnnotation.class, input1FeatureIdentifier);
+        // AnnotationFeature feature2 = document2.getFeature(input2FeatureDescriptor);
+        // Validate.notNull(feature2, "No feature found for feature descriptor " + input2FeatureDescriptor);
+        final List<PositionAnnotation> input2Annotations = document2.getFeatureVector().getAll(
+                PositionAnnotation.class, input2FeatureIdentifier);
 
         Set<String> setOfInput1 = new HashSet<String>();
         Set<String> setOfInput2 = new HashSet<String>();
-        for (Annotation annotation : input1Annotations) {
+        for (PositionAnnotation annotation : input1Annotations) {
             setOfInput1.add(annotation.getValue());
         }
-        for (Annotation annotation : input2Annotations) {
+        for (PositionAnnotation annotation : input2Annotations) {
             setOfInput2.add(annotation.getValue());
         }
-        final Set<String> overlap = new HashSet<String>();
-        overlap.addAll(setOfInput1);
-        overlap.retainAll(setOfInput2);
+        final Set<String> intersection = new HashSet<String>();
+        intersection.addAll(setOfInput1);
+        intersection.retainAll(setOfInput2);
         final Set<String> union = new HashSet<String>();
         union.addAll(setOfInput1);
         union.addAll(setOfInput2);
 
-        Double jaccardSimilarity = Integer.valueOf(overlap.size()).doubleValue()
+        Double jaccardSimilarity = Integer.valueOf(intersection.size()).doubleValue()
                 / Integer.valueOf(union.size()).doubleValue();
         // TODO Remove debug code
-        if (jaccardSimilarity > 1.0) {
-            System.out.println("+++++++++++++++++");
-        }
+        // if (jaccardSimilarity > 1.0) {
+        // System.out.println("+++++++++++++++++");
+        // }
 
-        document1.addFeature(new NumericFeature(getDescriptor(), jaccardSimilarity));
-        setOutput(DEFAULT_OUTPUT_PORT_IDENTIFIER, document1);
+        document1.getFeatureVector().add(new NumericFeature(getCreatedFeatureName(), jaccardSimilarity));
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document1);
     }
 }

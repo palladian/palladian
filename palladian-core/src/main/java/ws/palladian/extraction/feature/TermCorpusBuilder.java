@@ -6,12 +6,11 @@ import java.util.Set;
 
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
-public class TermCorpusBuilder extends StringDocumentPipelineProcessor {
+public class TermCorpusBuilder extends TextDocumentPipelineProcessor {
     
     private final TermCorpus termCorpus;
 
@@ -24,16 +23,16 @@ public class TermCorpusBuilder extends StringDocumentPipelineProcessor {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \""
-                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing");
-        }
-        List<Annotation<String>> annotations = annotationFeature.getValue();
+        List<PositionAnnotation> annotations = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+//        if (annotationFeature == null) {
+//            throw new DocumentUnprocessableException("The required feature \""
+//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing");
+//        }
+//        List<Annotation<String>> annotations = annotationFeature.getValue();
         Set<String> tokenValues = new HashSet<String>();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             tokenValues.add(annotation.getValue().toLowerCase());
         }
         termCorpus.addTermsFromDocument(tokenValues);

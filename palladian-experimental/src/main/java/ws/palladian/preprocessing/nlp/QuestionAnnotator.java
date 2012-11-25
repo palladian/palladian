@@ -1,17 +1,16 @@
 package ws.palladian.preprocessing.nlp;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -37,7 +36,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @version 2.0
  * @since 0.1.7
  */
-public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
+public final class QuestionAnnotator extends TextDocumentPipelineProcessor {
     
     /**
      * The world wide unique identifier of the {@link Feature}s created by this annotator.
@@ -45,34 +44,21 @@ public final class QuestionAnnotator extends StringDocumentPipelineProcessor {
     public final static String FEATURE_IDENTIFIER = "ws.palladian.features.question";
 
     @Override
-    public void processDocument(PipelineDocument<String> document) {
-        TextAnnotationFeature sentences = document.getFeatureVector().get(
-                AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> questions = new ArrayList<Annotation<String>>();
-        for (Annotation<String> sentence : sentences.getValue()) {
+    public void processDocument(TextDocument document) {
+        List<PositionAnnotation> sentences = document.getFeatureVector().getAll(PositionAnnotation.class,
+                AbstractSentenceDetector.PROVIDED_FEATURE);
+        List<PositionAnnotation> questions = CollectionHelper.newArrayList();
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(FEATURE_IDENTIFIER, document);
+        for (PositionAnnotation sentence : sentences) {
             String coveredText = sentence.getValue();
             if (coveredText.endsWith("?") || coveredText.toLowerCase().startsWith("what")
                     || coveredText.toLowerCase().startsWith("who") || coveredText.toLowerCase().startsWith("where")
                     || coveredText.toLowerCase().startsWith("how ") || coveredText.toLowerCase().startsWith("why")) {
-
-                questions.add(createQuestion(sentence));
+                questions.add(annotationFactory.create(sentence.getStartPosition(), sentence.getEndPosition()));
             }
         }
-        TextAnnotationFeature questionsFeature = new TextAnnotationFeature(FEATURE_IDENTIFIER,questions);
-        document.getFeatureVector().add(questionsFeature);
+        document.getFeatureVector().addAll(questions);
     }
 
-    /**
-     * <p>
-     * Creates a new question {@code Annotation} based on an existing sentence {@code Annotation}.
-     * </p>
-     * 
-     * @param sentence The sentence {@code Annotation} representing the new question.
-     * @return A new annotation of the question type spanning the same area as the provided sentence.
-     */
-    private Annotation<String> createQuestion(Annotation<String> sentence) {
-        return new PositionAnnotation(sentence.getDocument(), sentence.getStartPosition(), sentence.getEndPosition(),
-                -1, sentence.getValue());
-    }
 
 }

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -59,7 +59,7 @@ public final class OpenNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation<String>> annotations) {
+    public void tag(List<PositionAnnotation> annotations) {
         List<String> tokenList = getTokenList(annotations);
         String[] tags = tagger.tag(tokenList.toArray(new String[annotations.size()]));
         for (int i = 0; i < tags.length; i++) {
