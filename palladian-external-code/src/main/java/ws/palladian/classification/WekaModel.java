@@ -22,15 +22,15 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public final class WekaModel implements Model {
 
+    private static final long serialVersionUID = 1L;
+
     private final Classifier classifier;
     private final Map<String, Attribute> schema;
     private final Instances dataset;
 
     public WekaModel(Classifier classifier, Instances data) {
-        super();
-
         this.classifier = classifier;
-        Enumeration schema = data.enumerateAttributes();
+        Enumeration<?> schema = data.enumerateAttributes();
         this.schema = new HashMap<String, Attribute>();
         while (schema.hasMoreElements()) {
             Attribute attribute = (Attribute)schema.nextElement();
@@ -42,8 +42,6 @@ public final class WekaModel implements Model {
     public Classifier getClassifier() {
         return classifier;
     }
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * <p>
