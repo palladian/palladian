@@ -8,6 +8,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -20,7 +21,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 0.1.7
  */
-public final class DocumentLengthCalculator extends TextDocumentPipelineProcessor {
+public final class DocumentLengthCalculator extends TextDocumentPipelineProcessor implements FeatureProvider {
 
     /**
      * <p>
@@ -34,6 +35,11 @@ public final class DocumentLengthCalculator extends TextDocumentPipelineProcesso
         int length = document.getContent().length();
         NumericFeature feature = new NumericFeature(PROVIDED_FEATURE, length);
         document.getFeatureVector().add(feature);
+    }
+
+    @Override
+    public String getCreatedFeatureName() {
+        return PROVIDED_FEATURE;
     }
 
 }
