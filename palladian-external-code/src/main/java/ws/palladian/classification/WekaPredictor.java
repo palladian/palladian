@@ -10,6 +10,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -43,6 +45,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
     private final weka.classifiers.Classifier classifier;
     private final List<String> normalFeaturePaths;
     private final List<String> sparseFeaturePaths;
+    private final static Logger LOGGER = LoggerFactory.getLogger(WekaPredictor.class);
 
     /**
      * <p>
@@ -86,6 +89,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
 
                 wekaFeatureSet.putAll(handleFeature(sparseFeatures, data));
             }
+            wekaFeatureSets.add(wekaFeatureSet);
             classes.add(instance.getTargetClass());
             instanceClasses.add(instance.getTargetClass());
         }
@@ -103,12 +107,18 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         for (int i = 0; i < wekaFeatureSets.size(); i++) {
             Map<Integer, Double> wekaFeatureSet = wekaFeatureSets.get(i);
             String targetClass = instanceClasses.get(i);
-            SparseInstance wekaInstance = new SparseInstance(wekaFeatureSet.size());
-            wekaInstance.setDataset(data);
+            int[] indices = new int[wekaFeatureSet.size() + 1];
+            double[] values = new double[wekaFeatureSet.size() + 1];
+            int j = 0;
             for (Map.Entry<Integer, Double> featureValue : wekaFeatureSet.entrySet()) {
-                wekaInstance.setValueSparse(featureValue.getKey(), featureValue.getValue());
+                indices[j] = featureValue.getKey();
+                values[j] = featureValue.getValue();
+                j++;
             }
-            wekaInstance.setValueSparse(classIndex, classAttribute.indexOfValue(targetClass));
+            indices[j] = classIndex;
+            values[j] = classAttribute.indexOfValue(targetClass);
+            SparseInstance wekaInstance = new SparseInstance(1.0, values, indices, wekaFeatureSet.size());
+            wekaInstance.setDataset(data);
             data.add(wekaInstance);
         }
 
@@ -139,6 +149,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
             if (featureAttribute == null) {
                 featureAttribute = new Attribute(sparseFeature.getValue().toString());
                 data.insertAttributeAt(featureAttribute, data.numAttributes());
+                featureAttribute = data.attribute(sparseFeature.getValue().toString());
             }
 
             ret.put(featureAttribute.index(), 1.0);
@@ -162,6 +173,8 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
                 FastVector possibleValues = getValues(feature.getName(), instances);
                 featureAttribute = new Attribute(feature.getName(), possibleValues);
                 data.insertAttributeAt(featureAttribute, data.numAttributes());
+                featureAttribute = data.attribute(feature.getName());
+
             }
 
             featureValue = Integer.valueOf(featureAttribute.indexOfValue(feature.getValue().toString())).doubleValue();
@@ -172,6 +185,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
                 booleanValues.addElement("false");
                 featureAttribute = new Attribute(feature.getName(), booleanValues);
                 data.insertAttributeAt(featureAttribute, data.numAttributes());
+                featureAttribute = data.attribute(feature.getName());
             }
 
             featureValue = Integer.valueOf(featureAttribute.indexOfValue(feature.getValue().toString())).doubleValue();
@@ -179,6 +193,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
             if (featureAttribute == null) {
                 featureAttribute = new Attribute(feature.getName());
                 data.insertAttributeAt(featureAttribute, data.numAttributes());
+                featureAttribute = data.attribute(feature.getName());
             }
 
             featureValue = Double.valueOf(feature.getValue().toString());
@@ -225,7 +240,13 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         for (String sparseFeaturePath : sparseFeaturePaths) {
             List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(vector, sparseFeaturePath);
             for (Feature<?> sparseFeature : sparseFeatures) {
-                int indexOfSparseFeature = schema.get(sparseFeature.getValue()).index();
+                String featureName = sparseFeature.getValue().toString();
+                Attribute featureAttribute = schema.get(featureName);
+                if (featureAttribute == null) {
+                    LOGGER.info("Ignoring sparse feature " + featureName + " since it was not in training set.");
+                    continue;
+                }
+                int indexOfSparseFeature = featureAttribute.index();
                 indices.put(indexOfSparseFeature, 1.0);
             }
         }
