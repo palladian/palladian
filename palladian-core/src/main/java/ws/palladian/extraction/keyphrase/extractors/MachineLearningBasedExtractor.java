@@ -30,14 +30,13 @@ import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
 import ws.palladian.extraction.feature.StopTokenRemover;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
-import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
 import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -48,20 +47,15 @@ import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
-    static final FeatureDescriptor<NominalFeature> IS_KEYWORD = FeatureDescriptorBuilder.build("isKeyword",
-            NominalFeature.class);
+    static final String IS_KEYWORD = "isKeyword";
 
     // private final int TRAIN_DOC_LIMIT = Integer.MAX_VALUE;
     // private final int TRAIN_DOC_LIMIT = 50;
@@ -110,14 +104,14 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         candidateGenerationPipeline.add(new DuplicateTokenConsolidator());
         candidateGenerationPipeline.add(new IdfAnnotator(termCorpus));
         candidateGenerationPipeline.add(new TfIdfAnnotator());
-        candidateGenerationPipeline.add(new PhrasenessAnnotator());
+//        candidateGenerationPipeline.add(new PhrasenessAnnotator());
         candidateGenerationPipeline.add(new AdditionalFeatureExtractor());
-        candidateGenerationPipeline.add(new StringDocumentPipelineProcessor() {
+        candidateGenerationPipeline.add(new TextDocumentPipelineProcessor() {
 
             @Override
-            public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-                List<Annotation<String>> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
-                for (Annotation<String> annotation : tokenAnnotations) {
+            public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+                List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
+                for (PositionAnnotation annotation : tokenAnnotations) {
                     double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1)
                             / keyphraseCorpus.getNumDocs();
                     annotation.getFeatureVector().add(new NumericFeature("prior", prior));
@@ -151,10 +145,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = feature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, RegExTokenizer.PROVIDED_FEATURE);
         Set<String> terms = new HashSet<String>();
-        for (Annotation annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             terms.add(annotation.getValue());
         }
         termCorpus.addTermsFromDocument(terms);
@@ -169,7 +162,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     @Override
     public void endTraining() {
         System.out.println("finished building corpus, # train docs: " + trainDocuments.size());
-        List<Annotation<String>> annotations = new ArrayList<Annotation<String>>();
+        List<PositionAnnotation> annotations = CollectionHelper.newArrayList();
         Iterator<Entry<PipelineDocument<String>, Set<String>>> trainDocIterator = trainDocuments.entrySet().iterator();
         int totalKeyphrases = 0;
         int totallyMarked = 0;
@@ -182,11 +175,11 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             } catch (DocumentUnprocessableException e) {
                 throw new IllegalStateException(e);
             }
-            TextAnnotationFeature annotationFeature = currentDoc.getFeatureVector().get(
-                    BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+            List<PositionAnnotation> annotationFeature = currentDoc.getFeatureVector().getAll(
+                    PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
             totalKeyphrases += keywords.size();
             totallyMarked += markCandidates(annotationFeature, keywords);
-            annotations.addAll(annotationFeature.getValue());
+            annotations.addAll(annotationFeature);
             trainDocIterator.remove();
             System.out.println(trainDocuments.size());
         }
@@ -195,9 +188,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         int posSamples = 0;
         int negSamples = 0;
         List<Instance> instances = new ArrayList<Instance>();
-        for (Annotation annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            String targetClass = featureVector.get(IS_KEYWORD).getValue();
+            String targetClass = featureVector.getFeature(NominalFeature.class, IS_KEYWORD).getValue();
             FeatureVector cleanedFv = cleanFeatureVector(featureVector);
             if ("true".equals(targetClass)) {
                 posSamples++;
@@ -224,16 +217,16 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
      */
     private FeatureVector cleanFeatureVector(FeatureVector featureVector) {
         FeatureVector result = new FeatureVector(featureVector);
-        result.remove(IS_KEYWORD);
-        result.remove(StemmerAnnotator.UNSTEM);
-        result.remove(DuplicateTokenConsolidator.DUPLICATES);
-        result.remove(AdditionalFeatureExtractor.CASE_SIGNATURE);
+        result.removeAll(IS_KEYWORD);
+        result.removeAll(StemmerAnnotator.UNSTEM);
+        result.removeAll(BaseTokenizer.PROVIDED_FEATURE); // XXX was duplicate token annotation
+        result.removeAll(AdditionalFeatureExtractor.CASE_SIGNATURE);
         return result;
     }
 
     /**
      * <p>
-     * Takes a list of candidates in form of {@link Annotation}s and a list of "real" keyphrases and tries to match
+     * Takes a list of candidates in form of {@link PositionAnnotation}s and a list of "real" keyphrases and tries to match
      * those keyphrases in the supplied annotations. Use fuzzy/multiple variant matching for high recall (i.e. match as
      * many annotations as possible).
      * </p>
@@ -242,7 +235,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
      * @param keywords
      * @return
      */
-    private int markCandidates(TextAnnotationFeature annotationFeature, Set<String> keywords) {
+    private int markCandidates(List<PositionAnnotation> annotations, Set<String> keywords) {
         Set<String> modifiedKeywords = new HashSet<String>();
         int marked = 0;
         // try to match multiple different variants
@@ -256,10 +249,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim()));
             modifiedKeywords.add(canonicalize(stem(keyword.toLowerCase()).trim().replaceAll("\\s", "")));
         }
-        List<Annotation<String>> annotations = annotationFeature.getValue();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             String stemmedValue = annotation.getValue();
-            String unstemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.UNSTEM).getValue();
+            String unstemmedValue = annotation.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
 
             boolean isKeyword = modifiedKeywords.contains(stemmedValue);
             isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase());
@@ -348,11 +340,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException();
         }
-        AnnotationFeature<String> annotationFeature = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = annotationFeature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
             FeatureVector cleanFv = cleanFeatureVector(featureVector);
             CategoryEntries predictionResult = classifier.classify(cleanFv, model);

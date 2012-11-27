@@ -43,7 +43,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
         DictionaryModel model = new DictionaryModel(featureSetting);
         for (Instance instance : instances) {
-            List<NominalFeature> terms = instance.getFeatureVector().getFeatures(NominalFeature.class,
+            List<NominalFeature> terms = instance.getFeatureVector().getAll(NominalFeature.class,
                     UniversalClassifier.FEATURE_TERM);
             for (NominalFeature term : terms) {
                 model.updateTerm(term.getValue(), instance.getTargetClass());
@@ -71,7 +71,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         double probabilitySum = 0.;
 
         // iterate through all terms in the document
-        for (NominalFeature termFeature : vector.getFeatures(NominalFeature.class, UniversalClassifier.FEATURE_TERM)) {
+        for (NominalFeature termFeature : vector.getAll(NominalFeature.class, UniversalClassifier.FEATURE_TERM)) {
             CategoryEntries categoryFrequencies = model.getCategoryEntries(termFeature.getValue());
             for (CategoryEntry category : categoryFrequencies) {
                 double categoryFrequency = category.getProbability();

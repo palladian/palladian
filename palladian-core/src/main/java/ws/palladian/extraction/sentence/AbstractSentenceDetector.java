@@ -8,15 +8,12 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
 
 /**
  * <p>
@@ -30,14 +27,14 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * {@code
  * AbstractSentenceDetector sentenceDetector = new ...();
  *    sentenceDetector.detect("This is my sentence. This is another!");
- *    Annotation[] sentences = sentenceDetector.getSentences();
+ *    PositionAnnotation[] sentences = sentenceDetector.getSentences();
  *    String firstSentence = sentences[0].getValue();
  * }
  * </pre>
  * 
  * It will return an array containing annotations for the two sentences: "This is my sentence." and "This is another!".
  * Annotations are pointers into a {@link PipelineDocument} created from the input String, marking the start index and
- * end index of the extracted sentence. To access the value just call {@link Annotation#getValue()}.
+ * end index of the extracted sentence. To access the value just call {@link PositionAnnotation#getValue()}.
  * </p>
  * <p>
  * You can reuse an instance of this class if you want to. Simply call {@link #detect(String)} or
@@ -48,8 +45,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public abstract class AbstractSentenceDetector extends StringDocumentPipelineProcessor implements
-        FeatureProvider<TextAnnotationFeature> {
+public abstract class AbstractSentenceDetector extends TextDocumentPipelineProcessor implements FeatureProvider {
 
     /**
      * <p>
@@ -58,23 +54,26 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
      */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.sentence";
 
-    /**
-     * <p>
-     * The world wide unique feature descriptor of the {@link Feature} created by this annotator.
-     * </p>
-     */
-    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
+    protected final String providedFeature;
+
+    // /**
+    // * <p>
+    // * The world wide unique feature descriptor of the {@link Feature} created by this annotator.
+    // * </p>
+    // */
+    // public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR =
+    // FeatureDescriptorBuilder
+    // .build(PROVIDED_FEATURE, TextAnnotationFeature.class);
 
     /** holds the sentences. **/
     private PositionAnnotation[] sentences;
 
-    /**
-     * <p>
-     * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
-     * </p>
-     */
-    private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
+    // /**
+    // * <p>
+    // * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
+    // * </p>
+    // */
+    // private final FeatureDescriptor<TextAnnotationFeature> featureDescriptor;
 
     /**
      * <p>
@@ -83,17 +82,12 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
      * </p>
      */
     public AbstractSentenceDetector() {
-        super();
-
-        this.featureDescriptor = PROVIDED_FEATURE_DESCRIPTOR;
+        this.providedFeature = PROVIDED_FEATURE;
     }
 
-    public AbstractSentenceDetector(final FeatureDescriptor<TextAnnotationFeature> featureDescriptor) {
-        super();
-
-        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
-
-        this.featureDescriptor = featureDescriptor;
+    public AbstractSentenceDetector(String featureIdentifier) {
+        Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
+        this.providedFeature = featureIdentifier;
     }
 
     /**
@@ -134,18 +128,17 @@ public abstract class AbstractSentenceDetector extends StringDocumentPipelinePro
     }
 
     @Override
-    public final void processDocument(PipelineDocument<String> document) {
+    public final void processDocument(TextDocument document) {
         Validate.notNull(document, "document must not be null");
 
         detect(document.getContent());
-        Annotation<String>[] sentences = getSentences();
-        List<Annotation<String>> sentencesList = Arrays.asList(sentences);
-        TextAnnotationFeature sentencesFeature = new TextAnnotationFeature(featureDescriptor, sentencesList);
-        document.getFeatureVector().add(sentencesFeature);
+        PositionAnnotation[] sentences = getSentences();
+        List<PositionAnnotation> sentencesList = Arrays.asList(sentences);
+        document.getFeatureVector().addAll(sentencesList);
     }
 
     @Override
-    public FeatureDescriptor<TextAnnotationFeature> getDescriptor() {
-        return featureDescriptor;
+    public String getCreatedFeatureName() {
+        return providedFeature;
     }
 }

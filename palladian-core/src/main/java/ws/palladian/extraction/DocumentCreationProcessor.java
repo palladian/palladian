@@ -3,23 +3,24 @@
  */
 package ws.palladian.extraction;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.Port;
 
 /**
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
  */
-public final class DocumentCreationProcessor<T> extends AbstractPipelineProcessor<T> {
-    private PipelineDocument<T> document;
+public final class DocumentCreationProcessor extends AbstractPipelineProcessor {
+
+    private static final String OUTPUT_PORT_IDENTIFIER = "newDocument";
+
+    private final PipelineDocument<?> document;
 
     /**
      * <p>
@@ -29,16 +30,15 @@ public final class DocumentCreationProcessor<T> extends AbstractPipelineProcesso
      * 
      * @param document The {@code PipelineDocument} this {@code PipelineProcessor} should output.
      */
-    public DocumentCreationProcessor(final PipelineDocument<T> document) {
-        super(new ArrayList<Port<?>>(), Arrays.asList(new Port<?>[] {new Port<T>("newDocument")}));
+    public DocumentCreationProcessor(PipelineDocument<?> document) {
+        super(new InputPort[0], new OutputPort[] {new OutputPort(OUTPUT_PORT_IDENTIFIER)});
         Validate.notNull(document);
-
         this.document = document;
     }
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        ((Port<T>)getOutputPorts().get(0)).setPipelineDocument(document);
+        getOutputPort(OUTPUT_PORT_IDENTIFIER).put(document);
     }
 
 }

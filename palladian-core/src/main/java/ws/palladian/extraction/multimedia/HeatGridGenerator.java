@@ -6,7 +6,6 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import ws.palladian.helper.math.NumericMatrix;
 

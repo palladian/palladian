@@ -14,15 +14,11 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.NumericFeature;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -47,37 +43,36 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * 
  * @author Philipp Katz
  */
-public final class TokenDistributionStatisticsCalculator extends StringDocumentPipelineProcessor {
+public final class TokenDistributionStatisticsCalculator extends TextDocumentPipelineProcessor {
 
     /** Identifier for the feature provided by this class. */
-    public static final FeatureDescriptor<NumericFeature> LEVEL_STATISTICS = FeatureDescriptorBuilder.build(
-            "ws.palladian.features.tokens.level", NumericFeature.class);
+    public static final String LEVEL_STATISTICS = "ws.palladian.features.tokens.level";
 
     /** Minimum number of occurrences for a token to be considered, if below, a value of zero will be assigned. */
     private static final int MIN_OCCURRENCE_COUNT = 10;
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        TextAnnotationFeature tokenAnnotations = document.getFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (tokenAnnotations == null) {
-            throw new DocumentUnprocessableException(
-                    "Token annotations are missing, document needs to be processed by a Tokenizer in advance.");
-        }
-
-        List<Annotation<String>> tokens = tokenAnnotations.getValue();
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+        List<PositionAnnotation> tokens = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+//        if (tokenAnnotations == null) {
+//            throw new DocumentUnprocessableException(
+//                    "Token annotations are missing, document needs to be processed by a Tokenizer in advance.");
+//        }
+//
+//        List<Annotation<String>> tokens = tokenAnnotations.getValue();
 
         MultiMap<String, Long> tokenPositions = new MultiHashMap<String, Long>();
         final int numTokens = tokens.size();
 
         // collect all positions for specific tokens in text
-        for (Annotation<String> token : tokens) {
-            tokenPositions.put(token.getValue(), token.getStartPosition().longValue());
+        for (PositionAnnotation token : tokens) {
+            tokenPositions.put(token.getValue(), Long.valueOf(token.getStartPosition()));
         }
 
         // calculate level statistics for all token values
-        for (Annotation<String> token : tokens) {
+        for (PositionAnnotation token : tokens) {
 
-            NumericFeature countFeature = token.getFeatureVector().get(TokenMetricsCalculator.COUNT);
+            NumericFeature countFeature = token.getFeatureVector().getFeature(NumericFeature.class, TokenMetricsCalculator.COUNT);
             if (countFeature == null) {
                 throw new DocumentUnprocessableException("Necessary token count feature (\""
                         + TokenMetricsCalculator.COUNT + "\") is missing. Please use "
@@ -87,7 +82,7 @@ public final class TokenDistributionStatisticsCalculator extends StringDocumentP
             int count = countFeature.getValue().intValue();
 
             if (count < MIN_OCCURRENCE_COUNT) {
-                token.addFeature(new NumericFeature(LEVEL_STATISTICS, 0.));
+                token.getFeatureVector().add(new NumericFeature(LEVEL_STATISTICS, 0.));
                 continue;
             }
 
@@ -104,7 +99,7 @@ public final class TokenDistributionStatisticsCalculator extends StringDocumentP
             double sigmaNormSd = 1. / (Math.sqrt(count) * (1 + 2.8 * Math.pow(count, -0.865)));
 
             double c = (sigmaNorm - sigmaNormBracketed) / sigmaNormSd;
-            token.addFeature(new NumericFeature(LEVEL_STATISTICS, c));
+            token.getFeatureVector().add(new NumericFeature(LEVEL_STATISTICS, c));
 
         }
 
@@ -127,9 +122,9 @@ public final class TokenDistributionStatisticsCalculator extends StringDocumentP
                 FileHelper.readFileToString("/Users/pk/Desktop/pg1661.txt"));
         pipeline.process(doc);
 
-        List<Annotation<String>> tokenAnnotations = BaseTokenizer.getTokenAnnotations(doc);
-        for (Annotation<String> annotation : tokenAnnotations) {
-            NumericFeature levelStats = annotation.getFeatureVector().get(LEVEL_STATISTICS);
+        List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(doc);
+        for (PositionAnnotation annotation : tokenAnnotations) {
+            NumericFeature levelStats = annotation.getFeatureVector().getFeature(NumericFeature.class, LEVEL_STATISTICS);
             if (levelStats.getValue() > 6) {
                 System.out.println(annotation.getValue() + " / " + levelStats);
             }

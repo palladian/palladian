@@ -63,65 +63,6 @@ public final class UrlHelper {
         // prevent instantiation.
     }
 
-//    /**
-//     * <p>
-//     * Tries to remove a session ID from URL if it can be found.
-//     * </p>
-//     * 
-//     * @param original The URL to remove the sessionID from.
-//     * @return The URL without the sessionID if it could be found or the original URL else wise. <code>null</code> if
-//     *         original was <code>null</code>.
-//     */
-//    private static URL removeSessionId(URL original) {
-//        URL replacedURL = original;
-//        if (original != null) {
-//            String origURL = original.toString();
-//            Matcher matcher = SESSION_ID_PATTERN.matcher(origURL);
-//            String newURL = matcher.replaceAll("");
-//            if (newURL != null) {
-//                try {
-//                    replacedURL = new URL(newURL);
-//                } catch (MalformedURLException e) {
-//                    LOGGER.error("Could not replace sessionID in URL \"" + origURL + "\", returning original value.");
-//                }
-//            }
-//        }
-//        return replacedURL;
-//    }
-
-//    /**
-//     * <p>
-//     * Convenience method to remove a session ID from a URL string if it can be found.
-//     * </p>
-//     * 
-//     * @param originalUrl The URL to remove the sessionID from.
-//     * @param silent If <code>true</code>, do not log errors.
-//     * @return The string representation of the url without the sessionID if it could be found or the original string
-//     *         else wise. <code>null</code> if original was <code>null</code>.
-//     * @deprecated Use {@link #removeSessionId(String)}.
-//     */
-//    @Deprecated
-//    public static String removeSessionId(String originalUrl, boolean silent) {
-//        String replacedURL = originalUrl;
-////        if (originalUrl != null) {
-////            try {
-////                replacedURL = removeSessionId(new URL(originalUrl)).toString();
-////            } catch (Exception e) {
-////                if (!silent) {
-////                    LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
-////                }
-////            }
-////        }
-//        try {
-//            replacedURL = removeSessionId(originalUrl);
-//        } catch (Exception e) {
-//            if (!silent) {
-//                LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
-//            }
-//        }
-//        return replacedURL;
-//    }
-
     /**
      * <p>
      * Remove sessions IDs from a URL.
@@ -157,7 +98,7 @@ public final class UrlHelper {
 
         for (String attribute : LINK_ATTRIBUTES) {
             String xpath = "//*[@" + attribute + "]";
-            List<Node> nodes = XPathHelper.getXhtmlChildNodes(document, xpath);
+            List<Node> nodes = XPathHelper.getXhtmlNodes(document, xpath);
             for (Node node : nodes) {
                 Node attributeNode = node.getAttributes().getNamedItem(attribute);
                 String value = attributeNode.getNodeValue();

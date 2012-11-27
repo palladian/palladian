@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -15,16 +14,14 @@ import ws.palladian.extraction.pos.LingPipePosTagger;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationGroup;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -38,8 +35,8 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  */
 public class NGramCreatorTest {
 
-    PipelineDocument<String> document;
-    ProcessingPipeline pipeline;
+    private PipelineDocument<String> document;
+    private ProcessingPipeline pipeline;
 
     @Before
     public void setUp() {
@@ -53,28 +50,20 @@ public class NGramCreatorTest {
     }
 
     @Test
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public void testNGramCreator() throws DocumentUnprocessableException {
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new StopTokenRemover(Language.ENGLISH));
-        pipeline.add(new NGramCreator(2));
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new StopTokenRemover(Language.ENGLISH));
+        pipeline.connectToPreviousProcessor(new NGramCreator(2));
         pipeline.process(document);
 
-        TextAnnotationFeature annotationFeature = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = annotationFeature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
 
-        // get all AnnotationGroups
-        List<AnnotationGroup> annotationGroups = CollectionHelper.filter(annotations, AnnotationGroup.class, new ArrayList<AnnotationGroup>());
-
-        for (AnnotationGroup<String> annotationGroup : annotationGroups) {
-            System.out.println(annotationGroup.getValue());
-        }
-        assertEquals(4, annotationGroups.size(), 4);
-        assertEquals("quick brown", ((AnnotationGroup<String>)annotationGroups.get(0)).getValue());
-        assertEquals("brown fox", ((AnnotationGroup<String>)annotationGroups.get(1)).getValue());
-        assertEquals("fox jumps", ((AnnotationGroup<String>)annotationGroups.get(2)).getValue());
-        assertEquals("lazy dog", ((AnnotationGroup<String>)annotationGroups.get(3)).getValue());
+        assertEquals(10, annotations.size());
+        assertEquals("quick brown", annotations.get(6).getValue());
+        assertEquals("brown fox", annotations.get(7).getValue());
+        assertEquals("fox jumps", annotations.get(8).getValue());
+        assertEquals("lazy dog", annotations.get(9).getValue());
     }
 
     /**
@@ -86,36 +75,36 @@ public class NGramCreatorTest {
      */
     @Test
     public void testNGramCreatorPreserveAnnotations() throws Exception {
-        pipeline.add(new LingPipeTokenizer());
-        pipeline.add(new LingPipePosTagger(ResourceHelper
+        pipeline.connectToPreviousProcessor(new LingPipeTokenizer());
+        pipeline.connectToPreviousProcessor(new LingPipePosTagger(ResourceHelper
                 .getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel")));
-        pipeline.add(new NGramCreator(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR));
+        pipeline.connectToPreviousProcessor(new NGramCreator(BasePosTagger.PROVIDED_FEATURE));
         pipeline.process(document);
 
-        TextAnnotationFeature annotationFeature = document.getFeatureVector()
-                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = annotationFeature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
 
-        List<AnnotationGroup> annotationGroups = CollectionHelper.filter(annotations, AnnotationGroup.class, new ArrayList<AnnotationGroup>());
-        assertEquals(annotationGroups.size(), 8);
-        assertEquals("the quick", annotationGroups.get(0).getValue());
-        assertEquals("quick brown", annotationGroups.get(1).getValue());
-        assertEquals("brown fox", annotationGroups.get(2).getValue());
-        assertEquals("fox jumps", annotationGroups.get(3).getValue());
+        assertEquals(annotations.size(), 17);
+        assertEquals("the quick", annotations.get(9).getValue());
+        assertEquals("quick brown", annotations.get(10).getValue());
+        assertEquals("brown fox", annotations.get(11).getValue());
+        assertEquals("fox jumps", annotations.get(12).getValue());
 
-        assertThat(annotationGroups.get(0).getAnnotations().size(), is(2));
         assertThat(
-                ((AnnotationGroup<String>)annotationGroups.get(0)).getAnnotations().get(0)
-                        .getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("AT"));
+                annotations.get(9).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                        .getValue(), is("ATJJ"));
         assertThat(
-                ((AnnotationGroup<String>)annotationGroups.get(0)).getAnnotations().get(1)
-                        .getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJ"));
-        
-        assertThat((String)annotationGroups.get(0).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("ATJJ"));
-        assertThat((String)annotationGroups.get(1).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJJJ"));
-        assertThat((String)annotationGroups.get(2).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("JJNN"));
-        assertThat((String)annotationGroups.get(3).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNNNS"));
-        assertThat((String)annotationGroups.get(4).getFeature(BasePosTagger.PROVIDED_FEATURE_DESCRIPTOR).getValue(), is("NNSIN"));
+                annotations.get(10).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                        .getValue(), is("JJJJ"));
+        assertThat(
+                annotations.get(11).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                        .getValue(), is("JJNN"));
+        assertThat(
+                annotations.get(12).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                        .getValue(), is("NNNNS"));
+        assertThat(
+                annotations.get(13).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                        .getValue(), is("NNSIN"));
     }
 
 }

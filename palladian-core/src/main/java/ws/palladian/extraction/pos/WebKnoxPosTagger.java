@@ -9,8 +9,8 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -48,9 +48,9 @@ public class WebKnoxPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation<String>> annotations) {
+    public void tag(List<PositionAnnotation> annotations) {
         StringBuilder text = new StringBuilder();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             text.append(annotation.getValue()).append(" ");
         }
 
@@ -75,7 +75,7 @@ public class WebKnoxPosTagger extends BasePosTagger {
             String[] parts = word.split("/");
 
             String tag = parts[1].toUpperCase();
-            annotations.get(i).addFeature(new NominalFeature(PROVIDED_FEATURE, tag));
+            annotations.get(i).getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, tag));
             i++;
 
             //            TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(parts[0]), tag,
