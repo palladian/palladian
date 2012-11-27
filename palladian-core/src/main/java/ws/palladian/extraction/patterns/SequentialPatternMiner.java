@@ -34,10 +34,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  */
 public class SequentialPatternMiner extends ProcessingPipeline {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 5391992699076983616L;
+
     /**
      * <p>
      * Keywords for Question Answer detection as reported by Hong et al [1]. These are the 5W1H words and the english
@@ -91,18 +88,13 @@ public class SequentialPatternMiner extends ProcessingPipeline {
         Collection<SequentialPattern> ret = new HashSet<SequentialPattern>();
         List<PositionAnnotation> sentences = document.getFeatureVector().getAll(PositionAnnotation.class,
                 AbstractSentenceDetector.PROVIDED_FEATURE);
-//        if (sentencesFeature != null) {
-//            List<Annotation<String>> sentenceAnnotations = sentencesFeature.getValue();
-
-            for (PositionAnnotation annotation : sentences) {
-                SequentialPattern lspFeature = annotation.getFeatureVector()
-                        .getFeature(SequentialPattern.class, SequentialPatternAnnotator.PROVIDED_FEATURE);
-                if (lspFeature != null) {
-                    ret.add(lspFeature);
-                }
+        for (PositionAnnotation annotation : sentences) {
+            SequentialPattern lspFeature = annotation.getFeatureVector().getFeature(SequentialPattern.class,
+                    SequentialPatternAnnotator.PROVIDED_FEATURE);
+            if (lspFeature != null) {
+                ret.add(lspFeature);
             }
-//        }
-
+        }
         return ret;
     }
 }

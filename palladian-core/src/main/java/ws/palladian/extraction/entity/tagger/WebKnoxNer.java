@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
@@ -29,21 +28,18 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * @author David Urbansky
  * 
  */
-public class WebKnoxNer extends NamedEntityRecognizer implements Serializable {
+public class WebKnoxNer extends NamedEntityRecognizer {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(WebKnoxNer.class);
 
-    private final String appId;
     private final String apiKey;
 
-    public WebKnoxNer(String appId, String apiKey) {
-        this.appId = appId;
+    public WebKnoxNer(String apiKey) {
         this.apiKey = apiKey;
     }
 
     public WebKnoxNer(Configuration configuration) {
-        this.appId = configuration.getString("api.webknox.appId");
         this.apiKey = configuration.getString("api.webknox.apiKey");
     }
 

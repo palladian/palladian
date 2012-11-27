@@ -24,6 +24,7 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
+import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -114,7 +115,7 @@ public class OpenNlpNer extends NamedEntityRecognizer {
         // the names of the tags
         Span[][] nameSpans = new Span[finders.length][];
         String[][] nameOutcomes = new String[finders.length][];
-        Tokenizer tokenizer = new SimpleTokenizer();
+        Tokenizer tokenizer = SimpleTokenizer.INSTANCE;
 
         StringBuilder output = new StringBuilder();
 
@@ -381,8 +382,8 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
                 ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
 
-                model = NameFinderME.train("en", conceptName, sampleStream, Collections.<String, Object> emptyMap(),
-                        100, 5);
+                model = NameFinderME.train("en", conceptName, sampleStream, (AdaptiveFeatureGenerator)null,
+                        Collections.<String, Object> emptyMap(), 100, 5);
 
             } catch (UnsupportedEncodingException e) {
                 LOGGER.error(e.getMessage());
