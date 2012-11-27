@@ -1,6 +1,5 @@
-package ws.palladian.extraction.helper;
+package ws.palladian.extraction.feature;
 
-import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.NumericFeature;
