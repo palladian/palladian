@@ -1,10 +1,8 @@
-package ws.palladian.extraction.helper;
+package ws.palladian.extraction.feature;
 
 import java.io.InputStream;
 import java.util.List;
 
-import ws.palladian.extraction.feature.StopTokenRemover;
-import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
