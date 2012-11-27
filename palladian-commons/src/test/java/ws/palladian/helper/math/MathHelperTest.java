@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class MathHelperTest {
@@ -177,6 +178,32 @@ public class MathHelperTest {
         assertEquals(0, MathHelper.getDistances(new long[0]).length);
         assertEquals(0, MathHelper.getDistances(new long[] {2l}).length);
         assertArrayEquals(new long[] {1l, 4l, 3l}, MathHelper.getDistances(new long[] {2l, 3l, 7l, 10l}));
+    }
+
+    @Test
+    public void testComputePearsonCorrelationCoefficient() {
+        List<Double> x = CollectionHelper.newArrayList();
+        x.add(56.);
+        x.add(56.);
+        x.add(65.);
+        x.add(65.);
+        x.add(50.);
+        x.add(25.);
+        x.add(87.);
+        x.add(44.);
+        x.add(35.);
+        List<Double> y = CollectionHelper.newArrayList();
+        y.add(87.);
+        y.add(91.);
+        y.add(85.);
+        y.add(91.);
+        y.add(75.);
+        y.add(28.);
+        y.add(122.);
+        y.add(66.);
+        y.add(58.);
+        System.out.println(MathHelper.computePearsonCorrelationCoefficient(x, y));
+        assertEquals(0.9661943464912911, MathHelper.computePearsonCorrelationCoefficient(x, y), 0.01);
     }
 
     @Test
