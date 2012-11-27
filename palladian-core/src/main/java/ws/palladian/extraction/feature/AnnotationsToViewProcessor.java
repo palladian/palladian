@@ -5,9 +5,8 @@ package ws.palladian.extraction.feature;
 
 import java.util.List;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -17,34 +16,33 @@ import ws.palladian.processing.features.FeatureVector;
  * "The fox".
  * </p>
  * 
- * @author Klemens
+ * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
  * 
  */
-public final class AnnotationsToViewProcessor<F extends Feature<?>> extends StringDocumentPipelineProcessor {
+public final class AnnotationsToViewProcessor extends TextDocumentPipelineProcessor {
 
-    private final FeatureDescriptor<F> featureDescriptor;
+    private final String featureIdentifier;
 
     /**
      * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
      */
-    public AnnotationsToViewProcessor(FeatureDescriptor<F> featureDescriptor) {
-        super();
-        this.featureDescriptor = featureDescriptor;
+    public AnnotationsToViewProcessor(String featureIdentifier) {
+        this.featureIdentifier = featureIdentifier;
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) {
+    public void processDocument(TextDocument document) {
         FeatureVector vector = document.getFeatureVector();
-
-        List<F> features = vector.getAll(featureDescriptor.getType());
+        List<Feature<?>> features = vector.getAll(featureIdentifier);
 
         StringBuilder ret = new StringBuilder();
-        for (F feature : features) {
+        for (Feature<?> feature : features) {
             ret.append(feature.getValue());
             ret.append(" ");
         }
+        ret.replace(ret.length() - 1, ret.length(), "");
         document.setContent(ret.toString());
     }
 }

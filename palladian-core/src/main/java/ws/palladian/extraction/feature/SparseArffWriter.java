@@ -30,11 +30,11 @@ import ws.palladian.helper.collection.BidiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.Port;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -53,7 +53,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 0.1.7
  */
-public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
+public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
@@ -69,7 +69,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
     private final File targetFile;
     /**
      * <p>
-     * The {@link FeatureDescriptor}s of the {@link Feature} the writer should consider when saving.
+     * The identifiers of the {@link Feature} the writer should consider when saving.
      * </p>
      */
     private final List<String> featurePaths;
@@ -106,9 +106,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
-     * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
-     * exists.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already exists.
      * </p>
      * 
      * @param fileName The name of the target ARFF file this writer should write to.
@@ -120,9 +119,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * 
      * @param fileName The name of the target ARFF file this writer should write to.
@@ -137,9 +136,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
-     * the file specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already
-     * exists.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already exists.
      * </p>
      * <p>
      * To speed up processing or save memory you can experiment with the value of {@code batchSize}.
@@ -158,9 +156,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * <p>
      * To speed up processing or save memory you can experiment with the value of {@code batchSize}.
@@ -181,9 +179,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * <p>
      * To speed up processing or save memory you can experiment with the value of {@code batchSize}.
@@ -199,7 +197,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
      */
     public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final Integer batchSize,
             String[] featurePaths) throws IOException {
-        super(Arrays.asList(new Port<?>[] {new Port<Object>(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port<?>>());
+        super(new InputPort[] {new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER)}, new OutputPort[0]);
 
         Validate.notNull(modelArffFile, "fileName must not be null");
         Validate.notEmpty(featurePaths, "featureDescriptors must not be empty");
@@ -222,9 +220,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     /**
      * <p>
-     * Creates a new {@code SparseArffWriter} saving all data identified by the provided {@link FeatureDescriptor}s to
-     * the file specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either
-     * overwriten or any new data is appended. This depends on the value of {@code overwrite}.
+     * Creates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code modelArffFile}, creating that file if it does not exist. If it exists it is either overwriten
+     * or any new data is appended. This depends on the value of {@code overwrite}.
      * </p>
      * 
      * @param modelArffFile The name of the target ARFF file this writer should write to.
@@ -301,10 +299,10 @@ public final class SparseArffWriter extends AbstractPipelineProcessor<Object> {
 
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
-        PipelineDocument<Object> document = getDefaultInput();
+        PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
         for (String featurePath : featurePaths) {
-            List<? extends Feature<?>> features = document.getFeatureVector().getFeatures(featurePath);
+            List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);
             handleFeature(features, newInstance);
         }
         instances.add(newInstance);

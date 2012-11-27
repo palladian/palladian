@@ -7,7 +7,7 @@ import java.util.Set;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -34,7 +34,7 @@ public final class TokenFilter extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation<String> annotation) {
+    protected boolean remove(PositionAnnotation annotation) {
         return !vocabulary.contains(annotation.getValue());
     }
 

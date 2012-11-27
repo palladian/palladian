@@ -1,6 +1,7 @@
 package ws.palladian.extraction;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
@@ -16,10 +17,9 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -29,8 +29,6 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @author Philipp Katz
  */
 public class StemmedTokenExtractor extends ProcessingPipeline {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * <p>
@@ -60,16 +58,16 @@ public class StemmedTokenExtractor extends ProcessingPipeline {
     public Map<String, Double> getTokens(String text) {
         TextDocument document;
         try {
-            document = process(new TextDocument(text));
+            document = (TextDocument)process(new TextDocument(text));
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        TextAnnotationFeature feature = document.getFeatureVector().get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
         Map<String, Double> result = new HashMap<String, Double>();
-        for (Annotation<String> annotation : feature.getValue()) {
+        List<PositionAnnotation> positionAnnotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        for (PositionAnnotation annotation : positionAnnotations) {
             // String value = annotation.getValue();
-            NominalFeature stemmedValue = annotation.getFeatureVector().get(StemmerAnnotator.STEM);
-            NumericFeature frequencyFeature = annotation.getFeatureVector().get(TokenMetricsCalculator.FREQUENCY);
+            NominalFeature stemmedValue = annotation.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.STEM);
+            NumericFeature frequencyFeature = annotation.getFeatureVector().getFeature(NumericFeature.class, TokenMetricsCalculator.FREQUENCY);
             result.put(stemmedValue.getValue(), frequencyFeature.getValue());
         }
         return result;

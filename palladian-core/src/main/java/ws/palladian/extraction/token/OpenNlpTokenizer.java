@@ -14,11 +14,9 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -84,17 +82,14 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         String content = document.getContent();
-        TextAnnotationFeature annotationFeature = new TextAnnotationFeature(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        Span[] spans = tokenizer.tokenizePos(content);
-        int index = 0;
-        for (Span span : spans) {
-            Annotation<String> annotation = new PositionAnnotation(document, span.getStart(), span.getEnd(), index++);
-            annotationFeature.add(annotation);
-        }
         FeatureVector featureVector = document.getFeatureVector();
-        featureVector.add(annotationFeature);
+        Span[] spans = tokenizer.tokenizePos(content);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
+        for (Span span : spans) {
+            featureVector.add(annotationFactory.create(span.getStart(), span.getEnd()));
+        }
     }
 
 }

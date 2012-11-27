@@ -63,11 +63,11 @@ public class CoOccurrenceStatistics {
         this.term2 = term2;
     }
 
-    public CountMap getCoOccurrences() {
+    public CountMap<String> getCoOccurrences() {
         return coOccurrences;
     }
 
-    public void setCoOccurrences(CountMap coOccurrences) {
+    public void setCoOccurrences(CountMap<String> coOccurrences) {
         this.coOccurrences = coOccurrences;
     }
 

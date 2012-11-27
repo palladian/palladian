@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 
 public class OpenNlpTokenizerTest {

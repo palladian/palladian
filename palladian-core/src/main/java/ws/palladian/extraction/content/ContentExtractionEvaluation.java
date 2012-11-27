@@ -13,8 +13,11 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -68,19 +71,23 @@ public final class ContentExtractionEvaluation {
      * @param dataset
      * @return
      */
-    public String evaluate(Map<String, String> dataset) {
-
-        StringBuilder sb = new StringBuilder();
+    public void evaluate(Map<String, String> dataset, String outputFile) {
+        
+        FileHelper.delete(outputFile);
 
         boolean writeHeader = true;
 
         // keep statistics
         CountMap<WebPageContentExtractor> wins = CountMap.create();
         CountMap<WebPageContentExtractor> errors = CountMap.create();
-        Map<WebPageContentExtractor, Double> stats = new HashMap<WebPageContentExtractor, Double>();
+        LazyMap<WebPageContentExtractor, Double> stats = LazyMap.create(ConstantFactory.create(0.));
+        int totalSize = dataset.size();
+        int index = 0;
 
         // loop through the dataset
         for (Entry<String, String> entry : dataset.entrySet()) {
+            
+            ProgressHelper.showProgress(index++, totalSize, 0);
 
             // evaluate all provided implementations
             LinkedHashMap<WebPageContentExtractor, Float> result = evaluate(entry.getKey());
@@ -91,7 +98,7 @@ public final class ContentExtractionEvaluation {
                 for (WebPageContentExtractor technique : result.keySet()) {
                     head += technique.getExtractorName() + "\t";
                 }
-                LOGGER.info(head);
+                FileHelper.appendFile(outputFile, head + "\n");
                 writeHeader = false;
             }
 
@@ -115,11 +122,7 @@ public final class ContentExtractionEvaluation {
                 if (score == -1) {
                     errors.add(technique);
                 } else {
-                    Double scoreSum = stats.get(technique);
-                    if (scoreSum == null) {
-                        scoreSum = 0.;
-                    }
-                    stats.put(technique, scoreSum + score);
+                    stats.put(technique, stats.get(technique) + score);
                 }
             }
 
@@ -127,18 +130,16 @@ public final class ContentExtractionEvaluation {
                 wins.add(winner);
             }
 
-            LOGGER.info(resultStr);
-            sb.append(resultStr).append("\n");
+            FileHelper.appendFile(outputFile, resultStr + "\n");
 
         }
 
-        LOGGER.info("------------- stats ------------------");
+        FileHelper.appendFile(outputFile, "------------- stats ------------------\n");
         for (WebPageContentExtractor extractor : extractors) {
-            LOGGER.info(" " + extractor.getExtractorName() + "\t#wins:" + wins.getCount(extractor) + "\t#errors:"
-                    + errors.getCount(extractor) + "\tavg. score:" + (double) stats.get(extractor) / dataset.size());
+            String extractorStats = " " + extractor.getExtractorName() + "\t#wins:" + wins.getCount(extractor) + "\t#errors:"
+                    + errors.getCount(extractor) + "\tavg. score:" + (double) stats.get(extractor) / dataset.size();
+            FileHelper.appendFile(outputFile, extractorStats + "\n");
         }
-
-        return sb.toString();
     }
 
     private LinkedHashMap<WebPageContentExtractor, Float> evaluate(String uuid) {
@@ -208,12 +209,8 @@ public final class ContentExtractionEvaluation {
      * @return The similarity score between the two texts.
      */
     private double getScore(String real, String extracted) {
-
         real = normalizeString(real);
         extracted = normalizeString(extracted);
-
-        // getting StackOverflow for Simmetrics, use StringUtils instead.
-        // return similarityMetric.getSimilarity(real, extracted);
 
         StringSimilarity similarity = new LevenshteinSimilarity();
         return similarity.getSimilarity(real, extracted);
@@ -269,19 +266,20 @@ public final class ContentExtractionEvaluation {
         extractors.add(new BoilerpipeContentExtractor());
         extractors.add(new ReadabilityContentExtractor());
         extractors.add(new PalladianContentExtractor());
+        // extractors.add(new NewsseecrContentExtractor());
         
-        String datasetPath = "/Users/pk/Desktop/L3S-GN1-20100130203947-00001";
+        String datasetPath = "/Users/pk/Dropbox/Uni/Datasets/L3S-GN1-20100130203947-00001";
 
         // ////////////////////////////////////////////////////////////////////////////////
 
         ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation(datasetPath, Mode.MAIN_CONTENT, extractors);
         Map<String, String> dataset = evaluation.readIndexFile();
-        String result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv", result);
+        String filePath = "data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv";
+        evaluation.evaluate(dataset, filePath);
 
-        evaluation = new ContentExtractionEvaluation(datasetPath, Mode.WHOLE_CONTENT, extractors);
-        result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainAndUserContent.tsv", result);
+        // evaluation = new ContentExtractionEvaluation(datasetPath, Mode.WHOLE_CONTENT, extractors);
+        // filePath = "data/evaluation/ContentExtractionEvaluation_mainAndUserContent.tsv";
+        // evaluation.evaluate(dataset, filePath);
     }
 
 }

@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.Port;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
+import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -28,7 +30,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @version 1.0
  * @since 0.1.8
  */
-public final class CsvWriter extends AbstractPipelineProcessor<Object> {
+public final class CsvWriter extends AbstractPipelineProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvWriter.class);
 
@@ -44,7 +46,7 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
      * 
      */
     public CsvWriter(String csvFilePath, Collection<String> featurePaths) {
-        super(Arrays.asList(new Port<?>[] {new Port<Object>(DEFAULT_INPUT_PORT_IDENTIFIER)}), new ArrayList<Port<?>>());
+        super(new InputPort[] {new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER)}, new OutputPort[0]);
 
         this.featurePaths = new ArrayList<String>(featurePaths);
         this.csvFilePath = csvFilePath;
@@ -67,13 +69,17 @@ public final class CsvWriter extends AbstractPipelineProcessor<Object> {
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
         StringBuffer dataLine = new StringBuffer("");
+        PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
         for (String featurePath : featurePaths) {
-            Feature<?> feature = getDefaultInput().getFeatureVector().getFeature(featurePath);
-            if (feature == null) {
+            List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);
+            if (features.isEmpty()) {
+                // if (feature == null) {
                 LOGGER.warn("Unable to find feature for feature path: " + featurePath);
                 dataLine.append("?,");
             } else {
-                dataLine.append(feature.getValue() + ",");
+                // XXX only take the first feature currently
+                Object featureValue = features.get(0).getValue();
+                dataLine.append(featureValue + ",");
             }
         }
         dataLine.replace(dataLine.length() - 1, dataLine.length(), "\n");

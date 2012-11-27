@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap;
@@ -23,11 +23,10 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -38,13 +37,15 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @author David Urbansky
  * 
  */
-public abstract class NamedEntityRecognizer extends StringDocumentPipelineProcessor {
+public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor {
 
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = Logger.getLogger(NamedEntityRecognizer.class);
 
-    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);
+//    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
+//            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);
+    
+    public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
 
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
@@ -803,21 +804,20 @@ public abstract class NamedEntityRecognizer extends StringDocumentPipelineProces
     }
     
     @Override
-    public void processDocument(PipelineDocument<String> document)
+    public void processDocument(TextDocument document)
     		throws DocumentUnprocessableException {
     	String content = document.getContent();
     	// TODO merge annotation classes
     	Annotations annotations = getAnnotations(content);
     	
-    	List<ws.palladian.processing.features.Annotation<String>> annotationsList = new ArrayList<ws.palladian.processing.features.Annotation<String>>(annotations.size());
+    	FeatureVector featureVector = document.getFeatureVector();
+    	
+    	PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
     	for(Annotation nerAnnotation:annotations) {
-    		ws.palladian.processing.features.Annotation<String> procAnnotation = new PositionAnnotation(document, nerAnnotation.getOffset(), nerAnnotation.getEndIndex(), -1, nerAnnotation.getMostLikelyTagName());
-    		annotationsList.add(procAnnotation);
+    		PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getOffset(), nerAnnotation.getEndIndex());
+    		featureVector.add(procAnnotation);
     		
     	}
-    	
-    	TextAnnotationFeature feature = new TextAnnotationFeature(PROVIDED_FEATURE_DESCRIPTOR, annotationsList);
-    	document.addFeature(feature);
     }
 
     public void setName(String name) {

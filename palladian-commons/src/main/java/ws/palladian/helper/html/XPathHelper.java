@@ -220,13 +220,8 @@ public final class XPathHelper {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(nodeId, "nodeId must not be empty.");
 
-        Node result = null;
         List<Node> idNodes = XPathHelper.getNodes(node, "//*[@id='" + nodeId + "']");
-        for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
-            result = idNodes.get(i);
-        }
-
-        return result;
+        return CollectionHelper.getFirst(idNodes);
     }
 
     /**
@@ -257,7 +252,9 @@ public final class XPathHelper {
      * @param node The parent node of the children, not <code>null</code>
      * @param xPath The XPath that addresses the children, not <code>null</code> or empty.
      * @return The child nodes, or an empty {@link List} if no matching child nodes.
+     * @deprecated Use {@link #getNodes(Node, String)} instead and explicitly specify an XPath addressing child nodes.
      */
+    @Deprecated
     public static List<Node> getChildNodes(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
@@ -273,7 +270,10 @@ public final class XPathHelper {
      * @param xPath The XPath that addresses the children, not <code>null</code> or empty.
      * @param namespaces (Optional) Map with namespaces, necessary to bind prefixes in XPath expression to namespaces.
      * @return The child nodes, or an empty {@link List} if no matching child nodes.
+     * @deprecated Use {@link #getNodes(Node, String, Map)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
+    @Deprecated
     public static List<Node> getChildNodes(Node node, String xPath, Map<String, String> namespaces) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
@@ -297,7 +297,10 @@ public final class XPathHelper {
      * 
      * @param node The parent of the children, not <code>null</code>.
      * @return The child nodes, or an empty {@link List} if no matching child nodes.
+     * @deprecated Use {@link #getNodes(Node, String)} instead and explicitly specify an XPath addressing all child
+     *             nodes.
      */
+    @Deprecated
     public static List<Node> getChildNodes(Node node) {
         Validate.notNull(node, "node must not be null");
         List<Node> children = new ArrayList<Node>();
@@ -322,7 +325,10 @@ public final class XPathHelper {
      * @param node The parent node under which the sought node must descend, not <code>null</code>
      * @param xPath The XPath that points to a node, not <code>null</code> or empty.
      * @return A node that matches the XPath and descends from the given node.
+     * @deprecated Use {@link #getNode(Node, String)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
+    @Deprecated
     public static Node getChildNode(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
@@ -481,7 +487,8 @@ public final class XPathHelper {
      * @param xPath The XPath expression, not <code>null</code> or empty.
      * @return Matching nodes for the given XPath expression, or an empty {@link List} if no nodes match or an error
      *         occurred.
-     * @deprecated
+     * @deprecated Use {@link #getXhtmlNodes(Node, String)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
     @Deprecated
     public static List<Node> getXhtmlChildNodes(Node node, String xPath) {
@@ -501,7 +508,8 @@ public final class XPathHelper {
      * @param xPath The XPath expression, not <code>null</code> or empty.
      * @return Matching node for the given XPath expression, or <code>null</code> if no matching node or an error
      *         occurred.
-     * @deprecated
+     * @deprecated Use {@link #getXhtmlNode(Node, String)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
     @Deprecated
     public static Node getXhtmlChildNode(Node node, String xPath) {

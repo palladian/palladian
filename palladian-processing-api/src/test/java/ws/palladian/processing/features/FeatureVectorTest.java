@@ -8,97 +8,65 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.processing.TextDocument;
-
 public class FeatureVectorTest {
 
     @Test
-    public void testRetrieveFeaturesByDescriptor() {
+    public void testGetFeature() {
         FeatureVector featureVector = new FeatureVector();
-        FeatureDescriptor<NominalFeature> featureDescriptor = FeatureDescriptorBuilder.build("myNominalFeature",
-                NominalFeature.class);
+        featureVector.add(new NominalFeature("testFeature", "test"));
 
-        NominalFeature nominalFeature = new NominalFeature(featureDescriptor, "test");
-        featureVector.add(nominalFeature);
-
-        NominalFeature retrievedFeature = featureVector.get(featureDescriptor);
-
-        assertEquals("test", retrievedFeature.getValue());
+        NominalFeature retrievedFeature = featureVector.getFeature(NominalFeature.class, "testFeature");
         assertEquals(NominalFeature.class, retrievedFeature.getClass());
+        assertEquals("test", retrievedFeature.getValue());
     }
 
     @Test
-    public void testRetrieveFeaturesByPath() {
-
-        TextDocument document = new TextDocument("hello world");
-        
-        
-        PositionAnnotation annotation1 = new PositionAnnotation(document, 0, 5);
-        PositionAnnotation annotation2 = new PositionAnnotation(document, 6, 11);
-        
-        // features for terms
-        NominalFeature feature1 = new NominalFeature("feature1", "value1");
-        annotation1.addFeature(feature1);
-        
-        NominalFeature feature2 = new NominalFeature("feature1", "value2");
-        annotation2.addFeature(feature2);
-        
-        TextAnnotationFeature annotationFeature = new TextAnnotationFeature("terms");
-        annotationFeature.add(annotation1);
-        annotationFeature.add(annotation2);
-
-        // feature for document
-        NominalFeature documentFeature = new NominalFeature("term", "testTerm");
-
-        // add features
-        document.addFeature(documentFeature);
-        document.addFeature(annotationFeature);
-
-        NominalFeature feature = document.getFeatureVector().getFeature(NominalFeature.class, "term");
-
-        assertEquals("testTerm", feature.getValue());
-        
-        System.out.println(document.getFeatureVector());
-
-        List<NominalFeature> features = document.getFeatureVector().getFeatures(NominalFeature.class, "terms/feature1");
-        assertEquals(2, features.size());
-        assertEquals("value1", features.get(0).getValue());
-        assertEquals("value2", features.get(1).getValue());
-
-    }
-
-    @Test
-    public void testRetrieveFeaturesByType() {
+    public void testGetFeaturesByType() {
         FeatureVector featureVector = new FeatureVector();
         NominalFeature f1 = new NominalFeature("nominalFeature1", "test");
-        Feature<String> f2 = new NominalFeature("nominalFeature3", "test");
+        NominalFeature f2 = new NominalFeature("nominalFeature3", "test");
         NumericFeature f3 = new NumericFeature("numericFeature1", 2.);
-        Feature<Double> f4 = new NumericFeature("numericFeature2", 3.);
+        NumericFeature f4 = new NumericFeature("numericFeature2", 3.);
         featureVector.add(f1);
         featureVector.add(f2);
         featureVector.add(f3);
         featureVector.add(f4);
-        
+
         assertEquals(4, featureVector.size());
-        
+
         List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
         assertEquals(2, nominalFeatures.size());
         assertTrue(nominalFeatures.contains(f1));
         assertTrue(nominalFeatures.contains(f2));
-        
+
         List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
         assertEquals(2, numericFeatures.size());
         assertTrue(numericFeatures.contains(f3));
         assertTrue(numericFeatures.contains(f4));
-        
+
         // try to retrieve a NumericFeature, which is actually a NominalFeature
         assertNull(featureVector.getFeature(NominalFeature.class, "numericFeature1"));
     }
 
-    // @Test
-    // public void testCopyFeatureVector() {Class<? extends Feature<T>> class1
-    // FeatureVector newFeatureVector = new FeatureVector(featureVector);
-    // assertEquals(4, newFeatureVector.size());
-    // }
+    @Test
+    public void testCopyFeatureVector() {
+        FeatureVector original = new FeatureVector();
+        NominalFeature f1 = new NominalFeature("nominalFeature", "test");
+        NumericFeature f2 = new NumericFeature("numericFeature", 7);
+        NumericFeature f3 = new NumericFeature("numericFeature2", 8);
+        original.add(f1);
+        original.add(f2);
+        original.add(f3);
+
+        FeatureVector newFeatureVector = new FeatureVector(original);
+        List<NominalFeature> nominalFeatures = newFeatureVector.getAll(NominalFeature.class);
+        List<NumericFeature> numericFeatures = newFeatureVector.getAll(NumericFeature.class);
+        assertEquals(3, newFeatureVector.size());
+        assertEquals(1, nominalFeatures.size());
+        assertEquals(2, numericFeatures.size());
+        assertTrue(nominalFeatures.contains(f1));
+        assertTrue(numericFeatures.contains(f2));
+        assertTrue(numericFeatures.contains(f3));
+    }
 
 }

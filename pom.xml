@@ -217,9 +217,9 @@
 				<version>2.0.7-RC2</version>
 			</dependency>
 			<dependency>
-				<groupId>weka</groupId>
-				<artifactId>weka</artifactId>
-				<version>3.5.7</version>
+				<groupId>nz.ac.waikato.cms.weka</groupId>
+				<artifactId>weka-stable</artifactId>
+				<version>3.6.8</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.smu.tspell</groupId>
@@ -375,7 +375,7 @@
 			<dependency>
 				<groupId>org.hamcrest</groupId>
 				<artifactId>hamcrest-all</artifactId>
-				<version>1.1</version>
+				<version>1.3</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -426,7 +426,7 @@
 			<url>http://mvnrepository.com/</url>
 		</repository>
 		<repository>
-			<id>weka</id>
+		<id>weka</id>
 			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
 		</repository>
 		<repository>
