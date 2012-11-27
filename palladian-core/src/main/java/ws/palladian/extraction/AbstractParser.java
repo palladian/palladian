@@ -4,8 +4,6 @@ import opennlp.tools.parser.Parse;
 
 import org.apache.log4j.Logger;
 
-import ws.palladian.helper.StopWatch;
-
 /**
  * This is the AbstractParser.
  * 

@@ -117,7 +117,7 @@ public final class WebPageDateEvaluator {
     public static ExtractedDate getBestPubDateHtml5(Document document) {
         Validate.notNull(document, "document must not be null");
 
-        List<Node> articleNodes = XPathHelper.getXhtmlChildNodes(document, "//article");
+        List<Node> articleNodes = XPathHelper.getXhtmlNodes(document, "//article");
         
         // determine the longest article node.
         Node mainArticle = null;
@@ -131,7 +131,7 @@ public final class WebPageDateEvaluator {
         }
 
         if (mainArticle != null) {
-            List<Node> timeNodes = XPathHelper.getXhtmlChildNodes(mainArticle, ".//time");
+            List<Node> timeNodes = XPathHelper.getXhtmlNodes(mainArticle, ".//time");
             for (Node timeNode : timeNodes) {
                 NamedNodeMap attributes = timeNode.getAttributes();
                 if (attributes.getNamedItem("pubdate") != null) {

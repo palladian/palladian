@@ -126,8 +126,8 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         }
         
         // total sum of positive and negative sentiments (on word level) in the text
-        double positiveSentimentSum = 0;
-        double negativeSentimentSum = 0;
+        // double positiveSentimentSum = 0;
+        // double negativeSentimentSum = 0;
                 
         List<String> sentences = Tokenizer.getSentences(text);
         
@@ -166,11 +166,11 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                     sentiment *= emphasizeWeight;
                     if (sentiment > 0) {
                         LOGGER.debug("positive word: " + token + " ("+sentiment+")");
-                        positiveSentimentSum += sentiment;
+                        // positiveSentimentSum += sentiment;
                         positiveSentimentSumSentence += sentiment;
                     } else {
                         LOGGER.debug("negative word: " + token + " ("+sentiment+")");
-                        negativeSentimentSum += Math.abs(sentiment);
+                        // negativeSentimentSum += Math.abs(sentiment);
                         negativeSentimentSumSentence += Math.abs(sentiment);
                     }
                 }

@@ -36,8 +36,6 @@ import ws.palladian.retrieval.parser.ParserFactory;
  */
 public final class WikimetaNer extends NamedEntityRecognizer {
 
-    private static final long serialVersionUID = 1L;
-
     /** The API key for accessing the service. */
     private final String apiKey;
 
