@@ -48,11 +48,11 @@ public final class MathHelper {
         Set<T> intersection = CollectionHelper.newHashSet();
         intersection.addAll(setA);
         intersection.retainAll(setB);
-        
+
         if (intersection.size() == 0) {
             return 0;
         }
-        
+
         Set<T> union = CollectionHelper.newHashSet();
         union.addAll(setA);
         union.addAll(setB);
@@ -756,6 +756,45 @@ public final class MathHelper {
         double distance = earthRadius * c;
 
         return distance;
+    }
+
+    /**
+     * <p>
+     * Compute the Pearson's correlation coefficient between to variables.
+     * </p>
+     * 
+     * @param x A list of double values from the data series of the first variable.
+     * @param y A list of double values from the data series of the second variable.
+     * @return The Pearson correlation coefficient.
+     */
+    public static double computePearsonCorrelationCoefficient(List<Double> x, List<Double> y) {
+
+        double sumX = 0.;
+        double sumY = 0.;
+
+        for (Double v : x) {
+            sumX += v;
+        }
+        for (Double v : y) {
+            sumY += v;
+        }
+
+        double avgX = sumX / x.size();
+        double avgY = sumY / y.size();
+
+        double nominator = 0.;
+        double denominatorX = 0.;
+        double denominatorY = 0.;
+
+        for (int i = 0; i < x.size(); i++) {
+            nominator += ((x.get(i) - avgX) * (y.get(i) - avgY));
+            denominatorX += Math.pow((x.get(i) - avgX), 2);
+            denominatorY += Math.pow((y.get(i) - avgY), 2);
+        }
+
+        double denominator = Math.sqrt(denominatorX * denominatorY);
+
+        return nominator / denominator;
     }
 
     /**
