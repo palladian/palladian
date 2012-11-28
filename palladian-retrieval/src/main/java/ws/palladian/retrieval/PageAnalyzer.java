@@ -493,14 +493,18 @@ public final class PageAnalyzer {
             if (idAttributes != null) {
                 String idValues = idAttributes.getNodeValue().trim();
                 for (String id : idValues.split("\\s+")) {
-                    result.append('#').append(id);
+                    if (!id.isEmpty()) {
+                        result.append('#').append(id);
+                    }
                 }
             }
             Node classAttributes = node.getAttributes().getNamedItem("class");
             if (classAttributes != null) {
                 String classValues = classAttributes.getNodeValue().trim();
                 for (String classValue : classValues.split("\\s+")) {
-                    result.append('.').append(classValue);
+                    if (!classValue.isEmpty()) {
+                        result.append('.').append(classValue);
+                    }
                 }
             }
         }
