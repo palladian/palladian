@@ -129,7 +129,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         } catch (Exception e) {
             throw new IllegalStateException("An exception occurred while building the classifier: " + e.getMessage(), e);
         }
-        return new WekaModel(classifier, data);
+        return new WekaModel(classifier, data, normalFeaturePaths, sparseFeaturePaths);
     }
 
     /**
