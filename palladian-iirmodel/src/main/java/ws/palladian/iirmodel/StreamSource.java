@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
@@ -90,9 +89,6 @@ public abstract class StreamSource implements Serializable {
      */
     @ManyToMany
     private Set<Author> authors;
-
-    @OneToMany(mappedBy = "parentSource")
-    private Collection<StreamSource> children;
 
     //
     // Constructors
