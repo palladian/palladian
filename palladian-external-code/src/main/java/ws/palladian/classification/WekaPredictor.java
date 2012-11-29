@@ -281,7 +281,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         // weka.core.Instance instance = makeWekaInstance(featureVector, vector, null);
         // instance.setDataset(model.getSchema());
         try {
-            double[] distribution = classifier.distributionForInstance(instance);
+            double[] distribution = model.getClassifier().distributionForInstance(instance);
             for (int i = 0; i < distribution.length; i++) {
                 String className = model.getDataset().classAttribute().value(i);
                 ret.add(new CategoryEntry(className, distribution[i]));
