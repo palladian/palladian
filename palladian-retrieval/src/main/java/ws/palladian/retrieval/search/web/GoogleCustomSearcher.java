@@ -2,12 +2,14 @@ package ws.palladian.retrieval.search.web;
 
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
@@ -36,18 +38,44 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     /** The name of this WebSearcher. */
     private static final String SEARCHER_NAME = "Google Custom Search";
 
+    /** The identifier of the {@link Configuration} key for the api key. */
+    public static final String CONFIG_API_KEY = "api.google.key";
+
+    /** The identifier of the {@link Configuration} key for the search engine identifier. */
+    public static final String CONFIG_SEARCH_ENGINE_IDENTIFIER = "api.google.customSearch.identifier";
+
     /** The API key for accessing the service. */
     private final String apiKey;
 
     /** The identifier of the Google Custom Search engine. */
     private final String searchEngineIdentifier;
 
+    /**
+     * <p>
+     * Creates a new GoogleCustomSearcher.
+     * </p>
+     * 
+     * @param apiKey The API key for accessing Google Custom Search, not empty or <code>null</code>.
+     * @param searchEngineIdentifier The identifier of the custom search, not empty or <code>null</code>.
+     */
     public GoogleCustomSearcher(String apiKey, String searchEngineIdentifier) {
-        Validate.notNull(apiKey, "apiKey must not be null");
-        Validate.notNull(searchEngineIdentifier, "searchEngineIdentifier must not be null");
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
+        Validate.notEmpty(searchEngineIdentifier, "searchEngineIdentifier must not be empty");
 
         this.apiKey = apiKey;
         this.searchEngineIdentifier = searchEngineIdentifier;
+    }
+
+    /**
+     * <p>
+     * Creates a new GoogleCustomSearcher.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an API key with the identifier {@value #CONFIG_API_KEY}
+     *            and a search engine identifier {@value #CONFIG_SEARCH_ENGINE_IDENTIFIER}.
+     */
+    public GoogleCustomSearcher(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY), configuration.getString(CONFIG_SEARCH_ENGINE_IDENTIFIER));
     }
 
     @Override
@@ -93,7 +121,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
         urlBuilder.append("https://www.googleapis.com/customsearch/v1");
         urlBuilder.append("?key=").append(apiKey);
         urlBuilder.append("&cx=").append(searchEngineIdentifier);
-        urlBuilder.append("&q=").append(query);
+        urlBuilder.append("&q=").append(UrlHelper.urlEncode(query));
         urlBuilder.append("&start=").append(start);
         urlBuilder.append("&num=").append(num);
         if (language != null) {
@@ -112,6 +140,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
         }
     }
 
+    /** default visibility for unit testing. */
     static List<WebResult> parse(String jsonString) throws JSONException {
         List<WebResult> result = CollectionHelper.newArrayList();
         JSONObject jsonObject = new JSONObject(jsonString);
@@ -125,6 +154,31 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
 
         }
         return result;
+    }
+
+    @Override
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
+        String requestUrl = createRequestUrl(query, 1, 1, language);
+        HttpResult httpResult;
+        try {
+            httpResult = retriever.httpGet(requestUrl);
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \"" + requestUrl
+                    + "\": " + e.getMessage(), e);
+        }
+        String jsonString = HttpHelper.getStringContent(httpResult);
+        try {
+            return parseResultCount(jsonString);
+        } catch (JSONException e) {
+            throw new SearcherException("Error parsing the response from URL \"" + requestUrl + "\" (JSON was: \""
+                    + jsonString + "\"): " + e.getMessage(), e);
+        }
+    }
+
+    /** default visibility for unit testing. */
+    static int parseResultCount(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        return jsonObject.getJSONObject("searchInformation").getInt("totalResults");
     }
 
 }

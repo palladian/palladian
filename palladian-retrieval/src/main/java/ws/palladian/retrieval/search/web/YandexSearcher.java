@@ -181,17 +181,17 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
         List<WebResult> result = new ArrayList<WebResult>();
         for (Node resultDoc : resultDocs) {
             // required
-            Node urlNode = XPathHelper.getChildNode(resultDoc, "url");
-            Node titleNode = XPathHelper.getChildNode(resultDoc, "title");
+            Node urlNode = XPathHelper.getNode(resultDoc, "url");
+            Node titleNode = XPathHelper.getNode(resultDoc, "title");
             if (urlNode == null || titleNode == null) {
                 throw new SearcherException("Expected element (url or title) was missing");
             }
             String url = urlNode.getTextContent();
             String title = titleNode.getTextContent();
             // optional
-            Node headlineNode = XPathHelper.getChildNode(resultDoc, "headline");
+            Node headlineNode = XPathHelper.getNode(resultDoc, "headline");
             String headline = headlineNode == null ? null : headlineNode.getTextContent();
-            Node timeNode = XPathHelper.getChildNode(resultDoc, "modtime");
+            Node timeNode = XPathHelper.getNode(resultDoc, "modtime");
             Date date = timeNode == null ? null : parseDate(timeNode.getTextContent());
 
             WebResult webResult = new WebResult(url, title, headline, date, getName());
@@ -212,7 +212,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
      * @throws SearcherException
      */
     void checkError(Node responseNode) throws SearcherException {
-        Node errorNode = XPathHelper.getChildNode(responseNode, "error");
+        Node errorNode = XPathHelper.getNode(responseNode, "error");
         if (errorNode != null) {
             Node errorAttribute = errorNode.getAttributes().getNamedItem("code");
             if (errorAttribute != null) {

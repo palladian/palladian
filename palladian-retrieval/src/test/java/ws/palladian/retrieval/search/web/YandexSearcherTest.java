@@ -32,6 +32,9 @@ public class YandexSearcherTest {
         try {
             List<WebResult> webResults = yandexSearcher.parse(document);
             assertEquals(10, webResults.size());
+            assertEquals("http://www.mercedes-benz.ru/", webResults.get(0).getUrl());
+            assertEquals("\"Mercedes-Benz in Russia\" - продажа автомобилей", webResults.get(0).getTitle());
+            assertEquals("Информация о работе дилеров и авторизованных техцентров. Каталог автомобилей. Рекомендованные розничные цены и специальные предложения. FAQ.", webResults.get(0).getSummary());
         } catch (SearcherException e) {
             fail();
         }
