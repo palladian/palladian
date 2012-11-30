@@ -19,6 +19,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * <p>
  * Searcher for Google Custom Search. The free plan allows max. 100 queries/day. Although not obviously visible, the
  * search engine can be configured to search to <b>entire web</b>; see the links provided below for more information.
+ * The searcher return max. 100 items per query.
  * </p>
  * 
  * @author Philipp Katz
@@ -59,7 +60,10 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
 
         List<WebResult> results = CollectionHelper.newArrayList();
 
-        for (int start = 1; start <= Math.ceil((double)resultCount / 10); start++) {
+        // Google Custom Search gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
+        double numChunks = Math.min(10, Math.ceil((double)resultCount / 10));
+
+        for (int start = 1; start <= numChunks; start++) {
 
             String searchUrl = createRequestUrl(query, start, Math.min(10, resultCount - results.size()), language);
             LOGGER.debug("Search with URL " + searchUrl);
@@ -121,14 +125,6 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
 
         }
         return result;
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        String searchEngineIdentifier = "0004696786720163992118:nfgl5thfloa";
-        String apiKey = "AIzaSyBBlh_T8_bJhz0-6V7HmFFaPH7vfrDde8o";
-        GoogleCustomSearcher searcher = new GoogleCustomSearcher(apiKey, searchEngineIdentifier);
-        List<WebResult> search = searcher.search("dresden", 10, Language.GERMAN);
-        CollectionHelper.print(search);
     }
 
 }
