@@ -788,7 +788,7 @@ public class HtmlHelper {
         if (node.getTextContent() != null) {
 
             if (node.getNodeName().equalsIgnoreCase("#text")) {
-                sb.append(node.getTextContent().trim()).append(" ");
+                sb.append(node.getTextContent());
             }
 
         }

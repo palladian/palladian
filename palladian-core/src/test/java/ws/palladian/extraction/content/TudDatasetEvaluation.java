@@ -15,6 +15,10 @@ public class TudDatasetEvaluation {
 
     private static void evaluate(String datasetDirectory, WebPageContentExtractor extractor) throws Exception {
 
+        double totalScore1 = 0.;
+        double totalScore2 = 0.;
+        double totalScore3 = 0.;
+
         StringSimilarity similarity1 = new LevenshteinSimilarity();
         StringSimilarity similarity2 = new NGramSimilarity(5);
         StringSimilarity similarity3 = new JaroWinklerSimilarity();
@@ -45,6 +49,10 @@ public class TudDatasetEvaluation {
             boolean startCorrect = false;
             boolean endCorrect = false;
 
+            totalScore1 += score1;
+            totalScore2 += score2;
+            totalScore3 += score3;
+
             if (expectedText.length() > 25 && extractedText.length() > 25) {
                 // check, whether the beginning/end of the text were extracted correctly:
                 String expectedStart = expectedText.substring(0, 25);
@@ -60,6 +68,9 @@ public class TudDatasetEvaluation {
 
             FileHelper.appendFile(resultFileName, resultLine);
         }
+
+        double totalScore = (totalScore1 + totalScore2 + totalScore3) / (3 * textFiles.length);
+        System.out.println("Total Score: " + totalScore);
     }
 
     private static final String cleanup(String expectedText) {
@@ -71,9 +82,9 @@ public class TudDatasetEvaluation {
     }
 
     public static void main(String[] args) throws Exception {
-        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadabilityContentExtractor());
+        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadabilityContentExtractor());
         evaluate(ResourceHelper.getResourcePath("/WebPages/"), new PalladianContentExtractor());
-        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new BoilerpipeContentExtractor());
+        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new BoilerpipeContentExtractor());
     }
 
 }
