@@ -17,7 +17,6 @@ import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.extraction.entity.tagger.StanfordNer;
-import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
