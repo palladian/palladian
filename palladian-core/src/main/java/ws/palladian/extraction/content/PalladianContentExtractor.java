@@ -9,19 +9,24 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
+import ws.palladian.retrieval.helper.JsonObjectWrapper;
 import ws.palladian.retrieval.resources.WebImage;
 
 /**
@@ -68,6 +73,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         MAIN_NODE_HINTS.add("article_body");
         MAIN_NODE_HINTS.add("article-body");
         MAIN_NODE_HINTS.add("articleBody");
+        // TODO more fine tuning possible here:
         // MAIN_NODE_HINTS.add("story_body");
         // MAIN_NODE_HINTS.add("single_post_content");
         // MAIN_NODE_HINTS.add("entry-single");
@@ -112,160 +118,150 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         String content = "";
 
-        // try to find the article using html 5 article tag
-        Node articleNode = XPathHelper.getXhtmlNode(document, "//article");
-        if (false && articleNode != null) {
-            content = HtmlHelper.documentToText(articleNode);
-            sentences = Tokenizer.getSentences(content, true);
+        // if true, we didn't find valid elements within the main content block and take the whole node text
+        boolean useMainNodeText = false;
 
-            resultNode = articleNode;
+        String parentXpath = "";
+        String resultNodeXPath = "";
+        resultNode = getMainContentNodeWithHints();
+        int textNodeCount = 0;
 
-        } else {
+        if (resultNode != null) {
+            resultNodeXPath = PageAnalyzer.constructXPath(resultNode);
+            resultNodeXPath = XPathHelper.addXhtmlNsToXPath(getDocument(), resultNodeXPath);
+            parentXpath = resultNodeXPath;
 
-            // if true, we didn't find valid elements within the main content block and take the whole node text
-            boolean useMainNodeText = false;
+            textNodeCount = countDirectTextNodes();
+            LOGGER.debug("direct text nodes: " + textNodeCount);
+        }
 
-            String parentXpath = "";
-            String resultNodeXPath = "";
-            resultNode = getMainContentNodeWithHints();
-            int textNodeCount = 0;
+        cleanDom();
 
-            if (resultNode != null) {
-                resultNodeXPath = PageAnalyzer.constructXPath(resultNode);
-                resultNodeXPath = XPathHelper.addXhtmlNsToXPath(getDocument(), resultNodeXPath);
-                // resultNode = XPathHelper.getXhtmlNode(getDocument(), resultNodeXPath);
-                parentXpath = resultNodeXPath;
-                List<Node> breakNodes = XPathHelper.getXhtmlNodes(resultNode, "./text()");
-                for (Node node : breakNodes) {
-                    String tc = node.getTextContent().trim();
-                    if (tc.length() > 20 && !tc.startsWith("<!--")) {
-                        textNodeCount++;
-                    }
-                }
-                System.out.println("direct text nodes: " + textNodeCount);
+        content = HtmlHelper.documentToText(document);
+        sentences = Tokenizer.getSentences(content, true);
 
-            }
+        XPathSet xpathset = new XPathSet();
 
-            cleanDom();
-
-            content = HtmlHelper.documentToText(document);
-            sentences = Tokenizer.getSentences(content, true);
-
-            // try to find the main content in absence of HTML5 article node
-            XPathSet xpathset = new XPathSet();
-
-            Set<String> uniqueSentences = new HashSet<String>(sentences);
-            for (String sentence : uniqueSentences) {
-                // if (sentence.contains("As news of the bag find broke, however, they altered their tune.")) {
-                // System.out.println("stop");
-                // }
-                Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
-                for (String xPath : xPaths) {
-                    xPath = PageAnalyzer.removeXPathIndicesFromLastCountNode(xPath);
-                    if (!xPath.contains("/xhtml:li") && !xPath.contains("/li")) {
-                        xpathset.add(xPath);
-                    }
+        // build xpaths to the sentences in the text, the more sentences we find in one area, the more likely it is the
+        // main content
+        Set<String> uniqueSentences = new HashSet<String>(sentences);
+        for (String sentence : uniqueSentences) {
+            Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
+            for (String xPath : xPaths) {
+                xPath = PageAnalyzer.removeXPathIndicesFromLastCountNode(xPath);
+                if (!xPath.contains("/xhtml:li") && !xPath.contains("/li")) {
+                    xpathset.add(xPath);
                 }
             }
+        }
 
-            // take the shortest xPath that has a count of at least 50% of the xPath with the highest count
-            LinkedHashMap<String, Integer> xpmap = xpathset.getXPathMap();
-            String highestCountXPath = xpathset.getHighestCountXPath();
-            int highestCount = xpathset.getCountOfXPath(highestCountXPath);
+        LinkedHashMap<String, Integer> xpmap = xpathset.getXPathMap();
+        String highestCountXPath = xpathset.getHighestCountXPath();
+        int highestCount = xpathset.getCountOfXPath(highestCountXPath);
 
-            // if we know the main content block, remove all xPath which are not in that block
-            Set<String> outOfMainContent = CollectionHelper.newHashSet();
-            if (!resultNodeXPath.isEmpty()) {
-                for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
-                    if (!mapEntry.getKey().startsWith(resultNodeXPath)) {
-                        outOfMainContent.add(mapEntry.getKey());
-                    }
+        // if we know the main content block, remove all xPath which are not in that block
+        Set<String> outOfMainContent = CollectionHelper.newHashSet();
+        if (!resultNodeXPath.isEmpty()) {
+            for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
+                if (!mapEntry.getKey().startsWith(resultNodeXPath)) {
+                    outOfMainContent.add(mapEntry.getKey());
                 }
-                for (String string : outOfMainContent) {
-                    xpathset.remove(string);
-                }
+            }
+            for (String string : outOfMainContent) {
+                xpathset.remove(string);
+            }
 
-                if (!xpathset.isEmpty()) {
-                    highestCountXPath = xpathset.getHighestCountXPath();
-                    highestCount = xpathset.getCountOfXPath(highestCountXPath);
+            if (!xpathset.isEmpty()) {
+                highestCountXPath = xpathset.getHighestCountXPath();
+                highestCount = xpathset.getCountOfXPath(highestCountXPath);
 
-                    if (textNodeCount > 3) {
-                        // if (highestCountXPath.endsWith("div")) {
-                        useMainNodeText = true;
-                    }
-
-                } else {
+                if (textNodeCount > 3) {
                     useMainNodeText = true;
                 }
-                // CollectionHelper.print(outOfMainContent);
-            }
 
-            String shortestMatchingXPath = highestCountXPath;
-            if (!useMainNodeText) {
-                for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
-                    if (mapEntry.getKey().length() < shortestMatchingXPath.length()
-                            && mapEntry.getValue() == highestCount) {
-                        shortestMatchingXPath = mapEntry.getKey();
-                    }
-                }
             } else {
-                parentXpath = resultNodeXPath;
+                useMainNodeText = true;
             }
-            // for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
-            // if (mapEntry.getKey().length() < shortestMatchingXPath.length()
-            // && mapEntry.getValue() / (double)highestCount >= 0.5) {
-            // // shortestMatchingXPath = mapEntry.getKey();
-            // }
-            // }
+        }
 
-            // in case we did not find anything, we take the body content
-            if (!useMainNodeText) {
-                parentXpath = XPathHelper.getParentXPath(shortestMatchingXPath);
+        String shortestMatchingXPath = highestCountXPath;
+        if (!useMainNodeText) {
+            // shorter paths with the same counts should be favored to not miss any content
+            for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
+                if (mapEntry.getKey().length() < shortestMatchingXPath.length() && mapEntry.getValue() == highestCount) {
+                    shortestMatchingXPath = mapEntry.getKey();
+                }
             }
-            parentXpath = parentXpath.replace("html/body", "");
-            parentXpath = parentXpath.replace("xhtml:html/xhtml:body", "");
+        } else {
+            parentXpath = resultNodeXPath;
+        }
 
-            // in case we did not find anything, we take the body content
-            if (parentXpath.isEmpty()) {
-                parentXpath = "//body";
-            }
+        // in case we did not find anything, we take the body content
+        if (!useMainNodeText) {
+            parentXpath = XPathHelper.getParentXPath(shortestMatchingXPath);
+        }
+        parentXpath = parentXpath.replace("html/body", "");
+        parentXpath = parentXpath.replace("xhtml:html/xhtml:body", "");
 
+        // in case we did not find anything, we take the body content
+        if (parentXpath.isEmpty()) {
+            parentXpath = "//body";
+        }
+
+        resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
+        if (resultNode == null) {
+            parentXpath = parentXpath.replaceAll("\\/[^x].*?\\:.*?\\/", "//");
             resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
             if (resultNode == null) {
-                parentXpath = parentXpath.replaceAll("\\/[^x].*?\\:.*?\\/", "//");
-                resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
-                if (resultNode == null) {
-                    // System.out.println(content);
-                    throw new PageContentExtractorException("could not get main content node for URL: "
-                            + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
+                throw new PageContentExtractorException("could not get main content node for URL: "
+                        + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
+            }
+        }
+
+        if (!useMainNodeText) {
+            // add possible headlines that are on the same level as the content nodes to the target text nodes
+            shortestMatchingXPath = addHeadlineSiblings(shortestMatchingXPath);
+
+            // get the clean text only
+            StringBuilder cleanText = new StringBuilder();
+            List<Node> contentNodes = XPathHelper.getXhtmlNodes(getDocument(), shortestMatchingXPath);
+            for (Node node : contentNodes) {
+                String textContent = node.getTextContent();
+                if (!textContent.isEmpty()) {
+                    cleanText.append(textContent).append("\n\n");
                 }
             }
 
-            if (!useMainNodeText) {
-                // add possible headlines that are on the same level as the content nodes to the target text nodes
-                shortestMatchingXPath = addHeadlineSiblings(shortestMatchingXPath);
-
-                // get the clean text only
-                StringBuilder cleanText = new StringBuilder();
-                List<Node> contentNodes = XPathHelper.getXhtmlNodes(getDocument(), shortestMatchingXPath);
-                for (Node node : contentNodes) {
-                    String textContent = node.getTextContent();
-                    if (!textContent.isEmpty()) {
-                        cleanText.append(textContent).append("\n\n");
-                    }
-                }
-
-                mainContentText = cleanText.toString();
-            }
+            mainContentText = cleanText.toString();
         }
 
         mainContentHtml = HtmlHelper.xmlToString(resultNode, true);
 
+        // if we didn't get clean text, let's take the content of the main node
         if (mainContentText.trim().length() < 100) {
-            mainContentText = mainNodeToText();
+            mainContentText = HtmlHelper.documentToReadableText(resultNode);
         }
     }
 
+    private int countDirectTextNodes() {
+        int textNodeCount = 0;
+
+        List<Node> breakNodes = XPathHelper.getXhtmlNodes(resultNode, "./text()");
+        for (Node node : breakNodes) {
+            String tc = node.getTextContent().trim();
+            if (tc.length() > 20 && !tc.startsWith("<!--")) {
+                textNodeCount++;
+            }
+        }
+
+        return textNodeCount;
+    }
+
+    /**
+     * <p>
+     * Remove comment nodes, scripts, and iframes etc.
+     * </p>
+     */
     private void cleanDom() {
 
         // remove comments
@@ -277,9 +273,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (Node node : divs) {
             node.getParentNode().removeChild(node);
         }
-
-        // remove scripts / style / iframes etc.
-        // removeFooterNodes();
 
     }
 
@@ -294,65 +287,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
     }
-
-    private void removeFooterNodes() {
-
-        List<Node> divs = XPathHelper
-                .getXhtmlNodes(
-                        document,
-                        "//*[(self::xhtml:div) or (self::xhtml:p)][@class='comment' or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments')]");
-        for (Node node : divs) {
-            node.getParentNode().removeChild(node);
-        }
-
-    }
-
-    private String mainNodeToText() {
-
-        // List<Node> divs = XPathHelper.getXhtmlNodes(resultNode, "./div");
-        // for (Node node : divs) {
-        // resultNode.removeChild(node);
-        // }
-
-        // StringBuilder stringBuilder = new StringBuilder();
-        // List<Node> divs = XPathHelper.getXhtmlNodes(resultNode, "./text()");
-        // Set<String> stringsToRemove = CollectionHelper.newHashSet();
-        // for (Node divNode : divs) {
-        // stringBuilder.append(divNode.getTextContent()).append("\n\n");
-        // }
-        //
-        // // return HtmlHelper.documentToReadableText(resultNode);
-        // return stringBuilder.toString();
-
-        return HtmlHelper.documentToReadableText(resultNode);
-    }
-
-    // private String getMainContentNodeWithHints() {
-    //
-    // String mainNodeXPath = "";
-    //
-    // for (String hint : MAIN_NODE_HINTS) {
-    // List<Node> mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
-    // "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
-    // + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint
-    // + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
-    //
-    // if (!mainNodes.isEmpty()) {
-    // mainNodeXPath = PageAnalyzer.constructXPath(mainNodes.get(0));
-    // }
-    //
-    // if (mainNodes.size() > 1) {
-    // mainNodeXPath = XPathHelper.getParentXPath(mainNodeXPath);
-    // }
-    //
-    // if (!mainNodeXPath.isEmpty()) {
-    // System.out.println("found main node with hint: " + hint);
-    // break;
-    // }
-    // }
-    //
-    // return mainNodeXPath;
-    // }
 
     private Node getMainContentNodeWithHints() {
 
@@ -371,11 +305,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 }
             }
 
-            // mainNode = XPathHelper.getXhtmlNode(getDocument(),
-            // "//*[(self::xhtml:div or self::xhtml:p or self:xhtml:span)][@class='"
-            // + hint + "' or @id='" + hint + "']");
             if (mainNode != null) {
-                System.out.println("found main node with hint: " + hint);
+                LOGGER.debug("found main node with hint: " + hint);
                 // System.out.println(HtmlHelper.getInnerXml(mainNode));
                 break;
             }
@@ -384,6 +315,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return mainNode;
     }
 
+    /**
+     * <p>
+     * Several elements are allowed to be siblings to the main text nodes (such as lists etc.)
+     * </p>
+     * 
+     * @param xPath The xPath that points to the main content nodes.
+     * @return An xpath that also targets the siblings of the main text nodes.
+     */
     private String addHeadlineSiblings(String xPath) {
         try {
             String[] parts = xPath.split("/");
@@ -435,9 +374,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
         String imgXPath = ".//img";
-        // if (XPathHelper.hasXhtmlNs(document)) {
-        // imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
-        // }
 
         List<Node> imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
         for (Node node : imageNodes) {
@@ -575,26 +511,39 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     /**
+     * <p>
+     * Get the author of the article using the WebKnox API.
+     * </p>
+     * 
+     * @param apiKey The WebKnox API key.
+     * @return The detected author name.
+     */
+    public String getAuthorName(String apiKey) {
+        String author = "";
+        String url = "http://webknox.com/api/webpage/author?url=" + getDocument().getDocumentURI()
+                + "&language=en&apiKey=" + apiKey;
+        DocumentRetriever retriever = new DocumentRetriever();
+        JSONArray authors = retriever.getJsonArray(url);
+        if (authors != null && authors.length() > 0) {
+            try {
+                author = new JsonObjectWrapper(authors.getJSONObject(0)).getString("name");
+            } catch (JSONException e) {
+            }
+        }
+
+        return author;
+    }
+
+    /**
      * @param args
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
 
-        // String url = "http://lifehacker.com/5690722/why-you-shouldnt-switch-your-email-to-facebook";
-        // String url = "http://stackoverflow.com/questions/2670082/web-crawler-that-can-interpret-javascript";
-        // System.out.println("SentenceExtractor: " + PageSentenceExtractor.getText(url));
-        // System.out.println("ContentExtractor:  " + new PageContentExtractor().getResultText(url));
-
-        // PageContentExtractor pe = new PageContentExtractor();
-        // System.out.println(pe.getResultText());
-        // CollectionHelper.print(pe.getImages());
-
         PalladianContentExtractor pe = new PalladianContentExtractor();
-        // WebPageContentExtractor pe2 = new ReadabilityContentExtractor();
         // pe.setDocument("http://jezebel.com/5733078/can-you-wear-six-items-or-less");
         // pe.setDocument("http://www.seobook.com/shopping-search");
         // pe.setDocument("http://www.fourhourworkweek.com/blog/2012/11/24/the-4-hour-chef-launch-summary-of-week-one/");
-        // pe.setDocument("http://www.latimes.com/news/nationworld/world/la-fg-israel-gaza-20121120,0,4042611.story");
 
         // pe.setDocument("http://www.dailyfinance.com/2012/07/20/stockbroker-corrupt-wall-street-cheats/");
         // pe.setDocument("http://www.nationalmemo.com/white-house-tax-rates-on-the-rich-will-go-up/");
@@ -611,12 +560,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // to solve:
         // ol/li
         // pe.setDocument("http://www.africanews.com/site/Rebels_begin_withdrawal_in_eastern_DR_Congo/list_messages/42682");
-        // article-body
-        // pe.setDocument("http://www.dailykos.com/story/2012/11/28/1165435/-Pat-Robertson-pulls-the-rug-out-from-under-Marco-Rubio");
-        // itemprop="articleBody"
-        // pe.setDocument("http://www.digitalspy.co.uk/movies/news/a441646/django-unchained-trailer-quentin-tarantino-movie-debuts-final-teaser.html");
         // pe.setDocument("http://www.dailyfinance.com/2012/07/20/stockbroker-corrupt-wall-street-cheats/");
-        pe.setDocument("page073.html");
         // pe.setDocument("http://jezebel.com/5733078/can-you-wear-six-items-or-less");
         // pe.setDocument("http://slotmachinebasics.com/");
         // -> formatting
@@ -651,31 +595,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands");
         // pe.setDocument("http://www.huffingtonpost.com/2012/11/22/black-friday-creep-retail-workers_n_2167066.html");
         // pe.setDocument("http://webknox.com/p/best-proxy-services");
+        pe.setDocument("http://www.latimes.com/news/nationworld/world/la-fg-israel-gaza-20121120,0,4042611.story");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title:" + pe.getResultTitle());
+        System.out.println("Author:"
+                + pe.getAuthorName(ConfigHolder.getInstance().getConfig().getString("api.webknox.apiKey")));
         System.out.println("Result Text: " + pe.getResultText());
         // CollectionHelper.print(pe.getSentences());
-
-        // CollectionHelper.print(pe.setDocument(
-        // "data/datasets/L3S-GN1-20100130203947-00001/original/2281f3c1-7a86-4c4c-874c-b19964e588f1.html")
-        // .getImages());
-        // System.out.println(pe.getMainContentText());
-        //
-        // CollectionHelper.print(pe.setDocument("http://jezebel.com/5733078/can-you-wear-six-items-or-less").getImages());
-        // System.out.println(pe.getMainContentText());
-        //
-        // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12190895")
-        // .getImages("jpg"));
-        // System.out.println(pe.getMainContentText());
-        //
-        // CollectionHelper.print(pe.setDocument("http://lifehacker.com/5715912/how-to-plant-ideas-in-someones-mind")
-        // .getImages("jpg"));
-        // System.out.println(pe.getMainContentText());
-        //
-        // CollectionHelper.print(pe.setDocument(
-        // "http://edition.cnn.com/2011/WORLD/europe/01/14/italy.berlusconi/index.html").getImages("jpg"));
-        // System.out.println(pe.getMainContentText());
-
     }
 }
