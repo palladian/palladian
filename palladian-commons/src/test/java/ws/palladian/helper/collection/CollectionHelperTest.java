@@ -56,6 +56,7 @@ public class CollectionHelperTest {
         assertEquals(4, list.size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void sortByStringKeyLength() {
 
