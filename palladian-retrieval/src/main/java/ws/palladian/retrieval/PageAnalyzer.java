@@ -173,6 +173,21 @@ public final class PageAnalyzer {
             nsxpaths.add(currentXpath);
         }
 
+        // remove xPath that are more general, e.g. remove "/body" when we have "/body/div"
+        String longestXPath = "";
+        for (String string : nsxpaths) {
+            if (string.length() > longestXPath.length()) {
+                longestXPath = string;
+            }
+        }
+        Set<String> toRemove = CollectionHelper.newHashSet();
+        for (String string : nsxpaths) {
+            if (longestXPath.length() > string.length() && longestXPath.startsWith(string)) {
+                toRemove.add(string);
+            }
+        }
+        nsxpaths.removeAll(toRemove);
+
         return nsxpaths;
     }
 
@@ -328,11 +343,20 @@ public final class PageAnalyzer {
                 // check whether the keyword appears in the node text, do not consider comment nodes (type 8)
                 // TODO do not take if attribute is part of another word like CAPITALism
 
-                // if (child.getNodeValue() != null)
-                // System.out.println("found "+child.getNodeType()+","+child.getNodeName()+","+child.getNodeValue());
+                // if (child
+                // .getTextContent()
+                // .contains(
+                // "BERLIN (Reuters) - Germany will not back a Palestinian bid for a diplomatic upgrade at the United Nations, the government spokesman said on Wednesday."))
+                // {
+                // System.out.println("found tc:" + child.getTextContent());
+                // }
 
-                if (child.getNodeValue() != null && child.getNodeType() != 8
-                        && child.getNodeValue().toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
+                    // System.out.println("found " + child.getNodeType() + "," + child.getNodeName() + ","
+                    // + child.getNodeValue());
+
+                if (child.getTextContent().contains(keyword)
+                        || (child.getNodeValue() != null && child.getNodeType() != 8 && child.getNodeValue()
+                                .toLowerCase().indexOf(keyword.toLowerCase()) > -1)) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch) {

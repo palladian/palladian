@@ -102,7 +102,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 checkBlocked();
             }
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
+            LOGGER.error("JSONException (URL: " + url + ") " + e.getMessage());
             checkBlocked();
         }
         return ranking;
