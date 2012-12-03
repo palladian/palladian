@@ -12,7 +12,9 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
+ * <p>
  * A set of xPaths.
+ * </p>
  * 
  * @author David Urbansky
  */
@@ -34,6 +36,9 @@ public class XPathSet {
         }
     }
 
+    public void remove(String xPath) {
+        xPathMap.remove(xPath);
+    }
     public void add(String xPath) {
         if (xPathMap.containsKey(xPath)) {
             int count = xPathMap.get(xPath);
@@ -144,5 +149,9 @@ public class XPathSet {
         Logger.getRootLogger().debug("node with content: " + longestHighCountXPath.toLowerCase());
 
         return longestHighCountXPath;
+    }
+
+    public boolean isEmpty() {
+        return xPathMap.isEmpty();
     }
 }

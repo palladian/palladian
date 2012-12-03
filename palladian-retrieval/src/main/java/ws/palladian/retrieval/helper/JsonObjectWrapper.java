@@ -41,11 +41,11 @@ public class JsonObjectWrapper {
 
     public String getString(String key) {
         String result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = jsonObject.getString(key);
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
@@ -53,11 +53,11 @@ public class JsonObjectWrapper {
 
     public Integer getInt(String key) {
         Integer result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = jsonObject.getInt(key);
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
@@ -65,11 +65,11 @@ public class JsonObjectWrapper {
 
     public Boolean getBoolean(String key) {
         Boolean result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = jsonObject.getBoolean(key);
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
@@ -77,11 +77,11 @@ public class JsonObjectWrapper {
 
     public Double getDouble(String key) {
         Double result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = jsonObject.getDouble(key);
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
@@ -89,11 +89,11 @@ public class JsonObjectWrapper {
 
     public Long getLong(String key) {
         Long result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = jsonObject.getLong(key);
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
@@ -101,11 +101,11 @@ public class JsonObjectWrapper {
 
     public Object getObject(String key) {
         Object result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = jsonObject.get(key);
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
@@ -113,11 +113,11 @@ public class JsonObjectWrapper {
 
     public JsonObjectWrapper getJSONObject(String key) {
         JsonObjectWrapper result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = new JsonObjectWrapper(jsonObject.getJSONObject(key));
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
@@ -126,11 +126,11 @@ public class JsonObjectWrapper {
 
     public JSONArray getJSONArray(String key) {
         JSONArray result = null;
-        if (jsonObject.has(key)) {
-            try {
+        try {
+            if (jsonObject.has(key)) {
                 result = jsonObject.getJSONArray(key);
-            } catch (Exception e) {
             }
+        } catch (Exception e) {
         }
 
         return result;
