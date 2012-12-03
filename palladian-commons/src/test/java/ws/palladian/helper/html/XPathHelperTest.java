@@ -94,10 +94,10 @@ public class XPathHelperTest {
         Node firstTocNode = XPathHelper.getXhtmlNode(doc, "//body/div[@class='toc']");
         assertNotNull(firstTocNode);
         
-        List<Node> tocItems = XPathHelper.getXhtmlChildNodes(firstTocNode, "ul/li");
+        List<Node> tocItems = XPathHelper.getXhtmlNodes(firstTocNode, "ul/li");
         assertEquals(10, tocItems.size());
         
-        List<Node> tocItems2 = XPathHelper.getXhtmlChildNodes(firstTocNode, "ul/*");
+        List<Node> tocItems2 = XPathHelper.getXhtmlNodes(firstTocNode, "ul/*");
         assertEquals(10, tocItems2.size());
     }
 
