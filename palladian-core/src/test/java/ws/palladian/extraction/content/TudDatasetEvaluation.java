@@ -82,9 +82,9 @@ public class TudDatasetEvaluation {
     }
 
     public static void main(String[] args) throws Exception {
-        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadabilityContentExtractor());
+        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadabilityContentExtractor());
         evaluate(ResourceHelper.getResourcePath("/WebPages/"), new PalladianContentExtractor());
-        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new BoilerpipeContentExtractor());
+        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new BoilerpipeContentExtractor());
     }
 
 }

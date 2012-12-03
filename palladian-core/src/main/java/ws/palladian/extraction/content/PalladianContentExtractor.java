@@ -467,8 +467,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         String resultTitle = "";
         if (h1Node != null) {
-            resultTitle = h1Node.getTextContent();
-        } else {
+            resultTitle = StringHelper.clean(h1Node.getTextContent());
+        }
+        if (resultTitle.isEmpty()) {
             Node titleNode = XPathHelper.getXhtmlNode(getDocument(), "//title");
 
             if (titleNode != null) {
@@ -595,11 +596,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands");
         // pe.setDocument("http://www.huffingtonpost.com/2012/11/22/black-friday-creep-retail-workers_n_2167066.html");
         // pe.setDocument("http://webknox.com/p/best-proxy-services");
+        // pe.setDocument("http://www.politicususa.com/walmart-earns-record-profits-supporting-republicans-plan-slash-employees-food-stamps.html");
+        // pe.setDocument("http://greatist.com/fitness/perfect-squat/");
         pe.setDocument("http://www.latimes.com/news/nationworld/world/la-fg-israel-gaza-20121120,0,4042611.story");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
-        System.out.println("Title:" + pe.getResultTitle());
-        System.out.println("Author:"
+        System.out.println("Title: " + pe.getResultTitle());
+        System.out.println("Author: "
                 + pe.getAuthorName(ConfigHolder.getInstance().getConfig().getString("api.webknox.apiKey")));
         System.out.println("Result Text: " + pe.getResultText());
         // CollectionHelper.print(pe.getSentences());
