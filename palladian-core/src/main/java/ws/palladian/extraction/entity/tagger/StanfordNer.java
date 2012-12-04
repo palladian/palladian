@@ -22,6 +22,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
+import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.StringUtils;
@@ -102,11 +103,12 @@ public class StanfordNer extends NamedEntityRecognizer {
         configFileContent += "wordShape=chris2useLC";
     }
 
+    @SuppressWarnings("unchecked")
     public void demo(String inputText) throws IOException {
 
         String serializedClassifier = "data/temp/stanfordner/classifiers/ner-eng-ie.crf-3-all2008.ser.gz";
 
-        AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+        AbstractSequenceClassifier<CoreLabel> classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
 
         String inputTextPath = "data/temp/inputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);
@@ -120,7 +122,7 @@ public class StanfordNer extends NamedEntityRecognizer {
          * and produce an inline XML output format.
          */
         if (inputTextPath.length() > 1) {
-            String fileContents = StringUtils.slurpFile(inputTextPath);
+            String fileContents = IOUtils.slurpFile(inputTextPath);
             List<List<CoreLabel>> out = classifier.classify(fileContents);
             for (List<CoreLabel> sentence : out) {
                 for (CoreLabel word : sentence) {
@@ -170,7 +172,7 @@ public class StanfordNer extends NamedEntityRecognizer {
         args[1] = "data/temp/stanfordNerConfig.props";
 
         Properties props = StringUtils.argsToProperties(args);
-        CRFClassifier crf = new CRFClassifier(props);
+        CRFClassifier<CoreLabel> crf = new CRFClassifier<CoreLabel>(props);
         String loadPath = crf.flags.loadClassifier;
         String loadTextPath = crf.flags.loadTextClassifier;
         String serializeTo = crf.flags.serializeTo;
@@ -207,11 +209,12 @@ public class StanfordNer extends NamedEntityRecognizer {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean loadModel(String configModelFilePath) {
         StopWatch stopWatch = new StopWatch();
 
-        AbstractSequenceClassifier classifier;
+        AbstractSequenceClassifier<CoreLabel> classifier;
 
         try {
             classifier = CRFClassifier.getClassifierNoExceptions(configModelFilePath);
@@ -226,11 +229,12 @@ public class StanfordNer extends NamedEntityRecognizer {
         return true;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
 
-        AbstractSequenceClassifier classifier = (AbstractSequenceClassifier) getModel();
+        AbstractSequenceClassifier<CoreLabel> classifier = (AbstractSequenceClassifier) getModel();
 
         String inputTextPath = "data/temp/inputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);

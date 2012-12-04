@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
@@ -28,12 +28,9 @@ import ws.palladian.helper.io.ResourceHelper;
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
- * @deprecated Will be removed in future versions of Palladian.
  * 
  */
-@Deprecated
 public final class ConfigHolder {
-
     /**
      * <p>
      * Wrapper class for thread safe singleton handling. See "Effective Java", item 48.
@@ -81,7 +78,7 @@ public final class ConfigHolder {
      * that file. The loader will then check the version number of the palladian.properties and warns if it is outdated.
      * </p>
      */
-    private static final int VERSION = 19;
+    private static final int VERSION = 20;
 
     /**
      * <p>
@@ -156,7 +153,7 @@ public final class ConfigHolder {
             throw new IllegalStateException("Palladian configuration under " + CONFIG_PATH
                     + " could not be loaded completely.", e);
         } finally {
-            IOUtils.closeQuietly(propertiesInput);
+            FileHelper.close(propertiesInput);
         }
     }
 

@@ -1,18 +1,18 @@
 package ws.palladian.classification.dt;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instance2;
+import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.Predictor;
+import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -23,52 +23,43 @@ import ws.palladian.processing.features.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public class BaggedDecisionTreeClassifier implements Predictor<String> {
+public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDecisionTreeModel> {
 
-    private static final long serialVersionUID = 1L;
-    
-    private final List<Predictor<String>> predictors;
-    private transient final int numClassifiers;
-    private transient final Random random;
+    /** The default number of classifiers to create, in case it is not specified explicitly. */
+    public static final int DEFAULT_NUM_CLASSIFIERS = 10;
 
-    /**
-     * <p>
-     * Create a new {@link BaggedDecisionTreeClassifier} with the specified number of decision trees.
-     * </p>
-     * 
-     * @param numClassifiers The number of decision trees to use, must be greater than zero.
-     */
-    public BaggedDecisionTreeClassifier(int numClassifiers) {
+    public BaggedDecisionTreeModel learn(List<Instance> instances, int numClassifiers) {
         Validate.isTrue(numClassifiers > 0, "numClassifiers must be greater than zero.");
-        this.predictors = new ArrayList<Predictor<String>>();
-        this.numClassifiers = numClassifiers;
-        this.random = new Random();
-    }
-
-    @Override
-    public void learn(List<Instance2<String>> instances) {
+        Random random = new Random();
+        List<DecisionTreeModel> decisionTreeModels = CollectionHelper.newArrayList();
         for (int i = 0; i < numClassifiers; i++) {
-            List<Instance2<String>> sampling = getBagging(instances);
+            List<Instance> sampling = getBagging(instances, random);
             DecisionTreeClassifier newClassifier = new DecisionTreeClassifier();
-            newClassifier.learn(sampling);
-            predictors.add(newClassifier);
+            DecisionTreeModel model = newClassifier.train(sampling);
+            decisionTreeModels.add(model);
         }
+        return new BaggedDecisionTreeModel(decisionTreeModels);
     }
 
     @Override
-    public CategoryEntries predict(FeatureVector vector) {
-        Bag<String> categories = new HashBag<String>();
-        for (Predictor<String> predictor : predictors) {
-            CategoryEntries entriesResult = predictor.predict(vector);
-            CategoryEntry categoryResult = entriesResult.get(0);
-            String category = categoryResult.getCategory().getName();
-            categories.add(category);
+    public BaggedDecisionTreeModel train(List<Instance> instances) {
+        return learn(instances, DEFAULT_NUM_CLASSIFIERS);
+    }
+
+    @Override
+    public CategoryEntries classify(FeatureVector vector, BaggedDecisionTreeModel model) {
+        DecisionTreeClassifier classifier = new DecisionTreeClassifier();
+        CountMap<String> categories = CountMap.create();
+        for (DecisionTreeModel decisionTreeModel : model.getModels()) {
+            CategoryEntries entriesResult = classifier.classify(vector, decisionTreeModel);
+            CategoryEntry categoryResult = entriesResult.getMostLikelyCategoryEntry();
+            categories.add(categoryResult.getName());
         }
 
         CategoryEntries result = new CategoryEntries();
-        for (String categoryName : categories.uniqueSet()) {
-            double confidence = (double)categories.getCount(categoryName) / categories.size();
-            result.add(new CategoryEntry(result, new Category(categoryName), confidence));
+        for (String categoryName : categories.uniqueItems()) {
+            double confidence = (double)categories.getCount(categoryName) / categories.totalSize();;
+            result.add(new CategoryEntry(categoryName, confidence));
         }
         return result;
     }
@@ -79,28 +70,22 @@ public class BaggedDecisionTreeClassifier implements Predictor<String> {
      * </p>
      * 
      * @param instances
+     * @param random
      * @return
      */
-    private List<Instance2<String>> getBagging(List<Instance2<String>> instances) {
-        List<Instance2<String>> result = new ArrayList<Instance2<String>>();
+    private List<Instance> getBagging(List<Instance> instances, Random random) {
+        List<Instance> result = CollectionHelper.newArrayList();
         for (int i = 0; i < instances.size(); i++) {
             int sample = random.nextInt(instances.size());
             result.add(instances.get(sample));
         }
         return result;
     }
-    
+
     @Override
-    public String toString() {
-        StringBuilder buildToString = new StringBuilder();
-        buildToString.append("BaggedDecisionTreeClassifier").append('\n');
-        buildToString.append("# classifiers: ").append(predictors.size()).append('\n'); 
-        for (int i = 0; i < predictors.size(); i++) {
-            buildToString.append("classifier ").append(i).append(":").append('\n');
-            buildToString.append(predictors.get(i));
-            buildToString.append('\n');
-        }
-        return buildToString.toString();
+    public BaggedDecisionTreeModel train(Dataset dataset) {
+        // FIXME
+        return null;
     }
 
 }

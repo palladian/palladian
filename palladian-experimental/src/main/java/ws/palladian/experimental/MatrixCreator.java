@@ -1,17 +1,15 @@
 package ws.palladian.experimental;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import prefuse.data.Table;
 import prefuse.data.io.CSVTableReader;
 import prefuse.data.io.DataIOException;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -92,9 +90,7 @@ public final class MatrixCreator {
         String cellSeperator = ",";
 	if (args.length == 3) {
             cellSeperator = args[2];
-	    FileInputStream inputStream = new FileInputStream(args[0]);
-	    String input = IOUtils.toString(inputStream);
-	    inputStream.close();
+	    String input = FileHelper.readFileToString(args[0]);
             String cleanedInput = input.replace(cellSeperator, ",");
 
 	    LOGGER.info(cleanedInput);
@@ -144,7 +140,7 @@ public final class MatrixCreator {
 	    }
 	    output.append("\n");
 	}
-	IOUtils.write(output, new FileOutputStream(args[1]));
+	FileHelper.writeToFile(args[1], output);
     }
 
 }

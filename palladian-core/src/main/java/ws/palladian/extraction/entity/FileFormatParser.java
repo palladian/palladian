@@ -56,11 +56,8 @@ public class FileFormatParser {
     }
 
     private static String getTextFromXML(String inputFilePath) {
-
         String xmlText = FileHelper.readFileToString(inputFilePath);
-
-        return HtmlHelper.stripHtmlTags(xmlText, true, true, true, false);
-
+        return HtmlHelper.stripHtmlTags(xmlText);
     }
 
     public static String getText(String inputFilePath, TaggingFormat format) {
@@ -623,11 +620,10 @@ public class FileFormatParser {
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
 
-            Annotation annotation = new Annotation(offset, entityName, "", annotations);
+            Annotation annotation = new Annotation(offset, entityName, conceptName, annotations);
             annotation.setLeftContext(leftContext.trim());
             annotation.setRightContext(rightContext.trim());
-            annotation.setInstanceCategory(conceptName);
-            annotation.createFeatures();
+//            annotation.createFeatures();
             annotations.add(annotation);
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
@@ -662,7 +658,7 @@ public class FileFormatParser {
         Annotations annotations = new Annotations();
 
         // count the number of collected seeds per concept
-        CountMap conceptSeedCount = new CountMap();
+        CountMap<String> conceptSeedCount = CountMap.create();
 
         // store entities in a set to avoid duplicates
         Set<String> entitySet = new HashSet<String>();
@@ -672,14 +668,14 @@ public class FileFormatParser {
         // iterate through the annotations and collect numberOfSeedsPerConcept
         for (Annotation annotation : allAnnotations) {
 
-            String conceptName = annotation.getInstanceCategoryName();
-            int numberOfSeeds = conceptSeedCount.get(conceptName);
+            String conceptName = annotation.getTargetClass();
+            int numberOfSeeds = conceptSeedCount.getCount(conceptName);
 
             if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)
                     && !entitySet.contains(annotation.getEntity())) {
                 annotations.add(annotation);
                 entitySet.add(annotation.getEntity());
-                conceptSeedCount.increment(conceptName);
+                conceptSeedCount.add(conceptName);
             }
 
         }

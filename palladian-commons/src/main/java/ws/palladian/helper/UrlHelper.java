@@ -41,7 +41,14 @@ public final class UrlHelper {
             .compile("(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[a-f0-9]{32}(?!\\w)");
     
     /** List of top level domains. */
-    private static final String TOP_LEVEL_DOMAINS = "ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|as|asia|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|yu|za|zm|zw";
+    private static final String TOP_LEVEL_DOMAINS = "ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|as|asia|at|au|aw|ax|az|ba|bb|bd|be|" +
+    		"bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|" +
+    		"cz|dd|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|" +
+    		"gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|" +
+    		"ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|" +
+    		"my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|" +
+    		"ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|" +
+    		"travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|yu|za|zm|zw";
 
     // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
     // this is able to match URLs, containing (brackets), but does not include trailing brackets
@@ -58,83 +65,22 @@ public final class UrlHelper {
 
     /**
      * <p>
-     * Tries to remove a session ID from URL if it can be found.
+     * Remove sessions IDs from a URL.
      * </p>
      * 
-     * @param original The URL to remove the sessionID from.
-     * @return The URL without the sessionID if it could be found or the original URL else wise. <code>null</code> if
-     *         original was <code>null</code>.
+     * @param originalUrl The URL from which to remove the session ID.
+     * @return The URL without the session ID if one was present, or the original URL if no session ID was found,
+     *         <code>null</code> in case the original URL was <code>null</code>.
      */
-    public static URL removeSessionId(URL original) {
-        URL replacedURL = original;
-        if (original != null) {
-            String origURL = original.toString();
-            Matcher matcher = SESSION_ID_PATTERN.matcher(origURL);
-//            String sessionID = null;
-            String newURL = null;
-//            while (matcher.find()) {
-//                sessionID = matcher.group();
-//                LOGGER.debug("   sessionID : " + sessionID);
-//                newURL = origURL.replaceAll(SESSION_ID_PATTERN.toString(), "");
-//            }
-//            if (LOGGER.isDebugEnabled()) {
-//                LOGGER.debug("Original URL: " + origURL);
-//                LOGGER.debug("Cleaned URL : " + newURL);
-//            }
-            newURL = matcher.replaceAll("");
-            if (newURL != null) {
-                try {
-                    replacedURL = new URL(newURL);
-                } catch (MalformedURLException e) {
-                    LOGGER.error("Could not replace sessionID in URL \"" + origURL + "\", returning original value.");
-                }
-            }
-        }
-        return replacedURL;
-    }
-
-    /**
-     * <p>
-     * Convenience method to remove a session ID from a URL string if it can be found.
-     * </p>
-     * 
-     * @param originalUrl The URL to remove the sessionID from.
-     * @param silent If <code>true</code>, do not log errors.
-     * @return The string representation of the url without the sessionID if it could be found or the original string
-     *         else wise. <code>null</code> if original was <code>null</code>.
-     * @deprecated Use {@link #removeSessionId(String)}.
-     */
-    @Deprecated
-    public static String removeSessionId(String originalUrl, boolean silent) {
-        String replacedURL = originalUrl;
-//        if (originalUrl != null) {
-//            try {
-//                replacedURL = removeSessionId(new URL(originalUrl)).toString();
-//            } catch (Exception e) {
-//                if (!silent) {
-//                    LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
-//                }
-//            }
-//        }
-        try {
-            replacedURL = removeSessionId(originalUrl);
-        } catch (Exception e) {
-            if (!silent) {
-                LOGGER.error("Could not create URL from \"" + originalUrl + "\". " + e.getLocalizedMessage());
-            }
-        }
-        return replacedURL;
-    }
-
     public static String removeSessionId(String originalUrl) {
-        String replacedURL = originalUrl;
-        if (originalUrl != null) {
-            try {
-                replacedURL = removeSessionId(new URL(originalUrl)).toString();
-            } catch (Exception e) {
-            }
+        
+        if (originalUrl == null) {
+            return null;
         }
-        return replacedURL;
+        
+        Matcher matcher = SESSION_ID_PATTERN.matcher(originalUrl);
+        return matcher.replaceAll("");
+        
     }
 
     /**
@@ -152,7 +98,7 @@ public final class UrlHelper {
 
         for (String attribute : LINK_ATTRIBUTES) {
             String xpath = "//*[@" + attribute + "]";
-            List<Node> nodes = XPathHelper.getXhtmlChildNodes(document, xpath);
+            List<Node> nodes = XPathHelper.getXhtmlNodes(document, xpath);
             for (Node node : nodes) {
                 Node attributeNode = node.getAttributes().getNamedItem(attribute);
                 String value = attributeNode.getNodeValue();

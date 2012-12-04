@@ -181,7 +181,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query) throws SearcherException {
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
         int totalResults = 0;
 
         String requestUrl = getRequestUrl(query, 1, 0);

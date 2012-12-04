@@ -1,8 +1,6 @@
 package ws.palladian.semantics;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
@@ -20,7 +17,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -33,9 +29,6 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class WordTransformer {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WordTransformer.class);
-
     /** The Constant IRREGULAR_NOUNS <singular, plural>. */
     private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
 
@@ -45,9 +38,10 @@ public class WordTransformer {
     static {
 
         // irregular verbs
+        InputStream inputStream = null;
         try {
-            InputStreamReader is = new InputStreamReader(ResourceHelper.getResourceStream("irregularEnglishVerbs.csv"));
-            List<String> list = FileHelper.readFileToArray(new BufferedReader(is));
+            inputStream = WordTransformer.class.getResourceAsStream("/irregularEnglishVerbs.csv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
             for (String string : list) {
                 String[] parts = string.split(";");
                 EnglishVerb englishVerb = new EnglishVerb(parts[0], parts[1], parts[2]);
@@ -56,8 +50,8 @@ public class WordTransformer {
                 IRREGULAR_VERBS.put(parts[2], englishVerb);
             }
 
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
+        } finally {
+            FileHelper.close(inputStream);
         }
 
         // irregular nouns

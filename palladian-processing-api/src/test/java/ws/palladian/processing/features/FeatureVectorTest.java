@@ -1,66 +1,72 @@
 package ws.palladian.processing.features;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class FeatureVectorTest {
 
-    private FeatureVector featureVector;
-    private NominalFeature f1;
-    private Feature<String> f2;
-    private NumericFeature f3;
-    private Feature<Double> f4;
+    @Test
+    public void testGetFeature() {
+        FeatureVector featureVector = new FeatureVector();
+        featureVector.add(new NominalFeature("testFeature", "test"));
 
-    @Before
-    public void setUp() {
-        featureVector = new FeatureVector();
-        f1 = new NominalFeature("nominalFeature1", "test");
-        f2 = new Feature<String>("nominalFeature3", "test");
-        f3 = new NumericFeature("numericFeature1", 2.);
-        f4 = new Feature<Double>("numericFeature2", 3.);
+        NominalFeature retrievedFeature = featureVector.getFeature(NominalFeature.class, "testFeature");
+        assertEquals(NominalFeature.class, retrievedFeature.getClass());
+        assertEquals("test", retrievedFeature.getValue());
+    }
+
+    @Test
+    public void testGetFeaturesByType() {
+        FeatureVector featureVector = new FeatureVector();
+        NominalFeature f1 = new NominalFeature("nominalFeature1", "test");
+        NominalFeature f2 = new NominalFeature("nominalFeature3", "test");
+        NumericFeature f3 = new NumericFeature("numericFeature1", 2.);
+        NumericFeature f4 = new NumericFeature("numericFeature2", 3.);
         featureVector.add(f1);
         featureVector.add(f2);
         featureVector.add(f3);
         featureVector.add(f4);
-    }
 
-    @Test
-    public void testRetrieveFeaturesByDescriptor() {
-        FeatureVector featureVector = new FeatureVector();
-        FeatureDescriptor<NominalFeature> featureDescriptor = FeatureDescriptorBuilder.build("myNominalFeature",
-                NominalFeature.class);
-
-        NominalFeature nominalFeature = new NominalFeature(featureDescriptor, "test");
-        featureVector.add(nominalFeature);
-
-        NominalFeature retrievedFeature = featureVector.get(featureDescriptor);
-
-        assertEquals("test", retrievedFeature.getValue());
-        assertEquals(NominalFeature.class, retrievedFeature.getClass());
-    }
-
-    @Test
-    public void testRetrieveFeaturesByType() {
         assertEquals(4, featureVector.size());
-        List<Feature<String>> stringFeatures = featureVector.getAll(String.class);
-        assertEquals(2, stringFeatures.size());
-        assertTrue(stringFeatures.contains(f1));
-        assertTrue(stringFeatures.contains(f2));
-        List<Feature<Number>> numericFeatures = featureVector.getAll(Number.class);
+
+        List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
+        assertEquals(2, nominalFeatures.size());
+        assertTrue(nominalFeatures.contains(f1));
+        assertTrue(nominalFeatures.contains(f2));
+
+        List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
         assertEquals(2, numericFeatures.size());
         assertTrue(numericFeatures.contains(f3));
         assertTrue(numericFeatures.contains(f4));
+
+        // try to retrieve a NumericFeature, which is actually a NominalFeature
+        assertNull(featureVector.getFeature(NominalFeature.class, "numericFeature1"));
     }
 
     @Test
     public void testCopyFeatureVector() {
-        FeatureVector newFeatureVector = new FeatureVector(featureVector);
-        assertEquals(4, newFeatureVector.size());
+        FeatureVector original = new FeatureVector();
+        NominalFeature f1 = new NominalFeature("nominalFeature", "test");
+        NumericFeature f2 = new NumericFeature("numericFeature", 7);
+        NumericFeature f3 = new NumericFeature("numericFeature2", 8);
+        original.add(f1);
+        original.add(f2);
+        original.add(f3);
+
+        FeatureVector newFeatureVector = new FeatureVector(original);
+        List<NominalFeature> nominalFeatures = newFeatureVector.getAll(NominalFeature.class);
+        List<NumericFeature> numericFeatures = newFeatureVector.getAll(NumericFeature.class);
+        assertEquals(3, newFeatureVector.size());
+        assertEquals(1, nominalFeatures.size());
+        assertEquals(2, numericFeatures.size());
+        assertTrue(nominalFeatures.contains(f1));
+        assertTrue(numericFeatures.contains(f2));
+        assertTrue(numericFeatures.contains(f3));
     }
 
 }

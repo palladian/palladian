@@ -6,6 +6,7 @@ package ws.palladian.extraction.entity;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -13,9 +14,8 @@ import org.junit.Test;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -55,15 +55,15 @@ public final class ProcessingApiTest {
         nerProcessor.loadModel(modelFile.getCanonicalPath());
 
         // Processing example Document
-        PipelineDocument<String> document = new PipelineDocument<String>(FIXTURE);
+        TextDocument document = new TextDocument(FIXTURE);
         nerProcessor.processDocument(document);
 
         // Checking results
-        TextAnnotationFeature extractedEntities = document
-                .getFeature(NamedEntityRecognizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<PositionAnnotation> extractedEntities = document
+                .getFeatureVector().getAll(PositionAnnotation.class, NamedEntityRecognizer.PROVIDED_FEATURE);
 
-        assertThat(extractedEntities.getValue().size(), Matchers.is(5));
-        for (Annotation<String> nerAnnotation : extractedEntities.getValue()) {
+        assertThat(extractedEntities.size(), Matchers.is(5));
+        for (PositionAnnotation nerAnnotation : extractedEntities) {
             assertThat(nerAnnotation, Matchers.notNullValue());
         }
     }

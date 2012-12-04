@@ -1,61 +1,58 @@
 package ws.palladian.extraction.feature;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
  * Base class for token remover implementations. The {@link AbstractTokenRemover} operates on the
- * {@link AnnotationFeature} provided by {@link BaseTokenizer}s. Subclasses implement {@link #remove(Annotation)} to
- * determine, whether to remove an {@link Annotation}.
+ * {@link AnnotationFeature} provided by {@link BaseTokenizer}s. Subclasses implement {@link #remove(PositionAnnotation)} to
+ * determine, whether to remove a {@link PositionAnnotation}.
  * </p>
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractTokenRemover extends StringDocumentPipelineProcessor {
-
-    private static final long serialVersionUID = 1L;
+public abstract class AbstractTokenRemover extends TextDocumentPipelineProcessor {
 
     /**
      * <p>
-     * Determine whether to remove the supplied {@link Annotation} from the {@link PipelineDocument}'s
+     * Determine whether to remove the supplied {@link PositionAnnotation} from the {@link PipelineDocument}'s
      * {@link AnnotationFeature}.
      * </p>
      * 
-     * @param annotation The {@link Annotation} for which to determine whether to keep or remove.
-     * @return <code>true</code> if {@link Annotation} shall be removed, <code>false</code> otherwise.
+     * @param annotation The {@link PositionAnnotation} for which to determine whether to keep or remove.
+     * @return <code>true</code> if {@link PositionAnnotation} shall be removed, <code>false</code> otherwise.
      */
-    protected abstract boolean remove(Annotation<String> annotation);
+    protected abstract boolean remove(PositionAnnotation annotation);
 
     @Override
-    public final void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException("Required feature \"" + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR
-                    + "\" is missing");
-        }
-        List<Annotation<String>> annotations = annotationFeature.getValue();
+//        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+//        if (annotationFeature == null) {
+//            throw new DocumentUnprocessableException("Required feature \"" + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR
+//                    + "\" is missing");
+//        }
+        List<PositionAnnotation> annotations = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
 
         // create a new List, as removing many items from an existing one is terribly expensive
         // (unless we were using a LinkedList, what we do not want)
-        List<Annotation<String>> resultTokens = new ArrayList<Annotation<String>>();
-        for (Iterator<Annotation<String>> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
-            Annotation<String> annotation = tokenIterator.next();
+        List<PositionAnnotation> resultTokens = CollectionHelper.newArrayList();
+        for (Iterator<PositionAnnotation> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
+            PositionAnnotation annotation = tokenIterator.next();
             if (!remove(annotation)) {
                 resultTokens.add(annotation);
             }
         }
-        annotationFeature.setValue(resultTokens);
+        featureVector.removeAll(BaseTokenizer.PROVIDED_FEATURE);
+        featureVector.addAll(resultTokens);
     }
 
 }

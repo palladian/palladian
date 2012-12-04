@@ -3,12 +3,10 @@ package ws.palladian.helper.html;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.xml.namespace.NamespaceContext;
@@ -23,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -57,16 +57,19 @@ public final class XPathHelper {
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<String, String>();
 
+        @Override
         public String getNamespaceURI(String prefix) {
             return namespaces.get(prefix);
         }
 
         // This method isn't necessary for XPath processing.
+        @Override
         public String getPrefix(String uri) {
             throw new UnsupportedOperationException();
         }
 
         // This method isn't necessary for XPath processing either.
+        @Override
         public Iterator<?> getPrefixes(String uri) {
             throw new UnsupportedOperationException();
         }
@@ -147,7 +150,7 @@ public final class XPathHelper {
             }
         } catch (XPathExpressionException e) {
             // TODO this exception should be thrown
-            LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
+            LOGGER.error(e + " for XPath \"" + xPath + "\" : " + e.getMessage(), e);
         }
 
         return ret;
@@ -184,12 +187,8 @@ public final class XPathHelper {
     public static Node getNode(Node node, String xPath, Map<String, String> namespaces) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
-        Node targetNode = null;
         List<Node> nodeList = getNodes(node, xPath, namespaces);
-        if (nodeList.iterator().hasNext()) {
-            targetNode = nodeList.iterator().next();
-        }
-        return targetNode;
+        return CollectionHelper.getFirst(nodeList);
     }
 
     /**
@@ -221,13 +220,8 @@ public final class XPathHelper {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(nodeId, "nodeId must not be empty.");
 
-        Node result = null;
         List<Node> idNodes = XPathHelper.getNodes(node, "//*[@id='" + nodeId + "']");
-        for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
-            result = idNodes.get(i);
-        }
-
-        return result;
+        return CollectionHelper.getFirst(idNodes);
     }
 
     /**
@@ -258,7 +252,9 @@ public final class XPathHelper {
      * @param node The parent node of the children, not <code>null</code>
      * @param xPath The XPath that addresses the children, not <code>null</code> or empty.
      * @return The child nodes, or an empty {@link List} if no matching child nodes.
+     * @deprecated Use {@link #getNodes(Node, String)} instead and explicitly specify an XPath addressing child nodes.
      */
+    @Deprecated
     public static List<Node> getChildNodes(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
@@ -274,7 +270,10 @@ public final class XPathHelper {
      * @param xPath The XPath that addresses the children, not <code>null</code> or empty.
      * @param namespaces (Optional) Map with namespaces, necessary to bind prefixes in XPath expression to namespaces.
      * @return The child nodes, or an empty {@link List} if no matching child nodes.
+     * @deprecated Use {@link #getNodes(Node, String, Map)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
+    @Deprecated
     public static List<Node> getChildNodes(Node node, String xPath, Map<String, String> namespaces) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
@@ -298,7 +297,10 @@ public final class XPathHelper {
      * 
      * @param node The parent of the children, not <code>null</code>.
      * @return The child nodes, or an empty {@link List} if no matching child nodes.
+     * @deprecated Use {@link #getNodes(Node, String)} instead and explicitly specify an XPath addressing all child
+     *             nodes.
      */
+    @Deprecated
     public static List<Node> getChildNodes(Node node) {
         Validate.notNull(node, "node must not be null");
         List<Node> children = new ArrayList<Node>();
@@ -323,17 +325,16 @@ public final class XPathHelper {
      * @param node The parent node under which the sought node must descend, not <code>null</code>
      * @param xPath The XPath that points to a node, not <code>null</code> or empty.
      * @return A node that matches the XPath and descends from the given node.
+     * @deprecated Use {@link #getNode(Node, String)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
+    @Deprecated
     public static Node getChildNode(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
         List<Node> childNodes = getChildNodes(node, xPath);
-        Node childNode = null;
-        if (childNodes.iterator().hasNext()) {
-            childNode = childNodes.iterator().next();
-        }
-        return childNode;
+        return CollectionHelper.getFirst(childNodes);
     }
 
     /**
@@ -445,7 +446,12 @@ public final class XPathHelper {
         Validate.notNull(document, "document must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNodes(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
+    }
 
+    public static List<Node> getXhtmlNodes(Node node, String xPath) {
+        Validate.notNull(node, "node must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
+        return getNodes(node, addXhtmlNsToXPath(xPath));
     }
 
     /**
@@ -465,6 +471,12 @@ public final class XPathHelper {
         return getNode(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
 
+    public static Node getXhtmlNode(Node node, String xPath) {
+        Validate.notNull(node, "node must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
+        return getNode(node, addXhtmlNsToXPath(xPath));
+    }
+
     /**
      * <p>
      * Get a list of {@link Node}s from the supplied XHTML {@link Node} matching the given XPath expression. The XHTML
@@ -475,7 +487,10 @@ public final class XPathHelper {
      * @param xPath The XPath expression, not <code>null</code> or empty.
      * @return Matching nodes for the given XPath expression, or an empty {@link List} if no nodes match or an error
      *         occurred.
+     * @deprecated Use {@link #getXhtmlNodes(Node, String)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
+    @Deprecated
     public static List<Node> getXhtmlChildNodes(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
@@ -493,18 +508,16 @@ public final class XPathHelper {
      * @param xPath The XPath expression, not <code>null</code> or empty.
      * @return Matching node for the given XPath expression, or <code>null</code> if no matching node or an error
      *         occurred.
+     * @deprecated Use {@link #getXhtmlNode(Node, String)} instead and explicitly specify an XPath addressing child
+     *             nodes.
      */
+    @Deprecated
     public static Node getXhtmlChildNode(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
         List<Node> childNodes = getXhtmlChildNodes(node, xPath);
-        Node childNode = null;
-        Iterator<Node> iterator = childNodes.iterator();
-        if (iterator.hasNext()) {
-            childNode = iterator.next();
-        }
-        return childNode;
+        return CollectionHelper.getFirst(childNodes);
     }
 
     /**
@@ -580,7 +593,7 @@ public final class XPathHelper {
         
         List<String> xPathParts = new ArrayList<String>();
         StringBuilder buf = new StringBuilder();
-        Set<Character> split = new HashSet<Character>(Arrays.asList('/', ' ', '[', ']'));
+        List<Character> split = Arrays.asList('/', ' ', '[', ']', '|');
 
         for (int i = 0; i < xPath.length(); i++) {
             char currentChar = xPath.charAt(i);

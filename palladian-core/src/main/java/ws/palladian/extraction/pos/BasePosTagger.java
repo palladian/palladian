@@ -5,19 +5,15 @@ import java.util.List;
 
 import ws.palladian.extraction.TagAnnotation;
 import ws.palladian.extraction.TagAnnotations;
-import ws.palladian.extraction.feature.StringDocumentPipelineProcessor;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -39,9 +35,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public abstract class BasePosTagger extends StringDocumentPipelineProcessor implements PosTagger {
-
-    private static final long serialVersionUID = 1L;
+public abstract class BasePosTagger extends TextDocumentPipelineProcessor implements PosTagger {
 
     /**
      * <p>
@@ -50,13 +44,13 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
      */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.pos";
 
-    /**
-     * <p>
-     * The descriptor of the feature provided by this {@link PipelineProcessor}.
-     * </p>
-     */
-    public static final FeatureDescriptor<NominalFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
-            PROVIDED_FEATURE, NominalFeature.class);
+//    /**
+//     * <p>
+//     * The descriptor of the feature provided by this {@link PipelineProcessor}.
+//     * </p>
+//     */
+//    public static final FeatureDescriptor<NominalFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
+//            PROVIDED_FEATURE, NominalFeature.class);
 
     /**
      * <p>
@@ -71,7 +65,7 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
 
     @Override
     public TagAnnotations tag(String text) {
-        PipelineDocument<String> document = new PipelineDocument<String>(text);
+        TextDocument document = new TextDocument(text);
         try {
             BaseTokenizer tokenizer = getTokenizer();
             tokenizer.processDocument(document);
@@ -79,12 +73,12 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
-                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
+        List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
         TagAnnotations ret = new TagAnnotations();
         int offset = 0;
-        for (Annotation<String> annotation : annotationFeature.getValue()) {
-            NominalFeature tagFeature = annotation.getFeature(PROVIDED_FEATURE_DESCRIPTOR);
+        for (PositionAnnotation annotation : annotationFeatureList) {
+            NominalFeature tagFeature = annotation.getFeatureVector().getFeature(NominalFeature.class, PROVIDED_FEATURE);
             String tag = tagFeature.getValue();
             TagAnnotation tagAnnotation = new TagAnnotation(offset++, tag, annotation.getValue());
             ret.add(tagAnnotation);
@@ -110,14 +104,14 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
     // ////////////////////////////////////////////
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        if (annotationFeature == null) {
-            throw new DocumentUnprocessableException(
-                    "Document content is not tokenized. Please use a tokenizer before using a POS tagger.");
-        }
-        tag(annotationFeature.getValue());
+        List<PositionAnnotation> annotationFeature = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+//        if (annotationFeature == null) {
+//            throw new DocumentUnprocessableException(
+//                    "Document content is not tokenized. Please use a tokenizer before using a POS tagger.");
+//        }
+        tag(annotationFeature);
     }
 
     // ////////////////////////////////////////////
@@ -127,26 +121,26 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
     /**
      * <p>
      * Subclasses implement this method to perform the POS tagging. The POS tags can be assigned to each annotation
-     * using the provided convenience method {@link #assignTag(Annotation, String)}.
+     * using the provided convenience method {@link #assignTag(PositionAnnotation, String)}.
      * </p>
      * 
      * @param annotations
      *            The list of annotations to process, this is the tokenized
      *            text.
      */
-    protected abstract void tag(List<Annotation<String>> annotations);
+    protected abstract void tag(List<PositionAnnotation> annotations);
 
     /**
      * <p>
-     * Helper method to convert a {@link List} of {@link Annotation}s to a {@link List} with their String values.
+     * Helper method to convert a {@link List} of {@link PositionAnnotation}s to a {@link List} with their String values.
      * </p>
      * 
      * @param annotations
      * @return
      */
-    protected static List<String> getTokenList(List<Annotation<String>> annotations) {
+    protected static List<String> getTokenList(List<PositionAnnotation> annotations) {
         List<String> tokenList = new ArrayList<String>(annotations.size());
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             tokenList.add(annotation.getValue());
         }
         return tokenList;
@@ -159,14 +153,14 @@ public abstract class BasePosTagger extends StringDocumentPipelineProcessor impl
 
     /**
      * <p>
-     * Helper method to assign a POS tag to an {@link Annotation}.
+     * Helper method to assign a POS tag to a {@link PositionAnnotation}.
      * </p>
      * 
      * @param annotation
      * @param tag
      */
-    protected static void assignTag(Annotation<String> annotation, String tag) {
-        annotation.addFeature(new NominalFeature(PROVIDED_FEATURE_DESCRIPTOR, tag.toUpperCase()));
+    protected static void assignTag(PositionAnnotation annotation, String tag) {
+        annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, tag.toUpperCase()));
     }
 
 }

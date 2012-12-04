@@ -112,12 +112,12 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
 
         for (Node resultNode : resultNodes) {
 
-            String url = XPathHelper.getChildNode(resultNode, "Url").getTextContent();
-            String title = XPathHelper.getChildNode(resultNode, "Title").getTextContent();
-            String summary = XPathHelper.getChildNode(resultNode, "Paragraph").getTextContent();
+            String url = XPathHelper.getNode(resultNode, "Url").getTextContent();
+            String title = XPathHelper.getNode(resultNode, "Title").getTextContent();
+            String summary = XPathHelper.getNode(resultNode, "Paragraph").getTextContent();
 
             // date is only available for hakia news
-            Node dateNode = XPathHelper.getChildNode(resultNode, "Date");
+            Node dateNode = XPathHelper.getNode(resultNode, "Date");
             Date date = null;
             if (dateNode != null) {
                 String dateString = dateNode.getTextContent();

@@ -5,8 +5,8 @@ import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.palladian.helper.DateFormat;
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
 
 /**
  * <p>
@@ -129,12 +129,12 @@ final class DateParserLogic {
         } else if (format.equals(RegExp.DATE_EU_D_MMMM_Y)) {
             dateString = dateString.replaceAll("\\.\\s?", " ");
             dateString = dateString.replaceAll("-", " ");
-            String[] dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split("\\s");
             setDateValues(dateParts, 2, 1, 0);
         } else if (format.equals(RegExp.DATE_USA_MMMM_D_Y)) {
             dateString = dateString.replaceAll("\\,\\s|\\,|\\s", " ");
             // try {
-                String[] parts = dateString.split(" ");
+                String[] parts = dateString.split("\\s");
                 if (parts.length == 2) {
                     String[] tempParts = new String[3];
                     tempParts[0] = parts[0].split("\\.")[0];
@@ -148,7 +148,7 @@ final class DateParserLogic {
         } else if (format.equals(RegExp.DATE_USA_MMMM_D_Y_SEP)) {
             setDateValues(dateString.split("-"), 2, 0, 1);
         } else if (format.equals(RegExp.DATE_EUSA_MMMM_Y)) {
-            setDateValues(dateString.split(" "), 1, 0, -1);
+            setDateValues(dateString.split("\\s"), 1, 0, -1);
         } else if (format.equals(RegExp.DATE_EUSA_YYYY_MMM_D)) {
             setDateValues(dateString.split("-"), 0, 1, 2);
         } else if (format.equals(RegExp.DATE_EU_MM_Y)) {
@@ -159,27 +159,27 @@ final class DateParserLogic {
             setDateValues(dateString.split(separator), -1, 1, 0);
         } else if (format.equals(RegExp.DATE_EU_D_MMMM)) {
             dateString = dateString.replaceAll("\\.", "");
-            setDateValues(dateString.split(" "), -1, 1, 0);
+            setDateValues(dateString.split("\\s"), -1, 1, 0);
         } else if (format.equals(RegExp.DATE_USA_MM_D)) {
             setDateValues(dateString.split("/"), -1, 0, 1);
         } else if (format.equals(RegExp.DATE_USA_MMMM_D)) {
-            setDateValues(dateString.split(" "), -1, 0, 1);
+            setDateValues(dateString.split("\\s"), -1, 0, 1);
         } else if (format.equals(RegExp.DATE_USA_MM_Y)) {
             setDateValues(dateString.split("/"), 1, 0, -1);
         } else if (format.equals(RegExp.DATE_ANSI_C)) {
-            String[] dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split("\\s");
             setDateValues(dateParts, 4, 1, 2);
             setTimeValues(dateParts[3]);
         } else if (format.equals(RegExp.DATE_ANSI_C_TZ)) {
-            String[] dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split("\\s");
             setDateValues(dateParts, 4, 1, 2);
             setTimeValues(dateParts[3] + dateParts[5]);
         } else if (format.equals(RegExp.DATE_RFC_1123)) {
-            String[] dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split("\\s");
             setDateValues(dateParts, 3, 2, 1);
             setTimeValues(dateParts[4]);
         } else if (format.equals(RegExp.DATE_RFC_1036)) {
-            String parts[] = dateString.split(" ");
+            String parts[] = dateString.split("\\s");
             setDateValues(parts[1].split("-"), 2, 1, 0);
             setTimeValues(parts[2]);
         } else if (format.equals(RegExp.DATE_ISO8601_YMD_NO)) {
@@ -193,11 +193,11 @@ final class DateParserLogic {
         } else if (format.equals(RegExp.DATE_ISO8601_YD_NO)) {
             setDateByDayOfYear(dateString, false);
         } else if (format.equals(RegExp.DATE_RFC_1123_UTC)) {
-            String[] dateParts = dateString.split(" ");
+            String[] dateParts = dateString.split("\\s");
             setDateValues(dateParts, 3, 2, 1);
             setTimeValues(dateParts[4] + dateParts[5]);
         } else if (format.equals(RegExp.DATE_RFC_1036_UTC)) {
-            String parts[] = dateString.split(" ");
+            String parts[] = dateString.split("\\s");
             setDateValues(parts[1].split("-"), 2, 1, 0);
             setTimeValues(parts[2] + parts[3]);
         } else if (format.equals(RegExp.DATE_EU_D_MM_Y_T)) {
@@ -205,7 +205,7 @@ final class DateParserLogic {
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
             }
-            String[] parts = dateString.split(" ");
+            String[] parts = dateString.split("\\s");
             String separator = getSeparatorRegEx(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 1, 0);
@@ -225,7 +225,7 @@ final class DateParserLogic {
             if (dateString.contains("-")) {
                 dateString = dateString.replaceAll("-", " ");
             }
-            String[] parts = dateString.split(" ");
+            String[] parts = dateString.split("\\s");
             setDateValues(parts, 2, 1, 0);
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 3; i < parts.length; i++) {
@@ -240,7 +240,7 @@ final class DateParserLogic {
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
             }
-            String[] parts = dateString.split(" ");
+            String[] parts = dateString.split("\\s");
             String separator = getSeparatorRegEx(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 0, 1);
@@ -257,7 +257,7 @@ final class DateParserLogic {
             if (meridiem != null) {
                 dateString = removeAmPm(dateString, meridiem);
             }
-            String[] parts = dateString.split(" ");
+            String[] parts = dateString.split("\\s");
             setDateValues(parts, 2, 0, 1);
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 3; i < parts.length; i++) {
@@ -270,7 +270,7 @@ final class DateParserLogic {
         } else if (format.equals(RegExp.DATE_CONTEXT_YYYY)) {
             year = Integer.valueOf(dateString);
         } else if (format.equals(RegExp.DATE_MMMM_DD_HH_MM_SS_TZ_YYYY)) {
-            String[] parts = dateString.split(" ");
+            String[] parts = dateString.split("\\s");
             setDateValues(parts, 3, 0, 1);
             setTimeValues(parts[2]);
         } else {

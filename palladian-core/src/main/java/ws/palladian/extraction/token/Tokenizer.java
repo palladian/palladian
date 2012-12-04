@@ -3,6 +3,8 @@ package ws.palladian.extraction.token;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,12 +15,18 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
+import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -31,11 +39,21 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public final class Tokenizer {
 
-    /** The RegExp used for tokenization. */
-    public static final String SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
+    /** The RegExp used for tokenization (terms). */
+    public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
-    /** The compiled pattern used for tokenization, using {@link Tokenizer#SPLIT_REGEX}. */
-    public static final Pattern SPLIT_PATTERN = Pattern.compile(SPLIT_REGEX, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    /** The RegExp used for sentence splitting. */
+    public static final String SENTENCE_SPLIT_REGEX = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+
+    private static final Pattern SENTENCE_SPLIT_PATTERN = Pattern.compile(SENTENCE_SPLIT_REGEX);
+
+    /** The compiled pattern used for tokenization, using {@link Tokenizer#TOKEN_SPLIT_REGEX}. */
+    public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
+            | Pattern.CASE_INSENSITIVE);
+
+    private static UrlTagger urlTagger = new UrlTagger();
+    private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
+    private static SmileyTagger smileyTagger = new SmileyTagger();
 
     private Tokenizer() {
         // prevent instantiation.
@@ -301,7 +319,7 @@ public final class Tokenizer {
      * 
      * @param token The token to n-grammize.
      * @param size The size of the desired n-grams.
-     * @return A {@code List} of n-grams wich are represented as a {@code List} of tokens each.
+     * @return A {@code List} of n-grams which are represented as a {@code List} of tokens each.
      */
     public static List<List<String>> calculateNGrams(String[] token, Integer size) {
         List<List<String>> nGrams = new ArrayList<List<String>>();
@@ -325,7 +343,7 @@ public final class Tokenizer {
 
     /**
      * <p>
-     * Get the sentence that the specified position is in.
+     * Get the sentence in which the specified position is present.
      * </p>
      * 
      * @param string The string.
@@ -346,6 +364,10 @@ public final class Tokenizer {
         return beginning + end;
     }
 
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
+        return getSentences(inputText, onlyRealSentences, SENTENCE_SPLIT_PATTERN);
+    }
+
     /**
      * <p>
      * Get a list of sentences of an input text. Also see <a
@@ -354,12 +376,14 @@ public final class Tokenizer {
      * </p>
      * 
      * @param inputText An input text.
+     * @param onlyRealSentences If true, only sentences that end with a sentence delimiter are considered (headlines in
+     *            texts will likely be discarded)
+     * @param The pattern to use for sentence splitting.
      * @return A list with sentences.
      */
-    public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
 
         // recognize URLs so we don't break them
-        UrlTagger urlTagger = new UrlTagger();
         Annotations taggedUrls = urlTagger.tagUrls(inputText);
         int uCount = 1;
         Map<String, String> urlMapping = new HashMap<String, String>();
@@ -371,7 +395,6 @@ public final class Tokenizer {
         }
 
         // recognize dates so we don't break them
-        DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
         Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
         int dCount = 1;
         Map<String, String> dateMapping = new HashMap<String, String>();
@@ -382,12 +405,20 @@ public final class Tokenizer {
             dCount++;
         }
 
+        // recognize smileys so we don't break them
+        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        int sCount = 1;
+        Map<String, String> smileyMapping = new HashMap<String, String>();
+        for (Annotation annotation : taggedSmileys) {
+            String replacement = "SMILEY" + sCount;
+            inputText = inputText.replace(annotation.getEntity(), replacement);
+            smileyMapping.put(replacement, annotation.getEntity());
+            sCount++;
+        }
+
         List<String> sentences = new ArrayList<String>();
 
         // pattern to find the end of a sentence
-        Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
-
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
 
@@ -402,6 +433,8 @@ public final class Tokenizer {
             sentences.add(inputText.substring(lastIndex).trim());
         }
 
+        // TODO Since requirements might differ slightly from application to application, this filtering should be
+        // carried out by each calling application itself.
         if (onlyRealSentences) {
 
             List<String> realSentences = new ArrayList<String>();
@@ -413,6 +446,8 @@ public final class Tokenizer {
                     String cleanSentence = StringHelper.trim(sentence);
                     int wordCount = StringHelper.countWhitespaces(cleanSentence) + 1;
 
+                    // TODO Why is this 8?
+                    // TODO There are valid english sentences with only one word like "Go!" or "Stop!"
                     if (cleanSentence.length() > 8 && wordCount > 2) {
                         realSentences.add(sentence.trim());
                     }
@@ -442,9 +477,232 @@ public final class Tokenizer {
             }
         }
 
-        return sentencesReplacedDates;
+        // replace smileys back
+        List<String> sentencesReplacedSmileys = new ArrayList<String>();
+        for (String sentence : sentencesReplacedDates) {
+            for (Entry<String, String> entry : smileyMapping.entrySet()) {
+                sentence = sentence.replace(entry.getKey(), entry.getValue());
+            }
+            if (!sentence.isEmpty()) {
+                sentencesReplacedSmileys.add(sentence);
+            }
+        }
+
+        return sentencesReplacedSmileys;
     }
 
+    /**
+     * <p>
+     * Replaces all of the provided {@link Annotations} with mask in the {@code document}. The masking annotations are
+     * added to the {@code annotationsForMaskedText} while the text containing the masks is created based on
+     * {@code maskedText} and is returned.
+     * </p>
+     * 
+     * @param document The {@link TextDocument} containing the original text.
+     * @param annotations The {@link Annotations} to search for in the text.
+     * @param maskedText The text to add the masks to.
+     * @param mask The mask to add. This should be something that will never occur within the text itself.
+     * @return The {@code maskedText} with the additional masks added during this run of the method.
+     */
+    private static String maskAnnotations(TextDocument document, Annotations annotations, String mask,
+            List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
+        List<PositionAnnotation> tags = convert(document, annotations);
+        for (PositionAnnotation annotation : tags) {
+            // This check is necessary to handle nested masks. Such masks are not replaced in the text and should not be
+            // added to the list of masks.
+            if (maskedText.contains(annotation.getValue())) {
+                maskedText = StringUtils.replaceOnce(maskedText, annotation.getValue(), mask);
+                annotationsForMaskedText.add(annotation);
+            }
+        }
+
+        return maskedText;
+    }
+
+    /**
+     * <p>
+     * Splits the text of {@code inputDocument} into sentences.
+     * </p>
+     * 
+     * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+     */
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName) {
+        return getSentences(inputDocument, SENTENCE_SPLIT_PATTERN, featureName);
+    }
+
+    // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
+    // mixture of URLs and several sentence at the moment.
+    /**
+     * <p>
+     * Splits the text of {@code inputDocument} into sentences using the provided regular expression.
+     * </p>
+     * 
+     * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @param pattern The {@link Pattern} to use to split sentences.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
+     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+     */
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, Pattern pattern, String featureName) {
+        String inputText = inputDocument.getContent();
+        String mask = "PALLADIANMASK";
+        List<PositionAnnotation> masks = new ArrayList<PositionAnnotation>();
+        String maskedText = inputDocument.getContent();
+
+        // recognize URLs so we don't break them
+        Annotations taggedUrlsAnnotations = urlTagger.tagUrls(inputText);
+        maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
+
+        // recognize dates so we don't break them
+        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
+
+        // recognize smileys so we don't break them
+        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
+
+        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();
+
+        // pattern to find the end of a sentence
+        Matcher matcher = pattern.matcher(maskedText);
+        int lastIndex = 0;
+        int index = 0;
+
+        while (matcher.find()) {
+            int endPosition = matcher.end();
+
+            String untrimmedValue = maskedText.substring(lastIndex, endPosition);
+            String leftTrimmedValue = StringHelper.ltrim(untrimmedValue);
+            Integer leftOffset = untrimmedValue.length() - leftTrimmedValue.length();
+            String value = StringHelper.rtrim(leftTrimmedValue);
+
+            int leftIndex = lastIndex + leftOffset;
+            int rightIndex = leftIndex + value.length();
+            PositionAnnotation sentence = new PositionAnnotation(featureName, leftIndex, rightIndex, index, value);
+            sentences.add(sentence);
+            lastIndex = endPosition;
+            index++;
+        }
+
+        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
+        // character, just add the last fragment
+        if (lastIndex < maskedText.length()) {
+            // the following code is necessary to know how many characters are trimmed from the left and from the right
+            // of the remaining content.
+            String untrimmedValue = maskedText.substring(lastIndex);
+            String leftTrimmedValue = StringHelper.ltrim(untrimmedValue);
+            Integer leftOffset = untrimmedValue.length() - leftTrimmedValue.length();
+            String value = StringHelper.rtrim(leftTrimmedValue);
+            // Since there often is a line break at the end of a file this should not be added here.
+            if (!value.isEmpty()) {
+                int leftIndex = lastIndex + leftOffset;
+                int rightIndex = leftIndex + value.length();
+                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(featureName, leftIndex, rightIndex,
+                        index, value);
+                sentences.add(lastSentenceAnnotation);
+            }
+        }
+
+        // replace masks back
+        Collections.sort(masks, new Comparator<PositionAnnotation>() {
+
+            @Override
+            public int compare(PositionAnnotation o1, PositionAnnotation o2) {
+                return Integer.valueOf(o1.getStartPosition()).compareTo(o2.getStartPosition());
+            }
+        });
+        return recalculatePositions(inputDocument, maskedText, masks, sentences, featureName);
+    }
+
+    /**
+     * <p>
+     * Remapps the start and end position of all sentences from a masked text to the true text of the
+     * {@code inputDocument}.
+     * </p>
+     * 
+     * @param inputDocument The {@link TextDocument} containing the original text.
+     * @param maskedText The text where dates, urls and smileys are masked so they do not break sentence splitting.
+     * @param maskAnnotations A list of masked {@link PositionAnnotation}s that must be sorted by start position.
+     * @param sentences The extracted sentences on {@code maskedText}, which should be remapped to the text of the
+     *            {@code inputDocument}.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
+     */
+    private static List<PositionAnnotation> recalculatePositions(TextDocument inputDocument, String maskedText,
+            List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences, String featureName) {
+        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
+
+        int lastTransformedEndPosition = 0;
+        int lastEndPosition = 0;
+        String mask = "PALLADIANMASK";
+        Pattern maskPattern = Pattern.compile(mask);
+        int maskLength = mask.length();
+        int maskAnnotationIndex = 0;
+        for (PositionAnnotation sentence : sentences) {
+            int spaceBetweenSentences = sentence.getStartPosition() - lastEndPosition;
+            int transformedStartPosition = lastTransformedEndPosition + spaceBetweenSentences;
+            int currentOffset = transformedStartPosition - sentence.getStartPosition();
+            int transformedEndPosition = sentence.getEndPosition() + currentOffset;
+
+            // Search sentences for PALLADIANMASK
+            Matcher maskMatcher = maskPattern.matcher(sentence.getValue());
+            while (maskMatcher.find()) {
+                PositionAnnotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
+                transformedEndPosition += maskAnnotation.getValue().length() - maskLength;
+                maskAnnotationIndex++;
+                // handle contained masks by jumping over them
+                // while (maskAnnotationIndex < maskAnnotations.size()
+                // && maskAnnotations.get(maskAnnotationIndex).getEndPosition() <= maskAnnotation.getEndPosition()) {
+                // maskAnnotationIndex++;
+                // }
+            }
+
+            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
+                    transformedEndPosition));
+            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, transformedStartPosition,
+                    transformedEndPosition, sentence.getIndex(), transformedValue);
+            ret.add(transformedSentence);
+            lastTransformedEndPosition = transformedEndPosition;
+            lastEndPosition = sentence.getEndPosition();
+        }
+
+        return ret;
+    }
+
+    /**
+     * <p>
+     * Converts NER {@link Annotations} to a {@link List} of pipeline {@link PositionAnnotation}s, referencing the
+     * provided document.
+     * </p>
+     * 
+     * @param annotations The {@link Annotations} to convert.
+     * @return A list of {@link PositionAnnotation}s representing the provided {@link Annotations} on the provided
+     *         {@link TextDocument}.
+     */
+    private static List<PositionAnnotation> convert(TextDocument document, Annotations annotations) {
+        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
+
+        for (Annotation annotation : annotations) {
+            int index = annotations.indexOf(annotation);
+            String value = annotation.getEntity();
+            int startPosition = annotation.getOffset();
+            int endPosition = annotation.getOffset() + annotation.getLength();
+            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
+                    index, value);
+
+            ret.add(positionAnnotation);
+        }
+
+        return ret;
+    }
+
+    /**
+     * <p>
+     * Splits a text into sentences.
+     * </p>
+     * 
+     * @param inputText The text to split.
+     * @return The senteces as they appear in the text.
+     */
     public static List<String> getSentences(String inputText) {
         return getSentences(inputText, false);
     }
@@ -479,13 +737,16 @@ public final class Tokenizer {
                         && Character.isUpperCase(string.charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) || string
-                        .charAt(startIndex + 2) == '-') && string.charAt(startIndex + 1) == ' ';
+                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2))
+                        || string.charAt(startIndex + 2) == '-' || string.charAt(startIndex + 2) == '=')
+                        && string.charAt(startIndex + 1) == ' ';
             }
+
             // break after period
             if (!pointIsSentenceDelimiter && string.charAt(startIndex + 1) == '\n') {
                 pointIsSentenceDelimiter = true;
             }
+
             if (pointIsSentenceDelimiter) {
                 break;
             }
@@ -605,11 +866,14 @@ public final class Tokenizer {
 
     public static void main(String[] args) throws IOException {
 
-        System.out
-                .println(Tokenizer
-                        .getSentence(
-                                "Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.",
-                                5));
+        StopWatch stopWatch = new StopWatch();
+
+        for (int i = 0; i < 1000; i++) {
+            Tokenizer
+                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+
         // System.out.println(Tokenizer.tokenize("schön"));
         // System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
         System.exit(0);

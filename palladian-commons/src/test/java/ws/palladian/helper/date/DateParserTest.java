@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.RegExp;
 
 /** @formatter:off */
 public class DateParserTest {
@@ -342,6 +342,9 @@ public class DateParserTest {
         
         // Year
         assertEquals("2012", DateParser.findDate("it happened in 2012", RegExp.DATE_CONTEXT_YYYY).getNormalizedDateString());
+        
+        // date with line break
+        assertEquals("2006-02-06", DateParser.findDate("06. Feb\n06", RegExp.DATE_EU_D_MMMM_Y).getNormalizedDateString());
     }
     
     @Test

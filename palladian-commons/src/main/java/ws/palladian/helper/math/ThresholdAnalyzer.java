@@ -3,8 +3,7 @@ package ws.palladian.helper.math;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
+import ws.palladian.helper.collection.CountMap;
 
 /**
  * <p>
@@ -22,9 +21,9 @@ public class ThresholdAnalyzer {
 
     private final int numBins;
 
-    private final Bag<Integer> truePositiveItems;
+    private final CountMap<Integer> truePositiveItems;
 
-    private final Bag<Integer> retrievedItems;
+    private final CountMap<Integer> retrievedItems;
 
     private int relevantItems;
 
@@ -49,8 +48,8 @@ public class ThresholdAnalyzer {
             throw new IllegalArgumentException("numBins must be least two, was " + numBins);
         }
         this.numBins = numBins;
-        this.retrievedItems = new HashBag<Integer>();
-        this.truePositiveItems = new HashBag<Integer>();
+        this.retrievedItems = CountMap.create();
+        this.truePositiveItems = CountMap.create();
         this.relevantItems = 0;
     }
 
@@ -148,6 +147,10 @@ public class ThresholdAnalyzer {
             double threshold = (double)i / numBins;
             double pr = getPrecision(threshold);
             double rc = getRecall(threshold);
+            if (rc == 0) {
+                // no more useful information from here, stop.
+                break;
+            }
             double f1 = getF1(threshold);
             sb.append(format.format(threshold)).append('\t');
             sb.append(format.format(pr)).append('\t');

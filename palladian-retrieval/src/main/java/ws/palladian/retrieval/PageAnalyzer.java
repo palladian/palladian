@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -23,7 +24,6 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -32,27 +32,12 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  * @author David Urbansky
  */
-public class PageAnalyzer {
+public final class PageAnalyzer {
 
     public static final Logger LOGGER = Logger.getLogger(PageAnalyzer.class);
-
-    private Document document = null;
-
-    // XXX general namespace handling, not only xhtml
-    public PageAnalyzer() {
-    }
-
-    public Document getDocument() {
-        return this.document;
-    }
-
-    public void setDocument(Document document) {
-        this.document = document;
-    }
-
-    public void setDocument(String url) {
-        DocumentRetriever c = new DocumentRetriever();
-        this.document = c.getWebDocument(url);
+    
+    private PageAnalyzer() {
+        // no instance.
     }
 
     /**
@@ -60,9 +45,10 @@ public class PageAnalyzer {
      * Find and return the content of the &lt;title&gt; tag of the web page.
      * </p>
      * 
+     * @param document The document for which to get the title.
      * @return The title of the web page.
      */
-    public String getTitle() {
+    public static String getTitle(Document document) {
 
         String xPath = "//title";
 
@@ -84,10 +70,10 @@ public class PageAnalyzer {
      * 
      * @return A string array with 0: the xpath to the table row, 1: the first td index and 2: the number of rows.
      */
-    public String[] detectFactTable() {
+    public static String[] detectFactTable(Document document) {
         String[] tableParameters = { "", "", "" };
 
-        XPathSet xPaths = getXPathSet();
+        XPathSet xPaths = getXPathSet(document);
 
         tableParameters[0] = xPaths.getHighestCountXPath(4);
 
@@ -118,7 +104,7 @@ public class PageAnalyzer {
      * 
      * @return A set of xPaths.
      */
-    private XPathSet getXPathSet() {
+    private static XPathSet getXPathSet(Document document) {
         String[] listElements = { "//td", "//th" };
         XPathSet xPathSet = new XPathSet();
 
@@ -146,19 +132,11 @@ public class PageAnalyzer {
      * @param keyword The keyword.
      * @return
      */
-    public LinkedHashSet<String> constructAllXPaths(String keyword) {
+    public static LinkedHashSet<String> constructAllXPaths(Document document, String keyword) {
         return constructAllXPaths(document, keyword, false, false);
     }
 
-    public LinkedHashSet<String> constructAllXPaths(Document document, String keyword) {
-        return constructAllXPaths(document, keyword, false, false);
-    }
-
-    public LinkedHashSet<String> constructAllXPaths(String keyword, boolean deleteAllIndices, boolean wordMatch) {
-        return constructAllXPaths(document, keyword, deleteAllIndices, wordMatch);
-    }
-
-    public LinkedHashSet<String> constructAllXPaths(Document document, String keyword, boolean deleteAllIndices,
+    public static LinkedHashSet<String> constructAllXPaths(Document document, String keyword, boolean deleteAllIndices,
             boolean wordMatch) {
         LinkedHashSet<String> xpaths = new LinkedHashSet<String>();
 
@@ -194,6 +172,21 @@ public class PageAnalyzer {
 
             nsxpaths.add(currentXpath);
         }
+
+        // remove xPath that are more general, e.g. remove "/body" when we have "/body/div"
+        String longestXPath = "";
+        for (String string : nsxpaths) {
+            if (string.length() > longestXPath.length()) {
+                longestXPath = string;
+            }
+        }
+        Set<String> toRemove = CollectionHelper.newHashSet();
+        for (String string : nsxpaths) {
+            if (longestXPath.length() > string.length() && longestXPath.startsWith(string)) {
+                toRemove.add(string);
+            }
+        }
+        nsxpaths.removeAll(toRemove);
 
         return nsxpaths;
     }
@@ -233,7 +226,7 @@ public class PageAnalyzer {
      * @param xPathSet A set of xPaths.
      * @return A string representing the mutual xPath.
      */
-    public String makeMutualXPath(Set<String> xPathSet) {
+    public static String makeMutualXPath(Set<String> xPathSet) {
 
         if (xPathSet.isEmpty()) {
             return "";
@@ -338,7 +331,7 @@ public class PageAnalyzer {
      * @param wordMatch If true a whole word has to match the keyword.
      * @param xpaths A set of xPath satisfying the conditions.
      */
-    private LinkedHashSet<String> visit(Node node, String keyword, boolean wordMatch, LinkedHashSet<String> xpaths) {
+    private static LinkedHashSet<String> visit(Node node, String keyword, boolean wordMatch, LinkedHashSet<String> xpaths) {
         // System.out.println(indent+node.getNodeName());
 
         try {
@@ -350,11 +343,20 @@ public class PageAnalyzer {
                 // check whether the keyword appears in the node text, do not consider comment nodes (type 8)
                 // TODO do not take if attribute is part of another word like CAPITALism
 
-                // if (child.getNodeValue() != null)
-                // System.out.println("found "+child.getNodeType()+","+child.getNodeName()+","+child.getNodeValue());
+                // if (child
+                // .getTextContent()
+                // .contains(
+                // "BERLIN (Reuters) - Germany will not back a Palestinian bid for a diplomatic upgrade at the United Nations, the government spokesman said on Wednesday."))
+                // {
+                // System.out.println("found tc:" + child.getTextContent());
+                // }
 
-                if (child.getNodeValue() != null && child.getNodeType() != 8
-                        && child.getNodeValue().toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
+                    // System.out.println("found " + child.getNodeType() + "," + child.getNodeName() + ","
+                    // + child.getNodeValue());
+
+                if (child.getTextContent().contains(keyword)
+                        || (child.getNodeValue() != null && child.getNodeType() != 8 && child.getNodeValue()
+                                .toLowerCase().indexOf(keyword.toLowerCase()) > -1)) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch) {
@@ -398,7 +400,7 @@ public class PageAnalyzer {
      * @param node The start node.
      * @return The string of the constructed xPath.
      */
-    public String constructXPath(Node node) {
+    public static String constructXPath(Node node) {
         String xpath = "";
 
         while (true) {
@@ -454,6 +456,84 @@ public class PageAnalyzer {
         // Logger.getInstance().log("constructed xpath: "+xpath.toLowerCase(),false);
         return xpath;
     }
+    
+    /**
+     * <p>
+     * Constructs an XPath with id and class attributes for the supplied {@link Node}, like
+     * <code>/html/body/div#cnnContainer/div.cnn_maincntnr/div.cnn_contentarea</code>.
+     * </p>
+     * 
+     * @param node The start node, not <code>null</code>.
+     * @return The string of the constructed XPath.
+     */
+    public static String constructIdClassXPath(Node node) {
+        Validate.notNull(node, "node must not be null");
+        
+        StringBuilder result = new StringBuilder();
+        while (node != null) {
+            StringBuilder current = new StringBuilder();
+            String nodeName = node.getNodeName();
+            if (nodeName.equals("#document")) {
+                break;
+            }
+            current.append(nodeName);
+            current.append(createIdClassString(node));
+//            if (node.getAttributes() != null) {
+//                Node idAttributes = node.getAttributes().getNamedItem("id");
+//                if (idAttributes != null) {
+//                    String idValues = idAttributes.getNodeValue();
+//                    for (String id : idValues.split("\\s")) {
+//                        current.append('#').append(id);
+//                    }
+//                }
+//                Node classAttributes = node.getAttributes().getNamedItem("class");
+//                if (classAttributes != null) {
+//                    String classValues = classAttributes.getNodeValue();
+//                    for (String classValue : classValues.split("\\s")) {
+//                        current.append('.').append(classValue);
+//                    }
+//                }
+//            }
+            result.append(StringHelper.reverseString(current.toString())).append('/');
+            node = node.getParentNode();
+        }
+        return StringHelper.reverseString(result.toString());
+    }
+    
+    /**
+     * <p>
+     * Create a string with id and class attribute for an XHTML node, like <code>#id5.class1.class2</code>.
+     * </p>
+     * 
+     * @param node The node for which to create id/class string, not <code>null</code>.
+     * @return The id/class string.
+     */
+    public static String createIdClassString(Node node) {
+        Validate.notNull(node, "node must not be null");
+        
+        StringBuilder result = new StringBuilder();
+        if (node.getAttributes() != null) {
+            Node idAttributes = node.getAttributes().getNamedItem("id");
+            if (idAttributes != null) {
+                String idValues = idAttributes.getNodeValue().trim();
+                for (String id : idValues.split("\\s+")) {
+                    if (!id.isEmpty()) {
+                        result.append('#').append(id);
+                    }
+                }
+            }
+            Node classAttributes = node.getAttributes().getNamedItem("class");
+            if (classAttributes != null) {
+                String classValues = classAttributes.getNodeValue().trim();
+                for (String classValue : classValues.split("\\s+")) {
+                    if (!classValue.isEmpty()) {
+                        result.append('.').append(classValue);
+                    }
+                }
+            }
+        }
+        return result.toString();
+    }
 
     /**
      * Find out whether the node specified by the xPath is in a table (in a td cell).
@@ -465,7 +545,7 @@ public class PageAnalyzer {
      *            not table structures).
      * @return True if given xpath points to a node in a table, else false.
      */
-    public boolean nodeInTable(String xPath, int lookBack) {
+    public static boolean nodeInTable(String xPath, int lookBack) {
 
         boolean inTable = false;
         String[] nodes = xPath.split("/");
@@ -486,7 +566,7 @@ public class PageAnalyzer {
      * @param xPath The xPath.
      * @return The string representation of an xPath.
      */
-    public String getTableCellPath(String xPath) {
+    public static String getTableCellPath(String xPath) {
 
         String[] nodes = xPath.split("/");
         int index = nodes.length;
@@ -514,7 +594,7 @@ public class PageAnalyzer {
      * @param xpath The xPath.
      * @return The string representation of an xPath.
      */
-    public String getTargetNode(String xpath) {
+    public static String getTargetNode(String xpath) {
         int lastNodeIndex = xpath.lastIndexOf("/");
         String pointingNode = "";
 
@@ -533,7 +613,7 @@ public class PageAnalyzer {
      * @param lookBack How many parent nodes should be considered.
      * @return True if the specified xPath is in a box, else false.
      */
-    public boolean nodeInBox(String xPath, int lookBack) {
+    public static boolean nodeInBox(String xPath, int lookBack) {
 
         boolean inBox = false;
         String[] nodes = xPath.split("/");
@@ -555,7 +635,7 @@ public class PageAnalyzer {
      * @param xPath The xPath.
      * @return The potentially shortened xPath if found, else the input xPath.
      */
-    public String findLastBoxSection(String xPath) {
+    public static String findLastBoxSection(String xPath) {
 
         String[] nodes = xPath.split("/");
         int index = nodes.length;
@@ -579,7 +659,7 @@ public class PageAnalyzer {
         return shortenedXPath.toString();
     }
 
-    public String getNextSibling(String xPath) {
+    public static String getNextSibling(String xPath) {
         return getNextSibling(xPath, false);
     }
 
@@ -598,7 +678,7 @@ public class PageAnalyzer {
      * @param tableCellSibling If true, only siblings of table cells (td,th) are searched.
      * @return The xpath pointing to the sibling.
      */
-    public String getNextSibling(String xPath, boolean tableCellSibling) {
+    public static String getNextSibling(String xPath, boolean tableCellSibling) {
         int lastOpeningBrackets;
         int lastClosingBrackets;
 
@@ -641,7 +721,7 @@ public class PageAnalyzer {
                 + xPath.substring(lastClosingBrackets);
     }
 
-    public String getNextTableCell(String xPath) {
+    public static String getNextTableCell(String xPath) {
         return getNextSibling(xPath, true);
     }
 
@@ -652,7 +732,7 @@ public class PageAnalyzer {
      * @param xPath The xPath.
      * @return The xPath pointing to the first table cell of the deepest table.
      */
-    public String getFirstTableCell(String xPath) {
+    public static String getFirstTableCell(String xPath) {
         int lastOpeningBrackets;
         int lastClosingBrackets;
 
@@ -680,8 +760,8 @@ public class PageAnalyzer {
      * @param attributeXPath This path should point to one attribute cell.
      * @return The number of table rows.
      */
-    public int getNumberOfTableRows(String attributeXPath) {
-        return getTableRows(getDocument(), attributeXPath, getNextSibling(attributeXPath, true)).size();
+    public static int getNumberOfTableRows(Document document, String attributeXPath) {
+        return getTableRows(document, attributeXPath, getNextSibling(attributeXPath, true)).size();
     }
 
     /**
@@ -690,19 +770,8 @@ public class PageAnalyzer {
      * @param attributeXPath This path should point to one attribute cell.
      * @return An array of table row xPaths.
      */
-    public List<String[]> getTableRows(String attributeXPath) {
-        return getTableRows(getDocument(), attributeXPath, getNextSibling(attributeXPath, true));
-    }
-
-    /**
-     * Get rows of a table.
-     * 
-     * @param attributeXPath This path should point to one attribute cell.
-     * @param siblingXPath This path should point to the fact value cell of the attribute.
-     * @return An array of table row xPaths.
-     */
-    public List<String[]> getTableRows(String attributeXPath, String siblingXPath) {
-        return getTableRows(getDocument(), attributeXPath, siblingXPath);
+    public static List<String[]> getTableRows(Document document, String attributeXPath) {
+        return getTableRows(document, attributeXPath, getNextSibling(attributeXPath, true));
     }
 
     /**
@@ -713,7 +782,7 @@ public class PageAnalyzer {
      * @param siblingXPath This path should point to the fact value cell of the attribute.
      * @return An array of table row xPaths.
      */
-    public List<String[]> getTableRows(Document document, String attributeXPath, String siblingXPath) {
+    public static List<String[]> getTableRows(Document document, String attributeXPath, String siblingXPath) {
         ArrayList<String[]> tableRowsXPaths = new ArrayList<String[]>();
 
         int lastOpeningBrackets = Math.max(attributeXPath.lastIndexOf("tr["), attributeXPath.lastIndexOf("TR[")) + 2;
@@ -770,7 +839,7 @@ public class PageAnalyzer {
      * @param xPath
      * @return
      */
-    public String getNextTableRow(String xPath) {
+    public static String getNextTableRow(String xPath) {
 
         int trIndex = xPath.toLowerCase().lastIndexOf("tr");
 
@@ -808,7 +877,7 @@ public class PageAnalyzer {
      * @param tableTDXPath The xPath to the table data tag.
      * @return The number of columns.
      */
-    public int getNumberOfTableColumns(Document document, String tableTDXPath) {
+    public static int getNumberOfTableColumns(Document document, String tableTDXPath) {
         int numberOfColumns = 0;
 
         // System.out.println(getParentNode(getTableCellPath(tableTDXPath)));
@@ -890,11 +959,7 @@ public class PageAnalyzer {
     //        return sb.toString();
     //    }
 
-    public String getTextByXPath(String xPath) {
-        return getTextByXPath(document, xPath);
-    }
-
-    public String getTextByXPath(Document document, String xpath) {
+    public static String getTextByXPath(Document document, String xpath) {
 
         if (document == null || xpath.length() == 0) {
             Logger.getRootLogger().warn("document is NULL or xpath is empty");
@@ -937,7 +1002,7 @@ public class PageAnalyzer {
         return sb.toString();
     }
 
-    private StringBuilder getSeparatedTextContents(Node node, StringBuilder currentString) throws OutOfMemoryError {
+    private static StringBuilder getSeparatedTextContents(Node node, StringBuilder currentString) throws OutOfMemoryError {
         Node child = node.getFirstChild();
 
         int maximumTags = 50;
@@ -971,66 +1036,63 @@ public class PageAnalyzer {
         return currentString;
     }
 
-    private StringBuilder getChildHTMLContents(Node node, StringBuilder currentString) {
-        Node child = node.getFirstChild();
-
-        int maximumTags = 50;
-        int tagCount = 0;
-        while (child != null && tagCount < maximumTags) {
-            // System.out.println(child.getNodeType() + " " + child.getNodeName());
-            // do not consider comment nodes (type 8)
-            if (child.getNodeType() == 3 || child.getNodeType() == 1) {
-                if (child.getNodeValue() != null && child.getNodeName().startsWith("#")) {
-                    if (!child.getNodeName().startsWith("#")) {
-                        currentString.append("<");
-                        currentString.append(child.getNodeName());
-                        currentString.append(">");
-                        currentString.append(child.getNodeValue());
-                        currentString.append("</");
-                        currentString.append(child.getNodeName());
-                        currentString.append(">");
-                    } else {
-                        currentString.append(child.getNodeValue());
-                    }
-                } else {
-
-                    currentString.append("<").append(child.getNodeName()).append(" ");
-
-                    // add attributes
-                    NamedNodeMap nnm = child.getAttributes();
-                    for (int i = 0; i < nnm.getLength(); i++) {
-                        Node attributeNode = nnm.item(i);
-                        currentString.append(attributeNode.getNodeName());
-                        currentString.append("=\"");
-                        currentString.append(attributeNode.getTextContent()).append("\" ");
-                    }
-
-                    currentString.append("/>");
-                }
-            }
-
-            currentString = getChildHTMLContents(child, currentString);
-            child = child.getNextSibling();
-            tagCount++;
-        }
-
-        // if (currentString.endsWith(", ")) currentString = currentString.substring(0,currentString.length()-2);
-
-        return currentString;
-    }
+//    private StringBuilder getChildHTMLContents(Node node, StringBuilder currentString) {
+//        Node child = node.getFirstChild();
+//
+//        int maximumTags = 50;
+//        int tagCount = 0;
+//        while (child != null && tagCount < maximumTags) {
+//            // System.out.println(child.getNodeType() + " " + child.getNodeName());
+//            // do not consider comment nodes (type 8)
+//            if (child.getNodeType() == 3 || child.getNodeType() == 1) {
+//                if (child.getNodeValue() != null && child.getNodeName().startsWith("#")) {
+//                    if (!child.getNodeName().startsWith("#")) {
+//                        currentString.append("<");
+//                        currentString.append(child.getNodeName());
+//                        currentString.append(">");
+//                        currentString.append(child.getNodeValue());
+//                        currentString.append("</");
+//                        currentString.append(child.getNodeName());
+//                        currentString.append(">");
+//                    } else {
+//                        currentString.append(child.getNodeValue());
+//                    }
+//                } else {
+//
+//                    currentString.append("<").append(child.getNodeName()).append(" ");
+//
+//                    // add attributes
+//                    NamedNodeMap nnm = child.getAttributes();
+//                    for (int i = 0; i < nnm.getLength(); i++) {
+//                        Node attributeNode = nnm.item(i);
+//                        currentString.append(attributeNode.getNodeName());
+//                        currentString.append("=\"");
+//                        currentString.append(attributeNode.getTextContent()).append("\" ");
+//                    }
+//
+//                    currentString.append("/>");
+//                }
+//            }
+//
+//            currentString = getChildHTMLContents(child, currentString);
+//            child = child.getNextSibling();
+//            tagCount++;
+//        }
+//
+//        // if (currentString.endsWith(", ")) currentString = currentString.substring(0,currentString.length()-2);
+//
+//        return currentString;
+//    }
 
     /**
      * If an xPath points to several (sibling) nodes, get the text of each node and add it to a list.
      * 
+     * @param document The document.
      * @param xPath The xPath.
      * @return A list of contents from the nodes that were targeted with the xPath.
      */
-    public List<String> getTextsByXPath(String xPath) {
-        return getTextsByXpath(document, xPath);
-    }
-
     //    @SuppressWarnings("unchecked")
-    public List<String> getTextsByXpath(Document document, String xPath) {
+    public static List<String> getTextsByXPath(Document document, String xPath) {
 
         ArrayList<String> texts = new ArrayList<String>();
 
@@ -1078,7 +1140,7 @@ public class PageAnalyzer {
     // TODO sibling must be different page (sort page leads to same page
     // http://www.cineplex.com/Movies/AllMovies.aspx?sort=2,
     // http://www.expansys.com/n.aspx?c=169)
-    public String getSiblingPage(Document document) {
+    public static String getSiblingPage(Document document) {
 
         String siblingURL = "";
         String domain = UrlHelper.getDomain(document.getDocumentURI(), true);
@@ -1175,11 +1237,6 @@ public class PageAnalyzer {
         return siblingURL;
     }
 
-    public String getSiblingPage(String url) {
-        setDocument(url);
-        return getSiblingPage(getDocument());
-    }
-
     public static String extractTitle(Document webPage) {
         String title = "";
 
@@ -1269,58 +1326,21 @@ public class PageAnalyzer {
 
         List<String> keywords = new ArrayList<String>();
 
-        List<Node> metaNodes = XPathHelper.getNodes(webPage, "//meta");
+        List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
-            if (metaNode.getAttributes().getNamedItem("name") != null
-                    && metaNode.getAttributes().getNamedItem("content") != null
-                    && metaNode.getAttributes().getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
-                String keywordString = metaNode.getAttributes().getNamedItem("content").getTextContent();
+            NamedNodeMap attrs = metaNode.getAttributes();
+            if (attrs.getNamedItem("name") != null && attrs.getNamedItem("content") != null
+                    && attrs.getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
+                String keywordString = attrs.getNamedItem("content").getTextContent();
                 String[] keywordArray = keywordString.split(",");
-                for (String string : keywordArray) {
-                    keywords.add(string.trim());
+                for (String keyword : keywordArray) {
+                    keywords.add(keyword.trim());
                 }
                 break;
             }
         }
 
         return keywords;
-    }
-
-    /**
-     * 
-     * Extracts the content of the body out of a given pageContent; textOnly-Parameter allows to get the textual content
-     * FIXME: other versions of this exist
-     * 
-     */
-    public static String extractBodyContent(String pageContent, boolean textOnly) {
-
-        String bodyContent = "";
-        List<String> tempList = HtmlHelper.getConcreteTags(pageContent, "body");
-
-        if (tempList.size() > 0) {
-            bodyContent = tempList.get(0);
-        } else {
-            LOGGER.error("========Fehler bei extractBodyContent===== ");
-            LOGGER.error("body could not extracted");
-            // return "error" to divide between empty string and error
-            return "error";
-        }
-
-        if (textOnly) {
-            boolean stripTags = true;
-            boolean stripComments = true;
-            boolean stripJSAndCSS = true;
-            boolean joinTagsAndRemoveNewlines = false;
-
-            // Remove all tags, comments, JS and CSS from body
-            bodyContent = HtmlHelper.stripHtmlTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
-                    joinTagsAndRemoveNewlines);
-            bodyContent = bodyContent.replaceAll("&nbsp;", " ");
-            bodyContent = bodyContent.replaceAll("&amp;", "&");
-            return bodyContent;
-        }
-
-        return bodyContent;
     }
 
     public static String removeXPathIndices(String xPath) {

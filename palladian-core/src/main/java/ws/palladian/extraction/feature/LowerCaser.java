@@ -3,7 +3,7 @@
  */
 package ws.palladian.extraction.feature;
 
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 
 /**
  * <p>
@@ -14,24 +14,10 @@ import ws.palladian.processing.PipelineDocument;
  * @version 1.0
  * @since 0.1.7
  */
-public final class LowerCaser extends StringDocumentPipelineProcessor {
-
-    /**
-     * <p>
-     * Used to serialize objects of this class. Should only change of the set of attributes of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = -5655408816402154527L;
-
-    /**
-     * {@see AbstractPipelineProcessor#AbstractPipelineProcessor()}
-     */
-    public LowerCaser() {
-        super();
-    }
+public final class LowerCaser extends TextDocumentPipelineProcessor {
 
     @Override
-    public void processDocument(PipelineDocument<String> document) {
+    public void processDocument(TextDocument document) {
         String text = document.getContent();
         String modifiedText = text.toLowerCase();
         document.setContent(modifiedText);

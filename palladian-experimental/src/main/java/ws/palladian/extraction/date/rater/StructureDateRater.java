@@ -18,28 +18,28 @@ import ws.palladian.helper.date.ExtractedDate;
  * 
  */
 public class StructureDateRater extends TechniqueDateRater<StructureDate> {
-	
-	protected byte hightPriority;
-	protected byte middlePriority;
-	protected byte lowPriority;
-	
-    public StructureDateRater(PageDateType dateType) {
-		super(dateType);
-		if(this.dateType.equals(PageDateType.PUBLISH)){
-			hightPriority = KeyWords.PUBLISH_KEYWORD;
-			middlePriority = KeyWords.MODIFIED_KEYWORD;
-			lowPriority = KeyWords.OTHER_KEYWORD;
-		}else{
-			hightPriority = KeyWords.MODIFIED_KEYWORD;
-			middlePriority = KeyWords.PUBLISH_KEYWORD;
-			lowPriority = KeyWords.OTHER_KEYWORD;
-		}
-	}
 
-	@Override
+    protected byte hightPriority;
+    protected byte middlePriority;
+    protected byte lowPriority;
+
+    public StructureDateRater(PageDateType dateType) {
+        super(dateType);
+        if (this.dateType.equals(PageDateType.PUBLISH)) {
+            hightPriority = KeyWords.PUBLISH_KEYWORD;
+            middlePriority = KeyWords.MODIFIED_KEYWORD;
+            lowPriority = KeyWords.OTHER_KEYWORD;
+        } else {
+            hightPriority = KeyWords.MODIFIED_KEYWORD;
+            middlePriority = KeyWords.PUBLISH_KEYWORD;
+            lowPriority = KeyWords.OTHER_KEYWORD;
+        }
+    }
+
+    @Override
     public List<RatedDate<StructureDate>> rate(List<StructureDate> list) {
-	    List<RatedDate<StructureDate>> result = evaluateStructDate(list);
-	    return result;
+        List<RatedDate<StructureDate>> result = evaluateStructDate(list);
+        return result;
     }
 
     /**
@@ -54,7 +54,7 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
     private List<RatedDate<StructureDate>> evaluateStructDate(List<StructureDate> structDates) {
         List<RatedDate<StructureDate>> result = CollectionHelper.newArrayList();
         for (StructureDate structDate : structDates) {
-            byte keywordPriority = KeyWords.getKeywordPriority(structDate);
+            byte keywordPriority = KeyWords.getKeywordPriority(structDate.getKeyword());
             double rate;
             if (keywordPriority == hightPriority) {
                 rate = 1;
@@ -72,18 +72,18 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
         List<StructureDate> middleRatedDates = DateExtractionHelper.getRatedDates(result, -1);
         List<StructureDate> lowRatedDates = DateExtractionHelper.getRatedDates(result, -2);
         if (highRatedDates.size() > 0) {
-            setRateWhightedByGroups(highRatedDates, result, DateExactness.MINUTE);
+            setRateWheightedByGroups(highRatedDates, result, DateExactness.MINUTE);
             result.addAll(DateExtractionHelper.setRate(middleRatedDates, 0.0));
             result.addAll(DateExtractionHelper.setRate(lowRatedDates, 0.0));
         } else if (middleRatedDates.size() > 0) {
-            setRateWhightedByGroups(middleRatedDates, result, DateExactness.MINUTE);
+            setRateWheightedByGroups(middleRatedDates, result, DateExactness.MINUTE);
             result.addAll(DateExtractionHelper.setRate(lowRatedDates, 0.0));
         } else {
-            setRateWhightedByGroups(lowRatedDates, result, DateExactness.MINUTE);
+            setRateWheightedByGroups(lowRatedDates, result, DateExactness.MINUTE);
         }
         return result;
     }
-    
+
     /**
      * Calculates the rate for dates.<br>
      * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
@@ -93,7 +93,8 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * @param datesToSet
      * @param dates
      */
-    private static <T extends ExtractedDate> void setRateWhightedByGroups(List<T> datesToSet, List<RatedDate<T>> dates, DateExactness compareDepth) {
+    private static <T extends ExtractedDate> void setRateWheightedByGroups(List<T> datesToSet, List<RatedDate<T>> dates,
+            DateExactness compareDepth) {
         List<List<T>> groupedDates = DateExtractionHelper.cluster(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {

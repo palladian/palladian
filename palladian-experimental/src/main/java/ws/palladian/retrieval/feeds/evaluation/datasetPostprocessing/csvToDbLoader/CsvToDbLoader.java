@@ -5,7 +5,6 @@ import java.util.Timer;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
@@ -32,7 +31,7 @@ public class CsvToDbLoader {
     /**
      * Defines the time in milliseconds when the checkScheduler should wake up to see if all feeds are processed.
      */
-    private final long wakeUpInterval = 60 * DateHelper.SECOND_MS;
+    private final long wakeUpInterval = 60 * 1000;
 
     public CsvToDbLoader() {
         checkScheduler = new Timer();

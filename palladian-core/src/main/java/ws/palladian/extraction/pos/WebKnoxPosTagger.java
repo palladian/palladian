@@ -9,8 +9,8 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.retrieval.DocumentRetriever;
 
 /**
@@ -25,31 +25,21 @@ public class WebKnoxPosTagger extends BasePosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(WebKnoxPosTagger.class);
-    
-    /** The name of this POS tagger. */
-    private static final String TAGGER_NAME = "Palladian POS Tagger";
 
-    private final String appId;
+    /** The name of this POS tagger. */
+    private static final String TAGGER_NAME = "WebKnox POS Tagger";
+
     private final String apiKey;
 
     public WebKnoxPosTagger(String appId, String apiKey) {
-        if (appId == null || appId.isEmpty()) {
-            throw new IllegalArgumentException("The required App ID is missing.");
-        }
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalArgumentException("The required API key is missing.");
         }
-        this.appId = appId;
         this.apiKey = apiKey;
     }
 
     public WebKnoxPosTagger(Configuration configuration) {
         this(configuration.getString("api.webknox.appId"), configuration.getString("api.webknox.apiKey"));
-    }
-
-    public static void main(String[] args) {
-        WebKnoxPosTagger palladianPosTagger = new WebKnoxPosTagger(ConfigHolder.getInstance().getConfig());
-        System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
     @Override
@@ -58,16 +48,15 @@ public class WebKnoxPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<Annotation<String>> annotations) {
+    public void tag(List<PositionAnnotation> annotations) {
         StringBuilder text = new StringBuilder();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             text.append(annotation.getValue()).append(" ");
         }
-        
+
         DocumentRetriever retriever = new DocumentRetriever();
         String url = "http://webknox.com/api/text/posTags?text=";
         url += UrlHelper.urlEncode(text.toString().trim());
-        url += "&appId=" + appId;
         url += "&apiKey=" + apiKey;
         JSONObject result = retriever.getJsonObject(url);
 
@@ -78,7 +67,7 @@ public class WebKnoxPosTagger extends BasePosTagger {
             LOGGER.error(e.getMessage());
         }
 
-//        TagAnnotations tagAnnotations = new TagAnnotations();
+        //        TagAnnotations tagAnnotations = new TagAnnotations();
 
         String[] words = taggedText.split("\\s");
         int i = 0;
@@ -86,15 +75,20 @@ public class WebKnoxPosTagger extends BasePosTagger {
             String[] parts = word.split("/");
 
             String tag = parts[1].toUpperCase();
-            annotations.get(i).addFeature(new NominalFeature(PROVIDED_FEATURE, tag));
+            annotations.get(i).getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, tag));
             i++;
-            
-//            TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(parts[0]), tag,
-//                    parts[0]);
-//            tagAnnotations.add(tagAnnotation);
+
+            //            TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(parts[0]), tag,
+            //                    parts[0]);
+            //            tagAnnotations.add(tagAnnotation);
         }
 
-        
+
+    }
+
+    public static void main(String[] args) {
+        WebKnoxPosTagger palladianPosTagger = new WebKnoxPosTagger(ConfigHolder.getInstance().getConfig());
+        System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 }

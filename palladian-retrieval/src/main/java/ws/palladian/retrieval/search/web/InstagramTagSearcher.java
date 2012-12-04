@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -64,8 +64,8 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
             query = querySplit[0];
         }
 
-        String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s", query,
-                accessToken);
+        String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s",
+                UrlHelper.urlEncode(query), accessToken);
 
         page: for (;;) {
 
@@ -85,12 +85,12 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
 
                 for (int i = 0; i < dataArray.length(); i++) {
                     JSONObject data = dataArray.getJSONObject(i);
-
+                    
+                    String pageUrl = data.getString("link");
                     Date date = new Date(data.getLong("created_time") * 1000);
 
                     JSONObject imageData = data.getJSONObject("images").getJSONObject("standard_resolution");
-
-                    String url = imageData.getString("url");
+                    String imageUrl = imageData.getString("url");
                     int width = imageData.getInt("width");
                     int height = imageData.getInt("height");
 
@@ -98,7 +98,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
                     if (data.has("caption") && !data.getString("caption").equals("null")) {
                         title = data.getJSONObject("caption").getString("text");
                     }
-                    result.add(new WebImageResult(url, title, null, width, height, date, null));
+                    result.add(new WebImageResult(pageUrl, imageUrl , title, null, width, height, date, null));
 
                     if (result.size() == resultCount) {
                         break page;
@@ -118,12 +118,6 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
 
         }
         return result;
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        InstagramTagSearcher searcher = new InstagramTagSearcher("50866191.f59def8.56dd4f0145da4f29a4e419c48e9b5fc3");
-        List<WebImageResult> result = searcher.search("cat dog", 100);
-        CollectionHelper.print(result);
     }
 
 }

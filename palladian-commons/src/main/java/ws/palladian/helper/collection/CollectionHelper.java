@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,15 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * <p>
  * This class provides some helper methods for working with collections. <b>Important:</b> If you are looking for a
- * functionality which is not provided here, look in {@link Collections}, {@link Arrays} and {@link CollectionUtils}
- * first, before adding new, redundant methods here!
+ * functionality which is not provided here, look in {@link Collections}, {@link Arrays} first, before adding new,
+ * redundant methods here!
  * </p>
  * 
  * @author David Urbansky
@@ -53,7 +53,11 @@ public final class CollectionHelper {
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        Collections.sort(list, new EntryValueComparator<K, V>(ascending));
+        if (ascending) {
+            Collections.sort(list, EntryValueComparator.<K, V> ascending());
+        } else {
+            Collections.sort(list, EntryValueComparator.<K, V> descending());
+        }
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
@@ -277,7 +281,7 @@ public final class CollectionHelper {
     /**
      * <p>
      * Apply a {@link Filter} to an {@link Iterable}; after applying this method, the Iterable only contains the items
-     * which matched the filter.
+     * which matched the filter, i.e. the filtering is done in place, modifying the Iterable.
      * </p>
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
@@ -298,6 +302,89 @@ public final class CollectionHelper {
             }
         }
         return modified;
+    }
+
+    /**
+     * <p>
+     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}. In
+     * contrast to {@link #filter(Iterable, Filter)}, this does not modify the supplied Iterabel.
+     * </p>
+     * 
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param filter The filter to apply, not <code>null</code>.
+     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *            {@link HashSet}, not <code>null</code>.
+     * @return The supplied output Collection with the items that passed the filter.
+     */
+    public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Filter<T> filter, C output) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        Validate.notNull(output, "output must not be null");
+
+        for (T item : iterable) {
+            if (filter.accept(item)) {
+                output.add(item);
+            }
+        }
+        return output;
+    }
+
+    /**
+     * <p>
+     * Apply a type filter to an {@link Iterable} and return the filtered result as new {@link Collection}. An example
+     * scenario for this method might be a Collection of {@link Number}s, from which you only want to obtain
+     * {@link Double} values.
+     * </p>
+     * 
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param type The type which should be filtered, not <code>null</code>.
+     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *            {@link HashSet}, not <code>null</code>.
+     * @return The supplied output Collection with the items that passed the type filter.
+     */
+    public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(type, "type must not be null");
+        Validate.notNull(output, "output must not be null");
+
+        for (I item : iterable) {
+            if (type.isInstance(item)) {
+                output.add(type.cast(item));
+            }
+        }
+        return output;
+    }
+
+    /**
+     * <p>
+     * Get the first element in a {@link List}.
+     * </p>
+     * 
+     * @param list The List from which to get the element, not <code>null</code>.
+     * @return The first element, or <code>null</code> if the list was empty.
+     */
+    public static <T> T getFirst(List<T> list) {
+        Validate.notNull(list, "list must not be null");
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * <p>
+     * Get the last element in a {@link List}.
+     * </p>
+     * 
+     * @param list The List from which to get the element, not <code>null</code>.
+     * @return The last element, or <code>null</code> if the list was empty.
+     */
+    public static <T> T getLast(List<T> list) {
+        Validate.notNull(list, "list must not be null");
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(list.size() - 1);
     }
 
 }

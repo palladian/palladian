@@ -11,10 +11,7 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.collections15.Bag;
-import org.apache.commons.collections15.bag.HashBag;
-import org.apache.commons.io.IOUtils;
-
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -30,7 +27,7 @@ public final class TermCorpus {
     private static final String SEPARATOR = "#";
 
     private int numDocs;
-    private final Bag<String> terms;
+    private final CountMap<String> terms;
 
     /**
      * <p>
@@ -38,7 +35,7 @@ public final class TermCorpus {
      * </p>
      */
     public TermCorpus() {
-        this(new HashBag<String>(), 0);
+        this(CountMap.<String>create(), 0);
     }
 
     /**
@@ -49,7 +46,7 @@ public final class TermCorpus {
      * @param terms The terms to add.
      * @param numDocs The number of documents this corpus contains.
      */
-    public TermCorpus(Bag<String> terms, int numDocs) {
+    public TermCorpus(CountMap<String> terms, int numDocs) {
         this.numDocs = numDocs;
         this.terms = terms;
     }
@@ -80,20 +77,6 @@ public final class TermCorpus {
 
     /**
      * <p>
-     * Get the document frequency for the specified term, i.e. the number of documents containing the term at least
-     * once. To avoid returning zero values, the number of documents containing the specified term is incremented by
-     * one.
-     * </p>
-     * 
-     * @param term The term for which to retrieve the document frequency.
-     * @return The document frequenc for the specified term.
-     */
-    public double getDf(String term) {
-        return Math.log10((double)(getCount(term) + 1) / getNumDocs());
-    }
-
-    /**
-     * <p>
      * Get the inverse document frequency for the specified term. To avoid division by zero, the number of documents
      * containing the specified term is incremented by one.
      * </p>
@@ -103,7 +86,8 @@ public final class TermCorpus {
      */
     public double getIdf(String term) {
         // add 1; prevent division by zero
-        return Math.log10((double)getNumDocs() / (getCount(term) + 1));
+        // return Math.log10((double)getNumDocs() / (getCount(term) + 1));
+        return (double)getNumDocs() / (getCount(term) + 1);
     }
 
     /**
@@ -125,7 +109,7 @@ public final class TermCorpus {
      * @return The total number of terms in this corpus.
      */
     public int getNumTerms() {
-        return terms.size();
+        return terms.totalSize();
     }
 
     /**
@@ -136,12 +120,11 @@ public final class TermCorpus {
      * @return The number of unique terms in this corpus.
      */
     public int getNumUniqueTerms() {
-        return terms.uniqueSet().size();
+        return terms.uniqueSize();
     }
 
     private void setDf(String term, int df) {
-        terms.remove(term, terms.getCount(term));
-        terms.add(term, df);
+        terms.set(term, df);
     }
 
     public void load(String fileName) throws IOException {
@@ -168,7 +151,7 @@ public final class TermCorpus {
                 }
             });
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            FileHelper.close(inputStream);
         }
     }
 
@@ -180,14 +163,13 @@ public final class TermCorpus {
             printWriter = new PrintWriter(outputStream);
             printWriter.println("numDocs" + SEPARATOR + getNumDocs());
             printWriter.println();
-            for (String term : terms.uniqueSet()) {
+            for (String term : terms.uniqueItems()) {
                 int count = terms.getCount(term);
                 String line = term + SEPARATOR + count;
                 printWriter.println(line);
             }
         } finally {
-            IOUtils.closeQuietly(printWriter);
-            IOUtils.closeQuietly(outputStream);
+            FileHelper.close(printWriter, outputStream);
         }
     }
 
@@ -206,8 +188,8 @@ public final class TermCorpus {
         StringBuilder sb = new StringBuilder();
         sb.append("TermCorpus");
         sb.append(" numDocs=").append(getNumDocs());
-        sb.append(" numUniqueTerms=").append(terms.uniqueSet().size());
-        sb.append(" numTerms=").append(terms.size());
+        sb.append(" numUniqueTerms=").append(terms.uniqueSize());
+        sb.append(" numTerms=").append(terms.totalSize());
         return sb.toString();
     }
 

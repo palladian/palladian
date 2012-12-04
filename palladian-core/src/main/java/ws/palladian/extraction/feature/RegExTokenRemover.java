@@ -4,12 +4,12 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
  * A {@link AbstractTokenRemover} which removes those tokens which do not match for the supplied RegEx. E.g.
- * initializing this class with a {@link Pattern} <i>[A-Za-z0-9]+</i> will remove all token {@link Annotation}s which do
+ * initializing this class with a {@link Pattern} <i>[A-Za-z0-9]+</i> will remove all token {@link PositionAnnotation}s which do
  * not exclusively consist of alphanumeric and number characters.
  * </p>
  * 
@@ -17,9 +17,7 @@ import ws.palladian.processing.features.Annotation;
  */
 public class RegExTokenRemover extends AbstractTokenRemover {
 
-    private static final long serialVersionUID = 1L;
-
-    /** The {@link Pattern} used to determine whether to remove an {@link Annotation}. */
+    /** The {@link Pattern} used to determine whether to remove an {@link PositionAnnotation}. */
     private final Pattern pattern;
 
     /** Whether to inverse removal logic, i.e. remove the matching tokens, instead of the non-matching. */
@@ -67,7 +65,7 @@ public class RegExTokenRemover extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation<String> annotation) {
+    protected boolean remove(PositionAnnotation annotation) {
         return !removeMatching ^ pattern.matcher(annotation.getValue()).matches();
     }
 

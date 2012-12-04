@@ -1153,6 +1153,25 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
 
     /**
      * <p>
+     * 
+     * </p>
+     * 
+     * @param queryString
+     * @param clazz
+     * @return
+     */
+    public Object runSingleResultNativeQuery(String queryString) {
+        Query query = getManager().createNativeQuery(queryString);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getSingleResult();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
      * Saves a new {@link Label} to the database.
      * </p>
      * 
@@ -1171,6 +1190,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * <p>
      * Saves a non existing {@link Labeler} to the database.
      * </p>
+     * arg0
      * 
      * @param labeler The {@code Labeler} to save.
      */
@@ -1276,12 +1296,22 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         }
     }
 
-    public <T> List<T> runQuery(String loadAnswersForQuestion, ParameterFiller parameterFiller, Class<T> clazz) {
+    /**
+     * <p>
+     * Run a JPQL query through this persistence layer.
+     * </p>
+     * 
+     * @param query The query to run.
+     * @param parameterFiller A filler for the named parameters in the query.
+     * @param clazz The data type of the queried object.
+     * @return A list of the queried objects from the database according to the query.
+     */
+    public <T> List<T> runQuery(final String query, final ParameterFiller parameterFiller, final Class<T> clazz) {
         Boolean openedTransaction = openTransaction();
         try {
-            TypedQuery<T> query = getManager().createQuery(loadAnswersForQuestion, clazz);
-            parameterFiller.fillParameter(query);
-            return query.getResultList();
+            TypedQuery<T> typedQuery = getManager().createQuery(query, clazz);
+            parameterFiller.fillParameter(typedQuery);
+            return typedQuery.getResultList();
         } finally {
             commitTransaction(openedTransaction);
         }
@@ -1295,12 +1325,83 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @param query The query to run.
      * @param clazz The {@code Class} of the results.
      */
-    public <T> List<T> runNativeQuery(final String query, Class<T> clazz) {
+    public <T> List<T> runNativeQuery(final String query, final Class<T> clazz) {
         Boolean openedTransaction = openTransaction();
         try {
             Query queryObj = getManager().createNativeQuery(query);
-            List resultList = queryObj.getResultList();
+            List<T> resultList = queryObj.getResultList();
             return resultList;
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    public void runNativeUpdate(final String query, final ParameterFiller parameterFiller) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            Query queryObj = getManager().createNativeQuery(query);
+            parameterFiller.fillParameter(queryObj);
+            queryObj.executeUpdate();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * Loads all {@link Item}s not yet labeled by a certain {@link Labeler}.
+     * </p>
+     * 
+     * @param labeler The {@code Labeler} to use as reference to search for non labeled {@code Item}s
+     * @return A list of the {@code Item}s not labeled by the {@code Labeler}.
+     */
+    public List<Item> loadItemsNotLabeledBy(final Labeler labeler) {
+        Boolean openedTransaction = openTransaction();
+        try {
+            TypedQuery<Item> query = getManager()
+                    .createQuery(
+                            "SELECT i FROM Item i WHERE i NOT IN (SELECT labeled FROM Labeler lr JOIN lr.labels l JOIN l.labeledItem labeled WHERE lr=:labeler)",
+                            // "SELECT labeled FROM Labeler lr JOIN lr.labels l JOIN l.labeledItem labeled WHERE lr=:labeler",
+                            Item.class);
+            query.setParameter("labeler", labeler);
+            return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param query
+     * @param parameterFiller
+     */
+    public List<Object[]> runNativeQuery(String query, ParameterFiller parameterFiller) {
+        Query queryObj = getManager().createNativeQuery(query);
+        parameterFiller.fillParameter(queryObj);
+
+        Boolean openedTransaction = openTransaction();
+        try {
+            return queryObj.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param query
+     */
+    public void runNativeUpdate(final String query) {
+        Query queryObj = getManager().createNativeQuery(query);
+        Boolean openedTransaction = openTransaction();
+        try {
+            queryObj.executeUpdate();
         } finally {
             commitTransaction(openedTransaction);
         }

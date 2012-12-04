@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.1.7</version>
+		<version>0.1.8</version>
 	</parent>
 	<name>Palladian: Experimental</name>
 	<description>Experimental code snippets, leftovers, unused code, etc.</description>
@@ -123,13 +123,12 @@
 			<version>0.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.mahout</groupId>
-			<artifactId>mahout-core</artifactId>
-			<version>0.7</version>
+			<groupId>nz.ac.waikato.cms.weka</groupId>
+			<artifactId>weka-stable</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>weka</groupId>
-			<artifactId>weka</artifactId>
+			<groupId>net.sourceforge.collections</groupId>
+			<artifactId>collections-generic</artifactId>
 		</dependency>
 	</dependencies>
 </project>

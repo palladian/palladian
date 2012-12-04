@@ -1,0 +1,297 @@
+{
+ "kind": "customsearch#search",
+ "url": {
+  "type": "application/json",
+  "template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&cref={cref?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&relatedSite={relatedSite?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
+ },
+ "queries": {
+  "nextPage": [
+   {
+    "title": "Google Custom Search - palladian",
+    "totalResults": "147000",
+    "searchTerms": "palladian",
+    "count": 10,
+    "startIndex": 11,
+    "inputEncoding": "utf8",
+    "outputEncoding": "utf8",
+    "safe": "off",
+    "cx": "0004696786720163992118:nfgl5thfloa"
+   }
+  ],
+  "request": [
+   {
+    "title": "Google Custom Search - palladian",
+    "totalResults": "147000",
+    "searchTerms": "palladian",
+    "count": 10,
+    "startIndex": 1,
+    "inputEncoding": "utf8",
+    "outputEncoding": "utf8",
+    "safe": "off",
+    "cx": "0004696786720163992118:nfgl5thfloa"
+   }
+  ]
+ },
+ "context": {
+  "title": "web"
+ },
+ "searchInformation": {
+  "searchTime": 0.20791,
+  "formattedSearchTime": "0,21",
+  "totalResults": "147000",
+  "formattedTotalResults": "147.000"
+ },
+ "items": [
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian architecture - Wikipedia, the free encyclopedia",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e architecture - Wikipedia, the free encyclopedia",
+   "link": "http://en.wikipedia.org/wiki/Palladian_architecture",
+   "displayLink": "en.wikipedia.org",
+   "snippet": "Palladian architecture is a European style of architecture derived from the   designs of the Venetian architect Andrea Palladio (1508–1580). The term \"  Palladian\" ...",
+   "htmlSnippet": "\u003cb\u003ePalladian\u003c/b\u003e architecture is a European style of architecture derived from the \u003cbr\u003e  designs of the Venetian architect Andrea Palladio (1508–1580). The term &quot;\u003cbr\u003e  \u003cb\u003ePalladian\u003c/b\u003e&quot; \u003cb\u003e...\u003c/b\u003e",
+   "cacheId": "2GJfKLGebIgJ",
+   "formattedUrl": "en.wikipedia.org/wiki/Palladian_architecture",
+   "htmlFormattedUrl": "en.wikipedia.org/wiki/\u003cb\u003ePalladian\u003c/b\u003e_architecture",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Andrea_palladio_fourth_book_image.jpg/300px-Andrea_palladio_fourth_book_image.jpg"
+     }
+    ],
+    "cse_thumbnail": [
+     {
+      "width": "240",
+      "height": "151",
+      "src": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSyu1zo-6SSH9i2XTOGbq11uxc3N_BbDcLCduCNUxWR4DtU45p2-CfPgjA"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian Health",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e Health",
+   "link": "http://www.palladianhealth.com/",
+   "displayLink": "www.palladianhealth.com",
+   "snippet": "PALLADIAN HEALTH ® | 2732 Transit Road | West Seneca | NY | 14224 P 716   712 2700 TF 888 266 9041 © 2012 PALLADIAN HEALTH. ALL RIGHTS ...",
+   "htmlSnippet": "\u003cb\u003ePALLADIAN\u003c/b\u003e HEALTH ® | 2732 Transit Road | West Seneca | NY | 14224 P 716 \u003cbr\u003e  712 2700 TF 888 266 9041 © 2012 \u003cb\u003ePALLADIAN\u003c/b\u003e HEALTH. ALL RIGHTS \u003cb\u003e...\u003c/b\u003e",
+   "cacheId": "NSqTslh_GWEJ",
+   "formattedUrl": "www.palladianhealth.com/",
+   "htmlFormattedUrl": "www.\u003cb\u003epalladian\u003c/b\u003ehealth.com/",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://www.palladianhealth.com/sites/all/themes/PalladianCorporate/themeimages/carousel/images/Home-PalPhoto.png"
+     }
+    ],
+    "cse_thumbnail": [
+     {
+      "width": "199",
+      "height": "155",
+      "src": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRQpuOQrvLCqxOtkYUkZd-ZpT6lWVWSxMBZdoAxDC_2j6EFQD19qbKuulo"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian Partners -",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e Partners -",
+   "link": "http://palladianpartners.com/",
+   "displayLink": "palladianpartners.com",
+   "snippet": "Our award-winning communicators – strategists, writers, editors, designers,   videographers, meeting planners, and web developers – serve the federal ...",
+   "htmlSnippet": "Our award-winning communicators – strategists, writers, editors, designers, \u003cbr\u003e  videographers, meeting planners, and web developers – serve the federal \u003cb\u003e...\u003c/b\u003e",
+   "cacheId": "V8usom7wlnwJ",
+   "formattedUrl": "palladianpartners.com/",
+   "htmlFormattedUrl": "\u003cb\u003epalladian\u003c/b\u003epartners.com/"
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian Architecture in England",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e Architecture in England",
+   "link": "http://www.britainexpress.com/architecture/palladian.htm",
+   "displayLink": "www.britainexpress.com",
+   "snippet": "Palladian architecture in Britain - style and design in the Palladian period (18th   century).",
+   "htmlSnippet": "\u003cb\u003ePalladian\u003c/b\u003e architecture in Britain - style and design in the \u003cb\u003ePalladian\u003c/b\u003e period (18th \u003cbr\u003e  century).",
+   "cacheId": "_t1zNm8oW8gJ",
+   "formattedUrl": "www.britainexpress.com/architecture/palladian.htm",
+   "htmlFormattedUrl": "www.britainexpress.com/architecture/\u003cb\u003epalladian\u003c/b\u003e.htm",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://www.britainexpress.com/images/attractions/editor/Palladian-Stourhead-002026.jpg"
+     }
+    ],
+    "cse_thumbnail": [
+     {
+      "width": "192",
+      "height": "120",
+      "src": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcT-AxpEwxv4fMaRSlPGMG4FIy3M19kW7h37XKumJXhxSNe6KK0B2eQgG48"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian | Define Palladian at Dictionary.com",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e | Define \u003cb\u003ePalladian\u003c/b\u003e at Dictionary.com",
+   "link": "http://dictionary.reference.com/browse/palladian",
+   "displayLink": "dictionary.reference.com",
+   "snippet": "Palladian definition, pertaining to, introduced by, or in the architectural style of   Andrea Palladio See more.",
+   "htmlSnippet": "\u003cb\u003ePalladian\u003c/b\u003e definition, pertaining to, introduced by, or in the architectural style of \u003cbr\u003e  Andrea Palladio See more.",
+   "cacheId": "LXtkx5iUqSEJ",
+   "formattedUrl": "dictionary.reference.com/browse/palladian",
+   "htmlFormattedUrl": "dictionary.reference.com/browse/\u003cb\u003epalladian\u003c/b\u003e",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://static.sfdict.com/en/i/dictionary/facebook/dictionary_logo.png"
+     }
+    ],
+    "metatags": [
+     {
+      "msvalidate.01": "DF5542D7723770377E9ABFF59AC1DC97",
+      "og:title": "the definition of palladian",
+      "og:site_name": "Dictionary.com",
+      "og:image": "http://static.sfdict.com/en/i/dictionary/facebook/dictionary_logo.png",
+      "fb:app_id": "127444090629600",
+      "fb:admins": "100000304287730,109125464873"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "The Palladian View | A digital magazine for conservative Republican ...",
+   "htmlTitle": "The \u003cb\u003ePalladian\u003c/b\u003e View | A digital magazine for conservative Republican \u003cb\u003e...\u003c/b\u003e",
+   "link": "http://palladianview.com/",
+   "displayLink": "palladianview.com",
+   "snippet": "Virginia. In 2008, now President Obama won Virginia with 53% of the vote.   Winning both men and females by 51% and 53% respectively. Females in   Virginia ...",
+   "htmlSnippet": "Virginia. In 2008, now President Obama won Virginia with 53% of the vote. \u003cbr\u003e  Winning both men and females by 51% and 53% respectively. Females in \u003cbr\u003e  Virginia \u003cb\u003e...\u003c/b\u003e",
+   "cacheId": "AIXgXkEi-I8J",
+   "formattedUrl": "palladianview.com/",
+   "htmlFormattedUrl": "\u003cb\u003epalladian\u003c/b\u003eview.com/",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://tpguniversal.com/pv3/wp-content/uploads/2012/10/logo.png"
+     }
+    ],
+    "cse_thumbnail": [
+     {
+      "width": "144",
+      "height": "57",
+      "src": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ1ydDhjatqngPjw45kFLljtUWcfLWcfNEWo_Sctq0BCkMyLTC4mHb-zA"
+     }
+    ],
+    "metatags": [
+     {
+      "et_featured_auto_speed": "7000",
+      "et_disable_toptier": "0",
+      "et_featured_slider_auto": "1",
+      "et_featured_slider_pause": "1",
+      "et_cufon": "1"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian - definition of Palladian by the Free Online Dictionary ...",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e - definition of \u003cb\u003ePalladian\u003c/b\u003e by the Free Online Dictionary \u003cb\u003e...\u003c/b\u003e",
+   "link": "http://www.thefreedictionary.com/Palladian",
+   "displayLink": "www.thefreedictionary.com",
+   "snippet": "Pal·la·di·an 1 (p -l d - n). adj. 1. Greek Mythology Of, relating to, or characteristic of   Athena. 2. Of, relating to, or characterized by wisdom or study.",
+   "htmlSnippet": "Pal·la·di·an 1 (p -l d - n). adj. 1. Greek Mythology Of, relating to, or characteristic of \u003cbr\u003e  Athena. 2. Of, relating to, or characterized by wisdom or study.",
+   "cacheId": "Z9z-P05aR64J",
+   "formattedUrl": "www.thefreedictionary.com/Palladian",
+   "htmlFormattedUrl": "www.thefreedictionary.com/\u003cb\u003ePalladian\u003c/b\u003e",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://img.tfd.com/TFDlogo198x65.gif"
+     }
+    ],
+    "metatags": [
+     {
+      "og:url": "http://www.thefreedictionary.com/Palladian",
+      "og:description": "Definition of Palladian by TheFreeDictionary.com",
+      "og:title": "Palladian",
+      "og:image": "http://img.tfd.com/TFDlogo198x65.gif",
+      "og:type": "article",
+      "og:site_name": "TheFreeDictionary.com"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian Publications",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e Publications",
+   "link": "http://www.palladian-publications.com/",
+   "displayLink": "www.palladian-publications.com",
+   "snippet": "Publishers of technical engineering journals for the cement, coal, concrete and   hydrocarbon processing industries.",
+   "htmlSnippet": "Publishers of technical engineering journals for the cement, coal, concrete and \u003cbr\u003e  hydrocarbon processing industries.",
+   "cacheId": "rR0HrzB8SCkJ",
+   "formattedUrl": "www.palladian-publications.com/",
+   "htmlFormattedUrl": "www.\u003cb\u003epalladian\u003c/b\u003e-publications.com/",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://www.palladian-publications.com/media/box_475_bg.jpg"
+     }
+    ],
+    "cse_thumbnail": [
+     {
+      "width": "156",
+      "height": "195",
+      "src": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSgx9oV1L10XKsd04Ubxe35ZnHDoDURHHF6yn69k7odxyc5gJU30sfg7QI"
+     }
+    ]
+   }
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian Inc.",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e Inc.",
+   "link": "http://www.palladianproperties.com/",
+   "displayLink": "www.palladianproperties.com",
+   "snippet": "Palladian is an award-winning firm experienced in designing and building   residential and commercial developments in Atlanta, Marietta, East Cobb, West   Cobb, ...",
+   "htmlSnippet": "\u003cb\u003ePalladian\u003c/b\u003e is an award-winning firm experienced in designing and building \u003cbr\u003e  residential and commercial developments in Atlanta, Marietta, East Cobb, West \u003cbr\u003e  Cobb, \u003cb\u003e...\u003c/b\u003e",
+   "cacheId": "vKs06oU4WWgJ",
+   "formattedUrl": "www.palladianproperties.com/",
+   "htmlFormattedUrl": "www.\u003cb\u003epalladian\u003c/b\u003eproperties.com/"
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Palladian Windows - Definition of a Palladian Window - Architecture ...",
+   "htmlTitle": "\u003cb\u003ePalladian\u003c/b\u003e Windows - Definition of a \u003cb\u003ePalladian\u003c/b\u003e Window - Architecture \u003cb\u003e...\u003c/b\u003e",
+   "link": "http://architecture.about.com/od/buildingparts/g/palladian.htm",
+   "displayLink": "architecture.about.com",
+   "snippet": "A Palladian window is a large window that is divided into three parts ... Illustrated   definition of the phrase Palladian Window from our Architecture Glossary.",
+   "htmlSnippet": "A \u003cb\u003ePalladian\u003c/b\u003e window is a large window that is divided into three parts ... Illustrated \u003cbr\u003e  definition of the phrase \u003cb\u003ePalladian\u003c/b\u003e Window from our Architecture Glossary.",
+   "cacheId": "dkGMITfDT9YJ",
+   "formattedUrl": "architecture.about.com/od/buildingparts/g/palladian.htm",
+   "htmlFormattedUrl": "architecture.about.com/od/buildingparts/g/\u003cb\u003epalladian\u003c/b\u003e.htm",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://0.tqn.com/d/architecture/1/G/9/t/palladianarches-at.jpg"
+     }
+    ],
+    "metatags": [
+     {
+      "pd": "Friday, 13-Apr-2012 02:19:36 UTC",
+      "og:title": "What Is a",
+      "og:type": "article",
+      "og:image": "http://0.tqn.com/d/architecture/1/G/9/t/palladianarches-at.jpg",
+      "og:url": "http://architecture.about.com/od/buildingparts/g/palladian.htm",
+      "og:site_name": "About.com Architecture",
+      "fb:app_id": "121030274606741"
+     }
+    ]
+   }
+  }
+ ]
+}

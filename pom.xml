@@ -5,7 +5,7 @@
 	<artifactId>palladian</artifactId>
 	<packaging>pom</packaging>
 	<name>Palladian: TUD Information Retrieval Toolkit</name>
-	<version>0.1.7</version>
+	<version>0.1.8</version>
 	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
 	<developers>
 		<developer>
@@ -217,19 +217,9 @@
 				<version>2.0.7-RC2</version>
 			</dependency>
 			<dependency>
-				<groupId>weka</groupId>
-				<artifactId>weka</artifactId>
-				<version>3.5.7</version>
-			</dependency>
-			<dependency>
-				<groupId>org.json</groupId>
-				<artifactId>json</artifactId>
-				<version>20090211</version>
-			</dependency>
-			<dependency>
-				<groupId>com.temesoft</groupId>
-				<artifactId>google-pagerank-api</artifactId>
-				<version>1.0</version>
+				<groupId>nz.ac.waikato.cms.weka</groupId>
+				<artifactId>weka-stable</artifactId>
+				<version>3.6.8</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.smu.tspell</groupId>
@@ -267,24 +257,9 @@
 				<version>3.9.2</version>
 			</dependency>
 			<dependency>
-				<groupId>edu.stanford</groupId>
-				<artifactId>stanfordner</artifactId>
-				<version>1.0</version>
-			</dependency>
-			<dependency>
 				<groupId>edu.illinois</groupId>
 				<artifactId>lbj2library</artifactId>
 				<version>1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>net.java.dev.rome</groupId>
-				<artifactId>rome</artifactId>
-				<version>1.0.0</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>2.1</version>
 			</dependency>
 			<dependency>
 				<groupId>mysql</groupId>
@@ -296,11 +271,6 @@
 				<artifactId>junit</artifactId>
 				<version>4.8.1</version>
 				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>net.sourceforge.nekohtml</groupId>
-				<artifactId>nekohtml</artifactId>
-				<version>1.9.15</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-configuration</groupId>
@@ -380,7 +350,7 @@
 			<dependency>
 				<groupId>de.l3s.boilerpipe</groupId>
 				<artifactId>boilerpipe</artifactId>
-				<version>1.1.0</version>
+				<version>1.2.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sourceforge</groupId>
@@ -398,36 +368,14 @@
 				<version>2.1.0</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>4.1.1</version>
-			</dependency>
-			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
 				<version>1.6.3</version>
 			</dependency>
 			<dependency>
-				<groupId>com.jolbox</groupId>
-				<artifactId>bonecp</artifactId>
-				<version>0.7.1.RELEASE</version>
-				<classifier>jdk5</classifier>
-				<exclusions>
-					<exclusion>
-						<artifactId>guava</artifactId>
-						<groupId>com.google.guava</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>10.0.1</version>
-			</dependency>
-			<dependency>
 				<groupId>org.hamcrest</groupId>
 				<artifactId>hamcrest-all</artifactId>
-				<version>1.1</version>
+				<version>1.3</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -478,7 +426,7 @@
 			<url>http://mvnrepository.com/</url>
 		</repository>
 		<repository>
-			<id>weka</id>
+		<id>weka</id>
 			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
 		</repository>
 		<repository>
@@ -505,6 +453,10 @@
 			<id>sanity-maven-repo</id>
 			<name>Sanity's Maven repository on GitHub</name>
 			<url>http://sanity.github.com/maven-repo/repository/</url>
+		</repository>
+		<repository>
+			<id>boilerpipe</id>
+			<url>http://boilerpipe.googlecode.com/svn/repo/</url>
 		</repository>
 	</repositories>
 	<distributionManagement>
