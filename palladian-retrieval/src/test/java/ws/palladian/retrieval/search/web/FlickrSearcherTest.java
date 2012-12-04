@@ -12,11 +12,9 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: sebastian
- * Date: 16.08.12
- * Time: 17:18
- * To change this template use File | Settings | File Templates.
+ * @author Sebastian Sprenger
+ * @author David Urbansky
+ * 
  */
 @Ignore
 public class FlickrSearcherTest {
@@ -33,7 +31,8 @@ public class FlickrSearcherTest {
     @Test
     public void testSearch() throws SearcherException {
         List<WebImageResult> webImageResults = flickrSearcher.search("cats", "20.12.2010", "dogs,cats", 100, Language.ENGLISH);
-        assertTrue(webImageResults.size() == 100);
+        // CollectionHelper.print(webImageResults);
+        assertTrue(webImageResults.size() > 0);
     }
 
 }

@@ -12,7 +12,9 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
+ * <p>
  * A set of xPaths.
+ * </p>
  * 
  * @author David Urbansky
  */
@@ -34,6 +36,9 @@ public class XPathSet {
         }
     }
 
+    public void remove(String xPath) {
+        xPathMap.remove(xPath);
+    }
     public void add(String xPath) {
         if (xPathMap.containsKey(xPath)) {
             int count = xPathMap.get(xPath);
@@ -132,10 +137,9 @@ public class XPathSet {
 
         // check whether there is text content at the specified path, otherwise move stages up until
         // text content is found or the highest count xpath is reached
-        PageAnalyzer pa = new PageAnalyzer();
         while (stages > 0) {
             // System.out.println(longestHighCountXPath+": "+pa.getTextByXpath(document, longestHighCountXPath));
-            if (StringHelper.trim(pa.getTextByXPath(document, longestHighCountXPath)).length() > 0) {
+            if (StringHelper.trim(PageAnalyzer.getTextByXPath(document, longestHighCountXPath)).length() > 0) {
                 break;
             }
             longestHighCountXPath = PageAnalyzer.getParentNode(longestHighCountXPath);
@@ -145,5 +149,9 @@ public class XPathSet {
         Logger.getRootLogger().debug("node with content: " + longestHighCountXPath.toLowerCase());
 
         return longestHighCountXPath;
+    }
+
+    public boolean isEmpty() {
+        return xPathMap.isEmpty();
     }
 }

@@ -7,7 +7,7 @@ import java.util.Set;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -17,8 +17,6 @@ import ws.palladian.processing.features.Annotation;
  * @author Philipp Katz
  */
 public final class TokenFilter extends AbstractTokenRemover {
-
-    private static final long serialVersionUID = 1L;
 
     private final Set<String> vocabulary = new HashSet<String>();
 
@@ -36,7 +34,7 @@ public final class TokenFilter extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation<String> annotation) {
+    protected boolean remove(PositionAnnotation annotation) {
         return !vocabulary.contains(annotation.getValue());
     }
 

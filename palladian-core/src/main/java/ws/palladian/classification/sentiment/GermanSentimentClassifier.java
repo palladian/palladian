@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.extraction.token.Tokenizer;
@@ -119,16 +118,16 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     @Override
     public CategoryEntry getPolarity(String text, String query) {
         
-        Category positiveCategory = new Category("positive");
-        Category negativeCategory = new Category("negative");
+        String positiveCategory = "positive";
+        String negativeCategory = "negative";
         
         if (query != null) {
             query = query.toLowerCase();
         }
         
         // total sum of positive and negative sentiments (on word level) in the text
-        double positiveSentimentSum = 0;
-        double negativeSentimentSum = 0;
+        // double positiveSentimentSum = 0;
+        // double negativeSentimentSum = 0;
                 
         List<String> sentences = Tokenizer.getSentences(text);
         
@@ -167,11 +166,11 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                     sentiment *= emphasizeWeight;
                     if (sentiment > 0) {
                         LOGGER.debug("positive word: " + token + " ("+sentiment+")");
-                        positiveSentimentSum += sentiment;
+                        // positiveSentimentSum += sentiment;
                         positiveSentimentSumSentence += sentiment;
                     } else {
                         LOGGER.debug("negative word: " + token + " ("+sentiment+")");
-                        negativeSentimentSum += Math.abs(sentiment);
+                        // negativeSentimentSum += Math.abs(sentiment);
                         negativeSentimentSumSentence += Math.abs(sentiment);
                     }
                 }
@@ -181,18 +180,17 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             }
             
             CategoryEntries categoryEntries = new CategoryEntries();
-            CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentimentSumSentence);
-            CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentimentSumSentence);
+            CategoryEntry positiveCategoryEntry = new CategoryEntry(positiveCategory, positiveSentimentSumSentence);
+            CategoryEntry negativeCategoryEntry = new CategoryEntry(negativeCategory, negativeSentimentSumSentence);
             categoryEntries.add(positiveCategoryEntry);
             categoryEntries.add(negativeCategoryEntry);
-            
-            
-            if (categoryEntries.getMostLikelyCategoryEntry().getRelevance() > confidenceThreshold &&
-                    (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence) &&
- (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
-                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getCategory().getName(), sentence);
+
+            if (categoryEntries.getMostLikelyCategoryEntry().getProbability() > confidenceThreshold
+                    && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
+                    && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
+                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getName(), sentence);
             }
-            
+
         }
         
 //        CategoryEntries categoryEntries = new CategoryEntries();
@@ -210,8 +208,8 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         if (getOpinionatedSentences().get("negative") != null) {
             negativeSentences = getOpinionatedSentences().get("negative").size();
         }
-        CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentences);
-        CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentences);
+        CategoryEntry positiveCategoryEntry = new CategoryEntry(positiveCategory, positiveSentences);
+        CategoryEntry negativeCategoryEntry = new CategoryEntry(negativeCategory, negativeSentences);
         categoryEntries.add(positiveCategoryEntry);
         categoryEntries.add(negativeCategoryEntry);
         
@@ -230,6 +228,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         gsc.setConfidenceThreshold(0.6);
         CategoryEntry result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
         result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");
+        result = gsc.getPolarity("Die Deutsche-Bahn ist scheisse!!!");
         // result =
         // gsc.getPolarity("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder Unternehmen");
         // result = gsc.getPolarity(FileHelper.readFileToString("data/temp/opiniontext.TXT"));

@@ -40,7 +40,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
 
     // ////////////////// feed prepared statements ////////////////////
-    private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?";
+    private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?, itemHash = ?";
     private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, lastResult = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
     private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
@@ -154,12 +154,12 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     @Override
-    public boolean addFeedItem(Feed feed, FeedItem entry) {
+    public boolean addFeedItem(FeedItem item) {
         boolean added = false;
 
-        int result = runInsertReturnId(ADD_FEED_ITEM, getItemParameters(feed, entry));
+        int result = runInsertReturnId(ADD_FEED_ITEM, getItemParameters(item));
         if (result > 0) {
-            entry.setId(result);
+            item.setId(result);
             added = true;
         }
 
@@ -167,12 +167,12 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     @Override
-    public int addFeedItems(Feed feed, List<FeedItem> feedItems) {
+    public int addFeedItems(List<FeedItem> feedItems) {
         int added = 0;
 
         List<List<Object>> batchArgs = new ArrayList<List<Object>>();
         for (FeedItem feedItem : feedItems) {
-            List<Object> parameters = getItemParameters(feed, feedItem);
+            List<Object> parameters = getItemParameters(feedItem);
             batchArgs.add(parameters);
         }
 
@@ -299,9 +299,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return feeds;
     }
 
-    private List<Object> getItemParameters(Feed feed, FeedItem entry) {
+    private List<Object> getItemParameters(FeedItem entry) {
         List<Object> parameters = new ArrayList<Object>();
-        parameters.add(feed.getId());
+        parameters.add(entry.getFeedId());
         parameters.add(entry.getTitle());
         parameters.add(entry.getLink());
         parameters.add(entry.getRawId());
@@ -309,6 +309,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(entry.getAuthors());
         parameters.add(entry.getDescription());
         parameters.add(entry.getText());
+        parameters.add(entry.getHash());
         return parameters;
     }
 

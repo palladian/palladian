@@ -6,8 +6,8 @@ import java.util.List;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.dates.UrlDate;
-import ws.palladian.helper.DateFormat;
-import ws.palladian.helper.RegExp;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.HttpResult;

@@ -1,7 +1,7 @@
 package ws.palladian.extraction.feature;
 
 import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -14,8 +14,6 @@ import ws.palladian.processing.features.Annotation;
  * 
  */
 public final class LengthTokenRemover extends AbstractTokenRemover {
-
-    private static final long serialVersionUID = 1L;
 
     private final int minLength;
     private final int maxLength;
@@ -47,7 +45,7 @@ public final class LengthTokenRemover extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation<String> annotation) {
+    protected boolean remove(PositionAnnotation annotation) {
         int length = annotation.getValue().length();
         return length < minLength || length > maxLength;
     }

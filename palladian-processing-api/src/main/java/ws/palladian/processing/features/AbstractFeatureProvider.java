@@ -3,11 +3,13 @@
  */
 package ws.palladian.processing.features;
 
-import java.util.List;
+import java.beans.FeatureDescriptor;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.AbstractPipelineProcessor;
+import ws.palladian.processing.InputPort;
+import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.Port;
 
@@ -21,22 +23,10 @@ import ws.palladian.processing.Port;
  * @version 1.0
  * @since 0.1.7
  * @param <T> Type of default in- and output.
- * @param <F> Type of the {@link Feature} this component supplies.
  */
-public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends AbstractPipelineProcessor<T> implements
-        FeatureProvider<F> {
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = 7816865382026826466L;
-    /**
-     * <p>
-     * The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
-     * </p>
-     */
-    private final FeatureDescriptor<F> featureDescriptor;
+public abstract class AbstractFeatureProvider extends AbstractPipelineProcessor implements FeatureProvider {
+
+    private final String featureIdentifier;
 
     /**
      * <p>
@@ -45,12 +35,9 @@ public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends A
      * 
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public AbstractFeatureProvider(final FeatureDescriptor<F> featureDescriptor) {
-        super();
-
-        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
-
-        this.featureDescriptor = featureDescriptor;
+    public AbstractFeatureProvider(String featureIdentifier) {
+        Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
+        this.featureIdentifier = featureIdentifier;
     }
 
     /**
@@ -63,18 +50,15 @@ public abstract class AbstractFeatureProvider<T, F extends Feature<?>> extends A
      * @param outputPorts The output {@link Port}s this processor writes results to.
      * @param featureDescriptor The {@link FeatureDescriptor} used to identify the provided {@code Feature}.
      */
-    public AbstractFeatureProvider(final List<Port<?>> inputPorts, final List<Port<?>> outputPorts,
-            final FeatureDescriptor<F> featureDescriptor) {
+    public AbstractFeatureProvider(InputPort[] inputPorts, OutputPort[] outputPorts, String featureIdentifier) {
         super(inputPorts, outputPorts);
-
-        Validate.notNull(featureDescriptor, "featureDescriptor must not be null");
-
-        this.featureDescriptor = featureDescriptor;
+        Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
+        this.featureIdentifier = featureIdentifier;
     }
 
     @Override
-    public FeatureDescriptor<F> getDescriptor() {
-        return featureDescriptor;
+    public String getCreatedFeatureName() {
+        return featureIdentifier;
     }
 
 }

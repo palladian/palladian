@@ -25,9 +25,9 @@ import ws.palladian.extraction.date.rater.MetaDateRater;
 import ws.palladian.extraction.date.rater.ReferenceDateRater;
 import ws.palladian.extraction.date.rater.StructureDateRater;
 import ws.palladian.extraction.date.rater.UrlDateRater;
-import ws.palladian.helper.DateFormat;
-import ws.palladian.helper.RegExp;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
 
@@ -354,8 +354,8 @@ public class DateEvaluatorTest {
                         DateExactness.DAY);
             }
             for (RatedDate<ContentDate> cDate : tempContentDates) {
-                String cDateTag = cDate.getDate().getTagNode();
-                String eTag = structureDates.get(i).getDate().getTagNode();
+                String cDateTag = cDate.getDate().getTag();
+                String eTag = structureDates.get(i).getDate().getTag();
                 if (cDateTag.equalsIgnoreCase(eTag)) {
                     double structRate = structureWeights.get(structureDates.get(i));
                     double newRate = (1 - cDate.getRate()) * structRate + cDate.getRate();

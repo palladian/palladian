@@ -1,183 +1,136 @@
 package ws.palladian.classification.numeric;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import ws.palladian.classification.Category;
+import org.apache.commons.lang3.tuple.Pair;
+
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.Instances;
-import ws.palladian.classification.UniversalInstance;
-import ws.palladian.classification.page.evaluation.ClassificationTypeSetting;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Instance;
+import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.collection.EntryValueComparator;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
- * A concrete KNN classifier.
+ * <p>
+ * A KNN (k-nearest neighbor) classifier. It classifies {@link FeatureVector}s based on the k nearest {@link Instance} s
+ * from the training set. Since this is an instance based classifier, it is fast during the learning phase but has a
+ * more complicated prediction phase.
+ * </p>
  * 
  * @author David Urbansky
+ * @author Klemens Muthmann
+ * @author Philipp Katz
  */
-public final class KnnClassifier extends NumericClassifier {
-
-    private static final long serialVersionUID = 1064061946261174688L;
+public final class KnnClassifier implements Classifier<KnnModel> {
 
     /**
+     * <p>
      * Number of nearest neighbors that are allowed to vote. If neighbors have the same distance they will all be
      * considered for voting, k might increase in these cases.
+     * </p>
      */
-    private int k = 3;
-
-    /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
-    private Instances<UniversalInstance> trainingInstances = new Instances<UniversalInstance>();
-
+    private final int k;
 
     /**
-     * The constructor.
+     * <p>
+     * Creates a new completely initialized KNN classifier with specified k. A typical value is 3. This constructor
+     * should be used if the created object is used for prediction.
+     * </p>
+     * 
+     * @param k The parameter k specifying the k nearest neighbors to use for classification.
+     */
+    public KnnClassifier(int k) {
+        this.k = k;
+    }
+
+    /**
+     * <p>
+     * Creates a new completely initialized KNN classifier with a k of 3. This constructor should typically be used if
+     * the class is used for learning. In that case the value of k is not important. It is only used during prediction.
+     * </p>
      */
     public KnnClassifier() {
-        setName("k-NN");
+        this(3);
     }
 
     @Override
-    public void addTrainingInstances(Instances<UniversalInstance> trainingInstances) {
-        if (this.trainingInstances == null) {
-            this.trainingInstances = new Instances<UniversalInstance>();
-        }
-        this.trainingInstances.addAll(trainingInstances);
-        getPossibleCategories(trainingInstances);
+    public KnnModel train(List<Instance> instances) {
+        return new KnnModel(instances);
     }
 
     @Override
-    public void setTrainingInstances(Instances<UniversalInstance> trainingInstances) {
-        this.trainingInstances = trainingInstances;
-        getPossibleCategories(trainingInstances);
-    }
-
-    @Override
-    public Instances<UniversalInstance> getTrainingInstances() {
-        return trainingInstances;
-    }
-
-    @Override
-    public void classify(Instances<UniversalInstance> instances) {
-        for (UniversalInstance instance : instances) {
-            classify(instance);
-        }
-    }
-
-    /**
-     * Classify a given instance.
-     * @param instance The instance to be classified.
-     */
-    @Override
-    public void classify(UniversalInstance instance) {
-
-        StopWatch stopWatch = new StopWatch();
-
-        if (categories == null) {
-            getPossibleCategories(getTrainingInstances());
-        }
+    public CategoryEntries classify(FeatureVector vector, KnnModel model) {
 
         // we need to normalize the new instance if the training instances were also normalized
-        if (getTrainingInstances().areNormalized()) {
-            instance.normalize(getTrainingInstances().getMinMaxNormalization());
+        if (model.isNormalized()) {
+            model.normalize(vector);
         }
 
-        int classType = getClassificationType();
-
-        CategoryEntries bestFitList = new CategoryEntries();
+        Set<String> categories = getPossibleCategories(model.getTrainingExamples());
+        Map<String, Double> relevances = CollectionHelper.newHashMap();
 
         // create one category entry for every category with relevance 0
-        for (Category category : getCategories()) {
-            CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
-            bestFitList.add(c);
+        for (String category : categories) {
+            relevances.put(category, 0.);
         }
 
         // find k nearest neighbors, compare instance to every known instance
-        Map<UniversalInstance, Double> neighbors = new HashMap<UniversalInstance, Double>();
-        for (UniversalInstance knownInstance : getTrainingInstances()) {
-            double distance = getDistanceBetween(instance, knownInstance);
-            neighbors.put(knownInstance, distance);
+        List<Pair<Instance, Double>> neighbors = CollectionHelper.newArrayList();
+        for (Instance example : model.getTrainingExamples()) {
+            double distance = getDistanceBetween(vector, example.getFeatureVector());
+            neighbors.add(Pair.of(example, distance));
         }
 
-        // CollectionHelper.print(neighbors, 10);
-
         // sort near neighbor map by distance
-        Map<UniversalInstance, Double> sortedList = CollectionHelper.sortByValue(neighbors);
-
-        // CollectionHelper.print(sortedList, 10);
-
-        // get votes from k nearest neighbors and decide in which category the document is in also consider distance for nearest neighbors
-        Map<String, Double> votes = new HashMap<String, Double>();
-        int ck = 0;
+        Collections.sort(neighbors, EntryValueComparator.<Instance, Double> ascending());
 
         // if there are several instances at the same distance we take all of them into the voting, k might get bigger
         // in those cases
         double lastDistance = -1;
-        for (Entry<UniversalInstance, Double> entry : sortedList.entrySet()) {
+        int ck = 0;
+        for (Pair<Instance, Double> neighbor : neighbors) {
 
-            if (ck >= k && entry.getValue() != lastDistance) {
+            if (ck >= k && neighbor.getValue() != lastDistance) {
                 break;
             }
 
-            UniversalInstance votingDocument = entry.getKey();
+            double distance = neighbor.getValue();
+            double weight = 1.0 / (distance + 0.000000001);
+            String targetClass = neighbor.getKey().getTargetClass();
+            relevances.put(targetClass, relevances.get(targetClass) + weight);
 
-            Category realCategory = votingDocument.getInstanceCategory();
-
-            if (votes.containsKey(realCategory.getName())) {
-                votes.put(realCategory.getName(), votes.get(realCategory.getName()) + 1.0
-                        / (entry.getValue() + 0.000000001));
-            } else {
-                votes.put(realCategory.getName(), 1.0 / (entry.getValue() + 0.000000001));
-            }
-
-            lastDistance = entry.getValue();
-            ++ck;
+            lastDistance = distance;
+            ck++;
         }
 
-        LinkedHashMap<String, Double> sortedVotes = CollectionHelper.sortByValue(votes, CollectionHelper.DESCENDING);
-
-        // assign category entries
-        for (Entry<String, Double> entry : sortedVotes.entrySet()) {
-
-            CategoryEntry c = bestFitList.getCategoryEntry(entry.getKey());
-            if (c == null) {
-                continue;
-            }
-
-            c.addAbsoluteRelevance(entry.getValue());
+        CategoryEntries categoryEntries = new CategoryEntries();
+        for (Entry<String, Double> entry : relevances.entrySet()) {
+            categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue()));
         }
+        return categoryEntries;
+    }
 
-        instance.assignCategoryEntries(bestFitList);
-
-        // keep only top X categories for tagging mode
-        if (classType == ClassificationTypeSetting.TAG) {
-            instance.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
-                    classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
-                    .getClassificationTypeTagSetting().getTagConfidenceThreshold());
+    /**
+     * <p>
+     * Fetches the possible categories from a list of {@link Instance} like to ones making up the typical training set.
+     * </p>
+     * 
+     * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
+     */
+    private Set<String> getPossibleCategories(List<Instance> instances) {
+        Set<String> categories = CollectionHelper.newHashSet();
+        for (Instance instance : instances) {
+            categories.add(instance.getTargetClass());
         }
-
-        // keep only top category for single mode
-        else if (classType == ClassificationTypeSetting.SINGLE) {
-            instance.limitCategories(1, 1, 0.0);
-        }
-
-        if (instance.getAssignedCategoryEntries().isEmpty()) {
-            Category unassignedCategory = new Category(null);
-            getCategories().add(unassignedCategory);
-            CategoryEntry defaultCE = new CategoryEntry(bestFitList, unassignedCategory, 1);
-            instance.addCategoryEntry(defaultCE);
-        }
-
-        instance.setClassifiedAs(classType);
-
-        LOGGER.debug("classified document (classType " + classType + ") in " + stopWatch.getElapsedTimeString() + " "
-                + " ("
-                + instance.getAssignedCategoryEntriesByRelevance(classType) + ")");
+        return categories;
     }
 
     /**
@@ -186,57 +139,30 @@ public final class KnnClassifier extends NumericClassifier {
      * Distance = sqrt(SUM_0,n (i1-i2)²)
      * </p>
      * 
-     * @param instance The instancne to classify.
-     * @param knownInstance The instance in the vector space with known categories.
+     * @param vector The instance to classify.
+     * @param featureVector The instance in the vector space with known categories.
      * @return distance The Euclidean distance between the two instances in the vector space.
      */
-    private Double getDistanceBetween(UniversalInstance instance, UniversalInstance knownInstance) {
+    private double getDistanceBetween(FeatureVector vector, FeatureVector featureVector) {
 
-        double distance = Double.MAX_VALUE;
+        // XXX factor this distance measure out to a strategy class.
 
         double squaredSum = 0;
 
-        List<Double> instanceFeatures = instance.getNumericFeatures();
-        List<Double> knownInstanceFeatures = knownInstance.getNumericFeatures();
+        List<NumericFeature> instanceFeatures = vector.getAll(NumericFeature.class);
 
-        for (int i = 0; i < instanceFeatures.size(); i++) {
-            squaredSum += Math.pow(instanceFeatures.get(i) - knownInstanceFeatures.get(i), 2);
+        for (NumericFeature instanceFeature : instanceFeatures) {
+            squaredSum += Math.pow(
+                    instanceFeature.getValue()
+                            - featureVector.getFeature(NumericFeature.class, instanceFeature.getName()).getValue(), 2);
         }
 
-        distance = Math.sqrt(squaredSum);
-
-        return distance;
+        return Math.sqrt(squaredSum);
     }
-
-    // public Instances<NumericInstance> getSerializableTrainingInstances() {
-    // return serializableTrainingInstances;
-    // }
 
     @Override
-    public void save(String path) {
-        // save the training instances since they are normally transient
-        // serializableTrainingInstances = getTrainingInstances();
-        FileHelper.serialize(this, path + getName() + ".gz");
+    public KnnModel train(Dataset dataset) {
+        // FIXME
+        return null;
     }
-
-    public static KnnClassifier load(String classifierPath) {
-        LOGGER.info("deserialzing classifier from " + classifierPath);
-
-        KnnClassifier classifier = (KnnClassifier) FileHelper.deserialize(classifierPath);
-
-        // we attach the serialized training instances
-        // classifier.setTrainingInstances(classifier.serializableTrainingInstances);
-        // classifier.serializableTrainingInstances = null;
-
-        return classifier;
-    }
-
-    public int getK() {
-        return k;
-    }
-
-    public void setK(int k) {
-        this.k = k;
-    }
-
 }

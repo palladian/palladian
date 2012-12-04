@@ -296,7 +296,7 @@ public class DatasetEvaluator {
             int benchmarkPolicy = FeedReaderEvaluator.BENCHMARK_MIN_DELAY;
             int benchmarkSampleSize = 100;
             // FeedReader wakeupInterval, used for debugging
-            long wakeUpInterval = (long) (60 * DateHelper.SECOND_MS);
+            long wakeUpInterval = (60 * 1000);
 
 
             DatasetEvaluator evaluator = new DatasetEvaluator(feedStore);

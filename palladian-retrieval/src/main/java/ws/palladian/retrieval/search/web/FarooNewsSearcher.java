@@ -38,6 +38,11 @@ public final class FarooNewsSearcher extends BaseFarooSearcher {
 
         return urlBuilder.toString();
     }
+    
+    @Override
+    public String getName() {
+        return "Faroo News";
+    }
 
     public static void main(String[] args) throws SearcherException {
         CollectionHelper.print(new FarooNewsSearcher().search("iphone", 10));

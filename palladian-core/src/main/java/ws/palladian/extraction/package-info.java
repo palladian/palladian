@@ -22,8 +22,8 @@
  * <p>
  * Provided processors are for example:
  * <ul>
- * <li>{@link ws.palladian.processing.helper.StopWordRemover}</li>
- * <li>{@link ws.palladian.processing.helper.WordCounter}</li>
+ * <li>{@link ws.palladian.extraction.feature.helper.StopWordRemover}</li>
+ * <li>{@link ws.palladian.extraction.feature.helper.WordCounter}</li>
  * <li>{@link ws.palladian.preprocessing.nlp.QuestionAnnotator}</li>
  * <li>{@link ws.palladian.processing.sentence.LingPipeSentenceDetector}</li>
  * <li>{@link ws.palladian.processing.sentence.OpenNlpSentenceDetector}</li>

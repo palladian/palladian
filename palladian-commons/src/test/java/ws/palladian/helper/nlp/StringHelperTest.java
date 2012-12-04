@@ -8,11 +8,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.RegExp;
-import ws.palladian.helper.StopWatch;
-
 /**
- * Test cases for the StringHelper class.
+ * <p>
+ * Test cases for the {@link StringHelper} class.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -50,8 +49,6 @@ public class StringHelperTest {
 
     @Test
     public void testReplaceWord() {
-
-        StopWatch stopWatch = new StopWatch();
         assertEquals("a b", StringHelper.removeWord("test", "a test b"));
         assertEquals("atest b", StringHelper.removeWord("test", "atest b"));
         assertEquals("atestb", StringHelper.removeWord("test", "atestb"));
@@ -71,7 +68,6 @@ public class StringHelperTest {
         assertEquals("a (test) b", StringHelper.replaceWord("test", "(test)", "a test b"));
         assertEquals("a  b", StringHelper.replaceWord("test", "", "a test b"));
         assertEquals("a test b", StringHelper.replaceWord("", "", "a test b"));
-        System.out.println(stopWatch.getElapsedTimeString());
     }
 
     @Test
@@ -172,49 +168,6 @@ public class StringHelperTest {
     }
 
     @Test
-    public void testLFEColonPattern() {
-
-        assertEquals("Volume: 96 cc",
-                StringHelper.concatMatchedString("Volume: 96 cc", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96",
-                StringHelper.concatMatchedString("Volume: 96", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96 cc||Weight: 128 g",
-                StringHelper.concatMatchedString("Volume: 96 ccWeight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume : 96 cc||Weight : 128 g", StringHelper.concatMatchedString("Volume : 96 ccWeight : 128 g",
-                "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume/V: 96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume/V: 96 ccWeight: 128 g",
-                "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume:96 cc||Weight: 128 g",
-                StringHelper.concatMatchedString("Volume:96 ccWeight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96 cc||Net Weight: 128 g", StringHelper.concatMatchedString(
-                "Volume: 96 ccNet Weight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
-        // assertEquals("Volume: 96 cc||Weight: 128 g",
-        // StringHelper.concatMatchedString("Volume: 96 cc,Weight: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
-        // assertEquals("Volume: 96 cc||Net weight: 128 g",
-        // StringHelper.concatMatchedString("Volume: 96 cc,Net weight: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
-        // assertEquals("Volume/V: 96 cc||Weight/W: 128 g",
-        // StringHelper.concatMatchedString("Volume/V: 96 cc,Weight/W: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("V8: yes, 800kb",
-                StringHelper.concatMatchedString("V8: yes, 800kb", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("V8: yes, 800kb",
-                StringHelper.concatMatchedString("V8: yes, 800kbDimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Weight: 800, 600",
-                StringHelper.concatMatchedString("Weight: 800, 600Dimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Weight: 800, 600", StringHelper.concatMatchedString("Weight: 800, 600MBDimensions", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Weight: 800, 600MB", StringHelper.concatMatchedString("Weight: 800, 600MB Dimensions", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
-        // assertEquals("General InfoNetwork: GSM 1900, UMTS, GSM 800",
-        // StringHelper.concatMatchedString("General InfoNetwork:&nbsp;GSM 1900, UMTS, GSM 800","||",RegExp.COLON_FACT_REPRESENTATION));
-        // assertEquals("Available Color(s): Black", StringHelper.concatMatchedString("Available Color(s):&nbsp;Black",
-        // "||",
-        // RegExp.COLON_FACT_REPRESENTATION));
-        // assertEquals("General InfoNetwork: GSM 1900||Dimensions: 111 x 50 x 18.8 mm||Screen Size: 240 x 320 pixels||Color Depth: 16M colors, TFT||Weight: 114 g||Available Color(s): Black",
-        // StringHelper.concatMatchedString("General InfoNetwork:&nbsp;GSM 1900Dimensions:&nbsp;111 x 50 x 18.8 mmScreen Size:&nbsp;240 x 320 pixelsColor Depth:&nbsp;16M colors, TFTWeight:&nbsp;114 gAvailable Color(s):&nbsp;Black","||",RegExp.COLON_FACT_REPRESENTATION));
-
-    }
-
-    @Test
     public void testEscapeForRegularExpression() {
         assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));
         // String containing RegEx meta characters which need to be escaped
@@ -247,12 +200,25 @@ public class StringHelperTest {
     }
 
     @Test
-    public void testCountOccurences() {
-        assertEquals(2, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", true));
-        assertEquals(1, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
-        assertEquals(0, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "cat", false));
-        assertEquals(5, StringHelper.countOccurences("aaaaa", "a", false));
-        assertEquals(2, StringHelper.countOccurences("aaaaa", "aa", false));
+    public void testCountOccurrences() {
+        assertEquals(1, StringHelper.countOccurrences("The quick brown fox jumps over the lazy dog", "the"));
+        assertEquals(0, StringHelper.countOccurrences("The quick brown fox jumps over the lazy dog", "cat"));
+        assertEquals(5, StringHelper.countOccurrences("aaaaa", "a"));
+        assertEquals(2, StringHelper.countOccurrences("aaaaa", "aa"));
+    }
+
+    @Test
+    public void testCountMatches() {
+        assertEquals(2, StringHelper.countRegexMatches("The quick brown fox jumps over the lazy dog", "[Tt]he"));
+        assertEquals(2, StringHelper.countRegexMatches("The quick brown fox jumps over the lazy dog", "fox|dog"));
+        assertEquals(0, StringHelper.countRegexMatches("The quick brown fox jumps over the lazy dog", "cat"));
+    }
+
+    @Test
+    public void testCountWhitespace() {
+        assertEquals(0, StringHelper.countWhitespaces("nowhithespace"));
+        assertEquals(1, StringHelper.countWhitespaces("one whitespace"));
+        assertEquals(5, StringHelper.countWhitespaces(" five  whitespace  "));
     }
 
     @Test

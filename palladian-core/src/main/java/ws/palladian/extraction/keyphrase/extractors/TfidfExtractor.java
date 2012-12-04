@@ -23,14 +23,16 @@ import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 public final class TfidfExtractor extends KeyphraseExtractor {
     
@@ -66,16 +68,15 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             trainingPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = feature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         Set<String> terms = new HashSet<String>();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             // FeatureVector featureVector = annotation.getFeatureVector();
             //String value = featureVector.get(StemmerAnnotator.STEM).getValue();
             String value = annotation.getValue();
@@ -97,7 +98,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             extractionPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
@@ -108,12 +109,11 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     private List<Keyphrase> extract(PipelineDocument<String> document) {
         List<Keyphrase> ret = new ArrayList<Keyphrase>();
-        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = feature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Pair<String, Double>> keywords = new ArrayList<Pair<String,Double>>();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();
-            double tfidf = annotation.getFeature(TfIdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
+            double tfidf = annotation.getFeatureVector().getFeature(NumericFeature.class, TfIdfAnnotator.PROVIDED_FEATURE).getValue();
             keywords.add(new ImmutablePair<String, Double>(value, tfidf));
         }
         Collections.sort(keywords, new Comparator<Pair<String, Double>>() {

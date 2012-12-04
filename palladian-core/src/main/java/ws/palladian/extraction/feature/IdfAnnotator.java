@@ -4,10 +4,9 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.PipelineDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
+import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -21,12 +20,7 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public final class IdfAnnotator extends AbstractTokenProcessor {
 
-    private static final long serialVersionUID = 1L;
-
     public static final String PROVIDED_FEATURE = "ws.palladian.preprocessing.tokens.idf";
-
-    public static final FeatureDescriptor<NumericFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder.build(
-            PROVIDED_FEATURE, NumericFeature.class);
 
     private final TermCorpus termCorpus;
 
@@ -36,9 +30,9 @@ public final class IdfAnnotator extends AbstractTokenProcessor {
     }
 
     @Override
-    protected void processToken(Annotation<String> annotation) {
-        double idf = termCorpus.getIdf(annotation.getValue().toLowerCase());
-        annotation.addFeature(new NumericFeature(PROVIDED_FEATURE_DESCRIPTOR, idf));
+    protected void processToken(PositionAnnotation annotation) {
+        double idf = Math.log10(termCorpus.getIdf(annotation.getValue().toLowerCase()));
+        annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE, idf));
     }
 
 }

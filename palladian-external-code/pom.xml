@@ -2,7 +2,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>palladian-external-code</artifactId>
-	<version>0.1.7</version>
 	<name>Palladian: External Code</name>
 	<description>External modified source code that is used by Palladian.</description>
 	<build>
@@ -148,10 +147,8 @@
 			<version>2.0.3</version>
 		</dependency>
 		<dependency>
-			<groupId>weka</groupId>
-			<artifactId>weka</artifactId>
-			<!-- <version>3.5.5</version> -->
-			<version>3.6.2</version>
+			<groupId>nz.ac.waikato.cms.weka</groupId>
+			<artifactId>weka-stable</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.wikipedia</groupId>
@@ -204,6 +201,10 @@
 			<artifactId>palladian-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -221,6 +222,6 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.1.7</version>
+		<version>${project-version}</version>
 	</parent>
 </project>

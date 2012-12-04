@@ -26,8 +26,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.Header;
@@ -42,7 +40,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -52,12 +49,12 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.ContentEncodingHttpClient;
+import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -68,6 +65,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.FileHelper;
 
 // TODO remove deprecated methods, after dependent code has been adapted
 // TODO completely remove all java.net.* stuff
@@ -101,11 +99,26 @@ public class HttpRetriever {
     /** The user agent string that is used by the crawler. */
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
 
+    /** The user agent used when resolving redirects. */
+    private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+
     /** The default timeout for a connection to be established, in milliseconds. */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(10);
 
+    /** The default timeout for a connection to be established when checking for redirects, in milliseconds. */
+    public static final int DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = (int)TimeUnit.SECONDS.toMillis(1);
+
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
     public static final int DEFAULT_SOCKET_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(180);
+
+    /** The maximum number of redirected URLs to check. */
+    public static final int MAX_REDIRECTS = 10;
+
+    /**
+     * The default timeout which specifies the maximum interval for new packets to wait when checking for redirects, in
+     * milliseconds.
+     */
+    public static final int DEFAULT_SOCKET_TIMEOUT_REDIRECTS = (int)TimeUnit.SECONDS.toMillis(1);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
@@ -116,10 +129,10 @@ public class HttpRetriever {
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private static ThreadSafeClientConnManager connectionManager = new ThreadSafeClientConnManager();
+    private static PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
 
     /** Implementation of the Apache HttpClient. */
-    private final ContentEncodingHttpClient httpClient;
+    private final DefaultHttpClient backend;
 
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
@@ -135,9 +148,6 @@ public class HttpRetriever {
     /** Download size in bytes for this HttpRetriever instance. */
     private long totalDownloadedBytes = 0;
 
-    /** Last download size in bytes for this HttpRetriever. */
-    private long lastDownloadedBytes = 0;
-
     /** Total number of bytes downloaded by all HttpRetriever instances. */
     private static long sessionDownloadedBytes = 0;
 
@@ -146,6 +156,12 @@ public class HttpRetriever {
 
     /** For secure proxies, we save USERNAME:PASSWORD and send it with the requests. */
     private String proxyAuthentication = "";
+
+    /** The timeout for connections when checking for redirects. */
+    private long connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
+
+    /** The socket timeout when checking for redirects. */
+    private long socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     // ///////////// Misc. ////////
 
@@ -166,7 +182,7 @@ public class HttpRetriever {
         // initialize the HttpClient
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         HttpProtocolParams.setUserAgent(httpParams, USER_AGENT);
-        httpClient = new ContentEncodingHttpClient(connectionManager, httpParams);
+        backend = new DefaultHttpClient(connectionManager, httpParams);
 
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
@@ -184,7 +200,7 @@ public class HttpRetriever {
             }
         };
 
-        ((AbstractHttpClient)httpClient).addResponseInterceptor(metricsSaver);
+        backend.addResponseInterceptor(metricsSaver);
         // end edit
     }
 
@@ -278,8 +294,7 @@ public class HttpRetriever {
             }
         }
 
-        HttpResult result = execute(url, get);
-        return result;
+        return execute(url, get);
     }
 
     /**
@@ -300,8 +315,7 @@ public class HttpRetriever {
         } catch (Exception e) {
             throw new HttpException("invalid URL: " + url, e);
         }
-        HttpResult result = execute(url, head);
-        return result;
+        return execute(url, head);
     }
 
     /**
@@ -358,8 +372,7 @@ public class HttpRetriever {
             LOGGER.error(e);
         }
 
-        HttpResult result = execute(url, post);
-        return result;
+        return execute(url, post);
     }
 
     /**
@@ -410,7 +423,8 @@ public class HttpRetriever {
         try {
 
             HttpContext context = new BasicHttpContext();
-            HttpResponse response = httpClient.execute(request, context);
+            DecompressingHttpClient client = new DecompressingHttpClient(backend);
+            HttpResponse response = client.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
@@ -420,12 +434,18 @@ public class HttpRetriever {
 
                 in = entity.getContent();
 
-                // check for a maximum download size limitation
-                if (maxFileSize != -1) {
-                    in = new BoundedInputStream(in, maxFileSize);
+                // read the payload, stop if a download size limitation has been set
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = in.read(buffer, 0, buffer.length)) != -1) {
+                    out.write(buffer, 0, length);
+                    if (maxFileSize != -1 && out.size() > maxFileSize) {
+                        break;
+                    }
                 }
 
-                entityContent = IOUtils.toByteArray(in);
+                entityContent = out.toByteArray();
 
             } else {
                 entityContent = new byte[0];
@@ -433,6 +453,7 @@ public class HttpRetriever {
 
             int statusCode = response.getStatusLine().getStatusCode();
             long receivedBytes = metrics.getReceivedBytesCount();
+            metrics.reset();
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
 
@@ -443,10 +464,13 @@ public class HttpRetriever {
             throw new HttpException(e);
         } catch (IOException e) {
             throw new HttpException(e);
+        } catch (NumberFormatException e) {
+            throw new HttpException(e);
         } finally {
-            IOUtils.closeQuietly(in);
+            FileHelper.close(in);
             request.abort();
         }
+
         return result;
     }
 
@@ -540,14 +564,19 @@ public class HttpRetriever {
 
         List<String> ret = new ArrayList<String>();
 
-        HttpClient client = new DefaultHttpClient(connectionManager);
-        HttpParams params = client.getParams();
-        params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
+        // DecompressingHttpClient client = new DecompressingHttpClient(backend);
+        // HttpParams params = client.getParams();
 
-        // TODO hard coded time out values for now; does it make sense to use the same values configured for normal HTTP
-        // operations? For now I set shorter timeouts to avoid lagging.
-        HttpConnectionParams.setSoTimeout(params, 1000);
-        HttpConnectionParams.setConnectionTimeout(params, 1000);
+        // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
+        // see: https://dev.twitter.com/docs/tco-redirection-behavior
+        HttpParams params = new BasicHttpParams();
+        params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
+        HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
+
+        HttpConnectionParams.setSoTimeout(params, (int)getSocketTimeoutRedirects());
+        HttpConnectionParams.setConnectionTimeout(params, (int)getConnectionTimeoutRedirects());
+
+        DecompressingHttpClient client = new DecompressingHttpClient(new DefaultHttpClient(connectionManager, params));
 
         for (;;) {
             HttpHead headRequest;
@@ -559,6 +588,7 @@ public class HttpRetriever {
             try {
                 HttpResponse response = client.execute(headRequest);
                 int statusCode = response.getStatusLine().getStatusCode();
+                LOGGER.debug("checked " + url + "; result " + statusCode);
                 if (statusCode >= 300 && statusCode < 400) {
                     Header[] locationHeaders = response.getHeaders("location");
                     if (locationHeaders.length == 0) {
@@ -571,9 +601,12 @@ public class HttpRetriever {
                                     + "\". URLs collected so far: " + StringUtils.join(ret, ","));
                         }
 
-                        // TODO: add checking for a maximum # of redirects here, to avoid endless redirects
-
                         ret.add(url);
+
+                        // avoid endless redirects
+                        if (ret.size() > MAX_REDIRECTS) {
+                            throw new HttpException("probably endless redirects for initial URL: " + url);
+                        }
                     }
                 } else {
                     break; // done.
@@ -668,6 +701,8 @@ public class HttpRetriever {
         OutputStream out = null;
 
         try {
+            FileHelper.createDirectoriesAndFile(filePath);
+
             out = new BufferedOutputStream(new FileOutputStream(filePath));
 
             if (compress) {
@@ -689,20 +724,16 @@ public class HttpRetriever {
                 }
 
                 headerBuilder.append(HTTP_RESULT_SEPARATOR);
-
-                // TODO should be set to UTF-8 explicitly,
-                // but I do not want to change this now.
-                IOUtils.write(headerBuilder, out);
-
+                out.write(headerBuilder.toString().getBytes("UTF-8"));
             }
 
-            IOUtils.write(httpResult.getContent(), out);
+            out.write(httpResult.getContent());
             result = true;
 
         } catch (IOException e) {
             LOGGER.error(e);
         } finally {
-            IOUtils.closeQuietly(out);
+            FileHelper.close(out);
         }
 
         return result;
@@ -766,7 +797,7 @@ public class HttpRetriever {
         } catch (IOException e) {
             LOGGER.error(e);
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            FileHelper.close(inputStream);
         }
 
         return httpResult;
@@ -859,7 +890,7 @@ public class HttpRetriever {
     }
 
     public void setCredentials(AuthScope scope, Credentials defaultcreds) {
-        httpClient.getCredentialsProvider().setCredentials(scope, defaultcreds);
+        backend.getCredentialsProvider().setCredentials(scope, defaultcreds);
     }
 
     public long getConnectionTimeout() {
@@ -892,7 +923,7 @@ public class HttpRetriever {
 
     public void setNumRetries(int numRetries) {
         HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-        httpClient.setHttpRequestRetryHandler(retryHandler);
+        backend.setHttpRequestRetryHandler(retryHandler);
     }
 
     public void setNumConnections(int numConnections) {
@@ -924,7 +955,7 @@ public class HttpRetriever {
 
     public void setProxy(String hostname, int port) {
         HttpHost proxy = new HttpHost(hostname, port);
-        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
         this.secureProxy = null;
         LOGGER.debug("set proxy to " + hostname + ":" + port);
     }
@@ -935,7 +966,7 @@ public class HttpRetriever {
      * </p>
      */
     public void useDirectConnection() {
-        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, null);
+        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, null);
         this.secureProxy = null;
     }
 
@@ -950,12 +981,11 @@ public class HttpRetriever {
     }
 
     public String getUserAgent() {
-        String userAgent = (String)httpClient.getParams().getParameter(HttpProtocolParams.USER_AGENT);
-        return userAgent;
+        return (String)backend.getParams().getParameter(HttpProtocolParams.USER_AGENT);
     }
 
     public void setUserAgent(String userAgent) {
-        httpClient.getParams().setParameter(HttpProtocolParams.USER_AGENT, userAgent);
+        backend.getParams().setParameter(HttpProtocolParams.USER_AGENT, userAgent);
     }
 
     /**
@@ -982,25 +1012,12 @@ public class HttpRetriever {
      */
     private synchronized void addDownload(long size) {
         totalDownloadedBytes += size;
-        lastDownloadedBytes = size;
         sessionDownloadedBytes += size;
         numberOfDownloadedPages++;
 
         if (secureProxy != null) {
             secureProxy.increaseUseCount();
         }
-    }
-
-    public long getLastDownloadSize() {
-        return lastDownloadedBytes;
-    }
-
-    public long getLastDownloadSize(SizeUnit unit) {
-        return unit.convert(lastDownloadedBytes, SizeUnit.BYTES);
-    }
-
-    public long getTotalDownloadSize() {
-        return getTotalDownloadSize(SizeUnit.BYTES);
     }
 
     public long getTotalDownloadSize(SizeUnit unit) {
@@ -1021,7 +1038,6 @@ public class HttpRetriever {
 
     public void resetDownloadSizes() {
         totalDownloadedBytes = 0;
-        lastDownloadedBytes = 0;
         sessionDownloadedBytes = 0;
         numberOfDownloadedPages = 0;
     }
@@ -1041,6 +1057,22 @@ public class HttpRetriever {
 
     public void setProxyAuthentication(String proxyAuthentication) {
         this.proxyAuthentication = proxyAuthentication;
+    }
+
+    public long getConnectionTimeoutRedirects() {
+        return connectionTimeoutRedirects;
+    }
+
+    public void setConnectionTimeoutRedirects(long connectionTimeoutRedirects) {
+        this.connectionTimeoutRedirects = connectionTimeoutRedirects;
+    }
+
+    public long getSocketTimeoutRedirects() {
+        return socketTimeoutRedirects;
+    }
+
+    public void setSocketTimeoutRedirects(long socketTimeoutRedirects) {
+        this.socketTimeoutRedirects = socketTimeoutRedirects;
     }
 
 }

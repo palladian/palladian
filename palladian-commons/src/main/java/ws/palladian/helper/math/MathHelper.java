@@ -8,12 +8,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -33,45 +37,54 @@ public final class MathHelper {
 
     /**
      * <p>
-     * Calculate the Jaccard similarity between two sets. J(A,B) = A and B / A union B.
+     * Calculate the Jaccard similarity between two sets. <code>J(A, B) = |A intersection B| / |A union B|</code>.
      * </p>
      * 
      * @param setA The first set.
      * @param setB The second set.
-     * @return The jaccard similarity in the range [0,1].
+     * @return The Jaccard similarity in the range [0, 1].
      */
-    public static double computeJaccardSimilarity(Set<String> setA, Set<String> setB) {
-        double similarity = -1;
+    public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
+        Set<T> intersection = CollectionHelper.newHashSet();
+        intersection.addAll(setA);
+        intersection.retainAll(setB);
 
-        Set<String> aUnionB = new HashSet<String>();
-        aUnionB.addAll(setA);
-        aUnionB.addAll(setB);
-
-        // check items which are in both sets
-        Set<String> checkSet = new HashSet<String>();
-        checkSet.addAll(setA);
-        int aAndB = 0;
-        for (String itemB : setB) {
-            if (!checkSet.add(itemB)) {
-                aAndB++;
-            }
+        if (intersection.size() == 0) {
+            return 0;
         }
 
-        similarity = aAndB / (double)aUnionB.size();
+        Set<T> union = CollectionHelper.newHashSet();
+        union.addAll(setA);
+        union.addAll(setB);
 
-        return similarity;
+
+        return (double)intersection.size() / union.size();
+    }
+
+    /**
+     * <p>
+     * Calculate the overlap coefficient between two sets.
+     * <code>Overlap(A, B) = |A intersection B| / min(|A|, |B|)</code>.
+     * 
+     * @param setA The first set.
+     * @param setB The second set.
+     * @return The overlap coefficient in the range [0, 1].
+     */
+    public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
+        Set<T> intersection = CollectionHelper.newHashSet();
+        intersection.addAll(setA);
+        intersection.retainAll(setB);
+
+        return (double)intersection.size() / Math.min(setA.size(), setB.size());
     }
 
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
-        double similarity = 0.0;
 
         double dotProduct = computeDotProduct(vector1, vector2);
         double magnitude1 = computeMagnitude(vector1);
         double magnitude2 = computeMagnitude(vector2);
 
-        similarity = dotProduct / (magnitude1 * magnitude2);
-
-        return similarity;
+        return dotProduct / (magnitude1 * magnitude2);
     }
 
     public static double computeDotProduct(Double[] vector1, Double[] vector2) {
@@ -120,25 +133,12 @@ public final class MathHelper {
 
         double chosenZ = zValues.get(confidenceLevel);
 
-        double confidenceInterval = Math.sqrt(chosenZ * chosenZ * mean * (1 - mean) / (samples - 1.0));
-
-        return confidenceInterval;
+        return Math.sqrt(chosenZ * chosenZ * mean * (1 - mean) / (samples - 1.0));
     }
 
     public static double round(double number, int digits) {
         double numberFactor = Math.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;
-    }
-
-    @Deprecated
-    public static int getPower(String numberString) {
-        int power = -99999;
-        try {
-            power = (int)Math.floor(Math.log10(Double.valueOf(numberString)));
-        } catch (NumberFormatException e) {
-            Logger.getRootLogger().error(numberString + ", " + e.getMessage());
-        }
-        return power;
     }
 
     /**
@@ -156,11 +156,7 @@ public final class MathHelper {
         double numMin = value2 - range;
         double numMax = value2 + range;
 
-        if (value1 <= numMax && value1 >= numMin) {
-            return true;
-        }
-
-        return false;
+        return value1 <= numMax && value1 >= numMin;
     }
 
     /**
@@ -174,22 +170,14 @@ public final class MathHelper {
      * @return <tt>True</tt>, if value >= min && value <= max, <tt>false</tt> otherwise.
      */
     public static boolean isWithinInterval(double value, double min, double max) {
-        if (value <= max && value >= min) {
-            return true;
-        }
-
-        return false;
+        return value <= max && value >= min;
     }
 
     public static boolean isWithinMargin(double value1, double value2, double margin) {
         double numMin = value1 - margin * value1;
         double numMax = value1 + margin * value1;
 
-        if (value1 < numMax && value1 > numMin) {
-            return true;
-        }
-
-        return false;
+        return value1 < numMax && value1 > numMin;
     }
 
     public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue,
@@ -197,11 +185,7 @@ public final class MathHelper {
         double numMin = correctValue - correctnessMargin * correctValue;
         double numMax = correctValue + correctnessMargin * correctValue;
 
-        if (questionedValue < numMax && questionedValue > numMin) {
-            return true;
-        }
-
-        return false;
+        return questionedValue < numMax && questionedValue > numMin;
     }
 
     public static int faculty(int number) {
@@ -401,16 +385,12 @@ public final class MathHelper {
     }
 
     public static double computeRootMeanSquareError(List<double[]> values) {
-        double rmse = -1.0;
-
         double sum = 0.0;
         for (double[] d : values) {
             sum += Math.pow(d[0] - d[1], 2);
         }
 
-        rmse = Math.sqrt(sum / values.size());
-
-        return rmse;
+        return Math.sqrt(sum / values.size());
     }
 
     /**
@@ -421,8 +401,6 @@ public final class MathHelper {
      * @return The similarity of the two lists.
      */
     public static ListSimilarity computeListSimilarity(List<String> list1, List<String> list2) {
-
-        double similarity = 0;
 
         // get maximum possible distance
         int summedMaxDistance = 0;
@@ -460,7 +438,7 @@ public final class MathHelper {
             position1++;
         }
 
-        similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
+        double similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
         double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
         double rootMeanSquareError = computeRootMeanSquareError(positionValues);
 
@@ -572,22 +550,55 @@ public final class MathHelper {
      * @param numbers Number of numbers to generate.
      * @param min The minimum number.
      * @param max The maximum number.
+     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
      * @return A set of random numbers between min and max.
      */
     public static Set<Integer> createRandomNumbers(int numbers, int min, int max) {
+        return createRandomNumbers(numbers, min, max, null);
+    }
+
+    /**
+     * <p>
+     * Create numbers random numbers between [min,max).
+     * </p>
+     * 
+     * @param numbers Number of numbers to generate.
+     * @param min The minimum number.
+     * @param max The maximum number.
+     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
+     * @return A set of random numbers between min and max.
+     */
+    public static Set<Integer> createRandomNumbers(int numbers, int min, int max, Long seed) {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
             Logger.getRootLogger().warn("the range between min and max is not enough to create enough random numbers");
             return randomNumbers;
         }
-
+        Random random = new Random();
+        if (seed != null) {
+            random.setSeed(seed);
+        }
         while (randomNumbers.size() < numbers) {
-            int randomNumber = (int)(Math.random() * max + min);
+            double nd = random.nextDouble();
+            int randomNumber = (int)(nd * max + min);
             randomNumbers.add(randomNumber);
         }
 
         return randomNumbers;
+    }
+
+    /**
+     * <p>
+     * </p>
+     * 
+     * @param low The minimum number that the random number
+     * @param high
+     * @return
+     */
+    public static int getRandomIntBetween(int low, int high) {
+        int hl = high - low;
+        return (int)Math.round(Math.random() * hl + low);
     }
 
     /**
@@ -687,7 +698,7 @@ public final class MathHelper {
     }
 
     public static double log2(double num) {
-        return (Math.log(num) / Math.log(2));
+        return Math.log(num) / Math.log(2);
     }
 
     public static long crossTotal(long s) {
@@ -745,6 +756,155 @@ public final class MathHelper {
         double distance = earthRadius * c;
 
         return distance;
+    }
+
+    /**
+     * <p>
+     * Compute the Pearson's correlation coefficient between to variables.
+     * </p>
+     * 
+     * @param x A list of double values from the data series of the first variable.
+     * @param y A list of double values from the data series of the second variable.
+     * @return The Pearson correlation coefficient.
+     */
+    public static double computePearsonCorrelationCoefficient(List<Double> x, List<Double> y) {
+
+        double sumX = 0.;
+        double sumY = 0.;
+
+        for (Double v : x) {
+            sumX += v;
+        }
+        for (Double v : y) {
+            sumY += v;
+        }
+
+        double avgX = sumX / x.size();
+        double avgY = sumY / y.size();
+
+        double nominator = 0.;
+        double denominatorX = 0.;
+        double denominatorY = 0.;
+
+        for (int i = 0; i < x.size(); i++) {
+            nominator += ((x.get(i) - avgX) * (y.get(i) - avgY));
+            denominatorX += Math.pow((x.get(i) - avgX), 2);
+            denominatorY += Math.pow((y.get(i) - avgY), 2);
+        }
+
+        double denominator = Math.sqrt(denominatorX * denominatorY);
+
+        return nominator / denominator;
+    }
+
+    /**
+     * <p>
+     * Parse a numeric expression in a string to a double.
+     * </p>
+     * 
+     * <pre>
+     * "0.5" => 0.5
+     * "1/2" => 0.5
+     * "½" => 0.5
+     * "3 1/8" => 3.125
+     * "1½" => 1.5
+     * "1 ½" => 1.5
+     * </pre>
+     * 
+     * @param stringNumber The string containing the numeric expression.
+     * @return The parsed double.
+     */
+    public static double parseStringNumber(String stringNumber) {
+        Validate.notNull(stringNumber);
+
+        stringNumber = stringNumber.toLowerCase();
+
+        double value = 0.;
+
+        // find fraction characters
+        Set<String> remove = new HashSet<String>();
+        if (stringNumber.contains("¼")) {
+            value += 1 / 4.;
+            remove.add("¼");
+        }
+        if (stringNumber.contains("½")) {
+            value += 1 / 2.;
+            remove.add("½");
+        }
+        if (stringNumber.contains("¾")) {
+            value += 3 / 4.;
+            remove.add("¾");
+        }
+        if (stringNumber.contains("⅓")) {
+            value += 1 / 3.;
+            remove.add("⅓");
+        }
+        if (stringNumber.contains("⅔")) {
+            value += 2 / 3.;
+            remove.add("⅔");
+        }
+        if (stringNumber.contains("⅕")) {
+            value += 1 / 5.;
+            remove.add("⅕");
+        }
+        if (stringNumber.contains("⅖")) {
+            value += 2 / 5.;
+            remove.add("⅖");
+        }
+        if (stringNumber.contains("⅗")) {
+            value += 3 / 5.;
+            remove.add("⅗");
+        }
+        if (stringNumber.contains("⅘")) {
+            value += 4 / 5.;
+            remove.add("⅘");
+        }
+        if (stringNumber.contains("⅙")) {
+            value += 1 / 6.;
+            remove.add("⅙");
+        }
+        if (stringNumber.contains("⅚")) {
+            value += 5 / 6.;
+            remove.add("⅚");
+        }
+        if (stringNumber.contains("⅛")) {
+            value += 1 / 8.;
+            remove.add("⅛");
+        }
+        if (stringNumber.contains("⅜")) {
+            value += 3 / 8.;
+            remove.add("⅜");
+        }
+        if (stringNumber.contains("⅝")) {
+            value += 5 / 8.;
+            remove.add("⅝");
+        }
+        if (stringNumber.contains("⅞")) {
+            value += 7 / 8.;
+            remove.add("⅞");
+        }
+
+        for (String string : remove) {
+            stringNumber = stringNumber.replace(string, "");
+        }
+
+        // resolve fractions like "1/2"
+        Matcher matcher = Pattern.compile("(\\d+)/(\\d+)").matcher(stringNumber);
+        if (matcher.find()) {
+            int nominator = Integer.parseInt(matcher.group(1));
+            int denominator = Integer.parseInt(matcher.group(2));
+            value += nominator / (double)denominator;
+            stringNumber = stringNumber.replace(matcher.group(), "");
+        }
+
+        // parse the rest
+        stringNumber = stringNumber.replaceAll("[^0-9.]", "");
+        stringNumber = stringNumber.trim();
+        if (!stringNumber.isEmpty()) {
+            value += Double.parseDouble(stringNumber);
+        }
+
+        return value;
     }
 
 }

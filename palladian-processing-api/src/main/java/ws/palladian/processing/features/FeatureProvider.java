@@ -15,9 +15,9 @@ import ws.palladian.processing.PipelineProcessor;
  * @version 1.0
  * @since 0.1.7
  */
-public interface FeatureProvider<F extends Feature<?>> extends PipelineProcessor {
+public interface FeatureProvider extends PipelineProcessor {
     /**
-     * @return The {@link FeatureDescriptor} for the {@link Feature} extracted by this {@link PipelineProcessor}.
+     * @return The name for the {@link Feature} extracted by this {@link PipelineProcessor}.
      */
-    FeatureDescriptor<F> getDescriptor();
+    String getCreatedFeatureName();
 }

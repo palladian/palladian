@@ -12,13 +12,15 @@ package ws.palladian.processing.features;
  * @author Philipp Katz
  * @param <T> The data type used to represent this {@code Feature}'s value.
  */
-public class Feature<T> {
+public abstract class Feature<T> {
+
     /**
      * <p>
      * The {@link FeatureVector} wide unique identifier of this {@code Feature}.
      * </p>
      */
-    private String name;
+    private final String name;
+
     /**
      * <p>
      * The {@code Feature}'s value containing concrete extracted data from a document.
@@ -37,22 +39,10 @@ public class Feature<T> {
      *            The {@code Feature}'s value containing concrete extracted data
      *            from a document.
      */
-    public Feature(String name, T value) {
+    protected Feature(String name, T value) {
         super();
         this.name = name;
         this.value = value;
-    }
-
-    /**
-     * <p>
-     * Creates a new {@link Feature} with all attributes initialized.
-     * 
-     * @param descriptor The {@link FeatureDescriptor} providing a unique identifier and type information for this
-     *            {@link Feature}.
-     * @param value The {@link Feature}'s value containing concrete extracted data from a document.
-     */
-    public Feature(FeatureDescriptor<? extends Feature<T>> descriptor, T value) {
-        this(descriptor.getIdentifier(), value);
     }
 
     /**
@@ -64,18 +54,6 @@ public class Feature<T> {
      */
     public final String getName() {
         return name;
-    }
-
-    /**
-     * <p>
-     * Resets this {@code Feature}'s identifier overwriting the old one. Use with care!
-     * </p>
-     * 
-     * @param name
-     *            The {@link FeatureVector} wide unique identifier of this {@code Feature}.
-     */
-    public final void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -116,14 +94,8 @@ public class Feature<T> {
         return builder.toString();
     }
 
-    /**
-     * @return The {@link FeatureDescriptor} for this class.
-     */
-    public FeatureDescriptor<?> getDescriptor() {
-        return FeatureDescriptorBuilder.build(getName(), this.getClass());
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -135,7 +107,8 @@ public class Feature<T> {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -166,7 +139,5 @@ public class Feature<T> {
         }
         return true;
     }
-    
-    
 
 }

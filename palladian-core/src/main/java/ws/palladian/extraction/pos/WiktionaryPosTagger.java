@@ -8,8 +8,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.semantics.Word;
 import ws.palladian.semantics.WordDB;
 
@@ -49,12 +49,12 @@ public class WiktionaryPosTagger extends BasePosTagger {
     }
     
     @Override
-    public void tag(List<Annotation<String>> annotations) {
+    public void tag(List<PositionAnnotation> annotations) {
         
         
         // int lastIndex = -1;
 
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             
             String token = annotation.getValue();
 
@@ -146,7 +146,7 @@ public class WiktionaryPosTagger extends BasePosTagger {
 
                 }
                 
-                annotation.addFeature(new NominalFeature(PROVIDED_FEATURE, type));
+                annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, type));
 
 //                tagAnnotation = new TagAnnotation(sentence.indexOf(token), type, token);
             }

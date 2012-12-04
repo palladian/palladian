@@ -118,8 +118,14 @@ public class Crawler {
                 }
             }
 
-            String url = getURLFromStack();
-            Thread ct = new CrawlThread(this, url, tg, "CrawlThread" + System.currentTimeMillis());
+            final String url = getURLFromStack();
+            Thread ct = new Thread("CrawlThread" + System.currentTimeMillis()) {
+                @Override
+                public void run() {
+                    crawl(url);
+                    decreaseThreadCount();
+                }
+            };
             ct.start();
             increaseThreadCount();
 

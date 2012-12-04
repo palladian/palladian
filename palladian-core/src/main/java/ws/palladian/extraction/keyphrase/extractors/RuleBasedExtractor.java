@@ -25,8 +25,8 @@ import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
-import ws.palladian.extraction.keyphrase.features.PhrasenessAnnotator;
 import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -34,11 +34,10 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.AnnotationFeature;
-import ws.palladian.processing.features.AnnotationGroup;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 public final class RuleBasedExtractor extends KeyphraseExtractor {
     
     private final ProcessingPipeline trainingPipeline;
@@ -77,7 +76,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         extractionPipeline.add(new DuplicateTokenRemover());
         extractionPipeline.add(new IdfAnnotator(termCorpus));
         extractionPipeline.add(new TfIdfAnnotator());
-        extractionPipeline.add(new PhrasenessAnnotator());
+//        extractionPipeline.add(new PhrasenessAnnotator());
         extractionPipeline.add(new AdditionalFeatureExtractor());
     }
 
@@ -88,16 +87,15 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             trainingPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = feature.getValue();
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         Set<String> terms = new HashSet<String>();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             terms.add(annotation.getValue());
         }
         termCorpus.addTermsFromDocument(terms);
@@ -133,7 +131,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public List<Keyphrase> extract(String inputText) {
-        PipelineDocument<String> document = new PipelineDocument<String>(inputText);
+        TextDocument document = new TextDocument(inputText);
         try {
             extractionPipeline.process(document);
         } catch (DocumentUnprocessableException e) {
@@ -143,25 +141,24 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
     }
 
     private List<Keyphrase> extract(PipelineDocument<String> document) {
-        TextAnnotationFeature feature = document.getFeatureVector().get(RegExTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-        List<Annotation<String>> annotations = feature.getValue();
+        List<PositionAnnotation> annotations =  document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
-        for (Annotation<String> annotation : annotations) {
+        for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();
             FeatureVector annotationFeatureVector = annotation.getFeatureVector();
-            double frequency = annotationFeatureVector.get(TokenMetricsCalculator.FREQUENCY).getValue();
-            double phraseness = annotationFeatureVector.get(PhrasenessAnnotator.GENERALIZED_DICE).getValue();
+            double frequency = annotationFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FREQUENCY).getValue();
+//            double phraseness = annotationFeatureVector.get(PhrasenessAnnotator.GENERALIZED_DICE).getValue();
             double prior = (double)(keyphraseCorpus.getCount(value) + 1) / keyphraseCorpus.getNumTerms();
-            double posPenalty = annotationFeatureVector.get(TokenMetricsCalculator.FIRST).getValue() > 0.1 ? 0 : 1;
-            double spreadPenalty = annotationFeatureVector.get(TokenMetricsCalculator.SPREAD).getValue() < 0.25 ? 0 : 1;
+            double posPenalty = annotationFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FIRST).getValue() > 0.1 ? 0 : 1;
+            double spreadPenalty = annotationFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.SPREAD).getValue() < 0.25 ? 0 : 1;
             double termLength = value.split(" ").length;
             double idf;
-            if (annotation instanceof AnnotationGroup) {
-                idf = Math.log10(termCorpus.getNumDocs());
-            } else {
-                idf = annotationFeatureVector.get(IdfAnnotator.PROVIDED_FEATURE_DESCRIPTOR).getValue();
-            }
-            double score = frequency * idf * phraseness * prior * posPenalty * spreadPenalty * Math.pow(termLength, 2);
+//            if (annotation instanceof AnnotationGroup) {
+//                idf = Math.log10(termCorpus.getNumDocs());
+//            } else {
+                idf = annotationFeatureVector.getFeature(NumericFeature.class, IdfAnnotator.PROVIDED_FEATURE).getValue();
+//            }
+            double score = frequency * idf /* phraseness */ * prior * posPenalty * spreadPenalty * Math.pow(termLength, 2);
             keywords.add(new Keyphrase(value, score));
 
         }

@@ -48,7 +48,9 @@ public class XPathHelperTest {
         assertEquals(
                 "//xhtml:link[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and (translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]", 
                 XPathHelper.addXhtmlNsToXPath("//link[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and (translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]"));
-
+        
+        assertEquals("//xhtml:div|//xhtml:p", XPathHelper.addXhtmlNsToXPath("//div|//p"));
+        assertEquals("//xhtml:div/xhtml:a|//xhtml:p/xhtml:a", XPathHelper.addXhtmlNsToXPath("//div/a|//p/a"));
     }
 
     @Test
@@ -92,10 +94,10 @@ public class XPathHelperTest {
         Node firstTocNode = XPathHelper.getXhtmlNode(doc, "//body/div[@class='toc']");
         assertNotNull(firstTocNode);
         
-        List<Node> tocItems = XPathHelper.getXhtmlChildNodes(firstTocNode, "ul/li");
+        List<Node> tocItems = XPathHelper.getXhtmlNodes(firstTocNode, "ul/li");
         assertEquals(10, tocItems.size());
         
-        List<Node> tocItems2 = XPathHelper.getXhtmlChildNodes(firstTocNode, "ul/*");
+        List<Node> tocItems2 = XPathHelper.getXhtmlNodes(firstTocNode, "ul/*");
         assertEquals(10, tocItems2.size());
     }
 

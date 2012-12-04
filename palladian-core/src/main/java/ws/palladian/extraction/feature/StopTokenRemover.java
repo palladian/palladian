@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.token.BaseTokenizer;
@@ -16,7 +15,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -29,8 +28,6 @@ import ws.palladian.processing.features.Annotation;
  * 
  */
 public final class StopTokenRemover extends AbstractTokenRemover {
-
-    private static final long serialVersionUID = 1L;
 
     private final Set<String> stopwords;
 
@@ -83,7 +80,7 @@ public final class StopTokenRemover extends AbstractTokenRemover {
         try {
             return loadStopwords(inputStream);
         } finally {
-            IOUtils.closeQuietly(inputStream);
+            FileHelper.close(inputStream);
         }
     }
 
@@ -115,7 +112,7 @@ public final class StopTokenRemover extends AbstractTokenRemover {
     }
 
     @Override
-    protected boolean remove(Annotation<String> annotation) {
+    protected boolean remove(PositionAnnotation annotation) {
         return isStopword(annotation.getValue());
     }
 

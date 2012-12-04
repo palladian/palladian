@@ -32,7 +32,7 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
     private static final Logger LOGGER = Logger.getLogger(GooglePlusLikes.class);
 
     /** The id of this service. */
-    private static final String SERVICE_ID = "googleplus";
+    public static final String SERVICE_ID = "googleplus";
 
     /** The ranking value types of this service **/
     public static final RankingType LIKES = new RankingType("googlepluslikes", "Google Plus Likes",

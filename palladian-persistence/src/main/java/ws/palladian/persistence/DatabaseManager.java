@@ -97,19 +97,20 @@ public class DatabaseManager {
     /**
      * <p>
      * Run a batch insertion. The generated ID for each inserted object is provided via the {@link BatchDataProvider}.
-     * In case an error occurs, the whole batch is rolled back.
+     * For each successful insertion, {@link BatchDataProvider#insertedItem(int, int)} is triggered to allow access to
+     * the generated ID.
      * </p>
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param provider A callback, which provides the necessary data for the insertion.
-     * @return <code>true</code>, if batch insert was successful, <code>false</code> otherwise.
+     * @return The number of inserted rows.
      */
-    public final boolean runBatchInsert(String sql, BatchDataProvider provider) {
+    public final int runBatchInsert(String sql, BatchDataProvider provider) {
 
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        boolean success = true;
+        int affectedRows = 0;
         List<Object> data = null;
 
         try {
@@ -126,19 +127,11 @@ public class DatabaseManager {
                 rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     provider.insertedItem(i, rs.getInt(1));
-                } else {
-                    success = false;
-                    break;
+                    affectedRows++;
                 }
-
             }
 
-            if (success) {
-                connection.commit();
-            } else {
-                connection.rollback();
-            }
-
+            connection.commit();
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
@@ -151,7 +144,7 @@ public class DatabaseManager {
             close(connection, ps, rs);
         }
 
-        return success;
+        return affectedRows;
     }
 
     /**
@@ -179,8 +172,7 @@ public class DatabaseManager {
 
             @Override
             public List<Object> getData(int number) {
-                List<Object> args = batchArgs.get(number);
-                return args;
+                return batchArgs.get(number);
             }
 
             @Override
@@ -235,8 +227,7 @@ public class DatabaseManager {
 
             @Override
             public List<Object> getData(int number) {
-                List<Object> args = batchArgs.get(number);
-                return args;
+                return batchArgs.get(number);
             }
 
             @Override
@@ -259,12 +250,12 @@ public class DatabaseManager {
      * @return The result of the query, or <code>null</code> if no result.
      */
     public final Integer runAggregateQuery(String aggregateQuery) {
-//        return runSingleQuery(new RowConverter<Integer>() {
-//            @Override
-//            public Integer convert(ResultSet resultSet) throws SQLException {
-//                return resultSet.getInt(1);
-//            }
-//        }, aggregateQuery);
+        //        return runSingleQuery(new RowConverter<Integer>() {
+        //            @Override
+        //            public Integer convert(ResultSet resultSet) throws SQLException {
+        //                return resultSet.getInt(1);
+        //            }
+        //        }, aggregateQuery);
         return runSingleQuery(OneColumnRowConverter.INTEGER, aggregateQuery);
     }
 
@@ -372,8 +363,8 @@ public class DatabaseManager {
         int counter = 0;
 
         try {
-
             connection = getConnection();
+
             ps = connection.prepareStatement(sql);
             fillPreparedStatement(ps, args);
             rs = ps.executeQuery();
@@ -625,7 +616,7 @@ public class DatabaseManager {
      */
     protected static final void logError(SQLException exception, String sql, Object... args) {
         StringBuilder errorLog = new StringBuilder();
-        errorLog.append("Exception " + exception.getMessage() + " when updating SQL \"" + sql + "\"");
+        errorLog.append("Exception " + exception.getMessage() + " when performing SQL \"" + sql + "\"");
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }

@@ -1,7 +1,7 @@
 package ws.palladian.processing;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -17,10 +17,8 @@ import java.util.Set;
  */
 public class PerformanceCheckProcessingPipeline extends ProcessingPipeline {
 
-    private static final long serialVersionUID = 1L;
-
     /** Store cumulated processing times for each single PipelineProcessor. */
-    private HashMap<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
+    private final Map<String, Long> cumulatedTimes = new LinkedHashMap<String, Long>();
     private long started;
 
     @Override

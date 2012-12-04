@@ -10,10 +10,8 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureDescriptorBuilder;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -26,8 +24,6 @@ import ws.palladian.processing.features.NominalFeature;
  * @author Philipp Katz
  */
 public final class StemmerAnnotator extends AbstractTokenProcessor {
-
-    private static final long serialVersionUID = 1L;
 
     /**
      * <p>
@@ -56,10 +52,8 @@ public final class StemmerAnnotator extends AbstractTokenProcessor {
      * The descriptor of the feature provided by this {@link PipelineProcessor}.
      * </p>
      */
-    public static final FeatureDescriptor<NominalFeature> STEM = FeatureDescriptorBuilder.build(
-            "ws.palladian.features.stem", NominalFeature.class);
-    public static final FeatureDescriptor<NominalFeature> UNSTEM = FeatureDescriptorBuilder.build(
-            "ws.palladian.features.unstem", NominalFeature.class);
+    public static final String STEM = "ws.palladian.features.stem";
+    public static final String UNSTEM = "ws.palladian.features.unstem";
 
     private final Mode mode;
     private final SnowballStemmer stemmer;
@@ -127,15 +121,15 @@ public final class StemmerAnnotator extends AbstractTokenProcessor {
     }
 
     @Override
-    protected void processToken(Annotation<String> annotation) throws DocumentUnprocessableException {
+    protected void processToken(PositionAnnotation annotation) throws DocumentUnprocessableException {
         String unstem = annotation.getValue();
         String stem = stem(unstem);
         switch (mode) {
             case ANNOTATE:
-                annotation.addFeature(new NominalFeature(STEM, stem));
+                annotation.getFeatureVector().add(new NominalFeature(STEM, stem));
                 break;
             case MODIFY:
-                annotation.addFeature(new NominalFeature(UNSTEM, unstem));
+                annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
                 annotation.setValue(stem);
                 break;
         }

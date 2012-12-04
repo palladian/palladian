@@ -136,6 +136,8 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         switch (language) {
             case GERMAN:
                 return "lang_de";
+            default:
+                break;
         }
         return "lang_en";
     }
@@ -149,9 +151,9 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
      */
     private int getAvailablePages(JSONObject responseData) throws JSONException {
         int availablePages = -1;
-        if (responseData.getJSONObject("cursor") != null) {
+        if (responseData.has("cursor")) {
             JSONObject cursor = responseData.getJSONObject("cursor");
-            if (cursor.getJSONArray("pages") != null) {
+            if (cursor.has("pages")) {
                 JSONArray pages = cursor.getJSONArray("pages");
                 availablePages = pages.length();
             }
@@ -169,12 +171,12 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
     protected abstract R parseResult(JSONObject resultData) throws JSONException;
 
     @Override
-    public int getTotalResultCount(String query) throws SearcherException {
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
         int hitCount = 0;
         String responseData = getResponseData(query, null, 0);
         try {
             JSONObject responseJson = new JSONObject(responseData);
-            if (responseJson.getJSONObject("cursor") != null) {
+            if (responseJson.has("cursor")) {
                 JSONObject cursor = responseJson.getJSONObject("cursor");
                 if (cursor.has("estimatedResultCount")) {
                     hitCount = cursor.getInt("estimatedResultCount");

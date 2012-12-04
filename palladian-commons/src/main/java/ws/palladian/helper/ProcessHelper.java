@@ -9,7 +9,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringOutputStream;
 
 /**
- * This class should provide convinience methods for interacting with the OS functionality.
+ * This class should provide convenience methods for interacting with the OS functionality.
  * 
  * @author David Urbansky
  * 

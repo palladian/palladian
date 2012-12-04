@@ -40,6 +40,7 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.BingSearcher;
+import ws.palladian.retrieval.search.web.DuckDuckGoSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -226,7 +227,7 @@ public class DatasetCreator {
             o[0] = seedFileName;
 
             File[] markedUpFiles = FileHelper.getFiles(getDataSetLocation() + seedFileName);
-            CountMap countMap = new CountMap();
+            CountMap<String> countMap = CountMap.create();
             for (File markedUpFile : markedUpFiles) {
                 if (markedUpFile.isDirectory()) {
                     continue;
@@ -240,18 +241,19 @@ public class DatasetCreator {
                     Matcher matcher = pattern.matcher(fileContent);
 
                     while (matcher.find()) {
-                        countMap.increment(seedEntity);
+                        countMap.add(seedEntity);
                     }
                 }
             }
 
             String entitiesWithFewMentions = "";
             int totalMentions = 0;
-            for (Entry<Object, Integer> entry : countMap.entrySet()) {
-                if (entry.getValue() < getMentionsPerEntity()) {
-                    entitiesWithFewMentions += entry.getKey() + "(" + entry.getValue() + "), ";
+            for (String item : countMap) {
+                int count = countMap.getCount(item);
+                if (count < getMentionsPerEntity()) {
+                    entitiesWithFewMentions += item + "(" + count + "), ";
                 }
-                totalMentions += entry.getValue();
+                totalMentions += count;
             }
             o[1] = entitiesWithFewMentions;
             o[2] = totalMentions / (double) countMap.size();
@@ -736,12 +738,12 @@ public class DatasetCreator {
         // write the seeds to files
         Map<String, StringBuilder> fileMap = new HashMap<String, StringBuilder>();
         for (Annotation annotation : annotations) {
-            StringBuilder seedFileContent = fileMap.get(annotation.getInstanceCategoryName());
+            StringBuilder seedFileContent = fileMap.get(annotation.getTargetClass());
             if (seedFileContent == null) {
                 seedFileContent = new StringBuilder();
                 // we need to write a header
-                seedFileContent.append("Seeds for ").append(annotation.getInstanceCategoryName()).append("\n");
-                fileMap.put(annotation.getInstanceCategoryName(), seedFileContent);
+                seedFileContent.append("Seeds for ").append(annotation.getTargetClass()).append("\n");
+                fileMap.put(annotation.getTargetClass(), seedFileContent);
             }
 
             seedFileContent.append(annotation.getEntity()).append("\n");
@@ -753,7 +755,7 @@ public class DatasetCreator {
             FileHelper.writeToFile(seedFolderPath + entry.getKey() + ".txt", entry.getValue());
         }
 
-        setWebSearcher(SearcherFactory.createSearcher(BingSearcher.class, ConfigHolder.getInstance().getConfig()));
+        setWebSearcher(SearcherFactory.createSearcher(DuckDuckGoSearcher.class, ConfigHolder.getInstance().getConfig()));
         setMentionsPerEntity(minMentionsPerSeed);
         setSeedsPerConcept(numberOfSeedsPerConcept);
         createDataset(seedFolderPath);

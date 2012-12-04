@@ -5,10 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,7 +16,8 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +26,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -81,6 +81,8 @@ public class DocumentRetriever {
     /** The callbacks that are called after each parsed page. */
     private final List<RetrieverCallback> retrieverCallbacks;
 
+    private List<String> userAgents;
+
     /**
      * <p>
      * Instantiate a new {@link DocumentRetriever} using a {@link HttpRetriever} obtained by the
@@ -103,6 +105,7 @@ public class DocumentRetriever {
     public DocumentRetriever(HttpRetriever httpRetriever) {
         this.httpRetriever = httpRetriever;
         downloadFilter = new DownloadFilter();
+        this.initializeAgents();
         retrieverCallbacks = new ArrayList<RetrieverCallback>();
     }
 
@@ -131,14 +134,33 @@ public class DocumentRetriever {
      * @param urls the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
-    public void getWebDocuments(Collection<String> urls, RetrieverCallback<Document> callback) {
+    public void getWebDocuments(Collection<String> urls, final RetrieverCallback<Document> callback) {
 
-        BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
+        final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < numThreads; i++) {
-            Runnable runnable = new DocumentRetrieverThread(urlQueue, callback, this);
-            threads[i] = new Thread(runnable);
+            threads[i] = new Thread() {
+                @Override
+                public void run() {
+                    // keep running, until the queue is empty
+                    while (urlQueue.size() > 0) {
+                        String url = urlQueue.poll();
+                        if (url == null) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                LOGGER.error(e);
+                            }
+                            continue;
+                        }
+                        Document document = getWebDocument(url);
+                        if (document != null) {
+                            callback.onFinishRetrieval(document);
+                        }
+                    }
+                }
+            };
             threads[i].start();
         }
 
@@ -207,21 +229,21 @@ public class DocumentRetriever {
 
         if (json != null) {
             json = json.trim();
-            
+
             // delicous feeds return the whole JSON object wrapped in [square brackets],
             // altough this seems to be valid, our parser doesn't like this, so we remove
             // those brackets before parsing -- Philipp, 2010-07-04
-            
+
             // this was stupid, therefore removed it again. Clients should use getJsonArray instead --
             // Philipp, 2011-12-29
-            
+
             /*if (json.startsWith("[") && json.endsWith("]")) {
                 json = json.substring(1, json.length() - 1);
             }*/
 
             JSONObject jsonOBJ = null;
 
-            if (json.length() > 0) {
+            if (!json.isEmpty()) {
                 try {
                     jsonOBJ = new JSONObject(json);
                 } catch (JSONException e) {
@@ -283,13 +305,11 @@ public class DocumentRetriever {
     public String getText(String url) {
 
         String contentString = null;
-        Reader reader = null;
 
         if (downloadFilter.isAcceptedFileType(url)) {
             try {
                 if (isFile(url)) {
-                    reader = new FileReader(url);
-                    contentString = IOUtils.toString(reader);
+                    contentString = FileHelper.readFileToString(url);
                 } else {
                     HttpResult httpResult = httpRetriever.httpGet(url, globalHeaders);
                     contentString = new String(httpResult.getContent());
@@ -298,8 +318,6 @@ public class DocumentRetriever {
                 LOGGER.error(url + ", " + e.getMessage());
             } catch (Exception e) {
                 LOGGER.error(url + ", " + e.getMessage());
-            } finally {
-                IOUtils.closeQuietly(reader);
             }
         }
 
@@ -311,18 +329,36 @@ public class DocumentRetriever {
      * Get multiple URLs in parallel, for each finished download the supplied callback is invoked. The number of
      * simultaneous threads for downloading and parsing can be defined using {@link #setNumThreads(int)}.
      * </p>
-     * 
+     *
      * @param urls The URLs to download.
      * @param callback The callback to be called for each finished download.
      */
-    public void getTexts(Collection<String> urls, RetrieverCallback<String> callback) {
+    public void getTexts(Collection<String> urls, final RetrieverCallback<String> callback) {
 
-        BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
+        final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < numThreads; i++) {
-            Runnable runnable = new TextRetrieverThread(urlQueue, callback, this);
-            threads[i] = new Thread(runnable);
+            threads[i] = new Thread() {
+                @Override
+                public void run() {
+                    while (urlQueue.size() > 0) {
+                        String url = urlQueue.poll();
+                        if (url == null) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                LOGGER.error(e);
+                            }
+                            continue;
+                        }
+                        String text = getText(url);
+                        if (text != null) {
+                            callback.onFinishRetrieval(text);
+                        }
+                    }
+                }
+            };
             threads[i].start();
         }
 
@@ -392,6 +428,7 @@ public class DocumentRetriever {
                     HttpResult httpResult = httpRetriever.httpGet(cleanUrl, globalHeaders);
                     document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
                     document.setDocumentURI(cleanUrl);
+                    document.setUserData("httpResult", httpResult, null);
                 }
 
                 callRetrieverCallback(document);
@@ -405,7 +442,7 @@ public class DocumentRetriever {
             } catch (HttpException e) {
                 LOGGER.error(url + ", " + e.getMessage());
             } finally {
-                IOUtils.closeQuietly(inputStream);
+                FileHelper.close(inputStream);
             }
         }
 
@@ -495,6 +532,44 @@ public class DocumentRetriever {
 
     public void setGlobalHeaders(Map<String, String> globalHeaders) {
         this.globalHeaders = globalHeaders;
+    }
+    private void initializeAgents(){
+        userAgents = new ArrayList<String>();
+        userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0");
+        userAgents
+        .add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1 Safari/534.50");
+        userAgents.add("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)");
+        userAgents
+        .add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5");
+        userAgents.add("Opera/9.80 (Windows NT 6.1; U; en) Presto/2.2.15 Version/10.10");
+
+        userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.1");
+        userAgents
+        .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; InfoPath.2; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 1.1.4322)");
+        userAgents.add("Mozilla/5.0 (Windows NT 6.1; rv:5.0) Gecko/20100101 Firefox/5.0");
+        userAgents
+        .add("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1");
+        userAgents.add("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+        userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.1");
+        userAgents.add("Mozilla/5.0 (X11; Linux i686) AppleWebKit/534.34 (KHTML, like Gecko) rekonq Safari/534.34");
+        userAgents
+        .add("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB6; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; OfficeLiveConnector.1.4; OfficeLivePatch.1.3)");
+        userAgents
+        .add("IE 7 ? Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)");
+        userAgents
+        .add("Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.23) Gecko/20110920 Firefox/3.6.23 SearchToolbar/1.2");
+        userAgents
+        .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; .NET CLR 1.1.4322; InfoPath.2; .NET CLR 3.5.21022)");
+        userAgents
+        .add("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET CLR 1.1.4322; Tablet PC 2.0; OfficeLiveConnector.1.3; OfficeLivePatch.1.3; MS-RTC LM 8; InfoPath.3)");
+        userAgents
+        .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
+    }
+    public void switchAgent(){
+        HttpParams httpParams = new SyncBasicHttpParams();
+        int index =  (int) (Math.random() * userAgents.size());
+        String s = userAgents.get(index);
+        httpRetriever.setUserAgent(s);
     }
 
     // ////////////////////////////////////////////////////////////////

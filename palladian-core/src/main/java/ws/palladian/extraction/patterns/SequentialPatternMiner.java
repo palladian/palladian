@@ -14,8 +14,7 @@ import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.TextAnnotationFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -35,10 +34,7 @@ import ws.palladian.processing.features.TextAnnotationFeature;
  * 
  */
 public class SequentialPatternMiner extends ProcessingPipeline {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 5391992699076983616L;
+
     /**
      * <p>
      * Keywords for Question Answer detection as reported by Hong et al [1]. These are the 5W1H words and the english
@@ -88,22 +84,17 @@ public class SequentialPatternMiner extends ProcessingPipeline {
      * @return All {@code LabeledSequentialPattern}s from {@code document} or an empty {@code Collection} if no
      *         {@code LabeledSequentialPattern}s were extracted from {@code document} yet.
      */
-    public static Collection<SequentialPatternsFeature> getExtractedPatterns(PipelineDocument<String> document) {
-        Collection<SequentialPatternsFeature> ret = new HashSet<SequentialPatternsFeature>();
-        TextAnnotationFeature sentencesFeature = document.getFeatureVector().get(
-                AbstractSentenceDetector.PROVIDED_FEATURE_DESCRIPTOR);
-        if (sentencesFeature != null) {
-            List<Annotation<String>> sentenceAnnotations = sentencesFeature.getValue();
-
-            for (Annotation<String> annotation : sentenceAnnotations) {
-                SequentialPatternsFeature lspFeature = annotation
-                        .getFeature(SequentialPatternAnnotator.PROVIDED_FEATURE_DESCRIPTOR);
-                if (lspFeature != null) {
-                    ret.add(lspFeature);
-                }
+    public static Collection<SequentialPattern> getExtractedPatterns(PipelineDocument<String> document) {
+        Collection<SequentialPattern> ret = new HashSet<SequentialPattern>();
+        List<PositionAnnotation> sentences = document.getFeatureVector().getAll(PositionAnnotation.class,
+                AbstractSentenceDetector.PROVIDED_FEATURE);
+        for (PositionAnnotation annotation : sentences) {
+            SequentialPattern lspFeature = annotation.getFeatureVector().getFeature(SequentialPattern.class,
+                    SequentialPatternAnnotator.PROVIDED_FEATURE);
+            if (lspFeature != null) {
+                ret.add(lspFeature);
             }
         }
-
         return ret;
     }
 }

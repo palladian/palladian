@@ -3,54 +3,61 @@
  */
 package ws.palladian.extraction.feature;
 
-import java.util.Collection;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineDocument;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
+import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
+ * <p>
+ * Calculates the ratio between two {@link Feature}s. The {@code Feature}s may either be {@link NumericFeature}s or
+ * {@link AnnotationFeature}s. The processor either takes the value of the {@code Feature} described by the dividend and
+ * divides it by the {@code Feature} described by divisor. If either {@code FeatureDescriptor} is an
+ * {@link AnnotationFeature} the {@link PositionAnnotation}s of that {@code Feature} are counted and the count is used.
+ * </p>
+ * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
  */
-public final class RatioExtractor extends StringDocumentPipelineProcessor {
+public final class RatioExtractor extends TextDocumentPipelineProcessor implements FeatureProvider {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 6202637952980283673L;
-    private final FeatureDescriptor<NumericFeature> featureDescriptor;
-    private final FeatureDescriptor<? extends Feature<?>> dividendFeatureDescriptor;
-    private final FeatureDescriptor<? extends Feature<?>> divisorFeatureDescriptor;
+    private final String featureIdentifier;
+    private final String dividendFeatureIdentifier;
+    private final String divisorFeatureIdentifier;
 
-    public RatioExtractor(FeatureDescriptor<NumericFeature> featureDescriptor,
-            FeatureDescriptor<? extends Feature<?>> dividendFeatureDescriptor,
-            FeatureDescriptor<? extends Feature<?>> divisorFeatureDescriptor) {
-        super();
-
-        this.featureDescriptor = featureDescriptor;
-        this.dividendFeatureDescriptor = dividendFeatureDescriptor;
-        this.divisorFeatureDescriptor = divisorFeatureDescriptor;
+    public RatioExtractor(String featureIdentifier, String dividendFeatureIdentifier, String divisorFeatureIdentifier) {
+        this.featureIdentifier = featureIdentifier;
+        this.dividendFeatureIdentifier = dividendFeatureIdentifier;
+        this.divisorFeatureIdentifier = divisorFeatureIdentifier;
     }
 
     @Override
-    public void processDocument(PipelineDocument<String> document) throws DocumentUnprocessableException {
-        Feature<?> dividendFeature = document.getFeature(dividendFeatureDescriptor);
-        Feature<?> divisorFeature = document.getFeature(divisorFeatureDescriptor);
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+        Feature<?> dividendFeature = document.getFeatureVector().getFeature(dividendFeatureIdentifier);
+        Feature<?> divisorFeature = document.getFeatureVector().getFeature(divisorFeatureIdentifier);
+        Validate.notNull(dividendFeature, "Unable to calculate ratio since dividend %s is not set",
+                dividendFeatureIdentifier);
+        Validate.notNull(dividendFeature, "Unable to calculate ratio since divisor %s is not set",
+                divisorFeatureIdentifier);
 
         Double dividend = convertToNumber(dividendFeature.getValue());
         Double divisor = convertToNumber(divisorFeature.getValue());
 
-        document.addFeature(new NumericFeature(getDescriptor(), dividend / divisor));
+        Validate.notNull(dividend, "Unable to calculate ratio since dividend %s is no valid number. Data type is %s",
+                dividendFeatureIdentifier, dividendFeature.getValue().getClass().getName());
+        Validate.notNull(divisor, "Unable to calculate ratio since divisor %s is no valid number. Data type is %s",
+                divisorFeatureIdentifier, divisorFeature.getValue().getClass().getName());
+
+        document.getFeatureVector().add(new NumericFeature(featureIdentifier, dividend / divisor));
     }
 
     private Double convertToNumber(Object value) {
-        if (value instanceof Collection) {
-            return Double.valueOf(((Collection<?>)value).size());
-        } else if (value instanceof Double) {
+        if (value instanceof Double) {
             return (Double)value;
         } else if (value instanceof Integer) {
             return ((Integer)value).doubleValue();
@@ -59,8 +66,8 @@ public final class RatioExtractor extends StringDocumentPipelineProcessor {
         }
     }
 
-    public FeatureDescriptor<NumericFeature> getDescriptor() {
-        return featureDescriptor;
+    @Override
+    public String getCreatedFeatureName() {
+        return featureIdentifier;
     }
-
 }

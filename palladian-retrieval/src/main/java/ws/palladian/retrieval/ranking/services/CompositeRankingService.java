@@ -33,8 +33,7 @@ public final class CompositeRankingService extends BaseRankingService implements
         rankingServices.add(new BibsonomyBookmarks(config));
         rankingServices.add(new BitlyClicks(config));
         rankingServices.add(new Compete(config));
-        // rankingServices.add(new DeliciousBookmarks()); // TODO
-        rankingServices.add(new DiggStats());
+        rankingServices.add(new DeliciousBookmarks());
         rankingServices.add(new FacebookLinkStats());
         rankingServices.add(new FriendfeedAggregatedStats());
         rankingServices.add(new FriendfeedStats());
