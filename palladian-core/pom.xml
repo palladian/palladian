@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.1.8</version>
+		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>palladian-core</artifactId>
 	<name>Palladian: Core</name>
