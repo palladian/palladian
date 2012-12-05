@@ -214,7 +214,11 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
      * @return
      */
     private String getEntryTitle(SyndEntry syndEntry) {
-        return syndEntry.getTitle();
+        String title = syndEntry.getTitle();
+        if (title != null) {
+            title = title.trim();
+        }
+        return title;
     }
 
     /**
