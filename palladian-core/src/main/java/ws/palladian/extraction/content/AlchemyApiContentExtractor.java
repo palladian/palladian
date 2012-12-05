@@ -36,18 +36,15 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
 
-        String docUrl = document.getDocumentURI();
-        String requestUrl = String.format(
-                "http://access.alchemyapi.com/calls/url/URLGetText?apikey=%s&outputMode=json&url=%s", apiKey,
-                UrlHelper.urlEncode(docUrl));
+        String requestUrl = buildRequestUrl(documentLocation);
 
         HttpResult httpResult;
         try {
             httpResult = httpRetriever.httpGet(requestUrl);
         } catch (HttpException e) {
-            throw new PageContentExtractorException("Error when contacting API for URL \"" + docUrl + "\": "
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": "
                     + e.getMessage(), e);
         }
 
@@ -57,6 +54,20 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
         extractedResult = json.getString("text");
 
         return this;
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        String docUrl = document.getDocumentURI();
+        return setDocument(docUrl);
+    }
+
+    private String buildRequestUrl(String docUrl) {
+        String requestUrl = String.format(
+                "http://access.alchemyapi.com/calls/url/URLGetText?apikey=%s&outputMode=json&url=%s", apiKey,
+                UrlHelper.urlEncode(docUrl));
+
+        return requestUrl;
     }
 
     @Override
