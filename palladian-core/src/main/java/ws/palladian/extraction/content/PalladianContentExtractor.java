@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -17,7 +18,6 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
@@ -50,12 +50,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private static final List<String> MAIN_NODE_HINTS = new ArrayList<String>();
 
+    /** The entire document. */
     private Document document;
+
+    /** The detected main content node. */
     private Node resultNode;
 
+    /** All sentences in the main content. */
     private List<String> sentences = new ArrayList<String>();
+
+    /** Detected comments on the page. */
+    private List<String> comments = new ArrayList<String>();
+
+    /** The html text of the main content node. */
     private String mainContentHtml = "";
+
+    /** The readable text of the main content node. */
     private String mainContentText = "";
+
+    /** The cleansed entire text content of the page. */
+    private String fullTextContent = "";
 
     /**
      * <p>
@@ -99,8 +113,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         resultNode = null;
         sentences = new ArrayList<String>();
+        comments = new ArrayList<String>();
         mainContentHtml = "";
         mainContentText = "";
+        fullTextContent = "";
 
         parseDocument();
         return this;
@@ -112,6 +128,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     public List<String> getSentences() {
         return sentences;
+    }
+
+    public List<String> getComments() {
+        return comments;
+    }
+
+    /**
+     * <p>
+     * This does not only contain the main content but also comments etc.
+     * </p>
+     * 
+     * @return
+     */
+    public String getEntireTextContent() {
+        fullTextContent = fullTextContent.replaceAll("(\t)+", "");
+        fullTextContent = Pattern.compile("^.{0,40}$", Pattern.MULTILINE).matcher(fullTextContent).replaceAll("\n");
+        fullTextContent = fullTextContent.replaceAll("\n(\\s)+\n", "\n\n");
+        fullTextContent = fullTextContent.replaceAll("(\n){2,}", "\n\n");
+
+        return fullTextContent;
     }
 
     private void parseDocument() throws PageContentExtractorException {
@@ -135,8 +171,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             LOGGER.debug("direct text nodes: " + textNodeCount);
         }
 
+        fullTextContent = HtmlHelper.documentToText(document);
         cleanDom();
-
         content = HtmlHelper.documentToText(document);
         sentences = Tokenizer.getSentences(content, true);
 
@@ -283,6 +319,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                         document,
                         "//*[(self::xhtml:div) or (self::xhtml:p)][@class='comment' or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments')]");
         for (Node node : divs) {
+            comments.add(HtmlHelper.documentToReadableText(node));
             node.getParentNode().removeChild(node);
         }
 
@@ -295,8 +332,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (String hint : MAIN_NODE_HINTS) {
             List<Node> mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
                     "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
-                            + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint
-                            + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
+                    + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint
+                    + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
 
             if (!mainNodes.isEmpty()) {
                 mainNode = mainNodes.get(0);
@@ -596,15 +633,19 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands");
         // pe.setDocument("http://www.huffingtonpost.com/2012/11/22/black-friday-creep-retail-workers_n_2167066.html");
         // pe.setDocument("http://webknox.com/p/best-proxy-services");
-        // pe.setDocument("http://www.politicususa.com/walmart-earns-record-profits-supporting-republicans-plan-slash-employees-food-stamps.html");
+        pe.setDocument("http://www.politicususa.com/walmart-earns-record-profits-supporting-republicans-plan-slash-employees-food-stamps.html");
         // pe.setDocument("http://greatist.com/fitness/perfect-squat/");
-        pe.setDocument("http://www.latimes.com/news/nationworld/world/la-fg-israel-gaza-20121120,0,4042611.story");
+        // pe.setDocument("http://www.latimes.com/news/nationworld/world/la-fg-israel-gaza-20121120,0,4042611.story");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title: " + pe.getResultTitle());
-        System.out.println("Author: "
-                + pe.getAuthorName(ConfigHolder.getInstance().getConfig().getString("api.webknox.apiKey")));
+        // System.out.println("Author: "
+        // + pe.getAuthorName(ConfigHolder.getInstance().getConfig().getString("api.webknox.apiKey")));
         System.out.println("Result Text: " + pe.getResultText());
+        System.out.println("Comments: ");
+        CollectionHelper.print(pe.getComments());
+
+        System.out.println("Full Text: " + pe.getEntireTextContent());
         // CollectionHelper.print(pe.getSentences());
     }
 }
