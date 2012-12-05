@@ -29,8 +29,10 @@ public class ReadItLaterContentExtractor extends WebPageContentExtractor {
 
     /** The API key for accessing the service. */
     private final String apiKey;
+
     /** For performing HTTP requests. */
     private final HttpRetriever httpRetriever;
+
     /** For parsing the result DOM fragment. */
     private final DocumentParser htmlParser;
 
