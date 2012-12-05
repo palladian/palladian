@@ -485,6 +485,8 @@ public final class StringHelper {
                 String after = searchString.substring(oldIndex);
                 searchString = before + replacement + after;
                 searchStringLc = searchString.toLowerCase();
+
+                oldIndex = index + replacement.length();
             }
 
         } while (index > -1);
@@ -1443,17 +1445,17 @@ public final class StringHelper {
         return matches;
     }
 
-//    /**
-//     * Calculates Levenshtein similarity between the strings.
-//     * 
-//     * @param s1
-//     * @param s2
-//     * @return similarity between 0 and 1 (inclusive).
-//     */
-//    public static float getLevenshteinSim(String s1, String s2) {
-//        int distance = StringUtils.getLevenshteinDistance(s1, s2);
-//        return 1 - (float)distance / Math.max(s1.length(), s2.length());
-//    }
+    //    /**
+    //     * Calculates Levenshtein similarity between the strings.
+    //     *
+    //     * @param s1
+    //     * @param s2
+    //     * @return similarity between 0 and 1 (inclusive).
+    //     */
+    //    public static float getLevenshteinSim(String s1, String s2) {
+    //        int distance = StringUtils.getLevenshteinDistance(s1, s2);
+    //        return 1 - (float)distance / Math.max(s1.length(), s2.length());
+    //    }
 
     /**
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
