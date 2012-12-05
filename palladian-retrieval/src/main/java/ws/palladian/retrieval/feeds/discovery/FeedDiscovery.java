@@ -145,6 +145,7 @@ public final class FeedDiscovery {
             LOGGER.error("Searcher Exception: " + e.getMessage());
         }
 
+
         return sites;
     }
 
