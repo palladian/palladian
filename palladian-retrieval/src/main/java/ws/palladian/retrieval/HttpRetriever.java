@@ -461,11 +461,9 @@ public class HttpRetriever {
             addDownload(receivedBytes);
 
         } catch (IllegalStateException e) {
-            throw new HttpException(e);
+            throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new HttpException(e);
-        } catch (NumberFormatException e) {
-            throw new HttpException(e);
+            throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } finally {
             FileHelper.close(in);
             request.abort();
@@ -612,9 +610,9 @@ public class HttpRetriever {
                     break; // done.
                 }
             } catch (ClientProtocolException e) {
-                throw new HttpException(e);
+                throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
             } catch (IOException e) {
-                throw new HttpException(e);
+                throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
             } finally {
                 headRequest.abort();
             }
