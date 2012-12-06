@@ -55,7 +55,7 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
             paging: for (int page = 0; page <= numPages; page++) {
 
                 String requestUrl = "http://www.google.com/search?hl=en&safe=off&output=search&start="
-                        + entriesPerPage * page + "&q=" + UrlHelper.urlEncode(query);
+                        + entriesPerPage * page + "&q=" + UrlHelper.encodeParameter(query);
                 HttpResult httpResult = retriever.httpGet(requestUrl);
 
                 if (httpResult.getStatusCode() >= 500) {

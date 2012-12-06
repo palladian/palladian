@@ -1145,7 +1145,7 @@ public final class PageAnalyzer {
         String siblingURL = "";
         String domain = UrlHelper.getDomain(document.getDocumentURI(), true);
 
-        String url = UrlHelper.urlDecode(document.getDocumentURI());
+        String url = UrlHelper.decodeParameter(document.getDocumentURI());
 
         // for test cases on local files, we ignore sibling URLs
         if (url == null || url.startsWith("file:")) {
@@ -1180,7 +1180,7 @@ public final class PageAnalyzer {
                 continue;
             }
 
-            currentLink = UrlHelper.urlDecode(currentLink);
+            currentLink = UrlHelper.decodeParameter(currentLink);
 
             // calculate similarity to given url
             double similarity = StringHelper.calculateSimilarity(currentLink, url, false);

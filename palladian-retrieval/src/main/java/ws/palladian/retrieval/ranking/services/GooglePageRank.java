@@ -79,7 +79,7 @@ public final class GooglePageRank extends BaseRankingService implements RankingS
      * @return
      */
     private String buildRequestUrl(String url) {
-        String encUrl = UrlHelper.urlEncode(url);
+        String encUrl = UrlHelper.encodeParameter(url);
         JenkinsHash jHash = new JenkinsHash();
         long urlHash = jHash.hash(("info:" + url).getBytes());
         String requestUrl = "http://toolbarqueries.google.com/tbr?client=navclient-auto&hl=en&ch=6" + urlHash

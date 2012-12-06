@@ -164,7 +164,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     private String buildRequestUrl(String query, int resultsPerPage, Language language, int page, ResultType resultType) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://search.twitter.com/search.json");
-        urlBuilder.append("?q=").append(UrlHelper.urlEncode(query));
+        urlBuilder.append("?q=").append(UrlHelper.encodeParameter(query));
         urlBuilder.append("&page=").append(page);
         urlBuilder.append("&rpp=").append(resultsPerPage);
         urlBuilder.append("&lang=").append(getLanguageCode(language));

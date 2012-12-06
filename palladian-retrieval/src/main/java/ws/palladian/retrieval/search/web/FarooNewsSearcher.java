@@ -24,7 +24,7 @@ public final class FarooNewsSearcher extends BaseFarooSearcher {
     protected String getRequestUrl(String query, int resultCount, Language language) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://www.faroo.com/instant.json");
-        urlBuilder.append("?q=").append(UrlHelper.urlEncode(query));
+        urlBuilder.append("?q=").append(UrlHelper.encodeParameter(query));
         urlBuilder.append("&start=1");
         urlBuilder.append("&length=").append(resultCount);
         if (language.equals(Language.GERMAN)) {

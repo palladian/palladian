@@ -50,7 +50,7 @@ public class ReadItLaterContentExtractor extends WebPageContentExtractor {
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
         String docUrl = document.getDocumentURI();
         String requestUrl = String.format("http://text.readitlaterlist.com/v2/text?apikey=%s&url=%s", apiKey,
-                UrlHelper.urlEncode(docUrl));
+                UrlHelper.encodeParameter(docUrl));
         HttpResult httpResult;
         try {
             httpResult = httpRetriever.httpGet(requestUrl);

@@ -141,7 +141,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     private String getRequestUrl(String query, int pageSize, int page) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://blekko.com/ws/");
-        urlBuilder.append("?q=").append(UrlHelper.urlEncode(query));
+        urlBuilder.append("?q=").append(UrlHelper.encodeParameter(query));
         urlBuilder.append("+/json");
         urlBuilder.append("+/ps=").append(pageSize);
         if (this.apiKey != null) {
