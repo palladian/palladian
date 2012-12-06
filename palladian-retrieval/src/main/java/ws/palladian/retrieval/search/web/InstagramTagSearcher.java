@@ -65,7 +65,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
         }
 
         String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s",
-                UrlHelper.urlEncode(query), accessToken);
+                UrlHelper.encodeParameter(query), accessToken);
 
         page: for (;;) {
 

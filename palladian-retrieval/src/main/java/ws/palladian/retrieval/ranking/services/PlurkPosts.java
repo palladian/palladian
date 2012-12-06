@@ -95,7 +95,7 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
 
         try {
 
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key="
                     + getApiKey() + "&query=" + encUrl);
 

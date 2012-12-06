@@ -127,7 +127,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
         urlBuilder.append("?method=flickr.photos.search");
         urlBuilder.append("&api_key=").append(apiKey);
         if (query != null) {
-            urlBuilder.append("&text=").append(UrlHelper.urlEncode(query));
+            urlBuilder.append("&text=").append(UrlHelper.encodeParameter(query));
         }
         if (tags != null) {
             urlBuilder.append("&tags=").append(tags);

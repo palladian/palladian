@@ -82,7 +82,7 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
 
-        String encUrl = UrlHelper.urlEncode(url);
+        String encUrl = UrlHelper.encodeParameter(url);
         try {
             HttpResult httpResult = retriever.httpGet("http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
                     + "&url=" + encUrl);

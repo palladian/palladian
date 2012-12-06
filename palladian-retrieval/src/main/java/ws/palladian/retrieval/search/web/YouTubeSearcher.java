@@ -85,7 +85,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
     }
 
     private String getRequestUrl(String query, int resultCount, Language language) {
-        String url = "https://gdata.youtube.com/feeds/api/videos?q=" + UrlHelper.urlEncode(query);
+        String url = "https://gdata.youtube.com/feeds/api/videos?q=" + UrlHelper.encodeParameter(query);
         url += "&orderby=relevance";
         url += "&start-index=1";
         url += "&max-results=" + Math.min(50, resultCount);

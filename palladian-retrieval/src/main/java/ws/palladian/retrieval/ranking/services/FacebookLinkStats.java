@@ -76,7 +76,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
 
         try {
 
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             JSONObject json = null;
             try {
                 String requestUrl = FQL_QUERY + "url='" + encUrl + "'";
@@ -121,9 +121,9 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
 
             for (int i = 0; i < urls.size(); i++) {
                 if (i == urls.size() - 1) {
-                    encUrls += "url='" + UrlHelper.urlEncode(urls.get(i)) + "'";
+                    encUrls += "url='" + UrlHelper.encodeParameter(urls.get(i)) + "'";
                 } else {
-                    encUrls += "url='" + UrlHelper.urlEncode(urls.get(i)) + "' or ";
+                    encUrls += "url='" + UrlHelper.encodeParameter(urls.get(i)) + "' or ";
                 }
             }
 

@@ -40,7 +40,7 @@ public class WebKnoxLangDetect extends LanguageClassifier {
 
         DocumentRetriever retriever = new DocumentRetriever();
         String url = "http://webknox.com/api/text/language?text=";
-        url += UrlHelper.urlEncode(text);
+        url += UrlHelper.encodeParameter(text);
         url += "&apiKey=" + apiKey;
         JSONArray result = retriever.getJsonArray(url);
 

@@ -84,7 +84,7 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://api.sharedcount.com/?url=" + UrlHelper.urlEncode(url);
+        String requestUrl = "http://api.sharedcount.com/?url=" + UrlHelper.encodeParameter(url);
         return requestUrl;
     }
 

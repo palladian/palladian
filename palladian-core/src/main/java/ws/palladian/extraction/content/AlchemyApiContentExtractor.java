@@ -65,7 +65,7 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
     private String buildRequestUrl(String docUrl) {
         String requestUrl = String.format(
                 "http://access.alchemyapi.com/calls/url/URLGetText?apikey=%s&outputMode=json&url=%s", apiKey,
-                UrlHelper.urlEncode(docUrl));
+                UrlHelper.encodeParameter(docUrl));
 
         return requestUrl;
     }

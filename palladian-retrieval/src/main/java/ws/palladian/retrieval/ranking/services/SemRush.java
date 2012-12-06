@@ -78,7 +78,7 @@ public final class SemRush extends BaseRankingService implements RankingService 
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://publicapi.bl.semrush.com/?url=" + UrlHelper.urlEncode(url);
+        String requestUrl = "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
         return requestUrl;
     }
 
