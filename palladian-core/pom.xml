@@ -116,20 +116,20 @@
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
 		</dependency -->
-		<dependency>
+		<!-- dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
-		</dependency>
+		</dependency -->
 		<!-- 
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers</artifactId>
 		</dependency>
 		-->
-		<dependency>
+		<!-- dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-queries</artifactId>
-		</dependency>
+		</dependency -->
 		<!--
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
@@ -169,8 +169,6 @@
 		    <groupId>org.imgscalr</groupId>
 		    <artifactId>imgscalr-lib</artifactId>
 		    <version>4.2</version>
-		    <type>jar</type>
-		    <scope>compile</scope>
 		  </dependency>
 	</dependencies>
 </project>
