@@ -4,41 +4,12 @@ import ws.palladian.helper.date.ExtractedDate;
 
 public final class MetaDate extends KeywordDate {
 
-    /** Name of the tag, where this {@link MetaDate} was found. */
-    private final String tag;
-
-    public MetaDate(ExtractedDate date, String keyword, String tag) {
-        super(date, keyword);
-        this.tag = tag;
-    }
-
     public MetaDate(ExtractedDate date, String keyword) {
-        this(date, keyword, null);
+        super(date, keyword);
     }
 
     public MetaDate(ExtractedDate date) {
         this(date, null);
-    }
-
-    /**
-     * Get the name of the tag, where this {@link MetaDate} was found.
-     * 
-     * @return Name of the tag, where this {@link MetaDate} was found.
-     */
-    public String getTag() {
-        return tag;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(super.toString());
-        builder.append(" tag=");
-        builder.append(tag);
-        return builder.toString();
     }
 
 }

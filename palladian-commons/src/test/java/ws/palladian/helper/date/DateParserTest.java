@@ -19,7 +19,7 @@ public class DateParserTest {
      */
     @Test
     public void testFindDate1() {
-
+        
         // others
         assertEquals("2010-07-02 19:07:49", DateParser.findDate("Tue, 02 Jul 2010 19:07:49 GMT").getNormalizedDateString());
         assertEquals("2010-07-23 15:35:58", DateParser.findDate("7/23/2010 3:35:58 PM").getNormalizedDateString());
@@ -114,7 +114,7 @@ public class DateParserTest {
         assertEquals("2006-05-16 06:04:54", DateParser.findDate("Tue, 16 May 2006 15:04:54 +0900").getNormalizedDateString());
         assertEquals("2009-02-12 00:00:00", DateParser.findDate("2009-02-12 00:00:00").getNormalizedDateString());
         assertEquals("2009-02-12", DateParser.findDate("2009-02-12").getNormalizedDateString());
-
+        assertEquals("2012-12-09 15:45", DateParser.findDate("2012-12-09T15:45GMT").getNormalizedDateString());
     }
 
     /**
