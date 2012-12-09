@@ -5,14 +5,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-
 public class DateExactnessTest {
-    
+
     @Test
     public void testIsInRange() {
-        assertTrue(DateExactness.MINUTE.inRange(DateExactness.SECOND));
-        assertTrue(DateExactness.SECOND.inRange(DateExactness.SECOND));
-        assertFalse(DateExactness.SECOND.inRange(DateExactness.MINUTE));
+        assertTrue(DateExactness.SECOND.provides(DateExactness.MINUTE));
+        assertTrue(DateExactness.SECOND.provides(DateExactness.SECOND));
+        assertFalse(DateExactness.MINUTE.provides(DateExactness.SECOND));
     }
 
 }

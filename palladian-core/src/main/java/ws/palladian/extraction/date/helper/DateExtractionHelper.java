@@ -175,7 +175,7 @@ public final class DateExtractionHelper {
         DateExactness highestExactness = DateExactness.UNSET;
         for (D date : dates) {
             DateExactness currentExactness = date.getExactness();
-            if (highestExactness.inRange(currentExactness)) {
+            if (currentExactness.provides(highestExactness)) {
                 highestExactness = currentExactness;
             }
         }
