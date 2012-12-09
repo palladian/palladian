@@ -37,6 +37,9 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
             if (nameAttribute == null) {
                 nameAttribute = nodeAttributes.getNamedItem("http-equiv");
             }
+            if (nameAttribute == null) {
+                nameAttribute = nodeAttributes.getNamedItem("property");
+            }
             Node contentAttribute = nodeAttributes.getNamedItem("content");
             if (nameAttribute == null || contentAttribute == null) {
                 continue;
@@ -49,8 +52,7 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
             if (date == null) {
                 continue;
             }
-            String tagName = nameAttribute.getNodeName();
-            dates.add(new MetaDate(date, keyword, tagName));
+            dates.add(new MetaDate(date, keyword));
         }
 
         return dates;
