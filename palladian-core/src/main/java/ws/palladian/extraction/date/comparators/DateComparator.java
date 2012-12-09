@@ -71,15 +71,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
     @Override
     public int compare(ExtractedDate date1, ExtractedDate date2) {
         int returnValue = compare(date1.get(ExtractedDate.YEAR), date2.get(ExtractedDate.YEAR));
-        if (returnValue == 0 && DateExactness.MONTH.inRange(dateExactness)) {
+        if (returnValue == 0 && dateExactness.provides(DateExactness.MONTH)) {
             returnValue = compare(date1.get(ExtractedDate.MONTH), date2.get(ExtractedDate.MONTH));
-            if (returnValue == 0 && DateExactness.DAY.inRange(dateExactness)) {
+            if (returnValue == 0 && dateExactness.provides(DateExactness.DAY)) {
                 returnValue = compare(date1.get(ExtractedDate.DAY), date2.get(ExtractedDate.DAY));
-                if (returnValue == 0 && DateExactness.HOUR.inRange(dateExactness)) {
+                if (returnValue == 0 && dateExactness.provides(DateExactness.HOUR)) {
                     returnValue = compare(date1.get(ExtractedDate.HOUR), date2.get(ExtractedDate.HOUR));
-                    if (returnValue == 0 && DateExactness.MINUTE.inRange(dateExactness)) {
+                    if (returnValue == 0 && dateExactness.provides(DateExactness.MINUTE)) {
                         returnValue = compare(date1.get(ExtractedDate.MINUTE), date2.get(ExtractedDate.MINUTE));
-                        if (returnValue == 0 && DateExactness.SECOND.inRange(dateExactness)) {
+                        if (returnValue == 0 && dateExactness.provides(DateExactness.SECOND)) {
                             returnValue = compare(date1.get(ExtractedDate.SECOND), date2.get(ExtractedDate.SECOND));
                         }
                     }

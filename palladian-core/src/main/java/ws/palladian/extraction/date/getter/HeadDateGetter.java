@@ -1,6 +1,7 @@
 package ws.palladian.extraction.date.getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.w3c.dom.Document;
@@ -33,13 +34,7 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(document, "//head/meta");
         for (Node metaNode : metaNodes) {
             NamedNodeMap nodeAttributes = metaNode.getAttributes();
-            Node nameAttribute = nodeAttributes.getNamedItem("name");
-            if (nameAttribute == null) {
-                nameAttribute = nodeAttributes.getNamedItem("http-equiv");
-            }
-            if (nameAttribute == null) {
-                nameAttribute = nodeAttributes.getNamedItem("property");
-            }
+            Node nameAttribute = getNameAttribute(nodeAttributes);
             Node contentAttribute = nodeAttributes.getNamedItem("content");
             if (nameAttribute == null || contentAttribute == null) {
                 continue;
@@ -56,6 +51,22 @@ public class HeadDateGetter extends TechniqueDateGetter<MetaDate> {
         }
 
         return dates;
+    }
+
+    /**
+     * Get the name of the meta element, try out different possibilities.
+     * 
+     * @param nodeAttributes
+     * @return
+     */
+    private Node getNameAttribute(NamedNodeMap nodeAttributes) {
+        for (String name : Arrays.asList("name", "http-equiv", "property", "itemprop")) {
+            Node nameAttribute = nodeAttributes.getNamedItem(name);
+            if (nameAttribute != null) {
+                return nameAttribute;
+            }
+        }
+        return null;
     }
 
 }

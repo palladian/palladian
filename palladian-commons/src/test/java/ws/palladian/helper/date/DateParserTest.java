@@ -115,6 +115,10 @@ public class DateParserTest {
         assertEquals("2009-02-12 00:00:00", DateParser.findDate("2009-02-12 00:00:00").getNormalizedDateString());
         assertEquals("2009-02-12", DateParser.findDate("2009-02-12").getNormalizedDateString());
         assertEquals("2012-12-09 15:45", DateParser.findDate("2012-12-09T15:45GMT").getNormalizedDateString());
+        
+        // Last updated: 10:09:03 AM GMT(+03) Saturday, 12, November, 2011
+        assertEquals("2011-11-12",DateParser.findDate("Saturday, 12, November, 2011").getNormalizedDateString());
+
     }
 
     /**
