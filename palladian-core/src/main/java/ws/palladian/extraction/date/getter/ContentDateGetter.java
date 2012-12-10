@@ -346,6 +346,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         String result = StringEscapeUtils.unescapeHtml4(text);
         result = StringHelper.replaceProtectedSpace(result);
+        result = StringHelper.removeDoubleWhitespaces(result);
 
         // remove undesired characters
         result = result.replace("&#8203;", " "); // empty whitespace
