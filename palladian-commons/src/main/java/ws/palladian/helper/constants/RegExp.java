@@ -203,7 +203,7 @@ public class RegExp {
 
     /** European date. DD. MMMM YYYY . */
     public static final DateFormat DATE_EU_D_MMMM_Y = new DateFormat(DAY_OF_MONTH_1_2 + "(" + ST_ND_RD_TH_OPT + "\\s?|"
-            + "\\.\\s?|-)" + MONTH_NAME_LONG + "(,?\\s|-)" + YEAR_SHORT_LONG, "DD. MMMM YYYY");
+            + "[.,]\\s?|-)" + MONTH_NAME_LONG + "(,?\\s|-)" + YEAR_SHORT_LONG, "DD. MMMM YYYY");
 
     /** European date. DD.MMMM . */
     public static final DateFormat DATE_EU_D_MMMM = new DateFormat(DAY_OF_MONTH_1_2 + "\\.? " + MONTH_NAME_LONG,

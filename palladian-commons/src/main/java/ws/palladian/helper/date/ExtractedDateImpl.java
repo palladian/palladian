@@ -324,17 +324,17 @@ public class ExtractedDateImpl implements ExtractedDate {
     @Override
     public Calendar getCalendar(DateExactness exactness) {
         Calendar calendar = new GregorianCalendar();
-        if (DateExactness.YEAR.inRange(exactness)) {
+        if (exactness.provides(DateExactness.YEAR)) {
             calendar.set(Calendar.YEAR, year);
-            if (DateExactness.MONTH.inRange(exactness)) {
+            if (exactness.provides(DateExactness.MONTH)) {
                 calendar.set(Calendar.MONTH, month);
-                if (DateExactness.DAY.inRange(exactness)) {
+                if (exactness.provides(DateExactness.DAY)) {
                     calendar.set(Calendar.DAY_OF_MONTH, day);
-                    if (DateExactness.HOUR.inRange(exactness)) {
+                    if (exactness.provides(DateExactness.HOUR)) {
                         calendar.set(Calendar.HOUR_OF_DAY, hour);
-                        if (DateExactness.MINUTE.inRange(exactness)) {
+                        if (exactness.provides(DateExactness.MINUTE)) {
                             calendar.set(Calendar.MINUTE, minute);
-                            if (DateExactness.SECOND.inRange(exactness)) {
+                            if (exactness.provides(DateExactness.SECOND)) {
                                 calendar.set(Calendar.SECOND, second);
                             }
                         }

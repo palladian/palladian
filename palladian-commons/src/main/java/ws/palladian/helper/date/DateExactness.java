@@ -7,9 +7,10 @@ import org.apache.commons.lang3.Validate;
 /**
  * <p>
  * Constants describing the <i>exactness</i> of the {@link ExtractedDate}s. The exactness denotes which date parts of an
- * {@link ExtractedDate} have been set. For example, a date
- * <code>2012-07-24</code> has an exactness {@link #DAY}, where as a date
- * <code>2012-07-24 11:54:23</code> as an exactness {@link #SECOND}.
+ * {@link ExtractedDate} have been set. For example, a date <code>2012-07-24</code> has an exactness {@link #DAY}, where
+ * as a date <code>2012-07-24 11:54:23</code> as an exactness {@link #SECOND}. The exactness values build on each other;
+ * this means, a DateExactness with a value of {@link #DAY} implicitly provides all "less exact" values (i.e.
+ * {@link #MONTH} and {@link #YEAR} in the given example).
  * </p>
  * 
  * @author Philipp Katz
@@ -89,16 +90,17 @@ public enum DateExactness {
 
     /**
      * <p>
-     * Determine whether the supplied {@link DateExactness} is in range of this {@link DateExactness}. E.g.
-     * {@link DateExactness#YEAR} is in range of {@link DateExactness#MINUTE}, because it is assumed that the finer data
-     * implies the coarser data.
+     * Determine whether this {@link DateExactness} is more or equally exact than the supplied {@link DateExactness}.
+     * E.g. a {@link DateExactness#YEAR} is less exact than {@link DateExactness#MINUTE} (see documentation at the head
+     * for an explanation).
      * </p>
      * 
      * @param exactness The exactness for which to check, whether it is in this exactness, not <code>null</code>.
      * @return <code>true</code> if this exactness in range of the supplied exactness, <code>false</code> otherwise.
      */
-    public boolean inRange(DateExactness exactness) {
+    public boolean provides(DateExactness exactness) {
         Validate.notNull(exactness, "exactness must not be null");
-        return value <= exactness.value;
+        return value >= exactness.value;
     }
+
 }
