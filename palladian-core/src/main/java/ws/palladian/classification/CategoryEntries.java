@@ -51,10 +51,10 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
     public void add(CategoryEntry categoryEntry) {
         Validate.notNull(categoryEntry, "categoryEntry must not be null");
         categoryEntries.put(categoryEntry.getName(), categoryEntry.getProbability());
-        sort();
+        // sort();
     }
 
-    private void sort() {
+    public void sort() {
         categoryEntries = CollectionHelper.sortByValue(categoryEntries, false);
     }
 
@@ -108,6 +108,7 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
 
     @Override
     public String toString() {
+        sort();
         StringBuilder toStringBuilder = new StringBuilder();
         toStringBuilder.append("CategoryEntries [");
         boolean first = true;
