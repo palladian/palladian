@@ -284,7 +284,10 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         }
         if (keyword != null) {
             date.setKeyword(keyword);
-            int diff = StringHelper.countWhitespaces(documentString.substring(subStart, subEnd));
+            int diff = -1;
+            if (subEnd > subStart) {
+                diff = StringHelper.countWhitespaces(documentString.substring(subStart, subEnd));
+            }
             if (diff >= 30 || diff == -1) {
                 date.setKeyDiff(0.0);
             } else {
