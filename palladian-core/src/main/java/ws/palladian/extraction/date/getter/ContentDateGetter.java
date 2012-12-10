@@ -189,7 +189,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
             if (index != -1) {
                 int absDocPos = index + date.get(ContentDate.DATEPOS_IN_TAGTEXT);
-                date.set(ContentDate.DATEPOS_IN_DOC, absDocPos);
+                date.setAbsDocPos(absDocPos);
                 date.setRelDocPos(MathHelper.round((double)absDocPos / documentString.length(), 3));
             }
 
@@ -324,7 +324,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                     String dateString = matcher.group();
                     ContentDate date = new ContentDate(DateParser.parseDate(dateString, format));
                     int datePosition = text.indexOf(date.getDateString());
-                    date.set(ContentDate.DATEPOS_IN_TAGTEXT, datePosition);
+                    date.setTagPos(datePosition);
                     text = text.replaceFirst(dateString, StringUtils.repeat('x', dateString.length()));
                     dates.add(date);
                 }
