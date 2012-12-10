@@ -724,6 +724,8 @@ public final class Tokenizer {
         // find the beginning of the current sentence by finding the period at the end
         int startIndex = string.lastIndexOf(".");
 
+        startIndex = Math.max(startIndex, string.lastIndexOf("\n"));
+
         // make sure point is not between numerals e.g. 30.2% (as this would not
         // be the end of the sentence, keep searching in this case)
         boolean pointIsSentenceDelimiter = false;
