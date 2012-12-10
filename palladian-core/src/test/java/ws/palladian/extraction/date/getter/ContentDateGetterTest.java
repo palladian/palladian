@@ -44,6 +44,10 @@ public class ContentDateGetterTest {
         assertEquals("2010-09-03", dates.get(0).getNormalizedDateString());
         assertEquals("2010-09-02", dates.get(1).getNormalizedDateString());
 
+        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/website107.html"));
+        dates = contentDateGetter.getDates(document);
+        assertEquals(4, dates.size());
+        assertEquals("2012-09-05", dates.get(0).getNormalizedDateString());
     }
 
     @Test
