@@ -200,6 +200,10 @@ public class WebPageDateEvaluatorTest {
         Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/dateExtraction/nbcnews.html"));
         ExtractedDate date = WebPageDateEvaluator.getBestPubDateHtml5(document);
         assertEquals("2012-09-07 08:33:12", date.getNormalizedDateString());
+        
+        document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/website105.html"));
+        date = WebPageDateEvaluator.getBestPubDateHtml5(document);
+        assertEquals("2012-12-09 15:45", date.getNormalizedDateString());
     }
 
 }
