@@ -1761,6 +1761,27 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
+     * Check if the given String contains any (i.e. at least one) of the given {@link CharSequence}s.
+     * </p>
+     * 
+     * @param string The string to check, not <code>null</code>
+     * @param values The values to check whether they appear within the given string, not <code>null</code>.
+     * @return <code>true</code> if at least on of the given values appears in the string.
+     */
+    public static boolean containsAny(String string, Collection<? extends CharSequence> values) {
+        Validate.notNull(string, "string must not be null");
+        Validate.notNull(values, "values must not be null");
+
+        for (CharSequence value : values) {
+            if (string.contains(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments

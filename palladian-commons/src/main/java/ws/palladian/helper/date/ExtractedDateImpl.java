@@ -236,32 +236,32 @@ public class ExtractedDateImpl implements ExtractedDate {
         return timeZone;
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#set(int, int)
-     */
-    @Override
-    public void set(int field, int value) {
-        switch (field) {
-            case YEAR:
-                year = value;
-                break;
-            case MONTH:
-                month = value;
-                break;
-            case DAY:
-                day = value;
-                break;
-            case HOUR:
-                hour = value;
-                break;
-            case MINUTE:
-                minute = value;
-                break;
-            case SECOND:
-                second = value;
-                break;
-        }
-    }
+//    /* (non-Javadoc)
+//     * @see ws.palladian.helper.date.IExtractedDate#set(int, int)
+//     */
+//    @Override
+//    public void set(int field, int value) {
+//        switch (field) {
+//            case YEAR:
+//                year = value;
+//                break;
+//            case MONTH:
+//                month = value;
+//                break;
+//            case DAY:
+//                day = value;
+//                break;
+//            case HOUR:
+//                hour = value;
+//                break;
+//            case MINUTE:
+//                minute = value;
+//                break;
+//            case SECOND:
+//                second = value;
+//                break;
+//        }
+//    }
 
     /**
      * String with date properties.<br>
