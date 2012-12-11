@@ -16,10 +16,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import ws.palladian.extraction.date.PageDateType;
+import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -570,6 +573,17 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         return author;
+    }
+
+    /**
+     * <p>
+     * Get the publish date of the Web page.
+     * </p>
+     * 
+     * @return The extracted date.
+     */
+    public ExtractedDate getPublishDate() {
+        return WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
     }
 
     /**
