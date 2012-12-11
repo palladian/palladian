@@ -66,6 +66,8 @@ public class DocumentRetriever {
     /** The number of threads for downloading in parallel. */
     public static final int DEFAULT_NUM_THREADS = 10;
 
+    public static final String HTTP_RESULT_KEY = "httpResult";
+
     /** The maximum number of threads to use. */
     private int numThreads = DEFAULT_NUM_THREADS;
 
@@ -428,7 +430,7 @@ public class DocumentRetriever {
                     HttpResult httpResult = httpRetriever.httpGet(cleanUrl, globalHeaders);
                     document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
                     document.setDocumentURI(cleanUrl);
-                    document.setUserData("httpResult", httpResult, null);
+                    document.setUserData(HTTP_RESULT_KEY, httpResult, null);
                 }
 
                 callRetrieverCallback(document);
