@@ -536,7 +536,7 @@ public final class FeedReader {
         };
         fc.setUpdateStrategy(updateStrategy);
         fc.setFeedProcessingAction(fpa);
-        fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
+        fc.startContinuousReading(TimeUnit.MINUTES.toMillis(runtime));
     }
 
 }
