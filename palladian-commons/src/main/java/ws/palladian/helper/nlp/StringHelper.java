@@ -14,6 +14,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
@@ -225,7 +226,9 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
      * Make first letter of word upper case.
+     * </p>
      * 
      * @param string The term.
      * @return The term with an upper case first letter.
@@ -236,6 +239,27 @@ public final class StringHelper {
         }
 
         return string.substring(0, 1).toUpperCase() + string.substring(1);
+    }
+
+    /**
+     * <p>
+     * Make first letters of all words upper case.
+     * </p>
+     * 
+     * @param string The term.
+     * @return The term with an upper case first letters.
+     */
+    public static String upperCaseFirstLetters(String string) {
+        if (string == null || string.isEmpty()) {
+            return "";
+        }
+
+        String[] words = string.split("\\s");
+        for (int i = 0; i < words.length; i++) {
+            words[i] = upperCaseFirstLetter(words[i]);
+        }
+
+        return StringUtils.join(words, " ");
     }
 
     /**

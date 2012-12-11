@@ -720,6 +720,7 @@ public final class Tokenizer {
     public static String getPhraseFromBeginningOfSentence(String inputString) {
 
         String string = inputString;
+        string = StringHelper.removeDoubleWhitespaces(string);
 
         // find the beginning of the current sentence by finding the period at the end
         int startIndex = string.lastIndexOf(".");
@@ -745,7 +746,8 @@ public final class Tokenizer {
             }
 
             // break after period
-            if (!pointIsSentenceDelimiter && string.charAt(startIndex + 1) == '\n') {
+            if (!pointIsSentenceDelimiter
+                    && (string.charAt(startIndex + 1) == '\n' || string.charAt(startIndex) == '\n')) {
                 pointIsSentenceDelimiter = true;
             }
 
@@ -815,7 +817,7 @@ public final class Tokenizer {
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
                         && Character.isUpperCase(string.charAt(endIndex + 1))
-                        || StringHelper.isBracket(string.charAt(endIndex + 1));
+                        || StringHelper.isBracket(string.charAt(endIndex + 1)) || string.charAt(endIndex - 1) == '"';
             }
             // two digits after period
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
