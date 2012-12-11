@@ -259,6 +259,10 @@ public class TokenizerTest {
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());
         
+        inputText = "IT IS three years since Senator Barack Obama pronounced that America “is no longer a Christian nation—at least, not just.” The words sounded harsher than he intended: bla.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+
         inputText = "My name is Dr. No. I'm No. 1.";
         sentences = Tokenizer.getSentences(inputText);
         // XXX should give "My name is Dr. No.", "I'm No. 1."

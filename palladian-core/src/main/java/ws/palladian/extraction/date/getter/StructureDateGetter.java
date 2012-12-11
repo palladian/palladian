@@ -10,7 +10,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
-import ws.palladian.extraction.date.dates.AbstractBodyDate;
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
@@ -35,7 +34,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
 
     @Override
     public List<StructureDate> getDates(Document document) {
-        Node bodyElement = XPathHelper.getXhtmlChildNode(document, "//body");
+        Node bodyElement = XPathHelper.getXhtmlNode(document, "//body");
         if (bodyElement != null) {
             return getChildrenDates(bodyElement, 0);
         } else {
@@ -60,7 +59,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
         if (!Arrays.asList("script", "img").contains(nodeName)) {
             StructureDate date = getDate(node);
             if (date != null) {
-                date.set(AbstractBodyDate.STRUCTURE_DEPTH, depth);
+                date.setStructureDepth(depth);
                 dates.add(date);
             }
         }
