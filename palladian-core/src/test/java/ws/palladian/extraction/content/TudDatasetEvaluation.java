@@ -25,7 +25,7 @@ public class TudDatasetEvaluation {
         return "";
     }
 
-    private static void evaluate(String datasetDirectory, WebPageContentExtractor extractor) throws Exception {
+    public static double evaluate(String datasetDirectory, WebPageContentExtractor extractor) throws Exception {
 
         double totalScore1 = 0.;
         double totalScore2 = 0.;
@@ -91,6 +91,8 @@ public class TudDatasetEvaluation {
 
         double totalScore = (totalScore1 + totalScore2 + totalScore3) / (3 * textFiles.length);
         System.out.println("Total Score: " + totalScore);
+
+        return totalScore;
     }
 
     private static final String cleanup(String expectedText) {
@@ -102,12 +104,12 @@ public class TudDatasetEvaluation {
     }
 
     public static void main(String[] args) throws Exception {
-        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new AlchemyApiContentExtractor(
-                "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"));
+        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new AlchemyApiContentExtractor(
+        // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"));
         // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadItLaterContentExtractor(
         // "a62g2W68p36ema12fvTc410Td1A1Na62"));
         // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadabilityContentExtractor());
-        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new PalladianContentExtractor());
+        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new PalladianContentExtractor());
         // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new BoilerpipeContentExtractor());
     }
 
