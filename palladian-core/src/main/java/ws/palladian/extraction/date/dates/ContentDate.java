@@ -78,19 +78,19 @@ public final class ContentDate extends AbstractBodyDate {
 
     }
 
-    @Override
-    public void set(int field, int value) {
-        switch (field) {
-            case DATEPOS_IN_DOC:
-                this.positionInDocument = value;
-                break;
-            case DATEPOS_IN_TAGTEXT:
-                this.positionInTagtext = value;
-                break;
-            default:
-                super.set(field, value);
-        }
-    }
+//    @Override
+//    public void set(int field, int value) {
+//        switch (field) {
+//            case DATEPOS_IN_DOC:
+//                this.positionInDocument = value;
+//                break;
+//            case DATEPOS_IN_TAGTEXT:
+//                this.positionInTagtext = value;
+//                break;
+//            default:
+//                super.set(field, value);
+//        }
+//    }
 
     public void setHasStructureDate(boolean hasStructureDate) {
         this.hasStructureDate = hasStructureDate;
@@ -226,6 +226,14 @@ public final class ContentDate extends AbstractBodyDate {
     
     public byte getKeywordPriority() {
         return keywordPriority;
+    }
+
+    public void setAbsDocPos(int absDocPos) {
+        this.positionInDocument = absDocPos;
+    }
+
+    public void setTagPos(int datePosition) {
+        this.positionInTagtext = datePosition;
     }
 
 }

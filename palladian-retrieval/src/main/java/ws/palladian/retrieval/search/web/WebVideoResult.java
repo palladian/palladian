@@ -8,11 +8,14 @@ import java.util.Date;
  * </p>
  * 
  * @author Philipp Katz
+ * @author David Urbansky
  */
 public class WebVideoResult extends WebResult {
 
     private final String videoUrl;
     private final Long runTime;
+    private Integer views;
+    private Double rating;
 
     /**
      * <p>
@@ -28,7 +31,7 @@ public class WebVideoResult extends WebResult {
         super(url, title, null, date);
         this.videoUrl = videoUrl;
         this.runTime = runTime;
-        
+
     }
 
     /**
@@ -53,29 +56,28 @@ public class WebVideoResult extends WebResult {
         return runTime;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("WebVideoResult [runTime=");
-        builder.append(runTime);
-        builder.append(", url=");
-        builder.append(getUrl());
-        builder.append(", videoUrl=");
-        builder.append(getVideoUrl());
-        builder.append(", title=");
-        builder.append(getTitle());
-        builder.append("]");
-        return builder.toString();
+    public Integer getViews() {
+        return views;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
+    public void setViews(Integer views) {
+        this.views = views;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    @Override
+    public String toString() {
+        return "WebVideoResult [videoUrl=" + videoUrl + ", runTime=" + runTime + ", views=" + views + ", rating="
+                + rating + "]";
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -84,10 +86,6 @@ public class WebVideoResult extends WebResult {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

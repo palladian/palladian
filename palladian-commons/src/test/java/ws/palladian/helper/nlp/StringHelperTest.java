@@ -1,6 +1,7 @@
 package ws.palladian.helper.nlp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -318,6 +319,12 @@ public class StringHelperTest {
     public void testPutArticleInFront() {
         assertEquals("The Fog", StringHelper.putArticleInFront("Fog,the"));
         assertEquals("Los Amigos", StringHelper.putArticleInFront("Amigos, Los"));
+    }
+    
+    @Test
+    public void testContainsAny() {
+        assertTrue(StringHelper.containsAny("the quick brown fox", Arrays.asList("cat", "dog", "fox")));
+        assertFalse(StringHelper.containsAny("the quick brown fox", Arrays.asList("elephant", "tiger", "squirrel")));
     }
 
 }
