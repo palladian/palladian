@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.helper.html.JPathHelper;
+
 /**
  * <p>
  * Allow more convenient access to JSONObject without throwing exceptions but returning null in case elements were not
@@ -37,6 +39,29 @@ public class JsonObjectWrapper {
 
     public void setJsonObject(JSONObject jsonObject) {
         this.jsonObject = jsonObject;
+    }
+
+    /**
+     * <p>
+     * Allows you to access json objects using a "json path". The following could be accessed with "entry/a"
+     * </p>
+     * 
+     * <pre>
+     * {
+     *   'entry': {
+     *     'a': 1,
+     *     'b': 2
+     *   }
+     * }
+     * </pre>
+     * 
+     * @param path The path to query.
+     * @param targetClass The expected type of the target item (the last item in the path).
+     * @return
+     * @throws JSONException
+     */
+    public <T> T get(String path, Class<T> targetClass) throws JSONException {
+        return JPathHelper.get(jsonObject, path, targetClass);
     }
 
     public String getString(String key) {
@@ -141,6 +166,17 @@ public class JsonObjectWrapper {
             jsonObject.put(key, value);
         } catch (Exception e) {
         }
+    }
+
+    public static void main(String[] args) throws JSONException {
+        String string = "{'entry': {'a': 1,'b':['1a',['one','two'],{'f':1.48}],'c': {'d':'2b'}}}";
+        JsonObjectWrapper json = new JsonObjectWrapper(string);
+        // System.out.println(json.get("entry", JSONObject.class));
+        // System.out.println(json.get("entry/a", Integer.class));
+        // System.out.println(json.get("entry/c/d", String.class));
+        System.out.println(json.get("entry/b[0]", String.class));
+        System.out.println(json.get("entry/b[1][1]", String.class));
+        System.out.println(json.get("entry/b[2]/f", Double.class));
     }
 
 }
