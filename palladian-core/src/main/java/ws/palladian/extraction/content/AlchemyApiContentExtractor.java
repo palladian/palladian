@@ -83,7 +83,6 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
     @Override
     public String getResultTitle() {
         throw new UnsupportedOperationException("The AlchemyApiContentExtractor does not support title extraction.");
-
     }
 
     @Override
