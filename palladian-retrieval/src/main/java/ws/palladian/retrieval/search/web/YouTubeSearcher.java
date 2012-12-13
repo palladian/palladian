@@ -125,16 +125,15 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
             for (int i = 0; i < entries.length(); i++) {
 
                 JsonObjectWrapper entry = new JsonObjectWrapper(entries.getJSONObject(i));
-                String published = entry.getJSONObject("published").getString("$t");
+                String published = entry.get("published/$t", String.class);
 
-                String title = entry.getJSONObject("title").getString("$t");
-                String videoLink = entry.getJSONObject("content").getString("src");
+                String title = entry.get("title/$t", String.class);
+                String videoLink = entry.get("content/src", String.class);
                 Date date = parseDate(published);
                 String pageLink = getPageLink(entry.getJsonObject());
 
-                long runtime = entry.getJSONObject("media$group").getJSONObject("yt$duration").getInt("seconds");
-
-                int viewCount = entry.getJSONObject("yt$statistics").getInt("viewCount");
+                Integer runtime = entry.get("media$group/yt$duration/seconds", Integer.class);
+                Integer viewCount = entry.get("yt$statistics/viewCount", Integer.class);
 
                 Double rating = null;
 
@@ -149,7 +148,11 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                     }
                 }
 
-                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, runtime, date);
+                Long rtLong = null;
+                if (runtime != null) {
+                    rtLong = runtime.longValue();
+                }
+                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, rtLong, date);
                 webResult.setViews(viewCount);
                 webResult.setRating(rating);
                 webResults.add(webResult);
@@ -160,7 +163,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
             }
 
-        } catch (JSONException e) {
+        } catch (Exception e) {
             throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
                     + "\" with " + getName() + ": " + e.getMessage(), e);
 

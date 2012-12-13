@@ -33,7 +33,8 @@ public class JPathHelperTest {
      *         'two'
      *       ],
      *       {
-     *         'f': 1.48
+     *         'f': 1.48,
+     *         'h': '2.22'
      *       }
      *     ],
      *     'c': {
@@ -47,7 +48,7 @@ public class JPathHelperTest {
      */
     @Test
     public void testGet() throws JSONException {
-        String jsonString = "{'entry': {'a': 1,'b':['1a',['one','two'],{'f':1.48}],'c': {'d':'2b'}}}";
+        String jsonString = "{'entry': {'a': 1,'b':['1a',['one','two'],{'f':1.48,'h': '2.22'}],'c': {'d':'2b'}}}";
 
         JSONObject json = new JSONObject(jsonString);
 
@@ -64,6 +65,10 @@ public class JPathHelperTest {
         assertEquals("1a", JPathHelper.get(json, "entry/b[0]", String.class));
         assertEquals("two", JPathHelper.get(json, "entry/b[1][1]", String.class));
         assertEquals(1.48, JPathHelper.get(json, "entry/b[2]/f", Double.class), 0.001);
+        assertEquals(2.22, JPathHelper.get(json, "entry/b[2]/h", Double.class), 0.001);
+        assertEquals(null, JPathHelper.get(json, "entry/b[2]/g", Double.class));
+        assertEquals(null, JPathHelper.get(json, "entry/b[3]/g", Double.class));
+        assertEquals(null, JPathHelper.get(json, "entry1/b[3]/g", Double.class));
     }
 
 }

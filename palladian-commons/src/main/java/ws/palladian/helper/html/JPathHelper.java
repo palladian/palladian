@@ -68,7 +68,19 @@ public final class JPathHelper {
             }
 
             if (split.length == 1) {
-                return targetClass.cast(object);
+                T returnObject = null;
+                try {
+                    returnObject = targetClass.cast(object);
+                } catch (Exception e) {
+                    if (targetClass == String.class) {
+                        returnObject = (T)String.valueOf(object);
+                    } else if (targetClass == Integer.class) {
+                        returnObject = (T)Integer.valueOf(object.toString());
+                    } else if (targetClass == Double.class) {
+                        returnObject = (T)Double.valueOf(object.toString());
+                    }
+                }
+                return returnObject;
             }
 
             String shorterPath = StringUtils.join(split, "/", 1, split.length);
