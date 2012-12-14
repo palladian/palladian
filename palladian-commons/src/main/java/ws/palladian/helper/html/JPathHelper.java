@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.nlp.StringHelper;
@@ -42,8 +43,9 @@ public final class JPathHelper {
      * @return The targeted data.
      */
     public static <T> T get(Object json, String jPath, Class<T> targetClass) {
-        Validate.notNull(json, "object must not be null.");
+        Validate.notNull(json, "json must not be null.");
         Validate.notEmpty(jPath, "jPath must not be empty.");
+        Validate.notNull(targetClass, "targetClass must not be null");
 
         try {
             String[] split = jPath.split("/");
@@ -68,28 +70,46 @@ public final class JPathHelper {
             }
 
             if (split.length == 1) {
-                T returnObject = null;
+                Object returnObject = null;
                 try {
                     returnObject = targetClass.cast(object);
                 } catch (Exception e) {
                     if (targetClass == String.class) {
-                        returnObject = (T)String.valueOf(object);
+                        returnObject = String.valueOf(object);
                     } else if (targetClass == Integer.class) {
-                        returnObject = (T)Integer.valueOf(object.toString());
+                        returnObject = Integer.valueOf(object.toString());
                     } else if (targetClass == Double.class) {
-                        returnObject = (T)Double.valueOf(object.toString());
+                        returnObject = Double.valueOf(object.toString());
                     }
                 }
-                return returnObject;
+                return targetClass.cast(returnObject);
             }
 
             String shorterPath = StringUtils.join(split, "/", 1, split.length);
 
             return get(object, shorterPath, targetClass);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
 
+        return null;
+    }
+
+    public static <T> T get(String json, String jPath, Class<T> targetClass) {
+        Validate.notNull(json, "json must not be null");
+        Validate.notEmpty(jPath, "jPath must not be empty");
+        Validate.notNull(targetClass, "targetClass must not be null");
+
+        try {
+            if (json.trim().startsWith("[")) {
+                return get(new JSONArray(json), jPath, targetClass);
+            } else {
+                return get(new JSONObject(json), jPath, targetClass);
+            }
+        } catch (JSONException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
         return null;
     }
 
