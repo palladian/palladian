@@ -60,7 +60,7 @@ public class JPathHelperTest {
         // System.out.println(JPathHelper.get(json, "entry/b[2]/f", Double.class));
 
         assertEquals(json.getJSONObject("entry"), JPathHelper.get(json, "entry", JSONObject.class));
-        assertEquals(1L, Long.valueOf(JPathHelper.get(json, "entry/a", Integer.class)).longValue());
+        assertEquals(1, (int) JPathHelper.get(json, "entry/a", Integer.class));
         assertEquals("2b", JPathHelper.get(json, "entry/c/d", String.class));
         assertEquals("1a", JPathHelper.get(json, "entry/b[0]", String.class));
         assertEquals("two", JPathHelper.get(json, "entry/b[1][1]", String.class));
