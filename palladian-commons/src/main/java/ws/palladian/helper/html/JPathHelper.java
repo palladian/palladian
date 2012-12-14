@@ -43,7 +43,7 @@ public final class JPathHelper {
      * @param targetClass The expected type of the target item (the last item in the path).
      * @return The targeted data.
      */
-    private static <T> T get(Object json, String jPath, Class<T> targetClass) {
+    private static <T> T getWithObject(Object json, String jPath, Class<T> targetClass) {
         Validate.notNull(json, "json must not be null.");
         Validate.notEmpty(jPath, "jPath must not be empty.");
         Validate.notNull(targetClass, "targetClass must not be null");
@@ -88,21 +88,20 @@ public final class JPathHelper {
 
             String shorterPath = StringUtils.join(split, "/", 1, split.length);
 
-            return get(object, shorterPath, targetClass);
+            return getWithObject(object, shorterPath, targetClass);
         } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage());
         }
 
         return null;
     }
 
     public static <T> T get(JSONObject json, String jPath, Class<T> targetClass) {
-        return get(json, jPath, targetClass);
+        return getWithObject(json, jPath, targetClass);
     }
 
     public static <T> T get(JSONArray json, String jPath, Class<T> targetClass) {
-        return get(json, jPath, targetClass);
+        return getWithObject(json, jPath, targetClass);
     }
 
     public static <T> T get(String json, String jPath, Class<T> targetClass) {
