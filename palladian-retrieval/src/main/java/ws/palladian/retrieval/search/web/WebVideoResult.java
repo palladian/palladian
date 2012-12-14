@@ -74,8 +74,25 @@ public class WebVideoResult extends WebResult {
 
     @Override
     public String toString() {
-        return "WebVideoResult [videoUrl=" + videoUrl + ", runTime=" + runTime + ", views=" + views + ", rating="
-                + rating + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("WebVideoResult [videoUrl=");
+        builder.append(videoUrl);
+        builder.append(", runTime=");
+        builder.append(runTime);
+        builder.append(", views=");
+        builder.append(views);
+        builder.append(", rating=");
+        builder.append(rating);
+        builder.append(", getUrl()=");
+        builder.append(getUrl());
+        builder.append(", getTitle()=");
+        builder.append(getTitle());
+        builder.append(", getSummary()=");
+        builder.append(getSummary());
+        builder.append(", getDate()=");
+        builder.append(getDate());
+        builder.append("]");
+        return builder.toString();
     }
 
     @Override

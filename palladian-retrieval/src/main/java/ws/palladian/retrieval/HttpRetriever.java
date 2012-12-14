@@ -375,6 +375,45 @@ public class HttpRetriever {
         return execute(url, post);
     }
 
+    public HttpResult perform(HttpRequest request) throws HttpException {
+        HttpUriRequest httpRequest;
+        switch (request.getMethod()) {
+            case GET:
+                StringBuilder parameterBuilder = new StringBuilder();
+                for (Entry<String, String> parameter : request.getParameters().entrySet()) {
+                    parameterBuilder.append(parameter.getKey());
+                    parameterBuilder.append("=");
+                    parameterBuilder.append(parameter.getValue());
+                    parameterBuilder.append("&");
+                }
+                httpRequest = new HttpGet(request.getUrl() + "?" + parameterBuilder.toString());
+                break;
+            case POST:
+                httpRequest = new HttpPost(request.getUrl());
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                for (Entry<String, String> param : request.getParameters().entrySet()) {
+                    nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                }
+                try {
+                    ((HttpPost) httpRequest).setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                } catch (UnsupportedEncodingException e) {
+                    LOGGER.error(e);
+                }
+                break;
+            case HEAD:
+                httpRequest = new HttpHead(request.getUrl());
+                break;
+            default:
+                throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
+
+        }
+        for (Entry<String, String> header : request.getHeaders().entrySet()) {
+            httpRequest.setHeader(header.getKey(), header.getValue());
+        }
+        
+        return execute(request.getUrl(), httpRequest);
+    }
+
     /**
      * <p>
      * Converts the Header type from Apache to a more generic Map.
