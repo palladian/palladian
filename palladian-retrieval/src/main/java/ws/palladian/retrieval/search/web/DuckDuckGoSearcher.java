@@ -58,7 +58,12 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                         + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
             }
             String content = HttpHelper.getStringContent(httpResult);
-            String jsonContent = content.substring(content.indexOf("[{\"a\":"));
+            int indexOf = content.indexOf("[{\"a\":");
+            if (indexOf < 0) {
+                throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
+                        + " (request URL: \"" + requestUrl + "\", result String: \"" + content + "\")");
+            }
+            String jsonContent = content.substring(indexOf);
             jsonContent = jsonContent.replace("}]);", "}]");
             TOTAL_REQUEST_COUNT.incrementAndGet();
 

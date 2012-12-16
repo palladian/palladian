@@ -1009,7 +1009,7 @@ public final class StringHelper {
         // text = removeNonAsciiCharacters(text);
 
         // trim but keep sentence delimiters
-        text = StringHelper.trim(text, ".?!");
+        text = StringHelper.trim(text, ".?!”\"");
         if (text.startsWith(")")) {
             text = text.substring(1);
         }
