@@ -28,10 +28,23 @@ public class WebVideoResult extends WebResult {
      * @param runTime The run time of the video in seconds.
      */
     public WebVideoResult(String url, String videoUrl, String title, Long runTime, Date date) {
-        super(url, title, null, date);
+        this(url, videoUrl, title, null, runTime, date);
+    }
+    
+    /**
+     * <p>
+     * Instantiate a new {@link WebVideoResult}.
+     * </p>
+     * 
+     * @param url The URL linking to the page containing the video.
+     * @param videoUrl The URL linking to the video file.
+     * @param title The title of the video.
+     * @param runTime The run time of the video in seconds.
+     */
+    public WebVideoResult(String url, String videoUrl, String title, String summary, Long runTime, Date date) {
+        super(url, title, summary, date);
         this.videoUrl = videoUrl;
         this.runTime = runTime;
-
     }
 
     /**
@@ -74,8 +87,25 @@ public class WebVideoResult extends WebResult {
 
     @Override
     public String toString() {
-        return "WebVideoResult [videoUrl=" + videoUrl + ", runTime=" + runTime + ", views=" + views + ", rating="
-                + rating + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("WebVideoResult [videoUrl=");
+        builder.append(videoUrl);
+        builder.append(", runTime=");
+        builder.append(runTime);
+        builder.append(", views=");
+        builder.append(views);
+        builder.append(", rating=");
+        builder.append(rating);
+        builder.append(", getUrl()=");
+        builder.append(getUrl());
+        builder.append(", getTitle()=");
+        builder.append(getTitle());
+        builder.append(", getSummary()=");
+        builder.append(getSummary());
+        builder.append(", getDate()=");
+        builder.append(getDate());
+        builder.append("]");
+        return builder.toString();
     }
 
     @Override

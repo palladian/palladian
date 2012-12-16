@@ -9,10 +9,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
@@ -52,8 +54,11 @@ public class HakiaDateGetter {
 
             for (int i = 0; i < webResults.size(); i++) {
                 WebResult result = webResults.get(i);
-                String tempUrl = result.getUrl();
-                String requestUrl = httpRetriever.getRedirectUrl(tempUrl);
+                String requestUrl = result.getUrl();
+                List<String> redirectUrls = httpRetriever.getRedirectUrls(requestUrl);
+                if (!redirectUrls.isEmpty()){
+                    requestUrl = CollectionHelper.getLast(redirectUrls);
+                }
                 if (requestUrl != null && requestUrl.equalsIgnoreCase(url)) {
                     DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
                     String dateString = dateFormat.format(result.getDate());
@@ -63,6 +68,8 @@ public class HakiaDateGetter {
 
             }
         } catch (SearcherException e) {
+            LOGGER.error(e);
+        } catch (HttpException e) {
             LOGGER.error(e);
         }
         return date;
