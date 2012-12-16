@@ -78,6 +78,8 @@ public final class JPathHelper {
                         returnObject = String.valueOf(object);
                     } else if (targetClass == Integer.class) {
                         returnObject = Integer.valueOf(object.toString());
+                    } else if (targetClass == Long.class) {
+                        returnObject = Long.valueOf(object.toString());
                     } else if (targetClass == Double.class) {
                         returnObject = Double.valueOf(object.toString());
                     }

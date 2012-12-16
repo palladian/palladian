@@ -10,11 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +61,8 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 
+import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 
@@ -375,43 +374,56 @@ public class HttpRetriever {
         return execute(url, post);
     }
 
-    public HttpResult perform(HttpRequest request) throws HttpException {
+    public HttpResult execute(HttpRequest request) throws HttpException {
         HttpUriRequest httpRequest;
+        
         switch (request.getMethod()) {
             case GET:
-                StringBuilder parameterBuilder = new StringBuilder();
-                for (Entry<String, String> parameter : request.getParameters().entrySet()) {
-                    parameterBuilder.append(parameter.getKey());
-                    parameterBuilder.append("=");
-                    parameterBuilder.append(parameter.getValue());
-                    parameterBuilder.append("&");
-                }
-                httpRequest = new HttpGet(request.getUrl() + "?" + parameterBuilder.toString());
+                httpRequest = new HttpGet(createUrl(request));
                 break;
             case POST:
-                httpRequest = new HttpPost(request.getUrl());
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                HttpPost httpPost = new HttpPost(request.getUrl());
+                List<NameValuePair> postParams = CollectionHelper.newArrayList();
                 for (Entry<String, String> param : request.getParameters().entrySet()) {
-                    nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                    postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                 }
                 try {
-                    ((HttpPost) httpRequest).setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                    httpPost.setEntity(new UrlEncodedFormEntity(postParams));
                 } catch (UnsupportedEncodingException e) {
-                    LOGGER.error(e);
+                    throw new IllegalStateException(e);
                 }
+                httpRequest = httpPost;
                 break;
             case HEAD:
-                httpRequest = new HttpHead(request.getUrl());
+                httpRequest = new HttpHead(createUrl(request));
                 break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
-
         }
+        
         for (Entry<String, String> header : request.getHeaders().entrySet()) {
             httpRequest.setHeader(header.getKey(), header.getValue());
         }
-        
+
         return execute(request.getUrl(), httpRequest);
+    }
+
+    public String createUrl(HttpRequest httpRequest) {
+        StringBuilder url = new StringBuilder();
+        url.append(httpRequest.getUrl());
+        boolean first = true;
+        for (Entry<String, String> parameter : httpRequest.getParameters().entrySet()) {
+            if (first) {
+                first = false;
+                url.append('?');
+            } else {
+                url.append('&');
+            }
+            url.append(UrlHelper.encodeParameter(parameter.getKey()));
+            url.append("=");
+            url.append(UrlHelper.encodeParameter(parameter.getValue()));
+        }
+        return url.toString();
     }
 
     /**
@@ -511,75 +523,75 @@ public class HttpRetriever {
         return result;
     }
 
-    /**
-     * <p>
-     * Get the HTTP headers for a URL by sending a HEAD request.
-     * </p>
-     * 
-     * @param url the URL of the page to get the headers from.
-     * @return map with the headers, or an empty map if an error occurred.
-     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
-     */
-    @Deprecated
-    public Map<String, List<String>> getHeaders(String url) {
-        Map<String, List<String>> result;
-        try {
-            HttpResult httpResult = httpHead(url);
-            result = httpResult.getHeaders();
-        } catch (HttpException e) {
-            LOGGER.debug(e);
-            result = Collections.emptyMap();
-        }
-        return result;
-    }
+//    /**
+//     * <p>
+//     * Get the HTTP headers for a URL by sending a HEAD request.
+//     * </p>
+//     * 
+//     * @param url the URL of the page to get the headers from.
+//     * @return map with the headers, or an empty map if an error occurred.
+//     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
+//     */
+//    @Deprecated
+//    public Map<String, List<String>> getHeaders(String url) {
+//        Map<String, List<String>> result;
+//        try {
+//            HttpResult httpResult = httpHead(url);
+//            result = httpResult.getHeaders();
+//        } catch (HttpException e) {
+//            LOGGER.debug(e);
+//            result = Collections.emptyMap();
+//        }
+//        return result;
+//    }
 
-    /**
-     * <p>
-     * Get the HTTP response code of the given URL after sending a HEAD request.
-     * </p>
-     * 
-     * @param url the URL of the page to check for response code.
-     * @return the HTTP response code, or -1 if an error occurred.
-     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
-     */
-    @Deprecated
-    public int getResponseCode(String url) {
-        int result;
-        try {
-            HttpResult httpResult = httpHead(url);
-            result = httpResult.getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.debug(e);
-            result = -1;
-        }
-        return result;
-    }
+//    /**
+//     * <p>
+//     * Get the HTTP response code of the given URL after sending a HEAD request.
+//     * </p>
+//     * 
+//     * @param url the URL of the page to check for response code.
+//     * @return the HTTP response code, or -1 if an error occurred.
+//     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
+//     */
+//    @Deprecated
+//    public int getResponseCode(String url) {
+//        int result;
+//        try {
+//            HttpResult httpResult = httpHead(url);
+//            result = httpResult.getStatusCode();
+//        } catch (HttpException e) {
+//            LOGGER.debug(e);
+//            result = -1;
+//        }
+//        return result;
+//    }
 
-    /**
-     * <p>
-     * Gets the redirect URL from the HTTP "Location" header, if such exists.
-     * </p>
-     * 
-     * @param url the URL to check for redirect.
-     * @return redirected URL as String, or <code>null</code>.
-     * @deprecated Use {@link #getRedirectUrls(String)} instead.
-     */
-    @Deprecated
-    public String getRedirectUrl(String url) {
-        // TODO should be changed to use HttpComponents
-        String location = null;
-        try {
-            URL urlObject = new URL(url);
-            URLConnection urlCon = urlObject.openConnection();
-            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
-            httpUrlCon.setInstanceFollowRedirects(false);
-            location = httpUrlCon.getHeaderField("Location");
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
-
-        return location;
-    }
+//    /**
+//     * <p>
+//     * Gets the redirect URL from the HTTP "Location" header, if such exists.
+//     * </p>
+//     * 
+//     * @param url the URL to check for redirect.
+//     * @return redirected URL as String, or <code>null</code>.
+//     * @deprecated Use {@link #getRedirectUrls(String)} instead.
+//     */
+//    @Deprecated
+//    public String getRedirectUrl(String url) {
+//        // TODO should be changed to use HttpComponents
+//        String location = null;
+//        try {
+//            URL urlObject = new URL(url);
+//            URLConnection urlCon = urlObject.openConnection();
+//            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
+//            httpUrlCon.setInstanceFollowRedirects(false);
+//            location = httpUrlCon.getHeaderField("Location");
+//        } catch (IOException e) {
+//            LOGGER.error(e);
+//        }
+//
+//        return location;
+//    }
 
     /**
      * <p>
@@ -896,27 +908,27 @@ public class HttpRetriever {
         return statusCode;
     }
 
-    /**
-     * <p>
-     * Download a binary file from specified URL to a given path.
-     * </p>
-     * 
-     * @param url the URL to download from.
-     * @param filePath the path where the downloaded contents should be saved to.
-     * @return the file were the downloaded contents were saved to.
-     * @author Martin Werner
-     * @deprecated use {@link #downloadAndSave(String, String)} instead.
-     */
-    @Deprecated
-    public static File downloadBinaryFile(String url, String filePath) {
-        File file = null;
-        HttpRetriever httpRetriever = new HttpRetriever();
-        boolean success = httpRetriever.downloadAndSave(url, filePath);
-        if (success) {
-            file = new File(filePath);
-        }
-        return file;
-    }
+//    /**
+//     * <p>
+//     * Download a binary file from specified URL to a given path.
+//     * </p>
+//     * 
+//     * @param url the URL to download from.
+//     * @param filePath the path where the downloaded contents should be saved to.
+//     * @return the file were the downloaded contents were saved to.
+//     * @author Martin Werner
+//     * @deprecated use {@link #downloadAndSave(String, String)} instead.
+//     */
+//    @Deprecated
+//    public static File downloadBinaryFile(String url, String filePath) {
+//        File file = null;
+//        HttpRetriever httpRetriever = new HttpRetriever();
+//        boolean success = httpRetriever.downloadAndSave(url, filePath);
+//        if (success) {
+//            file = new File(filePath);
+//        }
+//        return file;
+//    }
 
     // ////////////////////////////////////////////////////////////////
     // Configuration options

@@ -28,10 +28,23 @@ public class WebVideoResult extends WebResult {
      * @param runTime The run time of the video in seconds.
      */
     public WebVideoResult(String url, String videoUrl, String title, Long runTime, Date date) {
-        super(url, title, null, date);
+        this(url, videoUrl, title, null, runTime, date);
+    }
+    
+    /**
+     * <p>
+     * Instantiate a new {@link WebVideoResult}.
+     * </p>
+     * 
+     * @param url The URL linking to the page containing the video.
+     * @param videoUrl The URL linking to the video file.
+     * @param title The title of the video.
+     * @param runTime The run time of the video in seconds.
+     */
+    public WebVideoResult(String url, String videoUrl, String title, String summary, Long runTime, Date date) {
+        super(url, title, summary, date);
         this.videoUrl = videoUrl;
         this.runTime = runTime;
-
     }
 
     /**
