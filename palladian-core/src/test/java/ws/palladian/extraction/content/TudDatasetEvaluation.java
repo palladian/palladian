@@ -1,6 +1,7 @@
 package ws.palladian.extraction.content;
 
 import java.io.File;
+import java.util.List;
 
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -13,7 +14,22 @@ import ws.palladian.helper.nlp.StringSimilarity;
 
 public class TudDatasetEvaluation {
 
-    private static void evaluate(String datasetDirectory, WebPageContentExtractor extractor) throws Exception {
+    private static String getUrl(List<String> index, String fileName) {
+        for (String string : index) {
+            String[] split = string.split(";");
+            if (fileName.contains(split[0])) {
+                return split[1];
+            }
+        }
+
+        return "";
+    }
+
+    public static double evaluate(String datasetDirectory, WebPageContentExtractor extractor) throws Exception {
+
+        double totalScore1 = 0.;
+        double totalScore2 = 0.;
+        double totalScore3 = 0.;
 
         StringSimilarity similarity1 = new LevenshteinSimilarity();
         StringSimilarity similarity2 = new NGramSimilarity(5);
@@ -23,18 +39,24 @@ public class TudDatasetEvaluation {
 
         FileHelper.delete(resultFileName);
 
+        // for online services, we need the URL to evaluate
+        List<String> index = FileHelper.readFileToArray(datasetDirectory + "___index.csv");
+
         File[] textFiles = FileHelper.getFiles(datasetDirectory, ".txt");
         for (int i = 0; i < textFiles.length; i++) {
 
             File expectedFile = textFiles[i];
             File htmlFile = new File(expectedFile.getAbsolutePath().replace(".txt", ".html"));
 
-            ProgressHelper.showProgress(i, textFiles.length, 0);
+            if (extractor instanceof ReadItLaterContentExtractor || extractor instanceof AlchemyApiContentExtractor) {
+                String url = getUrl(index, expectedFile.getName());
+                extractor.setDocument(url);
+            } else {
+                extractor.setDocument(htmlFile);
+            }
 
             String expectedText = FileHelper.readFileToString(expectedFile);
             expectedText = cleanup(expectedText);
-
-            extractor.setDocument(htmlFile);
 
             String extractedText = extractor.getResultText();
             extractedText = cleanup(extractedText);
@@ -44,6 +66,10 @@ public class TudDatasetEvaluation {
             double score3 = similarity3.getSimilarity(expectedText, extractedText);
             boolean startCorrect = false;
             boolean endCorrect = false;
+
+            totalScore1 += score1;
+            totalScore2 += score2;
+            totalScore3 += score3;
 
             if (expectedText.length() > 25 && extractedText.length() > 25) {
                 // check, whether the beginning/end of the text were extracted correctly:
@@ -59,7 +85,14 @@ public class TudDatasetEvaluation {
                     startCorrect, endCorrect);
 
             FileHelper.appendFile(resultFileName, resultLine);
+
+            ProgressHelper.showProgress(i, textFiles.length, 0);
         }
+
+        double totalScore = (totalScore1 + totalScore2 + totalScore3) / (3 * textFiles.length);
+        System.out.println("Total Score: " + totalScore);
+
+        return totalScore;
     }
 
     private static final String cleanup(String expectedText) {
@@ -71,9 +104,13 @@ public class TudDatasetEvaluation {
     }
 
     public static void main(String[] args) throws Exception {
-        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadabilityContentExtractor());
+        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new AlchemyApiContentExtractor(
+        // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"));
+        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadItLaterContentExtractor(
+        // "a62g2W68p36ema12fvTc410Td1A1Na62"));
+        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new ReadabilityContentExtractor());
         evaluate(ResourceHelper.getResourcePath("/WebPages/"), new PalladianContentExtractor());
-        evaluate(ResourceHelper.getResourcePath("/WebPages/"), new BoilerpipeContentExtractor());
+        // evaluate(ResourceHelper.getResourcePath("/WebPages/"), new BoilerpipeContentExtractor());
     }
 
 }

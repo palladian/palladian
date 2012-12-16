@@ -145,7 +145,7 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
     public String buildRequestUrl(String query, int page) {
         StringBuilder requestUrl = new StringBuilder();
         requestUrl.append("https://graph.facebook.com/search");
-        requestUrl.append("?q=").append(UrlHelper.urlEncode(query));
+        requestUrl.append("?q=").append(UrlHelper.encodeParameter(query));
         // TODO further types would be possible, see API doc.
         requestUrl.append("&type=post");
         requestUrl.append("&limit=100");

@@ -7,13 +7,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -59,7 +59,7 @@ class FeedTask implements Callable<FeedTaskResult> {
     /**
      * Warn if processing of a feed takes longer than this.
      */
-    public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
+    public static final long EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
 
     /**
      * Additional header elements used in HTTP requests.

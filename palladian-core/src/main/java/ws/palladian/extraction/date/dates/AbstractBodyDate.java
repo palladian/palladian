@@ -67,17 +67,22 @@ public abstract class AbstractBodyDate extends KeywordDate {
 
 
 
-    @Override
-    public void set(int field, int value) {
-        switch (field) {
-            case STRUCTURE_DEPTH:
-                this.structuralDepth = value;
-                break;
-            default:
-                super.set(field, value);
-        }
-
+//    @Override
+//    public void set(int field, int value) {
+//        switch (field) {
+//            case STRUCTURE_DEPTH:
+//                this.structuralDepth = value;
+//                break;
+//            default:
+//                super.set(field, value);
+//        }
+//
+//    }
+    
+    public void setStructureDepth(int depth) {
+        this.structuralDepth = depth;
     }
+
     
     /* (non-Javadoc)
      * @see java.lang.Object#toString()

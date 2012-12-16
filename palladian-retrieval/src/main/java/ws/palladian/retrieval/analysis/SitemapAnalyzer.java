@@ -109,7 +109,7 @@ public class SitemapAnalyzer {
                 }
 
                 try {
-                    HttpResult httpResult = (HttpResult)document.getUserData("httpResult");
+                    HttpResult httpResult = (HttpResult)document.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
                     map.put("accessible", httpResult.getStatusCode() < 400);
                 } catch (Exception e) {
                 }

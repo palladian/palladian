@@ -150,7 +150,7 @@ public final class XPathHelper {
             }
         } catch (XPathExpressionException e) {
             // TODO this exception should be thrown
-            LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
+            LOGGER.error(e + " for XPath \"" + xPath + "\" : " + e.getMessage(), e);
         }
 
         return ret;

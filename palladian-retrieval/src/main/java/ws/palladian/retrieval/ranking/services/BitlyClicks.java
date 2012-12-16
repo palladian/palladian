@@ -115,7 +115,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
 
             // Step 1: get the bit.ly hash for the specified URL
             String hash = null;
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey="
                     + getApiKey() + "&url=" + encUrl);
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
@@ -180,7 +180,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                 Map<String, String> hashes = new HashMap<String, String>();
 
                 for (int i = 0; i < subUrls.size(); i++) {
-                    encUrls += "&url=" + UrlHelper.urlEncode(subUrls.get(i));
+                    encUrls += "&url=" + UrlHelper.encodeParameter(subUrls.get(i));
                 }
 
                 urlString = "http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey=" + getApiKey()

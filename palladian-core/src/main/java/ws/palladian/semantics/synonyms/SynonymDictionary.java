@@ -19,24 +19,21 @@ public class SynonymDictionary extends HashMap<String, List<String>> {
 
     public void addSynonym(String word, String synonym) {
         List<String> list = get(word);
-        if (list == null) {
-            list = new ArrayList<String>();
-            put(word, list);
-        }
         if (!list.contains(synonym)) {
             list.add(synonym);
         }
     }
 
-    public List<String> get(String key) {        
+    public List<String> get(String key) {
         List<String> list = super.get(key);
         if(list == null){
             list = new ArrayList<String>();
             list.add(key);
-        }        
-        return list;        
+            put(key, list);
+        }
+        return list;
     }
-    
-    
+
+
 
 }

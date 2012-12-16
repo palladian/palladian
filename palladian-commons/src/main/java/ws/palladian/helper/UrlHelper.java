@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,6 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -325,13 +325,13 @@ public final class UrlHelper {
 
     /**
      * <p>
-     * URLDecode a String.
+     * Decode a String which was used as URL parameter.
      * </p>
      * 
      * @param string
      * @return
      */
-    public static String urlDecode(String string) {
+    public static String decodeParameter(String string) {
         try {
             return URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -341,13 +341,13 @@ public final class UrlHelper {
 
     /**
      * <p>
-     * URLEncode a String.
+     * Encode a String to be used as URL parameter.
      * </p>
      * 
      * @param string
      * @return
      */
-    public static String urlEncode(String string) {
+    public static String encodeParameter(String string) {
         try {
             return URLEncoder.encode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -364,12 +364,13 @@ public final class UrlHelper {
      * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
      */
     public static List<String> extractUrls(String text) {
-        List<String> urls = new ArrayList<String>();
-        Matcher matcher = URL_PATTERN.matcher(text);
-        while (matcher.find()) {
-            urls.add(matcher.group(0));
-        }
-        return urls;
+//        List<String> urls = new ArrayList<String>();
+//        Matcher matcher = URL_PATTERN.matcher(text);
+//        while (matcher.find()) {
+//            urls.add(matcher.group(0));
+//        }
+//        return urls;
+        return StringHelper.getRegexpMatches(URL_PATTERN, text);
     }
 
     public static boolean isLocalFile(URL url) {

@@ -20,6 +20,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.helper.JsonObjectWrapper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -85,7 +86,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
     }
 
     private String getRequestUrl(String query, int resultCount, Language language) {
-        String url = "https://gdata.youtube.com/feeds/api/videos?q=" + UrlHelper.urlEncode(query);
+        String url = "https://gdata.youtube.com/feeds/api/videos?q=" + UrlHelper.encodeParameter(query);
         url += "&orderby=relevance";
         url += "&start-index=1";
         url += "&max-results=" + Math.min(50, resultCount);
@@ -101,7 +102,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
     @Override
     public List<WebVideoResult> search(String query, int resultCount, Language language) throws SearcherException {
 
-        // TODO pagination available? Currenty I get only 50 results max.
+        // TODO pagination available? Currently I get only 50 results max.
 
         String url = getRequestUrl(query, resultCount, language);
 
@@ -115,35 +116,54 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
         List<WebVideoResult> webResults = new ArrayList<WebVideoResult>();
         try {
-            JSONObject root = new JSONObject(HttpHelper.getStringContent(httpResult));
+            JsonObjectWrapper root = new JsonObjectWrapper(HttpHelper.getStringContent(httpResult));
             TOTAL_REQUEST_COUNT.incrementAndGet();
-            JSONObject feed = root.getJSONObject("feed");
+            JsonObjectWrapper feed = root.getJSONObject("feed");
 
-            if (feed.has("entry")) {
+            JSONArray entries = feed.getJSONArray("entry");
 
-                JSONArray entries = feed.getJSONArray("entry");
+            for (int i = 0; i < entries.length(); i++) {
 
-                for (int i = 0; i < entries.length(); i++) {
+                JsonObjectWrapper entry = new JsonObjectWrapper(entries.getJSONObject(i));
+                String published = entry.get("published/$t", String.class);
 
-                    JSONObject entry = entries.getJSONObject(i);
-                    String published = entry.getJSONObject("published").getString("$t");
+                String title = entry.get("title/$t", String.class);
+                String videoLink = entry.get("content/src", String.class);
+                Date date = parseDate(published);
+                String pageLink = getPageLink(entry.getJsonObject());
 
-                    String title = entry.getJSONObject("title").getString("$t");
-                    String videoLink = entry.getJSONObject("content").getString("src");
-                    Date date = parseDate(published);
-                    String pageLink = getPageLink(entry);
+                Integer runtime = entry.get("media$group/yt$duration/seconds", Integer.class);
+                Integer viewCount = entry.get("yt$statistics/viewCount", Integer.class);
 
-                    WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, null, date);
-                    webResults.add(webResult);
+                Double rating = null;
 
-                    if (webResults.size() >= resultCount) {
-                        break;
+                JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
+                if (ratingObject != null) {
+                    int numDislikes = ratingObject.getInt("numDislikes");
+                    int numLikes = ratingObject.getInt("numLikes");
+                    int total = numLikes + numDislikes;
+
+                    if (total > 0) {
+                        rating = numLikes / (double)total;
                     }
+                }
 
+                Long rtLong = null;
+                if (runtime != null) {
+                    rtLong = runtime.longValue();
+                }
+                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, rtLong, date);
+                webResult.setViews(viewCount);
+                webResult.setRating(rating);
+                webResults.add(webResult);
+
+                if (webResults.size() >= resultCount) {
+                    break;
                 }
 
             }
-        } catch (JSONException e) {
+
+        } catch (Exception e) {
             throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
                     + "\" with " + getName() + ": " + e.getMessage(), e);
 

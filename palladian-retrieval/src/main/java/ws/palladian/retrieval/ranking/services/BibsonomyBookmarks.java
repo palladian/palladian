@@ -107,7 +107,7 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
 
         try {
 
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             // authenticate via HTTP Auth and send GET request
             String pass = getLogin() + ":" + getApiKey();
             Map<String, String> headerParams = new HashMap<String, String>();

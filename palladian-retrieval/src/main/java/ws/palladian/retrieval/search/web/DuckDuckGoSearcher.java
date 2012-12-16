@@ -48,7 +48,7 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
         paging: for (int page = 0; page <= 999; page++) {
 
             String requestUrl = "http://duckduckgo.com/d.js?l=us-en&p=1&s=" + ENTRIES_PER_PAGE * page + "&q="
-                    + UrlHelper.urlEncode(query);
+                    + UrlHelper.encodeParameter(query);
 
             HttpResult httpResult;
             try {

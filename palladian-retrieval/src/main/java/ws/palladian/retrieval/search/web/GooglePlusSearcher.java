@@ -98,7 +98,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
     private String buildUrl(String query, String pageToken) {
         StringBuilder url = new StringBuilder();
         url.append("https://www.googleapis.com/plus/v1/activities");
-        url.append("?query=").append(UrlHelper.urlEncode(query));
+        url.append("?query=").append(UrlHelper.encodeParameter(query));
         url.append("&key=").append(apiKey);
         if (pageToken != null) {
             url.append("&pageToken=").append(pageToken);

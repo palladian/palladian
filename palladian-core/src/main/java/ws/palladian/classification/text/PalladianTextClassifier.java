@@ -96,6 +96,8 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
                 categories.add(new CategoryEntry(category, model.getPrior(category)));
             }
         }
+
+        categories.sort();
         return categories;
     }
 
