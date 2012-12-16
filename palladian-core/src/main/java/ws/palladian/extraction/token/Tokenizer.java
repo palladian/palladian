@@ -43,7 +43,7 @@ public final class Tokenizer {
     public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
     /** The RegExp used for sentence splitting. */
-    public static final String SENTENCE_SPLIT_REGEX = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)((\\.|\\?|\\!)(”|\")|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
     private static final Pattern SENTENCE_SPLIT_PATTERN = Pattern.compile(SENTENCE_SPLIT_REGEX);
 
@@ -441,9 +441,10 @@ public final class Tokenizer {
             for (String sentence : sentences) {
                 String[] parts = sentence.split("\n");
                 sentence = parts[parts.length - 1];
-                if (sentence.endsWith(".") || sentence.endsWith("?") || sentence.endsWith("!")) {
+                if (sentence.endsWith(".") || sentence.endsWith("?") || sentence.endsWith("!")
+                        || sentence.endsWith(".”") || sentence.endsWith(".\"")) {
 
-                    String cleanSentence = StringHelper.trim(sentence);
+                    String cleanSentence = StringHelper.trim(sentence, "“”\"");
                     int wordCount = StringHelper.countWhitespaces(cleanSentence) + 1;
 
                     // TODO Why is this 8?
