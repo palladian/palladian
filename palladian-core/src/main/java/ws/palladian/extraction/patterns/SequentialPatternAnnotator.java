@@ -124,8 +124,11 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
                     sequentialPattern.add(currentMarkedKeyword.getValue());
                     i = currentMarkedKeyword.getEndPosition();
                 } else if (currentPosTag != null && Integer.valueOf(currentPosTag.getStartPosition()).equals(i)) {
-                    sequentialPattern.add(currentPosTag.getFeatureVector()
-                            .getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE).getValue());
+                    List<NominalFeature> posTagFeatures = currentPosTag.getFeatureVector().getAll(NominalFeature.class,
+                            BasePosTagger.PROVIDED_FEATURE);
+                    for (NominalFeature posTagFeature : posTagFeatures) {
+                        sequentialPattern.add(posTagFeature.getValue());
+                    }
                     i = currentPosTag.getEndPosition();
                 } else {
                     i++;
