@@ -3,12 +3,14 @@
  */
 package ws.palladian.classification;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.processing.features.FeatureVector;
@@ -24,9 +26,10 @@ import ws.palladian.processing.features.NominalFeature;
  * @since 0.1.7
  */
 public class FeatureSelectorTest {
+    private List<Instance> fixture;
 
-    @Test
-    public void test() {
+    @Before
+    public void setUp() {
         FeatureVector fv1 = new FeatureVector();
         FeatureVector fv2 = new FeatureVector();
         FeatureVector fv3 = new FeatureVector();
@@ -49,16 +52,42 @@ public class FeatureSelectorTest {
         Instance instance2 = new Instance("c1", fv2);
         Instance instance3 = new Instance("c2", fv3);
 
-        Collection<Instance> instances = new HashSet<Instance>();
-        instances.add(instance1);
-        instances.add(instance2);
-        instances.add(instance3);
+        fixture = new ArrayList<Instance>(3);
+        fixture.add(instance1);
+        fixture.add(instance2);
+        fixture.add(instance3);
+    }
 
+    @After
+    public void tearDown() {
+        fixture = null;
+    }
+
+    @Test
+    public void testChiSquareFeatureSelection() {
         Map<String, Map<String, Double>> chiSquareValues = FeatureSelector.calculateChiSquareValues("testfeature",
-                NominalFeature.class, instances);
+                NominalFeature.class, fixture);
         // System.out.println(chiSquareValues);
 
         Assert.assertThat(chiSquareValues.get("a").get("c1"), Matchers.is(Matchers.closeTo(3.0, 0.0001)));
         Assert.assertThat(chiSquareValues.get("d").get("c2"), Matchers.is(Matchers.closeTo(0.75, 0.0001)));
+    }
+
+    @Test
+    public void testInformationGainFeatureExtraction() throws Exception {
+        Map<NominalFeature, Double> result = FeatureSelector.calculateInformationGain("testfeature", fixture);
+
+        Assert.assertThat(result.get(new NominalFeature("testfeature", "d")),
+                Matchers.closeTo(0.6759197036979384, 0.001));
+        Assert.assertThat(result.get(new NominalFeature("testfeature", "b")),
+                Matchers.closeTo(0.9638892693751062, 0.001));
+        Assert.assertThat(result.get(new NominalFeature("testfeature", "c")),
+                Matchers.closeTo(0.9638892693751062, 0.001));
+        Assert.assertThat(result.get(new NominalFeature("testfeature", "a")),
+                Matchers.closeTo(0.9638892693751062, 0.001));
+        Assert.assertThat(result.get(new NominalFeature("testfeature", "f")),
+                Matchers.closeTo(0.9638892693751062, 0.001));
+        Assert.assertThat(result.get(new NominalFeature("testfeature", "e")),
+                Matchers.closeTo(0.9638892693751062, 0.001));
     }
 }

@@ -86,12 +86,10 @@
 		<dependency>
 			<groupId>edu.illinois</groupId>
 			<artifactId>lbj2library</artifactId>
-			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
-			<version>3.9.2</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -129,7 +127,6 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>3.1.13</version>
 		</dependency>
 		<dependency>
 			<groupId>opennlp</groupId>
@@ -139,7 +136,6 @@
 		<dependency>
 			<groupId>org.tartarus.snowball</groupId>
 			<artifactId>snowball</artifactId>
-			<version>2010-08-04</version>
 		</dependency>
 		<dependency>
 			<groupId>gnu</groupId>
@@ -204,6 +200,10 @@
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>tw.edu.ntu.csie</groupId>
+			<artifactId>libsvm</artifactId>
 		</dependency>
 	</dependencies>
 	<properties>

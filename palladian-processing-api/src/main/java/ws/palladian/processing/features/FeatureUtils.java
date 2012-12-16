@@ -76,26 +76,58 @@ public final class FeatureUtils {
         return ret;
     }
 
-    public static List<Feature<?>> getFeaturesAtPath(FeatureVector vector, String featurePath) {
+    @SuppressWarnings("unchecked")
+    public static <T extends Feature<?>> List<T> getFeaturesAtPath(FeatureVector vector, String featurePath) {
         int slashIndex = featurePath.indexOf("/");
         String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
         String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
-        List<Feature<?>> featureList = vector.getAll(leadingPathPart);
+        List<T> featureList = (List<T>)vector.getAll(leadingPathPart);
 
-        List<Feature<?>> ret = new ArrayList<Feature<?>>();
+        List<T> ret = new ArrayList<T>();
         if (!trailingPathPart.isEmpty()) {
             for (Feature<?> feature : featureList) {
                 if (feature instanceof Classifiable) {
                     Classifiable classifiable = (Classifiable)feature;
-                    ret.addAll(getFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart));
+                    ret.addAll((List<T>)getFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart));
                 }
             }
         } else {
-            for (Feature<?> feature : featureList) {
+            for (T feature : featureList) {
                 ret.add(feature);
             }
         }
         return ret;
+    }
+
+    /**
+     * <p>
+     * Removes the feature with the specified value at the provided path from the {@link FeatureVector}.
+     * </p>
+     * 
+     * @param featureVector the {@link FeatureVector} to remove a {@link Feature} from.
+     * @param featurePath The path the the feature to remove.
+     * @param value The value of the feature to remove at the path.
+     */
+    public static void removeFeatureAtPath(FeatureVector featureVector, String featurePath, String value) {
+        int slashIndex = featurePath.indexOf("/");
+        String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
+        String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
+        List<Feature<?>> featureList = new ArrayList<Feature<?>>(featureVector.getAll(leadingPathPart));
+
+        if (!trailingPathPart.isEmpty()) {
+            for (Feature<?> feature : featureList) {
+                if (feature instanceof Classifiable) {
+                    Classifiable classifiable = (Classifiable)feature;
+                    removeFeatureAtPath(classifiable.getFeatureVector(), trailingPathPart, value);
+                }
+            }
+        } else {
+            for (Feature<?> feature : featureList) {
+                if (feature.getValue().equals(value)) {
+                    featureVector.remove(feature);
+                }
+            }
+        }
     }
 }
 

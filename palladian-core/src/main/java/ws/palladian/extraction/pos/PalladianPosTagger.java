@@ -71,40 +71,10 @@ public class PalladianPosTagger extends BasePosTagger {
 
             CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
             String tag = categoryEntries.getMostLikelyCategoryEntry().getName();
-            assignTag(annotation, tag);
+            assignTag(annotation, Arrays.asList(new String[] {tag}));
             previousTag = tag;
         }
     }
-
-    // @Override
-    // public PosTagger tag(String sentence) {
-    //
-    // Instances<UniversalInstance> instances = new Instances<UniversalInstance>();
-    // TagAnnotations tagAnnotations = new TagAnnotations();
-    //
-    // String previousTag = "";
-    // String[] words = sentence.split("\\s");
-    // for (String word : words) {
-    // // TextInstance result = tagger.classify(word);
-    // // String tag = result.getMainCategoryEntry().getCategory().getName();
-    // // TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(word), tag.toUpperCase(), word);
-    // // tagAnnotations.add(tagAnnotation);
-    //
-    // UniversalInstance instance = new UniversalInstance(instances);
-    // setFeatures(instance, previousTag, word);
-    //
-    // tagger.classify(instance);
-    // String tag = instance.getMainCategoryEntry().getCategory().getName();
-    // TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(word), tag.toUpperCase(), word);
-    // tagAnnotations.add(tagAnnotation);
-    //
-    // previousTag = tag;
-    // }
-    //
-    // setTagAnnotations(tagAnnotations);
-    //
-    // return this;
-    // }
 
     private UniversalClassifier getTagger() {
         FeatureSetting featureSetting = new FeatureSetting();
@@ -146,7 +116,7 @@ public class PalladianPosTagger extends BasePosTagger {
 
                 Instance instance = new Instance(normalizeTag(wordAndTag[1]));
                 setFeatures(instance, previousTag, wordAndTag[0]);
-                //                instance.setInstanceCategory();
+                // instance.setInstanceCategory();
 
                 trainingInstances.add(instance);
 
@@ -160,7 +130,7 @@ public class PalladianPosTagger extends BasePosTagger {
         model = tagger.train(trainingInstances);
 
         // classifier.learnClassifierWeightsByCategory(trainingInstances);
-        
+
         FileHelper.serialize(model, modelFilePath);
         Cache.getInstance().putDataObject(modelFilePath, model);
 
@@ -174,22 +144,16 @@ public class PalladianPosTagger extends BasePosTagger {
             lastTwo = word.substring(word.length() - 2);
         }
 
-        //        instance.setTextFeature(word);
+        // instance.setTextFeature(word);
 
         List<String> nominalFeatures = Arrays.asList(
                 // previousTag
-                String.valueOf(StringHelper.startsUppercase(word)),
-                String.valueOf(word.length() == 1),
-                String.valueOf(word.length() == 2),
-                String.valueOf(word.length() == 3),
-                String.valueOf(word.length()),
+                String.valueOf(StringHelper.startsUppercase(word)), String.valueOf(word.length() == 1),
+                String.valueOf(word.length() == 2), String.valueOf(word.length() == 3), String.valueOf(word.length()),
                 String.valueOf(StringHelper.isNumberOrNumberWord(word)),
                 String.valueOf(StringHelper.isCompletelyUppercase(word)),
-                String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()),
-                word.substring(word.length() - 1),
-                word.substring(0, 1),
-                lastTwo,
-                word);
+                String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()), word.substring(word.length() - 1),
+                word.substring(0, 1), lastTwo, word);
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));
 
@@ -217,7 +181,7 @@ public class PalladianPosTagger extends BasePosTagger {
         int correct = 0;
         int total = 0;
 
-        //        List<UniversalInstance> instances = CollectionHelper.newArrayList();
+        // List<UniversalInstance> instances = CollectionHelper.newArrayList();
 
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {

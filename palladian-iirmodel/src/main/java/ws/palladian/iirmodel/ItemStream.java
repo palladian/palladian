@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
@@ -25,6 +26,7 @@ import ws.palladian.iirmodel.helper.StreamVisitor;
  * @version 3.1
  */
 @Entity
+@DiscriminatorValue(value = "surface.ItemStream")
 public final class ItemStream extends StreamSource {
 
     /**

@@ -331,4 +331,43 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         features.clear();
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((features == null) ? 0 : features.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FeatureVector other = (FeatureVector)obj;
+        if (features == null) {
+            if (other.features != null)
+                return false;
+        } else if (!features.equals(other.features))
+            return false;
+        return true;
+    }
+
+    /**
+     * <p>
+     * Removes a {@link Feature} from this {@link FeatureVector}.
+     * </p>
+     * 
+     * @param feature The {@link Feature} to remove.
+     */
+    public void remove(Feature<?> feature) {
+        List<Feature<?>> existingFeatures = new ArrayList<Feature<?>>(features.get(feature.getName()));
+        for (Feature<?> existingFeature : existingFeatures) {
+            features.get(feature.getName()).remove(existingFeature);
+        }
+    }
+
 }

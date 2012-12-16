@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,6 +29,7 @@ import ws.palladian.iirmodel.helper.StreamVisitor;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "SOURCEADDRESS"), name = "StreamSource")
+@DiscriminatorColumn(name = "class")
 public abstract class StreamSource implements Serializable {
 
     /**
