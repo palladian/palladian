@@ -149,7 +149,7 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(getEndpoint());
         urlBuilder.append("&search.pid=").append(apiKey);
-        urlBuilder.append("&search.query=").append(UrlHelper.urlEncode(query));
+        urlBuilder.append("&search.query=").append(UrlHelper.encodeParameter(query));
         urlBuilder.append("&search.language=en");
         urlBuilder.append("&search.numberofresult=").append(resultCount);
         return urlBuilder.toString();

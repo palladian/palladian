@@ -109,7 +109,7 @@ abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
         if (language != null) {
             queryBuilder.append("&lr=").append(getLanguageString(language));
         }
-        queryBuilder.append("&q=").append(UrlHelper.urlEncode(query));
+        queryBuilder.append("&q=").append(UrlHelper.encodeParameter(query));
         return queryBuilder.toString();
     }
 

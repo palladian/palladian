@@ -37,7 +37,7 @@ public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebResult> {
     protected String buildRequestUrl(String query, Language language, int offset, int count) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(BASE_SERVICE_URL).append("index/websites");
-        urlBuilder.append("?query=").append(UrlHelper.urlEncode(query));
+        urlBuilder.append("?query=").append(UrlHelper.encodeParameter(query));
         urlBuilder.append("&offset=").append(offset);
         urlBuilder.append("&numResults=").append(Math.min(count, 100));
         urlBuilder.append("&apiKey=").append(apiKey);

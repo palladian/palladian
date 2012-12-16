@@ -48,7 +48,7 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
 
         try {
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://data.alexa.com/data?cli=10&dat=s&url=" + encUrl);
             DocumentParser xmlParser = ParserFactory.createXmlParser();
             Document doc = xmlParser.parse(httpResult);

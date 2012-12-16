@@ -132,7 +132,7 @@ public class EvriNer extends NamedEntityRecognizer {
 
             try {
                 
-                String encodedText = UrlHelper.urlEncode(textChunk);
+                String encodedText = UrlHelper.encodeParameter(textChunk);
                 String apiUrl = "http://api.evri.com/v1/media/entities.json?uri=http://www.webknox.com&text=" + encodedText + "&appId=" + APP_ID;
                 HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
                 HttpResult httpResult = httpRetriever.httpGet(apiUrl);

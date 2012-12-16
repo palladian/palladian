@@ -12,6 +12,7 @@ import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 
 /**
@@ -36,6 +37,13 @@ public class HttpDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @Override
     public List<MetaDate> getDates(Document document) {
+
+        // get the http result without querying the URL again, this saves bandwidth and time
+        HttpResult httpResult = (HttpResult)document.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
+        if (httpResult != null) {
+            return getDates(httpResult);
+        }
+
         return getDates(getUrl(document));
     }
 

@@ -71,7 +71,7 @@ public final class FriendfeedStats extends BaseRankingService implements Ranking
         }
 
         try {
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             JSONArray entries = json.getJSONArray("entries");
@@ -104,7 +104,7 @@ public final class FriendfeedStats extends BaseRankingService implements Ranking
     public boolean checkBlocked() {
         boolean error = false;
         try {
-            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.urlEncode("http://www.google.com/"));
+            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.encodeParameter("http://www.google.com/"));
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             if (json != null) {
                 if (json.has("errorCode")) {

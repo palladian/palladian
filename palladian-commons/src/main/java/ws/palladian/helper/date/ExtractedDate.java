@@ -70,16 +70,16 @@ public interface ExtractedDate {
 
     String getTimeZone();
 
-    /**
-     * Sets all standard date-properties as an array.<br>
-     * From year down to second and timezone.<br>
-     * Also date-string and format.<br>
-     * <br>
-     * Use this this static fields to define a property.
-     * 
-     * @return
-     */
-    void set(int field, int value);
+//    /**
+//     * Sets all standard date-properties as an array.<br>
+//     * From year down to second and timezone.<br>
+//     * Also date-string and format.<br>
+//     * <br>
+//     * Use this this static fields to define a property.
+//     * 
+//     * @return
+//     */
+//    void set(int field, int value);
 
     /**
      * <p>

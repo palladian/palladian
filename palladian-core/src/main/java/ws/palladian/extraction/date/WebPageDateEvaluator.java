@@ -120,24 +120,29 @@ public final class WebPageDateEvaluator {
         List<Node> articleNodes = XPathHelper.getXhtmlNodes(document, "//article");
         
         // determine the longest article node.
-        Node mainArticle = null;
+        Node nodeToCheck = null;
         int longest = -1;
         for (Node articleNode : articleNodes) {
             int articleLength = HtmlHelper.getInnerXml(articleNode).length();
             if (articleLength > longest) {
-                mainArticle = articleNode;
+                nodeToCheck = articleNode;
                 longest = articleLength;
             }
         }
+        
+        // we couldn't identify a document node, consider the whole document
+        if (nodeToCheck == null) {
+            nodeToCheck = document;
+        }
 
-        if (mainArticle != null) {
-            List<Node> timeNodes = XPathHelper.getXhtmlNodes(mainArticle, ".//time");
+        if (nodeToCheck != null) {
+            List<Node> timeNodes = XPathHelper.getXhtmlNodes(nodeToCheck, ".//time");
             for (Node timeNode : timeNodes) {
                 NamedNodeMap attributes = timeNode.getAttributes();
                 if (attributes.getNamedItem("pubdate") != null) {
                     Node dateTime = attributes.getNamedItem("datetime");
                     if (dateTime != null) {
-                        return DateParser.parseDate(dateTime.getTextContent());
+                        return DateParser.findDate(dateTime.getTextContent());
                     }
                 }
             }

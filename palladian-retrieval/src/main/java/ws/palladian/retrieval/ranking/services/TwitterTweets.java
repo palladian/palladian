@@ -78,7 +78,7 @@ public final class TwitterTweets extends BaseRankingService implements RankingSe
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://urls.api.twitter.com/1/urls/count.json?url=" + UrlHelper.urlEncode(url);
+        String requestUrl = "http://urls.api.twitter.com/1/urls/count.json?url=" + UrlHelper.encodeParameter(url);
         return requestUrl;
     }
 

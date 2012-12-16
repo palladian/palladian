@@ -78,7 +78,7 @@ public final class StumbleUponViews extends BaseRankingService implements Rankin
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        return "http://www.stumbleupon.com/services/1.01/badge.getinfo?url=" + UrlHelper.urlEncode(url);
+        return "http://www.stumbleupon.com/services/1.01/badge.getinfo?url=" + UrlHelper.encodeParameter(url);
     }
 
     @Override

@@ -135,7 +135,7 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
             queryBuilder.append("&sroffset=").append(offset);
         }
         queryBuilder.append("&srlimit=").append(limit);
-        queryBuilder.append("&srsearch=").append(UrlHelper.urlEncode(query));
+        queryBuilder.append("&srsearch=").append(UrlHelper.encodeParameter(query));
         return queryBuilder.toString();
     }
 

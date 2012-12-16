@@ -70,7 +70,7 @@ public final class RedditStats extends BaseRankingService implements RankingServ
 
         try {
 
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet(GET_INFO + encUrl);
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
 

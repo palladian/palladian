@@ -91,7 +91,7 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "https://plusone.google.com/u/0/_/+1/fastbutton?url=" + UrlHelper.urlEncode(url);
+        String requestUrl = "https://plusone.google.com/u/0/_/+1/fastbutton?url=" + UrlHelper.encodeParameter(url);
         return requestUrl;
     }
 

@@ -77,7 +77,7 @@ public final class LinkedInShares extends BaseRankingService implements RankingS
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://www.linkedin.com/countserv/count/share?format=json&url=" + UrlHelper.urlEncode(url);
+        String requestUrl = "http://www.linkedin.com/countserv/count/share?format=json&url=" + UrlHelper.encodeParameter(url);
         return requestUrl;
     }
 

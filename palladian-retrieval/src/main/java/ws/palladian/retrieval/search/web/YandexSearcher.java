@@ -262,7 +262,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     String buildRequestUrl(String searchUrl, String query, int count, int page) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(searchUrl);
-        urlBuilder.append("&query=").append(UrlHelper.urlEncode(query));
+        urlBuilder.append("&query=").append(UrlHelper.encodeParameter(query));
         if (page > 0) {
             urlBuilder.append("&page=").append(page);
         }

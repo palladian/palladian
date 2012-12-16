@@ -83,7 +83,7 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
         }
 
         try {
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
 
@@ -118,7 +118,7 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
     public boolean checkBlocked() {
         boolean error = false;
         try {
-            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.urlEncode("http://www.google.com/"));
+            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.encodeParameter("http://www.google.com/"));
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             if (json.has("errorCode")) {
                 if (json.get("errorCode").equals("limit-exceeded")) {

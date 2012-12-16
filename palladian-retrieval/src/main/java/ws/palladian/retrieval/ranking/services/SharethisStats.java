@@ -103,7 +103,7 @@ public final class SharethisStats extends BaseRankingService implements RankingS
         }
 
         try {
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));

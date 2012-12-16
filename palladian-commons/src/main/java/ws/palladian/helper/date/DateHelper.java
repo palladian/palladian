@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.normalization.DateNormalizer;
 
@@ -202,15 +203,21 @@ public class DateHelper {
      * 
      * @param startTime A timestamp.
      * @return The passed time since the time of the timestamp. The format is Hh:Mm:Ss:YYYms.
+     * @deprecated Use the {@link StopWatch} instead.
      */
+    @Deprecated
     public static String getRuntime(long startTime) {
         return getRuntime(startTime, System.currentTimeMillis(), false);
     }
 
+    /** @deprecated Use the {@link StopWatch} instead. */
+    @Deprecated
     public static String getRuntime(long startTime, long stopTime) {
         return getRuntime(startTime, stopTime, false);
     }
 
+    /** @deprecated Use the {@link StopWatch} instead. */
+    @Deprecated
     public static String getRuntime(long startTime, long stopTime, boolean output) {
         long seconds = (stopTime - startTime) / 1000;
         long days = seconds / 86400;

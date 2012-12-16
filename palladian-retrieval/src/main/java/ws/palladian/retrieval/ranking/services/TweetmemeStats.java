@@ -79,7 +79,7 @@ public final class TweetmemeStats extends BaseRankingService implements RankingS
 
         try {
 
-            String encUrl = UrlHelper.urlEncode(url);
+            String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://api.tweetmeme.com/url_info.json?url=" + encUrl);
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
 
@@ -117,7 +117,7 @@ public final class TweetmemeStats extends BaseRankingService implements RankingS
         boolean error = false;
         try {
             HttpResult httpResult = retriever.httpGet("http://api.tweetmeme.com/url_info.json?url="
-                    + UrlHelper.urlEncode("http://www.google.com/"));
+                    + UrlHelper.encodeParameter("http://www.google.com/"));
             JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             if (json.has("status")) {
                 if (json.get("status").equals("failure")) {

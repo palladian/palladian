@@ -121,7 +121,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
         urlBuilder.append("https://www.googleapis.com/customsearch/v1");
         urlBuilder.append("?key=").append(apiKey);
         urlBuilder.append("&cx=").append(searchEngineIdentifier);
-        urlBuilder.append("&q=").append(UrlHelper.urlEncode(query));
+        urlBuilder.append("&q=").append(UrlHelper.encodeParameter(query));
         urlBuilder.append("&start=").append(start);
         urlBuilder.append("&num=").append(num);
         if (language != null) {
