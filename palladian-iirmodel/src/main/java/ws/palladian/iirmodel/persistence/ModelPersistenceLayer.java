@@ -1406,4 +1406,22 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
             commitTransaction(openedTransaction);
         }
     }
+
+    /**
+     * <p>
+     * Loads all {@link Item}s authored by the same person from the database.
+     * </p>
+     * 
+     * @param author The {@link Author} to load the {@link Item}s for.
+     * @return The {@link List} of all {@link Item}s authored by the provided {@link Author}.
+     */
+    public List<Item> loadItemsByAuthor(Author author) {
+        TypedQuery<Item> query = getManager().createQuery("SELECT i FROM Item i JOIN i.author a", Item.class);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
 }
