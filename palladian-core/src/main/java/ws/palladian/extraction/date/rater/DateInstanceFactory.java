@@ -28,6 +28,9 @@ final class DateInstanceFactory {
         String formatString = date.getFormat();
         if (!isNormalFormat(formatString)) {
             formatString = changeFormat(formatString);
+            if (formatString == null) {
+                formatString = date.getFormat();
+            }
         }
 
         String tagNameString = date.getTag().toUpperCase();
@@ -41,7 +44,9 @@ final class DateInstanceFactory {
             if (!isNormalKeyword(keywordString)) {
                 keywordString = getNormalKeyword(keywordString);
             }
-        } else {
+        }
+
+        if (keywordString == null) {
             keywordString = "null";
         }
 
