@@ -1,10 +1,7 @@
 package ws.palladian.retrieval;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -14,111 +11,121 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
 
 /**
- * Quickndirty OAuth implementation, implemented by Twitter's instructions. Might by used as general OAuth mechanism
- * in the future though.
+ * <p>
+ * Utility for creating OAuth signed {@link HttpRequest}s. Implemented according to Twitter's <a
+ * href="https://dev.twitter.com/docs/auth/authorizing-request">instructions</a>, but can be used for general OAuth 1.0
+ * signing purposes.
+ * </p>
  * 
- * @author pk
- * @see http://hueniverse.com/oauth/guide/authentication/
- * @see https://dev.twitter.com/docs/auth/authorizing-request
+ * @author Philipp Katz
+ * @see <a href="http://hueniverse.com/oauth/guide/authentication/">The OAuth 1.0 Guide</a>
+ * @see <a href="https://dev.twitter.com/docs/auth/authorizing-request">Twitter: Authorizing a request</a>
  */
-public class OAuthUtil {
+public final class OAuthUtil {
 
-    /** https://dev.twitter.com/docs/auth/authorizing-request 
-     * @param parameterObject TODO*/
-    public static HttpRequest createSignedRequest(HttpRequest httpRequest, OAuthParams parameterObject) {
+    private OAuthUtil() {
+        // utility class, no instances.
+    }
 
-        Map<String, String> oAuthParams = CollectionHelper.newHashMap();
-        oAuthParams.put("oauth_consumer_key", parameterObject.consumerKey);
-        oAuthParams.put("oauth_nonce", randomString());
-        oAuthParams.put("oauth_signature_method", "HMAC-SHA1");
-        oAuthParams.put("oauth_timestamp", String.valueOf(System.currentTimeMillis() / 1000));
-        oAuthParams.put("oauth_token", parameterObject.token);
-        oAuthParams.put("oauth_version", "1.0");
+    /**
+     * <p>
+     * Sign the given {@link HttpRequest} using the specified {@link OAuthParams}. The signed request is returned as new
+     * instance. After the request has been signed, no changes must be made to the request, or the authentication is
+     * void.
+     * </p>
+     * 
+     * @param httpRequest The HttpRequest to sign, not <code>null</code>.
+     * @param oAuthParams The OAuth parameters for signing the request, not <code>null</code>.
+     * @return
+     */
+    public static HttpRequest createSignedRequest(HttpRequest httpRequest, OAuthParams oAuthParams) {
+        Validate.notNull(httpRequest, "httpRequest must not be null");
+        Validate.notNull(oAuthParams, "oAuthParams must not be null");
 
-        Map<String, String> allParameters = CollectionHelper.newHashMap();
-        allParameters.putAll(httpRequest.getParameters());
-        allParameters.putAll(oAuthParams);
+        Map<String, String> oAuthHeader = CollectionHelper.newHashMap();
+        oAuthHeader.put("oauth_consumer_key", oAuthParams.getConsumerKey());
+        oAuthHeader.put("oauth_nonce", createRandomString());
+        oAuthHeader.put("oauth_signature_method", "HMAC-SHA1");
+        oAuthHeader.put("oauth_timestamp", String.valueOf(System.currentTimeMillis() / 1000));
+        oAuthHeader.put("oauth_token", oAuthParams.getAccessToken());
+        oAuthHeader.put("oauth_version", "1.0");
 
-        String signatureBaseString = createSignatureBaseString(httpRequest.getMethod(), httpRequest.getUrl(), allParameters);
-        String signingKey = createSigningKey(parameterObject.consumerSecret, parameterObject.tokenSecret);
-        String signature = createSignature(signatureBaseString, signingKey);
-        oAuthParams.put("oauth_signature", signature);
+        Map<String, String> allParams = CollectionHelper.newHashMap();
+        allParams.putAll(httpRequest.getParameters());
+        allParams.putAll(oAuthHeader);
 
-        StringBuilder ret = new StringBuilder();
-        ret.append("OAuth ");
+        String sigBaseString = createSignatureBaseString(httpRequest, allParams);
+        String sigKey = createSigningKey(oAuthParams.getConsumerSecret(), oAuthParams.getAccessTokenSecret());
+        oAuthHeader.put("oauth_signature", createSignature(sigBaseString, sigKey));
+
+        StringBuilder authorization = new StringBuilder();
+        authorization.append("OAuth ");
         boolean first = true;
-        for (String key : oAuthParams.keySet()) {
+        for (String key : oAuthHeader.keySet()) {
             if (first) {
                 first = false;
             } else {
-                ret.append(", ");
+                authorization.append(", ");
             }
-            String value = oAuthParams.get(key);
-            ret.append(urlEncode(key));
-            ret.append('=').append('"');
-            ret.append(urlEncode(value));
-            ret.append('"');
+            String value = oAuthHeader.get(key);
+            authorization.append(String.format("%s=\"%s\"", urlEncode(key), urlEncode(value)));
         }
-        
-        HashMap<String, String> newHeaders = CollectionHelper.newHashMap();
+
+        Map<String, String> newHeaders = CollectionHelper.newHashMap();
         newHeaders.putAll(httpRequest.getHeaders());
-        newHeaders.put("Authorization", ret.toString());
+        newHeaders.put("Authorization", authorization.toString());
         return new HttpRequest(httpRequest.getMethod(), httpRequest.getUrl(), newHeaders, httpRequest.getParameters());
     }
 
     static String createParameterString(Map<String, String> allParameters) {
         SortedMap<String, String> alphabeticallySorted = new TreeMap<String, String>(allParameters);
-        StringBuilder parameterCollection = new StringBuilder();
+        StringBuilder parameterString = new StringBuilder();
         boolean first = true;
         for (String key : alphabeticallySorted.keySet()) {
             if (first) {
                 first = false;
             } else {
-                parameterCollection.append('&');
+                parameterString.append('&');
             }
             String value = alphabeticallySorted.get(key);
-            parameterCollection.append(urlEncode(key));
-            parameterCollection.append('=');
-            parameterCollection.append(urlEncode(value));
+            parameterString.append(String.format("%s=%s", urlEncode(key), urlEncode(value)));
         }
-        return parameterCollection.toString();
+        return parameterString.toString();
     }
 
-    static String createSignatureBaseString(HttpMethod httpMethod, String url, Map<String, String> allParameters) {
+    static String createSignatureBaseString(HttpRequest httpRequest, Map<String, String> allParameters) {
         StringBuilder signature = new StringBuilder();
-        signature.append(httpMethod.toString().toUpperCase()).append('&');
-        signature.append(urlEncode(url)).append('&');
+        String methodName = httpRequest.getMethod().toString().toUpperCase();
+        signature.append(methodName).append('&');
+        signature.append(urlEncode(httpRequest.getUrl())).append('&');
         signature.append(urlEncode(createParameterString(allParameters)));
         return signature.toString();
     }
 
-    private static String randomString() {
+    private static String createRandomString() {
         return StringHelper.sha1(String.valueOf(System.currentTimeMillis()));
     }
 
-    /** https://dev.twitter.com/docs/auth/percent-encoding-parameters */
     static String urlEncode(String string) {
-        try {
-            return URLEncoder.encode(string, "UTF-8").replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException();
-        }
+        // https://dev.twitter.com/docs/auth/percent-encoding-parameters
+        return UrlHelper.encodeParameter(string).replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
     }
 
     static String createSigningKey(String consumerSecret, String tokenSecret) {
-        StringBuilder ret = new StringBuilder();
-        ret.append(urlEncode(consumerSecret));
-        ret.append('&');
+        StringBuilder signingKey = new StringBuilder();
+        signingKey.append(urlEncode(consumerSecret));
+        signingKey.append('&');
         if (tokenSecret != null) {
-            ret.append(tokenSecret);
+            signingKey.append(tokenSecret);
         }
-        return ret.toString();
+        return signingKey.toString();
     }
 
     static String createSignature(String signatureBaseString, String signingKey) {
@@ -129,11 +136,12 @@ public class OAuthUtil {
             byte[] hmacBytes = mac.doFinal(signatureBaseString.getBytes());
             return new String(Base64.encodeBase64(hmacBytes));
         } catch (InvalidKeyException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("InvalidKeyException when creating OAuth signature: " + e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(
+                    "NoSuchAlgorithmException when creating OAuth signature: " + e.getMessage(), e);
         } catch (IllegalStateException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("IllegalStateException when creating OAuth signature: " + e.getMessage(), e);
         }
     }
 

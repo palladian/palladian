@@ -1,7 +1,13 @@
 package ws.palladian.retrieval.search.web;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,14 +34,25 @@ import ws.palladian.retrieval.search.SearcherException;
  */
 public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(VimeoSearcher.class);
+
+    /** Constant for the name of this searcher. */
+    private static final String SEARCHER_NAME = "Vimeo";
+
+    /** Pattern for parsing the returned date strings. */
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+    /** Authentication data. */
     private final OAuthParams oAuthParams;
 
     /**
      * Create a new {@link VimeoSearcher}.
      * 
-     * @param oAuthParams
+     * @param oAuthParams The parameters for the OAuth-based authentication, not <code>null</code>
      */
     public VimeoSearcher(OAuthParams oAuthParams) {
+        Validate.notNull(oAuthParams, "oAuthParams must not be null");
         this.oAuthParams = oAuthParams;
     }
 
@@ -44,21 +61,21 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
      * Create a new {@link VimeoSearcher}.
      * </p>
      * 
-     * @param clientId
-     * @param clientSecret
-     * @param accessToken
-     * @param accessTokenSecret
+     * @param consumerKey The OAuth consumer key, not <code>null</code> or empty.
+     * @param consumerSecret The OAuth consumer secret, not <code>null</code> or empty.
+     * @param accessToken The OAuth access token, not <code>null</code> or empty.
+     * @param accessTokenSecret The OAuth access token secret, not <code>null</code> or empty.
      */
-    public VimeoSearcher(String clientId, String clientSecret, String accessToken, String accessTokenSecret) {
-        this(new OAuthParams(clientId, clientSecret, accessToken, accessTokenSecret));
+    public VimeoSearcher(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
+        this(new OAuthParams(consumerKey, consumerSecret, accessToken, accessTokenSecret));
     }
 
     @Override
     public String getName() {
-        return "Vimeo";
+        return SEARCHER_NAME;
     }
 
-    private HttpRequest buildRequest(String query, int page, int resultCount, Language language) {
+    private HttpRequest buildRequest(String query, int page, int resultCount) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, "http://vimeo.com/api/rest/v2");
         request.addParameter("method", "vimeo.videos.search");
         request.addParameter("query", query);
@@ -72,59 +89,83 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
     @Override
     public List<WebVideoResult> search(String query, int resultCount, Language language) throws SearcherException {
 
-        // TODO pagination available? Currently I get only 50 results max.
-
-        HttpRequest request = buildRequest(query, 1, resultCount, language);
-
-        HttpResult httpResult;
-        try {
-            httpResult = retriever.perform(request);
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
-                    + " (request: \"" + request + "\"): " + e.getMessage(), e);
-        }
-
         List<WebVideoResult> webResults = CollectionHelper.newArrayList();
-        try {
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
-            webResults.addAll(parse(jsonString));
-            System.out.println(jsonString);
-
-        } catch (Exception e) {
-            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + ": " + e.getMessage(), e);
-
+        for (int page = 0; page < Math.ceil((double)resultCount / 50); page++) {
+            int itemsToGet = Math.min(50, resultCount - page * 50);
+            HttpRequest request = buildRequest(query, page, itemsToGet);
+            LOGGER.debug("request = " + request);
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.execute(request);
+            } catch (HttpException e) {
+                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
+                        + " (request: " + request + "): " + e.getMessage(), e);
+            }
+            logRateLimits(httpResult);
+            try {
+                String jsonResult = HttpHelper.getStringContent(httpResult);
+                List<WebVideoResult> parsedVideos = parseVideoResult(jsonResult);
+                if (parsedVideos.isEmpty()) {
+                    break;
+                }
+                webResults.addAll(parsedVideos);
+            } catch (JSONException e) {
+                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                        + "\" with " + getName() + ": " + e.getMessage(), e);
+            }
         }
         return webResults;
     }
 
-    static List<WebVideoResult> parse(String jsonString) throws JSONException {
-        List<WebVideoResult> result = CollectionHelper.newArrayList();
+    private static void logRateLimits(HttpResult httpResult) {
+        int rateLimit = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Limit"));
+        int rateLimitRemaining = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Remaining"));
+        int rateLimitReset = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Reset"));
+        LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
+    }
 
+    static List<WebVideoResult> parseVideoResult(String jsonString) throws JSONException {
+        List<WebVideoResult> result = CollectionHelper.newArrayList();
         JSONArray jsonVideos = JPathHelper.get(jsonString, "videos/video", JSONArray.class);
         for (int i = 0; i < jsonVideos.length(); i++) {
             JSONObject jsonVideo = jsonVideos.getJSONObject(i);
-
             String title = JPathHelper.get(jsonVideo, "title", String.class);
             String description = JPathHelper.get(jsonVideo, "description", String.class);
-            String uploadDate = JPathHelper.get(jsonVideo, "upload_date", String.class);
+            String uploadDateString = JPathHelper.get(jsonVideo, "upload_date", String.class);
+            Date uploadDate = parseDate(uploadDateString);
             String id = JPathHelper.get(jsonVideo, "id", String.class);
-
-            WebVideoResult videoResult = new WebVideoResult("https://vimeo.com" + id, null, title, null, null);
-            System.out.println(videoResult);
-            result.add(videoResult);
+            String url = String.format("https://vimeo.com/%s", id);
+            long duration = JPathHelper.get(jsonVideo, "duration", Long.class);
+            result.add(new WebVideoResult(url, null, title, description, duration, uploadDate));
         }
-
         return result;
     }
 
-    public static void main(String[] args) throws SearcherException {
-        String clientId = "8297612f1583ce07644c3c03c6053e5575a1bd53";
-        String clientSecret = "ee7af363604085f2c6f72b62e58c767dceca3893";
-        String accessToken = "873505f0c25c364a58c4ce3d585680ad";
-        String accessTokenSecret = "69ab925e89e0e8f240ce2afe43c9b965332f35fb";
-        VimeoSearcher searcher = new VimeoSearcher(clientId, clientSecret, accessToken, accessTokenSecret);
-        searcher.search("cat", 10);
+    @Override
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
+        HttpRequest request = buildRequest(query, 0, 1);
+        try {
+            HttpResult result = retriever.execute(request);
+            logRateLimits(result);
+            return parseResultCount(HttpHelper.getStringContent(result));
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP error (request: " + request + "): " + e.getMessage(), e);
+        }
     }
+
+    static int parseResultCount(String jsonString) {
+        return JPathHelper.get(jsonString, "videos/total", Integer.class);
+    }
+
+    private static Date parseDate(String dateString) {
+        DateFormat dateParser = new SimpleDateFormat(DATE_PATTERN);
+        try {
+            return dateParser.parse(dateString);
+        } catch (ParseException e) {
+            LOGGER.error("Error parsing date string '" + dateString + "'", e);
+            return null;
+        }
+    }
+
 }
