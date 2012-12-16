@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.pos.filter.NonTagFilter;
 import ws.palladian.extraction.pos.filter.TagFilter;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
@@ -65,7 +64,9 @@ public final class LingPipePosTagger extends BasePosTagger {
      * @param modelFile The model used by the LingPipe POS tagger.
      */
     public LingPipePosTagger(File modelFile) {
-        this(modelFile, new NonTagFilter());
+        // FIXME Klemens, fixmeeeee
+        // this(modelFile, new NonTagFilter());
+        this(modelFile, null);
     }
 
     /**
