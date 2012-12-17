@@ -83,21 +83,12 @@ public abstract class Feature<T> {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        // builder.append("Feature [name=");
-        // builder.append(name);
-        // builder.append(", value=");
-        // builder.append(value);
-        // builder.append("]");
         builder.append(name);
         builder.append("=");
         builder.append(value);
         return builder.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -107,10 +98,6 @@ public abstract class Feature<T> {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

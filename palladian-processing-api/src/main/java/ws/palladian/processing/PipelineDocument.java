@@ -10,9 +10,6 @@ import ws.palladian.processing.features.FeatureVector;
  * contain the content that is processed by the pipeline and the features extracted from that content as well as some
  * modified content.
  * </p>
- * <p>
- * This class represents documents as {@code String}s and thus can be used for text documents at the moment only.
- * </p>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -22,11 +19,16 @@ public abstract class PipelineDocument<T> implements Classifiable {
 
     /**
      * <p>
-     * A vector of all features extracted for this document by some pipeline.
+     * A vector of all features extracted for this document.
      * </p>
      */
     private final FeatureVector featureVector;
 
+    /**
+     * <p>
+     * Data representing this document such as a text or image data if the document is an image.
+     * </p>
+     */
     private T content;
 
     /**
@@ -54,17 +56,6 @@ public abstract class PipelineDocument<T> implements Classifiable {
     public FeatureVector getFeatureVector() {
         return featureVector;
     }
-
-//    /**
-//     * <p>
-//     * Resets this document's {@code FeatureVector} overwriting all features previously extracted.
-//     * </p>
-//     * 
-//     * @param featureVector The new {@code FeatureVector} of this document.
-//     */
-//    public final void setFeatureVector(FeatureVector featureVector) {
-//        this.featureVector = featureVector;
-//    }
 
     /**
      * <p>
@@ -101,10 +92,6 @@ public abstract class PipelineDocument<T> implements Classifiable {
         builder.append("]");
         return builder.toString();
     }
-
-    // FIXME for hashCode/equals to work properly, FeatureVector must also implement hashCode/equals,
-    // but currently, the FeatureVector implementation's field is set to transient. Why? See issue #48
-    // https://bitbucket.org/palladian/palladian/issue/48/transient-field-in-featurevector
 
     @Override
     public int hashCode() {

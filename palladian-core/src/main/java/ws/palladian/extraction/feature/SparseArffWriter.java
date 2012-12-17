@@ -35,6 +35,7 @@ import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -302,7 +303,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
         PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
         for (String featurePath : featurePaths) {
-            List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);
+            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(), featurePath);
             handleFeature(features, newInstance);
         }
         instances.add(newInstance);
@@ -315,7 +316,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * 
      * @throws IOException If the ARFF file is not accessible.
      */
-    private void saveModel() throws IOException {
+    public void saveModel() throws IOException {
         LOGGER.info("Saving attributes:");
         FileOutputStream arffFileStream = new FileOutputStream(targetFile);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(arffFileStream));
@@ -551,10 +552,11 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     @Override
     public void processingFinished() {
-        try {
-            saveModel();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        // try {
+        // TODO does currently not work since we have no continuous processing pipeline
+        // saveModel();
+        // } catch (IOException e) {
+        // throw new IllegalStateException(e);
+        // }
     }
 }

@@ -5,13 +5,18 @@ package ws.palladian.classification;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureUtils;
+import ws.palladian.processing.features.NominalFeature;
 
 /**
  * <p>
@@ -21,6 +26,15 @@ import ws.palladian.processing.features.FeatureUtils;
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.8
+ */
+/**
+ * <p>
+ * 
+ * </p>
+ * 
+ * @author Klemens Muthmann
+ * @version 1.0
+ * @since
  */
 public final class FeatureSelector {
 
@@ -182,7 +196,104 @@ public final class FeatureSelector {
 
     }
 
-    public static void main(String[] args) {
+    /**
+     * <p>
+     * G(t) = - sum^m_i=1 Pr(ci)log Pr(ci) + Pr(t) sum^m_i=1 Pr(ci|t) log Pr(ci|t) + Pr(!t) sum^m_i=1 pr(ci|!t) log
+     * pr(ci|!t)
+     * </p>
+     * 
+     * @param featurePath
+     * @param dataset
+     * @return
+     */
+    public static <T extends NominalFeature> Map<T, Double> calculateInformationGain(String featurePath,
+            Collection<Instance> dataset) {
+        Map<T, Double> ret = new HashMap<T, Double>();
+        Map<String, Integer> classCounts = new HashMap<String, Integer>();
+        Map<String, Integer> featuresInClass = new HashMap<String, Integer>();
+        Integer sumOfFeaturesInAllClasses = 0;
+        Map<T, Integer> absoluteOccurences = new HashMap<T, Integer>();
+        Map<T, Map<String, Integer>> absoluteConditionalOccurences = new HashMap<T, Map<String, Integer>>();
+        for (Instance instance : dataset) {
+            Integer targetClassCount = classCounts.get(instance.getTargetClass());
+            if (targetClassCount == null) {
+                classCounts.put(instance.getTargetClass(), 1);
+            } else {
+                classCounts.put(instance.getTargetClass(), ++targetClassCount);
+            }
 
+            List<T> featuresList = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(), featurePath);
+            Set<T> features = new HashSet<T>(featuresList); // remove duplicates
+            for (T feature : features) {
+                Integer countOfFeaturesInClass = featuresInClass.get(instance.getTargetClass());
+                if (countOfFeaturesInClass == null) {
+                    countOfFeaturesInClass = 0;
+                }
+                featuresInClass.put(instance.getTargetClass(), ++countOfFeaturesInClass);
+                sumOfFeaturesInAllClasses++;
+
+                Integer absoluteOccurence = absoluteOccurences.get(feature);
+                if (absoluteOccurence == null) {
+                    absoluteOccurences.put(feature, 1);
+                } else {
+                    absoluteOccurences.put(feature, ++absoluteOccurence);
+                }
+
+                Map<String, Integer> absoluteConditionalOccurence = absoluteConditionalOccurences.get(feature);
+                if (absoluteConditionalOccurence == null) {
+                    absoluteConditionalOccurence = new HashMap<String, Integer>();
+                    absoluteConditionalOccurence.put(instance.getTargetClass(), 1);
+                } else {
+                    Integer occurenceInTargetClass = absoluteConditionalOccurence.get(instance.getTargetClass());
+                    if (occurenceInTargetClass == null) {
+                        absoluteConditionalOccurence.put(instance.getTargetClass(), 1);
+                    } else {
+                        absoluteConditionalOccurence.put(instance.getTargetClass(), ++occurenceInTargetClass);
+                    }
+                }
+                absoluteConditionalOccurences.put(feature, absoluteConditionalOccurence);
+            }
+        }
+
+        double classProb = 0.0d;
+        for (Entry<String, Integer> classCount : classCounts.entrySet()) {
+            double Prci = classCount.getValue().doubleValue() / dataset.size();
+            classProb += Prci * Math.log(Prci);
+        }
+
+        for (Entry<T, Integer> absoluteOccurence : absoluteOccurences.entrySet()) {
+            double G = 0.0d;
+
+            double termClassCoocurrence = 0.0d;
+            double termClassNonCoocurrence = 0.0d;
+            for (Entry<String, Integer> absoluteConditionalOccurence : absoluteConditionalOccurences.get(
+                    absoluteOccurence.getKey()).entrySet()) {
+                int classCount = classCounts.get(absoluteConditionalOccurence.getKey());
+                // Probability for class ci containing term t
+                double Prcit = laplaceSmooth(absoluteOccurences.keySet().size(),
+                        featuresInClass.get(absoluteConditionalOccurence.getKey()),
+                        absoluteConditionalOccurence.getValue());
+                termClassCoocurrence += Prcit * Math.log(Prcit);
+
+                // Probability for class ci not containing term t
+                double Prcint = laplaceSmooth(absoluteOccurences.keySet().size(), sumOfFeaturesInAllClasses
+                        - featuresInClass.get(absoluteConditionalOccurence.getKey()), dataset.size()
+                        - absoluteConditionalOccurence.getValue());
+                ;
+                termClassNonCoocurrence = Prcint * Math.log(Prcint);
+            }
+            double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() + termClassCoocurrence;
+
+            double nonTermProb = ((double)(dataset.size() - absoluteOccurence.getValue())) / dataset.size()
+                    + termClassNonCoocurrence;
+
+            G = -classProb + termProb + nonTermProb;
+            ret.put(absoluteOccurence.getKey(), G);
+        }
+        return ret;
+    }
+
+    private static double laplaceSmooth(int vocabularySize, int countOfFeature, int countOfCoocurence) {
+        return (1.0d + ((double)countOfCoocurence)) / (((double)vocabularySize) + ((double)countOfFeature));
     }
 }

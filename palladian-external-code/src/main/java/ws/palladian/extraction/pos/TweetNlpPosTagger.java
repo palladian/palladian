@@ -1,5 +1,6 @@
 package ws.palladian.extraction.pos;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ws.palladian.extraction.TagAnnotation;
@@ -24,7 +25,7 @@ import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
  * @author Philipp Katz
  */
 public class TweetNlpPosTagger extends BasePosTagger {
-    
+
     private static final String TAGGER_NAME = "ark-tweet-nlp";
     private static final TwokenizeTokenizer TOKENIZER = new TwokenizeTokenizer();
 
@@ -40,7 +41,7 @@ public class TweetNlpPosTagger extends BasePosTagger {
         List<String> tags = tweetTagger.getTagsForOneSentence(words);
         assert words.size() == tags.size();
         for (int i = 0; i < tags.size(); i++) {
-            assignTag(annotations.get(i), tags.get(i));
+            assignTag(annotations.get(i), Arrays.asList(new String[] {tags.get(i)}));
         }
     }
 

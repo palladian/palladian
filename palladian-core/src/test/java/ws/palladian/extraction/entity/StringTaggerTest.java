@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class StringTaggerTest {
@@ -33,13 +30,13 @@ public class StringTaggerTest {
         assertEquals("U.S.S. Enterprise", annotations.get(5).getEntity());
 
         // names
-        taggedText = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is";
+        taggedText = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
 
         taggedText = StringTagger.tagString(taggedText);
         annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         CollectionHelper.print(annotations);
 
-        assertEquals(13, annotations.size());
+        assertEquals(14, annotations.size());
         assertEquals("Mr. Yakomoto", annotations.get(0).getEntity());
         assertEquals("John J. Smith", annotations.get(1).getEntity());
         assertEquals("Bill Drody", annotations.get(2).getEntity());
@@ -53,6 +50,7 @@ public class StringTaggerTest {
         assertEquals("Night", annotations.get(10).getEntity());
         assertEquals("THURSDAY", annotations.get(11).getEntity());
         assertEquals("St. Petersburg", annotations.get(12).getEntity());
+        assertEquals("Dr. Mark Litwin", annotations.get(13).getEntity());
         // assertEquals("Google Inc.", annotations.get(12).getEntity());
 
         // composites
