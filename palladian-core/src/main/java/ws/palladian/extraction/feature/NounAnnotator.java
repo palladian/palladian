@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.pos.BasePosTagger;
-import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
@@ -21,8 +20,8 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
- * Annotates all nouns in a text. The text must have been processed by an {@link AbstractSentenceDetector} and a
- * {@link BaseTokenizer}.
+ * Annotates all nouns in a text. The text must have been processed by a {@link BaseTokenizer} and a
+ * {@link BasePosTagger}.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -35,8 +34,15 @@ public final class NounAnnotator extends TextDocumentPipelineProcessor implement
 
     private final String featureIdentifier;
 
+    /**
+     * <p>
+     * Create a new NounAnnotator with the specified identifier used for all created noun annotations.
+     * </p>
+     * 
+     * @param featureIdentifier The identifier of the noun annotations, not <code>null</code> or empty.
+     */
     public NounAnnotator(String featureIdentifier) {
-        Validate.notNull(featureIdentifier, "featureIdentifier must not be null");
+        Validate.notEmpty(featureIdentifier, "featureIdentifier must not be empty");
         this.featureIdentifier = featureIdentifier;
     }
 
