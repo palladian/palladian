@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import opennlp.tools.postag.POSModel;
@@ -63,7 +64,7 @@ public final class OpenNlpPosTagger extends BasePosTagger {
         List<String> tokenList = getTokenList(annotations);
         String[] tags = tagger.tag(tokenList.toArray(new String[annotations.size()]));
         for (int i = 0; i < tags.length; i++) {
-            assignTag(annotations.get(i), tags[i]);
+            assignTag(annotations.get(i), Arrays.asList(new String[] {tags[i]}));
         }
     }
 

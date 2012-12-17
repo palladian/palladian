@@ -56,12 +56,13 @@ public class SparseArffWriterTest {
         SparseArffWriter objectOfClassUnderTest = new SparseArffWriter(tempFile.getAbsolutePath(), featureNames);
         objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
         objectOfClassUnderTest.process();
-        objectOfClassUnderTest.processingFinished();
+        objectOfClassUnderTest.saveModel();
+        // objectOfClassUnderTest.processingFinished();
 
         // File arffFile = new File("sparsearffwritertest");
 
         String actualArffFile = FileHelper.readFileToString(tempFile);
-        System.out.println(actualArffFile);
+        // System.out.println(actualArffFile);
         assertThat(actualArffFile, is(expectedArffFile));
         // // FileUtils.forceDelete(arffFile);
     }

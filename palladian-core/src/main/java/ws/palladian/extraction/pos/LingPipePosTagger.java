@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.pos.filter.TagFilter;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.Cache;
@@ -45,6 +46,13 @@ public final class LingPipePosTagger extends BasePosTagger {
     /** The model used by the LingPipe POS tagger. */
     private final HiddenMarkovModel model;
 
+    /**
+     * <p>
+     * Used for filter and replace tags and thus reducing the set of possible tags.
+     * </p>
+     */
+    private final TagFilter tagFilter;
+
     /** The tokenizer used by the LingPipe POS tagger. */
     private static final LingPipeTokenizer TOKENIZER = new LingPipeTokenizer();
 
@@ -53,11 +61,28 @@ public final class LingPipePosTagger extends BasePosTagger {
      * Instantiate a new LingPipe POS tagger from the given model.
      * </p>
      * 
-     * @param modelFile
+     * @param modelFile The model used by the LingPipe POS tagger.
      */
     public LingPipePosTagger(File modelFile) {
+        // FIXME Klemens, fixmeeeee
+        // this(modelFile, new NonTagFilter());
+        this(modelFile, null);
+    }
+
+    /**
+     * <p>
+     * Creates a new completely initalized LingPipe PoS tagger from the given model using the provided {@link TagFilter}
+     * .
+     * </p>
+     * 
+     * @param modelFile The model used by the LingPipe POS tagger.
+     * @param tagFilter Used for filter and replace tags and thus reducing the set of possible tags.
+     */
+    public LingPipePosTagger(File modelFile, TagFilter tagFilter) {
         Validate.notNull(modelFile, "modelFile must not be null");
+        Validate.notNull(tagFilter);
         this.model = loadModel(modelFile);
+        this.tagFilter = tagFilter;
     }
 
     /**
@@ -97,7 +122,7 @@ public final class LingPipePosTagger extends BasePosTagger {
         Tagging<String> tagging = posTagger.tag(tokenList);
 
         for (int i = 0; i < tagging.size(); i++) {
-            assignTag(annotations.get(i), tagging.tag(i));
+            assignTag(annotations.get(i), tagFilter.filter(tagging.tag(i)));
         }
     }
 

@@ -96,6 +96,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
 
         // add attribute for the classification target
         FastVector targetClassVector = new FastVector();
+        targetClassVector.addElement("wekadummyclass");
         for (String targetClass : classes) {
             targetClassVector.addElement(targetClass);
         }
@@ -115,7 +116,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
                 values[j] = featureValue.getValue();
                 j++;
             }
-            indices[j] = classIndex;
+            indices[j] = classIndex - 1;
             values[j] = classAttribute.indexOfValue(targetClass);
             SparseInstance wekaInstance = new SparseInstance(1.0, values, indices, wekaFeatureSet.size());
             wekaInstance.setDataset(data);
@@ -123,7 +124,9 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         }
 
         data.compactify();
-        data.setClassIndex(classIndex - 1);
+        // data.setClassIndex(classIndex - 1);
+        Attribute palladianWekaTargetClass = data.attribute("palladianWekaTargetClass");
+        data.setClassIndex(palladianWekaTargetClass.index());
         try {
             classifier.buildClassifier(data);
         } catch (Exception e) {
