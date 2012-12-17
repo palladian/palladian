@@ -2,7 +2,9 @@ package ws.palladian.extraction.pos;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -10,10 +12,10 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
+import ws.palladian.extraction.pos.filter.NonTagFilter;
 import ws.palladian.extraction.pos.filter.TagFilter;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
-import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -64,9 +66,7 @@ public final class LingPipePosTagger extends BasePosTagger {
      * @param modelFile The model used by the LingPipe POS tagger.
      */
     public LingPipePosTagger(File modelFile) {
-        // FIXME Klemens, fixmeeeee
-        // this(modelFile, new NonTagFilter());
-        this(modelFile, null);
+        this(modelFile, new NonTagFilter());
     }
 
     /**
@@ -81,32 +81,51 @@ public final class LingPipePosTagger extends BasePosTagger {
     public LingPipePosTagger(File modelFile, TagFilter tagFilter) {
         Validate.notNull(modelFile, "modelFile must not be null");
         Validate.notNull(tagFilter);
-        this.model = loadModel(modelFile);
+        InputStream modelStream = null;
+        try {
+            modelStream = new FileInputStream(modelFile);
+            this.model = loadModel(modelStream);
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException(e);
+        } finally {
+            FileHelper.close(modelStream);
+        }
+        this.tagFilter = tagFilter;
+    }
+
+    public LingPipePosTagger(InputStream modelStream, TagFilter tagFilter) {
+        Validate.notNull(modelStream, "modelStream must not be null");
+        Validate.notNull(tagFilter, "No tag filter specified. If you don't want to filter tags use NonTagFilter.");
+        this.model = loadModel(modelStream);
         this.tagFilter = tagFilter;
     }
 
     /**
-     * @param modelFile
+     * <p>
+     * Loads the trained PoS tagger model.
+     * </p>
+     * 
+     * @param modelStream The {@link InputStream} containing the data of the model to load.
      */
-    private HiddenMarkovModel loadModel(File modelFile) {
-        String modelFilePath = modelFile.getAbsolutePath();
-        HiddenMarkovModel ret = (HiddenMarkovModel)Cache.getInstance().getDataObject(modelFilePath);
-        if (ret == null) {
-            ObjectInputStream inputStream = null;
-            try {
-                inputStream = new ObjectInputStream(new FileInputStream(modelFile));
-                ret = (HiddenMarkovModel)inputStream.readObject();
-                Cache.getInstance().putDataObject(modelFilePath, model);
-            } catch (IOException e) {
-                throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
-                        + e.getMessage());
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
-                        + e.getMessage());
-            } finally {
-                FileHelper.close(inputStream);
-            }
+    private HiddenMarkovModel loadModel(InputStream modelStream) {
+        // TODO this does not work with streams correctly. However streams are necessary to run this tagger from within
+        // executable jars.
+        // HiddenMarkovModel ret = (HiddenMarkovModel)Cache.getInstance().getDataObject(modelFilePath);
+        HiddenMarkovModel ret = null;
+        // if (ret == null) {
+        ObjectInputStream inputStream = null;
+        try {
+            inputStream = new ObjectInputStream(modelStream);
+            ret = (HiddenMarkovModel)inputStream.readObject();
+            // Cache.getInstance().putDataObject(modelFilePath, model);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error while loading model file: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Error while loading model file: " + e.getMessage());
+        } finally {
+            FileHelper.close(inputStream);
         }
+        // }
         return ret;
     }
 
