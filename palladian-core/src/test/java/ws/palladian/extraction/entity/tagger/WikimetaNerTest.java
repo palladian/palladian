@@ -22,8 +22,8 @@ public class WikimetaNerTest {
 
     @BeforeClass
     public static void loadData() throws FileNotFoundException {
-        ORIGINAL_TEXT = FileHelper.readFileToString(ResourceHelper.getResourceFile("NewsSampleText.txt"));
-        XML_FILE = ResourceHelper.getResourceFile("WikimetaResponse.xml");
+        ORIGINAL_TEXT = FileHelper.readFileToString(ResourceHelper.getResourceFile("/NewsSampleText.txt"));
+        XML_FILE = ResourceHelper.getResourceFile("/apiResponse/WikimetaResponse.xml");
     }
 
     @Test
