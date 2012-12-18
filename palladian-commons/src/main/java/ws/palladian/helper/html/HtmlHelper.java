@@ -60,7 +60,7 @@ public class HtmlHelper {
     /** HTML block level elements. */
     private static final List<String> BLOCK_ELEMENTS = Arrays.asList("address", "blockquote", "div", "dl", "fieldset",
             "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "noscript", "ol", "p", "pre", "table", "ul", "dd", "dt",
-            "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map", "object", "script");
+            "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map", "object", "script", "br");
 
     /** "Junk" elements which do not contain relevant content. */
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
@@ -785,10 +785,11 @@ public class HtmlHelper {
         StringBuilder sb = new StringBuilder();
 
         // System.out.println(node.getNodeName()+node.getTextContent());
-        if (node.getTextContent() != null) {
+        String textContent = node.getTextContent();
+        if (textContent != null) {
 
             if (node.getNodeName().equalsIgnoreCase("#text")) {
-                sb.append(node.getTextContent());
+                sb.append(textContent);
             }
 
         }
