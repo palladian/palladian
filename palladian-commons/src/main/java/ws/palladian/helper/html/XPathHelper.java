@@ -53,7 +53,7 @@ public final class XPathHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(XPathHelper.class);
-    
+
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<String, String>();
 
@@ -95,35 +95,35 @@ public final class XPathHelper {
      * @return Matching nodes for the given XPath expression, or an empty {@link List} if no nodes match or an error
      *         occurred.
      */
-//    @SuppressWarnings("unchecked")
+    //    @SuppressWarnings("unchecked")
     public static List<Node> getNodes(Node node, String xPath, Map<String, String> namespaces) {
-//        Validate.notNull(node, "node must not be null.");
-//        Validate.notEmpty(xPath, "xPath must not be empty.");
-//
-//        List<Node> nodes = new ArrayList<Node>();
-//
-//        try {
-//
-//            DOMXPath xpathObj = new DOMXPath(xPath);
-//            SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
-//            namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-//            if (namespaces != null) {
-//                for (Entry<String, String> entry : namespaces.entrySet()) {
-//                    String prefix = entry.getKey();
-//                    String uri = entry.getValue();
-//                    namespaceContext.addNamespace(prefix, uri);
-//                }
-//            }
-//            xpathObj.setNamespaceContext(namespaceContext);
-//
-//            nodes = xpathObj.selectNodes(node);
-//
-//        } catch (JaxenException e) {
-//            LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
-//        }
-//
-//        return nodes;
-        
+        //        Validate.notNull(node, "node must not be null.");
+        //        Validate.notEmpty(xPath, "xPath must not be empty.");
+        //
+        //        List<Node> nodes = new ArrayList<Node>();
+        //
+        //        try {
+        //
+        //            DOMXPath xpathObj = new DOMXPath(xPath);
+        //            SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
+        //            namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+        //            if (namespaces != null) {
+        //                for (Entry<String, String> entry : namespaces.entrySet()) {
+        //                    String prefix = entry.getKey();
+        //                    String uri = entry.getValue();
+        //                    namespaceContext.addNamespace(prefix, uri);
+        //                }
+        //            }
+        //            xpathObj.setNamespaceContext(namespaceContext);
+        //
+        //            nodes = xpathObj.selectNodes(node);
+        //
+        //        } catch (JaxenException e) {
+        //            LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
+        //        }
+        //
+        //        return nodes;
+
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
@@ -571,7 +571,7 @@ public final class XPathHelper {
      * @param xPath The XPath, not <code>null</code> or empty.
      * @return The XPath with included XHTML namespace.
      */
-    static String addXhtmlNsToXPath(String xPath) {
+    public static String addXhtmlNsToXPath(String xPath) {
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
         if (xPath.toLowerCase(Locale.ENGLISH).indexOf("xhtml:") > -1) {
@@ -582,15 +582,15 @@ public final class XPathHelper {
         // for example in @type='application/rss+xml'
         // RegEx from http://stackoverflow.com/questions/632475/regex-to-pick-commas-outside-of-quotes
         // return xPath.replaceAll("(/)(?=\\w(?:[^']|'[^']*')*$)", "/xhtml:");
-//        return xPath.replaceAll("(/)(?=\\w+(\\[|\\/|$)(?:[^']|'[^']*')*$)", "/xhtml:");
-        
+        //        return xPath.replaceAll("(/)(?=\\w+(\\[|\\/|$)(?:[^']|'[^']*')*$)", "/xhtml:");
+
         // The RegEx-based implementation is very error prone, therefore I changed it the following method. It splits up
         // the XPath in individual parts, and for every part we check, whether the "xhtml:" prefix needs to be added
         // (which is the case for node names like "body", "h1", ..., but not for functions like text() and logical
         // operators like "and", "or"). Similar to the RegEx-based approach, this is most likely not 100 % accurate, but
         // for tests achieved a more accurate transformation. If you discover any inaccuracies, please try to fix the
         // existing code below and add tests. Philipp, 2012-08-08
-        
+
         List<String> xPathParts = new ArrayList<String>();
         StringBuilder buf = new StringBuilder();
         List<Character> split = Arrays.asList('/', ' ', '[', ']', '|');
@@ -608,7 +608,7 @@ public final class XPathHelper {
                 xPathParts.add(buf.toString());
             }
         }
-        
+
         StringBuilder result = new StringBuilder();
         for (String xPathPart : xPathParts) {
             if (xPathPart.matches("[a-zA-Z][\\w]*|\\*") && !xPathPart.matches("and|or")) {
