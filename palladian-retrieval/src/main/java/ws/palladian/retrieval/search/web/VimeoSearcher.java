@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -43,6 +44,15 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
     /** Pattern for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
+    /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
+    public static final String CONFIG_CONSUMER_KEY = "api.vimeo.consumerKey";
+    /** The identifier for the {@link Configuration} key with the OAuth consumer secret. */
+    public static final String CONFIG_CONSUMER_SECRET = "api.vimeo.consumerSecret";
+    /** The identifier for the {@link Configuration} key with the OAuth access token. */
+    public static final String CONFIG_ACCESS_TOKEN = "api.vimeo.accessToken";
+    /** The identifier for the {@link Configuration} key with the OAuth access token secret. */
+    public static final String CONFIG_ACCESS_TOKEN_SECRET = "api.vimeo.accessTokenSecret";
+
     /** Authentication data. */
     private final OAuthParams oAuthParams;
 
@@ -68,6 +78,22 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
      */
     public VimeoSearcher(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
         this(new OAuthParams(consumerKey, consumerSecret, accessToken, accessTokenSecret));
+    }
+
+    /**
+     * <p>
+     * Create a new {@link VimeoSearcher}.
+     * </p>
+     * 
+     * @param configuration A {@link Configuration} instance providing the necessary parameters for OAuth authentication
+     *            ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
+     *            {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
+     */
+    public VimeoSearcher(Configuration configuration) {
+        Validate.notNull(configuration, "configuration must not be null");
+        this.oAuthParams = new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
+                configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
+                configuration.getString(CONFIG_ACCESS_TOKEN_SECRET));
     }
 
     @Override

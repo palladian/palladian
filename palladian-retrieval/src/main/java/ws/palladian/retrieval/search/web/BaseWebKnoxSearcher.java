@@ -48,7 +48,6 @@ abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
      * @param apiKey The api key for accessing WebKnox.
      */
     public BaseWebKnoxSearcher(String apiKey) {
-        super();
         Validate.notEmpty(apiKey, "api key must not be empty");
         this.apiKey = apiKey;
     }
