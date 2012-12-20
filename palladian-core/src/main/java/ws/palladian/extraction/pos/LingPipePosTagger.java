@@ -108,16 +108,11 @@ public final class LingPipePosTagger extends BasePosTagger {
      * @param modelStream The {@link InputStream} containing the data of the model to load.
      */
     private HiddenMarkovModel loadModel(InputStream modelStream) {
-        // TODO this does not work with streams correctly. However streams are necessary to run this tagger from within
-        // executable jars.
-        // HiddenMarkovModel ret = (HiddenMarkovModel)Cache.getInstance().getDataObject(modelFilePath);
         HiddenMarkovModel ret = null;
-        // if (ret == null) {
         ObjectInputStream inputStream = null;
         try {
             inputStream = new ObjectInputStream(modelStream);
             ret = (HiddenMarkovModel)inputStream.readObject();
-            // Cache.getInstance().putDataObject(modelFilePath, model);
         } catch (IOException e) {
             throw new IllegalStateException("Error while loading model file: " + e.getMessage());
         } catch (ClassNotFoundException e) {
@@ -125,7 +120,6 @@ public final class LingPipePosTagger extends BasePosTagger {
         } finally {
             FileHelper.close(inputStream);
         }
-        // }
         return ret;
     }
 
