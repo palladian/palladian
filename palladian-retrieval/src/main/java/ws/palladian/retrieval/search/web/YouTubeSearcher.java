@@ -86,17 +86,18 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
     }
 
     private String getRequestUrl(String query, int resultCount, Language language) {
-        String url = "https://gdata.youtube.com/feeds/api/videos?q=" + UrlHelper.encodeParameter(query);
-        url += "&orderby=relevance";
-        url += "&start-index=1";
-        url += "&max-results=" + Math.min(50, resultCount);
-        url += "&v=2";
-        url += "&alt=json";
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("https://gdata.youtube.com/feeds/api/videos?q=");
+        urlBuilder.append(UrlHelper.encodeParameter(query));
+        urlBuilder.append("&orderby=relevance");
+        urlBuilder.append("&start-index=1");
+        urlBuilder.append("&max-results=" + Math.min(50, resultCount));
+        urlBuilder.append("&v=2");
+        urlBuilder.append("&alt=json");
         if (apiKey != null && !apiKey.isEmpty()) {
-            url += "&key=" + apiKey;
+            urlBuilder.append("&key=").append(apiKey);
         }
-
-        return url;
+        return urlBuilder.toString();
     }
 
     @Override
