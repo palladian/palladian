@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,14 +36,35 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
     /** The pattern for parsing the returned dates. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SZ";
 
+    /** The identifier for the {@link Configuration} key with the api key. */
+    public static final String CONFIG_API_KEY = "api.googleplus.key";
+
     /** The API key for accessing Google+ API. */
     private final String apiKey;
 
     /**
-     * @param apiKey
+     * <p>
+     * Create a new searcher for Google+.
+     * </p>
+     * 
+     * @param apiKey The API key for accessing the service, not <code>null</code> or empty.
      */
     public GooglePlusSearcher(String apiKey) {
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+    }
+
+    /**
+     * <p>
+     * Create a new searcher for Google+.
+     * </p>
+     * 
+     * @param configuration The configuration instance providing an API key for accessing Google+ with the identifier
+     *            {@value #CONFIG_API_KEY}, not <code>null</code>.
+     */
+    public GooglePlusSearcher(Configuration configuration) {
+        Validate.notNull(configuration, "configuration must not be null");
+        this.apiKey = configuration.getString(CONFIG_API_KEY);
     }
 
     @Override

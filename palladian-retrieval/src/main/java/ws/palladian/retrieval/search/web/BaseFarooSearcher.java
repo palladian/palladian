@@ -33,16 +33,6 @@ abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
 
     /**
      * <p>
-     * Creates a new faroo searcher.
-     * </p>
-     * 
-     */
-    public BaseFarooSearcher() {
-        super();
-    }
-
-    /**
-     * <p>
      * Supported languages are English, German, and Chinese.
      * </p>
      */

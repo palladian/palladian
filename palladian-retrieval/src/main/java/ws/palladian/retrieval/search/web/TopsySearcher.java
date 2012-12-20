@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +26,18 @@ public final class TopsySearcher extends BaseTopsySearcher {
      */
     public TopsySearcher(String apiKey) {
         super(apiKey);
+    }
+
+    /**
+     * <p>
+     * Create a new Topsy searcher with an API key provided by a {@link Configuration} instance.
+     * </p>
+     * 
+     * @param configuration The Configuration providing the required API key via key {@value #CONFIG_API_KEY}, not
+     *            <code>null</code>.
+     */
+    public TopsySearcher(Configuration configuration) {
+        super(configuration);
     }
 
     @Override
