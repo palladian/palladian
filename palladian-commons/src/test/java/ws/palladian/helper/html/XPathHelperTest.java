@@ -51,6 +51,8 @@ public class XPathHelperTest {
         
         assertEquals("//xhtml:div|//xhtml:p", XPathHelper.addXhtmlNsToXPath("//div|//p"));
         assertEquals("//xhtml:div/xhtml:a|//xhtml:p/xhtml:a", XPathHelper.addXhtmlNsToXPath("//div/a|//p/a"));
+        
+        assertEquals("//xhtml:a[not(.//xhtml:img)]", XPathHelper.addXhtmlNsToXPath("//a[not(.//img)]"));
     }
 
     @Test
