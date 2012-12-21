@@ -14,9 +14,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -29,7 +30,7 @@ import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 public class RomeFeedParserTest {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(RomeFeedParserTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RomeFeedParserTest.class);
 
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z", Locale.US);
 

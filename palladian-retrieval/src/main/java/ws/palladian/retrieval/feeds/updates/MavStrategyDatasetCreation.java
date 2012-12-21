@@ -2,7 +2,8 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
@@ -21,7 +22,7 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 public class MavStrategyDatasetCreation extends UpdateStrategy {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MavStrategyDatasetCreation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MavStrategyDatasetCreation.class);
 
     /**
      * <p>

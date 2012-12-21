@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -24,7 +25,7 @@ import ws.palladian.retrieval.helper.HttpHelper;
 class DatasetProcessingAction extends DefaultFeedProcessingAction {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetProcessingAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetProcessingAction.class);
     
     private final FeedStore feedStore;
     
@@ -65,7 +66,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         if (newItems == feed.getWindowSize() && feed.getChecks() > 1 && newItems > 0) {
             feed.increaseMisses();
             newEntriesToWrite.add("MISS;;;;;;");
-            LOGGER.fatal("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
+            LOGGER.error("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
                     + feed.getChecks() + ", misses: " + feed.getMisses());
         }
 

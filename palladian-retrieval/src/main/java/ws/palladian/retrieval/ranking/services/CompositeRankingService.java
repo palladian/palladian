@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -23,7 +24,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class CompositeRankingService extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(CompositeRankingService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompositeRankingService.class);
 
     private final List<RankingService> rankingServices;
 

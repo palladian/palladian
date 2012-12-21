@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -36,7 +37,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class SharethisStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(SharethisStats.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SharethisStats.class);
 
     /** {@link Configuration} key for the secret. */
     public static final String CONFIG_SECRET = "api.sharethis.secret";

@@ -5,7 +5,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
@@ -26,7 +27,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 public class FeedClassifier {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedClassifier.class);
 
     public static void classifyFeedInStore(final FeedStore feedStore) {
         List<Feed> feeds = feedStore.getFeeds();

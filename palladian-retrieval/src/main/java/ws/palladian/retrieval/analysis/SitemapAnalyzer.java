@@ -13,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.ProgressHelper;
@@ -50,7 +51,7 @@ import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 public class SitemapAnalyzer {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SitemapAnalyzer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SitemapAnalyzer.class);
 
     /** The result table. */
     private final ConcurrentHashMap<String, Map<String, Object>> resultTable;
@@ -190,7 +191,7 @@ public class SitemapAnalyzer {
                 writer.append("\n");
             }
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while writing to {}", analysisResultFilePath, e);
         } finally {
             FileHelper.close(writer);
         }

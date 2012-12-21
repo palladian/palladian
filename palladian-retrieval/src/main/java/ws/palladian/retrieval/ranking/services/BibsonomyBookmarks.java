@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -38,7 +39,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class BibsonomyBookmarks extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(BibsonomyBookmarks.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BibsonomyBookmarks.class);
 
     /** {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.bibsonomy.key";

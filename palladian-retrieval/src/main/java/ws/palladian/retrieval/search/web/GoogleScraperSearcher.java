@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -34,7 +35,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(GoogleScraperSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleScraperSearcher.class);
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 

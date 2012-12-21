@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.retrieval.HttpException;
@@ -25,7 +26,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class GoogleCachedPage extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(GoogleCachedPage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCachedPage.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "Google Cache";
@@ -98,7 +99,7 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
                     long millisToSleep = THROTTLING_INTERVAL_MS - millisSinceLastRequest;
                     Thread.sleep(millisToSleep);
                 } catch (InterruptedException e) {
-                    LOGGER.error(e);
+                    LOGGER.warn("InterruptedException");
                 }
             }
         }

@@ -17,7 +17,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.ProgressHelper;
@@ -43,7 +44,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 public class FeedImporter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedImporter.class);
 
     /** Maximum number of simultaneous threads when adding multiple feeds at once. */
     private int numThreads = 10;
@@ -139,7 +140,7 @@ public class FeedImporter {
                     }
 
                     if (added) {
-                        LOGGER.debug(infoMsg);
+                        LOGGER.debug(infoMsg.toString());
                     } else {
                         LOGGER.error("database error while adding feed " + cleanedURL);
                     }
@@ -211,7 +212,7 @@ public class FeedImporter {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                LOGGER.error(e);
+                LOGGER.warn("Encountered InterruptedException");
             }
         }
 

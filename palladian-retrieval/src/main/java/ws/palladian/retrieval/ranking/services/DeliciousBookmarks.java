@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -35,7 +36,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class DeliciousBookmarks extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(DeliciousBookmarks.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeliciousBookmarks.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "delicious";

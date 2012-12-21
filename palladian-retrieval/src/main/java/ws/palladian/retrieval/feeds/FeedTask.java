@@ -10,7 +10,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.impl.cookie.DateUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
@@ -37,7 +38,7 @@ import ws.palladian.retrieval.helper.HttpHelper;
 class FeedTask implements Callable<FeedTaskResult> {
 
     /** The logger for this class. */
-    private final static Logger LOGGER = Logger.getLogger(FeedTask.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FeedTask.class);
 
     /**
      * The feed retrieved by this task.

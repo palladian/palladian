@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -27,7 +28,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class Webutation extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(Webutation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Webutation.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "webutation";
