@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -32,7 +33,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class MajesticSeo extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MajesticSeo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MajesticSeo.class);
 
     /** {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.majestic.key";
@@ -83,9 +84,10 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
         Ranking ranking = new Ranking(this, url, results);
 
         String encUrl = UrlHelper.encodeParameter(url);
+        String requestUrl = "http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
+                + "&url=" + encUrl;
         try {
-            HttpResult httpResult = retriever.httpGet("http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
-                    + "&url=" + encUrl);
+            HttpResult httpResult = retriever.httpGet(requestUrl);
             DocumentParser xmlParser = ParserFactory.createXmlParser();
             Document doc = xmlParser.parse(httpResult);
             Node refDomainsNode = XPathHelper.getNode(doc, "/Results/Result/@StatsRefDomains");
@@ -96,9 +98,9 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
                 results.put(REFERRING_DOMAINS, 0f);
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            LOGGER.error("HttpException for {}", requestUrl, e);
         } catch (ParserException e) {
-            LOGGER.error(e);
+            LOGGER.error("ParserException", e);
         }
         return ranking;
     }

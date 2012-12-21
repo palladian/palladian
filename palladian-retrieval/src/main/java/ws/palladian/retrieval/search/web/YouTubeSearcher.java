@@ -10,10 +10,11 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -35,7 +36,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(YouTubeSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 
     /** Key of the {@link Configuration} item which contains the API key. */
     public static final String CONFIG_API_KEY = "api.youtube.key";

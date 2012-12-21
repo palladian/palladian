@@ -6,10 +6,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
@@ -28,7 +29,7 @@ import ws.palladian.retrieval.search.SearcherException;
 abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(BaseWebKnoxSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseWebKnoxSearcher.class);
 
     /** The base URL endpoint of the WebKnox service. */
     protected static final String BASE_SERVICE_URL = "http://webknox.com/api/";

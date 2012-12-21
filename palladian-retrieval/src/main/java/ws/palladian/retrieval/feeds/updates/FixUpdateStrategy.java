@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
@@ -19,7 +20,7 @@ import ws.palladian.retrieval.feeds.FeedUpdateMode;
 public class FixUpdateStrategy extends UpdateStrategy {
 
     /** The logger for this class. */
-    private final static Logger LOGGER = Logger.getLogger(FixUpdateStrategy.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FixUpdateStrategy.class);
 
     /**
      * The check interval in minutes.

@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -31,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class AlexaRank extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(AlexaRank.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlexaRank.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "alexa";
@@ -61,9 +62,9 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
                 results.put(POPULARITY_RANK, 0f);
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            LOGGER.error("HttpException while getting ranking for {}", url, e);
         } catch (ParserException e) {
-            LOGGER.error(e);
+            LOGGER.error("ParserException while gettings ranking for {}", url, e);
         }
 
         Ranking ranking = new Ranking(this, url, results);

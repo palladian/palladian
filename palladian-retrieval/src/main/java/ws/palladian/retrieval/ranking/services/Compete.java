@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -31,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class Compete extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(Compete.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Compete.class);
 
     /** {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.compete.key";
@@ -107,9 +108,9 @@ public final class Compete extends BaseRankingService implements RankingService 
                 LOGGER.warn("error: status = " + status);
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            LOGGER.error("HttpException while for {}", requestUrl, e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            LOGGER.error("JSONException", e);
         }
 
         return result;

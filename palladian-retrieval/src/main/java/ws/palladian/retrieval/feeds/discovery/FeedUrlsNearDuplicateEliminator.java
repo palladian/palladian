@@ -14,7 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -32,7 +33,7 @@ import ws.palladian.helper.io.LineAction;
 public class FeedUrlsNearDuplicateEliminator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedUrlsNearDuplicateEliminator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedUrlsNearDuplicateEliminator.class);
 
     /** Be sure, to sort the Strings in a way, so that no String in the Array is contained in its successor. */
     private static final String[] ATOM = new String[] { "atom10", "atom1.0", "atom_1.0", "atom_10", "atom" };
@@ -119,7 +120,7 @@ public class FeedUrlsNearDuplicateEliminator {
             matcher.reset();
             
             if (numMatches > 1) {
-                LOGGER.fatal("Found too many feed formats in : " + link + " - can't deduplicate.");
+                LOGGER.error("Found too many feed formats in : {} - can't deduplicate.", link);
             } else if (numMatches == 1) {
                 while (matcher.find()) {
                     format = matcher.group();

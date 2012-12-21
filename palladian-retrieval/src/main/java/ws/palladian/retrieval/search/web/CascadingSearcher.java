@@ -3,7 +3,8 @@ package ws.palladian.retrieval.search.web;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -22,7 +23,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public class CascadingSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(CascadingSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CascadingSearcher.class);
 
     private List<WebSearcher<WebResult>> searchers;
 

@@ -7,7 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.retrieval.HttpResult;
@@ -26,7 +27,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class Foursquare extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(Foursquare.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Foursquare.class);
 
     /** {@link Configuration} key for the client id. */
     public static final String CONFIG_CLIENT_ID = "api.foursquare.clientId";

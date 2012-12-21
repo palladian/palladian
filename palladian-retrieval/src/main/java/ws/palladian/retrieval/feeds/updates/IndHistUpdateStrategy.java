@@ -3,7 +3,8 @@ package ws.palladian.retrieval.feeds.updates;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
@@ -26,7 +27,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 public class IndHistUpdateStrategy extends UpdateStrategy {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(IndHistUpdateStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndHistUpdateStrategy.class);
 
     /**
      * The data base to load the model from.
@@ -85,7 +86,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
      */
     protected void updateCheckInterval(Feed feed) {
         if (feed.getLastPollTime() == null) {
-            LOGGER.fatal("Feed id " + feed.getId()
+            LOGGER.error("Feed id " + feed.getId()
                     + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
             feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
 
@@ -216,7 +217,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
             LOGGER.error("Feed id " + feed.getId() + " contains no model for strategy IndHist, reloading it from db.");
             getModelFromDB(feed);
             if (!additionalData.containsKey(MODEL_IDENTIFIER)) {
-                LOGGER.fatal("Feed id " + feed.getId()
+                LOGGER.error("Feed id " + feed.getId()
                         + " db contains no model for strategy IndHist, assuming update rate of 0.0 .");
                 return hourlyRates;
             }

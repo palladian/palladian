@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -29,7 +30,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class GooglePlusLikes extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(GooglePlusLikes.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GooglePlusLikes.class);
 
     /** The id of this service. */
     public static final String SERVICE_ID = "googleplus";

@@ -8,10 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
@@ -32,7 +33,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class FacebookLinkStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(FacebookLinkStats.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FacebookLinkStats.class);
 
     private static final String FQL_QUERY = "https://api.facebook.com/method/fql.query?format=json&query=select+total_count,like_count,comment_count,share_count+from+link_stat+where+";
 
@@ -78,8 +79,8 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
 
             String encUrl = UrlHelper.encodeParameter(url);
             JSONObject json = null;
+            String requestUrl = FQL_QUERY + "url='" + encUrl + "'";
             try {
-                String requestUrl = FQL_QUERY + "url='" + encUrl + "'";
                 HttpResult httpResult = retriever.httpGet(requestUrl);
 
                 JSONArray jsonArray = new JSONArray(HttpHelper.getStringContent(httpResult));
@@ -87,7 +88,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                     json = jsonArray.getJSONObject(0);
                 }
             } catch (HttpException e) {
-                LOGGER.error(e);
+                LOGGER.error("HttpException for {}", requestUrl, e);
             }
             if (json != null) {
                 results.put(LIKES, (float)json.getInt("like_count"));

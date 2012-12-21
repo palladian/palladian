@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
 
@@ -28,7 +29,7 @@ import ws.palladian.helper.io.FileHelper;
 public class DownloadFilter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DownloadFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadFilter.class);
 
     /** The file types to include. */
     private Set<String> whitelist;

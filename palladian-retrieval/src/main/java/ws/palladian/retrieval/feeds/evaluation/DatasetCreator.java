@@ -11,7 +11,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
@@ -51,7 +52,7 @@ public class DatasetCreator {
 
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetCreator.class);
 
     /** Path to the folder where the dataset is stored. */
     public static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
@@ -429,12 +430,12 @@ public class DatasetCreator {
                     LOGGER.info("ulimit -n: " + input);
                     fileDescriptors = Integer.parseInt(input);
                 } catch (NumberFormatException e) {
-                    LOGGER.fatal("Could not process number of available file handles: " + e.getLocalizedMessage()
+                    LOGGER.error("Could not process number of available file handles: " + e.getLocalizedMessage()
                             + "\n" + stdErrorMsg);
                 }
             }
             if (fileDescriptors <= 0) {
-                LOGGER.fatal("Illegal number of file descriptors: " + fileDescriptors + ". " + stdErrorMsg);
+                LOGGER.error("Illegal number of file descriptors: " + fileDescriptors + ". " + stdErrorMsg);
                 return;
             }
 
@@ -449,7 +450,7 @@ public class DatasetCreator {
              * data set.
              */
             if (threadPoolSize * FILE_HANDLES_PER_TASK <= fileDescriptors) {
-                LOGGER.fatal("More file handles required! \n" + "threadPoolSize=" + threadPoolSize
+                LOGGER.error("More file handles required! \n" + "threadPoolSize=" + threadPoolSize
                         + ", available file descriptors=" + fileDescriptors
                         + ", minimum required file descriptors would be " + threadPoolSize * FILE_HANDLES_PER_TASK
                         + "\n" + stdErrorMsg);

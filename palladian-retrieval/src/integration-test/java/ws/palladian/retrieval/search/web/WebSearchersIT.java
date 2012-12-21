@@ -9,11 +9,12 @@ import java.util.List;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -31,7 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public class WebSearchersIT {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WebSearchersIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSearchersIT.class);
 
     private final WebSearcher<?> searcher;
 
@@ -93,10 +94,10 @@ public class WebSearchersIT {
         try {
             StopWatch stopWatch = new StopWatch();
             List<?> result = searcher.search("cat", 30);
-            LOGGER.info("# results for query from " + searcher.getName() + ": " + result.size());
-            LOGGER.info("query took " + stopWatch);
+            LOGGER.info("# results for query from {}: {}", searcher.getName(), result.size());
+            LOGGER.info("query took {}", stopWatch);
         } catch (SearcherException e) {
-            LOGGER.error("Fail for " + searcher.getName() + ": " + e.getMessage(), e);
+            LOGGER.error("Fail for {}: {}", new Object[] {searcher.getName(), e.getMessage(), e});
             fail();
         }
     }

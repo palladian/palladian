@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -36,7 +37,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class FriendfeedAggregatedStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(FriendfeedAggregatedStats.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FriendfeedAggregatedStats.class);
 
     private static final String GET_ENTRIES = "http://friendfeed.com/api/feed/url?url=";
 

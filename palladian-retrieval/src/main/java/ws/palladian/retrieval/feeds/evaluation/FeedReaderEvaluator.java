@@ -2,7 +2,8 @@ package ws.palladian.retrieval.feeds.evaluation;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.io.FileHelper;
@@ -26,7 +27,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 public class FeedReaderEvaluator {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(FeedReaderEvaluator.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(FeedReaderEvaluator.class);
 
     /** Benchmark off. */
     public static final int BENCHMARK_OFF = 0;

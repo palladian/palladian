@@ -13,7 +13,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CountMap;
 
@@ -31,7 +32,7 @@ class SchedulerTask extends TimerTask {
     /**
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
      */
-    private static final Logger LOGGER = Logger.getLogger(SchedulerTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerTask.class);
 
     /**
      * The collection of all the feeds this scheduler should create update
@@ -169,19 +170,19 @@ class SchedulerTask extends TimerTask {
         if (!feed.isBlocked()) {
             if (feed.getChecks() + feed.getUnreachableCount() + feed.getUnparsableCount() >= 3
                     && feed.getAverageProcessingTime() >= MAXIMUM_AVERAGE_PROCESSING_TIME_MS) {
-                LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") takes on average too long to process and is therefore blocked (never scheduled again)!"
                         + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
                 feed.setBlocked(true);
                 feedReader.updateFeed(feed);
             } else if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
-                LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unreachable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
                 feed.setBlocked(true);
                 feedReader.updateFeed(feed);
             } else if (feed.getChecks() < feed.getUnparsableCount() / CHECKS_TO_UNPARSABLE_RATIO) {
-                LOGGER.fatal("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
+                LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unparsable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unparsableCount = " + feed.getUnparsableCount());
                 feed.setBlocked(true);
@@ -217,9 +218,9 @@ class SchedulerTask extends TimerTask {
             try {
                 feedResults.add(future.get());
             } catch (InterruptedException e) {
-                LOGGER.error(e);
+                LOGGER.error("Encountered InterruptedException");
             } catch (ExecutionException e) {
-                LOGGER.error(e);
+                LOGGER.error("Encountered ExecutionException", e);
             }
         }
     }

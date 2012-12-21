@@ -2,13 +2,12 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * An implementation of the update strategy described in [LIHZ08]
@@ -22,7 +21,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 public class LIHZUpdateStrategy extends UpdateStrategy {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(IndHistUpdateStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndHistUpdateStrategy.class);
 
     /**
      * Identifier to be used to store the trained model as additional date with the feed.
@@ -50,7 +49,7 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
     @Override
     public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
         if (feed.getLastPollTime() == null) {
-            LOGGER.fatal("Feed id " + feed.getId()
+            LOGGER.error("Feed id " + feed.getId()
                     + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
             feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
 

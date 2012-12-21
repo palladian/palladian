@@ -10,10 +10,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.MapBuilder;
@@ -35,7 +36,7 @@ import ws.palladian.retrieval.search.SearcherException;
 abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(BaseBingSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseBingSearcher.class);
 
     /** The base URL endpoint of the Bing service. */
     private static final String BASE_SERVICE_URL = "https://api.datamarket.azure.com/Bing/Search/v1/";

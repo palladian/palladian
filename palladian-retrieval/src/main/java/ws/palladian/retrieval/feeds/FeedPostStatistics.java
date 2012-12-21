@@ -166,7 +166,7 @@ public class FeedPostStatistics {
             }
 
             if (warnings.length() > 0) {
-                FeedReader.LOGGER.warn(warnings);
+                FeedReader.LOGGER.warn(warnings.toString());
             }
 
             // in benchmark mode we simulate the lookup time, otherwise it's the current time

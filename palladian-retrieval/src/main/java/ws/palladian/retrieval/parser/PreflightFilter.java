@@ -1,13 +1,14 @@
 package ws.palladian.retrieval.parser;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.xerces.util.XMLChar;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLAttributes;
 import org.apache.xerces.xni.XNIException;
 import org.cyberneko.html.filters.DefaultFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -23,7 +24,7 @@ import org.cyberneko.html.filters.DefaultFilter;
 class PreflightFilter extends DefaultFilter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PreflightFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PreflightFilter.class);
 
     @Override
     public void startElement(QName element, XMLAttributes attributes, Augmentations augs) throws XNIException {
@@ -31,7 +32,7 @@ class PreflightFilter extends DefaultFilter {
             cleanAttributes(attributes);
             super.startElement(element, attributes, augs);
         } else {
-            LOGGER.debug("**** start ingoring element " + element.rawname);
+            LOGGER.debug("**** start ingoring element {}", element.rawname);
         }
     }
 
@@ -41,7 +42,7 @@ class PreflightFilter extends DefaultFilter {
             cleanAttributes(attributes);
             super.emptyElement(element, attributes, augs);
         } else {
-            LOGGER.debug("**** ignoring element " + element.rawname);
+            LOGGER.debug("**** ignoring element {}", element.rawname);
         }
     }
 
@@ -50,7 +51,7 @@ class PreflightFilter extends DefaultFilter {
         if (isAcceptedElement(element.prefix, element.uri)) {
             super.endElement(element, augs);
         } else {
-            LOGGER.debug("**** end ingoring element " + element.rawname);
+            LOGGER.debug("**** end ingoring element {}", element.rawname);
         }
     }
 
@@ -90,7 +91,7 @@ class PreflightFilter extends DefaultFilter {
     private void cleanAttributes(XMLAttributes attributes) {
         for (int i = attributes.getLength() - 1; i >= 0; i--) {
             if (!isAcceptedElement(attributes.getPrefix(i), attributes.getURI(i))) {
-                LOGGER.debug("**** removing attribute " + attributes.getPrefix(i) + ":" + attributes.getQName(i));
+                LOGGER.debug("**** removing attribute {}:{}", attributes.getPrefix(i), attributes.getQName(i));
                 attributes.removeAttributeAt(i);
             }
 
@@ -100,7 +101,7 @@ class PreflightFilter extends DefaultFilter {
             // -- Philipp, 2010-05-31
             if (attributes.getQName(i) != null
                     && (attributes.getQName(i).equals(":") || !XMLChar.isValidName(attributes.getQName(i)))) {
-                LOGGER.debug("**** removing invalid attribute " + attributes.getQName(i));
+                LOGGER.debug("**** removing invalid attribute {}", attributes.getQName(i));
                 attributes.removeAttributeAt(i);
             }
             
@@ -108,7 +109,7 @@ class PreflightFilter extends DefaultFilter {
             // […] It follows that in a namespace-well-formed document:
             // All element and attribute names contain either zero or one colon; […]
             else if (StringUtils.countMatches(attributes.getQName(i), ":") > 1) {
-                LOGGER.debug("**** removing invalid attribute " + attributes.getQName(i));
+                LOGGER.debug("**** removing invalid attribute {}", attributes.getQName(i));
                 attributes.removeAttributeAt(i);
             }
         }

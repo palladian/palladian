@@ -10,10 +10,11 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -35,7 +36,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public final class TwitterSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(TwitterSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterSearcher.class);
 
     /** The result type for which to search. */
     public static enum ResultType {
