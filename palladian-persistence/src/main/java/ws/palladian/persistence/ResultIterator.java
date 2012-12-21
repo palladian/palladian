@@ -8,7 +8,8 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -23,7 +24,7 @@ import org.apache.log4j.Logger;
 public class ResultIterator<T> implements Iterator<T>, Closeable {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ResultIterator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResultIterator.class);
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static final class NullIterator extends ResultIterator {
@@ -80,7 +81,7 @@ public class ResultIterator<T> implements Iterator<T>, Closeable {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("Encountered SQLException while iterating", e);
         }
         return hasNext;
     }

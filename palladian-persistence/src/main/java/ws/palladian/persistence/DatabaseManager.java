@@ -12,7 +12,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -33,7 +34,7 @@ import org.apache.log4j.Logger;
 public class DatabaseManager {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseManager.class);
 
     /**
      * The {@link DataSource} providing Connection to the underlying database.
@@ -676,21 +677,21 @@ public class DatabaseManager {
             try {
                 resultSet.close();
             } catch (SQLException e) {
-                LOGGER.error("error closing ResultSet : " + e.getMessage());
+                LOGGER.error("error closing ResultSet : {}", e.getMessage());
             }
         }
         if (statement != null) {
             try {
                 statement.close();
             } catch (SQLException e) {
-                LOGGER.error("error closing Statement : " + e.getMessage());
+                LOGGER.error("error closing Statement : {}", e.getMessage());
             }
         }
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
-                LOGGER.error("error closing Connection : " + e.getMessage());
+                LOGGER.error("error closing Connection : {}", e.getMessage());
             }
         }
     }

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
 public class ProcessingPipeline {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ProcessingPipeline.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingPipeline.class);
 
     /** The processors this pipeline will execute as ordered by this list from the first to the last. */
     private final List<PipelineProcessor> pipelineProcessors;
@@ -274,7 +275,7 @@ public class ProcessingPipeline {
      */
     protected void executePostProcessingHook(PipelineProcessor processor) {
         // Subclasses should add code they want to run after the execution of every processor here.
-        LOGGER.debug("Start processing on " + processor.getClass().getName());
+        LOGGER.debug("Start processing on {}", processor.getClass().getName());
     }
 
     /**
@@ -287,7 +288,7 @@ public class ProcessingPipeline {
      */
     protected void executePreProcessingHook(PipelineProcessor processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
-        LOGGER.debug("Finished processing on " + processor.getClass().getName());
+        LOGGER.debug("Finished processing on {}", processor.getClass().getName());
     }
 
     @Override
