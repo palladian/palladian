@@ -129,6 +129,28 @@ public final class FeatureUtils {
             }
         }
     }
+
+    /**
+     * <p>
+     * Finds all occurrences of the {@link Feature} inside the provided {@link FeatureVector} including its
+     * {@link Feature}s {@link FeatureVector}s.
+     * </p>
+     * 
+     * @param feature An instance of the {@link Feature} to search for.
+     * @param featureVector The {@link FeatureVector} to search.
+     * @return A {@link List} of the found {@link Feature}s.
+     */
+    public static List<? extends Feature<?>> find(Feature<?> feature, FeatureVector featureVector) {
+        List<Feature<?>> ret = new ArrayList<Feature<?>>();
+        for (Feature<?> existingFeature : featureVector) {
+            if (existingFeature.getName().equals(feature.getName())) {
+                ret.add(existingFeature);
+            } else if (existingFeature instanceof Classifiable) {
+                ret.addAll(find(feature, featureVector));
+            }
+        }
+        return ret;
+    }
 }
 
 /**
