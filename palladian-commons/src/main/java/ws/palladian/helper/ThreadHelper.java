@@ -3,15 +3,20 @@ package ws.palladian.helper;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThreadHelper {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadHelper.class);
+
 
     public static void deepSleep(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -19,7 +24,7 @@ public class ThreadHelper {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 

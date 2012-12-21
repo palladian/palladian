@@ -16,7 +16,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -29,7 +30,7 @@ import org.apache.log4j.Logger;
 public class SendMail {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SendMail.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SendMail.class);
 
     private String smtpHost;
     private int smtpPort;
@@ -125,9 +126,9 @@ public class SendMail {
             success = true;
 
         } catch (AddressException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while sending", e);
         } catch (MessagingException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while sending", e);
         }
 
         return success;

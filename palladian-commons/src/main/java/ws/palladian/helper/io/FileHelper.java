@@ -38,7 +38,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -67,7 +68,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public final class FileHelper {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
     /** The encoding used by this class, instead of relying on the System's default encoding. */
     private static final String DEFAULT_ENCODING = "UTF-8";
@@ -746,7 +747,7 @@ public final class FileHelper {
             writer.append(stringToAppend);
             success = true;
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while appending to {}", filePath, e);
         } finally {
             close(writer);
         }
@@ -849,7 +850,7 @@ public final class FileHelper {
             success = true;
 
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while prepending to {}", filePath, e);
         } finally {
             close(randomAccessFile);
         }

@@ -11,7 +11,8 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -24,7 +25,7 @@ import org.apache.log4j.Logger;
 public class Mailer {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(Mailer.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(Mailer.class);
 
     private Session session;
 
