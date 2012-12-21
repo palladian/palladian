@@ -33,7 +33,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -55,7 +56,7 @@ import ws.palladian.helper.UrlHelper;
 public class HtmlHelper {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(HtmlHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HtmlHelper.class);
 
     /** HTML block level elements. */
     private static final List<String> BLOCK_ELEMENTS = Arrays.asList("address", "blockquote", "div", "dl", "fieldset",
@@ -540,9 +541,9 @@ public class HtmlHelper {
                 emptyTextNode.getParentNode().removeChild(emptyTextNode);
             }
         } catch (XPathExpressionException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while removing whitespace", e);
         } catch (DOMException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while removing whitespace", e);
         }
 
         return result;
@@ -558,11 +559,11 @@ public class HtmlHelper {
             transformer.transform(source, result);
             success = true;
         } catch (TransformerConfigurationException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while writing to file", e);
         } catch (TransformerFactoryConfigurationError e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while writing to file", e);
         } catch (TransformerException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while writing to file", e);
         }
         return success;
     }

@@ -16,7 +16,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.RegExp;
@@ -35,6 +36,9 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  * @author Martin Gregor
  */
 public final class StringHelper {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(StringHelper.class);
 
     /** Used to replace a semicolon in a string to store it in csv file that uses semicolon to separate fields. */
     private static final String SEMICOLON_REPLACEMENT = "###putSemicolonHere###";
@@ -350,16 +354,10 @@ public final class StringHelper {
         try {
             pat = Pattern.compile(RegExp.STRING);
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.STRING, e);
-            return false;
+            throw new IllegalStateException("Error compiling the predefined RegEx.");
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find()) {
-            return true;
-        }
-
-        return false;
+        return m.find();
     }
 
     public static boolean containsWordRegExp(Collection<String> words, String searchString) {
@@ -411,7 +409,7 @@ public final class StringHelper {
         try {
             pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            LOGGER.error("PatternSyntaxException for {} with regExp {}", new Object[] {searchString, regexp, e});
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -529,9 +527,7 @@ public final class StringHelper {
         try {
             pattern = Pattern.compile(RegExp.NUMBER);
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.NUMBER, e);
-            return false;
+            throw new IllegalStateException("Error compiling the predefined RegEx.");
         }
         Matcher matcher = pattern.matcher(searchString);
         return matcher.find();
@@ -600,7 +596,7 @@ public final class StringHelper {
             string = string.replaceAll("\\[.*?\\]", "");
             string = string.replaceAll("\\{.*?\\}", "");
         } catch (Exception e) {
-            Logger.getRootLogger().error(string + ", " + e.getMessage());
+            LOGGER.error("{}, {}", string, e.getMessage());
         }
         return string.trim();
     }
@@ -631,7 +627,7 @@ public final class StringHelper {
             string = string.replace("-", "\\-");
             string = string.replaceAll("\\n", "\\\\n");
         } catch (Exception e) {
-            Logger.getRootLogger().error(string + ", " + e.getMessage());
+            LOGGER.error("{}, {}", string, e.getMessage());
         }
         return string;
     }
@@ -737,7 +733,7 @@ public final class StringHelper {
 
             }
         } catch (NumberFormatException e) {
-            Logger.getRootLogger().debug(m.group() + ", " + e.getMessage());
+            LOGGER.debug("{}, {}", m.group(), e.getMessage());
             return false;
         }
 

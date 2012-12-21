@@ -1,7 +1,7 @@
 package ws.palladian.helper;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -75,7 +75,7 @@ public final class ProgressHelper {
                 processString.append(")");
 
                 if (logger != null) {
-                    logger.info(processString);
+                    logger.info(processString.toString());
                 } else {
                     System.out.println(processString);
                 }

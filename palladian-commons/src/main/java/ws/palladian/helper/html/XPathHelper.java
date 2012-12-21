@@ -17,7 +17,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -52,7 +53,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 public final class XPathHelper {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(XPathHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XPathHelper.class);
 
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<String, String>();
@@ -150,7 +151,7 @@ public final class XPathHelper {
             }
         } catch (XPathExpressionException e) {
             // TODO this exception should be thrown
-            LOGGER.error(e + " for XPath \"" + xPath + "\" : " + e.getMessage(), e);
+            LOGGER.error("{} for XPath \"{}\" : {}", new Object[] {e, xPath, e.getMessage(), e});
         }
 
         return ret;
