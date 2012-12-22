@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.NominalFeature;
@@ -16,7 +17,7 @@ import ws.palladian.semantics.WordDB;
 public class WiktionaryPosTagger extends BasePosTagger {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WiktionaryPosTagger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WiktionaryPosTagger.class);
 
     private static final String TAGGER_NAME = "WiktionaryPosTagger";
 
@@ -125,7 +126,7 @@ public class WiktionaryPosTagger extends BasePosTagger {
                     // search a word in the database
                     Word word = wordDb.getWord(token);
 
-                    LOGGER.debug(word);
+                    LOGGER.debug("{}", word);
 
                     if (word != null) {
                         type = word.getType();

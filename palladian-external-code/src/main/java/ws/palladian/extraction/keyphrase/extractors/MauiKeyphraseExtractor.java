@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -59,7 +60,7 @@ import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MauiKeyphraseExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MauiKeyphraseExtractor.class);
 
     /** Maui filter object */
     private MauiFilter mauiFilter = null;
@@ -127,7 +128,7 @@ public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
         try {
             mauiFilter.setInputFormat(data);
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while calling MauiFilter#setInputFormat", e);
         }
     }
 
@@ -148,7 +149,7 @@ public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
         try {
             mauiFilter.input(data.instance(0));
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while calling MauiFilter#input", e);
         }
         data = data.stringFreeStructure();
         numTrainDocs++;
@@ -159,7 +160,7 @@ public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
         try {
             mauiFilter.batchFinished();
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while calling MauiFilter#batchFinished", e);
         }
         while ((mauiFilter.output()) != null) {
             // noop
@@ -167,7 +168,7 @@ public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
         try {
             saveModel();
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception saving the model", e);
         }
     }
 
@@ -211,11 +212,11 @@ public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
             in.close();
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("FileNotFoundException for {}", modelName, e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException for {}", modelName, e);
         } catch (ClassNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("ClassNotFoundException", e);
         }
     }
 
@@ -238,7 +239,7 @@ public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
         try {
             mauiFilter.input(data.instance(0));
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while calling MauiFilter#input", e);
         }
 
         data = data.stringFreeStructure();
@@ -271,7 +272,7 @@ public final class MauiKeyphraseExtractor extends KeyphraseExtractor {
         try {
             mauiFilter.batchFinished();
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while calling MauiFilter#batchFinished", e);
         }
         return result;
     }

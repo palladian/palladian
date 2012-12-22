@@ -9,9 +9,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -49,7 +50,7 @@ import ws.palladian.retrieval.resources.WebImage;
 public class PalladianContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ReadabilityContentExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadabilityContentExtractor.class);
 
     private static final List<String> MAIN_NODE_HINTS = new ArrayList<String>();
 

@@ -6,7 +6,8 @@ import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
@@ -36,7 +37,7 @@ import ws.palladian.processing.features.FeatureVector;
 public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ContentDateRater.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDateRater.class);
 
     private static final String CLASSIFIER_MODEL_PUB = "/dates_pub_model.gz";
     private static final String CLASSIFIER_MODEL_MOD = "/dates_mod_model.gz";

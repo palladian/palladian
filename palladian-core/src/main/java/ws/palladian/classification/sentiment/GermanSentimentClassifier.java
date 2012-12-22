@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -33,7 +33,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public class GermanSentimentClassifier extends AbstractSentimentClassifier implements Serializable {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(GermanSentimentClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GermanSentimentClassifier.class);
     
     /** Serial Version UID. */
     private static final long serialVersionUID = 3611658830894765273L;
@@ -217,7 +217,6 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     }
 
     public static void main(String[] args) {
-        Logger.getLogger(GermanSentimentClassifier.class).setLevel(Level.DEBUG);
         GermanSentimentClassifier gsc = null;
         
         // build the model

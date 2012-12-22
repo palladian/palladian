@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.StopWatch;
@@ -24,7 +25,7 @@ import ws.palladian.retrieval.resources.WebLink;
 public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ContentTypeClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeClassifier.class);
 
     private static final String[] SEARCH_TRIGGERS = {"suchergebnis", "suchergebnisse", "search result",
             "search results"};

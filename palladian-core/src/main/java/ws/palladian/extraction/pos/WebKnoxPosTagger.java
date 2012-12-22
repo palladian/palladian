@@ -3,9 +3,10 @@ package ws.palladian.extraction.pos;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
@@ -24,7 +25,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 public class WebKnoxPosTagger extends BasePosTagger {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WebKnoxPosTagger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxPosTagger.class);
 
     /** The name of this POS tagger. */
     private static final String TAGGER_NAME = "WebKnox POS Tagger";

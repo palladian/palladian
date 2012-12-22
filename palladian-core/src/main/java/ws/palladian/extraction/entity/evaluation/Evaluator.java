@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -26,7 +27,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public class Evaluator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(Evaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
     private static final String EVALUATION_PATH = "data/temp/nerEvaluation/";
 

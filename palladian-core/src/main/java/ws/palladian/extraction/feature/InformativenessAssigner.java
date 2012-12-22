@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
@@ -23,7 +23,7 @@ import ws.palladian.retrieval.RetrieverCallback;
 public class InformativenessAssigner {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(InformativenessAssigner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InformativenessAssigner.class);
 
     private HashMap<String, Double> tokenFrequencies = CollectionHelper.newHashMap();
     private Map<String, Double> normalizedTokenFrequencies = CollectionHelper.newHashMap();
@@ -243,7 +243,6 @@ public class InformativenessAssigner {
 
         StopWatch sw = new StopWatch();
 
-        Logger.getRootLogger().setLevel(Level.INFO);
         InformativenessAssigner ia = new InformativenessAssigner();
         ia.initTokenFrequencyMap();
 

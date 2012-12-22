@@ -5,7 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.StringReader;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -34,7 +35,7 @@ import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
 public class BoilerpipeContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(BoilerpipeContentExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoilerpipeContentExtractor.class);
 
     private final ExtractorBase extractor;
     private TextDocument textDocument;
