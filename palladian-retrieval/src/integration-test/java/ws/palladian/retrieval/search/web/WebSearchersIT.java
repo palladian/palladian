@@ -64,8 +64,8 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new TopsyUrlSearcher(configuration)});
         searchers.add(new Object[] {new TwitterSearcher()});
         searchers.add(new Object[] {new VimeoSearcher(configuration)});
-        // searchers.add(new Object[] {new WebKnoxNewsSearcher(configuration)});
-        // searchers.add(new Object[] {new WebKnoxSearcher(configuration)});
+        searchers.add(new Object[] {new WebKnoxNewsSearcher(configuration)});
+        searchers.add(new Object[] {new WebKnoxSearcher(configuration)});
         searchers.add(new Object[] {new WikipediaSearcher()});
         searchers.add(new Object[] {new YouTubeSearcher()});
         return searchers;
