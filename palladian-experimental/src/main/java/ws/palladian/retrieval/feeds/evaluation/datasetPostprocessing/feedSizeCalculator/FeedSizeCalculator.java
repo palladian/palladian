@@ -2,7 +2,8 @@ package ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.feedSizeCa
 
 import java.util.Timer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -22,7 +23,7 @@ public class FeedSizeCalculator {
 
     /** The logger for this class. */
     @SuppressWarnings("unused")
-    private static final Logger LOGGER = Logger.getLogger(FeedSizeCalculator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedSizeCalculator.class);
 
     /**
      * Schedule all {@link CsvToDbTask}s

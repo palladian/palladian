@@ -9,7 +9,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections15.bag.HashBag;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -27,7 +28,7 @@ public class FeedSizeCalculationScheduler extends TimerTask {
     /**
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
      */
-    private static final Logger LOGGER = Logger.getLogger(FeedSizeCalculationScheduler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedSizeCalculationScheduler.class);
 
     /**
      * The thread pool managing threads that read feeds from the feed sources

@@ -21,7 +21,8 @@ import net.sourceforge.jwbf.mediawiki.actions.util.RedirectFilter;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
@@ -50,7 +51,7 @@ import ws.palladian.retrieval.wiki.queries.RevisionsByTitleQuery;
 public class MediaWikiCrawler implements Runnable {
 
     /** The global logger */
-    private static final Logger LOGGER = Logger.getLogger(MediaWikiCrawler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MediaWikiCrawler.class);
 
     /** do not call LOGGER.isTraceEnabled()() 1000 times */
     private static final boolean TRACE = LOGGER.isTraceEnabled();
@@ -215,12 +216,12 @@ public class MediaWikiCrawler implements Runnable {
                     Thread.sleep(LOGIN_RETRY_TIME);
                 } catch (InterruptedException e) {
                     if (DEBUG) {
-                        LOGGER.debug(e);
+                        LOGGER.debug("", e);
                     }
                 }
                 login();
             } else {
-                LOGGER.fatal("Could not log in MediaWiki \"" + mwDescriptor.getWikiApiURL().toString() + " for "
+                LOGGER.error("Could not log in MediaWiki \"" + mwDescriptor.getWikiApiURL().toString() + " for "
                         + maxConsecutiveLoginErrors + " times in a row - I give up!");
                 stopCrawler();
             }
@@ -244,7 +245,7 @@ public class MediaWikiCrawler implements Runnable {
         try {
             basicInfo = new BasicInformationQuery(bot, pageTitle);
         } catch (VersionException e) {
-            LOGGER.fatal("Retrieving basic Information from Wiki is not supported by this Wiki version", e);
+            LOGGER.error("Retrieving basic Information from Wiki is not supported by this Wiki version", e);
             return false;
         }
 
@@ -354,7 +355,7 @@ public class MediaWikiCrawler implements Runnable {
                 // apt = new AllPageTitles(bot, namespaceID);
                 apt = new AllPageTitles(bot, null, "Dresden", RedirectFilter.all, namespaceID); // test for Philipp
             } catch (VersionException e) {
-                LOGGER.fatal("Retrieving all page titles from Wiki is not supported by this version", e);
+                LOGGER.error("Retrieving all page titles from Wiki is not supported by this version", e);
                 return;
             }
 
@@ -740,7 +741,7 @@ public class MediaWikiCrawler implements Runnable {
             newPages = new RecentChanges(bot, convertDateToWikiFormat(mwDescriptor.getLastCheckForModifications()),
                     mwDescriptor.getNamespacesToCrawlAsArray(), "new");
         } catch (VersionException e) {
-            LOGGER.fatal("Retrieving recent changes from Wiki is not supported by this version. "
+            LOGGER.error("Retrieving recent changes from Wiki is not supported by this version. "
                     + "Caution! The crawler will not get any new page or revision!", e);
             return;
         }
@@ -782,7 +783,7 @@ public class MediaWikiCrawler implements Runnable {
             newPages = new RecentChanges(bot, convertDateToWikiFormat(mwDescriptor.getLastCheckForModifications()),
                     mwDescriptor.getNamespacesToCrawlAsArray(), "edit");
         } catch (VersionException e) {
-            LOGGER.fatal("Retrieving recent changes from Wiki is not supported by this version. "
+            LOGGER.error("Retrieving recent changes from Wiki is not supported by this version. "
                     + "Caution! The crawler will not get any new page or revision!", e);
             return;
         }
@@ -896,7 +897,7 @@ public class MediaWikiCrawler implements Runnable {
 
                 pageQueue.put(page);
             } catch (InterruptedException e) {
-                LOGGER.warn(e);
+                LOGGER.warn("", e);
             } catch (NullPointerException e) {
                 LOGGER.error("Could not put page \"" + pageTitle + "\" to pageQuele: page does not exist.");
             }

@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
@@ -24,7 +25,7 @@ import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollingStrategy;
  */
 public class ChartCreator {
 
-    private static final Logger LOGGER = Logger.getLogger(ChartCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChartCreator.class);
 
     private static final String FEED_SIZE_HISTOGRAM_FILE_PATH = "data/temp/feedSizeHistogrammData.csv";
     private static final String FEED_AGE_FILE_PATH = "data/temp/feedAgeData.csv";
@@ -155,7 +156,7 @@ public class ChartCreator {
         if (outputWritten) {
             LOGGER.info("feedSizeHistogrammFile written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
         } else {
-            LOGGER.fatal("feedSizeHistogrammFile has not been written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
+            LOGGER.error("feedSizeHistogrammFile has not been written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
         }
     }
 
@@ -218,7 +219,7 @@ public class ChartCreator {
         if (outputWritten) {
             LOGGER.info("feedAgeFile written to: " + FEED_AGE_FILE_PATH);
         } else {
-            LOGGER.fatal("feedAgeFile has not been written to: " + FEED_AGE_FILE_PATH);
+            LOGGER.error("feedAgeFile has not been written to: " + FEED_AGE_FILE_PATH);
         }
     }
 
@@ -334,7 +335,7 @@ public class ChartCreator {
         if (outputWritten) {
             LOGGER.info(filePath + " has been written");
         } else {
-            LOGGER.fatal(filePath + " has NOT been written!");
+            LOGGER.error(filePath + " has NOT been written!");
         }
     }
 
@@ -560,7 +561,7 @@ public class ChartCreator {
             if (outputWritten) {
                 LOGGER.info(fileName + " has been written");
             } else {
-                LOGGER.fatal(fileName + " has NOT been written!");
+                LOGGER.error(fileName + " has NOT been written!");
             }
         }
     }

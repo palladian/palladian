@@ -69,7 +69,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
             similarDocuments = loadOrCreateBTree(recordManager, "similarDocuments", new IntegerComparator());
 
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while opening index", e);
         }
 
     }
@@ -123,7 +123,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
             recordManager.commit();
 
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while adding document", e);
         }
     }
 
@@ -141,7 +141,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
             recordManager.commit();
 
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while adding document similarity", e);
         }
     }
 
@@ -156,7 +156,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
                 result = Collections.emptySet();
             }
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while getting documents for hash", e);
         }
 
         return result;
@@ -178,7 +178,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
                 result = Collections.emptySet();
             }
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while getting sketch for document", e);
         }
 
         return result;
@@ -195,7 +195,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
                 result = Collections.emptySet();
             }
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while getting similar documents", e);
         }
 
         return result;
@@ -216,7 +216,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
             }
 
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException while getting similar documents", e);
         }
 
         return result;

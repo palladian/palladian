@@ -12,7 +12,8 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
@@ -37,7 +38,7 @@ public class EvaluationSchedulerTask extends TimerTask {
     /**
      * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
      */
-    private static final Logger LOGGER = Logger.getLogger(EvaluationSchedulerTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EvaluationSchedulerTask.class);
 
     /**
      * The collection of all the feeds this scheduler should create update

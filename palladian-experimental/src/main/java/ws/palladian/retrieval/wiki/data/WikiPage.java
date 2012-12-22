@@ -7,7 +7,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.html.HtmlHelper;
 
@@ -19,7 +20,7 @@ import ws.palladian.helper.html.HtmlHelper;
 public class WikiPage {
 
     /** The global logger */
-    private static final Logger LOGGER = Logger.getLogger(WikiPage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikiPage.class);
 
     /** Unique identifier of the Wiki this page is in, created by data base. */
     private Integer wikiID = null;

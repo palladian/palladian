@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -30,7 +31,7 @@ import ws.palladian.retrieval.helper.HttpHelper;
 class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SessionIdFixProcessingAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionIdFixProcessingAction.class);
     
     private final FeedDatabase feedStore;
     
@@ -181,7 +182,7 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
         
         PollMetaInformation pollMetaInfo = feedStore.getFeedPoll(feed.getId(), new Timestamp(correctedTime));
         if (pollMetaInfo == null) {
-            LOGGER.fatal("Could not load PollMetaInformation from DB for feed id " + feed.getId()
+            LOGGER.error("Could not load PollMetaInformation from DB for feed id " + feed.getId()
                     + " and pollTimestamp " + new Date(correctedTime) + ". PollMetaInformations has not been updated!");
             return false;
         }

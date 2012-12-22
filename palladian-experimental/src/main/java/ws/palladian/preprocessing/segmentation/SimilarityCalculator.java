@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CountMap;
@@ -24,7 +25,7 @@ import ws.palladian.helper.math.MathHelper;
 public class SimilarityCalculator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SimilarityCalculator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimilarityCalculator.class);
 
     /**
      * Calculates the similarity between two documents by counting their tag-q-grams.

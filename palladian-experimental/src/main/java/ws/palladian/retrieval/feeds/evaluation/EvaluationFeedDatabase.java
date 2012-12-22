@@ -13,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.RowConverter;
@@ -36,7 +37,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
 
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(EvaluationFeedDatabase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EvaluationFeedDatabase.class);
 
     private static final String TABLE_REPLACEMENT = "###TABLE_NAME###";
 

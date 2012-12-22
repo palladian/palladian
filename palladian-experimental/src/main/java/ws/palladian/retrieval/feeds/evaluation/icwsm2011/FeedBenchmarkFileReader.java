@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -22,7 +23,7 @@ import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 @Deprecated
 public class FeedBenchmarkFileReader {
 
-    protected static final Logger LOGGER = Logger.getLogger(FeedBenchmarkFileReader.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(FeedBenchmarkFileReader.class);
 
     private Feed feed;
     private FeedReader feedChecker;
