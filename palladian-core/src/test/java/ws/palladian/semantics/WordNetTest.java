@@ -1,15 +1,13 @@
 package ws.palladian.semantics;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import junit.framework.Assert;
-
 import org.junit.Ignore;
 import org.junit.Test;
-
-import ws.palladian.semantics.WordNet;
 
 /**
  * Test for WordNet helper class. Test cases are not executed automatically, as WordNet files need to be installed.
@@ -214,7 +212,7 @@ public class WordNetTest {
         for (Entry<String, String> entry : testSet.entrySet()) {
             String ingForm = entry.getKey();
             String normForm = entry.getValue();
-            Assert.assertEquals(normForm, WordNet.gerundToInfinitive(ingForm));
+            assertEquals(normForm, WordNet.gerundToInfinitive(ingForm));
         }
     }
 
