@@ -1,8 +1,9 @@
 package ws.palladian.retrieval.feeds.evaluation.encodingFix;
 
-import java.util.List;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.Assert;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -62,12 +63,12 @@ public class EncodingFixer2Test {
 
             // make sure, that the test files were actually read
             // this would not be necessary, if we had adequate exceptions ... but ... well :)
-            Assert.assertFalse("gold is empty : " + test, gold.isEmpty());
-            Assert.assertFalse("bug is empty : " + test, bug.isEmpty());
+            assertFalse("gold is empty : " + test, gold.isEmpty());
+            assertFalse("bug is empty : " + test, bug.isEmpty());
 
             // the acutal test comparing the expected result from the gold standard
             // with the result from the deduplication algorithm
-            Assert.assertTrue("result different from gold standard " + test, gold.equals(result));
+            assertTrue("result different from gold standard " + test, gold.equals(result));
 
         }
 
@@ -75,9 +76,9 @@ public class EncodingFixer2Test {
 
     @Test
     public void testIsDuplicate() {
-        Assert.assertTrue(EncodingFixer2
+        assertTrue(EncodingFixer2
                 .isDuplicate("?Feliz Pascua de Resurrecci?n!", "¡Feliz Pascua de Resurrección!"));
-        Assert.assertTrue(EncodingFixer2.isDuplicate("æü¶ü•hkˆ‹ªê¸Êë­ãé¯¿ü ¬Áãª nputSemicolonHereÏ’l‹",
+        assertTrue(EncodingFixer2.isDuplicate("æü¶ü•hkˆ‹ªê¸Êë­ãé¯¿ü ¬Áãª nputSemicolonHereÏ’l‹",
                 "?????hk????????????? ???? nputSemicolonHere??l?"));
     }
 
