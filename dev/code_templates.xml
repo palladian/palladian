@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <templates>
-	<template autoinsert="true" context="java-statements" deleted="false" description="log with debug level" enabled="true" name="logdebug">LOGGER.debug(${word_selection}${});${cursor}</template>
-	<template autoinsert="true" context="java-statements" deleted="false" description="log with error level" enabled="true" name="logerror">LOGGER.error(${word_selection}${});${cursor}</template>
-	<template autoinsert="true" context="java-statements" deleted="false" description="log with fatal level" enabled="true" name="logfatal">LOGGER.fatal(${word_selection}${});${cursor}</template>
-	<template autoinsert="true" context="java-members" deleted="false" description="create class logger" enabled="true" name="logger">${:import(org.apache.log4j.Logger)}/** The logger for this class. */
-		private static final Logger LOGGER =
-		Logger.getLogger(${enclosing_type}.class);</template>
-	<template autoinsert="true" context="java-statements" deleted="false" description="log with info level" enabled="true" name="loginfo">LOGGER.info(${word_selection}${});${cursor}</template>
 	<template autoinsert="true" context="java-statements" deleted="false" description="log with trace level" enabled="true" name="logtrace">LOGGER.trace(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with debug level" enabled="true" name="logdebug">LOGGER.debug(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with info level" enabled="true" name="loginfo">LOGGER.info(${word_selection}${});${cursor}</template>
 	<template autoinsert="true" context="java-statements" deleted="false" description="log with warn level" enabled="true" name="logwarn">LOGGER.warn(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log with error level" enabled="true" name="logerror">LOGGER.error(${word_selection}${});${cursor}</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log method entry" enabled="true" name="logentry">LOGGER.trace("&gt;${enclosing_method}");</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="log method exit" enabled="true" name="logexit">LOGGER.trace("&lt;${enclosing_method}");</template>
+	<template autoinsert="true" context="java-members" deleted="false" description="create class logger (SLF4J)" enabled="true" name="logger">${:import(org.slf4j.Logger,org.slf4j.LoggerFactory)}/** The logger for this class. */
+	private static final Logger LOGGER =
+		LoggerFactory.getLogger(${enclosing_type}.class);</template>
 	<template autoinsert="true" context="java-members" deleted="false" description="singleton class" enabled="true" name="singleton">private ${enclosing_type}() {
 		}
 
@@ -24,6 +25,11 @@
 	<template autoinsert="true" context="java-statements" deleted="false" description="exit" enabled="true" name="sysex">System.exit(0);</template>
 	<template autoinsert="true" context="java-statements" deleted="false" description="print a Collection" enabled="true" name="print_collection">${:import(ws.palladian.helper.collection.CollectionHelper)}CollectionHelper.print(${collection});</template>
 	<template autoinsert="true" context="java-statements" deleted="false" description="print an Array" enabled="true" name="print_array">${:import(ws.palladian.helper.collection.CollectionHelper)}CollectionHelper.print(${array});</template>
-	<template autoinsert="true" context="java-statements" deleted="false" description="Validate that String is not null or empty" enabled="true" name="notEmpty">${:import(org.apache.commons.lang3.Validate)}Validate.notEmpty(${v1:var(java.lang.String)}, "${v1} must not be empty");</template>
-	<template autoinsert="true" context="java-statements" deleted="false" description="Validate that Object is not null" enabled="true" name="notNull">${:import(org.apache.commons.lang3.Validate)}Validate.notNull(${v1:var(java.lang.Object)}, "${v1} must not be null");</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="validate that String is not null or empty" enabled="true" name="notEmpty">${:import(org.apache.commons.lang3.Validate)}Validate.notEmpty(${v1:var(java.lang.String)}, "${v1} must not be empty");</template>
+	<template autoinsert="true" context="java-statements" deleted="false" description="validate that Object is not null" enabled="true" name="notNull">${:import(org.apache.commons.lang3.Validate)}Validate.notNull(${v1:var(java.lang.Object)}, "${v1} must not be null");</template>
+	<template autoinsert="true" context="java" deleted="false" description="create new ArrayList" enabled="true" name="arraylist">List&lt;${type}&gt; ${name:newName(java.util.List)} = CollectionHelper.newArrayList();${:import(java.util.List, ws.palladian.helper.collection.CollectionHelper)}</template>
+	<template autoinsert="true" context="java" deleted="false" description="create new HashMap" enabled="true" name="hashmap">Map&lt;${keyType}, ${valueType}&gt; ${name:newName(java.util.Map)} = CollectionHelper.newHashMap();${:import(java.util.Map, ws.palladian.helper.collection.CollectionHelper)}</template>
+	<template autoinsert="true" context="java" deleted="false" description="create new HashSet" enabled="true" name="hashset">Set&lt;${type}&gt; ${name:newName(java.util.Set)} = CollectionHelper.newHashSet();${:import(java.util.Set, ws.palladian.helper.collection.CollectionHelper)}</template>
+	<template autoinsert="true" context="java" deleted="false" description="create new List and add items" enabled="true" name="aslist">List&lt;${type}&gt; ${name:newName(java.util.List)} = Arrays.asList(${cursor});${:import(java.util.List, java.util.Arrays)}</template>
+	<template autoinsert="true" context="java-members" deleted="false" description="create a constant" enabled="true" name="const">private static final ${type} ${name} = ${cursor};</template>
 </templates>
