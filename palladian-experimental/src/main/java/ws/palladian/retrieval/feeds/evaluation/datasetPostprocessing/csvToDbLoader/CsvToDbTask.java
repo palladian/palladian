@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
@@ -40,7 +41,7 @@ import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedIte
 public class CsvToDbTask implements Callable<FeedTaskResult> {
 
     /** The logger for this class. */
-    private final static Logger LOGGER = Logger.getLogger(CsvToDbTask.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CsvToDbTask.class);
 
     /**
      * The feed to process by this task.
@@ -192,7 +193,7 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
                     // }
 
                 } catch (NumberFormatException e) {
-                    LOGGER.fatal("Could not get number from csv: " + e.getLocalizedMessage());
+                    LOGGER.error("Could not get number from csv: " + e.getLocalizedMessage());
                 }
             }
 
@@ -212,7 +213,7 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
-            LOGGER.fatal("Error processing feedID " + feed.getId() + ": " + th);
+            LOGGER.error("Error processing feedID " + feed.getId() + ": " + th);
             resultSet.add(FeedTaskResult.ERROR);
             doFinalLogging(timer);
             return getResult();
@@ -376,11 +377,11 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
                 result.add(line);
             }
         } catch (FileNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } finally {
             FileHelper.close(reader);
         }

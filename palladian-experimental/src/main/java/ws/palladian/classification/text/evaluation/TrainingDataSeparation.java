@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
 /**
@@ -20,7 +21,7 @@ import ws.palladian.helper.io.FileHelper;
 public class TrainingDataSeparation {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(TrainingDataSeparation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrainingDataSeparation.class);
 	
     /**
      * Separates a given training set by trainingDataPercentage into two files, containing

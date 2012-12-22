@@ -6,7 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class allows one to save data into a database instead of keeping it in memory.
@@ -17,7 +18,7 @@ import org.apache.log4j.Logger;
  */
 public class DbStore {
 
-    protected static final Logger logger = Logger.getLogger(DbStore.class);
+    protected static final Logger logger = LoggerFactory.getLogger(DbStore.class);
 
     // database parameters
     private Connection connection = null;

@@ -38,7 +38,8 @@ import net.sourceforge.jwbf.mediawiki.actions.util.SupportedBy;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.wiki.data.WikiPage;
 
@@ -53,7 +54,7 @@ import ws.palladian.retrieval.wiki.data.WikiPage;
 public class PageLinksQuery extends TitleQuery<WikiPage> {
 
     /** the logger for this class */
-    private static final Logger LOG = Logger.getLogger(PageLinksQuery.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PageLinksQuery.class);
 
     /** store log Level */
     private static final boolean TRACE = LOG.isTraceEnabled();

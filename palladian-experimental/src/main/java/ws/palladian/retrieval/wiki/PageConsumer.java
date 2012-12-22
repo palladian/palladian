@@ -2,7 +2,8 @@ package ws.palladian.retrieval.wiki;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.wiki.data.WikiPage;
 
@@ -15,7 +16,7 @@ import ws.palladian.retrieval.wiki.data.WikiPage;
 public class PageConsumer implements Runnable {
 
     /** The global logger */
-    private static final Logger LOGGER = Logger.getLogger(PageConsumer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageConsumer.class);
 
     /** do not call LOGGER.isDebugEnabled() 1000 times */
     private static final boolean DEBUG = LOGGER.isDebugEnabled();

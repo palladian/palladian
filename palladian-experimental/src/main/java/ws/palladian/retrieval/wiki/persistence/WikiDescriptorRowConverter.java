@@ -4,7 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.wiki.data.WikiDescriptor;
@@ -12,7 +13,7 @@ import ws.palladian.retrieval.wiki.data.WikiDescriptor;
 public class WikiDescriptorRowConverter implements RowConverter<WikiDescriptor> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WikiDescriptorRowConverter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikiDescriptorRowConverter.class);
 
     @Override
     public WikiDescriptor convert(ResultSet resultSet) throws SQLException {

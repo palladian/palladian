@@ -38,7 +38,8 @@ import net.sourceforge.jwbf.mediawiki.actions.queries.TitleQuery;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -60,7 +61,7 @@ import ws.palladian.retrieval.wiki.data.WikiPage;
 public class BasicInformationQuery extends TitleQuery<WikiPage> {
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(BasicInformationQuery.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicInformationQuery.class);
 
     // /** Pattern to parse returned page, @see {@link #parseHasMore(String)}. */
     // private static final Pattern HAS_MORE_PATTERN = Pattern.compile("<query-continue>.*?</query-continue>",
