@@ -6,9 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFImageWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
 
@@ -23,7 +24,7 @@ import ws.palladian.helper.io.FileHelper;
 public class PdfToImageConverter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PdfToImageConverter.ImageFormat.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PdfToImageConverter.ImageFormat.class);
 
     public enum ImageFormat {
         JPG, PNG;

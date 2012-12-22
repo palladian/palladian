@@ -5,9 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.retrieval.HttpException;
@@ -29,7 +30,7 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 public class TagTheNetLangDetect extends LanguageClassifier {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(TagTheNetLangDetect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagTheNetLangDetect.class);
 
     /** tagthe.net provides no information, which languages it supports, so we record all detected ones here in the set. */
     private Set<String> detectedLanguages = new HashSet<String>();
@@ -63,9 +64,9 @@ public class TagTheNetLangDetect extends LanguageClassifier {
             detectedLanguages.add(result);
 
         } catch (JSONException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while parsing the JSON response", e);
         } catch (HttpException e) {
-            LOGGER.error(e);
+            LOGGER.error("HTTP error", e);
         }
 
         return result;

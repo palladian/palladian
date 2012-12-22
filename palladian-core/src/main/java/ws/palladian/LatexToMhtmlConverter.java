@@ -23,7 +23,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.codec.binary.Base64OutputStream;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.multimedia.PdfToImageConverter;
@@ -34,7 +35,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public class LatexToMhtmlConverter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(LatexToMhtmlConverter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LatexToMhtmlConverter.class);
 
     private static final String IMAGE_CHECKMARK = "R0lGODlhDAANAOMAAP///////2RkZJmZmRYWFk9PTyAgID09PS0tLQMDA319fdvb2wgICAAAAAEBAbi4uCH5BAEAAAAALAAAAAAMAA0AAAQvEMhJxaCYFEzN5ZIGSgcyAkNyAomCLcYCFAwnNKYjgExzOKNHo0E4IRqb0SLJiQAAOw==";
     private static final String NLB = "(?<![\\{\\}])";

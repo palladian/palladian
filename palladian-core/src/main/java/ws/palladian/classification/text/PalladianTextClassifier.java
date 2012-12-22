@@ -6,7 +6,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableDouble;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -31,7 +32,7 @@ import ws.palladian.processing.features.NominalFeature;
 public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PalladianTextClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianTextClassifier.class);
 
     @Override
     public DictionaryModel train(List<Instance> instances) {

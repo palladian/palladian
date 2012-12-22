@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
@@ -23,7 +24,7 @@ import ws.palladian.helper.io.FileHelper;
 public class KeyphraseExtractorEvaluator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractorEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyphraseExtractorEvaluator.class);
 
     /** The keyphrase extractors to evaluate. */
     private final List<KeyphraseExtractor> extractors;

@@ -8,7 +8,8 @@ import java.util.List;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -40,7 +41,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public class WiktionaryParser {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WiktionaryParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WiktionaryParser.class);
 
     /** The database where the dictionary is stored. */
     private final WordDB wordDB;

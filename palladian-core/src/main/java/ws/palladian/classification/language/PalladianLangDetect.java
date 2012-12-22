@@ -3,7 +3,8 @@ package ws.palladian.classification.language;
 import java.io.IOException;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -24,7 +25,7 @@ import ws.palladian.helper.io.FileHelper;
 public class PalladianLangDetect extends LanguageClassifier {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PalladianLangDetect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLangDetect.class);
 
     private final PalladianTextClassifier textClassifier;
     

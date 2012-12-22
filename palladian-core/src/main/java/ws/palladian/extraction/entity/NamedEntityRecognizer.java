@@ -10,7 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
@@ -40,7 +41,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
 public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor {
 
     /** The logger for named entity recognizer classes. */
-    protected static final Logger LOGGER = Logger.getLogger(NamedEntityRecognizer.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
 
 //    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
 //            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);

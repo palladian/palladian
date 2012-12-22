@@ -37,8 +37,9 @@ import javax.media.jai.operator.ScaleDescriptor;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
 import org.imgscalr.Scalr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -59,7 +60,7 @@ import ws.palladian.retrieval.search.web.WebImageResult;
 public class ImageHandler {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ImageHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandler.class);
 
     /** Image similarity mean square error. */
     public static final int MSE = 1;
@@ -639,7 +640,7 @@ public class ImageHandler {
 
         float averageGray = grayCount / (float)pixelCount;
 
-        LOGGER.debug(averageGray);
+        LOGGER.debug("{}", averageGray);
 
         return substractedImage;
     }

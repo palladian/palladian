@@ -14,7 +14,6 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Logger;
 
 import ws.palladian.external.lbj.IO.Keyboard;
 import ws.palladian.external.lbj.Tagger.BracketFileManager;
@@ -435,8 +434,8 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
 
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        Logger.getRootLogger().info(er.getMUCResultsReadable());
-        Logger.getRootLogger().info(er.getExactMatchResultsReadable());
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
 
         // Dataset trainingDataset = new Dataset();
         // trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");

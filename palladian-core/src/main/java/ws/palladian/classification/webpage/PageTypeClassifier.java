@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -17,7 +18,6 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
@@ -25,7 +25,7 @@ import ws.palladian.retrieval.parser.ParserException;
 public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PageTypeClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageTypeClassifier.class);
 
     public PageType classify(Document document) {
         extractFeatures(document);

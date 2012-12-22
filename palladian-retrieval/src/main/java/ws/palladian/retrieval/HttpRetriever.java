@@ -638,7 +638,7 @@ public class HttpRetriever {
             try {
                 HttpResponse response = client.execute(headRequest);
                 int statusCode = response.getStatusLine().getStatusCode();
-                LOGGER.debug("checked " + url + "; result " + statusCode);
+                LOGGER.debug("Result {} for {}", statusCode, url);
                 if (statusCode >= 300 && statusCode < 400) {
                     Header[] locationHeaders = response.getHeaders("location");
                     if (locationHeaders.length == 0) {
