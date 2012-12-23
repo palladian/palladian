@@ -14,6 +14,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.NominalFeature;
@@ -206,14 +207,13 @@ public final class FeatureSelector {
      * @param dataset
      * @return
      */
-    public static <T extends NominalFeature> Map<T, Double> calculateInformationGain(String featurePath,
-            Collection<Instance> dataset) {
-        Map<T, Double> ret = new HashMap<T, Double>();
-        Map<String, Integer> classCounts = new HashMap<String, Integer>();
-        Map<String, Integer> featuresInClass = new HashMap<String, Integer>();
+    public static Map<NominalFeature, Double> calculateInformationGain(String featurePath, Collection<Instance> dataset) {
+        Map<NominalFeature, Double> ret = CollectionHelper.newHashMap();
+        Map<String, Integer> classCounts = CollectionHelper.newHashMap();
+        Map<String, Integer> featuresInClass = CollectionHelper.newHashMap();
         Integer sumOfFeaturesInAllClasses = 0;
-        Map<T, Integer> absoluteOccurences = new HashMap<T, Integer>();
-        Map<T, Map<String, Integer>> absoluteConditionalOccurences = new HashMap<T, Map<String, Integer>>();
+        Map<NominalFeature, Integer> absoluteOccurences = CollectionHelper.newHashMap();
+        Map<NominalFeature, Map<String, Integer>> absoluteConditionalOccurences = CollectionHelper.newHashMap();
         for (Instance instance : dataset) {
             Integer targetClassCount = classCounts.get(instance.getTargetClass());
             if (targetClassCount == null) {
@@ -222,9 +222,10 @@ public final class FeatureSelector {
                 classCounts.put(instance.getTargetClass(), ++targetClassCount);
             }
 
-            List<T> featuresList = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(), featurePath);
-            Set<T> features = new HashSet<T>(featuresList); // remove duplicates
-            for (T feature : features) {
+            List<NominalFeature> featuresList = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(),
+                    NominalFeature.class, featurePath);
+            Set<NominalFeature> features = new HashSet<NominalFeature>(featuresList); // remove duplicates
+            for (NominalFeature feature : features) {
                 Integer countOfFeaturesInClass = featuresInClass.get(instance.getTargetClass());
                 if (countOfFeaturesInClass == null) {
                     countOfFeaturesInClass = 0;
@@ -261,7 +262,7 @@ public final class FeatureSelector {
             classProb += Prci * Math.log(Prci);
         }
 
-        for (Entry<T, Integer> absoluteOccurence : absoluteOccurences.entrySet()) {
+        for (Entry<NominalFeature, Integer> absoluteOccurence : absoluteOccurences.entrySet()) {
             double G = 0.0d;
 
             double termClassCoocurrence = 0.0d;
@@ -279,12 +280,11 @@ public final class FeatureSelector {
                 double Prcint = laplaceSmooth(absoluteOccurences.keySet().size(), sumOfFeaturesInAllClasses
                         - featuresInClass.get(absoluteConditionalOccurence.getKey()), dataset.size()
                         - absoluteConditionalOccurence.getValue());
-                ;
                 termClassNonCoocurrence = Prcint * Math.log(Prcint);
             }
             double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() + termClassCoocurrence;
 
-            double nonTermProb = ((double)(dataset.size() - absoluteOccurence.getValue())) / dataset.size()
+            double nonTermProb = (double)(dataset.size() - absoluteOccurence.getValue()) / dataset.size()
                     + termClassNonCoocurrence;
 
             G = -classProb + termProb + nonTermProb;
@@ -294,6 +294,6 @@ public final class FeatureSelector {
     }
 
     private static double laplaceSmooth(int vocabularySize, int countOfFeature, int countOfCoocurence) {
-        return (1.0d + ((double)countOfCoocurence)) / (((double)vocabularySize) + ((double)countOfFeature));
+        return (1.0d + countOfCoocurence) / (vocabularySize + countOfFeature);
     }
 }
