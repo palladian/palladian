@@ -74,6 +74,16 @@ public class ImageHandler {
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
     }
 
+    public static BufferedImage load(File imageFile) {
+        BufferedImage bufferedImage = null;
+        try {
+            bufferedImage = ImageIO.read(imageFile);
+        } catch (IOException e) {
+            LOGGER.error(imageFile + ", " + e.getMessage());
+        }
+
+        return bufferedImage;
+    }
     public static BufferedImage load(String url) {
         BufferedImage bufferedImage = null;
 
@@ -251,7 +261,7 @@ public class ImageHandler {
             return image;
         }
 
-        return image.getSubimage((int)xOffset, (int)yOffset, boxWidth, boxHeight);
+        return image.getSubimage((int)xOffset, (int)yOffset, Math.min(boxWidth, iWidth), Math.min(boxHeight, iHeight));
     }
 
     public static BufferedImage rescaleImage(String imageURL, int width) {
