@@ -173,6 +173,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
     private svm_node[] transformPalladianFeatureVectorToLibsvmFeatureVector(FeatureVector vector,
             Map<String, Integer> indices, boolean trainingMode) {
         Map<String, Feature<?>> features = new HashMap<String, Feature<?>>();
+        Map<String, Feature<?>> sparseFeatures = new HashMap<String, Feature<?>>();
 
         for (String featurePath : normalFeaturePaths) {
             List<Feature<?>> normalFeatures = FeatureUtils.getFeaturesAtPath(vector, featurePath);
@@ -189,7 +190,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
         for (String featurePath : sparseFeaturePaths) {
             List<Feature<?>> feature = FeatureUtils.getFeaturesAtPath(vector, featurePath);
             for (Feature<?> sparseFeature : feature) {
-                features.put(sparseFeature.getValue().toString(), sparseFeature);
+                sparseFeatures.put(sparseFeature.getValue().toString(), sparseFeature);
 
                 if (trainingMode) {
                     if (!indices.containsKey(sparseFeature)) {
@@ -198,12 +199,19 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
                 }
             }
         }
-        svm_node[] libSvmFeatureVector = new svm_node[features.size()];
+        svm_node[] libSvmFeatureVector = new svm_node[features.size() + sparseFeatures.size()];
         int j = 0;
         for (Entry<String, Feature<?>> entry : features.entrySet()) {
             libSvmFeatureVector[j] = new svm_node();
             libSvmFeatureVector[j].index = indices.get(entry.getKey());
             libSvmFeatureVector[j].value = featureToDouble(entry.getValue(), instances);
+            j++;
+        }
+
+        for (Entry<String, Feature<?>> entry : sparseFeatures.entrySet()) {
+            libSvmFeatureVector[j] = new svm_node();
+            libSvmFeatureVector[j].index = indices.get(entry.getKey());
+            libSvmFeatureVector[j].value = 1.0;
             j++;
         }
         return libSvmFeatureVector;

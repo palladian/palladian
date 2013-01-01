@@ -146,7 +146,7 @@ public final class FeatureUtils {
             if (existingFeature.getName().equals(feature.getName())) {
                 ret.add(existingFeature);
             } else if (existingFeature instanceof Classifiable) {
-                ret.addAll(find(feature, featureVector));
+                ret.addAll(find(feature, ((Classifiable)existingFeature).getFeatureVector()));
             }
         }
         return ret;
