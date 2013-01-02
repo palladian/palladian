@@ -138,16 +138,25 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     private String cleanXPath(String xPath) {
-        xPath = xPath.replaceAll("/text\\[.*?\\]", "/");
+        // System.out.println("before clean xpath: " + xPath);
+        xPath = xPath.replaceAll("/text(\\[.*?\\])?", "/");
         xPath = xPath.replace("html/body", "");
         xPath = xPath.replace("xhtml:html/xhtml:body", "");
+        // xPath = xPath.replaceAll("/font(\\[.*?\\])?", "/");
+        // xPath = xPath.replaceAll("/xhtml:font(\\[.*?\\])?", "/");
+
+        xPath = xPath.replace("///", "//");
 
         // in case we did not find anything, we take the body content
-        if (xPath.isEmpty()) {
+        if (xPath.isEmpty() || xPath.equals("//")) {
             xPath = "//body";
         }
 
-        xPath = xPath.replace("///", "//");
+        if (xPath.endsWith("//")) {
+            xPath = xPath.substring(0, xPath.length() - 2);
+        }
+
+        // System.out.println("clean xpath: " + xPath);
 
         // xPath = XPathHelper.addXhtmlNsToXPath(xPath);
 
@@ -259,8 +268,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             // return;
         }
 
+        shortestMatchingXPath = PageAnalyzer.findLastBoxSection(shortestMatchingXPath);
+
         // in case we did not find anything, we take the body content
         if (!useMainNodeText) {
+            // parentXpath = PageAnalyzer.findLastBoxSection(shortestMatchingXPath);
             parentXpath = XPathHelper.getParentXPath(shortestMatchingXPath);
         }
 
@@ -277,6 +289,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
                 if (resultNode == null) {
                     // FIXME
+                    mainContentText = fullTextContent;
                     return;
                     // throw new PageContentExtractorException("could not get main content node for URL: "
                     // + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
@@ -285,12 +298,24 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         if (!useMainNodeText) {
+
+            // shortestMatchingXPath = cleanXPath(shortestMatchingXPath);
+
             // add possible headlines that are on the same level as the content nodes to the target text nodes
             shortestMatchingXPath = addHeadlineSiblings(shortestMatchingXPath);
 
             // get the clean text only
             StringBuilder cleanText = new StringBuilder();
             List<Node> contentNodes = XPathHelper.getXhtmlNodes(getDocument(), shortestMatchingXPath);
+
+            // if (contentNodes.isEmpty()) {
+            // shortestMatchingXPath = XPathHelper.addXhtmlNsToXPath(shortestMatchingXPath);
+            // if (!shortestMatchingXPath.contains("::xhtml:")) {
+            // shortestMatchingXPath = shortestMatchingXPath.replace("::", "::xhtml:");
+            // }
+            // contentNodes = XPathHelper.getXhtmlNodes(getDocument(), shortestMatchingXPath);
+            // }
+
             for (Node node : contentNodes) {
                 String textContent = node.getTextContent();
                 if (!textContent.isEmpty()) {
@@ -306,6 +331,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // if we didn't get clean text, let's take the content of the main node
         if (mainContentText.trim().length() < 100) {
             mainContentText = HtmlHelper.documentToReadableText(resultNode);
+        }
+        if (mainContentText.trim().length() < 100) {
+            mainContentText = fullTextContent;
         }
     }
 
@@ -680,7 +708,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.seobythesea.com/2012/11/not-all-anchor-text-is-equal-other-co-citation-observations/");
         // pe.setDocument("http://arstechnica.com/tech-policy/2012/11/ca-measure-would-ban-anonymous-online-speech-for-sex-offenders/");
         // pe.setDocument("http://www.usatoday.com/story/opinion/2012/10/31/mitt-romney-jeep-chrysler-uaw/1672501/");
-        // pe.setDocument("http://www.washingtonpost.com/politics/decision2012/after-grueling-campaign-polls-open-for-election-day-2012/2012/11/06/d1c24c98-2802-11e2-b4e0-346287b7e56c_story.html");
+        pe.setDocument("http://www.washingtonpost.com/politics/decision2012/after-grueling-campaign-polls-open-for-election-day-2012/2012/11/06/d1c24c98-2802-11e2-b4e0-346287b7e56c_story.html");
         // pe.setDocument("http://mobile.smashingmagazine.com/2012/11/07/succeed-with-your-app/");
         // pe.setDocument("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands");
         // pe.setDocument("http://www.huffingtonpost.com/2012/11/22/black-friday-creep-retail-workers_n_2167066.html");
@@ -695,7 +723,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.ynetnews.com/articles/0,7340,L-4314175,00.html");
         // pe.setDocument("http://tech.slashdot.org/story/12/11/16/207227/german-city-says-openoffice-shortcomings-are-forcing-it-back-to-microsoft");
         // pe.setDocument("http://news.mongabay.com/2012/1204-hance-lions-population.html");
-        pe.setDocument("C:\\Workspace\\data\\GoldStandard\\82.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\82.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\105.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\771.html"); // ???
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\652.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\640.html");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title: " + pe.getResultTitle());
