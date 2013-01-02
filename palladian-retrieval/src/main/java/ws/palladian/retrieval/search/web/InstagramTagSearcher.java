@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -34,6 +35,9 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(InstagramTagSearcher.class);
 
+    /** The identifier for the {@link Configuration} key with the access token. */
+    public static final String CONFIG_ACCESS_TOKEN = "api.instagram.accessToken";
+
     private final String accessToken;
 
     /**
@@ -46,6 +50,20 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
     public InstagramTagSearcher(String accessToken) {
         Validate.notEmpty(accessToken, "accessToken must not be empty");
         this.accessToken = accessToken;
+    }
+
+    /**
+     * <p>
+     * Initialize a new {@link InstagramTagSearcher} with the an OAuth access token provided via the
+     * {@link Configuration} instance.
+     * </p>
+     * 
+     * @param configuration The configuration providing an OAuth access token with the identifier
+     *            {@value #CONFIG_ACCESS_TOKEN}, not <code>null</code>.
+     */
+    public InstagramTagSearcher(Configuration configuration) {
+        Validate.notNull(configuration, "configuration must not be null");
+        this.accessToken = configuration.getString(CONFIG_ACCESS_TOKEN);
     }
 
     @Override
@@ -85,7 +103,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
 
                 for (int i = 0; i < dataArray.length(); i++) {
                     JSONObject data = dataArray.getJSONObject(i);
-                    
+
                     String pageUrl = data.getString("link");
                     Date date = new Date(data.getLong("created_time") * 1000);
 
@@ -98,7 +116,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
                     if (data.has("caption") && !data.getString("caption").equals("null")) {
                         title = data.getJSONObject("caption").getString("text");
                     }
-                    result.add(new WebImageResult(pageUrl, imageUrl , title, null, width, height, date, null));
+                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, width, height, date, null));
 
                     if (result.size() == resultCount) {
                         break page;

@@ -78,6 +78,7 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         String requestUrl = buildRequestUrl(query, resultCount);
+        LOGGER.debug("Requesting " + requestUrl);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);

@@ -593,7 +593,7 @@ public final class XPathHelper {
 
         List<String> xPathParts = new ArrayList<String>();
         StringBuilder buf = new StringBuilder();
-        List<Character> split = Arrays.asList('/', ' ', '[', ']', '|');
+        List<Character> split = Arrays.asList('/', ' ', '[', ']', '|', ')');
 
         for (int i = 0; i < xPath.length(); i++) {
             char currentChar = xPath.charAt(i);
@@ -616,8 +616,8 @@ public final class XPathHelper {
             }
             result.append(xPathPart);
         }
+
         return result.toString();
     }
-
 
 }

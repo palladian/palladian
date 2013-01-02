@@ -168,6 +168,11 @@ public class JsonObjectWrapper {
         }
     }
 
+    @Override
+    public String toString() {
+        return jsonObject.toString();
+    }
+
     public static void main(String[] args) throws JSONException {
         String string = "{'entry': {'a': 1,'b':['1a',['one','two'],{'f':1.48}],'c': {'d':'2b'}}}";
         JsonObjectWrapper json = new JsonObjectWrapper(string);
