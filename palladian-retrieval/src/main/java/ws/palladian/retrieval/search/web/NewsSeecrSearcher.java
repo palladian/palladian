@@ -47,6 +47,8 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
     private static final Map<String, String> NAMESPACE_MAPPING = Collections.singletonMap("atom",
             "http://www.w3.org/2005/Atom");
 
+    private static final int RESULTS_PER_REQUEST = 100;
+
     private final DocumentParser xmlParser = ParserFactory.createXmlParser();
 
     @Override
@@ -59,11 +61,12 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
 
         List<WebResult> webResults = CollectionHelper.newArrayList();
 
-        for (int offset = 0; offset < Math.ceil((double)resultCount / 100); offset++) {
+        for (int offset = 0; offset < Math.ceil((double)resultCount / RESULTS_PER_REQUEST); offset++) {
 
             HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
             request.addParameter("query", query);
             request.addParameter("page", offset);
+            request.addParameter("numResults", Math.min(resultCount, RESULTS_PER_REQUEST));
             LOGGER.trace("Performing request: " + request);
             HttpResult result;
             try {
@@ -114,7 +117,7 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
 
     public static void main(String[] args) throws SearcherException {
         NewsSeecrSearcher searcher = new NewsSeecrSearcher();
-        List<WebResult> results = searcher.search("obama", 10);
+        List<WebResult> results = searcher.search("obama", 250);
         CollectionHelper.print(results);
     }
 

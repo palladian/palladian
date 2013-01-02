@@ -22,7 +22,7 @@ import ws.palladian.helper.constants.Language;
 public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
 
     /** If true, only news are returned, that contain the search term exactly as given in their titles. */
-    private boolean onlyExactMatchesInTitle = false;
+    private final boolean onlyExactMatchesInTitle;
 
     /**
      * @param apiKey The API key.
@@ -33,17 +33,42 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
      */
     public WebKnoxNewsSearcher(String apiKey, boolean onlyExactMatchesInTitle) {
         super(apiKey);
-        setOnlyExactMatchesInTitle(onlyExactMatchesInTitle);
+        this.onlyExactMatchesInTitle = onlyExactMatchesInTitle;
     }
 
     /**
+     * @param configuration A {@link Configuration} instance providing the required API key as
+     *            {@value BaseWebKnoxSearcher#CONFIG_API_KEY}, not <code>null</code>.
      * @param onlyExactMatchesInTitle If true, only news are returned, that contain the search term exactly as given in
      *            their titles.
      * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(Configuration)
      */
     public WebKnoxNewsSearcher(Configuration configuration, boolean onlyExactMatchesInTitle) {
         super(configuration);
-        setOnlyExactMatchesInTitle(onlyExactMatchesInTitle);
+        this.onlyExactMatchesInTitle = onlyExactMatchesInTitle;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link WebKnoxNewsSearcher} with onlyExactMatchesInTitle set to <code>false</code>.
+     * </p>
+     * 
+     * @param apiKey The API key.
+     */
+    public WebKnoxNewsSearcher(String apiKey) {
+        this(apiKey, false);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link WebKnoxNewsSearcher} with onlyExactMatchesInTitle set to <code>false</code>.
+     * </p>
+     * 
+     * @param configuration A {@link Configuration} instance providing the required API key as
+     *            {@value BaseWebKnoxSearcher#CONFIG_API_KEY}, not <code>null</code>.
+     */
+    public WebKnoxNewsSearcher(Configuration configuration) {
+        this(configuration, false);
     }
 
     @Override
@@ -53,13 +78,7 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
         urlBuilder.append("?query=").append(UrlHelper.encodeParameter(query));
         urlBuilder.append("&offset=").append(offset);
         urlBuilder.append("&numResults=").append(Math.min(count, 100));
-
-        if (isOnlyExactMatchesInTitle()) {
-            urlBuilder.append("&exactTitleMatch=true");
-        } else {
-            urlBuilder.append("&exactTitleMatch=false");
-        }
-
+        urlBuilder.append("&exactTitleMatch=").append(onlyExactMatchesInTitle);
         urlBuilder.append("&apiKey=").append(apiKey);
 
         // System.out.println(urlBuilder);
@@ -77,7 +96,8 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
         if (!publishTimestamp.isEmpty()) {
             try {
                 date = new Date(Long.valueOf(publishTimestamp) * 1000);
-            } catch(Exception e) {}
+            } catch (Exception e) {
+            }
         }
         WebResult webResult = new WebResult(url, title, summary, date, getName());
 
@@ -89,13 +109,13 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
         return "WebKnox News";
     }
 
-    public boolean isOnlyExactMatchesInTitle() {
-        return onlyExactMatchesInTitle;
-    }
-
-    public void setOnlyExactMatchesInTitle(boolean onlyExactMatchesInTitle) {
-        this.onlyExactMatchesInTitle = onlyExactMatchesInTitle;
-    }
+    // public boolean isOnlyExactMatchesInTitle() {
+    // return onlyExactMatchesInTitle;
+    // }
+    //
+    // public void setOnlyExactMatchesInTitle(boolean onlyExactMatchesInTitle) {
+    // this.onlyExactMatchesInTitle = onlyExactMatchesInTitle;
+    // }
 
     // public static void main(String[] args) throws SearcherException {
     // WebKnoxNewsSearcher webKnoxSearcher = new WebKnoxNewsSearcher(ConfigHolder.getInstance().getConfig(), true);
