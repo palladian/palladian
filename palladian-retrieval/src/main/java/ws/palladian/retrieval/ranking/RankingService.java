@@ -19,8 +19,9 @@ public interface RankingService {
      * 
      * @param url
      * @return A map of ranking values for each type
+     * @throws RankingServiceException In case of an error while retrieving the ranking.
      */
-    Ranking getRanking(String url);
+    Ranking getRanking(String url) throws RankingServiceException;
 
     /**
      * <p>
@@ -31,8 +32,9 @@ public interface RankingService {
      * 
      * @param urls A list of URLs
      * @return A map of ranking values per URL
+     * @throws RankingServiceException In case of an error while retrieving the ranking.
      */
-    Map<String, Ranking> getRanking(List<String> urls);
+    Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException;
 
     /**
      * <p>
