@@ -214,7 +214,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
             for (String xPath : xPaths) {
                 xPath = PageAnalyzer.removeXPathIndicesFromLastCountNode(xPath);
-                // FIXME? not really since it is better without this if (!xPath.contains("/xhtml:li") &&
+                // XXX? not really since it is better without this if (!xPath.contains("/xhtml:li") &&
                 // !xPath.contains("/li")) {
                 xpathset.add(xPath);
                 // }
@@ -262,10 +262,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             parentXpath = resultNodeXPath;
         }
 
-        // FIXME
         if (shortestMatchingXPath.isEmpty()) {
             useMainNodeText = true;
-            // return;
         }
 
         shortestMatchingXPath = PageAnalyzer.findLastBoxSection(shortestMatchingXPath);
@@ -288,11 +286,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
 
                 if (resultNode == null) {
-                    // FIXME
+                    // XXX
                     mainContentText = fullTextContent;
                     return;
-                    // throw new PageContentExtractorException("could not get main content node for URL: "
-                    // + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
                 }
             }
         }
@@ -470,7 +466,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // document
         String imgXPath = ".//img";
 
-        List<Node> imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
+        List<Node> imageNodes = CollectionHelper.newArrayList();
+
+        while (imageNodes.isEmpty() && imageParentNode != null) {
+            imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
+            imageParentNode = imageParentNode.getParentNode();
+        }
+
         for (Node node : imageNodes) {
             try {
 
