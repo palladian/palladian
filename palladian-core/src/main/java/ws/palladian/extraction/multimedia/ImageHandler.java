@@ -38,7 +38,6 @@ import javax.swing.ImageIcon;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-import org.imgscalr.Scalr;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -74,6 +73,30 @@ public class ImageHandler {
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
     }
 
+    /**
+     * <p>
+     * Load an image from disk.
+     * </p>
+     * 
+     * @param imageFile The image file on disk.
+     * @return The buffered image.
+     * @throws IOException
+     */
+    public static BufferedImage load(File imageFile) throws IOException {
+        BufferedImage bufferedImage = null;
+        bufferedImage = ImageIO.read(imageFile);
+
+        return bufferedImage;
+    }
+
+    /**
+     * <p>
+     * Load an image from an URL.
+     * </p>
+     * 
+     * @param url The url of the image.
+     * @return The buffered image.
+     */
     public static BufferedImage load(String url) {
         BufferedImage bufferedImage = null;
 
@@ -95,15 +118,15 @@ public class ImageHandler {
         return bufferedImage;
     }
 
-    public static String getMatchingImageURL(Collection<WebImageResult> images) {
-        String[] matchingImages = getMatchingImageURLs(images, 1);
+    public static String getMatchingImageUrl(Collection<WebImageResult> images) {
+        String[] matchingImages = getMatchingImageUrls(images, 1);
         if (matchingImages.length > 0) {
             return matchingImages[0];
         }
         return "";
     }
 
-    public static String[] getMatchingImageURLs(Collection<WebImageResult> images, int matchingNumber) {
+    public static String[] getMatchingImageUrls(Collection<WebImageResult> images, int matchingNumber) {
 
         try {
 
@@ -203,7 +226,8 @@ public class ImageHandler {
      */
     public static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight) {
         Validate.notNull(image);
-        return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, boxWidth, boxHeight, Scalr.OP_ANTIALIAS);
+        // return Scalr.resize(image, Scalr.Method.AUTOMATIC, boxWidth, boxHeight);
+        return rescaleImage(image, boxWidth, boxHeight);
     }
 
     /**
@@ -230,7 +254,8 @@ public class ImageHandler {
         Validate.notNull(image);
 
         // scale to fill the target box completely
-        double scale = Math.max((double)boxWidth / (double)image.getWidth(), (double)boxHeight / (double)image.getHeight());
+        double scale = Math.max((double)boxWidth / (double)image.getWidth(),
+                (double)boxHeight / (double)image.getHeight());
 
         int targetWidth = (int)(image.getWidth() * scale);
         int targetHeight = (int)(image.getHeight() * scale);
@@ -251,7 +276,7 @@ public class ImageHandler {
             return image;
         }
 
-        return image.getSubimage((int)xOffset, (int)yOffset, boxWidth, boxHeight);
+        return image.getSubimage((int)xOffset, (int)yOffset, Math.min(boxWidth, iWidth), Math.min(boxHeight, iHeight));
     }
 
     public static BufferedImage rescaleImage(String imageURL, int width) {
@@ -420,6 +445,10 @@ public class ImageHandler {
         RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING,
                 RenderingHints.VALUE_RENDER_QUALITY);
 
+        // results in exactly the same as above (tested only for downscaling)
+        // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
+        // RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
         RenderedOp resizedImage = null;
 
         if (upscale) {
@@ -432,7 +461,9 @@ public class ImageHandler {
     }
 
     /**
+     * <p>
      * Rescaling an image using JAI SubsampleAverage. The image looks smooth after rescaling.
+     * </p>
      * 
      * @param bufferedImage The input image.
      * @param newWidth The desired new width (size) of the image.
@@ -967,6 +998,12 @@ public class ImageHandler {
     }
 
     public static void main(String[] args) throws Exception {
+
+        BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
+        BufferedImage testImage = ImageHandler.boxCrop(testImg, 1000, 1000);
+        // BufferedImage testImage = ImageHandler.rescaleImage(testImg, 350, 233);
+        ImageHandler.saveImage(testImage, "jpg", "data/temp/img/testBoxCrop.jpg");
+        System.exit(0);
 
         // String url = "http://entimg.msn.com/i/gal/ScaryCelebs/JimCarrey_400.jpg";
         // url = "http://www.thehollywoodnews.com/artman2/uploads/1/jim-carrey_1.jpg";
