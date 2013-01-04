@@ -1,6 +1,7 @@
 package ws.palladian.extraction.content;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -30,7 +31,7 @@ import ws.palladian.retrieval.parser.ParserException;
 public class FiveFiltersContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FiveFiltersContentExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FiveFiltersContentExtractor.class);
 
     /** For performing HTTP requests. */
     private final HttpRetriever httpRetriever;
