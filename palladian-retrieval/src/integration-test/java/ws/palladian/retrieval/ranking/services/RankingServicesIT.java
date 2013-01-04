@@ -9,11 +9,12 @@ import java.util.List;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -33,7 +34,7 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 public class RankingServicesIT {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(RankingServicesIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RankingServicesIT.class);
 
     private final RankingService rankingService;
 
