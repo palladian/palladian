@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -76,18 +78,15 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
      * Create a new {@link PlurkPosts} ranking service.
      * </p>
      * 
-     * @param apiKey The required API key for accessing the service.
+     * @param apiKey The required API key for accessing the service, not <code>null</code> or empty.
      */
     public PlurkPosts(String apiKey) {
-        super();
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing.");
-        }
+        Validate.notEmpty(apiKey, "The required API key is missing.");
         this.apiKey = apiKey;
     }
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -108,11 +107,11 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
             LOGGER.trace("Plurk.com posts for " + url + " : " + result);
 
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
         return ranking;
     }

@@ -36,29 +36,23 @@ import ws.palladian.processing.features.PositionAnnotation;
 
 public final class TfidfExtractor extends KeyphraseExtractor {
     
-    private final ProcessingPipeline trainingPipeline;
-    private final ProcessingPipeline extractionPipeline;
+    private final ProcessingPipeline pipeline;
     private final TermCorpus termCorpus;
     
     public TfidfExtractor() {
         termCorpus = new TermCorpus();
 
-        // trainingPipeline = new ProcessingPipeline();
-        trainingPipeline = new PerformanceCheckProcessingPipeline();
-        trainingPipeline.add(new RegExTokenizer());
-        trainingPipeline.add(new StopTokenRemover(Language.ENGLISH));
-        trainingPipeline.add(new LengthTokenRemover(4));
-        trainingPipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
-        trainingPipeline.add(new NGramCreator(3));
-        trainingPipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
-        trainingPipeline.add(new TokenMetricsCalculator());
-        trainingPipeline.add(new DuplicateTokenRemover());
-
-        // extractionPipeline has the same steps as trainingPipeline,
-        // plus idf and tf-idf annotation
-        extractionPipeline = new ProcessingPipeline(trainingPipeline);
-        extractionPipeline.add(new IdfAnnotator(termCorpus));
-        extractionPipeline.add(new TfIdfAnnotator());
+        pipeline = new PerformanceCheckProcessingPipeline();
+        pipeline.connectToPreviousProcessor(new RegExTokenizer());
+        pipeline.connectToPreviousProcessor(new StopTokenRemover(Language.ENGLISH));
+        pipeline.connectToPreviousProcessor(new LengthTokenRemover(4));
+        pipeline.connectToPreviousProcessor(new RegExTokenRemover("[^A-Za-z0-9-]+"));
+        pipeline.connectToPreviousProcessor(new NGramCreator(3));
+        pipeline.connectToPreviousProcessor(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
+        pipeline.connectToPreviousProcessor(new TokenMetricsCalculator());
+        pipeline.connectToPreviousProcessor(new DuplicateTokenRemover());
+        pipeline.connectToPreviousProcessor(new IdfAnnotator(termCorpus));
+        pipeline.connectToPreviousProcessor(new TfIdfAnnotator());
     }
 
     @Override
@@ -70,7 +64,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
     public void train(String inputText, Set<String> keyphrases) {
         TextDocument document = new TextDocument(inputText);
         try {
-            trainingPipeline.process(document);
+            pipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
@@ -87,7 +81,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
     
     @Override
     public void endTraining() {
-        System.out.println(trainingPipeline);
+        System.out.println(pipeline);
     }
     
     @Override
@@ -100,7 +94,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
     public List<Keyphrase> extract(String inputText) {
         TextDocument document = new TextDocument(inputText);
         try {
-            extractionPipeline.process(document);
+            pipeline.process(document);
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException();
         }

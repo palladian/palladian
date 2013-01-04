@@ -17,6 +17,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -48,7 +49,7 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
     private final static long checkBlockedIntervall = TimeUnit.MINUTES.toMillis(1);
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -76,8 +77,8 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
             }
             
         } catch (Exception e) {
-            LOGGER.error("Exception " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
         results.put(LIKES, (float)googlePlusLikes);
         return ranking;
@@ -92,8 +93,7 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "https://plusone.google.com/u/0/_/+1/fastbutton?url=" + UrlHelper.encodeParameter(url);
-        return requestUrl;
+        return "https://plusone.google.com/u/0/_/+1/fastbutton?url=" + UrlHelper.encodeParameter(url);
     }
 
     @Override
@@ -142,7 +142,7 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         GooglePlusLikes gpl = new GooglePlusLikes();
         Ranking ranking = null;
         ranking = gpl.getRanking("http://facebook.com");

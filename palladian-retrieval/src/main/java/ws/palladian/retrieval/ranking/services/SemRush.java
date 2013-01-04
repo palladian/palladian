@@ -5,14 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -25,10 +23,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  */
 public final class SemRush extends BaseRankingService implements RankingService {
-
-    /** The class logger. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(SemRush.class);
-
+    
     /** The id of this service. */
     private static final String SERVICE_ID = "semrush";
 
@@ -43,7 +38,7 @@ public final class SemRush extends BaseRankingService implements RankingService 
 
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -62,7 +57,7 @@ public final class SemRush extends BaseRankingService implements RankingService 
             backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>", "</links_domain>"));
             backlinksPage = Long.valueOf(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            throw new RankingServiceException(e);
         }
 
         results.put(BACKLINKS_DOMAIN, (float)backlinksDomain);
@@ -79,8 +74,7 @@ public final class SemRush extends BaseRankingService implements RankingService 
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
-        return requestUrl;
+        return "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
     }
 
     @Override
@@ -93,7 +87,7 @@ public final class SemRush extends BaseRankingService implements RankingService 
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         SemRush gpl = new SemRush();
         Ranking ranking = null;
 

@@ -32,6 +32,7 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.services.SemRush;
 import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 
@@ -135,10 +136,16 @@ public class SitemapAnalyzer {
                 // LOGGER.error(e.getMessage());
                 // indexed = -1;
                 // }
-                SemRush semRush = new SemRush();
-                Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
+                Float inExt = null;
+                try {
+                    SemRush semRush = new SemRush();
+                    Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
+                    inExt = ranking2.getValues().get(SemRush.BACKLINKS_PAGE);
+                } catch (RankingServiceException e) {
+                    LOGGER.error("Error retrieving ranking: " + e.getMessage(), e);
+                }
 
-                map.put("in-ext", ranking2.getValues().get(SemRush.BACKLINKS_PAGE));
+                map.put("in-ext", inExt);
                 map.put("out-int", outInt.size());
                 map.put("out-ext", outExt.size());
                 map.put("#words", wordCount);

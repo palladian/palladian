@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -19,6 +17,7 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -31,9 +30,6 @@ import ws.palladian.retrieval.ranking.RankingType;
  */
 public final class AlexaRank extends BaseRankingService implements RankingService {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlexaRank.class);
-
     /** The id of this service. */
     private static final String SERVICE_ID = "alexa";
 
@@ -44,7 +40,7 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(POPULARITY_RANK);
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
 
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
 
@@ -62,13 +58,12 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
                 results.put(POPULARITY_RANK, 0f);
             }
         } catch (HttpException e) {
-            LOGGER.error("HttpException while getting ranking for {}", url, e);
+            throw new RankingServiceException(e);
         } catch (ParserException e) {
-            LOGGER.error("ParserException while gettings ranking for {}", url, e);
+            throw new RankingServiceException(e);
         }
 
-        Ranking ranking = new Ranking(this, url, results);
-        return ranking;
+        return new Ranking(this, url, results);
     }
 
     @Override

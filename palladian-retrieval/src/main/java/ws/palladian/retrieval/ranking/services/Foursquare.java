@@ -7,14 +7,13 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -25,9 +24,6 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  */
 public final class Foursquare extends BaseRankingService implements RankingService {
-
-    /** The class logger. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Foursquare.class);
 
     /** {@link Configuration} key for the client id. */
     public static final String CONFIG_CLIENT_ID = "api.foursquare.clientId";
@@ -79,7 +75,7 @@ public final class Foursquare extends BaseRankingService implements RankingServi
     }
     
     @Override
-    public Ranking getRanking(String venueId) {
+    public Ranking getRanking(String venueId) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, venueId, results);
 
@@ -87,10 +83,9 @@ public final class Foursquare extends BaseRankingService implements RankingServi
         double likes = 0.;
         String requestUrl = buildRequestUrl(venueId);
 
-        HttpResult httpGet;
         try {
 
-            httpGet = retriever.httpGet(requestUrl);
+            HttpResult httpGet = retriever.httpGet(requestUrl);
             JsonObjectWrapper json = new JsonObjectWrapper(new String(httpGet.getContent()));
 
             JsonObjectWrapper venue = json.getJSONObject("response").getJSONObject("venue");
@@ -99,7 +94,7 @@ public final class Foursquare extends BaseRankingService implements RankingServi
             
 
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            throw new RankingServiceException(e);
         }
 
         results.put(FOURSQUARE_CHECKINS, (float)checkins);
@@ -135,7 +130,7 @@ public final class Foursquare extends BaseRankingService implements RankingServi
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         Foursquare gpl = new Foursquare(ConfigHolder.getInstance().getConfig());
         Ranking ranking = null;
 

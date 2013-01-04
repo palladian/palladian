@@ -388,6 +388,20 @@ public final class StringHelper {
         return contained;
     }
 
+    public static String containsWhichWord(Collection<String> words, String searchString) {
+
+        String contained = null;
+
+        for (String word : words) {
+            if (containsWord(word, searchString)) {
+                contained = word;
+                break;
+            }
+        }
+
+        return contained;
+    }
+
     /**
      * <p>
      * Check whether a string contains a word given as a regular expression. The word can be surrounded by whitespaces
@@ -470,7 +484,7 @@ public final class StringHelper {
 
     public static String replaceWord(String word, String replacement, String searchString) {
 
-        if (word.isEmpty()) {
+        if (word == null || word.isEmpty()) {
             return searchString;
         }
 
@@ -1455,17 +1469,17 @@ public final class StringHelper {
     public static int countRegexMatches(String text, String pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         return countRegexMatches(text, Pattern.compile(pattern));
-//        if (text == null || text.isEmpty()) {
-//            return 0;
-//        }
-//        Matcher matcher = Pattern.compile(pattern).matcher(text);
-//        int matches = 0;
-//        while (matcher.find()) {
-//            matches++;
-//        }
-//        return matches;
+        //        if (text == null || text.isEmpty()) {
+        //            return 0;
+        //        }
+        //        Matcher matcher = Pattern.compile(pattern).matcher(text);
+        //        int matches = 0;
+        //        while (matcher.find()) {
+        //            matches++;
+        //        }
+        //        return matches;
     }
-    
+
     public static int countRegexMatches(String text, Pattern pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         if (text == null || text.isEmpty()) {
