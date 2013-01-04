@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +24,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -88,23 +90,18 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
      * Create a new {@link BitlyClicks} ranking service.
      * </p>
      * 
-     * @param login The required login for accessing the service.
-     * @param apiKey The required API key for accessing the service.
+     * @param login The required login for accessing the service, not <code>null</code> or empty.
+     * @param apiKey The required API key for accessing the service, not <code>null</code> or empty.
      */
     public BitlyClicks(String login, String apiKey) {
-        super();
-        if (login == null || login.isEmpty()) {
-            throw new IllegalStateException("The required login is missing.");
-        }
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing.");
-        }
+        Validate.notEmpty(login, "The required login is missing.");
+        Validate.notEmpty(apiKey, "The required API key is missing.");
         this.login = login;
         this.apiKey = apiKey;
     }
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
 
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
@@ -151,17 +148,17 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
             }
 
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException(e);
         } catch (HttpException e) {
-            LOGGER.error("HttpException while getting ranking for {}", url, e);
             checkBlocked();
+            throw new RankingServiceException(e);
         }
         return ranking;
     }
 
     @Override
-    public Map<String, Ranking> getRanking(List<String> urls) {
+    public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
 
         Map<String, Ranking> results = new HashMap<String, Ranking>();
         if (isBlocked()) {
@@ -261,16 +258,16 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                         results.put(u, new Ranking(this, u, result, new java.sql.Timestamp(Calendar.getInstance()
                                 .getTime().getTime())));
                     }
-                    LOGGER.trace("Bit.ly clicks for " + subUrls + "could not be fetched");
+                    LOGGER.trace("Bit.ly clicks for " + subUrls + " could not be fetched");
                     checkBlocked();
                 }
 
             } catch (JSONException e) {
-                LOGGER.error("JSONException " + e.getMessage());
                 checkBlocked();
+                throw new RankingServiceException(e);
             } catch (HttpException e) {
-                LOGGER.error("HttpException while getting ranking for {}", urls, e);
                 checkBlocked();
+                throw new RankingServiceException(e);
             }
 
         }

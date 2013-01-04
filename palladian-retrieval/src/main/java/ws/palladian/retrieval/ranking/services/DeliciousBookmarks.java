@@ -17,6 +17,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -53,19 +54,8 @@ public final class DeliciousBookmarks extends BaseRankingService implements Rank
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-    public DeliciousBookmarks() {
-
-        super();
-
-        // using different proxies for each request to avoid 1 second request limit
-        // doesn't work with every proxy
-        // crawler.setSwitchProxyRequests(1);
-        // crawler.setProxyList(configuration.getList("documentRetriever.proxyList"));
-
-    }
-
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -78,9 +68,9 @@ public final class DeliciousBookmarks extends BaseRankingService implements Rank
 
             String md5Url = DigestUtils.md5Hex(url);
             HttpResult httpResult = retriever.httpGet("http://feeds.delicious.com/v2/json/urlinfo/" + md5Url);
-            String string = HttpHelper.getStringContent(httpResult);
-            System.err.println(string);
-            JSONArray json = new JSONArray(string);
+            String jsonString = HttpHelper.getStringContent(httpResult);
+            LOGGER.trace("JSON=" + jsonString);
+            JSONArray json = new JSONArray(jsonString);
 
             result = 0f;
             if (json.length() > 0) {
@@ -89,9 +79,9 @@ public final class DeliciousBookmarks extends BaseRankingService implements Rank
             LOGGER.trace("Delicious bookmarks for " + url + " : " + result);
 
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
+            throw new RankingServiceException(e);
         } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
+            throw new RankingServiceException(e);
         }
 
         checkBlocked();

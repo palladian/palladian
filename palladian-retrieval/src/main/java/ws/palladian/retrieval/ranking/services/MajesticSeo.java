@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -20,6 +19,7 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -31,9 +31,6 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Philipp Katz
  */
 public final class MajesticSeo extends BaseRankingService implements RankingService {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(MajesticSeo.class);
 
     /** {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.majestic.key";
@@ -71,14 +68,12 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
      * @param apiKey The required API key for accessing the service.
      */
     public MajesticSeo(String apiKey) {
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing.");
-        }
+        Validate.notEmpty(apiKey, "The required API key is missing.");
         this.apiKey = apiKey;
     }
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
 
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
@@ -98,9 +93,9 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
                 results.put(REFERRING_DOMAINS, 0f);
             }
         } catch (HttpException e) {
-            LOGGER.error("HttpException for {}", requestUrl, e);
+            throw new RankingServiceException(e);
         } catch (ParserException e) {
-            LOGGER.error("ParserException", e);
+            throw new RankingServiceException(e);
         }
         return ranking;
     }

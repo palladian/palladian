@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -43,7 +44,6 @@ public final class CompositeRankingService extends BaseRankingService implements
         rankingServices.add(new PlurkPosts(config));
         rankingServices.add(new RedditStats());
         rankingServices.add(new SharethisStats(config));
-        rankingServices.add(new TweetmemeStats());
         rankingServices.add(new WebOfTrust());
     }
 
@@ -52,7 +52,7 @@ public final class CompositeRankingService extends BaseRankingService implements
     }
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> rankings = new HashMap<RankingType, Float>();
         for (RankingService rankingService : rankingServices) {
             Ranking ranking = rankingService.getRanking(url);
@@ -63,7 +63,7 @@ public final class CompositeRankingService extends BaseRankingService implements
         return ranking;
     }
 
-    public Map<RankingService, Ranking> getRankings(String url) {
+    public Map<RankingService, Ranking> getRankings(String url) throws RankingServiceException {
         Map<RankingService, Ranking> rankings = new HashMap<RankingService, Ranking>();
 
         for (RankingService rankingService : rankingServices) {

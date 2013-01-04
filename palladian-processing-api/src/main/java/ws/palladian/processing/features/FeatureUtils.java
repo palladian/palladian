@@ -14,22 +14,12 @@ import java.util.Stack;
 import ws.palladian.processing.Classifiable;
 
 /**
- * <p>
- * 
- * </p>
- * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since
  */
 public final class FeatureUtils {
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
     private FeatureUtils() {
         throw new UnsupportedOperationException("Unable to instantiate utility class "
                 + this.getClass().getCanonicalName());
@@ -42,12 +32,10 @@ public final class FeatureUtils {
 
     public static Iterable<Feature<?>> iterateRecursively(final FeatureVector vector) {
         return new Iterable<Feature<?>>() {
-
             @Override
             public Iterator<Feature<?>> iterator() {
                 return new FeatureIterator(vector);
             }
-
         };
     }
 
@@ -76,23 +64,22 @@ public final class FeatureUtils {
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Feature<?>> List<T> getFeaturesAtPath(FeatureVector vector, String featurePath) {
+    public static List<Feature<?>> getFeaturesAtPath(FeatureVector vector, String featurePath) {
         int slashIndex = featurePath.indexOf("/");
         String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
         String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
-        List<T> featureList = (List<T>)vector.getAll(leadingPathPart);
+        List<Feature<?>> featureList = vector.getAll(leadingPathPart);
 
-        List<T> ret = new ArrayList<T>();
+        List<Feature<?>> ret = new ArrayList<Feature<?>>();
         if (!trailingPathPart.isEmpty()) {
             for (Feature<?> feature : featureList) {
                 if (feature instanceof Classifiable) {
                     Classifiable classifiable = (Classifiable)feature;
-                    ret.addAll((List<T>)getFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart));
+                    ret.addAll(getFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart));
                 }
             }
         } else {
-            for (T feature : featureList) {
+            for (Feature<?> feature : featureList) {
                 ret.add(feature);
             }
         }
@@ -182,8 +169,6 @@ class FeatureIterator implements Iterator<Feature<?>> {
      * @param The {@link FeatureVector} to iterate over.
      */
     public FeatureIterator(FeatureVector vector) {
-        super();
-
         iteratorStack = new Stack<Iterator<? extends Feature<?>>>();
         iteratorStack.push(vector.getAll().iterator());
     }

@@ -37,20 +37,20 @@ public class ProcessingPipeline {
         pipelineProcessors = new ArrayList<PipelineProcessor>();
     }
 
-    /**
-     * <p>
-     * Creates a new {@link ProcessingPipeline} with the {@link PipelineProcessor}s from the supplied
-     * {@link ProcessingPipeline}. The newly created {@link ProcessingPipeline} will use the instances of the
-     * {@link PipelineProcessor}s from the supplied {@link ProcessingPipeline}. In other words, a <i>shallow copy</i> of
-     * the workflow is created, where {@link PipelineProcessor}s share their states.
-     * </p>
-     * 
-     * @param processingPipeline The {@link ProcessingPipeline} from which the {@link PipelineProcessor}s will be added
-     *            to the newly created instance.
-     */
-    public ProcessingPipeline(ProcessingPipeline processingPipeline) {
-        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.pipelineProcessors);
-    }
+//    /**
+//     * <p>
+//     * Creates a new {@link ProcessingPipeline} with the {@link PipelineProcessor}s from the supplied
+//     * {@link ProcessingPipeline}. The newly created {@link ProcessingPipeline} will use the instances of the
+//     * {@link PipelineProcessor}s from the supplied {@link ProcessingPipeline}. In other words, a <i>shallow copy</i> of
+//     * the workflow is created, where {@link PipelineProcessor}s share their states.
+//     * </p>
+//     * 
+//     * @param processingPipeline The {@link ProcessingPipeline} from which the {@link PipelineProcessor}s will be added
+//     *            to the newly created instance.
+//     */
+//    public ProcessingPipeline(ProcessingPipeline processingPipeline) {
+//        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.pipelineProcessors);
+//    }
 
     /**
      * <p>

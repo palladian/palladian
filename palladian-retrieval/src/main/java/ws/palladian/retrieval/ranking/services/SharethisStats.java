@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -84,19 +86,14 @@ public final class SharethisStats extends BaseRankingService implements RankingS
      * @param secret The required secret for accessing the service.
      */
     public SharethisStats(String apiKey, String secret) {
-        super();
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing");
-        }
-        if (secret == null || secret.isEmpty()) {
-            throw new IllegalStateException("The required secret is missing.");
-        }
+        Validate.notEmpty(apiKey, "The required API key is missing");
+        Validate.notEmpty(secret, "The required secret is missing.");
         this.apiKey = apiKey;
         this.secret = secret;
     }
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -112,11 +109,11 @@ public final class SharethisStats extends BaseRankingService implements RankingS
             results.put(SHARES, total);
             LOGGER.trace("ShareThis stats for " + url + " : " + total);
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
         return ranking;
     }

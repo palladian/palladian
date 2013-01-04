@@ -8,6 +8,7 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -30,7 +31,7 @@ public abstract class BaseRankingService implements RankingService {
     }
 
     @Override
-    public Map<String, Ranking> getRanking(List<String> urls) {
+    public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
         Map<String, Ranking> results = new HashMap<String, Ranking>();
         if (!isBlocked()) {
             // iterate through urls and get ranking for each
