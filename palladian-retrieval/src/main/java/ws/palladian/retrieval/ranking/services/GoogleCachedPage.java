@@ -13,6 +13,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -47,7 +48,7 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
     private Long lastRequestTimestamp;
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
 
@@ -56,14 +57,13 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
         double indexed = 0.;
         String requestUrl = buildRequestUrl(url);
 
-        HttpResult httpHead;
         try {
 
             boolean success = false;
 
             while (!success) {
 
-                httpHead = retriever.httpHead(requestUrl);
+                HttpResult httpHead = retriever.httpHead(requestUrl);
 
                 success = true;
 
@@ -83,7 +83,7 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
             }
 
         } catch (HttpException e) {
-            LOGGER.error(e.getMessage());
+            throw new RankingServiceException(e);
         }
 
         results.put(GOOGLE_CACHED, (float)indexed);
@@ -114,8 +114,7 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://webcache.googleusercontent.com/search?q=cache:" + url;
-        return requestUrl;
+        return "http://webcache.googleusercontent.com/search?q=cache:" + url;
     }
 
     @Override
@@ -128,7 +127,7 @@ public final class GoogleCachedPage extends BaseRankingService implements Rankin
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         GoogleCachedPage gpl = new GoogleCachedPage();
         Ranking ranking = null;
 

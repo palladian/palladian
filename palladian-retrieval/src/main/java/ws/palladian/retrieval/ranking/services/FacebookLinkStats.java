@@ -20,6 +20,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -61,12 +62,8 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-    public FacebookLinkStats() {
-        super();
-    }
-
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
 
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
@@ -102,14 +99,14 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 checkBlocked();
             }
         } catch (JSONException e) {
-            LOGGER.error("JSONException (URL: " + url + ") " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException (URL: " + url + ") " + e.getMessage(), e);
         }
         return ranking;
     }
 
     @Override
-    public Map<String, Ranking> getRanking(List<String> urls) {
+    public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
 
         Map<String, Ranking> results = new HashMap<String, Ranking>();
         if (isBlocked()) {
@@ -127,7 +124,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 }
             }
 
-            HashMap<String, String> postData = new HashMap<String, String>();
+            Map<String, String> postData = new HashMap<String, String>();
             postData.put("format", "json");
             postData.put("query", "select total_count,like_count,comment_count,share_count from link_stat where "
                     + encUrls);
@@ -174,10 +171,10 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 checkBlocked();
             }
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
+            throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
 
         return results;
@@ -227,7 +224,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
         return RANKING_TYPES;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RankingServiceException {
         FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
         StopWatch stopWatch = new StopWatch();
         // System.out

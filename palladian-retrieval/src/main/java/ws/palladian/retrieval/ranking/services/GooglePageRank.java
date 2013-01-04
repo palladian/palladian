@@ -14,6 +14,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -45,7 +46,7 @@ public final class GooglePageRank extends BaseRankingService implements RankingS
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -67,8 +68,8 @@ public final class GooglePageRank extends BaseRankingService implements RankingS
                 LOGGER.trace("Google PageRank for " + url + " : " + pageRank);
             }
         } catch (Exception e) {
-            LOGGER.error("Exception " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
         results.put(PAGERANK, (float)pageRank);
         return ranking;
