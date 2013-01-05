@@ -114,6 +114,8 @@ public class ImageHandler {
             LOGGER.error(url + ", " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error(url + ", " + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(url + ", " + e.getMessage());
         }
 
         return bufferedImage;

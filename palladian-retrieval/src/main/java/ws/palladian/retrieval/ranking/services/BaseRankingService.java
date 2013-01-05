@@ -30,6 +30,26 @@ public abstract class BaseRankingService implements RankingService {
         retriever.setConnectionTimeout(5000);
     }
 
+    /**
+     * <p>
+     * Same as getRanking but here we swallow the exception as the caller can not act on it anyway.
+     * </p>
+     * 
+     * @param url The url to rank.
+     * @return The ranking or null if an error occurred.
+     */
+    public Ranking tryGetRanking(String url) {
+        Ranking ranking = null;
+
+        try {
+            ranking = getRanking(url);
+        } catch (RankingServiceException e) {
+            e.printStackTrace();
+        }
+
+        return ranking;
+    }
+
     @Override
     public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
         Map<String, Ranking> results = new HashMap<String, Ranking>();
