@@ -79,6 +79,9 @@ public final class StringHelper {
         safeName = safeName.replace("Ü", "Ue");
         safeName = safeName.replace("ß", "ss");
 
+        safeName = removeControlCharacters(safeName);
+        safeName = removeNonAsciiCharacters(safeName);
+
         if (maxLength > 0) {
             safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
         }
@@ -1011,9 +1014,16 @@ public final class StringHelper {
      */
     public static String clean(String text) {
 
+        text = removeControlCharacters(text);
+        text = cleanKeepFormat(text);
+
+        return text;
+    }
+
+    public static String cleanKeepFormat(String text) {
+
         text = HtmlHelper.stripHtmlTags(text);
         text = StringEscapeUtils.unescapeHtml(text);
-        text = removeControlCharacters(text);
         text = replaceProtectedSpace(text);
         text = removeDoubleWhitespaces(text);
         // text = removeNonAsciiCharacters(text);

@@ -122,6 +122,8 @@ public abstract class WebPageContentExtractor {
             return setDocument(url);
         } catch (MalformedURLException e) {
             throw new PageContentExtractorException("could not resolve " + documentLocation, e);
+        } catch (NullPointerException e) {
+            throw new PageContentExtractorException("could not resolve URL because of NPE, URL: " + documentLocation, e);
         }
     }
 
