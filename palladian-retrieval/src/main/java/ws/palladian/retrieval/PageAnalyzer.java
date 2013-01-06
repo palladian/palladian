@@ -355,16 +355,17 @@ public final class PageAnalyzer {
                     // System.out.println("found " + child.getNodeType() + "," + child.getNodeName() + ","
                     // + child.getNodeValue());
 
+                String nodeValue = child.getNodeValue();
                 if (child.getTextContent().contains(keyword)
-                        || (child.getNodeValue() != null && child.getNodeType() != 8 && child.getNodeValue()
+                        || (nodeValue != null && child.getNodeType() != 8 && nodeValue
                                 .toLowerCase().indexOf(keyword.toLowerCase()) > -1)) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
-                    if (wordMatch) {
+                    if (wordMatch && nodeValue != null) {
                         Pattern pattern = Pattern.compile(
                                 "(?<![A-Za-z_])" + StringHelper.escapeForRegularExpression(keyword) + "(?![A-Za-z_])",
                                 Pattern.CASE_INSENSITIVE);
-                        Matcher m = pattern.matcher(child.getNodeValue());
+                        Matcher m = pattern.matcher(nodeValue);
                         if (m.find()) {
                             String xpath = constructXPath(child);
                             if (xpath.length() > 0) {
