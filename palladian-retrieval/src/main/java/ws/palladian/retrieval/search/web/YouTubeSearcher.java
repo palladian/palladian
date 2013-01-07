@@ -137,6 +137,8 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                 Integer runtime = entry.get("media$group/yt$duration/seconds", Integer.class);
                 Integer viewCount = entry.get("yt$statistics/viewCount", Integer.class);
 
+                String description = entry.get("media$group/media$description/$t", String.class);
+
                 Double rating = null;
 
                 JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
@@ -154,7 +156,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                 if (runtime != null) {
                     rtLong = runtime.longValue();
                 }
-                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, rtLong, date);
+                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, description, rtLong, date);
                 webResult.setViews(viewCount);
                 webResult.setRating(rating);
                 webResults.add(webResult);
