@@ -3,6 +3,7 @@
  */
 package ws.palladian.persistence;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -33,15 +36,14 @@ import org.apache.commons.lang3.Validate;
  */
 public final class DatabaseManagerFactory {
     
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseManagerFactory.class);
+    
     public static final String DB_CONFIG_FILE = "database.xml";
 
     private final static Map<String, DataSource> dataSourceRegistry = new ConcurrentHashMap<String, DataSource>();
     
     private static HierarchicalConfiguration configuration;
-
-    private DatabaseManagerFactory() {
-        super();
-    }
 
     /**
      * <p>
@@ -53,6 +55,8 @@ public final class DatabaseManagerFactory {
     private static HierarchicalConfiguration getConfig() {
         if (configuration == null) {
             try {
+                File configFile = new File(DB_CONFIG_FILE);
+                LOGGER.debug("Trying to load configuration from {}", configFile.getAbsolutePath());
                 configuration = new XMLConfiguration(DB_CONFIG_FILE);
             } catch (ConfigurationException e) {
                 throw new IllegalStateException("Error loading the configuration file from \"" + DB_CONFIG_FILE + "\": "
