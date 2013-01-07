@@ -55,7 +55,7 @@ public final class DatabaseManagerFactory {
             try {
                 configuration = new XMLConfiguration(DB_CONFIG_FILE);
             } catch (ConfigurationException e) {
-                throw new IllegalStateException("Error loading the configuration file fro \"" + DB_CONFIG_FILE + "\": "
+                throw new IllegalStateException("Error loading the configuration file from \"" + DB_CONFIG_FILE + "\": "
                         + e.getMessage());
             }
         }

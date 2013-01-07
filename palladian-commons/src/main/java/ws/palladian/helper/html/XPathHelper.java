@@ -612,7 +612,7 @@ public final class XPathHelper {
 
         StringBuilder result = new StringBuilder();
         for (String xPathPart : xPathParts) {
-            if (xPathPart.matches("[a-zA-Z][\\w]*|\\*") && !xPathPart.matches("and|or")) {
+            if (xPathPart.matches("[a-zA-Z][\\w]*|\\*") && !xPathPart.toLowerCase().matches("and|or")) {
                 result.append("xhtml:");
             }
             result.append(xPathPart);

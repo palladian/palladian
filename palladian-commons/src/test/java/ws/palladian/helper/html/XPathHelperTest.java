@@ -53,6 +53,8 @@ public class XPathHelperTest {
         assertEquals("//xhtml:div/xhtml:a|//xhtml:p/xhtml:a", XPathHelper.addXhtmlNsToXPath("//div/a|//p/a"));
         
         assertEquals("//xhtml:a[not(.//xhtml:img)]", XPathHelper.addXhtmlNsToXPath("//a[not(.//img)]"));
+        assertEquals("//xhtml:h2[./xhtml:span[@id='Kritik']]", XPathHelper.addXhtmlNsToXPath("//h2[./span[@id='Kritik']]"));
+        assertEquals("//xhtml:h2[./xhtml:span[@id='Kritik' OR @id='Kritiken']]", XPathHelper.addXhtmlNsToXPath("//h2[./span[@id='Kritik' OR @id='Kritiken']]"));
     }
 
     @Test
