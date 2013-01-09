@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -139,6 +140,8 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
                 String description = entry.get("media$group/media$description/$t", String.class);
 
+                String thumbnailUrl = entry.get("media$group/media$thumbnail[2]/url", String.class);
+
                 Double rating = null;
 
                 JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
@@ -159,6 +162,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                 WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, description, rtLong, date);
                 webResult.setViews(viewCount);
                 webResult.setRating(rating);
+                webResult.setThumbnail(thumbnailUrl);
                 webResults.add(webResult);
 
                 if (webResults.size() >= resultCount) {
@@ -236,5 +240,9 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
      */
     public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
+    }
+
+    public static void main(String[] args) throws SearcherException {
+        CollectionHelper.print(new YouTubeSearcher().search("Nokia Lumia 920", 5));
     }
 }
