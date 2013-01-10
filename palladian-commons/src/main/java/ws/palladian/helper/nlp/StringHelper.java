@@ -980,18 +980,24 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
      * Removes unwanted control characters from the specified string.
+     * </p>
      * 
      * @param string
      * @return
      */
     public static String removeControlCharacters(String string) {
+        // replace line breaks encoded in utf-8
+        string = string.replace("\u2028", "\n");
+
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
             if (string.charAt(i) < 33) {
                 string = string.replace(string.charAt(i), ' ');
             }
         }
+
         return string;
     }
 
