@@ -23,8 +23,9 @@ public final class KeyWords {
     public static final byte OTHER_KEYWORD = 3;
 
     /** Keywords found in HTTP-header. */
-    public static final String[] HTTP_KEYWORDS = {"date", "Date", "DATE", "last-modified", "Last-Modified",
-            "Last-modified", "LAST-MODIFIED"};
+    public static final String[] HTTP_KEYWORDS = {"date", "last-modified" };
+//    public static final String[] HTTP_KEYWORDS = {"date", "Date", "DATE", "last-modified", "Last-Modified",
+//        "Last-modified", "LAST-MODIFIED"};
 
     /** Keywords found in HTTP header of connections. */
     public static final String[] HEAD_KEYWORDS = {"published", "publish", "pubdate", "posted", "released", "release",
@@ -36,10 +37,10 @@ public final class KeyWords {
             "last-modified", "last modified", "date-last-modified", "update", "dc:date", "xsd:date", "xsd:dateTime",
             "date", "time", "datetime", "datestamp", "date-header", "revised", "revise"};
 
-    /** Keywords found in HTML content of documents. */
-    public static final String[] BODY_CONTENT_KEYWORDS_FIRST = {"published", "pubdate", "posted", "released",
-            "release", "updated", "update", "veröffentlicht", "create", "created", "revised", "revise", "aktualisiert",
-            "added", "geschrieben"};
+//    /** Keywords found in HTML content of documents. */
+//    public static final String[] BODY_CONTENT_KEYWORDS_FIRST = {"published", "pubdate", "posted", "released",
+//            "release", "updated", "update", "veröffentlicht", "create", "created", "revised", "revise", "aktualisiert",
+//            "added", "geschrieben"};
 
     /** Kewords found in content of documents */
     public static final String[] BODY_CONTENT_KEYWORDS_ALL = {"published", "publish", "posted", "created", "create",
@@ -49,19 +50,19 @@ public final class KeyWords {
             "date-header", "date"};
 
     /** Keywords belonging to first priority class. */
-    public static final String[] FIRST_PRIORITY_KEYWORDS = {"published", "publish", "posted", "released", "release",
+    private static final String[] FIRST_PRIORITY_KEYWORDS = {"published", "publish", "posted", "released", "release",
             "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate", "display_date",
             "Veröffentlicht", "create", "created", "added", "geschrieben"};
+//    /** Keywords belonging to second priority class. */
+//    private static final String[] SECOND_PRIORITY_KEYWORDS = {"last-modified", "last modified", "date-last-modified",
+//            "updated", "update", "change", "modified", "revised", "revise", "aktualisiert"};
     /** Keywords belonging to second priority class. */
-    public static final String[] SECOND_PRIORITY_KEYWORDS = {"last-modified", "last modified", "date-last-modified",
-            "updated", "update", "change", "modified", "revised", "revise", "aktualisiert"};
-    /** Keywords belonging to second priority class. */
-    public static final String[] THIRD_PRIORITY_KEYWORDS = {"date", "time", "datetime", "datestamp", "dc:date",
+    private static final String[] THIRD_PRIORITY_KEYWORDS = {"date", "time", "datetime", "datestamp", "dc:date",
             "xsd:date", "xsd:dateTime", "date-header"};
 
-    /** All keywords. */
-    public static final String[] ALL_KEYWORDS = CollectionHelper.concat(FIRST_PRIORITY_KEYWORDS,
-            CollectionHelper.concat(SECOND_PRIORITY_KEYWORDS, THIRD_PRIORITY_KEYWORDS));
+//    /** All keywords. */
+//    private static final String[] ALL_KEYWORDS = CollectionHelper.concat(FIRST_PRIORITY_KEYWORDS,
+//            CollectionHelper.concat(SECOND_PRIORITY_KEYWORDS, THIRD_PRIORITY_KEYWORDS));
 
     /**
      * Returns the classpriority of a keyword. If a date has no keyword -1 will
