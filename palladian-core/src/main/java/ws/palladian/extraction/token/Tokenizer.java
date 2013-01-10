@@ -23,6 +23,7 @@ import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
@@ -43,9 +44,11 @@ public final class Tokenizer {
     public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
     /** The RegExp used for sentence splitting. */
-    public static final String SENTENCE_SPLIT_REGEX = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|etc|z\\.B|u\\.s\\.w|u\\.a)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
-    private static final Pattern SENTENCE_SPLIT_PATTERN = Pattern.compile(SENTENCE_SPLIT_REGEX);
+    private static final Pattern SENTENCE_SPLIT_PATTERN_EN = Pattern.compile(SENTENCE_SPLIT_REGEX_EN);
+    private static final Pattern SENTENCE_SPLIT_PATTERN_DE = Pattern.compile(SENTENCE_SPLIT_REGEX_DE);
 
     /** The compiled pattern used for tokenization, using {@link Tokenizer#TOKEN_SPLIT_REGEX}. */
     public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
@@ -365,7 +368,15 @@ public final class Tokenizer {
     }
 
     public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
-        return getSentences(inputText, onlyRealSentences, SENTENCE_SPLIT_PATTERN);
+        return getSentences(inputText, onlyRealSentences, Language.ENGLISH);
+    }
+
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
+        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
+        if (language == Language.GERMAN) {
+            pattern = SENTENCE_SPLIT_PATTERN_DE;
+        }
+        return getSentences(inputText, onlyRealSentences, pattern);
     }
 
     /**
@@ -529,7 +540,16 @@ public final class Tokenizer {
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
     public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName) {
-        return getSentences(inputDocument, SENTENCE_SPLIT_PATTERN, featureName);
+        return getSentences(inputDocument, featureName, Language.ENGLISH);
+    }
+
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName,
+            Language language) {
+        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
+        if (language == Language.GERMAN) {
+            pattern = SENTENCE_SPLIT_PATTERN_DE;
+        }
+        return getSentences(inputDocument, pattern, featureName);
     }
 
     // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
@@ -705,7 +725,11 @@ public final class Tokenizer {
      * @return The senteces as they appear in the text.
      */
     public static List<String> getSentences(String inputText) {
-        return getSentences(inputText, false);
+        return getSentences(inputText, Language.ENGLISH);
+    }
+
+    public static List<String> getSentences(String inputText, Language language) {
+        return getSentences(inputText, false, language);
     }
 
     /**
@@ -875,7 +899,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
