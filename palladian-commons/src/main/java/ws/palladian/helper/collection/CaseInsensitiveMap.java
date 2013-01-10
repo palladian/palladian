@@ -27,7 +27,7 @@ public class CaseInsensitiveMap<V> implements Map<String, V>, Serializable {
      */
     public CaseInsensitiveMap(Map<String, V> map) {
         this.map = new HashMap<String, V>();
-        this.map.putAll(map);
+        putAll(map);
     }
 
     public CaseInsensitiveMap() {
