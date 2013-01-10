@@ -18,7 +18,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,8 +136,8 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
             String jsonString = HttpHelper.getStringContent(result);
             LOGGER.debug("JSON result: " + jsonString);
 
-            JSONArray resultArray = JPathHelper.get(jsonString, "/results", JSONArray.class);
             try {
+                JSONArray resultArray = JPathHelper.get(jsonString, "/results", JSONArray.class);
                 for (int i = 0; i < resultArray.length(); i++) {
                     JSONObject resultObject = resultArray.getJSONObject(i);
                     String title = JPathHelper.get(resultObject, "/title", String.class);
@@ -151,7 +150,7 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
                         break;
                     }
                 }
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 throw new SearcherException("Error while parsing the JSON response (" + jsonString + "): "
                         + e.getMessage(), e);
             }
