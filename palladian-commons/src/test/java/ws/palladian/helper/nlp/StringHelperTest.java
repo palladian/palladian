@@ -327,4 +327,14 @@ public class StringHelperTest {
         assertFalse(StringHelper.containsAny("the quick brown fox", Arrays.asList("elephant", "tiger", "squirrel")));
     }
 
+    @Test
+    public void testRemoveEmptyLines() {
+        assertEquals(3, StringHelper.removeEmptyLines("\n\nline1\n     line2\n \n \n \n \nline3").split("\n").length);
+    }
+
+    @Test
+    public void testTrimLines() {
+        assertEquals("line1\nline2\nline3", StringHelper.trimLines("\n\nline1\n     line2\n \n \n \n \nline3"));
+    }
+
 }
