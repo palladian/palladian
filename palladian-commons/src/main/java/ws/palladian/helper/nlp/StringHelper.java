@@ -1800,6 +1800,36 @@ public final class StringHelper {
         }
         return false;
     }
+    
+    /**
+     * <p>
+     * Remove empty lines from a String.
+     * </p>
+     * 
+     * @param string The string from where to remove empty lines.
+     * @return The string without empty lines, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String removeEmptyLines(String string) {
+        if (string == null) {
+            return null;
+        }
+        return string.replaceAll("(?m)^\\s*$\\n", "");
+    }
+
+    /**
+     * <p>
+     * Trim each line in a String, i.e. remove whitespace from beginning/end of each line in the String.
+     * </p>
+     * 
+     * @param text The string for which to trim lines.
+     * @return The string with each line trimmed, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String trimLines(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replaceAll("(?m)^\\s*|\\s*$", "");
+    }
 
     /**
      * The main method.
@@ -1987,5 +2017,7 @@ public final class StringHelper {
         }
 
     }
+
+
 
 }
