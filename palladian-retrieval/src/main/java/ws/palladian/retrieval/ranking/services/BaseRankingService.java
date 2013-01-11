@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.ranking.Ranking;
@@ -19,6 +22,9 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Philipp Katz
  */
 public abstract class BaseRankingService implements RankingService {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseRankingService.class);
 
     /** DocumentRetriever for HTTP downloading purposes. */
     protected final HttpRetriever retriever;
@@ -44,7 +50,7 @@ public abstract class BaseRankingService implements RankingService {
         try {
             ranking = getRanking(url);
         } catch (RankingServiceException e) {
-            e.printStackTrace();
+            LOGGER.warn("Encountered exception while getting ranking via {}: {}", getClass().getSimpleName(), e);
         }
 
         return ranking;
