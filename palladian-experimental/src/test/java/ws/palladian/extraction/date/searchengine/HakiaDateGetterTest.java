@@ -1,14 +1,15 @@
 package ws.palladian.extraction.date.searchengine;
 
-import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.ExtractedDate;
 
 public class HakiaDateGetterTest {
 
-    private static final Logger LOGGER = Logger.getLogger(HakiaDateGetterTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HakiaDateGetterTest.class);
 
     @Test
     @Ignore

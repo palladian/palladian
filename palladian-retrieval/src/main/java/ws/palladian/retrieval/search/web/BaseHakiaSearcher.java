@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -33,7 +34,7 @@ import ws.palladian.retrieval.search.SearcherException;
 abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(BaseHakiaSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseHakiaSearcher.class);
 
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.hakia.key";
@@ -78,6 +79,7 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         String requestUrl = buildRequestUrl(query, resultCount);
+        LOGGER.debug("Requesting " + requestUrl);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);

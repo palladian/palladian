@@ -3,9 +3,9 @@ package ws.palladian.retrieval.wiki;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wiki.data.Revision;
 import ws.palladian.retrieval.wiki.data.WikiDescriptor;
 import ws.palladian.retrieval.wiki.data.WikiPage;
@@ -24,7 +24,7 @@ import ws.palladian.retrieval.wiki.queries.RevisionsByTitleQuery;
 public class RevisionThread implements Runnable {
 
     /** The global logger */
-    private static final Logger LOGGER = Logger.getLogger(RevisionThread.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RevisionThread.class);
 
     /** The database used to persist results */
     private final MediaWikiDatabase mwDatabase;
@@ -57,7 +57,7 @@ public class RevisionThread implements Runnable {
         try {
             rbtq = new RevisionsByTitleQuery(bot, page.getTitle(), page.getNewestRevisionID());
         } catch (VersionException e) {
-            LOGGER.fatal("Fetching page revisions is not supported by this Wiki version. " + e);
+            LOGGER.error("Fetching page revisions is not supported by this Wiki version. " + e);
         }
 
         // run query and process results

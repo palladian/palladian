@@ -49,6 +49,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
     @Override
     public void openIndex() {
 
+        
         try {
 
             Class.forName(dbDriver);
@@ -82,9 +83,9 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
                     .prepareStatement("SELECT documentId FROM documentsHashes WHERE hash IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         } catch (ClassNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("ClassNotFoundException while loading {}", dbDriver, e);
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while setting up the database", e);
         }
 
     }
@@ -103,7 +104,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             }
 
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while adding document", e);
         }
 
     }
@@ -123,7 +124,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             resultSet.close();
 
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while getting hash for document", e);
         }
 
         return result;
@@ -170,7 +171,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             resultSet.close();
 
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while getting document IDs for sketch", e);
         }
 
         LOGGER.trace("<getDocumentsForSketch " + result.size() + " " + result);
@@ -191,7 +192,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             }
 
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while getting sketch for document", e);
         }
 
         LOGGER.trace("<getSketchForDocument " + result.size() + " " + result);
@@ -208,7 +209,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             runUpdate(psAddDocSim);
 
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while adding document similarity", e);
         }
 
     }
@@ -227,7 +228,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
                 result.put(masterDoc, docSims);
             }
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while getting similar documents", e);
         }
 
         return result;
@@ -245,7 +246,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
                 result.add(resultSet.getInt(1));
             }
         } catch (SQLException e) {
-            LOGGER.error(e);
+            LOGGER.error("SQLException while getting similar documents", e);
         }
 
         return result;

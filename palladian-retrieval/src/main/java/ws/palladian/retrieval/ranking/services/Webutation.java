@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -14,6 +15,7 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -27,7 +29,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class Webutation extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(Webutation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Webutation.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "webutation";
@@ -40,7 +42,7 @@ public final class Webutation extends BaseRankingService implements RankingServi
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(WEBUTATION);
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -58,13 +60,12 @@ public final class Webutation extends BaseRankingService implements RankingServi
             if (scoreNode != null) {
                 try {
                     webutation = Integer.valueOf(scoreNode.getTextContent()) / 100;
-
                     LOGGER.trace("Webutation for " + url + " : " + webutation);
                 } catch (Exception e) {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            throw new RankingServiceException(e.getMessage());
         }
 
         results.put(WEBUTATION, (float)webutation);
@@ -80,8 +81,7 @@ public final class Webutation extends BaseRankingService implements RankingServi
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://www.webutation.net/go/review/" + UrlHelper.getDomain(url, false);
-        return requestUrl;
+        return "http://www.webutation.net/go/review/" + UrlHelper.getDomain(url, false);
     }
 
     @Override
@@ -94,7 +94,7 @@ public final class Webutation extends BaseRankingService implements RankingServi
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         Webutation gpl = new Webutation();
         Ranking ranking = null;
 

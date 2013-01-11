@@ -5,10 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
@@ -31,7 +32,7 @@ import ws.palladian.retrieval.HttpRetriever;
 public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(AlchemyApiKeywordExtraction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlchemyApiKeywordExtraction.class);
 
     /** The API key for AlchemyAPI. */
     private final String apiKey;
@@ -95,7 +96,7 @@ public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
                     headers, content);
             response = new String(postResult.getContent());
         } catch (HttpException e) {
-            LOGGER.error(e);
+            LOGGER.error("HttpException while accessing Alchemy API", e);
         }
 
         if (response != null) {
@@ -118,7 +119,7 @@ public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
                 }
 
             } catch (JSONException e) {
-                LOGGER.error(e);
+                LOGGER.error("JSONException while parsing the response", e);
             }
         }
 

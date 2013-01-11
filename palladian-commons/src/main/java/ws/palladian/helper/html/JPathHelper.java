@@ -4,10 +4,11 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -21,7 +22,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public final class JPathHelper {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(JPathHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JPathHelper.class);
 
 
     /**
@@ -47,6 +48,10 @@ public final class JPathHelper {
         Validate.notNull(json, "json must not be null.");
         Validate.notEmpty(jPath, "jPath must not be empty.");
         Validate.notNull(targetClass, "targetClass must not be null");
+        
+        if (jPath.startsWith("/")) {
+            jPath = jPath.substring(1, jPath.length());
+        }
 
         try {
             String[] split = jPath.split("/");

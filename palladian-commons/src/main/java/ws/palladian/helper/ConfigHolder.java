@@ -8,7 +8,8 @@ import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -49,7 +50,7 @@ public final class ConfigHolder {
     }
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ConfigHolder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigHolder.class);
 
     /**
      * <p>
@@ -123,7 +124,7 @@ public final class ConfigHolder {
 //                configCandidates.add(configResource.getFile());
 //            }
             configCandidates.add(CONFIG_PATH);
-            LOGGER.debug("config candidates : " + configCandidates);
+            LOGGER.debug("config candidates : {}", configCandidates);
             
             File configFile = null;
             for (String candidate : configCandidates) {
@@ -132,7 +133,7 @@ public final class ConfigHolder {
             }
 
             if (configFile.exists()) {
-                LOGGER.debug("Loaded 'palladian.properties' from: " + configFile.getAbsolutePath());
+                LOGGER.debug("Loaded 'palladian.properties' from: {}", configFile.getAbsolutePath());
             } else {
 //                throw new IllegalStateException(
 //                        "No Palladian configuration file available. Please put on named palladian.properties in a folder called 'config' either on your classpath, a folder identified by the environment variable PALLADIAN_HOME or in the location you are running Palladian from.");
@@ -143,7 +144,7 @@ public final class ConfigHolder {
             if (properties.isEmpty()) {
 //                throw new IllegalStateException("Failed to parse Palladian configuration file at: "
 //                        + configFile.getAbsolutePath());
-                LOGGER.warn("Failed to parse Palladian configuration file at: " + configFile.getAbsolutePath());
+                LOGGER.warn("Failed to parse Palladian configuration file at: {}", configFile.getAbsolutePath());
             }
 
             checkPropertiesVersion(properties);
@@ -168,8 +169,9 @@ public final class ConfigHolder {
         if (properties.containsKey("config.version")) {
             int fileVersion = properties.getInt("config.version");
             if (fileVersion != VERSION) {
-                LOGGER.warn("the palladian.properties file is outdated, it is version " + fileVersion
-                        + " but the latest version is " + VERSION + ", please consider updating");
+                LOGGER.warn(
+                        "the palladian.properties file is outdated, it is version {} but the latest version is {}, please consider updating",
+                        fileVersion, VERSION);
             }
         } else {
             LOGGER.warn("the palladian.properties file is outdated, it has no 'config.version' field, please consider updating");

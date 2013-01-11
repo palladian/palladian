@@ -7,7 +7,8 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
@@ -24,7 +25,7 @@ import ws.palladian.retrieval.HttpResult;
 public final class HttpHelper {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(HttpHelper.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
 
     private HttpHelper() {
         // utility class, no instances required.

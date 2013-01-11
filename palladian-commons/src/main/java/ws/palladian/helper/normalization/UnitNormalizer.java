@@ -4,7 +4,8 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.math.MathHelper;
@@ -18,6 +19,9 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  */
 public class UnitNormalizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnitNormalizer.class);
 
     public static final int UNIT_UNITLESS = 0;
     public static final int UNIT_TIME = 1;
@@ -490,7 +494,7 @@ public class UnitNormalizer {
                 return MathHelper.round(combinedValue, decimals);
             }
         } catch (StringIndexOutOfBoundsException e) {
-            Logger.getRootLogger().error(unitText, e);
+            LOGGER.error(unitText, e);
         }
 
         return -1.0;
@@ -668,7 +672,7 @@ public class UnitNormalizer {
                         restWordSequence.substring(m.end()), wordSequence);
             }
         } catch (NumberFormatException e) {
-            Logger.getRootLogger().error(m.group(), e);
+            LOGGER.error(m.group(), e);
         }
 
         return MathHelper.round(number, decimals);

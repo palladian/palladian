@@ -13,7 +13,7 @@ If you have any questions, comments, or problems, we are happy to hear from you:
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; Technische Universität Dresden, Germany, Fakultät Informatik, Institut für Systemarchitektur, Lehrstuhl Rechnernetze; 2009 - 2012.
+The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; Technische Universität Dresden, Germany, Fakultät Informatik, Institut für Systemarchitektur, Lehrstuhl Rechnernetze; 2009 - 2013.
 
 License
 -------

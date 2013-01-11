@@ -16,8 +16,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.h2.tools.RunScript;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.nlp.LoremIpsumGenerator;
@@ -32,7 +33,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public class WordDB {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WordDB.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WordDB.class);
 
     // //////////////////database paramenters ////////////////////
     private Connection connection = null;
@@ -833,39 +834,39 @@ public class WordDB {
         Word word = wordDB.getWord("freedom");
         wordDB.aggregateInformation(word);
         // Word word = wordDB.getWord("Freiheit");
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         word = wordDB.getWord("beer");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         word = wordDB.getWord("health");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         word = wordDB.getWord("Strand");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         word = wordDB.getWord("Fliege");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         word = wordDB.getWord("Kleider");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         word = wordDB.getWord("Bier");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         word = wordDB.getWord("Notebook");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
         
         word = wordDB.getWord("Walkman");
         wordDB.aggregateInformation(word);
-        LOGGER.info(word);
+        LOGGER.info("{}", word);
 
         LOGGER.info(sw.getElapsedTimeString());
         LOGGER.info(sw.getTotalElapsedTimeString());

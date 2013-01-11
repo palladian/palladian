@@ -29,11 +29,12 @@ import net.sourceforge.jwbf.mediawiki.actions.util.SupportedBy;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 
-import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 /**
@@ -49,7 +50,7 @@ import org.xml.sax.InputSource;
 public class GetRendering extends MWAction {
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(GetRendering.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetRendering.class);
 
     private final Get msg;
 

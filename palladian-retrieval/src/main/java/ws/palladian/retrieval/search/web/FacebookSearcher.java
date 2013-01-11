@@ -6,10 +6,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -31,7 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public final class FacebookSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FacebookSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FacebookSearcher.class);
 
     /** The name of the WebSearcher. */
     private static final String SEARCHER_NAME = "Facebook";

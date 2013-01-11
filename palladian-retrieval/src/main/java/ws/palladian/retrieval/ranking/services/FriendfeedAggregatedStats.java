@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -17,6 +18,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -36,7 +38,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class FriendfeedAggregatedStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(FriendfeedAggregatedStats.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FriendfeedAggregatedStats.class);
 
     private static final String GET_ENTRIES = "http://friendfeed.com/api/feed/url?url=";
 
@@ -75,7 +77,7 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
     }
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -105,11 +107,11 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
             LOGGER.trace("FriendFeed stats for " + url + " : " + results);
 
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
         return ranking;
     }

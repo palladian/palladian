@@ -5,12 +5,13 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -21,7 +22,7 @@ import com.sun.net.httpserver.HttpServer;
 public class HttpRetrieverTest {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(HttpRetrieverTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetrieverTest.class);
     
     private static final int PORT = 8888;
     private HttpServer httpServer;

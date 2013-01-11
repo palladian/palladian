@@ -4,7 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.constants.Language;
@@ -28,7 +29,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
 public class CoOccurrenceRetriever {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(CoOccurrenceRetriever.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoOccurrenceRetriever.class);
 
     /** Specify how far or close the terms must be to count the co-occurrence. */
     private CoOccurrenceContext coOccurrenceContext;
@@ -80,7 +81,7 @@ public class CoOccurrenceRetriever {
 
                 }
             } catch (SearcherException e) {
-                LOGGER.error(e);
+                LOGGER.error("Searcher exception while searching {}", query, e);
             }
         }
 

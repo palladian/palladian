@@ -13,7 +13,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -69,7 +70,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ReadabilityContentExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadabilityContentExtractor.class);
 
     /** name of attribute for storing readability values in DOM elements */
     private static final String READABILITY_ATTR = "readability";
@@ -239,7 +240,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         if (isWriteDump()) {
             String filename = "dumps/pageContentExtractor" + System.currentTimeMillis() + ".xml";
             HtmlHelper.writeToFile(cache, new File(filename));
-            LOGGER.info("wrote dump to " + filename);
+            LOGGER.info("wrote dump to {}", filename);
         }
 
         /**
@@ -476,7 +477,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                 if (UNLIKELY_CANDIDATES_RE.matcher(unlikelyMatchString).find()
                         && !OK_MAYBE_ITS_A_CANDIDATE_RE.matcher(unlikelyMatchString).find()
                         && !node.getTagName().equalsIgnoreCase("body")) {
-                    LOGGER.debug("Removing unlikely candidate - " + unlikelyMatchString);
+                    LOGGER.debug("Removing unlikely candidate - {}", unlikelyMatchString);
                     node.getParentNode().removeChild(node);
                     nodeIndex--;
                     continue;
@@ -583,8 +584,9 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             contentScore = contentScore * (1 - getLinkDensity(candidate));
             setReadability(candidate, contentScore);
 
-            LOGGER.debug("Candidate: " + candidate + " (" + candidate.getAttribute("class") + ":"
-                    + candidate.getAttribute("id") + ") with score " + contentScore);
+            LOGGER.debug("Candidate: {} ({}:{}) with score {}",
+                    new Object[] {candidate, candidate.getAttribute("class"), candidate.getAttribute("id"),
+                            contentScore});
 
             if (topCandidate == null || contentScore > getReadability(topCandidate)) {
                 topCandidate = candidate;
@@ -622,9 +624,9 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             Element siblingNode = (Element) siblingNodes.item(s);
             boolean append = false;
 
-            LOGGER.debug("Looking at sibling node: " + siblingNode + " (" + siblingNode.getAttribute("class") + ":"
-                    + siblingNode.getAttribute("id") + ")"
-                    + (hasReadability(siblingNode) ? " with score " + getReadability(siblingNode) : ""));
+            LOGGER.debug("Looking at sibling node: {} ({}:{}) {}",
+                    new Object[] {siblingNode, siblingNode.getAttribute("class"), siblingNode.getAttribute("id"),
+                            (hasReadability(siblingNode) ? " with score " + getReadability(siblingNode) : "")});
 
             if (siblingNode == topCandidate) {
                 append = true;
@@ -655,7 +657,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             }
 
             if (append) {
-                LOGGER.debug("Appending node: " + siblingNode);
+                LOGGER.debug("Appending node: {}", siblingNode);
 
                 Element nodeToAppend;
                 if (!siblingNode.getNodeName().equalsIgnoreCase("div")
@@ -665,7 +667,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                      * so it doesn't get filtered out later by
                      * accident.
                      */
-                    LOGGER.debug("Altering siblingNode of " + siblingNode.getNodeName() + " to div.");
+                    LOGGER.debug("Altering siblingNode of {} to div.", siblingNode.getNodeName());
                     nodeToAppend = (Element) document.renameNode(siblingNode, siblingNode.getNamespaceURI(), "div");
                 } else {
                     nodeToAppend = siblingNode;
@@ -870,9 +872,9 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             int weight = getClassIdWeight(element);
             float contentScore = getReadability(element);
 
-            LOGGER.debug("Cleaning Conditionally " + element + " (" + element.getAttribute("class") + ":"
-                    + element.getAttribute("id") + ")"
-                    + (hasReadability(element) ? " with score " + getReadability(element) : ""));
+            LOGGER.debug("Cleaning Conditionally {} ({}:{}) {}", new Object[] {element, element.getAttribute("class"),
+                    element.getAttribute("id"),
+                    (hasReadability(element) ? " with score " + getReadability(element) : "")});
 
             if (weight + contentScore < 0) {
                 element.getParentNode().removeChild(element);

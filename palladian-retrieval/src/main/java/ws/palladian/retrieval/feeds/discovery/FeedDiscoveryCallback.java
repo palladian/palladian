@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds.discovery;
 import java.util.List;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.ConfigHolder;
@@ -31,19 +30,13 @@ public class FeedDiscoveryCallback implements RetrieverCallback<Document> {
     /** The default file where the discovered feeds are written to. */
     public static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
 
-    /** Instance of FeedDiscovery to which we delegate for discovery. */
-    private FeedDiscovery feedDiscovery = new FeedDiscovery();
-
     /** The file where the discovered feeds are written to. */
     private String filePath = DEFAULT_FILE_PATH;
 
     private FeedDiscoveryCallback() {
-        Logger.getRootLogger().trace("FeedDiscoveryCallback.<init>");
         PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
         if (config != null) {
             filePath = config.getString("feedDiscovery.crawlerDiscoveryList", DEFAULT_FILE_PATH);
-        } else {
-            Logger.getRootLogger().warn("could not load configuration, use defaults");
         }
     }
 
@@ -58,7 +51,7 @@ public class FeedDiscoveryCallback implements RetrieverCallback<Document> {
     @Override
     public void onFinishRetrieval(Document document) {
         if (document != null) {
-            List<DiscoveredFeed> feeds = feedDiscovery.discoverFeeds(document);
+            List<DiscoveredFeed> feeds = FeedDiscovery.discoverFeeds(document);
             for (DiscoveredFeed feed : feeds) {
                 // output to the file must be synced, or we will lose data when
                 // writing from multiple crawl threads

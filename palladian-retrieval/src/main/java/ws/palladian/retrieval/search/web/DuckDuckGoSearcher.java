@@ -35,10 +35,6 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
     /** The number of entries which are returned for each page. */
     private static final int ENTRIES_PER_PAGE = 10;
 
-    public DuckDuckGoSearcher() {
-        super();
-    }
-
     @Override
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 

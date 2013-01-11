@@ -18,7 +18,8 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
@@ -48,7 +49,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 public final class FeedReader {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(FeedReader.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(FeedReader.class);
 
     /** Maximum number of feed reading threads at the same time. */
     public static final Integer DEFAULT_THREAD_POOL_SIZE = 200;

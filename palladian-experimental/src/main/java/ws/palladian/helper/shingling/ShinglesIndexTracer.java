@@ -3,7 +3,8 @@ package ws.palladian.helper.shingling;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 
@@ -15,7 +16,7 @@ import ws.palladian.helper.StopWatch;
  */
 public class ShinglesIndexTracer implements ShinglesIndex {
 
-    private static final Logger LOGGER = Logger.getLogger(ShinglesIndexTracer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShinglesIndexTracer.class);
 
     private ShinglesIndex profiled;
 

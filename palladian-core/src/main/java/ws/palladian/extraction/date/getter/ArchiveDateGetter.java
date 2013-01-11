@@ -3,7 +3,8 @@ package ws.palladian.extraction.date.getter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
@@ -26,7 +27,7 @@ import ws.palladian.retrieval.parser.ParserException;
 public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ArchiveDateGetter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveDateGetter.class);
 
     /** The base URL of the archive web page. */
     private static final String ARCHIVE_BASE_URL = "http://web.archive.org/web/*/";

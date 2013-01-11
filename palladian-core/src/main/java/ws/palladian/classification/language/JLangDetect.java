@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
@@ -52,7 +53,7 @@ import com.lingway.ld.GramTree;
 public class JLangDetect extends LanguageClassifier {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(JLangDetect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JLangDetect.class);
 
     /** The confidence threshold for a language. This is the minimal percentage of n-grams which have to match. */
     private static final float THRESHOLD = 0.0f;
@@ -197,7 +198,7 @@ public class JLangDetect extends LanguageClassifier {
             field.setAccessible(true);
             value = field.get(object);
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("Encountered exception while accessing private field via reflection", e);
         }
         return value;
     }

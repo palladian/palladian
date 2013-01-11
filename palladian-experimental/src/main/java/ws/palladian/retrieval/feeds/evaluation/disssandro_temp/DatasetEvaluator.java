@@ -3,7 +3,8 @@ package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 import java.util.Collection;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
@@ -51,7 +52,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 public class DatasetEvaluator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetCreator.class);
 
     /**
      * The feed checker.
@@ -130,7 +131,7 @@ public class DatasetEvaluator {
         boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
                 .createEvaluationBaseTable(getSimulatedPollsDbTableName());
         if (!created) {
-            LOGGER.fatal("Database table " + getSimulatedPollsDbTableName()
+            LOGGER.error("Database table " + getSimulatedPollsDbTableName()
                     + " could not be created. Evaluation is impossible. Processing aborted.");
             System.exit(-1);
         }
@@ -149,7 +150,7 @@ public class DatasetEvaluator {
         if (dataWritten) {
             LOGGER.info("Evaluation results have been written to database.");
         } else {
-            LOGGER.fatal("Evaluation results have NOT been written to database!");
+            LOGGER.error("Evaluation results have NOT been written to database!");
         }
         ChartCreator chartCreator = new ChartCreator(200, 200);
         String[] dbTable = { getSimulatedPollsDbTableName() };
@@ -189,7 +190,7 @@ public class DatasetEvaluator {
                 // check for conflicting interval bounds
                 if (fixInterval < minInterval || fixInterval > maxInterval) {
                     fatalErrorOccurred = true;
-                    LOGGER.fatal("Defined fixInterval and interval bounds have conflict! "
+                    LOGGER.error("Defined fixInterval and interval bounds have conflict! "
                             + "Make sure minInterval <= fixInterval <= maxInterval.");
                 }
                 updateStrategy = new FixUpdateStrategy(fixInterval);
@@ -251,14 +252,14 @@ public class DatasetEvaluator {
             // Unknown strategy
             else {
                 fatalErrorOccurred = true;
-                LOGGER.fatal("Cant read updateStrategy from config.");
+                LOGGER.error("Cant read updateStrategy from config.");
             }
 
 
             // validate interval bounds
             if (minInterval >= maxInterval || minInterval < 1 || maxInterval < 1) {
                 fatalErrorOccurred = true;
-                LOGGER.fatal("Please set interval bounds bounds properly.");
+                LOGGER.error("Please set interval bounds bounds properly.");
             }
             // set interval bounds
             else {
@@ -278,14 +279,14 @@ public class DatasetEvaluator {
                 benchmarkMode = FeedReaderEvaluator.BENCHMARK_POLL;
             } else {
                 fatalErrorOccurred = true;
-                LOGGER.fatal("Cant read benchmarkMode from config.");
+                LOGGER.error("Cant read benchmarkMode from config.");
             }
             logMsg.append(", benchmarkMode = ");
             logMsg.append(mode);
             
         } catch (Exception e) {
             fatalErrorOccurred = true;
-            LOGGER.fatal("Could not load DatasetEvaluator configuration: " + e.getLocalizedMessage());
+            LOGGER.error("Could not load DatasetEvaluator configuration: " + e.getLocalizedMessage());
         }
 
         if (!fatalErrorOccurred) {
@@ -307,7 +308,7 @@ public class DatasetEvaluator {
             System.exit(0);
         } else {
 
-            LOGGER.fatal("Exiting.");
+            LOGGER.error("Exiting.");
         }
     }
 

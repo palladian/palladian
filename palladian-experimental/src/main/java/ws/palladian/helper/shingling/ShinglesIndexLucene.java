@@ -98,11 +98,11 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             writer = new IndexWriter(directory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
 
         } catch (CorruptIndexException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (LockObtainFailedException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
     }
 
@@ -111,9 +111,9 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         try {
             writer.close();
         } catch (CorruptIndexException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
     }
 
@@ -143,9 +143,9 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             writer.commit();
 
         } catch (CorruptIndexException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
     }
 
@@ -177,9 +177,9 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             reader.close();
 
         } catch (ParseException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
 
         return documents;
@@ -214,9 +214,9 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             reader.close();
 
         } catch (ParseException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
 
         return result;
@@ -232,9 +232,9 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             result = reader.numDocs();
             reader.close();
         } catch (CorruptIndexException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
 
         return result;
@@ -269,9 +269,9 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             reader.close();
 
         } catch (ParseException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
 
         return result;
@@ -325,9 +325,9 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             writer.commit();
 
         } catch (ParseException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
 
     }
@@ -372,11 +372,11 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             reader.close();
 
         } catch (NumberFormatException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (CorruptIndexException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
 
         return similarDocuments;
@@ -420,11 +420,11 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             reader.close();
 
         } catch (NumberFormatException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (CorruptIndexException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         }
 
         return documents;

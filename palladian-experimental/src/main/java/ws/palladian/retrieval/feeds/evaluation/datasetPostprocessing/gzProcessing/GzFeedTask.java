@@ -11,7 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.StopWatch;
@@ -46,7 +47,7 @@ import ws.palladian.retrieval.helper.HttpHelper;
 public class GzFeedTask implements Callable<FeedTaskResult> {
 
     /** The logger for this class. */
-    private final static Logger LOGGER = Logger.getLogger(GzFeedTask.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GzFeedTask.class);
 
     /**
      * The feed corrected by this task.
@@ -128,7 +129,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
             boolean csvBackupDone = FileHelper.renameFile(originalCsv, newCsvPath);
 
             if (!csvBackupDone) {
-                LOGGER.fatal("Could not backup csv file for feed " + correctedFeed.getId()
+                LOGGER.error("Could not backup csv file for feed " + correctedFeed.getId()
                         + ". Feed will not be processed!");
                 resultSet.add(FeedTaskResult.ERROR);
                 doFinalLogging(timer);
@@ -194,7 +195,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                         try {
                             gzFeed = feedParser.getFeed(gzHttpResult);
                         } catch (FeedParserException e) {
-                            LOGGER.fatal("Could not get feed from http header for feed id " + correctedFeed.getId()
+                            LOGGER.error("Could not get feed from http header for feed id " + correctedFeed.getId()
                                     + ". " + e.getLocalizedMessage());
                             resultSet.add(FeedTaskResult.UNPARSABLE);
                             continue;
@@ -246,7 +247,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
 
             // Check whether we eliminated some misses or got even more.
             if (initialMisses < correctedFeed.getMisses()) {
-                LOGGER.fatal("After processing, feed id " + correctedFeed.getId() + " has more MISSes than before!!");
+                LOGGER.error("After processing, feed id " + correctedFeed.getId() + " has more MISSes than before!!");
                 resultSet.add(FeedTaskResult.MISS);
             } else {
                 resultSet.add(FeedTaskResult.SUCCESS);
@@ -299,7 +300,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
-            LOGGER.fatal("Error processing feedID " + correctedFeed.getId() + ": " + th);
+            LOGGER.error("Error processing feedID " + correctedFeed.getId() + ": " + th);
             resultSet.add(FeedTaskResult.ERROR);
             doFinalLogging(timer);
             return getResult();
@@ -321,7 +322,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
             String removableName = renamedFiles.get(origName);
             success = FileHelper.renameFile(new File(path + removableName), path + origName);
             if (!success) {
-                LOGGER.fatal("File " + removableName + " could not be renamed to " + origName);
+                LOGGER.error("File " + removableName + " could not be renamed to " + origName);
                 errors++;
             }
         }

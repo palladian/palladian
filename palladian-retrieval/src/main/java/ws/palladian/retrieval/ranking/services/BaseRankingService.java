@@ -4,10 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -18,6 +22,9 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Philipp Katz
  */
 public abstract class BaseRankingService implements RankingService {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseRankingService.class);
 
     /** DocumentRetriever for HTTP downloading purposes. */
     protected final HttpRetriever retriever;
@@ -29,8 +36,28 @@ public abstract class BaseRankingService implements RankingService {
         retriever.setConnectionTimeout(5000);
     }
 
+    /**
+     * <p>
+     * Same as getRanking but here we swallow the exception as the caller can not act on it anyway.
+     * </p>
+     * 
+     * @param url The url to rank.
+     * @return The ranking or null if an error occurred.
+     */
+    public Ranking tryGetRanking(String url) {
+        Ranking ranking = null;
+
+        try {
+            ranking = getRanking(url);
+        } catch (RankingServiceException e) {
+            LOGGER.warn("Encountered exception while getting ranking via {}: {}", getClass().getSimpleName(), e);
+        }
+
+        return ranking;
+    }
+
     @Override
-    public Map<String, Ranking> getRanking(List<String> urls) {
+    public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
         Map<String, Ranking> results = new HashMap<String, Ranking>();
         if (!isBlocked()) {
             // iterate through urls and get ranking for each

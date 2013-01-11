@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
@@ -24,7 +25,7 @@ import ws.palladian.helper.math.MathHelper;
 public final class DatasetManager {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
     
     private DatasetManager() {
         

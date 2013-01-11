@@ -4,7 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.language.JLangDetect;
 import ws.palladian.classification.language.LanguageClassifier;
@@ -18,7 +19,7 @@ import ws.palladian.helper.math.MathHelper;
 public class LanguageDetectionEvaluation {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(LanguageDetectionEvaluation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LanguageDetectionEvaluation.class);
     
     private static final String PALLADIAN_MODEL_PATH = "";
 

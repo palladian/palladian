@@ -17,9 +17,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,7 +52,7 @@ import ws.palladian.retrieval.PageAnalyzer;
 public class PageSegmenter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PageSegmenter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageSegmenter.class);
 
     /** Default length of q-grams. */
     private static final int DEFAULT_LENGTH_OF_Q_GRAMS = 9;
@@ -157,7 +158,7 @@ public class PageSegmenter {
 
         // if input is a list of xPaths, turn it into a list of Segments
         LOGGER.info(chosenSegmentsInput.get(0).getClass().getSimpleName());
-        LOGGER.info(chosenSegmentsInput.get(0));
+        LOGGER.info("{}", chosenSegmentsInput.get(0));
         if (chosenSegmentsInput.get(0).getClass().getSimpleName().equals("String")) {
             LOGGER.info("... War ein String");
 
@@ -274,9 +275,9 @@ public class PageSegmenter {
             }
             print.close();
         } catch (FileNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("FileNotFoundException for {}", newStoreLocation, e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException for {}", newStoreLocation, e);
         }
 
     }
@@ -783,7 +784,7 @@ public class PageSegmenter {
                 s.remove(constructXPath);
             }
             LOGGER.info("S.size neu: " + s.size());
-            LOGGER.info(s);
+            LOGGER.info(s.toString());
         }
 
         return xPathList;

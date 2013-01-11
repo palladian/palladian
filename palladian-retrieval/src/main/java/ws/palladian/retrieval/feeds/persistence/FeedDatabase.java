@@ -11,7 +11,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
@@ -37,7 +38,7 @@ import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedDatabase.class);
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?, itemHash = ?";

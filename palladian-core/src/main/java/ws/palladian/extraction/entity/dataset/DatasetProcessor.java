@@ -3,7 +3,8 @@ package ws.palladian.extraction.entity.dataset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
@@ -15,7 +16,7 @@ import ws.palladian.helper.io.FileHelper;
 public class DatasetProcessor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetProcessor.class);
 
     /**
      * This method separates a dataset file document in X new files where X = maxDocuments - minDocuments + 1.

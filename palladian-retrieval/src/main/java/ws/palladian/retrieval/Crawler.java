@@ -4,7 +4,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.Callback;
@@ -21,7 +22,7 @@ import ws.palladian.helper.io.FileHelper;
 public class Crawler {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(Crawler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
     /** The document retriever. */
     private DocumentRetriever documentRetriever;
@@ -70,14 +71,14 @@ public class Crawler {
      */
     protected void crawl(String currentURL) {
 
-        LOGGER.info("catch from stack: " + currentURL);
+        LOGGER.info("catch from stack: {}", currentURL);
 
         // System.out.println("process "+currentURL+" \t stack size: "+urlStack.size()+" dump size: "+urlDump.size());
         Document document = documentRetriever.getWebDocument(currentURL);
 
         Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
-        LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || stack size: "
-                + urlStack.size() + " dump size: " + urlDump.size() + ", visited: " + visitedURLs.size());
+        LOGGER.info("\n\nretrieved {} links from {} || stack size: {} dump size: {}, visited: {}",
+                new Object[] {links.size(), currentURL, urlStack.size(), urlDump.size(), visitedURLs.size()});
 
         addURLsToStack(links, currentURL);
     }
@@ -147,7 +148,7 @@ public class Crawler {
         int wc = 0;
         while (getThreadCount() > 0 && wc < 180) {
             try {
-                LOGGER.info("wait a second (" + (180 - wc) + " more times)");
+                LOGGER.info("wait a second ({} more times)", 180 - wc);
                 wc++;
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

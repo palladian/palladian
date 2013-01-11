@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.UrlHelper;
@@ -47,7 +48,7 @@ import com.sun.syndication.io.SyndFeedInput;
 public class RomeFeedParser extends BaseFeedParser implements FeedParser {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(RomeFeedParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RomeFeedParser.class);
 
     /** Whether to use additional date parsing techniques provided by Palladian. */
     private boolean useDateRecognition = true;

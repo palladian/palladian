@@ -59,7 +59,8 @@ import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -91,7 +92,7 @@ import ws.palladian.helper.io.FileHelper;
 public class HttpRetriever {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(HttpRetriever.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
 
     // ///////////// constants with default configuration ////////
 
@@ -368,7 +369,7 @@ public class HttpRetriever {
         try {
             post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e);
+            throw new IllegalStateException("Unexpected UnsupportedEncodingException");
         }
 
         return execute(url, post);
@@ -637,7 +638,7 @@ public class HttpRetriever {
             try {
                 HttpResponse response = client.execute(headRequest);
                 int statusCode = response.getStatusLine().getStatusCode();
-                LOGGER.debug("checked " + url + "; result " + statusCode);
+                LOGGER.debug("Result {} for {}", statusCode, url);
                 if (statusCode >= 300 && statusCode < 400) {
                     Header[] locationHeaders = response.getHeaders("location");
                     if (locationHeaders.length == 0) {
@@ -725,7 +726,7 @@ public class HttpRetriever {
             HttpResult httpResult = httpGet(url, requestHeaders);
             result = saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {
-            LOGGER.error(e);
+            LOGGER.error("Error while downloading {}", url, e);
         }
 
         return result;
@@ -780,7 +781,7 @@ public class HttpRetriever {
             result = true;
 
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("Error while saving to {}", filePath, e);
         } finally {
             FileHelper.close(out);
         }
@@ -842,9 +843,9 @@ public class HttpRetriever {
             httpResult = new HttpResult(url, content, headers, statusCode, transferedBytes);
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("File not found: {}", file, e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("IOException for: {}", file, e);
         } finally {
             FileHelper.close(inputStream);
         }
@@ -876,7 +877,7 @@ public class HttpRetriever {
                         statusCodeString = statusCodeString.trim();
                         statusCode = Integer.valueOf(statusCodeString);
                     } catch (Exception e) {
-                        LOGGER.error(e);
+                        LOGGER.error("Exception while parsing header", e);
                     }
                 } else {
 

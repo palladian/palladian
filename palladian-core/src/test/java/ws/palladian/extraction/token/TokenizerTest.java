@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.helper.constants.Language;
+
 /**
  * <p>
  * Test cases for the Tokenizer class.
@@ -258,7 +260,7 @@ public class TokenizerTest {
         inputText = "it happened again ;-(. soo mean!";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());
-        
+
         inputText = "IT IS three years since Senator Barack Obama pronounced that America “is no longer a Christian nation—at least, not just.” The words sounded harsher than he intended: bla.";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());
@@ -266,6 +268,9 @@ public class TokenizerTest {
         inputText = "My name is Dr. No. I'm No. 1.";
         sentences = Tokenizer.getSentences(inputText);
         // XXX should give "My name is Dr. No.", "I'm No. 1."
-                
+
+        inputText = "Das ist z.B. sooo groß.";
+        sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
+        assertEquals(1, sentences.size());
     }
 }

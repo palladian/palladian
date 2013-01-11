@@ -18,7 +18,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
@@ -50,7 +51,7 @@ import com.planetj.math.rabinhash.RabinHashFunction64;
 public class Shingles {
 
     /** class logger. */
-    private static final Logger LOGGER = Logger.getLogger(Shingles.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Shingles.class);
 
     /** the index to store all shingles and mappings between similar documents. */
     private ShinglesIndex index;
@@ -259,12 +260,12 @@ public class Shingles {
         // we treat the document with the lowest ID as "master" document which references
         // all similar/identical documents
         if (similarDocuments2.size() > 0) {
-            LOGGER.debug(debugMessage);
+            LOGGER.debug(debugMessage.toString());
             index.addDocumentSimilarity(Collections.min(similarDocuments2), documentId);
             result = true;
         } else {
             debugMessage.append(" looks unique.");
-            LOGGER.debug(debugMessage);
+            LOGGER.debug(debugMessage.toString());
         }
         return result;
     }

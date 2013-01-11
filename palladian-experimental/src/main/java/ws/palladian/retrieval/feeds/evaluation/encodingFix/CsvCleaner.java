@@ -13,7 +13,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -34,7 +35,7 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 public class CsvCleaner extends Thread {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(CsvCleaner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvCleaner.class);
 
     private Feed feed;
 
@@ -62,7 +63,7 @@ public class CsvCleaner extends Thread {
             // read csv
             LOGGER.debug("processing: " + csvPath);
             if (!FileHelper.fileExists(csvPath)) {
-                LOGGER.fatal("No csv file found for feed id " + feed.getId() + ", tried to get file " + csvPath
+                LOGGER.error("No csv file found for feed id " + feed.getId() + ", tried to get file " + csvPath
                         + ". Nothing to do for this feed.");
                 return;
             }
@@ -79,13 +80,13 @@ public class CsvCleaner extends Thread {
             if (backupOriginal && newFileWritten) {
                 LOGGER.info("New file written to " + csvPath);
             } else {
-                LOGGER.fatal("could not write output file, dumping to log:\n" + rewrittenCSV);
+                LOGGER.error("could not write output file, dumping to log:\n" + rewrittenCSV);
             }
 
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals.
         } catch (Throwable th) {
-            LOGGER.error(th);
+            LOGGER.error("", th);
         }
 
     }
@@ -107,11 +108,11 @@ public class CsvCleaner extends Thread {
                 result.add(line);
             }
         } catch (FileNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } finally {
             FileHelper.close(reader);
         }

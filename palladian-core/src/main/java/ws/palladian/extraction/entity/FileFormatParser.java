@@ -6,8 +6,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.DatasetManager;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -23,6 +25,9 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  */
 public class FileFormatParser {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
 
     /**
      * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the conll 2003 file.
@@ -543,7 +548,7 @@ public class FileFormatParser {
         } else if (format.equals(TaggingFormat.COLUMN)) {
             return getAnnotationsFromColumn(taggedTextFilePath);
         } else {
-            Logger.getRootLogger().error("format " + format + " not supported for getAnnotations");
+            LOGGER.error("format {} not supported for getAnnotations", format);
         }
 
         return null;

@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -30,7 +31,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 public class DeliciousCrawler {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DeliciousCrawler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeliciousCrawler.class);
 
     /** The document retriever. */
     private DocumentRetriever documentRetriever = null;

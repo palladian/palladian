@@ -7,7 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -25,7 +26,7 @@ import ws.palladian.retrieval.resources.WebLink;
 public abstract class RuleBasedPageClassifier<T> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(RuleBasedPageClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuleBasedPageClassifier.class);
 
     private String pageTitle = "";
     private String pageURL = "";

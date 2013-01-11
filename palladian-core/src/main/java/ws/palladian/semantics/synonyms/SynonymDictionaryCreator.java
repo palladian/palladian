@@ -3,7 +3,8 @@ package ws.palladian.semantics.synonyms;
 import java.io.File;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -28,7 +29,7 @@ import ws.palladian.helper.io.FileHelper;
 public class SynonymDictionaryCreator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SynonymDictionaryCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SynonymDictionaryCreator.class);
 
     public void createDictionary(File inputFile, File dictionaryFile) {
         StopWatch stopWatch = new StopWatch();

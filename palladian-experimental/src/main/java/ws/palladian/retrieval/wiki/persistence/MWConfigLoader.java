@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -29,7 +30,7 @@ import ws.palladian.retrieval.wiki.data.WikiPage;
 public final class MWConfigLoader {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MWConfigLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MWConfigLoader.class);
 
     /** Relative path to MediaWiki crawler configuration file in YAML */
     protected static final String CONFIG_FILE_PATH = "config/mwCrawlerConfiguration.yml";
@@ -181,10 +182,10 @@ public final class MWConfigLoader {
      */
     @SuppressWarnings("unused")
     private void resetDatabase() {
-        LOGGER.fatal("Reseting database! ");
+        LOGGER.warn("Reseting database! ");
         for (WikiDescriptor wiki : mwDatabase.getAllWikiDescriptors()) {
             mwDatabase.removeWiki(wiki.getWikiID());
-            LOGGER.fatal("Removed all data for Wiki \"" + wiki.getWikiName() + "\".");
+            LOGGER.warn("Removed all data for Wiki \"" + wiki.getWikiName() + "\".");
         }
     }
 

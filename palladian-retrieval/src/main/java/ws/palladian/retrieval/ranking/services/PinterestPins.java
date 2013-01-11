@@ -5,14 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -32,7 +34,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class PinterestPins extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(PinterestPins.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PinterestPins.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "pinterest";
@@ -46,7 +48,7 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
 
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -68,7 +70,7 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
                 LOGGER.trace("Pinterest Pins for " + url + " : " + pins);
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            throw new RankingServiceException(e);
         }
 
         results.put(PINS, (float)pins);
@@ -84,8 +86,7 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://api.sharedcount.com/?url=" + UrlHelper.encodeParameter(url);
-        return requestUrl;
+        return "http://api.sharedcount.com/?url=" + UrlHelper.encodeParameter(url);
     }
 
     @Override
@@ -98,7 +99,7 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         PinterestPins gpl = new PinterestPins();
         Ranking ranking = null;
 

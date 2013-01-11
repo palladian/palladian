@@ -6,7 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -22,7 +23,7 @@ import org.apache.log4j.Logger;
 public class ProxySwitcher implements HttpHook {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ProxySwitcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxySwitcher.class);
 
     /** The URL to use for testing the proxies. */
     private static final String CHECK_URL = "http://www.sourceforge.com";

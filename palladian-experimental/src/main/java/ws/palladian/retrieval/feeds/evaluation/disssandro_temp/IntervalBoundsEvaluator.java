@@ -1,7 +1,8 @@
 package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -34,7 +35,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 public class IntervalBoundsEvaluator extends DatasetEvaluator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(IntervalBoundsEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IntervalBoundsEvaluator.class);
 
     private static final int[] lowerBounds = { 1, 5, 15, 60 };
 
@@ -108,7 +109,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
             // Unknown strategy
             else {
                 fatalErrorOccurred = true;
-                LOGGER.fatal("Cant read updateStrategy from config.");
+                LOGGER.error("Cant read updateStrategy from config.");
             }
 
             // read table name to copy evaluation results from
@@ -123,14 +124,14 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                 benchmarkMode = FeedReaderEvaluator.BENCHMARK_POLL;
             } else {
                 fatalErrorOccurred = true;
-                LOGGER.fatal("Cant read benchmarkMode from config.");
+                LOGGER.error("Cant read benchmarkMode from config.");
             }
             logMsg.append(", benchmarkMode = ");
             logMsg.append(mode);
 
         } catch (Exception e) {
             fatalErrorOccurred = true;
-            LOGGER.fatal("Could not load DatasetEvaluator configuration: " + e.getLocalizedMessage());
+            LOGGER.error("Could not load DatasetEvaluator configuration: " + e.getLocalizedMessage());
         }
 
         if (!fatalErrorOccurred) {
@@ -217,7 +218,7 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
             System.exit(0);
         } else {
 
-            LOGGER.fatal("Exiting.");
+            LOGGER.error("Exiting.");
         }
     }
 
