@@ -5,7 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -19,6 +20,9 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  */
 public class XPathSet {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(XPathSet.class);
 
     private LinkedHashMap<String, Integer> xPathMap = null;
 
@@ -132,8 +136,8 @@ public class XPathSet {
         String[] stagesArray = longestHighCountXPath.replace(highestHitCountXPath, "").split("/");
         int stages = stagesArray.length - 1;
 
-        Logger.getRootLogger().debug(
-                "longest high count: " + longestHighCountXPath.toLowerCase() + " stages: " + stages);
+        LOGGER.debug(
+                "longest high count: {} stages: {}", longestHighCountXPath.toLowerCase(), stages);
 
         // check whether there is text content at the specified path, otherwise move stages up until
         // text content is found or the highest count xpath is reached
@@ -146,7 +150,7 @@ public class XPathSet {
             stages--;
         }
 
-        Logger.getRootLogger().debug("node with content: " + longestHighCountXPath.toLowerCase());
+        LOGGER.debug("node with content: {}", longestHighCountXPath.toLowerCase());
 
         return longestHighCountXPath;
     }

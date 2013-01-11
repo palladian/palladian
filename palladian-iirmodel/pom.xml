@@ -65,28 +65,28 @@
 			<version>${hsql.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysqlconnector.version}</version>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.1</version>
-		</dependency>
-		<dependency>
+		</dependency -->
+		<!-- dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
 			<version>1.1</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency -->
 		<dependency>
 			<groupId>org.hibernate.java-persistence</groupId>
 			<artifactId>jpa-api</artifactId>

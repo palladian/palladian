@@ -15,7 +15,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -30,6 +31,9 @@ import ws.palladian.helper.io.LineAction;
  * @author Philipp Katz
  */
 public final class MathHelper {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
 
     private MathHelper() {
         // no instances.
@@ -511,7 +515,9 @@ public final class MathHelper {
     public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
 
         if (collection.size() < sampleSize) {
-            Logger.getRootLogger().warn("tried to sample from a collection that was smaller than the sample size");
+            LOGGER.warn(
+                    "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
+                    collection.size(), sampleSize);
             return collection;
         } else if (collection.size() == sampleSize) {
             return collection;
@@ -572,7 +578,7 @@ public final class MathHelper {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
-            Logger.getRootLogger().warn("the range between min and max is not enough to create enough random numbers");
+            LOGGER.warn("the range between min ({}) and max ({}) is not enough to create enough random numbers", min, max);
             return randomNumbers;
         }
         Random random = new Random();
@@ -621,7 +627,7 @@ public final class MathHelper {
         double[] alphaBeta = new double[2];
 
         if (x.length != y.length) {
-            Logger.getRootLogger().warn("linear regression input is not correct, for each x, there must be a y");
+            LOGGER.warn("linear regression input is not correct, for each x, there must be a y");
         }
         double n = x.length;
         double sx = 0;

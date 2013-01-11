@@ -13,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.ProgressHelper;
@@ -31,6 +32,7 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.services.SemRush;
 import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 
@@ -50,7 +52,7 @@ import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 public class SitemapAnalyzer {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SitemapAnalyzer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SitemapAnalyzer.class);
 
     /** The result table. */
     private final ConcurrentHashMap<String, Map<String, Object>> resultTable;
@@ -134,10 +136,16 @@ public class SitemapAnalyzer {
                 // LOGGER.error(e.getMessage());
                 // indexed = -1;
                 // }
-                SemRush semRush = new SemRush();
-                Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
+                Float inExt = null;
+                try {
+                    SemRush semRush = new SemRush();
+                    Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
+                    inExt = ranking2.getValues().get(SemRush.BACKLINKS_PAGE);
+                } catch (RankingServiceException e) {
+                    LOGGER.error("Error retrieving ranking: " + e.getMessage(), e);
+                }
 
-                map.put("in-ext", ranking2.getValues().get(SemRush.BACKLINKS_PAGE));
+                map.put("in-ext", inExt);
                 map.put("out-int", outInt.size());
                 map.put("out-ext", outExt.size());
                 map.put("#words", wordCount);
@@ -190,7 +198,7 @@ public class SitemapAnalyzer {
                 writer.append("\n");
             }
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("Exception while writing to {}", analysisResultFilePath, e);
         } finally {
             FileHelper.close(writer);
         }

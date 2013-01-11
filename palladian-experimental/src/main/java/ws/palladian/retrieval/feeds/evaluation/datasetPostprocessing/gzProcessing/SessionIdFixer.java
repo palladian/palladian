@@ -2,7 +2,8 @@ package ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.gzProcessi
 
 import java.util.Timer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -22,7 +23,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 public class SessionIdFixer {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(SessionIdFixer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionIdFixer.class);
 
     /**
      * Schedule all {@link GzFeedTask}s

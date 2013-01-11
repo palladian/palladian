@@ -15,7 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -34,7 +35,7 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public final class PageAnalyzer {
 
-    public static final Logger LOGGER = Logger.getLogger(PageAnalyzer.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(PageAnalyzer.class);
     
     private PageAnalyzer() {
         // no instance.
@@ -141,7 +142,7 @@ public final class PageAnalyzer {
         LinkedHashSet<String> xpaths = new LinkedHashSet<String>();
 
         if (document == null) {
-            Logger.getRootLogger().warn("document was null when constructing xpaths");
+            LOGGER.warn("document was null when constructing xpaths");
             return xpaths;
         }
         // System.out.println("print the DOM from last child");
@@ -154,9 +155,9 @@ public final class PageAnalyzer {
         try {
             xpaths = visit(document.getLastChild(), keyword, wordMatch, xpaths);
         } catch (StackOverflowError e) {
-            Logger.getRootLogger().error(document.getDocumentURI(), e);
+            LOGGER.error(document.getDocumentURI(), e);
         } catch (Exception e) {
-            Logger.getRootLogger().error(document.getDocumentURI(), e);
+            LOGGER.error(document.getDocumentURI(), e);
         }
 
         // add namespace if necessary TODO delete, do that only when applying the xpath (XPathHelper.getNodesNS)
@@ -354,16 +355,17 @@ public final class PageAnalyzer {
                     // System.out.println("found " + child.getNodeType() + "," + child.getNodeName() + ","
                     // + child.getNodeValue());
 
+                String nodeValue = child.getNodeValue();
                 if (child.getTextContent().contains(keyword)
-                        || (child.getNodeValue() != null && child.getNodeType() != 8 && child.getNodeValue()
+                        || (nodeValue != null && child.getNodeType() != 8 && nodeValue
                                 .toLowerCase().indexOf(keyword.toLowerCase()) > -1)) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
-                    if (wordMatch) {
+                    if (wordMatch && nodeValue != null) {
                         Pattern pattern = Pattern.compile(
                                 "(?<![A-Za-z_])" + StringHelper.escapeForRegularExpression(keyword) + "(?![A-Za-z_])",
                                 Pattern.CASE_INSENSITIVE);
-                        Matcher m = pattern.matcher(child.getNodeValue());
+                        Matcher m = pattern.matcher(nodeValue);
                         if (m.find()) {
                             String xpath = constructXPath(child);
                             if (xpath.length() > 0) {
@@ -388,7 +390,7 @@ public final class PageAnalyzer {
                 child = child.getNextSibling();
             }
         } catch (Exception e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         return xpaths;
@@ -962,7 +964,7 @@ public final class PageAnalyzer {
     public static String getTextByXPath(Document document, String xpath) {
 
         if (document == null || xpath.length() == 0) {
-            Logger.getRootLogger().warn("document is NULL or xpath is empty");
+            LOGGER.warn("document is NULL or xpath is empty");
             return "";
         }
 
@@ -989,13 +991,13 @@ public final class PageAnalyzer {
             }
 
         } catch (DOMException e) {
-            Logger.getRootLogger().error(xpath + " " + e.getMessage());
+            LOGGER.error(xpath + " " + e.getMessage());
             return "#error#";
         } catch (Exception e) {
-            Logger.getRootLogger().error(xpath + " " + e.getMessage());
+            LOGGER.error(xpath + " " + e.getMessage());
             return "#error#";
         } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(xpath + " " + e.getMessage());
+            LOGGER.error(xpath + " " + e.getMessage());
             return "#error#";
         }
 
@@ -1227,7 +1229,7 @@ public final class PageAnalyzer {
             try {
                 siblingURL = URLEncoder.encode(similarityMap.entrySet().iterator().next().getKey(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                LOGGER.error(e);
+                throw new IllegalStateException(e);
             }
             siblingURL = similarityMap.entrySet().iterator().next().getKey().replace(" ", "%20");
         }

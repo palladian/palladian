@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
@@ -29,7 +30,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 public class PostRateUpdateStrategy extends UpdateStrategy {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MavUpdateStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MavUpdateStrategy.class);
 
     /**
      * <p>

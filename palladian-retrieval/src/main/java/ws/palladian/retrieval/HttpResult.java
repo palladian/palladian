@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import ws.palladian.helper.collection.CaseInsensitiveMap;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
@@ -44,7 +45,11 @@ public class HttpResult implements Serializable {
         super();
         this.url = url;
         this.content = content;
-        this.headers = headers;
+        // this.headers = headers;
+        
+        // field names of the header are case-insensitive: http://www.ietf.org/rfc/rfc2616.txt
+        // Each header field consists of a name followed by a colon (":") and the field value. Field names are case-insensitive.
+        this.headers = new CaseInsensitiveMap<List<String>>(headers);
         this.statusCode = statusCode;
         this.transferedBytes = transferedBytes;
     }

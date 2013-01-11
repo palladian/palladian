@@ -6,10 +6,11 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
@@ -36,7 +37,7 @@ import ws.palladian.retrieval.helper.HttpHelper;
 public class YahooPlaceSpotter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(YahooPlaceSpotter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(YahooPlaceSpotter.class);
 
     public static List<PositionAnnotation> extract(String text) {
 

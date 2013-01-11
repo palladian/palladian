@@ -1,7 +1,7 @@
 package ws.palladian.helper;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -31,14 +31,26 @@ public final class ProgressHelper {
         // no instances.
     }
 
+    /**
+     * @deprecated Use {@link #getProgress(long, long, double)} or {@link #printProgress(long, long, double)} instead.
+     */
+    @Deprecated
     public static String showProgress(long counter, long totalCount, double showEveryPercent) {
         return showProgress(counter, totalCount, showEveryPercent, null, null);
     }
 
+    /**
+     * @deprecated Use {@link #getProgress(long, long, double)} or {@link #printProgress(long, long, double)} instead.
+     */
+    @Deprecated
     public static String showProgress(long counter, long totalCount, double showEveryPercent, Logger logger) {
         return showProgress(counter, totalCount, showEveryPercent, logger, null);
     }
 
+    /**
+     * @deprecated Use {@link #getProgress(long, long, double, StopWatch)} or {@link #printProgress(long, long, double, StopWatch)} instead.
+     */
+    @Deprecated
     public static String showProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
         return showProgress(counter, totalCount, showEveryPercent, null, stopWatch);
     }
@@ -52,7 +64,9 @@ public final class ProgressHelper {
      *            be sent to {@link System#out}.
      * @param stopWatch A {@link StopWatch} which allows an approximation of the estimated time until completion.
      * @return
+     * @deprecated Use {@link #getProgress(long, long, double, StopWatch)} or {@link #printProgress(long, long, double, StopWatch)} instead.
      */
+    @Deprecated
     public static String showProgress(long counter, long totalCount, double showEveryPercent, Logger logger,
             StopWatch stopWatch) {
 
@@ -75,7 +89,7 @@ public final class ProgressHelper {
                 processString.append(")");
 
                 if (logger != null) {
-                    logger.info(processString);
+                    logger.info(processString.toString());
                 } else {
                     System.out.println(processString);
                 }
@@ -95,6 +109,43 @@ public final class ProgressHelper {
         stringBuilder.append(StringUtils.repeat(' ', 50 - scaledPercent));
         stringBuilder.append(']');
         return stringBuilder.toString();
+    }
+    
+    public static void printProgress(long counter, long totalCount, double showEveryPercent) {
+        System.out.println(getProgress(counter, totalCount, showEveryPercent));
+    }
+    
+    public static void printProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
+        System.out.println(getProgress(counter, totalCount, showEveryPercent, stopWatch));
+    }
+    
+    public static String getProgress(long counter, long totalCount, double showEveryPercent) {
+        return getProgress(counter, totalCount, showEveryPercent, null);
+    }
+    
+    public static String getProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
+        StringBuilder processString = new StringBuilder();
+        try {
+            if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
+                double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
+                processString.append(createProgressBar(percent));
+                processString.append(" => ").append(percent).append("% (").append(totalCount - counter)
+                .append(" items remaining");
+                if (stopWatch != null && percent > 0) {
+                    long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
+                    // if elapsed not possible (timer started long before progress helper used) =>
+                    // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
+                    processString.append(", elapsed time: ").append(stopWatch.getTotalElapsedTimeString());
+                    processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
+                    processString.append(", ~remaining: ").append(DateHelper.getRuntime(0, msRemaining));
+                    stopWatch.start();
+                }
+                processString.append(")");
+            }
+        } catch (ArithmeticException e) {
+            // LOGGER.error(e.getMessage());
+        }
+        return processString.toString();
     }
 
     public static void main(String[] args) {

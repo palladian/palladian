@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
@@ -46,7 +47,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
     /** The logger for this class. */
-    private final static Logger LOGGER = Logger.getLogger(EvaluationFeedTask.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(EvaluationFeedTask.class);
 
     /**
      * The feed processed by this task.
@@ -494,7 +495,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
-            LOGGER.fatal("Error processing feedID " + feed.getId() + ": " + th.getLocalizedMessage());
+            LOGGER.error("Error processing feedID " + feed.getId() + ": " + th.getLocalizedMessage());
             resultSet.add(FeedTaskResult.ERROR);
             doFinalLogging(timer);
             return getResult();

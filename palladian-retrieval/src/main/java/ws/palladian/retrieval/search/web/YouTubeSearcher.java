@@ -10,12 +10,14 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -35,7 +37,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(YouTubeSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 
     /** Key of the {@link Configuration} item which contains the API key. */
     public static final String CONFIG_API_KEY = "api.youtube.key";
@@ -136,6 +138,10 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                 Integer runtime = entry.get("media$group/yt$duration/seconds", Integer.class);
                 Integer viewCount = entry.get("yt$statistics/viewCount", Integer.class);
 
+                String description = entry.get("media$group/media$description/$t", String.class);
+
+                String thumbnailUrl = entry.get("media$group/media$thumbnail[2]/url", String.class);
+
                 Double rating = null;
 
                 JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
@@ -153,9 +159,10 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                 if (runtime != null) {
                     rtLong = runtime.longValue();
                 }
-                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, rtLong, date);
+                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, description, rtLong, date);
                 webResult.setViews(viewCount);
                 webResult.setRating(rating);
+                webResult.setThumbnail(thumbnailUrl);
                 webResults.add(webResult);
 
                 if (webResults.size() >= resultCount) {
@@ -233,5 +240,9 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
      */
     public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
+    }
+
+    public static void main(String[] args) throws SearcherException {
+        CollectionHelper.print(new YouTubeSearcher().search("Nokia Lumia 920", 5));
     }
 }

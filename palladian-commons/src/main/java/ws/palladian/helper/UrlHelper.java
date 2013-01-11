@@ -11,7 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -31,7 +32,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public final class UrlHelper {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(UrlHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UrlHelper.class);
 
     /** Names of attributes in (X)HTML containing links. */
     private static final List<String> LINK_ATTRIBUTES = Arrays.asList("href", "src");
@@ -104,7 +105,7 @@ public final class UrlHelper {
                 String value = attributeNode.getNodeValue();
                 String fullValue = makeFullUrl(documentUrl, baseUrl, value);
                 if (!fullValue.equals(value)) {
-                    LOGGER.debug(value + " -> " + fullValue);
+                    LOGGER.debug("{} -> {}", value, fullValue);
                     attributeNode.setNodeValue(fullValue);
                 }
             }
@@ -220,12 +221,12 @@ public final class UrlHelper {
                     result = urlObj.getProtocol() + "://";
                 }
                 result += urlObj.getHost();
-                LOGGER.trace("root url for " + url + " -> " + result);
+                LOGGER.trace("root url for {} -> {}", url, result);
             } else {
-                LOGGER.trace("no domain specified " + url);
+                LOGGER.trace("no domain specified {}", url);
             }
         } catch (MalformedURLException e) {
-            LOGGER.trace("could not determine domain " + url);
+            LOGGER.trace("could not determine domain for {}", url);
         }
         return result;
     }
@@ -317,7 +318,7 @@ public final class UrlHelper {
             return protocol + "://" + port + host + path + queryPart;
 
         } catch (MalformedURLException e) {
-            LOGGER.trace("could not determine canonical url for" + url);
+            LOGGER.trace("could not determine canonical url for {}", url);
             return "";
         }
 

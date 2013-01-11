@@ -13,6 +13,7 @@ import java.util.Date;
 public class WebVideoResult extends WebResult {
 
     private final String videoUrl;
+    private String thumbnail;
     private final Long runTime;
     private Integer views;
     private Double rating;
@@ -30,7 +31,7 @@ public class WebVideoResult extends WebResult {
     public WebVideoResult(String url, String videoUrl, String title, Long runTime, Date date) {
         this(url, videoUrl, title, null, runTime, date);
     }
-    
+
     /**
      * <p>
      * Instantiate a new {@link WebVideoResult}.
@@ -85,6 +86,14 @@ public class WebVideoResult extends WebResult {
         this.rating = rating;
     }
 
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -102,6 +111,8 @@ public class WebVideoResult extends WebResult {
         builder.append(getTitle());
         builder.append(", getSummary()=");
         builder.append(getSummary());
+        builder.append(", getThumbnail()=");
+        builder.append(getThumbnail());
         builder.append(", getDate()=");
         builder.append(getDate());
         builder.append("]");

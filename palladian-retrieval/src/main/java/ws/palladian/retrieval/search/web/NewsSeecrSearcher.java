@@ -1,28 +1,35 @@
 package ws.palladian.retrieval.search.web;
 
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.html.JPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -30,26 +37,60 @@ import ws.palladian.retrieval.search.SearcherException;
  * Search news on <a href="http://newsseecr.com">NewsSeecr</a>
  * </p>
  * 
+ * @see <a href="https://www.mashape.com/qqilihq/newsseecr">API documentation on Mashape</a>
  * @author Philipp Katz
  */
 public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(NewsSeecrSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NewsSeecrSearcher.class);
 
     private static final String SEARCHER_NAME = "NewsSeecr";
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    private static final String BASE_URL = "http://newsseecr.com/api/news/search";
-    // private static final String BASE_URL = "http://localhost:8080/api/news/search";
+    private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/news/search";
 
-    private static final Map<String, String> NAMESPACE_MAPPING = Collections.singletonMap("atom",
-            "http://www.w3.org/2005/Atom");
+    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 
     private static final int RESULTS_PER_REQUEST = 100;
 
-    private final DocumentParser xmlParser = ParserFactory.createXmlParser();
+    private final String mashapePublicKey;
+
+    private final String mashapePrivateKey;
+
+    /** Configuraiton key for the Mashape public key. */
+    public static final String CONFIG_MASHAPE_PUBLIC_KEY = "api.newsseecr.mashapePublicKey";
+    /** Configuration key for the Mashape private key. */
+    public static final String CONFIG_MASHAPE_PRIVATE_KEY = "api.newsseecr.mashapePrivateKey";
+
+    /**
+     * <p>
+     * Create a new {@link NewsSeecrSearcher} with the provided credentials from Mashape.
+     * </p>
+     * 
+     * @param mashapePublicKey The Mashape public key, not empty or <code>null</code>.
+     * @param mashapePrivateKey The Mashape private key, not empty or <code>null</code>.
+     */
+    public NewsSeecrSearcher(String mashapePublicKey, String mashapePrivateKey) {
+        Validate.notEmpty(mashapePublicKey, "mashapePublicKey must not be empty");
+        Validate.notEmpty(mashapePrivateKey, "mashapePrivateKey must not be empty");
+        this.mashapePublicKey = mashapePublicKey;
+        this.mashapePrivateKey = mashapePrivateKey;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link NewsSeecrSearcher} with the provided crendentials from Mashape supplied via a
+     * {@link Configuration}.
+     * </p>
+     * 
+     * @param configuration The configuration supplying the public key as {@value #CONFIG_MASHAPE_PUBLIC_KEY}, private
+     *            key as {@value #CONFIG_MASHAPE_PRIVATE_KEY}, not <code>null</code>.
+     */
+    public NewsSeecrSearcher(Configuration configuration) {
+        this(configuration.getString(CONFIG_MASHAPE_PUBLIC_KEY), configuration.getString(CONFIG_MASHAPE_PRIVATE_KEY));
+    }
 
     @Override
     public String getName() {
@@ -67,7 +108,17 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
             request.addParameter("query", query);
             request.addParameter("page", offset);
             request.addParameter("numResults", Math.min(resultCount, RESULTS_PER_REQUEST));
-            LOGGER.trace("Performing request: " + request);
+
+            String mashapeHeader;
+            try {
+                mashapeHeader = generateMashapeHeader(mashapePublicKey, mashapePrivateKey);
+            } catch (GeneralSecurityException e) {
+                throw new SearcherException("Error while creating Authorization header: " + e.getMessage(), e);
+            }
+            LOGGER.debug("Authorization header = " + mashapeHeader);
+            request.addHeader("X-Mashape-Authorization", mashapeHeader);
+
+            LOGGER.debug("Performing request: " + request);
             HttpResult result;
             try {
                 result = retriever.execute(request);
@@ -75,48 +126,75 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
                 throw new SearcherException("Encountered HTTP error when executing the request: " + request + ": "
                         + e.getMessage(), e);
             }
-            LOGGER.trace("XML result: " + HttpHelper.getStringContent(result));
-            Document document;
+            if (result.getStatusCode() != 200) {
+                // TODO get message
+                throw new SearcherException("Encountered HTTP status " + result.getStatusCode()
+                        + " when executing the request: " + request + ", result: "
+                        + HttpHelper.getStringContent(result));
+            }
+
+            String jsonString = HttpHelper.getStringContent(result);
+            LOGGER.debug("JSON result: " + jsonString);
+
             try {
-                document = xmlParser.parse(result);
-            } catch (ParserException e) {
-                throw new SearcherException("Error when parsing the XML result from request: " + request + ", XML: \""
-                        + HttpHelper.getStringContent(result) + "\": " + e.getMessage(), e);
-            }
-
-            List<Node> entryNodes = XPathHelper.getNodes(document, "//atom:entry", NAMESPACE_MAPPING);
-            if (entryNodes.size() == 0) {
-                break;
-            }
-
-            for (Node node : entryNodes) {
-                String url = XPathHelper.getNode(node, "./atom:link/@href", NAMESPACE_MAPPING).getTextContent();
-                String title = XPathHelper.getNode(node, "./atom:title", NAMESPACE_MAPPING).getTextContent();
-                String summary = XPathHelper.getNode(node, "./atom:summary", NAMESPACE_MAPPING).getTextContent();
-                String dateString = XPathHelper.getNode(node, "./atom:updated", NAMESPACE_MAPPING).getTextContent();
-                Date date = parseDate(dateString);
-                webResults.add(new WebResult(url, title, summary, date, SEARCHER_NAME));
-
-                if (webResults.size() == resultCount) {
-                    break;
+                JSONArray resultArray = JPathHelper.get(jsonString, "/results", JSONArray.class);
+                for (int i = 0; i < resultArray.length(); i++) {
+                    JSONObject resultObject = resultArray.getJSONObject(i);
+                    String title = JPathHelper.get(resultObject, "/title", String.class);
+                    String dateString = JPathHelper.get(resultObject, "/publishedDate", String.class);
+                    String link = JPathHelper.get(resultObject, "/link", String.class);
+                    String text = JPathHelper.get(resultObject, "/text", String.class);
+                    Date date = parseDate(dateString);
+                    webResults.add(new WebResult(link, title, text, date, SEARCHER_NAME));
+                    if (webResults.size() == resultCount) {
+                        break;
+                    }
                 }
+            } catch (Exception e) {
+                throw new SearcherException("Error while parsing the JSON response (" + jsonString + "): "
+                        + e.getMessage(), e);
             }
         }
 
         return webResults;
     }
 
-    private Date parseDate(String dateString) {
+    // https://www.mashape.com/docs/consume/rest
+    static String generateMashapeHeader(String publicKey, String privateKey) throws InvalidKeyException,
+            NoSuchAlgorithmException {
+        return new String(Base64.encodeBase64(String.format("%s:%s", publicKey, sha1hmac(publicKey, privateKey))
+                .getBytes()));
+    }
+
+    // Code taken from:
+    // https://github.com/Mashape/mashape-java-client-library/blob/master/src/main/java/com/mashape/client/http/utils/CryptUtils.java
+    static String sha1hmac(String publicKey, String privateKey) throws NoSuchAlgorithmException, InvalidKeyException {
+        SecretKey key = new SecretKeySpec(privateKey.getBytes(), HMAC_SHA1_ALGORITHM);
+        Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+        mac.init(key);
+        byte[] rawHmac = mac.doFinal(publicKey.getBytes());
+        BigInteger hash = new BigInteger(1, rawHmac);
+        String hmac = hash.toString(16);
+        if (hmac.length() % 2 != 0) {
+            hmac = "0" + hmac;
+        }
+        return hmac;
+    }
+
+    static Date parseDate(String dateString) {
         DateFormat dateParser = new SimpleDateFormat(DATE_FORMAT);
         try {
             return dateParser.parse(dateString);
         } catch (ParseException e) {
+            LOGGER.warn("Error parsing date " + dateString);
             return null;
         }
     }
 
-    public static void main(String[] args) throws SearcherException {
-        NewsSeecrSearcher searcher = new NewsSeecrSearcher();
+    public static void main(String[] args) throws SearcherException, GeneralSecurityException {
+        String publicKey = "u3ewnlzvxvbg3gochzqcrulimgngsb";
+        String privateKey = "dxkyimj8rjoyti1mqx2lqragbbg71k";
+        NewsSeecrSearcher searcher = new NewsSeecrSearcher(publicKey, privateKey);
         List<WebResult> results = searcher.search("obama", 250);
         CollectionHelper.print(results);
     }

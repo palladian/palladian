@@ -4,10 +4,11 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -33,7 +34,7 @@ import ws.palladian.retrieval.search.SearcherException;
 public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(GoogleCustomSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCustomSearcher.class);
 
     /** The name of this WebSearcher. */
     private static final String SEARCHER_NAME = "Google Custom Search";

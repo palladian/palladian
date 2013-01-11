@@ -16,7 +16,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.io.FileHelper;
@@ -40,7 +41,7 @@ import com.sun.syndication.io.SyndFeedInput;
 public class MetaInformationExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MetaInformationExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetaInformationExtractor.class);
 
     private static final Pattern[] VALID_FEED_PATTERNS = new Pattern[] { Pattern.compile("<rss"),
             Pattern.compile("<feed"), Pattern.compile("<rdf:RDF") };

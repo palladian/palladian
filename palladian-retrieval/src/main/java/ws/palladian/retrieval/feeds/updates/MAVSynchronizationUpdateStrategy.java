@@ -3,7 +3,8 @@ package ws.palladian.retrieval.feeds.updates;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
@@ -23,7 +24,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
 public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(MAVSynchronizationUpdateStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MAVSynchronizationUpdateStrategy.class);
 
     /**
      * Controls the usage of the optional RSS element time to live. In all cases: If a feed's ttl is set to -1, it is

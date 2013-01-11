@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.feeds;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -19,7 +20,7 @@ public abstract class FeedItemHashGenerator {
     // XXX Setting this via static field is not nice, necessary changes for making this nice would be too big for now.
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedItemHashGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedItemHashGenerator.class);
 
     /** The strategy used for creating a {@link FeedItem}'s hash. */
     public static FeedItemHashGenerator STRATEGY = new FeedItemHashGenerator() {
@@ -39,8 +40,8 @@ public abstract class FeedItemHashGenerator {
                 newHash = StringHelper.sha1(hash.toString());
 
             } else {
-                LOGGER.error("Could not generate custom item hash, all values are null or empty. Feed id "
-                        + feedItem.getFeedId());
+                LOGGER.error("Could not generate custom item hash, all values are null or empty. Feed id {}",
+                        feedItem.getFeedId());
             }
 
             return newHash;

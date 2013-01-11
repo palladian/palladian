@@ -7,7 +7,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverter;
@@ -22,7 +23,7 @@ import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 public final class EvaluationDatabase extends DatabaseManager {
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(EvaluationDatabase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EvaluationDatabase.class);
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String psGetPollsFromAdaptiveMaxTime = "SELECT feedID, numberOfPoll, activityPattern, conditionalGetResponseSize, sizeOfPoll, pollTimestamp, checkInterval, newWindowItems, missedItems, windowSize, culmulatedDelay, culmulatedLateDelay, timeliness, timelinessLate FROM feed_evaluation2_adaptive_max_time";

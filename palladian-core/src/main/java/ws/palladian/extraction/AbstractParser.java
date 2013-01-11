@@ -2,7 +2,8 @@ package ws.palladian.extraction;
 
 import opennlp.tools.parser.Parse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the AbstractParser.
@@ -14,7 +15,7 @@ public abstract class AbstractParser {
     /**
      * Logger for this class.
      */
-    protected static final Logger LOGGER = Logger.getLogger(AbstractParser.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractParser.class);
 
     /**
      * Object holding the model.

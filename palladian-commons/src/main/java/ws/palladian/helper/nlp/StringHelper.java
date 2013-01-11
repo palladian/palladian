@@ -16,7 +16,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.RegExp;
@@ -35,6 +36,9 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  * @author Martin Gregor
  */
 public final class StringHelper {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(StringHelper.class);
 
     /** Used to replace a semicolon in a string to store it in csv file that uses semicolon to separate fields. */
     private static final String SEMICOLON_REPLACEMENT = "###putSemicolonHere###";
@@ -74,6 +78,9 @@ public final class StringHelper {
         safeName = safeName.replace("ü", "ue");
         safeName = safeName.replace("Ü", "Ue");
         safeName = safeName.replace("ß", "ss");
+
+        safeName = removeControlCharacters(safeName);
+        safeName = removeNonAsciiCharacters(safeName);
 
         if (maxLength > 0) {
             safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
@@ -350,16 +357,10 @@ public final class StringHelper {
         try {
             pat = Pattern.compile(RegExp.STRING);
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.STRING, e);
-            return false;
+            throw new IllegalStateException("Error compiling the predefined RegEx.");
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find()) {
-            return true;
-        }
-
-        return false;
+        return m.find();
     }
 
     public static boolean containsWordRegExp(Collection<String> words, String searchString) {
@@ -390,6 +391,20 @@ public final class StringHelper {
         return contained;
     }
 
+    public static String containsWhichWord(Collection<String> words, String searchString) {
+
+        String contained = null;
+
+        for (String word : words) {
+            if (containsWord(word, searchString)) {
+                contained = word;
+                break;
+            }
+        }
+
+        return contained;
+    }
+
     /**
      * <p>
      * Check whether a string contains a word given as a regular expression. The word can be surrounded by whitespaces
@@ -411,7 +426,7 @@ public final class StringHelper {
         try {
             pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + regexp, e);
+            LOGGER.error("PatternSyntaxException for {} with regExp {}", new Object[] {searchString, regexp, e});
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -472,7 +487,7 @@ public final class StringHelper {
 
     public static String replaceWord(String word, String replacement, String searchString) {
 
-        if (word.isEmpty()) {
+        if (word == null || word.isEmpty()) {
             return searchString;
         }
 
@@ -529,9 +544,7 @@ public final class StringHelper {
         try {
             pattern = Pattern.compile(RegExp.NUMBER);
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.NUMBER, e);
-            return false;
+            throw new IllegalStateException("Error compiling the predefined RegEx.");
         }
         Matcher matcher = pattern.matcher(searchString);
         return matcher.find();
@@ -600,7 +613,7 @@ public final class StringHelper {
             string = string.replaceAll("\\[.*?\\]", "");
             string = string.replaceAll("\\{.*?\\}", "");
         } catch (Exception e) {
-            Logger.getRootLogger().error(string + ", " + e.getMessage());
+            LOGGER.error("{}, {}", string, e.getMessage());
         }
         return string.trim();
     }
@@ -631,7 +644,7 @@ public final class StringHelper {
             string = string.replace("-", "\\-");
             string = string.replaceAll("\\n", "\\\\n");
         } catch (Exception e) {
-            Logger.getRootLogger().error(string + ", " + e.getMessage());
+            LOGGER.error("{}, {}", string, e.getMessage());
         }
         return string;
     }
@@ -737,7 +750,7 @@ public final class StringHelper {
 
             }
         } catch (NumberFormatException e) {
-            Logger.getRootLogger().debug(m.group() + ", " + e.getMessage());
+            LOGGER.debug("{}, {}", m.group(), e.getMessage());
             return false;
         }
 
@@ -967,18 +980,24 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
      * Removes unwanted control characters from the specified string.
+     * </p>
      * 
      * @param string
      * @return
      */
     public static String removeControlCharacters(String string) {
+        // replace line breaks encoded in utf-8
+        string = string.replace("\u2028", "\n");
+
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
             if (string.charAt(i) < 33) {
                 string = string.replace(string.charAt(i), ' ');
             }
         }
+
         return string;
     }
 
@@ -1001,9 +1020,16 @@ public final class StringHelper {
      */
     public static String clean(String text) {
 
+        text = removeControlCharacters(text);
+        text = cleanKeepFormat(text);
+
+        return text;
+    }
+
+    public static String cleanKeepFormat(String text) {
+
         text = HtmlHelper.stripHtmlTags(text);
         text = StringEscapeUtils.unescapeHtml(text);
-        text = removeControlCharacters(text);
         text = replaceProtectedSpace(text);
         text = removeDoubleWhitespaces(text);
         // text = removeNonAsciiCharacters(text);
@@ -1459,17 +1485,17 @@ public final class StringHelper {
     public static int countRegexMatches(String text, String pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         return countRegexMatches(text, Pattern.compile(pattern));
-//        if (text == null || text.isEmpty()) {
-//            return 0;
-//        }
-//        Matcher matcher = Pattern.compile(pattern).matcher(text);
-//        int matches = 0;
-//        while (matcher.find()) {
-//            matches++;
-//        }
-//        return matches;
+        //        if (text == null || text.isEmpty()) {
+        //            return 0;
+        //        }
+        //        Matcher matcher = Pattern.compile(pattern).matcher(text);
+        //        int matches = 0;
+        //        while (matcher.find()) {
+        //            matches++;
+        //        }
+        //        return matches;
     }
-    
+
     public static int countRegexMatches(String text, Pattern pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         if (text == null || text.isEmpty()) {
@@ -1780,6 +1806,36 @@ public final class StringHelper {
         }
         return false;
     }
+    
+    /**
+     * <p>
+     * Remove empty lines from a String.
+     * </p>
+     * 
+     * @param string The string from where to remove empty lines.
+     * @return The string without empty lines, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String removeEmptyLines(String string) {
+        if (string == null) {
+            return null;
+        }
+        return string.replaceAll("(?m)^\\s*$\\n", "");
+    }
+
+    /**
+     * <p>
+     * Trim each line in a String, i.e. remove whitespace from beginning/end of each line in the String.
+     * </p>
+     * 
+     * @param text The string for which to trim lines.
+     * @return The string with each line trimmed, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String trimLines(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replaceAll("(?m)^\\s*|\\s*$", "");
+    }
 
     /**
      * The main method.
@@ -1967,5 +2023,7 @@ public final class StringHelper {
         }
 
     }
+
+
 
 }

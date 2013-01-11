@@ -15,7 +15,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
@@ -62,7 +63,7 @@ import ws.palladian.semantics.WordTransformer;
 public class DatasetCreator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetCreator.class);
 
     /** The name of the dataset. */
     private String datasetName = "untitled";
@@ -366,7 +367,7 @@ public class DatasetCreator {
         try {
             result = searcher.searchUrls(query, getMentionsPerEntity(), Language.ENGLISH);
         } catch (SearcherException e) {
-            LOGGER.error(e);
+            LOGGER.error("Searcher exception while searching for {}", query, e);
         }
         return result;
     }

@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -18,6 +19,7 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -33,7 +35,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class WebOfTrust extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WebOfTrust.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebOfTrust.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "web_of_trust";
@@ -46,7 +48,7 @@ public final class WebOfTrust extends BaseRankingService implements RankingServi
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(TRUSTWORTHINESS);
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
 
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
@@ -64,9 +66,9 @@ public final class WebOfTrust extends BaseRankingService implements RankingServi
                 results.put(TRUSTWORTHINESS, trustValue);
             }
         } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
+            throw new RankingServiceException("HttpException " + e.getMessage());
         } catch (ParserException e) {
-            LOGGER.error("ParserException " + e.getMessage());
+            throw new RankingServiceException("ParserException " + e.getMessage());
         }
 
         return ranking;

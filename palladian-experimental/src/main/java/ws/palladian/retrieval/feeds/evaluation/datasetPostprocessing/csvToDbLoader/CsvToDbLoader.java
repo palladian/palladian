@@ -2,7 +2,8 @@ package ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.csvToDbLoa
 
 import java.util.Timer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -21,7 +22,7 @@ public class CsvToDbLoader {
 
     /** The logger for this class. */
     @SuppressWarnings("unused")
-    private static final Logger LOGGER = Logger.getLogger(CsvToDbLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvToDbLoader.class);
 
     /**
      * Schedule all {@link CsvToDbTask}s

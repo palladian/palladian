@@ -9,7 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.io.FileHelper;
@@ -33,7 +34,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 public class FeedStatisticReaderTask extends Thread {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedStatisticReaderTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedStatisticReaderTask.class);
 
     /**
      * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
@@ -64,12 +65,12 @@ public class FeedStatisticReaderTask extends Thread {
 
             // read csv files
             if (!FileHelper.fileExists(dataPath + csvFileName)) {
-                LOGGER.fatal("No csv base file found for feed id " + feed.getId() + ", tried to read file " + dataPath
+                LOGGER.error("No csv base file found for feed id " + feed.getId() + ", tried to read file " + dataPath
                         + csvFileName + ". Nothing to do for this feed.");
                 return;
             }
             if (!FileHelper.fileExists(dataPath + csvFileName)) {
-                LOGGER.fatal("No csv file to merge into base found for feed id " + feed.getId()
+                LOGGER.error("No csv file to merge into base found for feed id " + feed.getId()
                         + ", tried to read file " + dataPath + csvFileName + ". Nothing to do for this feed.");
                 return;
             }
@@ -113,7 +114,7 @@ public class FeedStatisticReaderTask extends Thread {
             // This is ugly but required to catch everything. If we skip this, threads may run much longer till they are
             // killed by the thread pool internals.
         } catch (Throwable th) {
-            LOGGER.error(th);
+            LOGGER.error("", th);
         }
     }
 
@@ -134,11 +135,11 @@ public class FeedStatisticReaderTask extends Thread {
                 result.add(line);
             }
         } catch (FileNotFoundException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } catch (IOException e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
         } finally {
             FileHelper.close(reader);
         }

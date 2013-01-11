@@ -366,7 +366,7 @@ public class Feed {
             pubDate = new Date(pollTime);
         }
         if (logWarnings && warnings.length() > 0) {
-            FeedReader.LOGGER.warn(warnings);
+            FeedReader.LOGGER.warn(warnings.toString());
         }
 
         return pubDate;

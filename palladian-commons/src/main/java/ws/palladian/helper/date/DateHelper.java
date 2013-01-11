@@ -51,9 +51,7 @@ public class DateHelper {
         try {
             pat = Pattern.compile(RegExp.DATE_ALL);
         } catch (PatternSyntaxException e) {
-            org.apache.log4j.Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.DATE_ALL, e);
-            return false;
+            throw new IllegalStateException("Error compiling the date RegEx");
         }
         Matcher m = pat.matcher(searchString);
         if (m.find()) {

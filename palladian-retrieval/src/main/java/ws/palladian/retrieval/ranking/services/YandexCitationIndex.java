@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -15,6 +16,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -28,7 +30,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class YandexCitationIndex extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(YandexCitationIndex.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(YandexCitationIndex.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "yandexcitationindex";
@@ -46,7 +48,7 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -72,8 +74,8 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
             }
             
         } catch (Exception e) {
-            LOGGER.error("Exception " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
         results.put(CITATIONINDEX, (float) citationIndex);
         return ranking;
@@ -85,8 +87,7 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        String requestUrl = "http://yaca.yandex.ru/yca/cy/ch/"+UrlHelper.getDomain(url).replace("http://", "");
-        return requestUrl;
+        return "http://yaca.yandex.ru/yca/cy/ch/"+UrlHelper.getDomain(url).replace("http://", "");
     }
 
     @Override
@@ -134,7 +135,7 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         YandexCitationIndex tic = new YandexCitationIndex();
         Ranking ranking = tic.getRanking("http://cinefreaks.com");
         System.out.println(ranking);

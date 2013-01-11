@@ -43,33 +43,32 @@ abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
 
         try {
             String requestUrl = getRequestUrl(query, resultCount, language);
-                HttpResult httpResult = retriever.httpGet(requestUrl);
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+            HttpResult httpResult = retriever.httpGet(requestUrl);
+            TOTAL_REQUEST_COUNT.incrementAndGet();
 
-                String jsonString = HttpHelper.getStringContent(httpResult);
-                JSONObject jsonObject = new JSONObject(jsonString);
-                
+            String jsonString = HttpHelper.getStringContent(httpResult);
+            JSONObject jsonObject = new JSONObject(jsonString);
+
             if (!jsonObject.has("results")) {
                 return webResults;
-                }
-                
+            }
+
             JSONArray jsonResults = jsonObject.getJSONArray("results");
 
-                for (int j = 0; j < jsonResults.length(); j++) {
-                    JSONObject jsonResult = jsonResults.getJSONObject(j);
-                    String summary = null;
+            for (int j = 0; j < jsonResults.length(); j++) {
+                JSONObject jsonResult = jsonResults.getJSONObject(j);
+                String summary = null;
                 if (jsonResult.has("kwic")) {
                     summary = jsonResult.getString("kwic");
-                    }
-                    String url = jsonResult.getString("url");
-                String title = jsonResult.getString("title");
-                    WebResult webResult = new WebResult(url, title, summary, getName());
-                    webResults.add(webResult);
-                    if (webResults.size() >= resultCount) {
-                        break;
-                    }
                 }
-
+                String url = jsonResult.getString("url");
+                String title = jsonResult.getString("title");
+                WebResult webResult = new WebResult(url, title, summary, getName());
+                webResults.add(webResult);
+                if (webResults.size() >= resultCount) {
+                    break;
+                }
+            }
 
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "

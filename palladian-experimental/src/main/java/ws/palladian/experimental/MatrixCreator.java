@@ -4,7 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import prefuse.data.Table;
 import prefuse.data.io.CSVTableReader;
@@ -62,7 +63,7 @@ import ws.palladian.helper.io.FileHelper;
  */
 public final class MatrixCreator {
 
-    private static final Logger LOGGER = Logger.getLogger(MatrixCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatrixCreator.class);
 
     /**
      * <p>

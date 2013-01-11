@@ -5,14 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -26,7 +28,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class StumbleUponViews extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(StumbleUponViews.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StumbleUponViews.class);
 
     /** The id of this service. */
     private static final String SERVICE_ID = "stumbleupon";
@@ -39,7 +41,7 @@ public final class StumbleUponViews extends BaseRankingService implements Rankin
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(VIEWS);
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -62,7 +64,7 @@ public final class StumbleUponViews extends BaseRankingService implements Rankin
                 LOGGER.trace("Stumble Upon Views for " + url + " : " + views);
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            throw new RankingServiceException(e);
         }
 
         results.put(VIEWS, (float)views);
@@ -91,7 +93,7 @@ public final class StumbleUponViews extends BaseRankingService implements Rankin
         return RANKING_TYPES;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws RankingServiceException {
         StumbleUponViews gpl = new StumbleUponViews();
         Ranking ranking = null;
 

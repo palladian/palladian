@@ -5,7 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
@@ -29,7 +30,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(IndHistUpdateStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndHistUpdateStrategy.class);
 
     /**
      * Threshold. If, in a certain timeWindow, (number of new entries) / (number of predicted updates by IndHist)
@@ -91,7 +92,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
         } else {
 
             if (feed.getLastPollTime() == null) {
-                LOGGER.fatal("Feed id " + feed.getId()
+                LOGGER.error("Feed id " + feed.getId()
                         + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
                 feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
 

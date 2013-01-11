@@ -2,7 +2,8 @@ package ws.palladian.retrieval.wiki.data;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the content of the MediaWiki configuration file. See call hierarchy of {@link #getInstance()} for
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
 public class MWCrawlerConfiguration {
 
     /** The global logger */
-    private static final Logger LOGGER = Logger.getLogger(MWCrawlerConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MWCrawlerConfiguration.class);
 
     /** The instance. */
     public static MWCrawlerConfiguration instance = null;

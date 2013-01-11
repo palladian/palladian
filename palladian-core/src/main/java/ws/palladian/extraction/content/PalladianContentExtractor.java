@@ -9,9 +9,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -49,7 +50,7 @@ import ws.palladian.retrieval.resources.WebImage;
 public class PalladianContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ReadabilityContentExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadabilityContentExtractor.class);
 
     private static final List<String> MAIN_NODE_HINTS = new ArrayList<String>();
 
@@ -137,6 +138,32 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return comments;
     }
 
+    private String cleanXPath(String xPath) {
+        // System.out.println("before clean xpath: " + xPath);
+        xPath = xPath.replaceAll("/text(\\[.*?\\])?", "/");
+        xPath = xPath.replace("html/body", "");
+        xPath = xPath.replace("xhtml:html/xhtml:body", "");
+        // xPath = xPath.replaceAll("/font(\\[.*?\\])?", "/");
+        // xPath = xPath.replaceAll("/xhtml:font(\\[.*?\\])?", "/");
+
+        xPath = xPath.replace("///", "//");
+
+        // in case we did not find anything, we take the body content
+        if (xPath.isEmpty() || xPath.equals("//")) {
+            xPath = "//body";
+        }
+
+        if (xPath.endsWith("//")) {
+            xPath = xPath.substring(0, xPath.length() - 2);
+        }
+
+        // System.out.println("clean xpath: " + xPath);
+
+        // xPath = XPathHelper.addXhtmlNsToXPath(xPath);
+
+        return xPath;
+    }
+
     /**
      * <p>
      * This does not only contain the main content but also comments etc.
@@ -188,9 +215,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
             for (String xPath : xPaths) {
                 xPath = PageAnalyzer.removeXPathIndicesFromLastCountNode(xPath);
-                if (!xPath.contains("/xhtml:li") && !xPath.contains("/li")) {
-                    xpathset.add(xPath);
-                }
+                // XXX? not really since it is better without this if (!xPath.contains("/xhtml:li") &&
+                // !xPath.contains("/li")) {
+                xpathset.add(xPath);
+                // }
             }
         }
 
@@ -235,35 +263,56 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             parentXpath = resultNodeXPath;
         }
 
-        // in case we did not find anything, we take the body content
-        if (!useMainNodeText) {
-            parentXpath = XPathHelper.getParentXPath(shortestMatchingXPath);
+        if (shortestMatchingXPath.isEmpty()) {
+            useMainNodeText = true;
         }
-        parentXpath = parentXpath.replace("html/body", "");
-        parentXpath = parentXpath.replace("xhtml:html/xhtml:body", "");
+
+        shortestMatchingXPath = PageAnalyzer.findLastBoxSection(shortestMatchingXPath);
 
         // in case we did not find anything, we take the body content
-        if (parentXpath.isEmpty()) {
-            parentXpath = "//body";
+        if (!useMainNodeText) {
+            // parentXpath = PageAnalyzer.findLastBoxSection(shortestMatchingXPath);
+            parentXpath = XPathHelper.getParentXPath(shortestMatchingXPath);
         }
+
+        parentXpath = cleanXPath(parentXpath);
 
         resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
         if (resultNode == null) {
             parentXpath = parentXpath.replaceAll("\\/[^x].*?\\:.*?\\/", "//");
             resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
+
             if (resultNode == null) {
-                throw new PageContentExtractorException("could not get main content node for URL: "
-                        + getDocument().getDocumentURI() + ", using xpath" + shortestMatchingXPath);
+                parentXpath = XPathHelper.addXhtmlNsToXPath(parentXpath);
+                resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
+
+                if (resultNode == null) {
+                    // XXX
+                    mainContentText = fullTextContent;
+                    return;
+                }
             }
         }
 
         if (!useMainNodeText) {
+
+            // shortestMatchingXPath = cleanXPath(shortestMatchingXPath);
+
             // add possible headlines that are on the same level as the content nodes to the target text nodes
             shortestMatchingXPath = addHeadlineSiblings(shortestMatchingXPath);
 
             // get the clean text only
             StringBuilder cleanText = new StringBuilder();
             List<Node> contentNodes = XPathHelper.getXhtmlNodes(getDocument(), shortestMatchingXPath);
+
+            // if (contentNodes.isEmpty()) {
+            // shortestMatchingXPath = XPathHelper.addXhtmlNsToXPath(shortestMatchingXPath);
+            // if (!shortestMatchingXPath.contains("::xhtml:")) {
+            // shortestMatchingXPath = shortestMatchingXPath.replace("::", "::xhtml:");
+            // }
+            // contentNodes = XPathHelper.getXhtmlNodes(getDocument(), shortestMatchingXPath);
+            // }
+
             for (Node node : contentNodes) {
                 String textContent = node.getTextContent();
                 if (!textContent.isEmpty()) {
@@ -279,6 +328,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // if we didn't get clean text, let's take the content of the main node
         if (mainContentText.trim().length() < 100) {
             mainContentText = HtmlHelper.documentToReadableText(resultNode);
+        }
+        if (mainContentText.trim().length() < 100) {
+            mainContentText = fullTextContent;
         }
     }
 
@@ -320,7 +372,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<Node> divs = XPathHelper
                 .getXhtmlNodes(
                         document,
-                        "//*[(self::xhtml:div) or (self::xhtml:p)][@class='comment' or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments')]");
+                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section)][@class='comment' or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
         for (Node node : divs) {
             comments.add(HtmlHelper.documentToReadableText(node));
             node.getParentNode().removeChild(node);
@@ -415,7 +467,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // document
         String imgXPath = ".//img";
 
-        List<Node> imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
+        List<Node> imageNodes = CollectionHelper.newArrayList();
+
+        while (imageNodes.isEmpty() && imageParentNode != null) {
+            imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
+            imageParentNode = imageParentNode.getParentNode();
+        }
+
         for (Node node : imageNodes) {
             try {
 
@@ -592,6 +650,17 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public static void main(String[] args) throws PageContentExtractorException {
 
+        // ////////////////////////////////////
+        // Document webDocument = new DocumentRetriever().getWebDocument("C:\\Workspace\\data\\GoldStandard\\98.html");
+        // String xPath =
+        // "//table[4]/tbody/tr[1]/td[1]/table[1]/tbody/tr[1]/td/table[1]/tbody/tr[1]/td[1]/table[1]/tbody/tr[2]/td[1]";
+        // // xPath = "//text//table[1]/tbody/tr[2]/td[1]";
+        // xPath = XPathHelper.addXhtmlNsToXPath(xPath);
+        // List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(webDocument, xPath);
+        // CollectionHelper.print(xhtmlNodes);
+        // System.exit(0);
+        // ////////////////////////////////////
+
         PalladianContentExtractor pe = new PalladianContentExtractor();
         // pe.setDocument("http://jezebel.com/5733078/can-you-wear-six-items-or-less");
         // pe.setDocument("http://www.seobook.com/shopping-search");
@@ -642,14 +711,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.seobythesea.com/2012/11/not-all-anchor-text-is-equal-other-co-citation-observations/");
         // pe.setDocument("http://arstechnica.com/tech-policy/2012/11/ca-measure-would-ban-anonymous-online-speech-for-sex-offenders/");
         // pe.setDocument("http://www.usatoday.com/story/opinion/2012/10/31/mitt-romney-jeep-chrysler-uaw/1672501/");
-        // pe.setDocument("http://www.washingtonpost.com/politics/decision2012/after-grueling-campaign-polls-open-for-election-day-2012/2012/11/06/d1c24c98-2802-11e2-b4e0-346287b7e56c_story.html");
+        pe.setDocument("http://www.washingtonpost.com/politics/decision2012/after-grueling-campaign-polls-open-for-election-day-2012/2012/11/06/d1c24c98-2802-11e2-b4e0-346287b7e56c_story.html");
         // pe.setDocument("http://mobile.smashingmagazine.com/2012/11/07/succeed-with-your-app/");
         // pe.setDocument("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands");
         // pe.setDocument("http://www.huffingtonpost.com/2012/11/22/black-friday-creep-retail-workers_n_2167066.html");
         // pe.setDocument("http://webknox.com/p/best-proxy-services");
-        pe.setDocument("http://www.politicususa.com/walmart-earns-record-profits-supporting-republicans-plan-slash-employees-food-stamps.html");
+        // pe.setDocument("http://www.politicususa.com/walmart-earns-record-profits-supporting-republicans-plan-slash-employees-food-stamps.html");
         // pe.setDocument("http://greatist.com/fitness/perfect-squat/");
         // pe.setDocument("http://www.latimes.com/news/nationworld/world/la-fg-israel-gaza-20121120,0,4042611.story");
+        // pe.setDocument("http://www.labour.org.uk/govt-decision-on-palestine-vote-is-worse-than-a-blunder,2012-11-30");
+        // pe.setDocument("C:\\Workspace\\data\\ContentExtraction\\TUD\\page203.html");
+        // pe.setDocument("http://www.thedailybeast.com/articles/2012/11/29/where-ban-ki-moon-meets-pink-floyd.html");
+        // pe.setDocument("http://www.nationalmemo.com/white-house-tax-rates-on-the-rich-will-go-up/");
+        // pe.setDocument("http://www.ynetnews.com/articles/0,7340,L-4314175,00.html");
+        // pe.setDocument("http://tech.slashdot.org/story/12/11/16/207227/german-city-says-openoffice-shortcomings-are-forcing-it-back-to-microsoft");
+        // pe.setDocument("http://news.mongabay.com/2012/1204-hance-lions-population.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\82.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\105.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\771.html"); // ???
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\652.html");
+        // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\640.html");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title: " + pe.getResultTitle());

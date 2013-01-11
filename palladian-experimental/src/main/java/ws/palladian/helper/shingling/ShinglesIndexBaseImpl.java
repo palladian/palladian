@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base ShinglesIndex implementation, with common functionality. {@link #openIndex()} and {@link #saveIndex()} can be
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
 public abstract class ShinglesIndexBaseImpl implements ShinglesIndex {
     
     /** class logger. */
-    protected static final Logger LOGGER = Logger.getLogger(ShinglesIndexBaseImpl.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(ShinglesIndexBaseImpl.class);
     
     /** default directory where to store serialized shingles. */
     public static final String INDEX_FILE_BASE_PATH = "data/temp/shingles/";

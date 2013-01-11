@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -17,6 +18,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -35,7 +37,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class RedditStats extends BaseRankingService implements RankingService {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(RedditStats.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedditStats.class);
 
     private static final String GET_INFO = "http://www.reddit.com/api/info.json?url=";
 
@@ -55,13 +57,8 @@ public final class RedditStats extends BaseRankingService implements RankingServ
     private static long lastCheckBlocked;
     private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
-    public RedditStats() {
-        super();
-        // we could use proxies here to circumvent request limitations (1req/2sec)
-    }
-
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
         Ranking ranking = new Ranking(this, url, results);
         if (isBlocked()) {
@@ -91,11 +88,11 @@ public final class RedditStats extends BaseRankingService implements RankingServ
             LOGGER.trace("Reddit stats for " + url + " : " + results);
 
         } catch (JSONException e) {
-            LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
+            throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
         return ranking;
     }

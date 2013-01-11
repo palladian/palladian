@@ -42,11 +42,11 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.2.2</version>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency -->
 		<dependency>
 			<groupId>net.java.dev.rome</groupId>
 			<artifactId>rome</artifactId>

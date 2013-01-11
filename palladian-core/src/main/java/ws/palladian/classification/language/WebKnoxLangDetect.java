@@ -3,9 +3,10 @@ package ws.palladian.classification.language;
 import java.io.IOException;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
@@ -23,7 +24,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 public class WebKnoxLangDetect extends LanguageClassifier {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(WebKnoxLangDetect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxLangDetect.class);
 
     private final String apiKey;
 

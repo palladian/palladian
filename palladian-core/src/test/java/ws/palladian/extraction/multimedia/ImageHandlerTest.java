@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
@@ -26,7 +26,7 @@ import ws.palladian.helper.io.ResourceHelper;
 public class ImageHandlerTest {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ImageHandlerTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandlerTest.class);
 
     /**
      * Some of these tests fail when run under Mac OS X. In contrast to other platforms where the JAI implementation is

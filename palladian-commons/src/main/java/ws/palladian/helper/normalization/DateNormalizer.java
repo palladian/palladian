@@ -8,7 +8,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
@@ -18,6 +19,9 @@ import ws.palladian.helper.date.ExtractedDate;
  * The DateNormalizer normalizes dates.
  */
 public class DateNormalizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateNormalizer.class);
 
     public static String normalizeDateFormat(Date date, String format) {
         // Locale.setDefault(Locale.ENGLISH);
@@ -67,7 +71,7 @@ public class DateNormalizer {
             normalizedDate = year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
 
         } catch (ParseException e) {
-            Logger.getRootLogger().debug(format + " could not be parsed for " + dateString);
+            LOGGER.debug("{} could not be parsed for {}", format, dateString);
         }
 
         return normalizedDate;

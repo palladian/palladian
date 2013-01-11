@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -17,6 +19,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
+import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
@@ -31,7 +34,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class Compete extends BaseRankingService implements RankingService {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(Compete.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Compete.class);
 
     /** {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.compete.key";
@@ -67,18 +70,15 @@ public final class Compete extends BaseRankingService implements RankingService 
      * Create a new {@link Compete} ranking service.
      * </p>
      * 
-     * @param apiKey The required API key for accessing this service.
+     * @param apiKey The required API key for accessing this service, not <code>null</code> or empty.
      */
     public Compete(String apiKey) {
-        super();
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing.");
-        }
+        Validate.notEmpty(apiKey, "The required API key is missing.");
         this.apiKey = apiKey;
     }
 
     @Override
-    public Ranking getRanking(String url) {
+    public Ranking getRanking(String url) throws RankingServiceException {
 
         String domain = UrlHelper.getDomain(url, false);
 
@@ -91,7 +91,7 @@ public final class Compete extends BaseRankingService implements RankingService 
         return ranking;
     }
 
-    private Float getMetrics(String domain, String metricCode) {
+    private Float getMetrics(String domain, String metricCode) throws RankingServiceException {
         Float result = null;
         String requestUrl = "http://apps.compete.com/sites/" + domain + "/trended/" + metricCode + "/?apikey=" + apiKey
                 + "&latest=1";
@@ -107,9 +107,9 @@ public final class Compete extends BaseRankingService implements RankingService 
                 LOGGER.warn("error: status = " + status);
             }
         } catch (HttpException e) {
-            LOGGER.error(e);
+            throw new RankingServiceException(e);
         } catch (JSONException e) {
-            LOGGER.error(e);
+            throw new RankingServiceException(e);
         }
 
         return result;

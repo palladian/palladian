@@ -17,7 +17,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
@@ -51,7 +52,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 public class FeedStatisticCreator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedStatisticCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedStatisticCreator.class);
 
     /**
      * A feed must have this many polls with new items to be used for the delay
@@ -174,7 +175,7 @@ public class FeedStatisticCreator {
         System.out.println(csv);
         FileHelper.writeToFile("data/temp/feedEvaluationMaxCoverage_" + avgStyle + "_" + tableName + ".csv", csv);
 
-        Logger.getRootLogger().info("logs written to data/temp/feedEvaluationMaxCoverage.csv");
+        LOGGER.info("logs written to data/temp/feedEvaluationMaxCoverage.csv");
     }
 
     // TODO Sandro: für Evaluation Diss benötigt, missedItems sollte aber nicht in Berechnung eingehen
@@ -216,7 +217,7 @@ public class FeedStatisticCreator {
 
                 String currentQuery = query.replaceAll("OFFSET", String.valueOf(currentOffset));
 
-                Logger.getRootLogger().info(
+                LOGGER.info(
                         "query for delay to calculate median, offset/maxOffset:" + currentOffset + "/" + maxOffset);
 
                 List<Double> currentValues = dbm.runQuery(converter, currentQuery);
@@ -272,7 +273,7 @@ public class FeedStatisticCreator {
      */
     public static void minDelayPolicyEvaluation(int avgStyle, String tableName) throws SQLException {
 
-        Logger.getRootLogger().info("min evaluation for " + avgStyle + " and table " + tableName);
+        LOGGER.info("min evaluation for " + avgStyle + " and table " + tableName);
 
         final StringBuilder csv = new StringBuilder();
 
@@ -411,7 +412,7 @@ public class FeedStatisticCreator {
         System.out.println(csv);
         FileHelper.writeToFile("data/temp/feedEvaluationMinDelay_" + avgStyle + "_" + tableName + ".csv", csv);
 
-        Logger.getRootLogger().info("logs written to data/temp/feedEvaluationMinDelay.csv");
+        LOGGER.info("logs written to data/temp/feedEvaluationMinDelay.csv");
     }
 
     public static void delayChart() throws SQLException {
@@ -487,7 +488,7 @@ public class FeedStatisticCreator {
                 + "(SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
                 + pollsWithNewItems + ") d WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID";
 
-        Logger.getRootLogger().info(sql);
+        LOGGER.info(sql);
         dbm.runUpdate(sql);
         dbm.runUpdate("ALTER TABLE " + tempTableName + " ADD PRIMARY KEY (`feedID`)");
     }
@@ -500,7 +501,7 @@ public class FeedStatisticCreator {
      */
     private static void dropTempTable(final String tempTableName) {
         final String sql = "DROP TABLE " + tempTableName;
-        Logger.getRootLogger().info(sql);
+        LOGGER.info(sql);
         DatabaseManager dbm = DatabaseManagerFactory.create(DatabaseManager.class, ConfigHolder.getInstance().getConfig());
         dbm.runUpdate(sql);
     }
@@ -561,7 +562,7 @@ public class FeedStatisticCreator {
         String path = "data/temp/feedEvaluationDelayChart_" + pollsWithNewItems + "polls_" + tableName + ".csv";
         FileHelper.writeToFile(path, csv);
 
-        Logger.getRootLogger().info(path);
+        LOGGER.info(path);
 
     }
 
@@ -614,7 +615,7 @@ public class FeedStatisticCreator {
 
         FileHelper.writeToFile("data/temp/feedEvaluationTimelinessChart.csv", csv);
 
-        Logger.getRootLogger().info("logs written to data/temp/feedEvaluationTimelinessChart.csv");
+        LOGGER.info("logs written to data/temp/feedEvaluationTimelinessChart.csv");
 
     }
 
@@ -665,7 +666,7 @@ public class FeedStatisticCreator {
             feed.setMeticulousPostDistribution(null);
             feed = null;
 
-            Logger.getRootLogger().info("percent done: " + MathHelper.round(100 * c / (double) totalSize, 2));
+            LOGGER.info("percent done: " + MathHelper.round(100 * c / (double) totalSize, 2));
         }
 
         csv.close();
@@ -687,11 +688,11 @@ public class FeedStatisticCreator {
  / 1000 + " AND "
                 + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000;
 
-        Logger.getRootLogger().info(sql);
+        LOGGER.info(sql);
         dbm.runUpdate(sql);
 
         sql = "ALTER TABLE tempTableMin ADD PRIMARY KEY (`feedID`)";
-        Logger.getRootLogger().info(sql);
+        LOGGER.info(sql);
         dbm.runUpdate(sql);
     }
 

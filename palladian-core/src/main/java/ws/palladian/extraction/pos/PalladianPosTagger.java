@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
@@ -39,7 +40,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 public class PalladianPosTagger extends BasePosTagger {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PalladianPosTagger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianPosTagger.class);
 
     private static final String TAGGER_NAME = "Palladian POS-Tagger";
 

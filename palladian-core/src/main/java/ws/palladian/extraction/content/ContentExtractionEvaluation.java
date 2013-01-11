@@ -9,7 +9,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -41,7 +42,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
 public final class ContentExtractionEvaluation {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ContentExtractionEvaluation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentExtractionEvaluation.class);
 
     /**
      * Whether only a comparison of the main content block should be done. If false, also user generated content is

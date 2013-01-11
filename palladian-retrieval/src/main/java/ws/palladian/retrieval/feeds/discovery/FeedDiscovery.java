@@ -23,7 +23,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -67,7 +68,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
 public final class FeedDiscovery {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedDiscovery.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedDiscovery.class);
 
     /**
      * XPath to get Atom and RSS links; this is relatively complicated to conform to the Atom autodiscovery "standard".
@@ -341,7 +342,7 @@ public final class FeedDiscovery {
                 lock.wait();
             }
         } catch (InterruptedException e) {
-            LOGGER.error(e);
+            LOGGER.warn("Encountered InterruptedException");
         }
 
         // do the autodiscovery in parallel
@@ -361,7 +362,7 @@ public final class FeedDiscovery {
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
-                                LOGGER.error(e);
+                                LOGGER.warn("Encountered InterruptedException");
                             }
                             continue;
                         }
@@ -388,7 +389,7 @@ public final class FeedDiscovery {
                             }
 
                         } catch (Throwable t) {
-                            LOGGER.error(t);
+                            LOGGER.error("Encountered Exception", t);
                         }
                     }
                 }
@@ -403,7 +404,7 @@ public final class FeedDiscovery {
                 thread.join();
             }
         } catch (InterruptedException e) {
-            LOGGER.error(e);
+            LOGGER.warn("Encountered InterruptedException");
         }
 
     }

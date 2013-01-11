@@ -5,7 +5,7 @@ package ws.palladian.iirmodel.persistence;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.collection.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;

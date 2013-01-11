@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections15.map.LRUMap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cache to store mappings page title -> pageID to get pageIDs from page titles without asking the database (since
@@ -22,7 +23,7 @@ import org.apache.log4j.Logger;
 public class PageTitleCache {
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(PageTitleCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageTitleCache.class);
 
     /** do not call LOGGER.isDebugEnabled() 1000 times */
     private static final boolean DEBUG = LOGGER.isDebugEnabled();

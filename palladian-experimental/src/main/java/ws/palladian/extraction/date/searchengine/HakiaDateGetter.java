@@ -4,7 +4,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -25,7 +26,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
 public class HakiaDateGetter {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(HakiaDateGetter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HakiaDateGetter.class);
 
     private String url;
     private String title = null;
@@ -68,9 +69,9 @@ public class HakiaDateGetter {
 
             }
         } catch (SearcherException e) {
-            LOGGER.error(e);
+            LOGGER.error("Encountered SearcherException while searching {}", title, e);
         } catch (HttpException e) {
-            LOGGER.error(e);
+            LOGGER.error("Enountered HttpException while checking URLs", e);
         }
         return date;
     }

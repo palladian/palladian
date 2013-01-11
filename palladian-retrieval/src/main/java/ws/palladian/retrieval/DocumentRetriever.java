@@ -18,10 +18,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
@@ -58,7 +59,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
 public class DocumentRetriever {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DocumentRetriever.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentRetriever.class);
 
     /** The {@link HttpRetriever} used for HTTP operations. */
     private final HttpRetriever httpRetriever;
@@ -152,7 +153,7 @@ public class DocumentRetriever {
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
-                                LOGGER.error(e);
+                                LOGGER.warn("Encountered InterruptedException");
                             }
                             continue;
                         }
@@ -170,7 +171,7 @@ public class DocumentRetriever {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                LOGGER.error(e);
+                LOGGER.warn("Encountered InterruptedException");
             }
         }
     }
@@ -350,7 +351,7 @@ public class DocumentRetriever {
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
-                                LOGGER.error(e);
+                                LOGGER.warn("Encountered InterruptedException");
                             }
                             continue;
                         }
@@ -368,7 +369,7 @@ public class DocumentRetriever {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                LOGGER.error(e);
+                LOGGER.warn("Encountered InterruptedException");
             }
         }
     }

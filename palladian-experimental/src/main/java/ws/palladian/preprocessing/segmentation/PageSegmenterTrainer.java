@@ -19,7 +19,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.UrlHelper;
@@ -38,7 +39,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 public class PageSegmenterTrainer {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(PageSegmenterTrainer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageSegmenterTrainer.class);
 
     /**
      * Evaluation help function for the similarity check of documents with specific parameters.
@@ -75,7 +76,7 @@ public class PageSegmenterTrainer {
         for (int i = 0; i < files.length; i++) {
             CountMap<String> page2 = seg.createFingerprint(c.getWebDocument(files[i].toString()),
                     numberOfQgrams, lengthOfQgrams);
-            LOGGER.info(page2);
+            LOGGER.info(page2.toString());
 
             Double vari = Math.round((1 - SimilarityCalculator.calculateSimilarity(page1, page2)) * 100) / 100.0;
             Double jacc = Math.round(MathHelper.computeJaccardSimilarity(page1.uniqueItems(), page2.uniqueItems()) * 100) / 100.0;
@@ -243,7 +244,7 @@ public class PageSegmenterTrainer {
         Set<String> te = new HashSet<String>();
         te = HtmlHelper.getLinks(d, true, false, "");
         LOGGER.info(te.size() + " intern verlinkte URLs gefunden!");
-        LOGGER.info(te);
+        LOGGER.info(te.toString());
 
         Iterator<String> it = te.iterator();
         String currentElement = "";

@@ -3,7 +3,8 @@ package ws.palladian.helper;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringOutputStream;
@@ -17,7 +18,7 @@ import ws.palladian.helper.io.StringOutputStream;
 public class ProcessHelper {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(ProcessHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessHelper.class);
 
     /**
      * Run a command on the console/terminal.

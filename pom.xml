@@ -156,6 +156,46 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<!-- Integration tests are skipped by default, and should only
+				run if explicitly requested; see profile integration-tests -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.12.4</version>
+				<executions>
+					<execution>
+						<goals>
+              				<goal>integration-test</goal>
+              				<goal>verify</goal>
+		            	</goals>
+           	            <configuration>
+			                <!-- Skips integration tests if the value of skip.integration.tests property is true -->
+			                <skipTests>${skip.integration.tests}</skipTests>
+			            </configuration>
+	            	</execution>
+            	</executions>
+			</plugin>
+			<plugin>
+			    <groupId>org.codehaus.mojo</groupId>
+			    <artifactId>build-helper-maven-plugin</artifactId>
+			    <version>1.7</version>
+			    <executions>
+			        <!-- States that the plugin's add-test-source goal is executed at generate-test-sources phase. -->
+			        <execution>
+			            <id>add-integration-test-sources</id>
+			            <phase>generate-test-sources</phase>
+			            <goals>
+			                <goal>add-test-source</goal>
+			            </goals>
+			            <configuration>
+			                <!-- Configures the source directory of integration tests. -->
+			                <sources>
+			                    <source>src/integration-test/java</source>
+			                </sources>
+			            </configuration>
+			        </execution>
+			    </executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -181,6 +221,25 @@
 										<ignore></ignore>
 									</action>
 								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											build-helper-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.7,)
+										</versionRange>
+										<goals>
+											<goal>add-test-source</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
@@ -188,19 +247,58 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<skip.integration.tests>true</skip.integration.tests>
+		<slf4j.version>1.6.3</slf4j.version>
+	</properties>
+	<profiles>
+	    <profile>
+	        <id>integration-tests</id>
+	        <properties>
+	            <skip.integration.tests>false</skip.integration.tests>
+	        </properties>
+	    </profile>	
+	</profiles>
+	<!-- common dependencies -->
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
+			<!-- dependency>
 				<groupId>uk.ac.shef.wit.simmetrics</groupId>
 				<artifactId>similaritymetrics</artifactId>
 				<version>1.6.2</version>
-			</dependency>
-			<dependency>
+			</dependency -->
+			<!-- dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>1.2.16</version>
-			</dependency>
-			<dependency>
+			</dependency -->
+			<!-- dependency>
 				<groupId>stax</groupId>
 				<artifactId>stax</artifactId>
 				<version>1.1.1-dev</version>
@@ -210,12 +308,12 @@
 						<groupId>xmlbeans</groupId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
+			</dependency -->
+			<!-- dependency>
 				<groupId>cc.mallet</groupId>
 				<artifactId>mallet</artifactId>
 				<version>2.0.7-RC2</version>
-			</dependency>
+			</dependency -->
 			<dependency>
 				<groupId>nz.ac.waikato.cms.weka</groupId>
 				<artifactId>weka-stable</artifactId>
@@ -226,21 +324,21 @@
 				<artifactId>jaws-bin</artifactId>
 				<version>1.2</version>
 			</dependency>
-			<dependency>
+			<!-- dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-math</artifactId>
 				<version>2.1</version>
-			</dependency>
-			<dependency>
+			</dependency -->
+			<!-- dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-memory</artifactId>
 				<version>3.5.0</version>
-			</dependency>
-			<dependency>
+			</dependency -->
+			<!-- dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-analyzers</artifactId>
 				<version>3.5.0</version>
-			</dependency>
+			</dependency -->
 			<dependency>
 				<groupId>org.apache.lucene</groupId>
 				<artifactId>lucene-core</artifactId>
@@ -265,12 +363,6 @@
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 				<version>5.1.12</version>
-			</dependency>
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.8.1</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>commons-configuration</groupId>
@@ -312,11 +404,11 @@
 				<artifactId>opennlp-tools</artifactId>
 				<version>1.5.2-incubating</version>
 			</dependency>
-			<dependency>
+			<!-- dependency>
 				<groupId>com.uea.stemmer</groupId>
 				<artifactId>UEALite</artifactId>
 				<version>1.0</version>
-			</dependency>
+			</dependency -->
 			<dependency>
 				<groupId>tud.iir.external</groupId>
 				<artifactId>juliener</artifactId>
@@ -343,11 +435,6 @@
 				<version>0.1</version>
 			</dependency>
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.6.0</version>
-			</dependency>
-			<dependency>
 				<groupId>de.l3s.boilerpipe</groupId>
 				<artifactId>boilerpipe</artifactId>
 				<version>1.2.0</version>
@@ -362,27 +449,16 @@
 				<artifactId>snakeyaml</artifactId>
 				<version>1.7</version>
 			</dependency>
-			<dependency>
+			<!-- dependency>
 				<groupId>trove</groupId>
 				<artifactId>trove</artifactId>
 				<version>2.1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>1.6.3</version>
-			</dependency>
-			<dependency>
-				<groupId>org.hamcrest</groupId>
-				<artifactId>hamcrest-all</artifactId>
-				<version>1.3</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
+			</dependency -->
+			<!-- dependency>
 				<groupId>com.ibm.icu</groupId>
 				<artifactId>icu4j</artifactId>
 				<version>3.8</version>
-			</dependency>
+			</dependency -->
 			<dependency>
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>pdfbox</artifactId>
@@ -393,16 +469,16 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>3.1</version>
 			</dependency>
-			<dependency>
+			<!-- dependency>
 				<groupId>commons-beanutils</groupId>
 				<artifactId>commons-beanutils</artifactId>
 				<version>1.8.3</version>
-			</dependency>
-			<dependency>
+			</dependency -->
+			<!-- dependency>
 				<groupId>nz.ac.waikato.cms.weka</groupId>
 				<artifactId>weka-dev</artifactId>
 				<version>3.7.7</version>
-			</dependency>
+			</dependency -->
 			<dependency>
 				<groupId>tw.edu.ntu.csie</groupId>
 				<artifactId>libsvm</artifactId>
@@ -410,9 +486,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<repositories>
 		<repository>
 			<releases>

@@ -16,7 +16,8 @@ import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
@@ -41,7 +42,7 @@ import ws.palladian.retrieval.wiki.data.WikiPage;
 public final class MediaWikiDatabase extends DatabaseManager {
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(MediaWikiDatabase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MediaWikiDatabase.class);
 
     /** do not call LOGGER.isDebugEnabled() 1000 times */
     private static final boolean DEBUG = LOGGER.isDebugEnabled();
@@ -403,7 +404,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * Clear all wiki specific tables.
      */
     public void clearTables() {
-        LOGGER.fatal("TRUNCATE all tables!!");
+        LOGGER.warn("TRUNCATE all tables!!");
         // NOTE: disable keys before truncating and enable it afterwards! This saves a lot of processing time
         runUpdate("TRUNCATE TABLE revisions");
         runUpdate("TRUNCATE TABLE links");

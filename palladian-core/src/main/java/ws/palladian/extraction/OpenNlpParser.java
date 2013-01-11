@@ -18,7 +18,8 @@ import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
@@ -31,10 +32,8 @@ import ws.palladian.helper.collection.CollectionHelper;
  */
 public class OpenNlpParser extends AbstractParser {
 
-    /**
-     * Logger for this class.
-     */
-    protected static final Logger LOGGER = Logger.getLogger(OpenNlpParser.class);
+    /** Logger for this class. */
+    protected static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpParser.class);
 
     private final String corefPath;
     
@@ -59,9 +58,9 @@ public class OpenNlpParser extends AbstractParser {
      * @param parses
      *            array of full parses of sentences
      */
-    public void link(final Parse[] parses) {
+    public void link(Parse[] parses) {
         int sentenceNumber = 0;
-        final List<Mention> document = new ArrayList<Mention>();
+        List<Mention> document = new ArrayList<Mention>();
 
         TreebankLinker linker;
         try {
@@ -73,19 +72,19 @@ public class OpenNlpParser extends AbstractParser {
                 linker = new TreebankLinker(corefPath, LinkerMode.TEST);
                 Cache.getInstance().putDataObject(corefPath, linker);
             }
-            final DiscourseEntity[] entities = linker.getEntities(document.toArray(new Mention[document.size()]));
+            DiscourseEntity[] entities = linker.getEntities(document.toArray(new Mention[document.size()]));
 
             CollectionHelper.print(entities);
 
-            for (final Parse parse : parses) {
-                final DefaultParse defaultParser = new DefaultParse(parse, sentenceNumber);
-                final Mention[] extents = linker.getMentionFinder().getMentions(defaultParser);
+            for (Parse parse : parses) {
+                DefaultParse defaultParser = new DefaultParse(parse, sentenceNumber);
+                Mention[] extents = linker.getMentionFinder().getMentions(defaultParser);
 
                 // construct new parses for mentions which do not have
                 // constituents
                 for (int i = 0; i < extents.length; i++) {
                     if (extents[i].getParse() == null) {
-                        final opennlp.tools.parser.Parse snp = new Parse(parse.getText(), extents[i].getSpan(), "NML",
+                        opennlp.tools.parser.Parse snp = new Parse(parse.getText(), extents[i].getSpan(), "NML",
                                 1.0, i);
                         parse.insert(snp);
                         extents[i].setParse(new DefaultParse(snp, sentenceNumber));
@@ -104,8 +103,8 @@ public class OpenNlpParser extends AbstractParser {
                 LOGGER.info(document.toString());
             }
 
-        } catch (final IOException e) {
-            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error("IOException while loading the linker model from {}", corefPath, e);
         }
     }
 
@@ -117,7 +116,7 @@ public class OpenNlpParser extends AbstractParser {
      * @param sentence
      * @return full parse
      */
-    public opennlp.tools.parser.Parse[] getFullParse(final String sentence) {
+    public opennlp.tools.parser.Parse[] getFullParse(String sentence) {
 
         opennlp.tools.parser.Parse[] parse = null;
 
@@ -142,7 +141,7 @@ public class OpenNlpParser extends AbstractParser {
     }
 
     @Override
-    public OpenNlpParser loadModel(final String configModelPath) {
+    public OpenNlpParser loadModel(String configModelPath) {
 
         try {
 
@@ -153,11 +152,10 @@ public class OpenNlpParser extends AbstractParser {
 
             } else {
 
-                final StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
+                StopWatch stopWatch = new StopWatch();
 
-                final InputStream modelIn = new FileInputStream(configModelPath);
-                final ParserModel model = new ParserModel(modelIn);
+                InputStream modelIn = new FileInputStream(configModelPath);
+                ParserModel model = new ParserModel(modelIn);
                 parser = ParserFactory.create(model);
                 Cache.getInstance().putDataObject(configModelPath, parser);
 
@@ -168,8 +166,8 @@ public class OpenNlpParser extends AbstractParser {
 
             setModel(parser);
 
-        } catch (final IOException e) {
-            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error("IOException while loading the parser model from {}", configModelPath, e);
         }
         return this;
     }
@@ -183,10 +181,8 @@ public class OpenNlpParser extends AbstractParser {
      *         initialized or the sentence is empty
      */
     @Override
-    public final OpenNlpParser parse(final String sentence) {
-
+    public final OpenNlpParser parse(String sentence) {
         return parse(sentence, 0);
-
     }
 
     /**
@@ -196,11 +192,11 @@ public class OpenNlpParser extends AbstractParser {
      * @param sentence
      * @param index
      */
-    public final OpenNlpParser parse(final String sentence, final int index) {
+    public final OpenNlpParser parse(String sentence, int index) {
 
         openNLPParse = getFullParse(sentence)[index];
 
-        final TagAnnotations tagAnnotations = new TagAnnotations();
+        TagAnnotations tagAnnotations = new TagAnnotations();
 
         parse2Annotations(openNLPParse, tagAnnotations);
 

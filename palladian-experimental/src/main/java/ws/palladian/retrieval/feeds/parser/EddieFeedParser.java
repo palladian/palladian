@@ -5,7 +5,8 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import uk.org.catnip.eddie.Entry;
@@ -29,7 +30,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
 public final class EddieFeedParser extends BaseFeedParser implements FeedParser {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(EddieFeedParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EddieFeedParser.class);
 
     @Override
     public Feed getFeed(Document document) throws FeedParserException {

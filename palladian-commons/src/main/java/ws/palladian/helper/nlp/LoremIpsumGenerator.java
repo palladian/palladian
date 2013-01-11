@@ -1,11 +1,12 @@
 package ws.palladian.helper.nlp;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoremIpsumGenerator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(LoremIpsumGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoremIpsumGenerator.class);
 
     public static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
 
