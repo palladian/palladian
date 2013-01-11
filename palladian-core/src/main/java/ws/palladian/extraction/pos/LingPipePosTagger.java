@@ -12,7 +12,6 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 
-import ws.palladian.extraction.pos.filter.NonTagFilter;
 import ws.palladian.extraction.pos.filter.TagFilter;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
@@ -66,7 +65,7 @@ public final class LingPipePosTagger extends BasePosTagger {
      * @param modelFile The model used by the LingPipe POS tagger.
      */
     public LingPipePosTagger(File modelFile) {
-        this(modelFile, new NonTagFilter());
+        this(modelFile, null);
     }
 
     /**
@@ -80,7 +79,6 @@ public final class LingPipePosTagger extends BasePosTagger {
      */
     public LingPipePosTagger(File modelFile, TagFilter tagFilter) {
         Validate.notNull(modelFile, "modelFile must not be null");
-        Validate.notNull(tagFilter);
         InputStream modelStream = null;
         try {
             modelStream = new FileInputStream(modelFile);
@@ -95,7 +93,6 @@ public final class LingPipePosTagger extends BasePosTagger {
 
     public LingPipePosTagger(InputStream modelStream, TagFilter tagFilter) {
         Validate.notNull(modelStream, "modelStream must not be null");
-        Validate.notNull(tagFilter, "No tag filter specified. If you don't want to filter tags use NonTagFilter.");
         this.model = loadModel(modelStream);
         this.tagFilter = tagFilter;
     }
@@ -135,7 +132,10 @@ public final class LingPipePosTagger extends BasePosTagger {
         Tagging<String> tagging = posTagger.tag(tokenList);
 
         for (int i = 0; i < tagging.size(); i++) {
-            assignTag(annotations.get(i), tagFilter.filter(tagging.tag(i)));
+            List<String> filteredTag = tagFilter == null ? Arrays.asList(new String[] {tagging.tag(i)}) : tagFilter
+                    .filter(tagging.tag(i));
+
+            assignTag(annotations.get(i), filteredTag);
         }
     }
 
