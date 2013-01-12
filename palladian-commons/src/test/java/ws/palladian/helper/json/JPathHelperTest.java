@@ -61,6 +61,7 @@ public class JPathHelperTest {
 
         assertEquals(json.getJSONObject("entry"), JPathHelper.get(json, "entry", JSONObject.class));
         assertEquals(1, (int) JPathHelper.get(json, "entry/a", Integer.class));
+        assertEquals(1, (int) JPathHelper.get(json, "/entry/a", Integer.class));
         assertEquals("2b", JPathHelper.get(json, "entry/c/d", String.class));
         assertEquals("1a", JPathHelper.get(json, "entry/b[0]", String.class));
         assertEquals("two", JPathHelper.get(json, "entry/b[1][1]", String.class));

@@ -7,7 +7,9 @@ import java.util.Map;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -23,7 +25,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  */
 public final class SemRush extends BaseRankingService implements RankingService {
-    
+
     /** The id of this service. */
     private static final String SERVICE_ID = "semrush";
 
@@ -36,33 +38,29 @@ public final class SemRush extends BaseRankingService implements RankingService 
     /** All available ranking types by {@link SemRush}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(BACKLINKS_DOMAIN, BACKLINKS_PAGE);
 
-
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
 
-        Long backlinksDomain = 0L;
-        Long backlinksPage = 0L;
         String requestUrl = buildRequestUrl(url);
-
-
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        String text = documentRetriever.getText(requestUrl);
-
+        HttpResult httpResult;
         try {
-            backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>", "</links_domain>"));
-            backlinksPage = Long.valueOf(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
+            httpResult = retriever.httpGet(requestUrl);
+        } catch (HttpException e) {
+            throw new RankingServiceException("HTTP exception while checking ranking for \"" + url + "\"", e);
+        }
+        String text = HttpHelper.getStringContent(httpResult);
+        try {
+            long backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>",
+                    "</links_domain>"));
+            long backlinksPage = Long.valueOf(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
+            results.put(BACKLINKS_DOMAIN, (float)backlinksDomain);
+            results.put(BACKLINKS_PAGE, (float)backlinksPage);
         } catch (Exception e) {
-            throw new RankingServiceException(e);
+            throw new RankingServiceException("Error while parsing the response (\"" + text + "\")", e);
         }
 
-        results.put(BACKLINKS_DOMAIN, (float)backlinksDomain);
-        results.put(BACKLINKS_PAGE, (float)backlinksPage);
-        return ranking;
+        return new Ranking(this, url, results);
     }
 
     /**
@@ -91,8 +89,7 @@ public final class SemRush extends BaseRankingService implements RankingService 
         SemRush gpl = new SemRush();
         Ranking ranking = null;
 
-        ranking = gpl
-                .getRanking("http://webknox.com/p/best-funny-comic-strips");
+        ranking = gpl.getRanking("http://webknox.com/p/best-funny-comic-strips");
         System.out.println(ranking);
         System.out.println(ranking.getValues().get(SemRush.BACKLINKS_DOMAIN) + " backlinks to the domain");
         System.out.println(ranking.getValues().get(SemRush.BACKLINKS_PAGE) + " backlinks to the page");
