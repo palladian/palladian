@@ -106,7 +106,7 @@ public final class ProgressHelper {
         stringBuilder.append('[');
         int scaledPercent = (int)Math.round(percent / 2);
         stringBuilder.append(StringUtils.repeat(PROGRESS_CHAR, scaledPercent));
-        stringBuilder.append(StringUtils.repeat(' ', 50 - scaledPercent));
+        stringBuilder.append(StringUtils.repeat(' ', Math.max(50 - scaledPercent, 0)));
         stringBuilder.append(']');
         return stringBuilder.toString();
     }
@@ -144,6 +144,8 @@ public final class ProgressHelper {
             }
         } catch (ArithmeticException e) {
             // LOGGER.error(e.getMessage());
+        } catch (Exception e) {
+
         }
         return processString.toString();
     }

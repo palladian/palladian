@@ -355,6 +355,21 @@ public final class Tokenizer {
             return string;
         }
 
+        // ///////FIXME
+        List<String> sentences = getSentences(string);
+        String pickedSentence = "";
+        for (String sentence : sentences) {
+            int start = string.indexOf(sentence);
+            if (start < position) {
+                pickedSentence = sentence;
+            } else {
+                break;
+            }
+        }
+        if (true)
+            return pickedSentence;
+        // ////////
+
         String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
         String end = getPhraseToEndOfSentence(string.substring(position));
         if (beginning.endsWith(" ")) {
@@ -818,7 +833,8 @@ public final class Tokenizer {
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
                         && Character.isUpperCase(string.charAt(endIndex + 1))
-                        || StringHelper.isBracket(string.charAt(endIndex + 1)) || string.charAt(endIndex - 1) == '"';
+                        || StringHelper.isBracket(string.charAt(endIndex + 1))
+                        || (endIndex > 0 && string.charAt(endIndex - 1) == '"');
             }
             // two digits after period
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
