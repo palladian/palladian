@@ -48,6 +48,10 @@ public final class JPathHelper {
         Validate.notNull(json, "json must not be null.");
         Validate.notEmpty(jPath, "jPath must not be empty.");
         Validate.notNull(targetClass, "targetClass must not be null");
+        
+        if (jPath.startsWith("/")) {
+            jPath = jPath.substring(1, jPath.length());
+        }
 
         try {
             String[] split = jPath.split("/");

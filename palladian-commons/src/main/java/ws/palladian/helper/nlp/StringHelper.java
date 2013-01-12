@@ -980,18 +980,24 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
      * Removes unwanted control characters from the specified string.
+     * </p>
      * 
      * @param string
      * @return
      */
     public static String removeControlCharacters(String string) {
+        // replace line breaks encoded in utf-8
+        string = string.replace("\u2028", "\n");
+
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
             if (string.charAt(i) < 33) {
                 string = string.replace(string.charAt(i), ' ');
             }
         }
+
         return string;
     }
 
@@ -1800,6 +1806,36 @@ public final class StringHelper {
         }
         return false;
     }
+    
+    /**
+     * <p>
+     * Remove empty lines from a String.
+     * </p>
+     * 
+     * @param string The string from where to remove empty lines.
+     * @return The string without empty lines, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String removeEmptyLines(String string) {
+        if (string == null) {
+            return null;
+        }
+        return string.replaceAll("(?m)^\\s*$\\n", "");
+    }
+
+    /**
+     * <p>
+     * Trim each line in a String, i.e. remove whitespace from beginning/end of each line in the String.
+     * </p>
+     * 
+     * @param text The string for which to trim lines.
+     * @return The string with each line trimmed, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String trimLines(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replaceAll("(?m)^\\s*|\\s*$", "");
+    }
 
     /**
      * The main method.
@@ -1987,5 +2023,7 @@ public final class StringHelper {
         }
 
     }
+
+
 
 }

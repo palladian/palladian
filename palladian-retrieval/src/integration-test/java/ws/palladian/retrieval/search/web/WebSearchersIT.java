@@ -60,7 +60,7 @@ public class WebSearchersIT {
         searchers.add(new Object[] {new HakiaSearcher(configuration)});
         searchers.add(new Object[] {new HakiaNewsSearcher(configuration)});
         searchers.add(new Object[] {new InstagramTagSearcher(configuration)});
-        searchers.add(new Object[] {new NewsSeecrSearcher()});
+        searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
         searchers.add(new Object[] {new TopsySearcher(configuration)});
         // searchers.add(new Object[] {new TopsyUrlSearcher(configuration)});
         searchers.add(new Object[] {new TwitterSearcher()});

@@ -85,7 +85,7 @@ public class RankingServicesIT {
      * </p>
      */
     @Test(timeout = 30000)
-    public void testSearch() {
+    public void testRanking() {
         LOGGER.info("testing " + rankingService.getServiceId());
         try {
             StopWatch stopWatch = new StopWatch();
