@@ -537,12 +537,24 @@ public final class Tokenizer {
      * </p>
      * 
      * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
     public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName) {
         return getSentences(inputDocument, featureName, Language.ENGLISH);
     }
 
+    /**
+     * <p>
+     * Splits the text of {@code inputDocument} into sentences. The text should be in the language provided as parameter
+     * {@code language}.
+     * </p>
+     * 
+     * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
+     * @param language The language of the text to split into sentences.
+     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+     */
     public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName,
             Language language) {
         Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
@@ -652,23 +664,33 @@ public final class Tokenizer {
             List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences, String featureName) {
         List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
 
-        int lastTransformedEndPosition = 0;
+        int lastOriginalEndPosition = 0;
         int lastEndPosition = 0;
         String mask = "PALLADIANMASK";
         Pattern maskPattern = Pattern.compile(mask);
         int maskLength = mask.length();
         int maskAnnotationIndex = 0;
         for (PositionAnnotation sentence : sentences) {
+            // The space between this and the last sentence is this sentences start position in the transformed text -
+            // the last sentences end position in the transformed text.
             int spaceBetweenSentences = sentence.getStartPosition() - lastEndPosition;
-            int transformedStartPosition = lastTransformedEndPosition + spaceBetweenSentences;
-            int currentOffset = transformedStartPosition - sentence.getStartPosition();
-            int transformedEndPosition = sentence.getEndPosition() + currentOffset;
+            // The start position of this sentence in the original text is the end position of the last sentence in the
+            // original text + the space between both sentences.
+            int originalStartPosition = lastOriginalEndPosition + spaceBetweenSentences;
+            // The current offset, which needs to be added to all numbers in the transformed sentence to get their
+            // original value is the start position in the original text - the sentences start position in the
+            // transformed text.
+            int currentOffset = originalStartPosition - sentence.getStartPosition();
+            // The temporal end position of this sentence in the original text is calculated by adding the offset to the
+            // end position in the transformed text. This is of course only true if their are no PALLADIANMASK elements
+            // in the text. Those are added below.
+            int originalEndPosition = sentence.getEndPosition() + currentOffset;
 
             // Search sentences for PALLADIANMASK
             Matcher maskMatcher = maskPattern.matcher(sentence.getValue());
             while (maskMatcher.find()) {
                 PositionAnnotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
-                transformedEndPosition += maskAnnotation.getValue().length() - maskLength;
+                originalEndPosition += maskAnnotation.getValue().length() - maskLength;
                 maskAnnotationIndex++;
                 // handle contained masks by jumping over them
                 // while (maskAnnotationIndex < maskAnnotations.size()
@@ -677,12 +699,17 @@ public final class Tokenizer {
                 // }
             }
 
-            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
-                    transformedEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, transformedStartPosition,
-                    transformedEndPosition, sentence.getIndex(), transformedValue);
+            String transformedValue = null;
+            try {
+                transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
+                        originalEndPosition));
+            } catch (StringIndexOutOfBoundsException e) {
+                throw new IllegalStateException(e);
+            }
+            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, originalStartPosition,
+                    originalEndPosition, sentence.getIndex(), transformedValue);
             ret.add(transformedSentence);
-            lastTransformedEndPosition = transformedEndPosition;
+            lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
         }
 
@@ -899,7 +926,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
