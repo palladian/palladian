@@ -24,7 +24,7 @@ public final class BrownCorpusTagFilter extends AbstractTagFilter {
      * 
      * @param postFilter
      */
-    protected BrownCorpusTagFilter(TagFilter postFilter) {
+    public BrownCorpusTagFilter(TagFilter postFilter) {
         super(postFilter);
     }
 
