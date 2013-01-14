@@ -44,9 +44,7 @@ public final class Tokenizer {
     public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
     /** The RegExp used for sentence splitting. */
-    // public static final String SENTENCE_SPLIT_REGEX_EN =
-    // "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
-    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc| sq| ft)((\\.|\\?|\\!)(”|\")(?=\\s[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
     public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|etc|z\\.B|u\\.s\\.w|u\\.a)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
     private static final Pattern SENTENCE_SPLIT_PATTERN_EN = Pattern.compile(SENTENCE_SPLIT_REGEX_EN);
@@ -346,6 +344,10 @@ public final class Tokenizer {
         return nGrams;
     }
 
+    public static String getSentence(String string, int position) {
+        return getSentence(string, position, Language.ENGLISH);
+    }
+
     /**
      * <p>
      * Get the sentence in which the specified position is present.
@@ -355,10 +357,25 @@ public final class Tokenizer {
      * @param position The position in the sentence.
      * @return The whole sentence.
      */
-    public static String getSentence(String string, int position) {
+    public static String getSentence(String string, int position, Language language) {
         if (position < 0) {
             return string;
         }
+
+        // /////// XXX
+        List<String> sentences = getSentences(string, language);
+        String pickedSentence = "";
+        for (String sentence : sentences) {
+            int start = string.indexOf(sentence);
+            if (start < position) {
+                pickedSentence = sentence;
+            } else {
+                break;
+            }
+        }
+        if (true)
+            return pickedSentence;
+        // ////////
 
         String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
         String end = getPhraseToEndOfSentence(string.substring(position));
@@ -701,13 +718,8 @@ public final class Tokenizer {
                 // }
             }
 
-            String transformedValue = null;
-            try {
-                transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
-                        originalEndPosition));
-            } catch (StringIndexOutOfBoundsException e) {
-                throw new IllegalStateException(e);
-            }
+            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
+                    originalEndPosition));
             PositionAnnotation transformedSentence = new PositionAnnotation(featureName, originalStartPosition,
                     originalEndPosition, sentence.getIndex(), transformedValue);
             ret.add(transformedSentence);
@@ -871,7 +883,8 @@ public final class Tokenizer {
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
                         && Character.isUpperCase(string.charAt(endIndex + 1))
-                        || StringHelper.isBracket(string.charAt(endIndex + 1)) || string.charAt(endIndex - 1) == '"';
+                        || StringHelper.isBracket(string.charAt(endIndex + 1))
+                        || (endIndex > 0 && string.charAt(endIndex - 1) == '"');
             }
             // two digits after period
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
@@ -928,7 +941,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
