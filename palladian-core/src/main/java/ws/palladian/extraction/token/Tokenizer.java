@@ -367,14 +367,15 @@ public final class Tokenizer {
         String pickedSentence = "";
         for (String sentence : sentences) {
             int start = string.indexOf(sentence);
-            if (start < position) {
+            if (start <= position) {
                 pickedSentence = sentence;
             } else {
                 break;
             }
         }
-        if (true)
+        if (true) {
             return pickedSentence;
+        }
         // ////////
 
         String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
