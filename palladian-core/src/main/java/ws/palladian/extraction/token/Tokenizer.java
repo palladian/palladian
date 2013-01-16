@@ -58,6 +58,11 @@ public final class Tokenizer {
     private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
     private static SmileyTagger smileyTagger = new SmileyTagger();
 
+    /**
+     * <p>
+     * Constructor is private since this a static utility class.
+     * </p>
+     */
     private Tokenizer() {
         // prevent instantiation.
     }
@@ -941,7 +946,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
