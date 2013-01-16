@@ -14,7 +14,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @version 1.0.0
  * @since 0.1.8
  */
-public final class ClassifiedPipelineDocument<T> extends PipelineDocument<T> implements Classified {
+public final class ClassifiedTextDocument extends TextDocument implements Trainable {
 
     /**
      * <p>
@@ -31,9 +31,8 @@ public final class ClassifiedPipelineDocument<T> extends PipelineDocument<T> imp
      * @param targetClass The target class this {@code Instance} belongs to.
      * @param content The content of this {@code PipelineDocument}.
      */
-    public ClassifiedPipelineDocument(String targetClass, T content) {
+    public ClassifiedTextDocument(String targetClass, String content) {
         super(content);
-        
         this.targetClass = targetClass; 
     }
 
