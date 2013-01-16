@@ -508,7 +508,11 @@ public class UnitNormalizer {
      */
     public static double transorm(String unitTo, double value) {
         double divider = unitLookup(unitTo);
-        return value/divider;
+        if(divider != -1){
+            return value/divider;
+        }else{
+            return value;
+        }
     }
 
     public static double transorm(String unitTo, String value) {
