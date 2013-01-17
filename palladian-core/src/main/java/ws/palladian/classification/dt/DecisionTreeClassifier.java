@@ -12,11 +12,10 @@ import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -54,9 +53,9 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     }
 
     @Override
-    public DecisionTreeModel train(List<Instance> instances) {
+    public DecisionTreeModel train(Iterable<? extends Trainable> trainables) {
         Set<quickdt.Instance> trainingInstances = CollectionHelper.newHashSet();
-        for (Instance instance : instances) {
+        for (Trainable instance : trainables) {
             Serializable[] input = getInput(instance.getFeatureVector());
             trainingInstances.add(Attributes.create(input).classification(instance.getTargetClass()));
         }
@@ -64,9 +63,9 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
         return new DecisionTreeModel(tree);
     }
 
-    private Serializable[] getInput(FeatureVector featureVector) {
+    private Serializable[] getInput(Classifiable classifiable) {
         List<Serializable> inputs = new ArrayList<Serializable>();
-        for (Feature<?> feature : featureVector.toArray()) {
+        for (Feature<?> feature : classifiable.getFeatureVector().toArray()) {
             String featureName = feature.getName();
             Serializable featureValue = (Serializable)feature.getValue();
             inputs.add(featureName);
@@ -76,17 +75,11 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector featureVector, DecisionTreeModel decisionTreeModel) {
-        Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(featureVector)));
+    public CategoryEntries classify(Classifiable classifiable, DecisionTreeModel decisionTreeModel) {
+        Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(classifiable)));
         CategoryEntries categoryEntries = new CategoryEntries();
         categoryEntries.add(new CategoryEntry((String)leaf.classification, leaf.probability));
         return categoryEntries;
-    }
-
-    @Override
-    public DecisionTreeModel train(Dataset dataset) {
-        // FIXME
-        return null;
     }
 
 }

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.processing.Classified;
 
 /**
  * <p>
@@ -19,7 +20,7 @@ import ws.palladian.helper.math.MathHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class CategoryEntries implements Iterable<CategoryEntry> {
+public final class CategoryEntries implements Iterable<CategoryEntry>, Classified {
 
     private Map<String, Double> categoryEntries = CollectionHelper.newHashMap();
 
@@ -157,6 +158,15 @@ public final class CategoryEntries implements Iterable<CategoryEntry> {
      */
     public int size() {
         return categoryEntries.size();
+    }
+
+    @Override
+    public String getTargetClass() {
+        CategoryEntry categoryEntry = getMostLikelyCategoryEntry();
+        if (categoryEntry == null) {
+            return null;
+        }
+        return categoryEntry.getName();
     }
 
 //    /**

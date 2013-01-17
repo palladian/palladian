@@ -12,6 +12,7 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 
@@ -97,7 +98,8 @@ public class PalladianLangDetect extends LanguageClassifier {
         // classifier.save(classifierPath);
         // classifierManager.trainClassifier(dataset, classifier);
 
-        DictionaryModel trainedModel = classifier.train(dataset, featureSetting);
+        TextDatasetIterator datasetIterator = TextDatasetIterator.createIterator(dataset);
+        DictionaryModel trainedModel = classifier.train(datasetIterator, featureSetting);
 
         // test the classifier
         // Dataset testDataset = new Dataset();

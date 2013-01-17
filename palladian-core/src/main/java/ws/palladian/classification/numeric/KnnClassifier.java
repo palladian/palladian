@@ -12,9 +12,10 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryValueComparator;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -62,16 +63,16 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     }
 
     @Override
-    public KnnModel train(List<Instance> instances) {
-        return new KnnModel(instances);
+    public KnnModel train(Iterable<? extends Trainable> trainables) {
+        return new KnnModel(trainables);
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector vector, KnnModel model) {
+    public CategoryEntries classify(Classifiable classifiable, KnnModel model) {
 
         // we need to normalize the new instance if the training instances were also normalized
         if (model.isNormalized()) {
-            model.normalize(vector);
+            model.normalize(classifiable.getFeatureVector());
         }
 
         Set<String> categories = getPossibleCategories(model.getTrainingExamples());
@@ -85,7 +86,7 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         // find k nearest neighbors, compare instance to every known instance
         List<Pair<Instance, Double>> neighbors = CollectionHelper.newArrayList();
         for (Instance example : model.getTrainingExamples()) {
-            double distance = getDistanceBetween(vector, example.getFeatureVector());
+            double distance = getDistanceBetween(classifiable.getFeatureVector(), example.getFeatureVector());
             neighbors.add(Pair.of(example, distance));
         }
 
@@ -160,9 +161,4 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         return Math.sqrt(squaredSum);
     }
 
-    @Override
-    public KnnModel train(Dataset dataset) {
-        // FIXME
-        return null;
-    }
 }
