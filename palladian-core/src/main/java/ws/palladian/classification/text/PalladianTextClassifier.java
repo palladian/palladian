@@ -1,26 +1,39 @@
 package ws.palladian.classification.text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableDouble;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.classification.universal.UniversalClassifier;
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.extraction.feature.AbstractTokenRemover;
+import ws.palladian.extraction.feature.CharNGramCreator;
+import ws.palladian.extraction.feature.DuplicateTokenRemover;
+import ws.palladian.extraction.feature.LengthTokenRemover;
+import ws.palladian.extraction.feature.LowerCaser;
+import ws.palladian.extraction.feature.NGramCreator;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
+import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.ClassifiedTextDocument;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.ProcessingPipeline;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * This classifier builds a weighed term look up table for the categories to
@@ -32,36 +45,120 @@ import ws.palladian.processing.features.NominalFeature;
 public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianTextClassifier.class);
+    // private static final Logger LOGGER = LoggerFactory.getLogger(PalladianTextClassifier.class);
+    
+    private ProcessingPipeline createPipeline(final FeatureSetting featureSetting) {
+        ProcessingPipeline pipeline = new ProcessingPipeline();
+        pipeline.connectToPreviousProcessor(new LowerCaser());
+        if (featureSetting.getTextFeatureType() == FeatureSetting.CHAR_NGRAMS) {
+            pipeline.connectToPreviousProcessor(new CharNGramCreator(featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength()));            
+        } else {
+            pipeline.connectToPreviousProcessor(new RegExTokenizer());
+            pipeline.connectToPreviousProcessor(new NGramCreator(featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength()));
+        }
+        if (featureSetting.getTextFeatureType() == FeatureSetting.WORD_NGRAMS) {
+            pipeline.connectToPreviousProcessor(new LengthTokenRemover(featureSetting.getMinimumTermLength(), featureSetting.getMaximumTermLength()));
+        }
+        pipeline.connectToPreviousProcessor(new DuplicateTokenRemover());
+        pipeline.connectToPreviousProcessor(new AbstractTokenRemover() {
+            @Override
+            protected boolean remove(PositionAnnotation annotation) {
+                String tokenValue = annotation.getValue();
+                return (StringHelper.containsAny(tokenValue, Arrays.asList("&", "/", "=")) || StringHelper
+                        .isNumber(tokenValue));
+            }
+        });
+        pipeline.connectToPreviousProcessor(new TextDocumentPipelineProcessor() {
+            @Override
+            public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+                List<PositionAnnotation> annotations = new ArrayList<PositionAnnotation>(BaseTokenizer.getTokenAnnotations(document));
+                Collections.sort(annotations, new Comparator<PositionAnnotation>() {
+                    @Override
+                    public int compare(PositionAnnotation o1, PositionAnnotation o2) {
+                        Integer count1 = o1.getStartPosition();
+                        Integer count2 = o2.getStartPosition();
+                        return count1.compareTo(count2);
+                    }
+                });
+                
+                List<PositionAnnotation> newAnnotations = CollectionHelper.newArrayList();
+                for (int i = 0; i < Math.min(annotations.size(), featureSetting.getMaxTerms()); i++) {
+                    newAnnotations.add(annotations.get(i));
+                }
+                document.getFeatureVector().removeAll(BaseTokenizer.PROVIDED_FEATURE);
+                document.getFeatureVector().addAll(newAnnotations);
+            }
+        });
+        return pipeline;
+    }
 
     @Override
-    public DictionaryModel train(List<Instance> instances) {
+    public DictionaryModel train(Iterable<? extends Trainable> instances) {
         return train(instances, new FeatureSetting());
     }
 
-    public DictionaryModel train(List<Instance> instances, FeatureSetting featureSetting) {
-        Validate.notNull(featureSetting, "fs must not be null");
+    public DictionaryModel train(Iterable<? extends Trainable> instances, FeatureSetting featureSetting) {
+        Validate.notNull(featureSetting, "featureSetting must not be null");
+        
+        ProcessingPipeline pipeline = createPipeline(featureSetting);
 
         DictionaryModel model = new DictionaryModel(featureSetting);
-        for (Instance instance : instances) {
-            List<NominalFeature> terms = instance.getFeatureVector().getAll(NominalFeature.class,
-                    UniversalClassifier.FEATURE_TERM);
-            for (NominalFeature term : terms) {
-                model.updateTerm(term.getValue(), instance.getTargetClass());
+        for (Trainable instance : instances) {
+            if (instance instanceof ClassifiedTextDocument) {
+                try {
+                    ClassifiedTextDocument textDoc = ((ClassifiedTextDocument)instance);
+                    pipeline.process(textDoc);
+                    trainWithInstance(model, textDoc);
+                } catch (DocumentUnprocessableException e) {
+                    throw new IllegalStateException(e);
+                }
+            } else {
+                trainWithInstance(model, instance);
             }
-            model.addCategory(instance.getTargetClass());
         }
         return model;
     }
 
+    private void trainWithInstance(DictionaryModel model, Trainable instance) {
+        String targetClass = instance.getTargetClass();
+        List<PositionAnnotation> tokenAnnotations = instance.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        
+        System.out.println("training with " + tokenAnnotations.size() + " tokens " + targetClass);
+        
+        for (NominalFeature tokenAnnotation : tokenAnnotations) {
+            model.updateTerm(tokenAnnotation.getValue(), targetClass);
+        }
+        model.addCategory(targetClass);
+    }
+
     public CategoryEntries classify(String text, DictionaryModel model) {
-        FeatureVector fv = Preprocessor.preProcessDocument(text, model.getFeatureSetting());
-        return classify(fv, model);
+        try {
+            ProcessingPipeline pipeline = createPipeline(model.getFeatureSetting());
+            TextDocument textDocument = new TextDocument(text);
+            pipeline.process(textDocument);
+            FeatureVector featureVector = textDocument.getFeatureVector();
+            return classify(featureVector, model);
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector vector, DictionaryModel model) {
+    public CategoryEntries classify(Classifiable classifiable, DictionaryModel model) {
 
+        ProcessingPipeline pipeline = createPipeline(model.getFeatureSetting());
+        
+        FeatureVector featureVector = classifiable.getFeatureVector();
+        if (classifiable instanceof TextDocument) {
+            TextDocument textDoc = ((TextDocument)classifiable);
+            try {
+                pipeline.process(textDoc);
+                featureVector = textDoc.getFeatureVector();
+            } catch (DocumentUnprocessableException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        
         // initialize probability Map with mutable double objects, so we can add relevance values to them
         Map<String, MutableDouble> probabilities = CollectionHelper.newHashMap();
         for (String category : model.getCategories()) {
@@ -72,7 +169,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         double probabilitySum = 0.;
 
         // iterate through all terms in the document
-        for (NominalFeature termFeature : vector.getAll(NominalFeature.class, UniversalClassifier.FEATURE_TERM)) {
+        for (NominalFeature termFeature : featureVector.getAll(NominalFeature.class, BaseTokenizer.PROVIDED_FEATURE)) {
             CategoryEntries categoryFrequencies = model.getCategoryEntries(termFeature.getValue());
             for (CategoryEntry category : categoryFrequencies) {
                 double categoryFrequency = category.getProbability();
@@ -101,270 +198,5 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         categories.sort();
         return categories;
     }
-
-    // /**
-    // * FIXME somewhere else
-    // * This method calls the classify function that is implemented by each concrete classifier all test documents are
-    // * classified.
-    // */
-    // public void classifyTestDocuments() {
-    //
-    // int c = 1;
-    // for (TextInstance testDocument : testDocuments) {
-    // classify(testDocument);
-    // if (c % 100 == 0) {
-    // LOGGER.info("classified " + MathHelper.round(100 * c / (double)testDocuments.size(), 2)
-    // + "% of the test documents");
-    // }
-    // c++;
-    // }
-    // }
-    //
-    // /**
-    // * FIXME somwhere else
-    // * @return
-    // */
-    // public ClassifierPerformance getPerformance() {
-    //
-    // if (performance == null) {
-    // performance = new ClassifierPerformance(this);
-    // }
-    //
-    // return performance;
-    // }
-    //
-    //
-    // /**
-    // * FIXME somewhere else
-    // */
-    // public final ClassifierPerformance evaluate(Dataset dataset) {
-    //
-    // StopWatch sw = new StopWatch();
-    //
-    // // read the testing URLs from the given dataset
-    // readTestData(dataset);
-    //
-    // // classify
-    // classifyTestDocuments();
-    //
-    // LOGGER.info("classified " + getTestDocuments().size() + " documents in " + sw.getTotalElapsedTimeString());
-    //
-    // return getPerformance();
-    // }
-    //
-    // /**
-    // * FIXME somwehere else
-    // * @param testInstances
-    // * @return
-    // */
-    // public final ClassifierPerformance evaluate(Instances<UniversalInstance> testInstances) {
-    //
-    // StopWatch sw = new StopWatch();
-    //
-    // // instances to classification documents
-    // setTestDocuments(new ClassificationDocuments());
-    //
-    // TextInstance preprocessedDocument = null;
-    //
-    // for (UniversalInstance universalInstance : testInstances) {
-    //
-    // preprocessedDocument = new TestDocument();
-    //
-    // String documentContent = universalInstance.getTextFeature();
-    //
-    // preprocessedDocument = preprocessDocument(documentContent, preprocessedDocument);
-    // preprocessedDocument.setContent(documentContent);
-    //
-    // Categories categories = new Categories();
-    // categories.add(new Category(universalInstance.getInstanceCategoryName()));
-    //
-    // preprocessedDocument.setDocumentType(TextInstance.TEST);
-    // preprocessedDocument.setRealCategories(categories);
-    // getTestDocuments().add(preprocessedDocument);
-    // }
-    //
-    // // classify
-    // classifyTestDocuments();
-    //
-    // LOGGER.info("classified " + getTestDocuments().size() + " documents in " + sw.getTotalElapsedTimeString());
-    //
-    // return getPerformance();
-    // }
-    //
-    // /**
-    // * FIXME somewhere else
-    // * @param dataset
-    // */
-    // private void readTestData(final Dataset dataset) {
-    //
-    // // reset training and testing documents as well as learned categories
-    // setTestDocuments(new ClassificationDocuments());
-    //
-    // final List<String[]> documentInformationList = new ArrayList<String[]>();
-    //
-    // LineAction la = new LineAction() {
-    //
-    // @Override
-    // public void performAction(String line, int lineNumber) {
-    //
-    // // split the line using the separation string
-    // String[] siteInformation = line.split(dataset.getSeparationString());
-    //
-    // // store the content (or link to the content) and all categories subsequently
-    // String[] documentInformation = new String[siteInformation.length];
-    // documentInformation[0] = siteInformation[0];
-    //
-    // // iterate over all parts of the line (in SINGLE mode this would be two iterations)
-    // for (int i = 1; i < siteInformation.length; ++i) {
-    //
-    // String[] categorieNames = siteInformation[i].split("/");
-    // if (categorieNames.length == 0) {
-    // LOGGER.warn("no category names found for " + line);
-    // return;
-    // }
-    // String categoryName = categorieNames[0];
-    //
-    // documentInformation[i] = categoryName;
-    //
-    // // add category if it does not exist yet
-    // if (!getCategories().containsCategoryName(categoryName)) {
-    // Category cat = new Category(categoryName);
-    // cat.setClassType(getClassificationType());
-    // cat.increaseFrequency();
-    // getCategories().add(cat);
-    // } else {
-    // getCategories().getCategoryByName(categoryName).setClassType(getClassificationType());
-    // getCategories().getCategoryByName(categoryName).increaseFrequency();
-    // }
-    //
-    // // only take first category in "first" mode
-    // if (getClassificationType() == ClassificationTypeSetting.SINGLE) {
-    // break;
-    // }
-    // }
-    //
-    // // add to test urls
-    // documentInformationList.add(documentInformation);
-    //
-    // if (lineNumber % 1000 == 0) {
-    // LOGGER.info("read another 1000 lines from test file, total: " + lineNumber);
-    // }
-    //
-    // }
-    // };
-    //
-    // FileHelper.performActionOnEveryLine(dataset.getPath(), la);
-    //
-    // int c = 0;
-    // for (String[] documentInformation : documentInformationList) {
-    //
-    // TextInstance preprocessedDocument = null;
-    //
-    // preprocessedDocument = new TestDocument();
-    //
-    // String firstField = documentInformation[0];
-    //
-    // String documentContent = firstField;
-    //
-    // // if the first field should be interpreted as a link to the actual document, get it and preprocess it
-    // if (dataset.isFirstFieldLink()) {
-    // documentContent = FileHelper.readFileToString(dataset.getRootPath() + firstField);
-    // }
-    //
-    // preprocessedDocument = preprocessDocument(documentContent, preprocessedDocument);
-    // preprocessedDocument.setContent(firstField);
-    //
-    // Categories categories = new Categories();
-    // for (int j = 1; j < documentInformation.length; j++) {
-    // categories.add(new Category(documentInformation[j]));
-    // }
-    //
-    // preprocessedDocument.setDocumentType(TextInstance.TEST);
-    // preprocessedDocument.setRealCategories(categories);
-    // getTestDocuments().add(preprocessedDocument);
-    //
-    // if (c++ % (documentInformationList.size() / 100 + 1) == 0) {
-    // LOGGER.info(Math.floor(100.0 * (c + 1) / documentInformationList.size()) + "% preprocessed (= " + c
-    // + " documents)");
-    // }
-    // }
-    //
-    // // calculate the prior for all categories
-    // getCategories().calculatePriors();
-    // }
-
-    /**
-     * FIXME put this somewhere else
-     * <p>
-     * Train the text classifier with the given dataset.
-     * </p>
-     * 
-     * @param dataset The dataset to train from.
-     */
-    @Override
-    public DictionaryModel train(Dataset dataset) {
-        return train(dataset, null);
-    }
-
-    public DictionaryModel train(Dataset dataset, FeatureSetting fs) {
-        List<Instance> instances = createInstances(dataset, fs);
-        LOGGER.info("trained with " + instances.size() + " instances from " + dataset.getPath());
-        return train(instances, fs);
-    }
-
-    /** FIXME in classifier utils **/
-    public List<Instance> createInstances(Dataset dataset, FeatureSetting featureSettings) {
-
-        List<Instance> instances = new ArrayList<Instance>();
-
-        int added = 1;
-        List<String> trainingArray = FileHelper.readFileToArray(dataset.getPath());
-        for (String string : trainingArray) {
-
-            String[] parts = string.split(dataset.getSeparationString());
-            if (parts.length != 2) {
-                continue;
-            }
-
-            String learningText = "";
-            if (!dataset.isFirstFieldLink()) {
-                learningText = parts[0];
-            } else {
-                learningText = FileHelper.readFileToString(dataset.getRootPath() + parts[0]);
-            }
-
-            String instanceCategory = parts[1];
-
-            FeatureVector featureVector = Preprocessor.preProcessDocument(learningText, featureSettings);
-            instances.add(new Instance(instanceCategory, featureVector));
-
-            ProgressHelper.showProgress(added++, trainingArray.size(), 1);
-        }
-
-        return instances;
-    }
-
-    /**
-     * FIXME make this work again
-     * <p>
-     * For quick thread-safe classification use this. The DictionaryClassifier is thread safe by itself but this is
-     * faster since copies of classifiers are created which all use the same dictionary (read-only).
-     * </p>
-     * 
-     * @param classifier
-     *            The classifier to use (will be copied).
-     * @param text
-     *            The text to classify.
-     * @return The classified text instance.
-     */
-    // public static CategoryEntries predict(FeatureVector vector, DictionaryClassifier classifier) {
-    //
-    // // TODO: DictionaryClassifier copy = (DictionaryClassifier)
-    // // classifier.copy();
-    // DictionaryClassifier copy = new DictionaryClassifier();
-    // copy.setClassificationTypeSetting(classifier.getClassificationTypeSetting());
-    // return copy.classify(vector, model);
-    //
-    // }
 
 }

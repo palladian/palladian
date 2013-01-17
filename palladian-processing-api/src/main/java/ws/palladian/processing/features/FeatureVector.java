@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import ws.palladian.processing.Classifiable;
+
 /**
  * <p>
  * A class to describe collections of {@code Feature}s extracted from some document. Based on its {@code FeatureVector}
@@ -18,7 +20,7 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class FeatureVector implements Iterable<Feature<?>> {
+public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
 
     /**
      * <p>
@@ -368,6 +370,11 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         for (Feature<?> existingFeature : existingFeatures) {
             features.get(feature.getName()).remove(existingFeature);
         }
+    }
+
+    @Override
+    public FeatureVector getFeatureVector() {
+        return this;
     }
 
 }

@@ -11,14 +11,13 @@ import org.javatuples.Triplet;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -33,13 +32,13 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  */
 public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
-    
+
     /** The default value for the Laplace smoothing. */
     private static final double DEFAULT_LAPLACE_CORRECTOR = 0.00001;
-    
+
     /** The corrector for the Laplace smoothing. */
     private final double laplace;
-    
+
     /**
      * <p>
      * Create a new Naive Bayes classifier with a value of {@value #DEFAULT_LAPLACE_CORRECTOR} for the Laplace
@@ -64,7 +63,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
     }
 
     @Override
-    public NaiveBayesModel train(List<Instance> instances) {
+    public NaiveBayesModel train(Iterable<? extends Trainable> trainables) {
 
         // store the counts of different categories
         CountMap<String> categories = CountMap.create();
@@ -78,13 +77,13 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             }
         });
 
-        for (Instance instance : instances) {
-            String category = instance.getTargetClass();
+        for (Trainable trainable : trainables) {
+            String category = trainable.getTargetClass();
             categories.add(category);
 
-            for (Feature<?> feature : instance.getFeatureVector()) {
+            for (Feature<?> feature : trainable.getFeatureVector()) {
                 String featureName = feature.getName();
-                
+
                 if (feature instanceof NominalFeature) {
                     String nominalValue = ((NominalFeature)feature).getValue();
                     nominalCounts.add(new Triplet<String, String, String>(featureName, nominalValue, category));
@@ -110,7 +109,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector vector, NaiveBayesModel model) {
+    public CategoryEntries classify(Classifiable classifiable, NaiveBayesModel model) {
 
         Map<String, Double> probabilities = CollectionHelper.newHashMap();
 
@@ -121,7 +120,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
 
-            for (Feature<?> feature : vector) {
+            for (Feature<?> feature : classifiable.getFeatureVector()) {
                 String featureName = feature.getName();
 
                 if (feature instanceof NominalFeature) {
@@ -147,7 +146,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         for (Entry<String, Double> entry : probabilities.entrySet()) {
             categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue() / evidence));
         }
-       
+
         return categoryEntries;
     }
 
@@ -192,12 +191,6 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             return standardDeviation;
         }
 
-    }
-
-    @Override
-    public NaiveBayesModel train(Dataset dataset) {
-        // FIXME
-        return null;
     }
 
 }

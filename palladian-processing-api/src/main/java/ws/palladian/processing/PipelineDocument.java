@@ -71,14 +71,13 @@ public abstract class PipelineDocument<T> implements Classifiable {
 
     /**
      * <p>
-     * Resets this documents content completely overwriting any previous original content.
+     * Resets this documents content completely overwriting any previous content.
      * </p>
      * 
-     * @param originalContent The new unmodified original content representing the document.
+     * @param content The new content representing the document.
      */
-    public void setContent(final T content) {
+    public void setContent(T content) {
         Validate.notNull(content);
-
         this.content = content;
     }
 

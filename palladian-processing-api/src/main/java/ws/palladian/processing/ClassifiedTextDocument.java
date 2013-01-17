@@ -1,9 +1,5 @@
-/**
- * 
- */
 package ws.palladian.processing;
 
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -14,14 +10,14 @@ import ws.palladian.processing.features.FeatureVector;
  * @version 1.0.0
  * @since 0.1.8
  */
-public final class ClassifiedTextDocument extends TextDocument implements Trainable {
+public class ClassifiedTextDocument extends TextDocument implements Trainable {
 
     /**
      * <p>
      * The target class this {@code Instance} belongs to.
      * </p>
      */
-    private String targetClass;
+    private final String targetClass;
     
     /**
      * <p>
@@ -34,11 +30,6 @@ public final class ClassifiedTextDocument extends TextDocument implements Traina
     public ClassifiedTextDocument(String targetClass, String content) {
         super(content);
         this.targetClass = targetClass; 
-    }
-
-    @Override
-    public FeatureVector getFeatureVector() {
-        return super.getFeatureVector();
     }
 
     @Override

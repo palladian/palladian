@@ -24,6 +24,8 @@ import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
 public class UniversalClassifier implements Classifier<UniversalClassifierModel> {
@@ -31,7 +33,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
 
-    public static final String FEATURE_TERM = "ws.palladian.feature.term";
+//    public static final String FEATURE_TERM = "ws.palladian.feature.term";
 
     public static enum ClassifierSetting {
         NUMERIC, TEXT, NOMINAL
@@ -116,18 +118,18 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         return correctlyClassified;
     }
 
-    protected UniversalClassificationResult internalClassify(FeatureVector featureVector, UniversalClassifierModel model) {
+    protected UniversalClassificationResult internalClassify(Classifiable classifiable, UniversalClassifierModel model) {
 
         CategoryEntries text = null;
         CategoryEntries numeric = null;
         CategoryEntries nominal = null;
         
-        FeatureVector featureVectorWithoutTerms = new FeatureVector(featureVector);
+        FeatureVector featureVectorWithoutTerms = new FeatureVector(classifiable.getFeatureVector());
         featureVectorWithoutTerms.removeAll(FEATURE_TERM);
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
-            text = textClassifier.classify(featureVector, model.getDictionaryModel());
+            text = textClassifier.classify(classifiable.getFeatureVector(), model.getDictionaryModel());
         }
 
         // classify numeric features with the KNN
@@ -197,7 +199,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     }
 
     @Override
-    public UniversalClassifierModel train(List<Instance> instances) {
+    public UniversalClassifierModel train(List<? extends Trainable> trainables) {
         NaiveBayesModel nominalModel = null;
         KnnModel numericModel = null;
         DictionaryModel textModel = null;
@@ -206,25 +208,25 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         // train the text classifier
         if (settings.contains(ClassifierSetting.TEXT)) {
             LOGGER.debug("training text classifier");
-            textModel = textClassifier.train(instances, featureSetting);
+            textModel = textClassifier.train(trainables, featureSetting);
         }
         
         // XXX thats not really nice because we alter the original feature vector,
         // better would be to supply a filter or view on the existing one.
-        for (Instance instance : instances) {
-            instance.getFeatureVector().removeAll(FEATURE_TERM);
+        for (Trainable trainable : trainables) {
+            trainable.getFeatureVector().removeAll(FEATURE_TERM);
         }
 
         // train the numeric classifier
         if (settings.contains(ClassifierSetting.NUMERIC)) {
             LOGGER.debug("training numeric classifier");
-            numericModel = numericClassifier.train(instances);
+            numericModel = numericClassifier.train(trainables);
         }
 
         // train the nominal classifier
         if (settings.contains(ClassifierSetting.NOMINAL)) {
             LOGGER.debug("training nominal classifier");
-            nominalModel = nominalClassifier.train(instances);
+            nominalModel = nominalClassifier.train(trainables);
         }
 
         UniversalClassifierModel model = new UniversalClassifierModel(nominalModel, numericModel, textModel);
@@ -239,8 +241,8 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector vector, UniversalClassifierModel model) {
-        UniversalClassificationResult result = internalClassify(vector, model);
+    public CategoryEntries classify(Classifiable classifiable, UniversalClassifierModel model) {
+        UniversalClassificationResult result = internalClassify(classifiable, model);
         return mergeResults(result, model);
     }
 

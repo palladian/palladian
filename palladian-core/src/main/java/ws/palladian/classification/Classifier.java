@@ -1,9 +1,7 @@
 package ws.palladian.classification;
 
-import java.util.List;
-
-import ws.palladian.classification.text.evaluation.Dataset;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -17,10 +15,25 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public interface Classifier<M extends Model> {
 
-    M train(List<Instance> instances);
+    /**
+     * <p>
+     * Train a model for the given training data.
+     * </p>
+     * 
+     * @param trainables The training data to use for building the model.
+     * @return The model for the given training data.
+     */
+    M train(Iterable<? extends Trainable> trainables);
 
-    M train(Dataset dataset);
-
-    CategoryEntries classify(FeatureVector vector, M model);
+    /**
+     * <p>
+     * Classify an object with the given model.
+     * </p>
+     * 
+     * @param classifiable The object to classify.
+     * @param model The model to use for the classification.
+     * @return The classification result.
+     */
+    CategoryEntries classify(Classifiable classifiable, M model);
 
 }
