@@ -29,9 +29,19 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
         this.isFirstFieldLink = dataset.isFirstFieldLink();
         this.datasetRootPath = dataset.getRootPath();
     }
+    private TextDatasetIterator(String filePath, String separator, boolean firstFieldLink) {
+        this.fileLines = FileHelper.readFileToArray(filePath);
+        this.separationString = separator;
+        this.isFirstFieldLink = firstFieldLink;
+        this.datasetRootPath = FileHelper.getFilePath(filePath);
+    }
 
     public static TextDatasetIterator createIterator(Dataset dataset) {
         return new TextDatasetIterator(dataset);
+    }
+    
+    public static TextDatasetIterator createIterator(String filePath, String separator, boolean firstFieldLink) {
+        return new TextDatasetIterator(filePath, separator, firstFieldLink);
     }
 
     @Override
