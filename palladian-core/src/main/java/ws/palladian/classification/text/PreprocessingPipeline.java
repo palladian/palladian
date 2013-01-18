@@ -2,8 +2,9 @@ package ws.palladian.classification.text;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.extraction.feature.AbstractTokenRemover;
@@ -22,9 +23,24 @@ import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
 
+/**
+ * <p>
+ * A {@link ProcessingPipeline} which carries out the feature extraction for the {@link PalladianTextClassifier}.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class PreprocessingPipeline extends ProcessingPipeline {
 
-    public PreprocessingPipeline(final FeatureSetting featureSetting) {
+    /**
+     * <p>
+     * Create a new {@link PreprocessingPipeline} for the specified {@link FeatureSetting}.
+     * </p>
+     * 
+     * @param featureSetting The configuration for the feature extraction setup, not <code>null</code>.
+     */
+    public PreprocessingPipeline(FeatureSetting featureSetting) {
+        Validate.notNull(featureSetting, "featureSetting must not be null");
 
         connectToPreviousProcessor(new LowerCaser());
 
@@ -44,37 +60,42 @@ public class PreprocessingPipeline extends ProcessingPipeline {
         }
 
         connectToPreviousProcessor(new DuplicateTokenRemover());
+        connectToPreviousProcessor(new UnwantedTokenRemover());
+        connectToPreviousProcessor(new TokenLimiter(featureSetting.getMaxTerms()));
+    }
 
-        connectToPreviousProcessor(new AbstractTokenRemover() {
-            @Override
-            protected boolean remove(PositionAnnotation annotation) {
-                String tokenValue = annotation.getValue();
-                return (StringHelper.containsAny(tokenValue, Arrays.asList("&", "/", "=")) || StringHelper
-                        .isNumber(tokenValue));
-            }
-        });
+    /** This PipelineProcessor limits the number of tokens to a specified count. */
+    private static final class TokenLimiter extends TextDocumentPipelineProcessor {
+        private final int maxTokens;
 
-        connectToPreviousProcessor(new TextDocumentPipelineProcessor() {
-            @Override
-            public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-                List<PositionAnnotation> terms = CollectionHelper.newArrayList(BaseTokenizer
-                        .getTokenAnnotations(document));
-                Collections.sort(terms, new Comparator<PositionAnnotation>() {
-                    @Override
-                    public int compare(PositionAnnotation a1, PositionAnnotation a2) {
-                        return Integer.valueOf(a1.getStartPosition()).compareTo(a2.getStartPosition());
-                    }
-                });
+        private TokenLimiter(int maxTokens) {
+            this.maxTokens = maxTokens;
+        }
 
-                if (terms.size() > featureSetting.getMaxTerms()) {
-                    // terms.removeAll(terms.subList(featureSetting.getMaxTerms(), terms.size()));
-                    terms = CollectionHelper.newArrayList(terms.subList(0, featureSetting.getMaxTerms()));
-                }
-                
+        @Override
+        public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+            List<PositionAnnotation> terms = CollectionHelper.newArrayList(BaseTokenizer.getTokenAnnotations(document));
+
+            if (terms.size() > maxTokens) {
+                // sort by occurrence positions
+                Collections.sort(terms);
+
+                terms = CollectionHelper.newArrayList(terms.subList(0, maxTokens));
+
                 document.getFeatureVector().removeAll(BaseTokenizer.PROVIDED_FEATURE);
                 document.getFeatureVector().addAll(terms);
             }
-        });
+        }
+    }
+
+    /** This PipelineProcessor removes undesired tokens. */
+    private static final class UnwantedTokenRemover extends AbstractTokenRemover {
+        @Override
+        protected boolean remove(PositionAnnotation annotation) {
+            String tokenValue = annotation.getValue();
+            return StringHelper.containsAny(tokenValue, Arrays.asList("&", "/", "="))
+                    || StringHelper.isNumber(tokenValue);
+        }
     }
 
 }

@@ -56,7 +56,9 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
     // PosTagger API
     // ////////////////////////////////////////////
 
+    /** @deprecated Use the {@link TextDocumentPipelineProcessor} API instead. */
     @Override
+    @Deprecated
     public TagAnnotations tag(String text) {
         TextDocument document = new TextDocument(text);
         try {

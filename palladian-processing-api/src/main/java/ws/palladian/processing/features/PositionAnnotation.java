@@ -135,8 +135,7 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
 
     @Override
     public int compareTo(PositionAnnotation o) {
-        int comparisonValue = Integer.valueOf(this.startPosition).compareTo(o.startPosition);
-        return comparisonValue;
+        return Integer.valueOf(this.startPosition).compareTo(o.startPosition);
     }
 
 }

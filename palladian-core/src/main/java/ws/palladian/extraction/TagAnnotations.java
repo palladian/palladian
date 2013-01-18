@@ -16,6 +16,7 @@ import com.aliasi.util.Arrays;
  * @author Klemens Muthmann
  * @see PosTagger
  */
+@Deprecated
 public class TagAnnotations extends ArrayList<TagAnnotation> {
 
     private static final long serialVersionUID = -328843608844181172L;

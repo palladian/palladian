@@ -37,21 +37,6 @@ public class ProcessingPipeline {
         pipelineProcessors = new ArrayList<PipelineProcessor>();
     }
 
-//    /**
-//     * <p>
-//     * Creates a new {@link ProcessingPipeline} with the {@link PipelineProcessor}s from the supplied
-//     * {@link ProcessingPipeline}. The newly created {@link ProcessingPipeline} will use the instances of the
-//     * {@link PipelineProcessor}s from the supplied {@link ProcessingPipeline}. In other words, a <i>shallow copy</i> of
-//     * the workflow is created, where {@link PipelineProcessor}s share their states.
-//     * </p>
-//     * 
-//     * @param processingPipeline The {@link ProcessingPipeline} from which the {@link PipelineProcessor}s will be added
-//     *            to the newly created instance.
-//     */
-//    public ProcessingPipeline(ProcessingPipeline processingPipeline) {
-//        pipelineProcessors = new ArrayList<PipelineProcessor>(processingPipeline.pipelineProcessors);
-//    }
-
     /**
      * <p>
      * Adds a new processor for execution to this pipeline. The processor is appended as last step.
@@ -86,9 +71,6 @@ public class ProcessingPipeline {
      */
     public final void add(PipelineProcessor pipelineProcessor) {
         pipelineProcessors.add(pipelineProcessor);
-        // for (OutputPort port : ports) {
-        // this.pipes.add(pipe);
-        // }
     }
 
     /**
@@ -121,22 +103,15 @@ public class ProcessingPipeline {
             return document;
         }
 
-        // pipelineProcessors.get(0).getInputPorts().get(0).setPipelineDocument(document);
         pipelineProcessors.get(0).getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
 
         process();
 
-        // List<Port> outputPorts = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPorts();
         Port outputPort = pipelineProcessors.get(pipelineProcessors.size() - 1).getOutputPort(
                 PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER);
 
         // Check if default output is available. This might not be the case if a writer was used to process the
         // final data.
-        // if (outputPorts.isEmpty()) {
-        // return null;
-        // } else {
-        // return outputPorts.get(0).getPipelineDocument();
-        // }
         if (outputPort != null) {
             return outputPort.poll();
         }
