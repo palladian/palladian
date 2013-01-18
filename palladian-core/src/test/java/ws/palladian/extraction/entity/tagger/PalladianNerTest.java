@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.ResourceHelper;
 
 // XXX added temporarily for testing purposes, but could be removed again after refactoring.
@@ -33,17 +32,17 @@ public class PalladianNerTest {
         assertEquals(0, caseDictionary.getNumTerms());
         assertEquals(0, caseDictionary.getNumCategories());
 
-        CountMap<String> leftContextMap = tagger.getLeftContextMap();
+        // CountMap<String> leftContextMap = tagger.getLeftContextMap();
         // assertEquals(8274, leftContextMap.size());
 
         List<String> removeAnnotations = tagger.getRemoveAnnotations();
         assertEquals(0, removeAnnotations.size());
 
-        DictionaryModel contextDictionary = tagger.getContextClassifier();
+        DictionaryModel contextDictionary = tagger.getContextModel();
         assertEquals(89639, contextDictionary.getNumTerms());
         assertEquals(4, contextDictionary.getNumCategories());
 
-        DictionaryModel annotationDictionary = tagger.getAnnotationDictionary();
+        DictionaryModel annotationDictionary = tagger.getAnnotationModel();
         assertEquals(54040, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
         System.out.println(annotationDictionary.getCategories());
@@ -66,17 +65,17 @@ public class PalladianNerTest {
         assertEquals(5818, caseDictionary.getNumTerms());
         assertEquals(3, caseDictionary.getNumCategories());
 
-        CountMap<String> leftContextMap = tagger.getLeftContextMap();
+        // CountMap<String> leftContextMap = tagger.getLeftContextMap();
         // assertEquals(8274, leftContextMap.size());
 
         // Set<String> removeAnnotations = tagger.getRemoveAnnotations();
         // assertEquals(2008, removeAnnotations.size());
 
-        DictionaryModel contextDictionary = tagger.getContextClassifier();
+        DictionaryModel contextDictionary = tagger.getContextModel();
         assertEquals(89639, contextDictionary.getNumTerms());
         assertEquals(4, contextDictionary.getNumCategories());
 
-        DictionaryModel annotationDictionary = tagger.getAnnotationDictionary();
+        DictionaryModel annotationDictionary = tagger.getAnnotationModel();
         assertEquals(62281, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
     }
