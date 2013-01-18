@@ -4,10 +4,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import ws.palladian.classification.text.evaluation.ClassifierEvaluation;
 import ws.palladian.classification.text.evaluation.Dataset;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
+import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 public class PalladianTextClassifierTest {
@@ -33,13 +32,12 @@ public class PalladianTextClassifierTest {
     @Test
     public void testDictionaryClassifierCharJrc() {
 
-        PalladianTextClassifier classifier = new PalladianTextClassifier();
-
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
         featureSetting.setMaxTerms(1000);
         featureSetting.setMinNGramLength(3);
         featureSetting.setMaxNGramLength(6);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         Dataset trainset = new Dataset("JRC");
         trainset.setFirstFieldLink(true);
@@ -52,7 +50,7 @@ public class PalladianTextClassifierTest {
         testset.setPath(JRC_TEST_FILE);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainset);
-        DictionaryModel model = classifier.train(trainIterator, featureSetting);
+        DictionaryModel model = classifier.train(trainIterator);
         
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testset);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
@@ -64,12 +62,12 @@ public class PalladianTextClassifierTest {
     @Test
     public void testDictionaryClassifierWordJrc() {
 
-        PalladianTextClassifier classifier = new PalladianTextClassifier();
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
         featureSetting.setMaxTerms(10);
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(3);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         Dataset trainset = new Dataset("JRC");
         trainset.setFirstFieldLink(true);
@@ -82,24 +80,24 @@ public class PalladianTextClassifierTest {
         testset.setPath(WIKIPEDIA_TEST_FILE);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainset);
-        DictionaryModel model = classifier.train(trainIterator, featureSetting);
+        DictionaryModel model = classifier.train(trainIterator);
         
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testset);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
 
         System.out.println("accuracy word jrc: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.725);
+        assertTrue(evaluation.getAccuracy() >= 0.935);
     }
 
     @Test
     public void testDictionaryClassifierCharNg() {
 
-        PalladianTextClassifier classifier = new PalladianTextClassifier();
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
         featureSetting.setMaxTerms(1000);
         featureSetting.setMinNGramLength(3);
         featureSetting.setMaxNGramLength(6);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         Dataset trainset = new Dataset("JRC");
         trainset.setFirstFieldLink(true);
@@ -112,7 +110,7 @@ public class PalladianTextClassifierTest {
         testset.setPath(TWENTY_NEWSGROUPS_2);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainset);
-        DictionaryModel model = classifier.train(trainIterator, featureSetting);
+        DictionaryModel model = classifier.train(trainIterator);
         
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testset);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
@@ -124,12 +122,12 @@ public class PalladianTextClassifierTest {
     @Test
     public void testDictionaryClassifierWordNg() {
 
-        PalladianTextClassifier classifier = new PalladianTextClassifier();
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
         featureSetting.setMaxTerms(10);
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(3);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         Dataset trainset = new Dataset("JRC");
         trainset.setFirstFieldLink(true);
@@ -142,7 +140,7 @@ public class PalladianTextClassifierTest {
         testset.setPath(TWENTY_NEWSGROUPS_2);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainset);
-        DictionaryModel model = classifier.train(trainIterator, featureSetting);
+        DictionaryModel model = classifier.train(trainIterator);
         
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testset);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
