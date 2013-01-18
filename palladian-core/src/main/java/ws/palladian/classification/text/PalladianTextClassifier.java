@@ -3,14 +3,13 @@ package ws.palladian.classification.text;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.mutable.MutableDouble;
-
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.ConstantFactory;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
@@ -87,10 +86,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         }
 
         // initialize probability Map with mutable double objects, so we can add relevance values to them
-        Map<String, MutableDouble> probabilities = CollectionHelper.newHashMap();
-        for (String category : model.getCategories()) {
-            probabilities.put(category, new MutableDouble());
-        }
+        Map<String, Double> probabilities = LazyMap.create(ConstantFactory.create(0.));
 
         // sum up the probabilities for normalization
         double probabilitySum = 0.;
@@ -103,7 +99,7 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
                 double categoryFrequency = category.getProbability();
                 if (categoryFrequency > 0) {
                     double weight = categoryFrequency * categoryFrequency;
-                    probabilities.get(category.getName()).add(weight);
+                    probabilities.put(category.getName(), probabilities.get(category.getName()) + weight);
                     probabilitySum += weight;
                 }
             }
