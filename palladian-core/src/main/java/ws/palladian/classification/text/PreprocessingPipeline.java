@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.extraction.feature.AbstractTokenRemover;
 import ws.palladian.extraction.feature.CharNGramCreator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
@@ -30,14 +31,14 @@ public class PreprocessingPipeline extends ProcessingPipeline {
 
         int minNGramLength = featureSetting.getMinNGramLength();
         int maxNGramLength = featureSetting.getMaxNGramLength();
-        if (featureSetting.getTextFeatureType() == FeatureSetting.CHAR_NGRAMS) {
+        if (featureSetting.getTextFeatureType() == TextFeatureType.CHAR_NGRAMS) {
             connectToPreviousProcessor(new CharNGramCreator(minNGramLength, maxNGramLength));
         } else {
             connectToPreviousProcessor(new RegExTokenizer());
             connectToPreviousProcessor(new NGramCreator(minNGramLength, maxNGramLength));
         }
 
-        if (featureSetting.getTextFeatureType() == FeatureSetting.WORD_NGRAMS) {
+        if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
             int minTermLength = featureSetting.getMinimumTermLength();
             int maxTermLength = featureSetting.getMaximumTermLength();
             connectToPreviousProcessor(new LengthTokenRemover(minTermLength, maxTermLength));
