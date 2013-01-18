@@ -12,6 +12,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PreprocessingPipeline;
+import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifierModel;
@@ -79,10 +80,7 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     private UniversalClassifier getTagger() {
-        FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setMinNGramLength(1);
-        featureSetting.setMaxNGramLength(7);
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 1, 7);
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
     }
 

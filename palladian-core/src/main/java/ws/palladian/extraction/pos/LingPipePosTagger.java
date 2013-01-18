@@ -189,7 +189,7 @@ public final class LingPipePosTagger extends BasePosTagger {
                 total++;
             }
 
-            ProgressHelper.showProgress(c++, testFiles.length, 1);
+            ProgressHelper.printProgress(c++, testFiles.length, 1);
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
