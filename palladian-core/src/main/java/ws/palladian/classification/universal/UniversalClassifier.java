@@ -18,9 +18,10 @@ import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnClassifier;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
@@ -32,8 +33,6 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
-
-//    public static final String FEATURE_TERM = "ws.palladian.feature.term";
 
     public static enum ClassifierSetting {
         NUMERIC, TEXT, NOMINAL
@@ -65,7 +64,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     }
 
     public UniversalClassifier(EnumSet<ClassifierSetting> settings, FeatureSetting featureSetting) {
-        textClassifier = new PalladianTextClassifier();
+        textClassifier = new PalladianTextClassifier(featureSetting);
         this.featureSetting = featureSetting;
         numericClassifier = new KnnClassifier();
         nominalClassifier = new NaiveBayesClassifier();
@@ -125,7 +124,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         CategoryEntries nominal = null;
         
         FeatureVector featureVectorWithoutTerms = new FeatureVector(classifiable.getFeatureVector());
-        featureVectorWithoutTerms.removeAll(FEATURE_TERM);
+        featureVectorWithoutTerms.removeAll(BaseTokenizer.PROVIDED_FEATURE);
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
@@ -199,7 +198,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
     }
 
     @Override
-    public UniversalClassifierModel train(List<? extends Trainable> trainables) {
+    public UniversalClassifierModel train(Iterable<? extends Trainable> trainables) {
         NaiveBayesModel nominalModel = null;
         KnnModel numericModel = null;
         DictionaryModel textModel = null;
@@ -208,13 +207,13 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         // train the text classifier
         if (settings.contains(ClassifierSetting.TEXT)) {
             LOGGER.debug("training text classifier");
-            textModel = textClassifier.train(trainables, featureSetting);
+            textModel = textClassifier.train(trainables);
         }
         
         // XXX thats not really nice because we alter the original feature vector,
         // better would be to supply a filter or view on the existing one.
         for (Trainable trainable : trainables) {
-            trainable.getFeatureVector().removeAll(FEATURE_TERM);
+            trainable.getFeatureVector().removeAll(BaseTokenizer.PROVIDED_FEATURE);
         }
 
         // train the numeric classifier
@@ -233,11 +232,6 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         LOGGER.debug("learning classifier weights");
         // learnClassifierWeights(instances, model);
         return model;
-    }
-
-    @Override
-    public UniversalClassifierModel train(Dataset dataset) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

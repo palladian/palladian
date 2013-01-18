@@ -1,4 +1,4 @@
-package ws.palladian.classification.text.evaluation;
+package ws.palladian.classification.text;
 
 import java.io.Serializable;
 

@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.Preprocessor;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.classification.text.PreprocessingPipeline;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifierModel;
@@ -23,8 +23,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -124,7 +125,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 previousTag = wordAndTag[1];
             }
 
-            ProgressHelper.showProgress(c++, trainingFiles.length, 1);
+            ProgressHelper.printProgress(c++, trainingFiles.length, 1);
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
@@ -163,9 +164,15 @@ public class PalladianPosTagger extends BasePosTagger {
             instance.getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
         }
 
-        FeatureVector fv = Preprocessor.preProcessDocument(word, tagger.getFeatureSetting());
-        for (Feature<?> feature : fv) {
-            instance.getFeatureVector().add(feature);
+        try {
+            PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
+            TextDocument textDocument = new TextDocument(word);
+            preprocessingPipeline.process(textDocument);
+            for (Feature<?> feature : textDocument.getFeatureVector()) {
+                instance.getFeatureVector().add(feature);
+            }
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -225,7 +232,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 total++;
             }
 
-            ProgressHelper.showProgress(c++, testFiles.length, 1);
+            ProgressHelper.printProgress(c++, testFiles.length, 1);
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());

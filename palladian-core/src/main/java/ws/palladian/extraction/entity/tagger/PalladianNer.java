@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.UniversalInstance;
 import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.Preprocessor;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.text.PreprocessingPipeline;
+import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
@@ -51,6 +51,9 @@ import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.ClassifiedTextDocument;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -459,7 +462,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 continue;
             }
             addToEntityDictionary(split[1], split[0]);
-            ProgressHelper.showProgress(i++, dictionaryEntries.size(), 1, stopWatch);
+            ProgressHelper.printProgress(i++, dictionaryEntries.size(), 1, stopWatch);
         }
 
         LOGGER.info("added " + (i - 2) + " entities to the dictionary in "
@@ -484,13 +487,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             String modelFilePath) {
 
         // create instances, instances are annotations
-        List<UniversalInstance> textInstances = CollectionHelper.newArrayList();
+        List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
-            UniversalInstance textInstance = new UniversalInstance(annotation.getTargetClass());
-            textInstance.setTextFeature(annotation.getEntity());
-            textInstances.add(textInstance);
+            ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getEntity());
+            textInstances.add(document);
         }
 
         // save training entities in a dedicated dictionary
@@ -506,7 +508,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return true;
     }
 
-    private void trainAnnotationClassifier(List<UniversalInstance> textInstances) {
+    private void trainAnnotationClassifier(List<ClassifiedTextDocument> textInstances) {
 
         FeatureSetting featureSetting = new FeatureSetting();
 
@@ -573,18 +575,15 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         annotations.addAll(additionalTrainingAnnotations);
 
         // create instances with nominal and numeric features
-        List<UniversalInstance> textInstances = CollectionHelper.newArrayList();
+        List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("add additional training annotations");
         int c = 1;
         for (Annotation annotation : annotations) {
-            UniversalInstance textInstance = new UniversalInstance(annotation.getTargetClass());
-            textInstance.setTextFeature(annotation.getEntity());
+            ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getEntity());
             textInstances.add(textInstance);
-
             addToEntityDictionary(annotation);
-
-            ProgressHelper.showProgress(c++, annotations.size(), 1);
+            ProgressHelper.printProgress(c++, annotations.size(), 1);
         }
 
         // train the text classifier
@@ -626,8 +625,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     }
                 }
 
-                UniversalInstance textInstance = new UniversalInstance(NO_ENTITY);
-                textInstance.setTextFeature(wrongAnnotation.getEntity());
+                ClassifiedTextDocument textInstance = new ClassifiedTextDocument(NO_ENTITY, wrongAnnotation.getEntity());
                 textInstances.add(textInstance);
 
                 if (addAnnotation) {
@@ -690,7 +688,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 }
             }
 
-            ProgressHelper.showProgress(i++, entityCandidates.size(), 1);
+            ProgressHelper.printProgress(i++, entityCandidates.size(), 1);
         }
 
         return annotations;
@@ -714,7 +712,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 annotations.add(annotation);
             }
 
-            ProgressHelper.showProgress(i++, entityCandidates.size(), 1);
+            ProgressHelper.printProgress(i++, entityCandidates.size(), 1);
         }
 
         return annotations;
@@ -1321,7 +1319,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
-        List<UniversalInstance> trainingInstances = CollectionHelper.newArrayList();
+        List<ClassifiedTextDocument> trainingInstances = CollectionHelper.newArrayList();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
         int c = 1;
@@ -1363,11 +1361,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             tagCounts.add(tag);
 
-            UniversalInstance trainingInstance = new UniversalInstance(tag);
-            trainingInstance.setTextFeature(annotation.getLeftContext() + "__" + annotation.getRightContext());
+            String text = annotation.getLeftContext() + "__" + annotation.getRightContext();
+            ClassifiedTextDocument trainingInstance = new ClassifiedTextDocument(tag, text);
             trainingInstances.add(trainingInstance);
 
-            ProgressHelper.showProgress(c++, annotations.size(), 1);
+            ProgressHelper.printProgress(c++, annotations.size(), 1);
         }
 
         // fill the leftContextMap with the context and the ratio of inside annotation / outside annotation
@@ -1427,7 +1425,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // FileHelper.writeToFile("data/temp/tagPatternAnalysis.csv", csv);
     }
 
-    private void trainContextClassifier(List<UniversalInstance> trainingInstances) {
+    private void trainContextClassifier(List<ClassifiedTextDocument> trainingInstances) {
         // be careful with the n-gram sizes, they heavily influence the model size
         FeatureSetting featureSetting = new FeatureSetting();
         featureSetting.setMinNGramLength(4);// 4
@@ -1436,13 +1434,20 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         contextModel = textClassifier.train(convertInstances(trainingInstances, featureSetting), featureSetting);
     }
 
-    private List<Instance> convertInstances(List<UniversalInstance> trainingInstances, FeatureSetting featureSetting) {
+    private List<Instance> convertInstances(List<ClassifiedTextDocument> trainingInstances, FeatureSetting featureSetting) {
         List<Instance> instances = new ArrayList<Instance>();
 
-        for (UniversalInstance uInstance : trainingInstances) {
-            FeatureVector featureVector = Preprocessor.preProcessDocument(uInstance.getTextFeature(),
-                    featureSetting);
-            instances.add(new Instance(uInstance.getTargetClass(), featureVector));
+        for (ClassifiedTextDocument uInstance : trainingInstances) {
+            PreprocessingPipeline pipeline = new PreprocessingPipeline(featureSetting);
+            try {
+                pipeline.process(uInstance);
+            } catch (DocumentUnprocessableException e) {
+                throw new IllegalStateException(e);
+            }
+//            FeatureVector featureVector = Preprocessor.preProcessDocument(uInstance.getContent(),
+//                    featureSetting);
+//            instances.add(new Instance(uInstance.getTargetClass(), featureVector));
+            instances.add(new Instance(uInstance.getTargetClass(), uInstance.getFeatureVector()));
         }
 
         return instances;

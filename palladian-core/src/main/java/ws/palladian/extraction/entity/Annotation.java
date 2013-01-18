@@ -4,7 +4,7 @@ import java.util.List;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.classification.UniversalInstance;
+import ws.palladian.classification.Instance;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -14,7 +14,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  * 
  */
-public class Annotation extends UniversalInstance {
+public class Annotation extends Instance {
 
     public static final int WINDOW_SIZE = 40;
     

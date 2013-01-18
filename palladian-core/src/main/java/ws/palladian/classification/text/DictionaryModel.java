@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 

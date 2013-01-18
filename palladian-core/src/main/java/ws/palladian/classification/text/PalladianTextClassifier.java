@@ -1,38 +1,21 @@
 package ws.palladian.classification.text;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
-import ws.palladian.extraction.feature.AbstractTokenRemover;
-import ws.palladian.extraction.feature.CharNGramCreator;
-import ws.palladian.extraction.feature.DuplicateTokenRemover;
-import ws.palladian.extraction.feature.LengthTokenRemover;
-import ws.palladian.extraction.feature.LowerCaser;
-import ws.palladian.extraction.feature.NGramCreator;
-import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
+import ws.palladian.classification.Instance;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.ClassifiedTextDocument;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -44,96 +27,49 @@ import ws.palladian.processing.features.PositionAnnotation;
  */
 public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
-    /** The logger for this class. */
-    // private static final Logger LOGGER = LoggerFactory.getLogger(PalladianTextClassifier.class);
-    
-    private ProcessingPipeline createPipeline(final FeatureSetting featureSetting) {
-        ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.connectToPreviousProcessor(new LowerCaser());
-        if (featureSetting.getTextFeatureType() == FeatureSetting.CHAR_NGRAMS) {
-            pipeline.connectToPreviousProcessor(new CharNGramCreator(featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength()));            
+    private /* final */ PreprocessingPipeline pipeline;
+
+    private /* final */ FeatureSetting featureSetting;
+
+    public PalladianTextClassifier(FeatureSetting featureSetting) {
+        this.featureSetting = featureSetting;
+        if (featureSetting != null) {
+            this.pipeline = new PreprocessingPipeline(featureSetting);
         } else {
-            pipeline.connectToPreviousProcessor(new RegExTokenizer());
-            pipeline.connectToPreviousProcessor(new NGramCreator(featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength()));
+            this.pipeline = null;
         }
-        if (featureSetting.getTextFeatureType() == FeatureSetting.WORD_NGRAMS) {
-            pipeline.connectToPreviousProcessor(new LengthTokenRemover(featureSetting.getMinimumTermLength(), featureSetting.getMaximumTermLength()));
-        }
-        pipeline.connectToPreviousProcessor(new DuplicateTokenRemover());
-        pipeline.connectToPreviousProcessor(new AbstractTokenRemover() {
-            @Override
-            protected boolean remove(PositionAnnotation annotation) {
-                String tokenValue = annotation.getValue();
-                return (StringHelper.containsAny(tokenValue, Arrays.asList("&", "/", "=")) || StringHelper
-                        .isNumber(tokenValue));
-            }
-        });
-        pipeline.connectToPreviousProcessor(new TextDocumentPipelineProcessor() {
-            @Override
-            public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-                List<PositionAnnotation> annotations = new ArrayList<PositionAnnotation>(BaseTokenizer.getTokenAnnotations(document));
-                Collections.sort(annotations, new Comparator<PositionAnnotation>() {
-                    @Override
-                    public int compare(PositionAnnotation o1, PositionAnnotation o2) {
-                        Integer count1 = o1.getStartPosition();
-                        Integer count2 = o2.getStartPosition();
-                        return count1.compareTo(count2);
-                    }
-                });
-                
-                List<PositionAnnotation> newAnnotations = CollectionHelper.newArrayList();
-                for (int i = 0; i < Math.min(annotations.size(), featureSetting.getMaxTerms()); i++) {
-                    newAnnotations.add(annotations.get(i));
-                }
-                document.getFeatureVector().removeAll(BaseTokenizer.PROVIDED_FEATURE);
-                document.getFeatureVector().addAll(newAnnotations);
-            }
-        });
-        return pipeline;
+    }
+    
+    @Deprecated
+    public PalladianTextClassifier() {
+        this.featureSetting = null;
+        this.pipeline = null;
     }
 
     @Override
-    public DictionaryModel train(Iterable<? extends Trainable> instances) {
-        return train(instances, new FeatureSetting());
-    }
-
-    public DictionaryModel train(Iterable<? extends Trainable> instances, FeatureSetting featureSetting) {
-        Validate.notNull(featureSetting, "featureSetting must not be null");
-        
-        ProcessingPipeline pipeline = createPipeline(featureSetting);
-
+    public DictionaryModel train(Iterable<? extends Trainable> trainables) {
         DictionaryModel model = new DictionaryModel(featureSetting);
-        for (Trainable instance : instances) {
-            if (instance instanceof ClassifiedTextDocument) {
-                try {
-                    ClassifiedTextDocument textDoc = ((ClassifiedTextDocument)instance);
-                    pipeline.process(textDoc);
-                    trainWithInstance(model, textDoc);
-                } catch (DocumentUnprocessableException e) {
-                    throw new IllegalStateException(e);
-                }
-            } else {
-                trainWithInstance(model, instance);
+        for (Trainable trainable : trainables) {
+            if (pipeline != null) {
+                pipeline.process(trainable);
             }
+            String targetClass = trainable.getTargetClass();
+            List<PositionAnnotation> annotations = trainable.getFeatureVector().getAll(PositionAnnotation.class,
+                    BaseTokenizer.PROVIDED_FEATURE);
+            for (PositionAnnotation annotation : annotations) {
+                model.updateTerm(annotation.getValue(), targetClass);
+            }
+            model.addCategory(targetClass);
         }
         return model;
     }
 
-    private void trainWithInstance(DictionaryModel model, Trainable instance) {
-        String targetClass = instance.getTargetClass();
-        List<PositionAnnotation> tokenAnnotations = instance.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
-        
-        System.out.println("training with " + tokenAnnotations.size() + " tokens " + targetClass);
-        
-        for (NominalFeature tokenAnnotation : tokenAnnotations) {
-            model.updateTerm(tokenAnnotation.getValue(), targetClass);
-        }
-        model.addCategory(targetClass);
-    }
-
     public CategoryEntries classify(String text, DictionaryModel model) {
+        if (featureSetting == null) {
+            this.featureSetting = new FeatureSetting();
+            this.pipeline = new PreprocessingPipeline(featureSetting);
+        }
         try {
-            ProcessingPipeline pipeline = createPipeline(model.getFeatureSetting());
             TextDocument textDocument = new TextDocument(text);
             pipeline.process(textDocument);
             FeatureVector featureVector = textDocument.getFeatureVector();
@@ -146,19 +82,10 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
     @Override
     public CategoryEntries classify(Classifiable classifiable, DictionaryModel model) {
 
-        ProcessingPipeline pipeline = createPipeline(model.getFeatureSetting());
-        
-        FeatureVector featureVector = classifiable.getFeatureVector();
-        if (classifiable instanceof TextDocument) {
-            TextDocument textDoc = ((TextDocument)classifiable);
-            try {
-                pipeline.process(textDoc);
-                featureVector = textDoc.getFeatureVector();
-            } catch (DocumentUnprocessableException e) {
-                throw new IllegalStateException(e);
-            }
+        if (pipeline != null) {
+            pipeline.process(classifiable);
         }
-        
+
         // initialize probability Map with mutable double objects, so we can add relevance values to them
         Map<String, MutableDouble> probabilities = CollectionHelper.newHashMap();
         for (String category : model.getCategories()) {
@@ -169,8 +96,9 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         double probabilitySum = 0.;
 
         // iterate through all terms in the document
-        for (NominalFeature termFeature : featureVector.getAll(NominalFeature.class, BaseTokenizer.PROVIDED_FEATURE)) {
-            CategoryEntries categoryFrequencies = model.getCategoryEntries(termFeature.getValue());
+        for (PositionAnnotation annotation : classifiable.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE)) {
+            CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
             for (CategoryEntry category : categoryFrequencies) {
                 double categoryFrequency = category.getProbability();
                 if (categoryFrequency > 0) {
@@ -197,6 +125,13 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
         categories.sort();
         return categories;
+    }
+
+    @Deprecated
+    public DictionaryModel train(List<Instance> convertInstances, FeatureSetting featureSetting2) {
+        this.featureSetting = featureSetting2;
+        this.pipeline = new PreprocessingPipeline(featureSetting2);
+        return train(convertInstances);
     }
 
 }
