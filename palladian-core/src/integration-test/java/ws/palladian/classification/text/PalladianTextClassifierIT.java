@@ -50,11 +50,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.jrc.test");
         checkExistence("JRC", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(TextFeatureType.CHAR_NGRAMS);
-        featureSetting.setMaxTerms(1000);
-        featureSetting.setMinNGramLength(3);
-        featureSetting.setMaxNGramLength(6);
+        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 6, 1000);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);
@@ -73,11 +69,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(TextFeatureType.WORD_NGRAMS);
-        featureSetting.setMaxTerms(10);
-        featureSetting.setMinNGramLength(1);
-        featureSetting.setMaxNGramLength(3);
+        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.WORD_NGRAMS, 1, 3, 10);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);
@@ -96,11 +88,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(TextFeatureType.CHAR_NGRAMS);
-        featureSetting.setMaxTerms(1000);
-        featureSetting.setMinNGramLength(3);
-        featureSetting.setMaxNGramLength(6);
+        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 6, 1000);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);
@@ -119,11 +107,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(TextFeatureType.WORD_NGRAMS);
-        featureSetting.setMaxTerms(10);
-        featureSetting.setMinNGramLength(1);
-        featureSetting.setMaxNGramLength(3);
+        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.WORD_NGRAMS, 1, 3, 10);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);

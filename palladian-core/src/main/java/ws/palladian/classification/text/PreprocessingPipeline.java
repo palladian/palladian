@@ -17,7 +17,6 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
@@ -76,19 +75,6 @@ public class PreprocessingPipeline extends ProcessingPipeline {
                 document.getFeatureVector().addAll(terms);
             }
         });
-    }
-
-    public void process(Classifiable classifiable) {
-        if (classifiable instanceof TextDocument) {
-            TextDocument textDocument = (TextDocument)classifiable;
-            try {
-                process(textDocument);
-            } catch (DocumentUnprocessableException e) {
-                throw new IllegalStateException("Error processing the document: " + e);
-            }
-        } else {
-            // throw new IllegalStateException("Can only process TextDocuments, but was : " + classifiable.getClass().getName());
-        }
     }
 
 }

@@ -51,6 +51,22 @@ public class FeatureSetting implements Serializable {
      */
     private int maximumTermLength = 20;
     
+    @Deprecated
+    public FeatureSetting() {}
+    
+    public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength) {
+        this.textFeatureType = textFeatureType;
+        this.minNGramLength = minNGramLength;
+        this.maxNGramLength = maxNGramLength;
+    }
+    
+    public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength, int maxTerms) {
+        this.textFeatureType = textFeatureType;
+        this.minNGramLength = minNGramLength;
+        this.maxNGramLength = maxNGramLength;
+        this.maxTerms = maxTerms;
+    }
+    
     public TextFeatureType getTextFeatureType() {
         return textFeatureType;
     }

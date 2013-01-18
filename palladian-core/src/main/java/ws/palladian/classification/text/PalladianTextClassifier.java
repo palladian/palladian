@@ -6,15 +6,14 @@ import java.util.Map;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -23,12 +22,13 @@ import ws.palladian.processing.features.PositionAnnotation;
  * counter the problem of sparse categories
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class PalladianTextClassifier implements Classifier<DictionaryModel> {
 
-    private /* final */ PreprocessingPipeline pipeline;
+    private final ProcessingPipeline pipeline;
 
-    private /* final */ FeatureSetting featureSetting;
+    private final FeatureSetting featureSetting;
 
     public PalladianTextClassifier(FeatureSetting featureSetting) {
         this.featureSetting = featureSetting;
@@ -38,20 +38,12 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
             this.pipeline = null;
         }
     }
-    
-    @Deprecated
-    public PalladianTextClassifier() {
-        this.featureSetting = null;
-        this.pipeline = null;
-    }
 
     @Override
     public DictionaryModel train(Iterable<? extends Trainable> trainables) {
         DictionaryModel model = new DictionaryModel(featureSetting);
         for (Trainable trainable : trainables) {
-            if (pipeline != null) {
-                pipeline.process(trainable);
-            }
+            process(trainable);
             String targetClass = trainable.getTargetClass();
             List<PositionAnnotation> annotations = trainable.getFeatureVector().getAll(PositionAnnotation.class,
                     BaseTokenizer.PROVIDED_FEATURE);
@@ -63,27 +55,10 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         return model;
     }
 
-    public CategoryEntries classify(String text, DictionaryModel model) {
-        if (featureSetting == null) {
-            this.featureSetting = new FeatureSetting();
-            this.pipeline = new PreprocessingPipeline(featureSetting);
-        }
-        try {
-            TextDocument textDocument = new TextDocument(text);
-            pipeline.process(textDocument);
-            FeatureVector featureVector = textDocument.getFeatureVector();
-            return classify(featureVector, model);
-        } catch (DocumentUnprocessableException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     @Override
     public CategoryEntries classify(Classifiable classifiable, DictionaryModel model) {
 
-        if (pipeline != null) {
-            pipeline.process(classifiable);
-        }
+        process(classifiable);
 
         // initialize probability Map with mutable double objects, so we can add relevance values to them
         Map<String, Double> probabilities = LazyMap.create(ConstantFactory.create(0.));
@@ -123,11 +98,19 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         return categories;
     }
 
-    @Deprecated
-    public DictionaryModel train(List<Instance> convertInstances, FeatureSetting featureSetting2) {
-        this.featureSetting = featureSetting2;
-        this.pipeline = new PreprocessingPipeline(featureSetting2);
-        return train(convertInstances);
+    // XXX ugly -- in case we have text documents and feature settings have been defined, do the preprocessing here
+    private void process(Classifiable classifiable) {
+        if (pipeline != null && classifiable instanceof TextDocument) {
+            try {
+                pipeline.process((TextDocument)classifiable);
+            } catch (DocumentUnprocessableException e) {
+                throw new IllegalStateException("Error processing the document: " + e);
+            }
+        }
+    }
+
+    public CategoryEntries classify(String text, DictionaryModel model) {
+        return classify(new TextDocument(text), model);
     }
 
 }
