@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.io.ResourceHelper;
@@ -50,7 +51,7 @@ public class PalladianTextClassifierIT {
         checkExistence("JRC", testFile, trainFile);
 
         FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        featureSetting.setTextFeatureType(TextFeatureType.CHAR_NGRAMS);
         featureSetting.setMaxTerms(1000);
         featureSetting.setMinNGramLength(3);
         featureSetting.setMaxNGramLength(6);
@@ -73,7 +74,7 @@ public class PalladianTextClassifierIT {
         checkExistence("Wikipedia", testFile, trainFile);
 
         FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        featureSetting.setTextFeatureType(TextFeatureType.WORD_NGRAMS);
         featureSetting.setMaxTerms(10);
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(3);
@@ -96,7 +97,7 @@ public class PalladianTextClassifierIT {
         checkExistence("20 Newsgroups", testFile, trainFile);
 
         FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        featureSetting.setTextFeatureType(TextFeatureType.CHAR_NGRAMS);
         featureSetting.setMaxTerms(1000);
         featureSetting.setMinNGramLength(3);
         featureSetting.setMaxNGramLength(6);
@@ -119,7 +120,7 @@ public class PalladianTextClassifierIT {
         checkExistence("20 Newsgroups", testFile, trainFile);
 
         FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        featureSetting.setTextFeatureType(TextFeatureType.WORD_NGRAMS);
         featureSetting.setMaxTerms(10);
         featureSetting.setMinNGramLength(1);
         featureSetting.setMaxNGramLength(3);
