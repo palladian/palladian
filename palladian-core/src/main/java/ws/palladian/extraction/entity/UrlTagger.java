@@ -16,9 +16,6 @@ public class UrlTagger {
 
 	/** The tag name for URLs. */
 	public static final String URI_TAG_NAME = "URI";
-	
-	public UrlTagger() {
-	}
 
 	public Annotations tagUrls(String inputText) {
 
@@ -27,7 +24,7 @@ public class UrlTagger {
 		Matcher matcher = UrlHelper.URL_PATTERN.matcher(inputText);
 
 		while (matcher.find()) {
-			Annotation annotation = new Annotation(matcher.start(),matcher.group(0),URI_TAG_NAME,annotations);
+			Annotation annotation = new Annotation(matcher.start(),matcher.group(0),URI_TAG_NAME);
 			annotations.add(annotation);
 		}
 

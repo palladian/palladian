@@ -995,8 +995,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                         // get the annotation after the index
                         Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + length,
-                                annotation.getEntity().substring(index + length), annotation.getMostLikelyTagName(),
-                                annotations);
+                                annotation.getEntity().substring(index + length), annotation.getMostLikelyTagName());
                         toAdd.add(wrappedAnnotation);
 
                         // search for a known instance in the prefix
@@ -1007,8 +1006,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                             if (indexPrefix > -1 && term.length() > 2) {
                                 Annotation wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix,
                                         term,
-                                        entityDictionary.getCategoryEntries(term).getMostLikelyCategory(),
-                                        annotations);
+                                        entityDictionary.getCategoryEntries(term).getMostLikelyCategory());
                                 toAdd.add(wrappedAnnotation2);
                                 
                                 LOGGER.debug("add from prefix " + wrappedAnnotation2.getEntity());
@@ -1089,7 +1087,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                 Annotation combinedAnnotation = new Annotation(lastCombinedAnnotation.getOffset(),
                         lastCombinedAnnotation.getEntity() + " " + annotation.getEntity(),
-                        annotation.getMostLikelyTagName(), combinedAnnotations);
+                        annotation.getMostLikelyTagName());
                 combinedAnnotations.add(combinedAnnotation);
                 lastCombinedAnnotation = combinedAnnotation;
                 combinedAnnotations.remove(lastCombinedAnnotation);
@@ -1515,14 +1513,14 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 int index = entityName.indexOf(" " + currentAnnotation.getEntity().toLowerCase() + " ");
                 if (index > -1 && currentAnnotation.getEntity().length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, currentAnnotation.getEntity(),
-                            currentAnnotation.getMostLikelyTagName(), annotations);
+                            currentAnnotation.getMostLikelyTagName());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
                 index = entityName.indexOf(currentAnnotation.getEntity().toLowerCase() + " ");
                 if (index == 0 && currentAnnotation.getEntity().length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index, currentAnnotation.getEntity(),
-                            currentAnnotation.getMostLikelyTagName(), annotations);
+                            currentAnnotation.getMostLikelyTagName());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
@@ -1530,7 +1528,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 if (index == entityName.length() - currentAnnotation.getEntity().length() - 1
                         && currentAnnotation.getEntity().length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, currentAnnotation.getEntity(),
-                            currentAnnotation.getMostLikelyTagName(), annotations);
+                            currentAnnotation.getMostLikelyTagName());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
             }
@@ -1543,19 +1541,19 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
                 String mostLikelyCategory = categoryEntries.getMostLikelyCategory();
                 if (index > -1 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory, annotations);
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory);
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
                 index = entityName.indexOf(term.toLowerCase() + " ");
                 if (index == 0 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index, term, mostLikelyCategory, annotations);
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index, term, mostLikelyCategory);
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
                 index = entityName.indexOf(" " + term.toLowerCase());
                 if (index == entityName.length() - term.length() - 1 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory, annotations);
+                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory);
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
             }

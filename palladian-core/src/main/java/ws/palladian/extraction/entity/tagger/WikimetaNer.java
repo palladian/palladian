@@ -155,7 +155,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             Integer tokenCharIndex = tokenPositions.get(tokenIndex);
             // the actual character index might be later
             tokenCharIndex = inputText.indexOf(value, tokenCharIndex);
-            annotations.add(new Annotation(tokenCharIndex, value, type, annotations));
+            annotations.add(new Annotation(tokenCharIndex, value, type));
         }
 
         return annotations;
