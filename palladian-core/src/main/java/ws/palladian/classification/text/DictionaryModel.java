@@ -1,9 +1,11 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
@@ -50,14 +52,19 @@ public final class DictionaryModel implements Model {
 
     public CategoryEntries getCategoryEntries(String term) {
         CategoryEntries categoryFrequencies = new CategoryEntries();
-        int sum = termCategories.getRowSum(term);
-        if (sum > 0) {
-            for (String category : getCategories()) {
-                double probability = (double)termCategories.getCount(category, term) / sum;
-                categoryFrequencies.add(new CategoryEntry(category, probability));
-            }
+        List<Pair<String, Integer>> termRow = termCategories.getRow(term);
+        int sum = 0;
+        for (Pair<String, Integer> categoryValue : termRow) {
+            sum += categoryValue.getValue();
+        }
+        for (Pair<String, Integer> categoryValue : termRow) {
+            categoryFrequencies.add(new CategoryEntry(categoryValue.getKey(), (double)categoryValue.getValue() / sum));
         }
         return categoryFrequencies;
+    }
+
+    public int getTermCount(String term) {
+        return termCategories.getRowSum(term);
     }
 
     public int getNumTerms() {

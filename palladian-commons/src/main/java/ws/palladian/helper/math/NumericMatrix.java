@@ -1,10 +1,27 @@
 package ws.palladian.helper.math;
 
-import ws.palladian.helper.collection.Matrix;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 
-public class NumericMatrix<K> extends Matrix<K, Double> {
+import org.apache.commons.lang3.tuple.Pair;
+
+import ws.palladian.helper.collection.Matrix;
+import ws.palladian.helper.collection.MapMatrix;
+
+public class NumericMatrix<K> implements Matrix<K, Double>, Serializable {
 
     private static final long serialVersionUID = 1L;
+    
+    private final Matrix<K, Double> matrix;
+    
+    public NumericMatrix() {
+        this(new MapMatrix<K, Double>());
+    }
+    
+    public NumericMatrix(Matrix<K, Double> matrix) {
+        this.matrix = matrix;
+    }
 
     /**
      * <p>
@@ -54,7 +71,7 @@ public class NumericMatrix<K> extends Matrix<K, Double> {
     
     @Override
     public Double get(K x, K y) {
-        Double value = super.get(x, y);
+        Double value = matrix.get(x, y);
         if (value == null) {
             return 0.;
         }
@@ -117,11 +134,56 @@ public class NumericMatrix<K> extends Matrix<K, Double> {
 
         System.out.println(confusionMatrix);
 
-        Matrix<String, String> confusionMatrix2 = new Matrix<String, String>();
+        Matrix<String, String> confusionMatrix2 = new MapMatrix<String, String>();
         confusionMatrix2.set("A", "1", "A1");
         confusionMatrix2.set("B", "2", "B2");
         System.out.println(confusionMatrix2);
 
+    }
+
+    @Override
+    public void set(K x, K y, Double value) {
+        matrix.set(x, y, value);
+    }
+
+    @Override
+    public Set<K> getKeysX() {
+        return matrix.getKeysX();
+    }
+
+    @Override
+    public Set<K> getKeysY() {
+        return matrix.getKeysY();
+    }
+
+    @Override
+    public int sizeY() {
+        return matrix.sizeY();
+    }
+
+    @Override
+    public int sizeX() {
+        return matrix.sizeX();
+    }
+
+    @Override
+    public String asCsv() {
+        return matrix.asCsv();
+    }
+
+    @Override
+    public void clear() {
+        matrix.clear();
+    }
+
+    @Override
+    public List<Pair<K, Double>> getRow(K y) {
+        return matrix.getRow(y);
+    }
+
+    @Override
+    public List<Pair<K, Double>> getColumn(K x) {
+        return matrix.getColumn(x);
     }
 
 }
