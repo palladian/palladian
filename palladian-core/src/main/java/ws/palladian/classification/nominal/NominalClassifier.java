@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMatrix;
@@ -62,9 +62,9 @@ public final class NominalClassifier implements Classifier<NominalClassifierMode
         }
 
         // create category entries
-        CategoryEntries assignedEntries = new CategoryEntries();
+        CategoryEntriesMap assignedEntries = new CategoryEntriesMap();
         for (String category : categories) {
-            assignedEntries.add(new CategoryEntry(category, scores.get(category)));
+            assignedEntries.set(category, scores.get(category));
         }
 
         return assignedEntries;

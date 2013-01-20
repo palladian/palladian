@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.ConstantFactory;
@@ -63,38 +63,27 @@ public class PalladianTextClassifier implements Classifier<DictionaryModel> {
         // initialize probability Map with mutable double objects, so we can add relevance values to them
         Map<String, Double> probabilities = LazyMap.create(ConstantFactory.create(0.));
 
-        // sum up the probabilities for normalization
-        double probabilitySum = 0.;
-
         // iterate through all terms in the document
         for (PositionAnnotation annotation : classifiable.getFeatureVector().getAll(PositionAnnotation.class,
                 BaseTokenizer.PROVIDED_FEATURE)) {
             CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
-            for (CategoryEntry category : categoryFrequencies) {
-                double categoryFrequency = category.getProbability();
+            for (String category : categoryFrequencies) {
+                double categoryFrequency = categoryFrequencies.getProbability(category);
                 if (categoryFrequency > 0) {
                     double weight = categoryFrequency * categoryFrequency;
-                    probabilities.put(category.getName(), probabilities.get(category.getName()) + weight);
-                    probabilitySum += weight;
+                    probabilities.put(category, probabilities.get(category) + weight);
                 }
             }
         }
-
-        CategoryEntries categories = new CategoryEntries();
-
+        
         // If we have a category weight by matching terms from the document, use them to create the probability
         // distribution. Else wise return the prior probability distribution of the categories.
-        if (probabilitySum > 0) {
-            for (String category : model.getCategories()) {
-                categories.add(new CategoryEntry(category, probabilities.get(category).doubleValue() / probabilitySum));
-            }
+        CategoryEntriesMap categories;
+        if (probabilities.size() > 0) {
+            categories = new CategoryEntriesMap(probabilities);
         } else {
-            for (String category : model.getCategories()) {
-                categories.add(new CategoryEntry(category, model.getPrior(category)));
-            }
+            categories = new CategoryEntriesMap(model.getPriors());
         }
-
-        categories.sort();
         return categories;
     }
 

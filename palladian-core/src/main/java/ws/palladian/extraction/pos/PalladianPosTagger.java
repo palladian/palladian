@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.PreprocessingPipeline;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.classification.text.PreprocessingPipeline;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifierModel;
@@ -73,7 +73,7 @@ public class PalladianPosTagger extends BasePosTagger {
             setFeatures(instance, previousTag, annotation.getValue());
 
             CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
-            String tag = categoryEntries.getMostLikelyCategoryEntry().getName();
+            String tag = categoryEntries.getMostLikelyCategory();
             assignTag(annotation, Arrays.asList(new String[] {tag}));
             previousTag = tag;
         }
@@ -218,7 +218,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 setFeatures(instance, previousTag, wordAndTag[0]);
 
                 CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
-                String assignedTag = categoryEntries.getMostLikelyCategoryEntry().getName();
+                String assignedTag = categoryEntries.getMostLikelyCategory();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
                 previousTag = assignedTag;

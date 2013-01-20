@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.io.FileHelper;
 
@@ -116,8 +115,8 @@ public class Annotations extends ArrayList<Annotation> {
 
     public void instanceCategoryToClassified() {
         for (Annotation annotation : this) {
-            CategoryEntries ces = new CategoryEntries();
-            ces.add(new CategoryEntry(annotation.getTargetClass(), 1));
+            CategoryEntriesMap ces = new CategoryEntriesMap();
+            ces.set(annotation.getTargetClass(), 1);
             annotation.setTags(ces);
         }
     }

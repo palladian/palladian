@@ -3,7 +3,7 @@ package ws.palladian.extraction.entity;
 import java.util.List;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Instance;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.nlp.StringHelper;
@@ -19,7 +19,7 @@ public class Annotation extends Instance {
     public static final int WINDOW_SIZE = 40;
     
     /** The category of the instance, null if not classified. */
-    private CategoryEntries tags = new CategoryEntries();
+    private CategoryEntriesMap tags = new CategoryEntriesMap();
 
     /** The start index of the annotation in the annotated text. */
     private int offset = -1;
@@ -43,7 +43,7 @@ public class Annotation extends Instance {
         offset = annotation.getOffset();
         length = annotation.getLength();
         entity = annotation.getEntity();
-        tags = annotation.getTags();
+        tags = new CategoryEntriesMap(annotation.getTags());
     }
 
     public Annotation(int offset, String entityName, String tagName) {
@@ -51,7 +51,7 @@ public class Annotation extends Instance {
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
-        tags.add(new CategoryEntry(tagName, 1));
+        tags.set(tagName, 1);
     }
 
     public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
@@ -59,7 +59,7 @@ public class Annotation extends Instance {
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
-        tags.add(new CategoryEntry(tagName, 1));
+        tags.set(tagName, 1);
     }
 
 //    private int containsDateFragment(String text) {
@@ -456,7 +456,7 @@ public class Annotation extends Instance {
 //    }
 
     public String getMostLikelyTagName() {
-        return getTags().getMostLikelyCategoryEntry().getName();
+        return getTags().getMostLikelyCategory();
     }
 
     public int getOffset() {
@@ -542,7 +542,7 @@ public class Annotation extends Instance {
     }
 
     public void setTags(CategoryEntries tags) {
-        this.tags = tags;
+        this.tags = new CategoryEntriesMap(tags);
     }
 
     @Override

@@ -10,7 +10,7 @@ import quickdt.Leaf;
 import quickdt.Node;
 import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
@@ -77,8 +77,8 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     @Override
     public CategoryEntries classify(Classifiable classifiable, DecisionTreeModel decisionTreeModel) {
         Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(classifiable)));
-        CategoryEntries categoryEntries = new CategoryEntries();
-        categoryEntries.add(new CategoryEntry((String)leaf.classification, leaf.probability));
+        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
+        categoryEntries.set((String)leaf.classification, leaf.probability);
         return categoryEntries;
     }
 

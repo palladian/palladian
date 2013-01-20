@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
@@ -636,11 +636,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     }
 
     private boolean hasAssignedType(CategoryEntries ces) {
-        CategoryEntry mostLikelyCategoryEntry = ces.getMostLikelyCategoryEntry();
+        String mostLikelyCategoryEntry = ces.getMostLikelyCategory();
         if (mostLikelyCategoryEntry == null) {
             return false;
         }
-        return !mostLikelyCategoryEntry.getName().equalsIgnoreCase(NO_ENTITY);
+        return !mostLikelyCategoryEntry.equalsIgnoreCase(NO_ENTITY);
     }
 
     /**
@@ -820,21 +820,21 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                     // CategoryEntries ces = caseDictionary.get(tokenTermMap.get(annotation.getEntity().toLowerCase()));
                     CategoryEntries ces = caseDictionary.getCategoryEntries(annotation.getEntity().toLowerCase());
-                    if (ces != null && ces.size() > 0) {
+                    if (ces != null && ces.iterator().hasNext()) {
                         double allUpperCase = 0.0;
                         double upperCase = 0.0;
                         double lowerCase = 0.0;
 
-                        if (ces.getCategoryEntry("A") != null) {
-                            allUpperCase = ces.getCategoryEntry("A").getProbability();
+                        if (ces.getProbability("A") > 0) {
+                            allUpperCase = ces.getProbability("A");
                         }
 
-                        if (ces.getCategoryEntry("Aa") != null) {
-                            upperCase = ces.getCategoryEntry("Aa").getProbability();
+                        if (ces.getProbability("Aa") > 0) {
+                            upperCase = ces.getProbability("Aa");
                         }
 
-                        if (ces.getCategoryEntry("a") != null) {
-                            lowerCase = ces.getCategoryEntry("a").getProbability();
+                        if (ces.getProbability("a") > 0) {
+                            lowerCase = ces.getProbability("a");
                         }
 
                         if (lowerCase > 0) {
@@ -893,21 +893,21 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             for (Annotation annotation : annotations) {
 
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
-                if (categoryEntries != null && categoryEntries.size() > 0) {
+                if (categoryEntries != null && categoryEntries.iterator().hasNext()) {
 
                     // get only the most likely concept
-                    CategoryEntries mostLikelyCes = new CategoryEntries();
+                    CategoryEntriesMap mostLikelyCes = new CategoryEntriesMap();
                     if (conceptLikelihoodOrder != null) {
                         ol: for (String conceptName : conceptLikelihoodOrder) {
-                            for (CategoryEntry categoryEntry : categoryEntries) {
-                                if (categoryEntry.getProbability() > 0
-                                        && categoryEntry.getName().equalsIgnoreCase(conceptName)) {
-                                    mostLikelyCes.add(categoryEntry);
+                            for (String categoryEntry : categoryEntries) {
+                                if (categoryEntries.getProbability(categoryEntry) > 0
+                                        && categoryEntry.equalsIgnoreCase(conceptName)) {
+                                    mostLikelyCes.set(categoryEntry, categoryEntries.getProbability(categoryEntry));
                                     break ol;
                                 }
                             }
                         }
-                        if (mostLikelyCes.size() > 0) {
+                        if (mostLikelyCes.iterator().hasNext()) {
                             categoryEntries = mostLikelyCes;
                         }
                     }
@@ -1007,7 +1007,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                             if (indexPrefix > -1 && term.length() > 2) {
                                 Annotation wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix,
                                         term,
-                                        entityDictionary.getCategoryEntries(term).getMostLikelyCategoryEntry().getName(),
+                                        entityDictionary.getCategoryEntries(term).getMostLikelyCategory(),
                                         annotations);
                                 toAdd.add(wrappedAnnotation2);
                                 
@@ -1178,7 +1178,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             }
         }
 
-        CategoryEntries ce = new CategoryEntries();
+        CategoryEntriesMap ce = new CategoryEntriesMap();
         
         double sum = 0;
 
@@ -1189,7 +1189,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             sum = 1;
         }
         for (String string : patternProbabilityMatrix.getKeysX()) {
-            ce.add(new CategoryEntry(string, probabilityMap.get(string) / sum));
+            ce.set(string, probabilityMap.get(string) / sum);
         }
 
         /*
@@ -1208,14 +1208,14 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     private CategoryEntries merge(CategoryEntries... categoryEntries) {
         Map<String, Double> categoryEntryMap = LazyMap.create(ConstantFactory.create(0.));
         for (CategoryEntries ces : categoryEntries) {
-            for (CategoryEntry ce : ces) {
-                Double value = categoryEntryMap.get(ce.getName());
-                categoryEntryMap.put(ce.getName(), value + ce.getProbability());
+            for (String ce : ces) {
+                Double value = categoryEntryMap.get(ce);
+                categoryEntryMap.put(ce, value + ces.getProbability(ce));
             }
         }
-        CategoryEntries ceMerge = new CategoryEntries();
+        CategoryEntriesMap ceMerge = new CategoryEntriesMap();
         for (String categoryName : categoryEntryMap.keySet()) {
-            ceMerge.add(new CategoryEntry(categoryName, categoryEntryMap.get(categoryName)));
+            ceMerge.set(categoryName, categoryEntryMap.get(categoryName));
         }
         return ceMerge;
     }
@@ -1541,7 +1541,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             if (term.length() < length) {
                 int index = entityName.indexOf(" " + term.toLowerCase() + " ");
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
-                String mostLikelyCategory = categoryEntries.getMostLikelyCategoryEntry().getName();
+                String mostLikelyCategory = categoryEntries.getMostLikelyCategory();
                 if (index > -1 && term.length() > 2) {
                     Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory, annotations);
                     unwrappedAnnotations.add(wrappedAnnotation);

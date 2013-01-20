@@ -2,14 +2,16 @@ package ws.palladian.classification.text;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Model;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 
@@ -51,14 +53,14 @@ public final class DictionaryModel implements Model {
     }
 
     public CategoryEntries getCategoryEntries(String term) {
-        CategoryEntries categoryFrequencies = new CategoryEntries();
+        CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
         List<Pair<String, Integer>> termRow = termCategories.getRow(term);
         int sum = 0;
         for (Pair<String, Integer> categoryValue : termRow) {
             sum += categoryValue.getValue();
         }
         for (Pair<String, Integer> categoryValue : termRow) {
-            categoryFrequencies.add(new CategoryEntry(categoryValue.getKey(), (double)categoryValue.getValue() / sum));
+            categoryFrequencies.set(categoryValue.getKey(), (double)categoryValue.getValue() / sum);
         }
         return categoryFrequencies;
     }
@@ -91,6 +93,14 @@ public final class DictionaryModel implements Model {
         return (double)categories.getCount(category) / categories.totalSize();
     }
 
+    public Map<String, Double> getPriors() {
+        Map<String, Double> result = CollectionHelper.newHashMap();
+        for (String category : categories) {
+            result.put(category, (double)categories.getCount(category) / categories.totalSize());
+        }
+        return result;
+    }
+
     /**
      * <p>
      * Dump the {@link DictionaryModel} as CSV format to a {@link PrintStream}. This is more memory efficient than
@@ -114,16 +124,16 @@ public final class DictionaryModel implements Model {
             CategoryEntries frequencies = getCategoryEntries(term);
             boolean first = true;
             for (String category : categories) {
-                CategoryEntry categoryEntry = frequencies.getCategoryEntry(category);
+                Double probability = frequencies.getProbability(category);
                 if (!first) {
                     printStream.print(",");
                 } else {
                     first = false;
                 }
-                if (categoryEntry == null) {
+                if (probability == null) {
                     printStream.print("0.0");
                 } else {
-                    printStream.print(categoryEntry.getProbability());
+                    printStream.print(probability);
                 }
             }
             printStream.print("\n");

@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PalladianTextClassifier;
@@ -117,7 +117,7 @@ public class PalladianLangDetect extends LanguageClassifier {
 
     @Override
     public String classify(String text) {
-        return classifyAsCategoryEntry(text).getMostLikelyCategoryEntry().getName();
+        return classifyAsCategoryEntry(text).getMostLikelyCategory();
     }
 
     public CategoryEntries classifyAsCategoryEntry(String text) {
@@ -130,10 +130,10 @@ public class PalladianLangDetect extends LanguageClassifier {
         if (possibleClasses == null) {
             return categoryEntries;
         }
-        CategoryEntries narrowedCategories = new CategoryEntries();
-        for (CategoryEntry categoryEntry : categoryEntries) {
-            if (possibleClasses.contains(categoryEntry.getName())) {
-                narrowedCategories.add(categoryEntry);
+        CategoryEntriesMap narrowedCategories = new CategoryEntriesMap();
+        for (String categoryName : categoryEntries) {
+            if (possibleClasses.contains(categoryName)) {
+                narrowedCategories.set(categoryName, categoryEntries.getProbability(categoryName));
             }
         }
         return narrowedCategories;
