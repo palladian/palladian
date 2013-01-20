@@ -51,7 +51,7 @@ public class SmileyTagger {
         Matcher matcher = smileyPattern.matcher(inputText);
 
         while (matcher.find()) {
-            Annotation annotation = new Annotation(matcher.start(), matcher.group(0), SMILEY_TAG_NAME, annotations);
+            Annotation annotation = new Annotation(matcher.start(), matcher.group(0), SMILEY_TAG_NAME);
             annotations.add(annotation);
         }
 

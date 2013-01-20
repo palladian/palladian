@@ -54,13 +54,13 @@ public class Annotation extends Instance {
         tags.set(tagName, 1);
     }
 
-    public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
-        super(tagName);
-        this.offset = offset;
-        this.length = entityName.length();
-        entity = entityName;
-        tags.set(tagName, 1);
-    }
+//    public Annotation(int offset, String entityName, String tagName, Annotations annotations) {
+//        super(tagName);
+//        this.offset = offset;
+//        this.length = entityName.length();
+//        entity = entityName;
+//        tags.set(tagName, 1);
+//    }
 
 //    private int containsDateFragment(String text) {
 //        text = text.toLowerCase();

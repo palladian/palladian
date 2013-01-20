@@ -37,7 +37,7 @@ public class DateAndTimeTagger {
 			List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(inputText, dateTime.getDateString());
 			
 			for (Integer integer : occurrenceIndices) {
-				Annotation annotation = new Annotation(integer,dateTime.getDateString(),DATETIME_TAG_NAME,annotations);
+				Annotation annotation = new Annotation(integer,dateTime.getDateString(),DATETIME_TAG_NAME);
 				annotations.add(annotation);
 			}
 			
