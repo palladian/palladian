@@ -3,17 +3,17 @@
  */
 package ws.palladian.classification;
 
+import static org.junit.Assert.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
-
 /**
  * <p>
  * Tests whether the Palladian wrapper for the Libsvm classifier works correctly or not.
@@ -46,13 +46,13 @@ public class LibSvmPredictorTest {
 
         LibSvmPredictor predictor = new LibSvmPredictor(normalFeaturePaths, sparseFeaturePaths);
         LibSvmModel model = predictor.train(instances);
-        Assert.assertThat(model, Matchers.is(Matchers.notNullValue()));
+        assertThat(model, Matchers.is(Matchers.notNullValue()));
 
         FeatureVector classificationVector = new FeatureVector();
         classificationVector.add(new NominalFeature("a", "a"));
         classificationVector.add(new NumericFeature("b", 0.8));
         CategoryEntries result = predictor.classify(classificationVector, model);
-        Assert.assertThat(result.getMostLikelyCategoryEntry().getName(), Matchers.is("A"));
+        assertThat(result.getMostLikelyCategory(), Matchers.is("A"));
     }
 
 }

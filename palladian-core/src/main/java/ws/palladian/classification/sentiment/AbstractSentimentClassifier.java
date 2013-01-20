@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.classification.CategoryEntry;
-
 public abstract class AbstractSentimentClassifier {
     
     public static final String POSITIVE = "positive";
@@ -31,12 +29,12 @@ public abstract class AbstractSentimentClassifier {
      * @param text The text to be classified.
      * @return A CategoryEntry with the likelihood.
      */
-    public CategoryEntry getPolarity(String text) {
+    public String getPolarity(String text) {
         opinionatedSentences = new HashMap<String, List<String>>();
         return getPolarity(text, null);
     }
     
-    public abstract CategoryEntry getPolarity(String text, String query);
+    public abstract String getPolarity(String text, String query);
     
     public void setConfidenceThreshold(double confidenceThreshold) {
         this.confidenceThreshold = confidenceThreshold;

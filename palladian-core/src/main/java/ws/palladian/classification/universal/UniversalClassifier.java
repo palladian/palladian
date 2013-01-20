@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
@@ -20,7 +20,6 @@ import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
@@ -100,18 +99,18 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
         // Since there are not weights yet the classifier weights all results with one.
         CategoryEntries textResult = result.getTextResults();
-        if (textResult != null && textResult.getMostLikelyCategoryEntry() != null
-                && textResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+        if (textResult != null && textResult.getMostLikelyCategory() != null
+                && textResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
             correctlyClassified[0]++;
         }
         CategoryEntries numericResult = result.getNumericResults();
-        if (numericResult != null && numericResult.getMostLikelyCategoryEntry() != null
-                && numericResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+        if (numericResult != null && numericResult.getMostLikelyCategory() != null
+                && numericResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
             correctlyClassified[1]++;
         }
         CategoryEntries nominalResult = result.getNominalResults();
-        if (nominalResult != null && nominalResult.getMostLikelyCategoryEntry() != null
-                && nominalResult.getMostLikelyCategoryEntry().getName().equals(instance.getTargetClass())) {
+        if (nominalResult != null && nominalResult.getMostLikelyCategory() != null
+                && nominalResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
             correctlyClassified[2]++;
         }
         return correctlyClassified;
@@ -170,16 +169,16 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
      * @return Merged and normalized {@code CategoryEntries}.
      */
     protected CategoryEntries normalize(Map<CategoryEntries, Double> weightedCategoryEntries) {
-        CategoryEntries normalizedCategoryEntries = new CategoryEntries();
+        CategoryEntriesMap normalizedCategoryEntries = new CategoryEntriesMap();
         Map<String, Double> mergedCategoryEntries = LazyMap.create(ConstantFactory.create(0.));
 
         // merge entries from different classifiers
         for (Entry<CategoryEntries, Double> entries : weightedCategoryEntries.entrySet()) {
-            for (CategoryEntry entry : entries.getKey()) {
-                double relevance = entry.getProbability();
+            for (String categoryName : entries.getKey()) {
+                double relevance = entries.getKey().getProbability(categoryName);
                 double weight = entries.getValue();
-                Double existingRelevance = mergedCategoryEntries.get(entry.getName());
-                mergedCategoryEntries.put(entry.getName(), existingRelevance + relevance * weight);
+                Double existingRelevance = mergedCategoryEntries.get(categoryName);
+                mergedCategoryEntries.put(categoryName, existingRelevance + relevance * weight);
             }
         }
 
@@ -191,7 +190,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
 
         // normalize entries
         for (Entry<String, Double> entry : mergedCategoryEntries.entrySet()) {
-            normalizedCategoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue() / totalRelevance));
+            normalizedCategoryEntries.set(entry.getKey(), entry.getValue() / totalRelevance);
         }
 
         return normalizedCategoryEntries;

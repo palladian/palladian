@@ -241,7 +241,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
 
     @Override
     public CategoryEntries classify(Classifiable classifiable, WekaModel model) {
-        CategoryEntries ret = new CategoryEntries();
+        CategoryEntriesMap ret = new CategoryEntriesMap();
 
         SortedMap<Integer, Double> indices = new TreeMap<Integer, Double>();
         Map<String, Attribute> schema = model.getSchema();
@@ -293,7 +293,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
             double[] distribution = model.getClassifier().distributionForInstance(instance);
             for (int i = 0; i < distribution.length; i++) {
                 String className = model.getDataset().classAttribute().value(i);
-                ret.add(new CategoryEntry(className, distribution[i]));
+                ret.set(className, distribution[i]);
             }
         } catch (Exception e) {
             throw new IllegalStateException("An exception occurred while predicting: " + e.getMessage(), e);

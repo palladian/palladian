@@ -89,7 +89,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
                 FeatureVector featureVector = DateInstanceFactory.createFeatureVector(date);
                 try {
                     CategoryEntries dbl = predictor.classify(featureVector, model);
-                    result.add(RatedDate.create(date, dbl.getMostLikelyCategoryEntry().getProbability()));
+                    result.add(RatedDate.create(date, dbl.getProbability(dbl.getMostLikelyCategory())));
                 } catch (Exception e) {
                     LOGGER.error("Exception " + date.getDateString() + " " + featureVector, e);
                 }

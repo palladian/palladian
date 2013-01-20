@@ -1,7 +1,6 @@
 package ws.palladian.classification.utils;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Model;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -21,7 +20,7 @@ public final class ClassifierEvaluation {
 
         for (T testInstance : testData) {
             CategoryEntries classification = classifier.classify(testInstance, model);
-            String classifiedCategory = classification.getMostLikelyCategoryEntry().getName();
+            String classifiedCategory = classification.getMostLikelyCategory();
             String realCategory = testInstance.getTargetClass();
             confusionMatrix.add(realCategory, classifiedCategory);
         }
@@ -36,9 +35,9 @@ public final class ClassifierEvaluation {
 
         for (T testInstance : testData) {
             CategoryEntries classification = classifier.classify(testInstance, model);
-            CategoryEntry categoryEntry = classification.getCategoryEntry(correctClass);
+            double probability = classification.getProbability(correctClass);
             String realCategory = testInstance.getTargetClass();
-            thresholdAnalyzer.add(realCategory.equals(correctClass), categoryEntry.getProbability());
+            thresholdAnalyzer.add(realCategory.equals(correctClass), probability);
         }
 
         return thresholdAnalyzer;

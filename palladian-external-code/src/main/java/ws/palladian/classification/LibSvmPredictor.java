@@ -255,14 +255,14 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
 
     @Override
     public CategoryEntries classify(Classifiable classifiable, LibSvmModel model) {
-        CategoryEntries ret = new CategoryEntries();
+        CategoryEntriesMap ret = new CategoryEntriesMap();
 
         svm_node[] libsvmFeatureVector = transformPalladianFeatureVectorToLibsvmFeatureVector(
                 classifiable.getFeatureVector(), model.getSchema(), false);
 
         double classIndex = svm.svm_predict(model.getModel(), libsvmFeatureVector);
         String className = model.transformClassToString(Double.valueOf(classIndex).intValue());
-        ret.add(new CategoryEntry(className, 1.0));
+        ret.set(className, 1.0);
 
         return ret;
     }

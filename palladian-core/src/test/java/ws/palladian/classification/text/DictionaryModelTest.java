@@ -46,11 +46,11 @@ public class DictionaryModelTest {
         model.updateTerm(word4, c2);
 
         // check dictionary
-        assertEquals(1., model.getCategoryEntries(word1).getCategoryEntry(c1).getProbability(), 0);
-        assertEquals(1., model.getCategoryEntries(word2).getCategoryEntry(c2).getProbability(), 0);
-        assertEquals(0.75, model.getCategoryEntries(word3).getCategoryEntry(c1).getProbability(), 0);
-        assertEquals(0.25, model.getCategoryEntries(word3).getCategoryEntry(c2).getProbability(), 0);
-        assertEquals(1., model.getCategoryEntries(word4).getCategoryEntry(c2).getProbability(), 0);
+        assertEquals(1., model.getCategoryEntries(word1).getProbability(c1), 0);
+        assertEquals(1., model.getCategoryEntries(word2).getProbability(c2), 0);
+        assertEquals(0.75, model.getCategoryEntries(word3).getProbability(c1), 0);
+        assertEquals(0.25, model.getCategoryEntries(word3).getProbability(c2), 0);
+        assertEquals(1., model.getCategoryEntries(word4).getProbability(c2), 0);
 
         // assertEquals(2, model.getNumCategories());
         assertEquals(4, model.getNumTerms());

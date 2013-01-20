@@ -9,7 +9,7 @@ import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -113,8 +113,6 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
         Map<String, Double> probabilities = CollectionHelper.newHashMap();
 
-        // for normalization, so that category probabilities sum up to one at the end
-        double evidence = 0;
         for (String category : model.getCategoryNames()) {
 
             // initially set all category probabilities to their priors
@@ -138,16 +136,9 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             }
 
             probabilities.put(category, probability);
-            evidence += probability;
         }
 
-        // create the result with normalized probabilities
-        CategoryEntries categoryEntries = new CategoryEntries();
-        for (Entry<String, Double> entry : probabilities.entrySet()) {
-            categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue() / evidence));
-        }
-
-        return categoryEntries;
+        return new CategoryEntriesMap(probabilities);
     }
 
     /**

@@ -6,9 +6,8 @@ import java.util.Random;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Predictor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.Classifiable;
@@ -17,7 +16,7 @@ import ws.palladian.processing.Trainable;
 /**
  * <p>
  * Simple Bagging for {@link DecisionTreeClassifier} with bootstrap sampling and majority voting. Could be extended to
- * allow for the usage of arbitrary {@link Predictor} implementations.
+ * allow for the usage of arbitrary {@link Classifier} implementations.
  * </p>
  * 
  * @author Philipp Katz
@@ -27,8 +26,31 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
     /** The default number of classifiers to create, in case it is not specified explicitly. */
     public static final int DEFAULT_NUM_CLASSIFIERS = 10;
 
-    public BaggedDecisionTreeModel train(Iterable<? extends Trainable> trainables, int numClassifiers) {
+    private final int numClassifiers;
+
+    /**
+     * <p>
+     * Create a new {@link BaggedDecisionTreeClassifier} using the specified number of classifiers.
+     * </p>
+     * 
+     * @param numClassifiers The number of decision trees to grow, greater zero.
+     */
+    public BaggedDecisionTreeClassifier(int numClassifiers) {
         Validate.isTrue(numClassifiers > 0, "numClassifiers must be greater than zero.");
+        this.numClassifiers = numClassifiers;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link BaggedDecisionTreeClassifier} using {@value #DEFAULT_NUM_CLASSIFIERS} classifiers.
+     * </p>
+     */
+    public BaggedDecisionTreeClassifier() {
+        this(DEFAULT_NUM_CLASSIFIERS);
+    }
+
+    @Override
+    public BaggedDecisionTreeModel train(Iterable<? extends Trainable> trainables) {
         Random random = new Random();
         List<? extends Trainable> trainableList = CollectionHelper.newArrayList(trainables);
         List<DecisionTreeModel> decisionTreeModels = CollectionHelper.newArrayList();
@@ -42,24 +64,18 @@ public final class BaggedDecisionTreeClassifier implements Classifier<BaggedDeci
     }
 
     @Override
-    public BaggedDecisionTreeModel train(Iterable<? extends Trainable> trainables) {
-        return train(trainables, DEFAULT_NUM_CLASSIFIERS);
-    }
-
-    @Override
     public CategoryEntries classify(Classifiable classifiable, BaggedDecisionTreeModel model) {
         DecisionTreeClassifier classifier = new DecisionTreeClassifier();
         CountMap<String> categories = CountMap.create();
         for (DecisionTreeModel decisionTreeModel : model.getModels()) {
             CategoryEntries entriesResult = classifier.classify(classifiable, decisionTreeModel);
-            CategoryEntry categoryResult = entriesResult.getMostLikelyCategoryEntry();
-            categories.add(categoryResult.getName());
+            categories.add(entriesResult.getMostLikelyCategory());
         }
 
-        CategoryEntries result = new CategoryEntries();
+        CategoryEntriesMap result = new CategoryEntriesMap();
         for (String categoryName : categories.uniqueItems()) {
             double confidence = (double)categories.getCount(categoryName) / categories.totalSize();
-            result.add(new CategoryEntry(categoryName, confidence));
+            result.set(categoryName, confidence);
         }
         return result;
     }

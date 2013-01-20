@@ -48,8 +48,8 @@ public class KnnClassifierTest {
 
         // classify
         CategoryEntries result = knn.classify(featureVector, model);
-        assertEquals(0.474, result.getMostLikelyCategoryEntry().getProbability(), 0.001);
-        assertEquals("A", result.getMostLikelyCategoryEntry().getName());
+        assertEquals(0.474, result.getProbability(result.getMostLikelyCategory()), 0.001);
+        assertEquals("A", result.getMostLikelyCategory());
     }
 
     /**
@@ -87,8 +87,8 @@ public class KnnClassifierTest {
 
         // classify
         CategoryEntries result = knn.classify(featureVector, model);
-        assertEquals(1.0000000001339825E9, result.getMostLikelyCategoryEntry().getProbability(), 0);
-        assertEquals("1", result.getMostLikelyCategoryEntry().getName());
+        assertEquals(1.0000000001339825E9, result.getProbability(result.getMostLikelyCategory()), 0);
+        assertEquals("1", result.getMostLikelyCategory());
     }
 
     @Test
@@ -123,8 +123,8 @@ public class KnnClassifierTest {
 
         // classify
         CategoryEntries result = knn.classify(instanceBuilder.create(), loadedModel);
-        assertEquals(1.0000000054326154E9, result.getMostLikelyCategoryEntry().getProbability(), 0);
-        assertEquals("1", result.getMostLikelyCategoryEntry().getName());
+        assertEquals(1.0000000054326154E9, result.getProbability(result.getMostLikelyCategory()), 0);
+        assertEquals("1", result.getMostLikelyCategory());
     }
 
 }

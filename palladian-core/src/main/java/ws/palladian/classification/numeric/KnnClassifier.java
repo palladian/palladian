@@ -9,7 +9,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -112,9 +112,10 @@ public final class KnnClassifier implements Classifier<KnnModel> {
             ck++;
         }
 
-        CategoryEntries categoryEntries = new CategoryEntries();
+        // XXX currently the results are not normalized; is there a reason for that?
+        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
         for (Entry<String, Double> entry : relevances.entrySet()) {
-            categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue()));
+            categoryEntries.set(entry.getKey(), entry.getValue());
         }
         return categoryEntries;
     }
