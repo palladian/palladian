@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,9 +45,9 @@ public class SmileyTagger {
         smileyPattern = Pattern.compile(smileyPatterhRegEx.toString());
     }
 
-    public Annotations tagSmileys(String inputText) {
+    public List<Annotation> tagSmileys(String inputText) {
 
-        Annotations annotations = new Annotations();
+        List<Annotation> annotations = CollectionHelper.newArrayList();
 
         Matcher matcher = smileyPattern.matcher(inputText);
 
@@ -61,7 +62,7 @@ public class SmileyTagger {
     public static void main(String[] args) {
         String text = "This is a nice day :) and the sun shines ;)";
         SmileyTagger smileyTagger = new SmileyTagger();
-        Annotations annotations = smileyTagger.tagSmileys(text);
+        List<Annotation> annotations = smileyTagger.tagSmileys(text);
         CollectionHelper.print(annotations);
     }
 }

@@ -4,9 +4,10 @@ import java.util.List;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
-import ws.palladian.classification.Instance;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Classified;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * An annotation made by a {@link NamedEntityRecognizer} when tagging a text.
@@ -14,7 +15,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  * 
  */
-public class Annotation extends Instance {
+public class Annotation implements Annotated, Classified {
 
     public static final int WINDOW_SIZE = 40;
     
@@ -38,16 +39,20 @@ public class Annotation extends Instance {
 
     private List<String> subTypes = null;
 
+    private String targetClass;
+
     public Annotation(Annotation annotation) {
-        super(annotation.getTargetClass());
-        offset = annotation.getOffset();
+        // super(annotation.getTargetClass());
+        this.targetClass = annotation.getTargetClass();
+        offset = annotation.getStartPosition();
         length = annotation.getLength();
-        entity = annotation.getEntity();
+        entity = annotation.getValue();
         tags = new CategoryEntriesMap(annotation.getTags());
     }
 
     public Annotation(int offset, String entityName, String tagName) {
-        super(tagName);
+        // super(tagName);
+        this.targetClass = tagName;
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
@@ -214,13 +219,13 @@ public class Annotation extends Instance {
 //        setNominalFeatures(nominalFeatures);
 //    }
 
-    public int getEndIndex() {
-        return getOffset() + getLength();
-    }
+//    public int getEndIndex() {
+//        return getOffset() + getLength();
+//    }
 
-    public String getEntity() {
-        return entity;
-    }
+//    public String getEntity() {
+//        return entity;
+//    }
 
     public String getLeftContext() {
         return leftContext;
@@ -455,13 +460,13 @@ public class Annotation extends Instance {
 //        return getTags().getMostLikelyCategoryEntry();
 //    }
 
-    public String getMostLikelyTagName() {
-        return getTags().getMostLikelyCategory();
-    }
+//    public String getMostLikelyTagName() {
+//        return getTags().getMostLikelyCategory();
+//    }
 
-    public int getOffset() {
-        return offset;
-    }
+//    public int getOffset() {
+//        return offset;
+//    }
 
     public String getRightContext() {
         return rightContext;
@@ -484,23 +489,23 @@ public class Annotation extends Instance {
     }
 
     public boolean matches(Annotation annotation) {
-        if (getOffset() == annotation.getOffset() && getLength() == annotation.getLength()) {
+        if (getStartPosition() == annotation.getStartPosition() && getLength() == annotation.getLength()) {
             return true;
         }
         return false;
     }
 
     public boolean overlaps(Annotation annotation) {
-        if (getOffset() <= annotation.getOffset() && getEndIndex() >= annotation.getOffset()
-                || getOffset() <= annotation.getEndIndex() && getEndIndex() >= annotation.getOffset()) {
+        if (getStartPosition() <= annotation.getStartPosition() && getEndPosition() >= annotation.getStartPosition()
+                || getStartPosition() <= annotation.getEndPosition() && getEndPosition() >= annotation.getStartPosition()) {
             return true;
         }
         return false;
     }
 
     public boolean sameTag(Annotation annotation) {
-        if (getMostLikelyTagName()
-                .equalsIgnoreCase(annotation.getMostLikelyTagName())) {
+        if (getTag()
+                .equalsIgnoreCase(annotation.getTag())) {
             return true;
         }
         return false;
@@ -514,7 +519,7 @@ public class Annotation extends Instance {
      * @return
      */
     public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
-        if (getMostLikelyTagName()
+        if (getTag()
                 .equalsIgnoreCase(goldStandardAnnotation.getTargetClass())) {
             return true;
         }
@@ -555,9 +560,40 @@ public class Annotation extends Instance {
         builder.append(", entity=");
         builder.append(entity);
         builder.append(", tag=");
-        builder.append(getMostLikelyTagName());
+        builder.append(getTag());
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public int getStartPosition() {
+        return offset;
+    }
+
+    @Override
+    public int getEndPosition() {
+        return offset + length;
+    }
+
+    @Override
+    public int getIndex() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public String getValue() {
+        return entity;
+    }
+
+    @Override
+    public String getTag() {
+        return getTags().getMostLikelyCategory();
+    }
+
+    @Override
+    public String getTargetClass() {
+        return targetClass;
     }
 
 }

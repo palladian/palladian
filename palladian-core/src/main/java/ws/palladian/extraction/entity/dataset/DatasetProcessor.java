@@ -164,7 +164,7 @@ public class DatasetProcessor {
 
                 for (Annotation annotation : annotations) {
                     String tagName = annotation.getTargetClass().toUpperCase();
-                    document = document.replace(annotation.getEntity(), "<" + tagName + ">" + annotation.getEntity()
+                    document = document.replace(annotation.getValue(), "<" + tagName + ">" + annotation.getValue()
                             + "</" + tagName + ">");
                     if (document.indexOf("<" + tagName + ">") > -1) {
                         addDocument = true;

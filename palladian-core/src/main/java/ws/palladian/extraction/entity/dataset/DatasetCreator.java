@@ -747,7 +747,7 @@ public class DatasetCreator {
                 fileMap.put(annotation.getTargetClass(), seedFileContent);
             }
 
-            seedFileContent.append(annotation.getEntity()).append("\n");
+            seedFileContent.append(annotation.getValue()).append("\n");
         }
 
         String seedFolderPath = getDataSetLocation() + "seedEntities/";

@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.TagAnnotation;
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -59,7 +60,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
     /** @deprecated Use the {@link TextDocumentPipelineProcessor} API instead. */
     @Override
     @Deprecated
-    public TagAnnotations tag(String text) {
+    public List<Annotated> tag(String text) {
         TextDocument document = new TextDocument(text);
         try {
             BaseTokenizer tokenizer = getTokenizer();
@@ -70,7 +71,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
         }
         List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().getAll(PositionAnnotation.class,
                 BaseTokenizer.PROVIDED_FEATURE);
-        TagAnnotations ret = new TagAnnotations();
+        List<Annotated> ret = CollectionHelper.newArrayList();
         int offset = 0;
         for (PositionAnnotation annotation : annotationFeatureList) {
             NominalFeature tagFeature = annotation.getFeatureVector()

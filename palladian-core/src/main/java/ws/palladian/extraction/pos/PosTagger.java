@@ -1,7 +1,9 @@
 package ws.palladian.extraction.pos;
 
-import ws.palladian.extraction.TagAnnotations;
+import java.util.List;
+
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -30,6 +32,6 @@ public interface PosTagger {
      * 
      * @param sentence The text to tag.
      */
-    TagAnnotations tag(String text);
+    List<Annotated> tag(String text);
 
 }

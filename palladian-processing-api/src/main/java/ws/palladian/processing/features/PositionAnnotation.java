@@ -17,7 +17,8 @@ import ws.palladian.processing.Classifiable;
  * @since 0.1.7
  */
 // TODO rename to TextAnnotation
-public class PositionAnnotation extends NominalFeature implements Classifiable, Comparable<PositionAnnotation> {
+public class PositionAnnotation extends NominalFeature implements Classifiable, Comparable<PositionAnnotation>,
+        Annotated {
 
     /**
      * <p>
@@ -63,17 +64,42 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.index = index;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getStartPosition()
+     */
+    @Override
     public int getStartPosition() {
         return startPosition;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getEndPosition()
+     */
+    @Override
     public int getEndPosition() {
         return endPosition;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getIndex()
+     */
+    @Override
     public int getIndex() {
         return index;
     }
+    
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getTag()
+     */
+    @Override
+    public String getTag() {
+        return getName();
+    }
+
 
     @Override
     public FeatureVector getFeatureVector() {
