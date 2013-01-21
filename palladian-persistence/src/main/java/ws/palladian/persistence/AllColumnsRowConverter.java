@@ -32,7 +32,7 @@ public final class AllColumnsRowConverter {
 
             int numColumns = resultSet.getMetaData().getColumnCount();
             for (int i = 1; i <= numColumns; i++) {
-                String columnName = resultSet.getMetaData().getColumnName(i);
+                String columnName = resultSet.getMetaData().getColumnLabel(i);
                 int columnType = resultSet.getMetaData().getColumnType(i);
 
                 if (columnType == Types.INTEGER) {
