@@ -42,9 +42,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
-
-//    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-//            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);
     
     public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
 

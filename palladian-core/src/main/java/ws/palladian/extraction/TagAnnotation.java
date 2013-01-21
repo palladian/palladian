@@ -5,6 +5,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * TODO merge this class with {@link PositionAnnotation}.
+ * 
  * @author Martin Wunderwald
  */
 @Deprecated
@@ -24,35 +25,18 @@ public class TagAnnotation implements Annotated {
      * 
      * @param offset
      * @param tag
-     * @param chunk
+     * @param value
      */
-    public TagAnnotation(int offset, String tag, String chunk) {
+    public TagAnnotation(int offset, String tag, String value) {
         this.offset = offset;
-        this.chunk = chunk;
+        this.chunk = value;
         this.tag = tag;
     }
 
-//    /**
-//     * @return the offset
-//     */
-//    public final int getOffset() {
-//        return offset;
-//    }
-
-    /**
-     * @return the tag
-     */
     @Override
     public final String getTag() {
         return tag;
     }
-
-//    /**
-//     * @return the chunk
-//     */
-//    public final String getChunk() {
-//        return chunk;
-//    }
 
     @Override
     public String toString() {
@@ -71,8 +55,7 @@ public class TagAnnotation implements Annotated {
 
     @Override
     public int getIndex() {
-        // TODO Auto-generated method stub
-        return 0;
+        return -1; // XXX
     }
 
     @Override
