@@ -9,6 +9,8 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.helper.constants.Language;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -267,6 +269,15 @@ public class TokenizerTest {
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());
 
+        inputText = "It happened again. ;-( Soo mean!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+
+        inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
+        sentences = Tokenizer.getSentences(inputText);
+        // XXX uncomment as soon as regex is fixed.
+        // assertEquals(2, sentences.size());
+
         inputText = "IT IS three years since Senator Barack Obama pronounced that America “is no longer a Christian nation—at least, not just.” The words sounded harsher than he intended: bla.";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(2, sentences.size());
@@ -278,5 +289,17 @@ public class TokenizerTest {
         inputText = "Das ist z.B. sooo groß.";
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
         assertEquals(1, sentences.size());
+    }
+
+    @Test
+    public void testSentenceOnTextWithMaskBetweenSentences() throws Exception {
+        String inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
+        List<PositionAnnotation> sentences = Tokenizer.getSentences(new TextDocument(inputText), "testFeature");
+        // XXX uncomment as soon as regex is fixed
+        // assertEquals(2, sentences.size());
+
+        // String inputText = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/contribution04.txt"));
+        // List<PositionAnnotation> sentences = Tokenizer.getSentences(new TextDocument(inputText), "testFeature");
+        // System.out.println(sentences);
     }
 }
