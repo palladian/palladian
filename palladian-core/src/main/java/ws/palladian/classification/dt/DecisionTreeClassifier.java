@@ -65,7 +65,7 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
 
     private Serializable[] getInput(Classifiable classifiable) {
         List<Serializable> inputs = new ArrayList<Serializable>();
-        for (Feature<?> feature : classifiable.getFeatureVector().toArray()) {
+        for (Feature<?> feature : classifiable.getFeatureVector()) {
             String featureName = feature.getName();
             Serializable featureValue = (Serializable)feature.getValue();
             inputs.add(featureName);
