@@ -115,7 +115,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
      */
     private <T extends Feature<?>> double featureToDouble(T feature, List<Instance> instances) {
         if (feature instanceof NumericFeature) {
-            return 0;
+            return ((NumericFeature)feature.getValue()).getValue();
         } else if (feature instanceof Classifiable) {
             return 1.0;
         } else if (feature instanceof NominalFeature) {
