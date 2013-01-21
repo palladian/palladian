@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ws.palladian.processing;
 
 import ws.palladian.processing.features.Feature;
