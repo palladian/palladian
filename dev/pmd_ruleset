@@ -70,7 +70,11 @@
    <rule ref="rulesets/unusedcode.xml/UnusedFormalParameter"/>
    <rule ref="rulesets/logging-java.xml/MoreThanOneLogger"/>
    <rule ref="rulesets/logging-java.xml/LoggerIsNotStaticFinal"/>
-   <rule ref="rulesets/logging-java.xml/SystemPrintln"/>
+   <rule ref="rulesets/logging-java.xml/SystemPrintln">
+   	<properties>
+   		<property name="reportLevel" value="1"/>
+   	</properties>
+   </rule>
    <rule ref="rulesets/logging-java.xml/AvoidPrintStackTrace"/>
    <rule ref="rulesets/strings.xml/AvoidDuplicateLiterals"/>
    <rule ref="rulesets/strings.xml/StringInstantiation"/>

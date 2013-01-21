@@ -18,8 +18,21 @@ import ws.palladian.processing.features.PositionAnnotation;
  */
 public final class TokenFilter extends AbstractTokenRemover {
 
+    /**
+     * <p>
+     * The vocabulary containing all tokens this filter filters out.
+     * </p>
+     */
     private final Set<String> vocabulary = new HashSet<String>();
 
+    /**
+     * <p>
+     * Creates a new {@code TokenFilter} based on the filter tokens from a vocabulary file.
+     * </p>
+     * 
+     * @param vocabularyFile The vocabulary file containing the tokens to filter. This file is a text file with one
+     *            token per line.
+     */
     public TokenFilter(File vocabularyFile) {
         FileHelper.performActionOnEveryLine(vocabularyFile.getAbsolutePath(), new LineAction() {
             @Override
@@ -29,6 +42,13 @@ public final class TokenFilter extends AbstractTokenRemover {
         });
     }
 
+    /**
+     * <p>
+     * Creates a new {@code TokenFilter} based on the filter tokens from a {@link Collection} of vocabulary tokens.
+     * </p>
+     * 
+     * @param vocabulary The tokens to filter, when applying this filter.
+     */
     public TokenFilter(Collection<String> vocabulary) {
         this.vocabulary.addAll(vocabulary);
     }
@@ -38,10 +58,6 @@ public final class TokenFilter extends AbstractTokenRemover {
         return !vocabulary.contains(annotation.getValue());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

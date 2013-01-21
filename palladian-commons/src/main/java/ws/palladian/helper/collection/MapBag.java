@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -40,6 +41,33 @@ public class MapBag {
         }
 
         return bagEntries;
+    }
+
+    /**
+     * <p>
+     * Get another random entry from the bag which is not equal to the given one.
+     * </p>
+     * 
+     * @param bagEntry The bag in which we have to search.
+     * @return A different bag entry.
+     */
+    public String getDifferentBagEntry(String bagEntry) {
+
+        Set<String> bag = getBag(bagEntry);
+
+        int size = bag.size();
+        while (true && size > 1) {
+            int item = new Random().nextInt(size);
+            int i = 0;
+            for (String obj : bag) {
+                if (i == item && !obj.equals(bagEntry)) {
+                    return obj;
+                }
+                i = i + 1;
+            }
+        }
+
+        return null;
     }
 
     public void add(String bagKey, String bagValue) {
