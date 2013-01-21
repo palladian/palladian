@@ -271,21 +271,21 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         for (Annotation annotation : annotations) {
 
             // ignore nested annotations
-            if (annotation.getOffset() < lastEndIndex) {
+            if (annotation.getStartPosition() < lastEndIndex) {
                 continue;
             }
 
-            String tagName = annotation.getMostLikelyTagName();
+            String tagName = annotation.getTag();
 
-            taggedText.append(inputText.substring(lastEndIndex, annotation.getOffset()));
+            taggedText.append(inputText.substring(lastEndIndex, annotation.getStartPosition()));
 
-            String correctText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
+            String correctText = inputText.substring(annotation.getStartPosition(), annotation.getEndPosition());
 
-            if (!correctText.equalsIgnoreCase(annotation.getEntity()) && correctText.indexOf("\n") == -1) {
+            if (!correctText.equalsIgnoreCase(annotation.getValue()) && correctText.indexOf("\n") == -1) {
                 StringBuilder errorString = new StringBuilder();
                 errorString.append("alignment error, the annotation candidates don't match the text:\n");
                 errorString.append("found: " + correctText + "\n");
-                errorString.append("instead of: " + annotation.getEntity() + "(" + annotation + ")\n");
+                errorString.append("instead of: " + annotation.getValue() + "(" + annotation + ")\n");
                 errorString.append("last annotation: " + lastAnnotation);
                 //System.exit(1);
                 throw new IllegalStateException(errorString.toString());
@@ -294,25 +294,25 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             if (format == TaggingFormat.XML) {
 
                 taggedText.append("<").append(tagName).append(">");
-                taggedText.append(annotation.getEntity());
+                taggedText.append(annotation.getValue());
                 taggedText.append("</").append(tagName).append(">");
 
             } else if (format == TaggingFormat.BRACKETS) {
 
                 taggedText.append("[").append(tagName).append(" ");
-                taggedText.append(annotation.getEntity());
+                taggedText.append(annotation.getValue());
                 taggedText.append(" ]");
 
             } else if (format == TaggingFormat.SLASHES) {
 
-                List<String> tokens = Tokenizer.tokenize(annotation.getEntity());
+                List<String> tokens = Tokenizer.tokenize(annotation.getValue());
                 for (String token : tokens) {
                     taggedText.append(token).append("/").append(tagName).append(" ");
                 }
 
             }
 
-            lastEndIndex = annotation.getEndIndex();
+            lastEndIndex = annotation.getEndPosition();
             lastAnnotation = annotation;
         }
 
@@ -391,7 +391,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             assignments.get(tagName).add(EvaluationResult.POSSIBLE);
         }
         for (Annotation nerAnnotation : nerAnnotations) {
-            String tagName = nerAnnotation.getMostLikelyTagName();
+            String tagName = nerAnnotation.getTag();
             if (assignments.get(tagName) == null) {
                 assignments.put(tagName, CountMap.<String>create());
             }
@@ -408,7 +408,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         Set<Integer> ignoreAnnotationSet = new HashSet<Integer>();
         for (Annotation annotation : ignoreAnnotations) {
-            ignoreAnnotationSet.add(annotation.getEntity().hashCode());
+            ignoreAnnotationSet.add(annotation.getValue().hashCode());
         }
 
         // check each NER annotation against the gold standard and add it to the assignment map depending on its error
@@ -418,7 +418,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         for (Annotation nerAnnotation : nerAnnotations) {
 
             // skip "O" tags, XXX should this really be done here in this method?
-            if (nerAnnotation.getMostLikelyTagName().equalsIgnoreCase("o")) {
+            if (nerAnnotation.getTag().equalsIgnoreCase("o")) {
                 continue;
             }
 
@@ -428,8 +428,8 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
                 // skip ignored annotations for error cases 2,3,4, and 5, however, leave the possibility for error 1
                 // (tagged something that should not have been tagged)
-                if (ignoreAnnotationSet.contains(goldStandardAnnotation.getEntity().hashCode())
-                        && !(nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex() && !taggedOverlap)) {
+                if (ignoreAnnotationSet.contains(goldStandardAnnotation.getValue().hashCode())
+                        && !(nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition() && !taggedOverlap)) {
                     continue;
                 }
                 // check whether annotation has been tagged already, if so, just skip the ner annotation
@@ -443,11 +443,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
 
                         // correct tag (no error)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.CORRECT);
+                        assignments.get(nerAnnotation.getTag()).add(EvaluationResult.CORRECT);
                         annotationsErrors.get(EvaluationResult.CORRECT).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
+                        assignments.get(nerAnnotation.getTag()).add(
                                 goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -462,7 +462,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         annotationsErrors.get(EvaluationResult.ERROR3).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
+                        assignments.get(nerAnnotation.getTag()).add(
                                 goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -477,11 +477,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
 
                         // correct tag (error4)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR4);
+                        assignments.get(nerAnnotation.getTag()).add(EvaluationResult.ERROR4);
                         annotationsErrors.get(EvaluationResult.ERROR4).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
+                        assignments.get(nerAnnotation.getTag()).add(
                                 goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -491,11 +491,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     } else {
 
                         // wrong tag (error5)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR5);
+                        assignments.get(nerAnnotation.getTag()).add(EvaluationResult.ERROR5);
                         annotationsErrors.get(EvaluationResult.ERROR5).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
+                        assignments.get(nerAnnotation.getTag()).add(
                                 goldStandardAnnotation.getTargetClass());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
@@ -506,7 +506,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
                     taggedOverlap = true;
 
-                } else if (nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex()) {
+                } else if (nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition()) {
 
                     if (!taggedOverlap) {
 
@@ -515,12 +515,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         // }
 
                         // tagged something that should not have been tagged (error1)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR1);
+                        assignments.get(nerAnnotation.getTag()).add(EvaluationResult.ERROR1);
                         annotationsErrors.get(EvaluationResult.ERROR1).add(nerAnnotation);
 
                         // in confusion matrix add count to "other" since NER tagged something that should not have been
                         // tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
+                        assignments.get(nerAnnotation.getTag()).add(
                                 EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
                     }
 
@@ -701,7 +701,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             if (annotation instanceof EvaluationAnnotation) {
                 cm.add(annotation.getTargetClass());
             } else {
-                cm.add(annotation.getMostLikelyTagName());
+                cm.add(annotation.getTag());
             }
         }
         return cm;
@@ -815,7 +815,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     	
     	PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
     	for(Annotation nerAnnotation:annotations) {
-    		PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getOffset(), nerAnnotation.getEndIndex());
+    		PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getStartPosition(), nerAnnotation.getEndPosition());
     		featureVector.add(procAnnotation);
     		
     	}

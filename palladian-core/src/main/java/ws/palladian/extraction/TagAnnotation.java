@@ -1,5 +1,6 @@
 package ws.palladian.extraction;
 
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -7,7 +8,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author Martin Wunderwald
  */
 @Deprecated
-public class TagAnnotation {
+public class TagAnnotation implements Annotated {
 
     /** The start index of the annotation in the annotated text. */
     private final int offset;
@@ -31,30 +32,52 @@ public class TagAnnotation {
         this.tag = tag;
     }
 
-    /**
-     * @return the offset
-     */
-    public final int getOffset() {
-        return offset;
-    }
+//    /**
+//     * @return the offset
+//     */
+//    public final int getOffset() {
+//        return offset;
+//    }
 
     /**
      * @return the tag
      */
+    @Override
     public final String getTag() {
         return tag;
     }
 
-    /**
-     * @return the chunk
-     */
-    public final String getChunk() {
-        return chunk;
-    }
+//    /**
+//     * @return the chunk
+//     */
+//    public final String getChunk() {
+//        return chunk;
+//    }
 
     @Override
     public String toString() {
         return chunk + "/" + tag;
+    }
+
+    @Override
+    public int getStartPosition() {
+        return offset;
+    }
+
+    @Override
+    public int getEndPosition() {
+        return offset + chunk.length();
+    }
+
+    @Override
+    public int getIndex() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public String getValue() {
+        return chunk;
     }
 
 }

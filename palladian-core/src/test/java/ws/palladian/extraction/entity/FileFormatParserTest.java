@@ -16,13 +16,13 @@ public class FileFormatParserTest {
         Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(ResourceHelper
                 .getResourcePath("/ner/training.txt"));
         assertEquals(35026, annotations.size());
-        assertEquals(0, annotations.get(0).getOffset());
+        assertEquals(0, annotations.get(0).getStartPosition());
         assertEquals(11, annotations.get(0).getLength());
-        assertEquals("=-DOCSTART-", annotations.get(0).getEntity());
+        assertEquals("=-DOCSTART-", annotations.get(0).getValue());
 
-        assertEquals(60, annotations.get(10).getOffset());
+        assertEquals(60, annotations.get(10).getStartPosition());
         assertEquals(5, annotations.get(10).getLength());
-        assertEquals("Peter", annotations.get(10).getEntity());
+        assertEquals("Peter", annotations.get(10).getValue());
         assertEquals("PER", annotations.get(10).getTargetClass());
     }
 
@@ -32,14 +32,14 @@ public class FileFormatParserTest {
                 .getResourcePath("/ner/training.txt"));
 
         assertEquals(4598, annotations.size());
-        assertEquals(12, annotations.get(0).getOffset());
+        assertEquals(12, annotations.get(0).getStartPosition());
         assertEquals(2, annotations.get(0).getLength());
-        assertEquals("EU", annotations.get(0).getEntity());
+        assertEquals("EU", annotations.get(0).getValue());
         assertEquals("ORG", annotations.get(0).getTargetClass());
 
-        assertEquals(188581, annotations.get(4594).getOffset());
+        assertEquals(188581, annotations.get(4594).getStartPosition());
         assertEquals(11, annotations.get(4594).getLength());
-        assertEquals("Sri Lankans", annotations.get(4594).getEntity());
+        assertEquals("Sri Lankans", annotations.get(4594).getValue());
         assertEquals("MISC", annotations.get(4594).getTargetClass());
     }
 

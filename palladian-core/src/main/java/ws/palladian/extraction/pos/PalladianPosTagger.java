@@ -247,17 +247,17 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     public static void main(String[] args) {
-        PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
+        // PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
 
         // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
         // palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
         // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
-        palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
-        palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
+        // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
+        // palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
 
         // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")
         // .getTaggedString());
-        System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
+        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 }

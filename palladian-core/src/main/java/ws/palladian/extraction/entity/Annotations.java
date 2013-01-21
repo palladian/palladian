@@ -31,11 +31,11 @@ public class Annotations extends ArrayList<Annotation> {
 
         for (Annotation annotation : this) {
 
-            output.append(annotation.getOffset()).append(";");
+            output.append(annotation.getStartPosition()).append(";");
             output.append(annotation.getLength()).append(";");
-            output.append(annotation.getEndIndex()).append(";");
-            output.append(annotation.getEntity()).append(";");
-            output.append(annotation.getMostLikelyTagName()).append("\n");
+            output.append(annotation.getEndPosition()).append(";");
+            output.append(annotation.getValue()).append(";");
+            output.append(annotation.getTag()).append("\n");
 
         }
 
@@ -52,12 +52,12 @@ public class Annotations extends ArrayList<Annotation> {
         for (Annotation annotation : this) {
 
             // ignore nested annotations
-            if (annotation.getOffset() < lastEndIndex) {
+            if (annotation.getStartPosition() < lastEndIndex) {
                 continue;
             }
 
             removedNested.add(annotation);
-            lastEndIndex = annotation.getEndIndex();
+            lastEndIndex = annotation.getEndPosition();
         }
 
         clear();
@@ -72,7 +72,7 @@ public class Annotations extends ArrayList<Annotation> {
 
             @Override
             public int compare(Annotation a1, Annotation a2) {
-                return a1.getOffset() - a2.getOffset();
+                return a1.getStartPosition() - a2.getStartPosition();
             }
         };
 
@@ -106,7 +106,7 @@ public class Annotations extends ArrayList<Annotation> {
     @Override
     public boolean add(Annotation e) {
         for (Annotation a : this) {
-            if (a.getOffset() == e.getOffset()) {
+            if (a.getStartPosition() == e.getStartPosition()) {
                 return false;
             }
         }

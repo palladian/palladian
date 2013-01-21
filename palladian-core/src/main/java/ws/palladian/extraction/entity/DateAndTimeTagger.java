@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
@@ -25,9 +26,9 @@ public class DateAndTimeTagger {
 	/** All date formats defined by default, plus additionally years in context. */
 	private static final DateFormat[] ALL_DATES_WITH_YEARS = ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS, RegExp.DATE_CONTEXT_YYYY);
 	
-	public Annotations tagDateAndTime(String inputText) {
+	public List<Annotation> tagDateAndTime(String inputText) {
 
-		Annotations annotations = new Annotations();
+		List<Annotation> annotations = CollectionHelper.newArrayList();
 
         List<ExtractedDate> allDates = DateParser.findDates(inputText, ALL_DATES_WITH_YEARS);
 		

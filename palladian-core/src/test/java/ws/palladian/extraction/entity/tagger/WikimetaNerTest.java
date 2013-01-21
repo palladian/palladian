@@ -33,11 +33,11 @@ public class WikimetaNerTest {
         Annotations annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
 
         assertEquals(134, annotations.size());
-        assertEquals("eastern United States", annotations.get(2).getEntity());
+        assertEquals("eastern United States", annotations.get(2).getValue());
 
-        assertEquals("LOC", annotations.get(2).getMostLikelyTagName());
+        assertEquals("LOC", annotations.get(2).getTag());
 
-        assertEquals(101, annotations.get(2).getOffset());
+        assertEquals(101, annotations.get(2).getStartPosition());
         assertEquals(21, annotations.get(2).getLength());
 
     }

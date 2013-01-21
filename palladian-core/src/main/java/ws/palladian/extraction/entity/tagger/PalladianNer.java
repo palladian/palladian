@@ -358,7 +358,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
      * @param annotation The complete annotation from the training data.
      */
     private void addToEntityDictionary(Annotation annotation) {
-        addToEntityDictionary(annotation.getEntity(), annotation.getTargetClass());
+        addToEntityDictionary(annotation.getValue(), annotation.getTargetClass());
     }
 
     private void addToEntityDictionary(String entity, String concept) {
@@ -490,7 +490,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
-            ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getEntity());
+            ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getValue());
             textInstances.add(document);
         }
 
@@ -570,7 +570,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         LOGGER.info("add additional training annotations");
         int c = 1;
         for (Annotation annotation : annotations) {
-            ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getEntity());
+            ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getValue());
             textInstances.add(textInstance);
             addToEntityDictionary(annotation);
             ProgressHelper.printProgress(c++, annotations.size(), 1);
@@ -607,19 +607,19 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 boolean addAnnotation = true;
 
                 // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
-                String wrongName = wrongAnnotation.getEntity().toLowerCase();
+                String wrongName = wrongAnnotation.getValue().toLowerCase();
                 for (Annotation gsAnnotation : evaluationResult.getGoldStandardAnnotations()) {
-                    if (wrongName.equals(gsAnnotation.getEntity().toLowerCase())) {
+                    if (wrongName.equals(gsAnnotation.getValue().toLowerCase())) {
                         addAnnotation = false;
                         break;
                     }
                 }
 
-                ClassifiedTextDocument textInstance = new ClassifiedTextDocument(NO_ENTITY, wrongAnnotation.getEntity());
+                ClassifiedTextDocument textInstance = new ClassifiedTextDocument(NO_ENTITY, wrongAnnotation.getValue());
                 textInstances.add(textInstance);
 
                 if (addAnnotation) {
-                    removeAnnotations.add(wrongAnnotation.getEntity());
+                    removeAnnotations.add(wrongAnnotation.getValue());
                 }
             }
             LOGGER.info(removeAnnotations.size() + " annotations need to be completely removed");
@@ -667,7 +667,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     }
                 }
             } else {
-                CategoryEntries results = entityClassifier.classify(annotation.getEntity(), annotationModel);
+                CategoryEntries results = entityClassifier.classify(annotation.getValue(), annotationModel);
                 if (hasAssignedType(results)) {
                     annotation.setTags(results);
                     annotations.add(annotation);
@@ -692,7 +692,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         int i = 1;
         for (Annotation annotation : entityCandidates) {
 
-            CategoryEntries results = entityClassifier.classify(annotation.getEntity(), annotationModel);
+            CategoryEntries results = entityClassifier.classify(annotation.getValue(), annotationModel);
             if (hasAssignedType(results)) {
                 annotation.setTags(results);
                 annotations.add(annotation);
@@ -757,7 +757,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             stopWatch.start();
             int c = 0;
             for (Annotation annotation : annotations) {
-                if (containsDateFragment(annotation.getEntity())) {
+                if (containsDateFragment(annotation.getValue())) {
                     toRemove.add(annotation);
                     c++;
                 }
@@ -771,12 +771,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             int c = 0;
             for (Annotation annotation : annotations) {
 
-                Object[] result = removeDateFragment(annotation.getEntity());
+                Object[] result = removeDateFragment(annotation.getValue());
                 String entity = (String) result[0];
 
                 annotation.setEntity(entity);
-                annotation.setOffset(annotation.getOffset() + (Integer) result[1]);
-                annotation.setLength(annotation.getEntity().length());
+                annotation.setOffset(annotation.getStartPosition() + (Integer) result[1]);
+                annotation.setLength(annotation.getValue().length());
 
                 if ((Integer) result[1] > 0) {
                     c++;
@@ -791,7 +791,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             for (String removeAnnotation : removeAnnotations) {
                 String removeName = removeAnnotation.toLowerCase();
                 for (Annotation annotation : annotations) {
-                    if (removeName.equals(annotation.getEntity().toLowerCase())) {
+                    if (removeName.equals(annotation.getValue().toLowerCase())) {
                         toRemove.add(annotation);
                     }
                 }
@@ -814,12 +814,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                  * // if the annotation is at the start of a sentence
                  * Boolean.valueOf(annotation.getNominalFeatures().get(0))
                  * &&
-                 */annotation.getEntity().indexOf(" ") == -1) {
+                 */annotation.getValue().indexOf(" ") == -1) {
 
                     double upperCaseToLowerCaseRatio = 2;
 
-                    // CategoryEntries ces = caseDictionary.get(tokenTermMap.get(annotation.getEntity().toLowerCase()));
-                    CategoryEntries ces = caseDictionary.getCategoryEntries(annotation.getEntity().toLowerCase());
+                    // CategoryEntries ces = caseDictionary.get(tokenTermMap.get(annotation.getValue().toLowerCase()));
+                    CategoryEntries ces = caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
                     if (ces != null && ces.iterator().hasNext()) {
                         double allUpperCase = 0.0;
                         double upperCase = 0.0;
@@ -848,7 +848,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     if (upperCaseToLowerCaseRatio <= 1) {
                         c++;
                         toRemove.add(annotation);
-                        LOGGER.debug("remove word using the case signature: " + annotation.getEntity() + " (ratio:"
+                        LOGGER.debug("remove word using the case signature: " + annotation.getValue() + " (ratio:"
                                 + upperCaseToLowerCaseRatio + ") | " + annotation.getRightContext());
                     }
 
@@ -868,13 +868,13 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             for (Annotation annotation : annotations) {
 
-                String tagNameBefore = annotation.getMostLikelyTagName();
+                String tagNameBefore = annotation.getTag();
 
                 applyContextAnalysis(annotation);
 
-                if (!annotation.getMostLikelyTagName().equalsIgnoreCase(tagNameBefore)) {
-                    LOGGER.debug("changed " + annotation.getEntity() + " from " + tagNameBefore + " to "
-                            + annotation.getMostLikelyTagName() + ", left context: " + annotation.getLeftContext()
+                if (!annotation.getTag().equalsIgnoreCase(tagNameBefore)) {
+                    LOGGER.debug("changed " + annotation.getValue() + " from " + tagNameBefore + " to "
+                            + annotation.getTag() + ", left context: " + annotation.getLeftContext()
                             + "____" + annotation.getRightContext());
                     changed++;
                 }
@@ -892,7 +892,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             for (Annotation annotation : annotations) {
 
-                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getEntity());
+                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getValue());
                 if (categoryEntries != null && categoryEntries.iterator().hasNext()) {
 
                     // get only the most likely concept
@@ -931,14 +931,14 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         for (Annotation annotation : annotations) {
 
             // remove all annotations with "DOCSTART- " in them because that is for format purposes
-            if (annotation.getEntity().toLowerCase().indexOf("docstart") > -1) {
+            if (annotation.getValue().toLowerCase().indexOf("docstart") > -1) {
                 toRemove.add(annotation);
                 continue;
             }
 
             // if all uppercase, try to find known annotations
-            // if (StringHelper.isCompletelyUppercase(annotation.getEntity().substring(10,
-            // Math.min(12, annotation.getEntity().length())))) {
+            // if (StringHelper.isCompletelyUppercase(annotation.getValue().substring(10,
+            // Math.min(12, annotation.getValue().length())))) {
 
             if (unwrapEntities) {
                 Annotations wrappedAnnotations = unwrapAnnotations(annotation, annotations);
@@ -947,12 +947,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     for (Annotation annotation2 : wrappedAnnotations) {
                         if (hasAssignedType(annotation2.getTags())) {
                             toAdd.add(annotation2);
-                            // LOGGER.debug("add " + annotation2.getEntity());
+                            // LOGGER.debug("add " + annotation2.getValue());
                         }
                     }
-                    String debugString = "tried to unwrap again " + annotation.getEntity();
+                    String debugString = "tried to unwrap again " + annotation.getValue();
                     for (Annotation wrappedAnnotation : wrappedAnnotations) {
-                        debugString += " | " + wrappedAnnotation.getEntity();
+                        debugString += " | " + wrappedAnnotation.getValue();
                     }
                     debugString += "\n";
                     LOGGER.debug(debugString);
@@ -978,7 +978,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                         continue;
                     }
 
-                    String entity = annotation.getEntity();
+                    String entity = annotation.getValue();
 
                     int index1 = entity.indexOf(leftContext + " ");
                     int index2 = entity.indexOf(" " + leftContext + " ");
@@ -994,29 +994,29 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                     if (index1 == 0 || index2 > -1) {
 
                         // get the annotation after the index
-                        Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + length,
-                                annotation.getEntity().substring(index + length), annotation.getMostLikelyTagName());
+                        Annotation wrappedAnnotation = new Annotation(annotation.getStartPosition() + index + length,
+                                annotation.getValue().substring(index + length), annotation.getTag());
                         toAdd.add(wrappedAnnotation);
 
                         // search for a known instance in the prefix
                         // go through the entity dictionary
                         for (String term : entityDictionary.getTerms()) {
 
-                            int indexPrefix = annotation.getEntity().substring(0, index + length).indexOf(term + " ");
+                            int indexPrefix = annotation.getValue().substring(0, index + length).indexOf(term + " ");
                             if (indexPrefix > -1 && term.length() > 2) {
-                                Annotation wrappedAnnotation2 = new Annotation(annotation.getOffset() + indexPrefix,
+                                Annotation wrappedAnnotation2 = new Annotation(annotation.getStartPosition() + indexPrefix,
                                         term,
                                         entityDictionary.getCategoryEntries(term).getMostLikelyCategory());
                                 toAdd.add(wrappedAnnotation2);
                                 
-                                LOGGER.debug("add from prefix " + wrappedAnnotation2.getEntity());
+                                LOGGER.debug("add from prefix " + wrappedAnnotation2.getValue());
                                 break;
                             }
 
                         }
 
                         toRemove.add(annotation);
-                        LOGGER.debug("add " + wrappedAnnotation.getEntity() + ", delete " + annotation.getEntity()
+                        LOGGER.debug("add " + wrappedAnnotation.getValue() + ", delete " + annotation.getValue()
                                 + " (left context:" + leftContext + ", " + leftContextEntry.getValue() + ")");
 
                         break;
@@ -1077,17 +1077,17 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Annotation lastCombinedAnnotation = null;
 
         for (Annotation annotation : annotations) {
-            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("o")
-                    && annotation.getMostLikelyTagName().equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())
-                    && annotation.getOffset() == lastAnnotation.getEndIndex() + 1) {
+            if (!annotation.getTag().equalsIgnoreCase("o")
+                    && annotation.getTag().equalsIgnoreCase(lastAnnotation.getTag())
+                    && annotation.getStartPosition() == lastAnnotation.getEndPosition() + 1) {
 
                 if (lastCombinedAnnotation == null) {
                     lastCombinedAnnotation = lastAnnotation;
                 }
 
-                Annotation combinedAnnotation = new Annotation(lastCombinedAnnotation.getOffset(),
-                        lastCombinedAnnotation.getEntity() + " " + annotation.getEntity(),
-                        annotation.getMostLikelyTagName());
+                Annotation combinedAnnotation = new Annotation(lastCombinedAnnotation.getStartPosition(),
+                        lastCombinedAnnotation.getValue() + " " + annotation.getValue(),
+                        annotation.getTag());
                 combinedAnnotations.add(combinedAnnotation);
                 lastCombinedAnnotation = combinedAnnotation;
                 combinedAnnotations.remove(lastCombinedAnnotation);
@@ -1102,7 +1102,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // remove all "O"
         Annotations cleanAnnotations = new Annotations();
         for (Annotation annotation : combinedAnnotations) {
-            if (!annotation.getMostLikelyTagName().equalsIgnoreCase("o") && annotation.getLength() > 1) {
+            if (!annotation.getTag().equalsIgnoreCase("o") && annotation.getLength() > 1) {
                 cleanAnnotations.add(annotation);
             }
         }
@@ -1358,7 +1358,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             int inside = 0;
 
             for (Annotation annotation : annotations) {
-                if (annotation.getEntity().startsWith(leftContext + " ") || annotation.getEntity().equals(leftContext)) {
+                if (annotation.getValue().startsWith(leftContext + " ") || annotation.getValue().equals(leftContext)) {
                     inside++;
                 }
             }
@@ -1497,38 +1497,38 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     private Annotations unwrapAnnotations(Annotation annotation, Annotations annotations) {
         Annotations unwrappedAnnotations = new Annotations();
 
-        boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getEntity());
+        boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
 
         if (!isAllUppercase) {
             return unwrappedAnnotations;
         }
 
-        String entityName = annotation.getEntity().toLowerCase();
+        String entityName = annotation.getValue().toLowerCase();
         int length = entityName.length();
 
         // annotations.sortByLength();
 
         for (Annotation currentAnnotation : annotations) {
             if (currentAnnotation.getLength() < length) {
-                int index = entityName.indexOf(" " + currentAnnotation.getEntity().toLowerCase() + " ");
-                if (index > -1 && currentAnnotation.getEntity().length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, currentAnnotation.getEntity(),
-                            currentAnnotation.getMostLikelyTagName());
+                int index = entityName.indexOf(" " + currentAnnotation.getValue().toLowerCase() + " ");
+                if (index > -1 && currentAnnotation.getValue().length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getStartPosition() + index + 1, currentAnnotation.getValue(),
+                            currentAnnotation.getTag());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
-                index = entityName.indexOf(currentAnnotation.getEntity().toLowerCase() + " ");
-                if (index == 0 && currentAnnotation.getEntity().length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index, currentAnnotation.getEntity(),
-                            currentAnnotation.getMostLikelyTagName());
+                index = entityName.indexOf(currentAnnotation.getValue().toLowerCase() + " ");
+                if (index == 0 && currentAnnotation.getValue().length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getStartPosition() + index, currentAnnotation.getValue(),
+                            currentAnnotation.getTag());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
-                index = entityName.indexOf(" " + currentAnnotation.getEntity().toLowerCase());
-                if (index == entityName.length() - currentAnnotation.getEntity().length() - 1
-                        && currentAnnotation.getEntity().length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, currentAnnotation.getEntity(),
-                            currentAnnotation.getMostLikelyTagName());
+                index = entityName.indexOf(" " + currentAnnotation.getValue().toLowerCase());
+                if (index == entityName.length() - currentAnnotation.getValue().length() - 1
+                        && currentAnnotation.getValue().length() > 2) {
+                    Annotation wrappedAnnotation = new Annotation(annotation.getStartPosition() + index + 1, currentAnnotation.getValue(),
+                            currentAnnotation.getTag());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
             }
@@ -1541,19 +1541,19 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
                 CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
                 String mostLikelyCategory = categoryEntries.getMostLikelyCategory();
                 if (index > -1 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory);
+                    Annotation wrappedAnnotation = new Annotation(annotation.getStartPosition() + index + 1, term, mostLikelyCategory);
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
                 index = entityName.indexOf(term.toLowerCase() + " ");
                 if (index == 0 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index, term, mostLikelyCategory);
+                    Annotation wrappedAnnotation = new Annotation(annotation.getStartPosition() + index, term, mostLikelyCategory);
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
 
                 index = entityName.indexOf(" " + term.toLowerCase());
                 if (index == entityName.length() - term.length() - 1 && term.length() > 2) {
-                    Annotation wrappedAnnotation = new Annotation(annotation.getOffset() + index + 1, term, mostLikelyCategory);
+                    Annotation wrappedAnnotation = new Annotation(annotation.getStartPosition() + index + 1, term, mostLikelyCategory);
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
             }

@@ -11,13 +11,13 @@ import java.util.Set;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.pos.PosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -572,7 +572,7 @@ public class WordTransformer {
         return getTense(string, posTagger.tag(string));
     }
     
-    public static EnglishTense getTense(String string, TagAnnotations posTags) {
+    public static EnglishTense getTense(String string, List<Annotated> annotations) {
     
         string = string.toLowerCase();
         
@@ -589,19 +589,24 @@ public class WordTransformer {
         boolean isAreFound = (StringHelper.containsWord("is", string) || StringHelper.containsWord("are", string));
         boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
         
-        if (posTags.containTag("VBD") && !isAreFound) {
+        Set<String> posTags = CollectionHelper.newHashSet();
+        for (Annotated a : annotations) {
+            posTags.add(a.getTag());
+        }
+        
+        if (posTags.contains("VBD") && !isAreFound) {
             return EnglishTense.SIMPLE_PAST;
         }
         
-        if (posTags.containTag("HVD") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+        if (posTags.contains("HVD") && (posTags.contains("VBN") || posTags.contains("HVN"))) {
             return EnglishTense.PAST_PERFECT;
         }
         
-        if (posTags.containTag("HV") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+        if (posTags.contains("HV") && (posTags.contains("VBN") || posTags.contains("HVN"))) {
             return EnglishTense.PRESENT_PERFECT;
         }
         
-        if (posTags.containTag("VBN") && !isAreFound) {
+        if (posTags.contains("VBN") && !isAreFound) {
             return EnglishTense.PRESENT_PERFECT;
         }
         
