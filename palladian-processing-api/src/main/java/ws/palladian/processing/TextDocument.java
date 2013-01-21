@@ -13,7 +13,7 @@ package ws.palladian.processing;
  * @version 1.0
  * @since 0.1.8
  */
-public final class TextDocument extends PipelineDocument<String> {
+public class TextDocument extends PipelineDocument<String> {
 
     /**
      * <p>

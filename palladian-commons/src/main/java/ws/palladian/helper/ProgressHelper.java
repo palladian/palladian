@@ -106,23 +106,29 @@ public final class ProgressHelper {
         stringBuilder.append('[');
         int scaledPercent = (int)Math.round(percent / 2);
         stringBuilder.append(StringUtils.repeat(PROGRESS_CHAR, scaledPercent));
-        stringBuilder.append(StringUtils.repeat(' ', 50 - scaledPercent));
+        stringBuilder.append(StringUtils.repeat(' ', Math.max(50 - scaledPercent, 0)));
         stringBuilder.append(']');
         return stringBuilder.toString();
     }
-    
+
     public static void printProgress(long counter, long totalCount, double showEveryPercent) {
-        System.out.println(getProgress(counter, totalCount, showEveryPercent));
+        String progress = getProgress(counter, totalCount, showEveryPercent);
+        if (!progress.isEmpty()) {
+            System.out.println(progress);
+        }
     }
-    
+
     public static void printProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
-        System.out.println(getProgress(counter, totalCount, showEveryPercent, stopWatch));
+        String progress = getProgress(counter, totalCount, showEveryPercent, stopWatch);
+        if (!progress.isEmpty()) {
+            System.out.println(progress);
+        }
     }
-    
+
     public static String getProgress(long counter, long totalCount, double showEveryPercent) {
         return getProgress(counter, totalCount, showEveryPercent, null);
     }
-    
+
     public static String getProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
         StringBuilder processString = new StringBuilder();
         try {
@@ -144,6 +150,8 @@ public final class ProgressHelper {
             }
         } catch (ArithmeticException e) {
             // LOGGER.error(e.getMessage());
+        } catch (Exception e) {
+
         }
         return processString.toString();
     }
@@ -162,7 +170,7 @@ public final class ProgressHelper {
         double showEvery = .5;
 
         for (int i = 1; i <= totalCount; i++) {
-            ProgressHelper.showProgress(i, totalCount, showEvery);
+            ProgressHelper.printProgress(i, totalCount, showEvery);
         }
 
     }

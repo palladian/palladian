@@ -23,6 +23,7 @@ import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
@@ -43,9 +44,11 @@ public final class Tokenizer {
     public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
     /** The RegExp used for sentence splitting. */
-    public static final String SENTENCE_SPLIT_REGEX = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc| sq| ft)((\\.|\\?|\\!)(”|\")(?=\\s[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|etc|bzw|ggf|z\\.B|u\\.s\\.w|u\\.a)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
-    private static final Pattern SENTENCE_SPLIT_PATTERN = Pattern.compile(SENTENCE_SPLIT_REGEX);
+    private static final Pattern SENTENCE_SPLIT_PATTERN_EN = Pattern.compile(SENTENCE_SPLIT_REGEX_EN);
+    private static final Pattern SENTENCE_SPLIT_PATTERN_DE = Pattern.compile(SENTENCE_SPLIT_REGEX_DE);
 
     /** The compiled pattern used for tokenization, using {@link Tokenizer#TOKEN_SPLIT_REGEX}. */
     public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
@@ -55,6 +58,11 @@ public final class Tokenizer {
     private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
     private static SmileyTagger smileyTagger = new SmileyTagger();
 
+    /**
+     * <p>
+     * Constructor is private since this a static utility class.
+     * </p>
+     */
     private Tokenizer() {
         // prevent instantiation.
     }
@@ -341,6 +349,10 @@ public final class Tokenizer {
         return nGrams;
     }
 
+    public static String getSentence(String string, int position) {
+        return getSentence(string, position, Language.ENGLISH);
+    }
+
     /**
      * <p>
      * Get the sentence in which the specified position is present.
@@ -350,10 +362,26 @@ public final class Tokenizer {
      * @param position The position in the sentence.
      * @return The whole sentence.
      */
-    public static String getSentence(String string, int position) {
+    public static String getSentence(String string, int position, Language language) {
         if (position < 0) {
             return string;
         }
+
+        // /////// XXX
+        List<String> sentences = getSentences(string, language);
+        String pickedSentence = "";
+        for (String sentence : sentences) {
+            int start = string.indexOf(sentence);
+            if (start <= position) {
+                pickedSentence = sentence;
+            } else {
+                break;
+            }
+        }
+        if (true) {
+            return pickedSentence;
+        }
+        // ////////
 
         String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
         String end = getPhraseToEndOfSentence(string.substring(position));
@@ -365,7 +393,15 @@ public final class Tokenizer {
     }
 
     public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
-        return getSentences(inputText, onlyRealSentences, SENTENCE_SPLIT_PATTERN);
+        return getSentences(inputText, onlyRealSentences, Language.ENGLISH);
+    }
+
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
+        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
+        if (language == Language.GERMAN) {
+            pattern = SENTENCE_SPLIT_PATTERN_DE;
+        }
+        return getSentences(inputText, onlyRealSentences, pattern);
     }
 
     /**
@@ -526,10 +562,31 @@ public final class Tokenizer {
      * </p>
      * 
      * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
     public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName) {
-        return getSentences(inputDocument, SENTENCE_SPLIT_PATTERN, featureName);
+        return getSentences(inputDocument, featureName, Language.ENGLISH);
+    }
+
+    /**
+     * <p>
+     * Splits the text of {@code inputDocument} into sentences. The text should be in the language provided as parameter
+     * {@code language}.
+     * </p>
+     * 
+     * @param inputDocument The {@link TextDocument} to split into sentences.
+     * @param featureName The name of the created {@link PositionAnnotation}s.
+     * @param language The language of the text to split into sentences.
+     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+     */
+    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName,
+            Language language) {
+        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
+        if (language == Language.GERMAN) {
+            pattern = SENTENCE_SPLIT_PATTERN_DE;
+        }
+        return getSentences(inputDocument, pattern, featureName);
     }
 
     // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
@@ -632,23 +689,33 @@ public final class Tokenizer {
             List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences, String featureName) {
         List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
 
-        int lastTransformedEndPosition = 0;
+        int lastOriginalEndPosition = 0;
         int lastEndPosition = 0;
         String mask = "PALLADIANMASK";
         Pattern maskPattern = Pattern.compile(mask);
         int maskLength = mask.length();
         int maskAnnotationIndex = 0;
         for (PositionAnnotation sentence : sentences) {
+            // The space between this and the last sentence is this sentences start position in the transformed text -
+            // the last sentences end position in the transformed text.
             int spaceBetweenSentences = sentence.getStartPosition() - lastEndPosition;
-            int transformedStartPosition = lastTransformedEndPosition + spaceBetweenSentences;
-            int currentOffset = transformedStartPosition - sentence.getStartPosition();
-            int transformedEndPosition = sentence.getEndPosition() + currentOffset;
+            // The start position of this sentence in the original text is the end position of the last sentence in the
+            // original text + the space between both sentences.
+            int originalStartPosition = lastOriginalEndPosition + spaceBetweenSentences;
+            // The current offset, which needs to be added to all numbers in the transformed sentence to get their
+            // original value is the start position in the original text - the sentences start position in the
+            // transformed text.
+            int currentOffset = originalStartPosition - sentence.getStartPosition();
+            // The temporal end position of this sentence in the original text is calculated by adding the offset to the
+            // end position in the transformed text. This is of course only true if their are no PALLADIANMASK elements
+            // in the text. Those are added below.
+            int originalEndPosition = sentence.getEndPosition() + currentOffset;
 
             // Search sentences for PALLADIANMASK
             Matcher maskMatcher = maskPattern.matcher(sentence.getValue());
             while (maskMatcher.find()) {
                 PositionAnnotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
-                transformedEndPosition += maskAnnotation.getValue().length() - maskLength;
+                originalEndPosition += maskAnnotation.getValue().length() - maskLength;
                 maskAnnotationIndex++;
                 // handle contained masks by jumping over them
                 // while (maskAnnotationIndex < maskAnnotations.size()
@@ -657,12 +724,12 @@ public final class Tokenizer {
                 // }
             }
 
-            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(transformedStartPosition,
-                    transformedEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, transformedStartPosition,
-                    transformedEndPosition, sentence.getIndex(), transformedValue);
+            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
+                    originalEndPosition));
+            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, originalStartPosition,
+                    originalEndPosition, sentence.getIndex(), transformedValue);
             ret.add(transformedSentence);
-            lastTransformedEndPosition = transformedEndPosition;
+            lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
         }
 
@@ -705,7 +772,11 @@ public final class Tokenizer {
      * @return The senteces as they appear in the text.
      */
     public static List<String> getSentences(String inputText) {
-        return getSentences(inputText, false);
+        return getSentences(inputText, Language.ENGLISH);
+    }
+
+    public static List<String> getSentences(String inputText, Language language) {
+        return getSentences(inputText, false, language);
     }
 
     /**
@@ -818,7 +889,8 @@ public final class Tokenizer {
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
                         && Character.isUpperCase(string.charAt(endIndex + 1))
-                        || StringHelper.isBracket(string.charAt(endIndex + 1)) || string.charAt(endIndex - 1) == '"';
+                        || StringHelper.isBracket(string.charAt(endIndex + 1))
+                        || (endIndex > 0 && string.charAt(endIndex - 1) == '"');
             }
             // two digits after period
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {

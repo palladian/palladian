@@ -64,10 +64,6 @@ public class FeedItem {
      */
     private Date correctedPublishedDate = null;
 
-    public FeedItem() {
-
-    }
-
     public int getId() {
         return id;
     }
@@ -302,25 +298,25 @@ public class FeedItem {
         this.pollTimestamp = pollTimestamp;
     }
 
-    /**
-     * <p>
-     * Free the memory because feed item objects might be held in memory. Rests everything to <code>null</code> except
-     * the dates {@link #published}, {@link #correctedPublishedDate}, {@link #httpDate} and the {@link #itemHash}. Use
-     * with caution :)
-     * </p>
-     * Usually used in case one wants to generate feed post statistics using all items a feed has--this number may
-     * exceed 10 million as seen in TUDCS6 dataset.
-     */
-    public final void freeMemory() {
-        added = null;
-        additionalData = null;
-        authors = null;
-        description = null;
-        feed = null;
-        link = null;
-        rawId = null;
-        text = null;
-        title = null;
-    }
+//    /**
+//     * <p>
+//     * Free the memory because feed item objects might be held in memory. Rests everything to <code>null</code> except
+//     * the dates {@link #published}, {@link #correctedPublishedDate}, {@link #httpDate} and the {@link #itemHash}. Use
+//     * with caution :)
+//     * </p>
+//     * Usually used in case one wants to generate feed post statistics using all items a feed has--this number may
+//     * exceed 10 million as seen in TUDCS6 dataset.
+//     */
+//    public final void freeMemory() {
+//        added = null;
+//        additionalData = null;
+//        authors = null;
+//        description = null;
+//        feed = null;
+//        link = null;
+//        rawId = null;
+//        text = null;
+//        title = null;
+//    }
 
 }

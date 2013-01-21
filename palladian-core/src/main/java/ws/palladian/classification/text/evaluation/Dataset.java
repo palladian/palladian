@@ -52,16 +52,16 @@ public class Dataset implements Serializable {
      */
     public Dataset(Dataset dataset) {
         super();
-//        try {
-//            PropertyUtils.copyProperties(this, dataset);
-//        } catch (IllegalAccessException e) {
-//            Logger.getRootLogger().error(e);
-//        } catch (InvocationTargetException e) {
-//            Logger.getRootLogger().error(e);
-//        } catch (NoSuchMethodException e) {
-//            Logger.getRootLogger().error(e);
-//        }
-        
+        //        try {
+        //            PropertyUtils.copyProperties(this, dataset);
+        //        } catch (IllegalAccessException e) {
+        //            Logger.getRootLogger().error(e);
+        //        } catch (InvocationTargetException e) {
+        //            Logger.getRootLogger().error(e);
+        //        } catch (NoSuchMethodException e) {
+        //            Logger.getRootLogger().error(e);
+        //        }
+
         this.name = dataset.name;
         this.path = dataset.path;
         this.rootPath = dataset.rootPath;
@@ -108,7 +108,11 @@ public class Dataset implements Serializable {
     }
 
     public void setRootPath(String rootPath) {
-        this.rootPath = FileHelper.addTrailingSlash(rootPath);
+        if (rootPath.isEmpty()) {
+            this.rootPath = "";
+        } else {
+            this.rootPath = FileHelper.addTrailingSlash(rootPath);
+        }
     }
 
     public void setSeparationString(String separationString) {
