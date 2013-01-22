@@ -1,6 +1,6 @@
 package ws.palladian.extraction.location;
 
-import java.util.Set;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,8 +25,8 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public Set<Location> retrieveLocations(String locationName) {
-        Set<Location> locations = CollectionHelper.newHashSet();
+    public List<Location> retrieveLocations(String locationName) {
+        List<Location> locations = CollectionHelper.newArrayList();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
         String url = "http://webknox.com/api/entities/search?entityName=" + UrlHelper.encodeParameter(locationName) + "&apiKey=" + apiKey;
@@ -56,7 +56,7 @@ public class WebKnoxLocationSource implements LocationSource {
                         JsonObjectWrapper fact = new JsonObjectWrapper(facts.getJSONObject(j));
                         String key = fact.getString("key");
                         String value = fact.getString("value");
-                        
+
                         if (key.equalsIgnoreCase("latitude")) {
                             location.setLatitude(Double.valueOf(value));
                         } else if (key.equalsIgnoreCase("longitude")) {
