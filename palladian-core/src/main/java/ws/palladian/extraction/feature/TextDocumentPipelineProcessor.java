@@ -24,7 +24,7 @@ public abstract class TextDocumentPipelineProcessor extends AbstractPipelineProc
             getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(textDocument);
         } else {
             throw new DocumentUnprocessableException("Unexpected document type: "
-                    + pipelineDocument.getClass().getSimpleName());
+                    + pipelineDocument.getClass().getSimpleName() + " in " + this.getClass().getName());
         }
     }
 
