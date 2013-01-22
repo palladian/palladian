@@ -85,14 +85,14 @@ public class PalladianLocationDetector {
             }
 
             // search entities by name
-            Set<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
+            List<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
 
             // get all entities that are locations
             for (Location location : retrievedLocations) {
 
-                    if (location.getName().equalsIgnoreCase(locationCandidate.getEntity()) && !skipWords.contains(location.getName())) {
-                        locationEntities.add(location);
-                    }
+                if (location.getName().equalsIgnoreCase(locationCandidate.getEntity()) && !skipWords.contains(location.getName())) {
+                    locationEntities.add(location);
+                }
             }
         }
 
