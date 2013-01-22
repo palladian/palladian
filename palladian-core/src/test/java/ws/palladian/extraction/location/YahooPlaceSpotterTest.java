@@ -19,7 +19,7 @@ public class YahooPlaceSpotterTest {
     public void testParse() throws Exception {
         String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("testText.txt"));
         String responseJson = FileHelper.readFileToString(ResourceHelper.getResourceFile("apiResponse/yahooPlaceSpotter.json"));
-        List<PositionAnnotation> annotations = YahooPlaceSpotter.parseJson(text, responseJson);
+        List<Location> annotations = YahooLocationExtractor.parseJson(text, responseJson);
         
         assertEquals(15, annotations.size());
         PositionAnnotation first = annotations.get(0);
@@ -35,7 +35,7 @@ public class YahooPlaceSpotterTest {
         
         text = "The Prime Minister of Mali Cheick Modibo Diarra resigns himself and his government on television after his arrest hours earlier by leaders of the recent Malian coup d'état. (AFP via The Telegraph) (BBC) (Reuters)";
         responseJson = FileHelper.readFileToString(ResourceHelper.getResourceFile("apiResponse/yahooPlaceSpotter2.json"));
-        annotations = YahooPlaceSpotter.parseJson(text, responseJson);
+        annotations = YahooLocationExtractor.parseJson(text, responseJson);
 
         assertEquals(2, annotations.size());
         assertEquals("Mali", annotations.get(0).getFeatureVector().getFeature(NominalFeature.class, "name").getValue());
