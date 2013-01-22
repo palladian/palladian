@@ -4,27 +4,35 @@ import java.util.Collection;
 import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.PositionAnnotation;
 
-public class Location {
+public class Location extends PositionAnnotation {
 
-    private Set<String> names;
+    private static final String LOCATION_ANNOTATION_NAME = "Location";
+    
+    private Set<String> names = CollectionHelper.newHashSet();
     private String type;
     private Double latitude;
     private Double longitude;
     private Integer population;
-
+    
     public Location() {
-        names = CollectionHelper.newHashSet();
+        // FIXME
+        super(LOCATION_ANNOTATION_NAME, 0, 1, 0, "");
+    }
+    
+    public Location(PositionAnnotation annotation) {
+        super(annotation);
     }
 
-    public String getName() {
+    public String getLocationName() {
         if (names.isEmpty()) {
             return "";
         }
-        return getNames().iterator().next();
+        return names.iterator().next();
     }
 
-    public Collection<String> getNames() {
+    public Collection<String> getLocationNames() {
         return names;
     }
 
@@ -66,6 +74,31 @@ public class Location {
 
     public void setPopulation(Integer population) {
         this.population = population;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Location [names=");
+        builder.append(names);
+        builder.append(", type=");
+        builder.append(type);
+        builder.append(", latitude=");
+        builder.append(latitude);
+        builder.append(", longitude=");
+        builder.append(longitude);
+        builder.append(", population=");
+        builder.append(population);
+        builder.append(", getStartPosition()=");
+        builder.append(getStartPosition());
+        builder.append(", getEndPosition()=");
+        builder.append(getEndPosition());
+        builder.append(", getName()=");
+        builder.append(getName());
+        builder.append(", getValue()=");
+        builder.append(getValue());
+        builder.append("]");
+        return builder.toString();
     }
 
 }

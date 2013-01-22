@@ -34,12 +34,13 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * @see <a href="http://developer.yahoo.com/boss/geo/">Yahoo! BOSS Geo Services</a>
  * @see <a href="http://developer.yahoo.com/boss/geo/docs/free_YQL.html">Non-Commercial usage of Yahoo Geo API's</a>
  */
-public class YahooPlaceSpotter {
+public class YahooLocationExtractor implements LocationExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(YahooPlaceSpotter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(YahooLocationExtractor.class);
 
-    public static List<PositionAnnotation> extract(String text) {
+    @Override
+    public List<Location> detectLocations(String text) {
 
         Map<String, String> headers = CollectionHelper.newHashMap();
         headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -66,7 +67,7 @@ public class YahooPlaceSpotter {
         }
         String response = HttpHelper.getStringContent(postResult);
 
-        List<PositionAnnotation> result;
+        List<Location> result;
         try {
             result = parseJson(text, response);
         } catch (JSONException e) {
@@ -76,8 +77,7 @@ public class YahooPlaceSpotter {
         return result;
     }
 
-    static List<PositionAnnotation> parseJson(String text, String response) throws JSONException {
-        List<PositionAnnotation> result = CollectionHelper.newArrayList();
+    static List<Location> parseJson(String text, String response) throws JSONException {
 
         JSONObject jsonResult = new JSONObject(response);
         JSONObject jsonObject = jsonResult.getJSONObject("query").getJSONObject("results").getJSONObject("matches");
@@ -114,7 +114,8 @@ public class YahooPlaceSpotter {
                 tempReferences.put(reference.getInt("start"), reference);
             }
         }
-
+        
+        List<Location> result = CollectionHelper.newArrayList();
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory("location", text);
         for (JSONObject referenceJson : tempReferences.values()) {
 
@@ -138,16 +139,17 @@ public class YahooPlaceSpotter {
             featureVector.add(new NominalFeature("type", type));
             featureVector.add(new NumericFeature("longitude", longitude));
             featureVector.add(new NumericFeature("latitude", latitude));
-            result.add(annotation);
+            result.add(new Location(annotation));
         }
         return result;
     }
 
     public static void main(String[] args) throws Exception {
+        LocationExtractor extractor = new YahooLocationExtractor();
         // String text = "They followed him to deepest Africa and found him there, in Timbuktu";
         String text = "The Prime Minister of Mali Cheick Modibo Diarra resigns himself and his government on television after his arrest hours earlier by leaders of the recent Malian coup d'état. (AFP via The Telegraph) (BBC) (Reuters)";
         // String text = FileHelper.readFileToString("src/test/resources/testText2.txt");
-        List<PositionAnnotation> list = extract(text);
+        List<Location> list = extractor.detectLocations(text);
         CollectionHelper.print(list);
     }
 
