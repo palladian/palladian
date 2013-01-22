@@ -87,7 +87,7 @@ public class PalladianLocationDetector implements LocationExtractor {
             }
 
             // search entities by name
-            Set<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
+            List<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
 
             // get all entities that are locations
             for (Location location : retrievedLocations) {
