@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -9,18 +8,18 @@ import ws.palladian.processing.features.PositionAnnotation;
 public class Location extends PositionAnnotation {
 
     private static final String LOCATION_ANNOTATION_NAME = "Location";
-    
-    private Set<String> names = CollectionHelper.newHashSet();
+
+    private List<String> names = CollectionHelper.newArrayList();
     private String type;
     private Double latitude;
     private Double longitude;
     private Integer population;
-    
+
     public Location() {
         // FIXME
         super(LOCATION_ANNOTATION_NAME, 0, 1, 0, "");
     }
-    
+
     public Location(PositionAnnotation annotation) {
         super(annotation);
     }
@@ -32,11 +31,19 @@ public class Location extends PositionAnnotation {
         return names.iterator().next();
     }
 
-    public Collection<String> getLocationNames() {
+    public List<String> getLocationNames() {
         return names;
     }
 
-    public void setNames(Set<String> names) {
+    /**
+     * <p>
+     * Set the name(s) of this location. Of multiple names exist, the primary name is per definitionem the first in the
+     * list.
+     * </p>
+     * 
+     * @param names
+     */
+    public void setNames(List<String> names) {
         this.names = names;
     }
 

@@ -4,10 +4,17 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.persistence.DatabaseManager;
 
-public class LocationDatabase extends DatabaseManager {
+public class LocationDatabase extends DatabaseManager implements LocationSource {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
 
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
@@ -17,13 +24,21 @@ public class LocationDatabase extends DatabaseManager {
         super(dataSource);
     }
 
-    public List<Location> getLocations(String locationName) {
+    @Override
+    public List<Location> retrieveLocations(String locationName) {
         return runQuery(new LocationRowConverter(), GET_LOCATION, locationName, locationName);
     }
 
-    public void addLocation(Location location) {
-        runInsertReturnId(ADD_LOCATION, location.getType(), location.getName(), location.getLongitude(),
+    @Override
+    public void save(Location location) {
+        runInsertReturnId(ADD_LOCATION, location.getType(), location.getLocationName(), location.getLongitude(),
                 location.getLatitude(), location.getPopulation());
+    }
+
+    public void truncate() {
+        LOGGER.warn("Truncating the database");
+        runUpdate("TRUNCATE TABLE locations");
+        runUpdate("TRUNCATE TABLE location_alternative_names");
     }
 
 }

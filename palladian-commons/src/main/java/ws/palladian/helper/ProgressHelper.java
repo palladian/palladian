@@ -56,14 +56,6 @@ public final class ProgressHelper {
     }
 
     /**
-     * 
-     * @param counter Counter for current iteration in a loop.
-     * @param totalCount The total number of iterations.
-     * @param showEveryPercent Specify how often to output the progress. Set to zero to output whith each iteration.
-     * @param logger A {@link Logger} for outputting the progress information. If <code>null</code>, the progress will
-     *            be sent to {@link System#out}.
-     * @param stopWatch A {@link StopWatch} which allows an approximation of the estimated time until completion.
-     * @return
      * @deprecated Use {@link #getProgress(long, long, double, StopWatch)} or {@link #printProgress(long, long, double, StopWatch)} instead.
      */
     @Deprecated
@@ -111,6 +103,15 @@ public final class ProgressHelper {
         return stringBuilder.toString();
     }
 
+    /**
+     * <p>
+     * Prints the current progress to the System's standard output.
+     * </p>
+     * 
+     * @param counter Counter for current iteration in a loop.
+     * @param totalCount The total number of iterations.
+     * @param showEveryPercent Specify how often to output the progress. Set to zero to output with each iteration.
+     */
     public static void printProgress(long counter, long totalCount, double showEveryPercent) {
         String progress = getProgress(counter, totalCount, showEveryPercent);
         if (!progress.isEmpty()) {
@@ -118,6 +119,16 @@ public final class ProgressHelper {
         }
     }
 
+    /**
+     * <p>
+     * Prints the current progress to the System's standard output.
+     * </p>
+     * 
+     * @param counter Counter for current iteration in a loop.
+     * @param totalCount The total number of iterations.
+     * @param showEveryPercent Specify how often to output the progress. Set to zero to output with each iteration.
+     * @param stopWatch A {@link StopWatch} which allows an approximation of the estimated time until completion.
+     */
     public static void printProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
         String progress = getProgress(counter, totalCount, showEveryPercent, stopWatch);
         if (!progress.isEmpty()) {
@@ -125,10 +136,32 @@ public final class ProgressHelper {
         }
     }
 
+    /**
+     * <p>
+     * Prints the current progress to the System's standard output.
+     * </p>
+     * 
+     * @param counter Counter for current iteration in a loop.
+     * @param totalCount The total number of iterations.
+     * @param showEveryPercent Specify how often to output the progress. Set to zero to output with each iteration.
+     * @return The current progress, or an empty string if no progress is to be generated.
+     */
     public static String getProgress(long counter, long totalCount, double showEveryPercent) {
         return getProgress(counter, totalCount, showEveryPercent, null);
     }
 
+    /**
+     * <p>
+     * Create a progress indicator, which can e.g. be supplied to a logger.
+     * </p>
+     * 
+     * @param counter Counter for current iteration in a loop.
+     * @param totalCount The total number of iterations.
+     * @param showEveryPercent Specify how often to output the progress. Set to zero to output with each iteration.
+     * @param stopWatch A {@link StopWatch} which allows an approximation of the estimated time until completion.
+     * @return The current progress, or an empty string if no progress is to be generated.
+     */
+    @SuppressWarnings("deprecation")
     public static String getProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
         StringBuilder processString = new StringBuilder();
         try {
