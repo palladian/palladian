@@ -99,6 +99,9 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
         if (apiKey != null && !apiKey.isEmpty()) {
             urlBuilder.append("&key=").append(apiKey);
         }
+        if (language != null) {
+            urlBuilder.append("&lr=").append(language.getIso6391());
+        }
         return urlBuilder.toString();
     }
 
@@ -118,33 +121,32 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
         }
 
         List<WebVideoResult> webResults = new ArrayList<WebVideoResult>();
+        String jsonString = HttpHelper.getStringContent(httpResult);
+
         try {
-            JsonObjectWrapper root = new JsonObjectWrapper(HttpHelper.getStringContent(httpResult));
+            JsonObjectWrapper root = new JsonObjectWrapper(jsonString);
             TOTAL_REQUEST_COUNT.incrementAndGet();
             JsonObjectWrapper feed = root.getJSONObject("feed");
 
             JSONArray entries = feed.getJSONArray("entry");
+            if (entries == null) {
+                return webResults;
+            }
 
             for (int i = 0; i < entries.length(); i++) {
-
                 JsonObjectWrapper entry = new JsonObjectWrapper(entries.getJSONObject(i));
                 String published = entry.get("published/$t", String.class);
-
                 String title = entry.get("title/$t", String.class);
                 String videoLink = entry.get("content/src", String.class);
                 Date date = parseDate(published);
                 String pageLink = getPageLink(entry.getJsonObject());
-
                 Integer runtime = entry.get("media$group/yt$duration/seconds", Integer.class);
                 Integer viewCount = entry.get("yt$statistics/viewCount", Integer.class);
-
                 String description = entry.get("media$group/media$description/$t", String.class);
-
                 String thumbnailUrl = entry.get("media$group/media$thumbnail[2]/url", String.class);
 
-                Double rating = null;
-
                 JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
+                Double rating = null;
                 if (ratingObject != null) {
                     int numDislikes = ratingObject.getInt("numDislikes");
                     int numLikes = ratingObject.getInt("numLikes");
@@ -159,6 +161,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                 if (runtime != null) {
                     rtLong = runtime.longValue();
                 }
+
                 WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, description, rtLong, date);
                 webResult.setViews(viewCount);
                 webResult.setRating(rating);
@@ -168,12 +171,11 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
                 if (webResults.size() >= resultCount) {
                     break;
                 }
-
             }
 
         } catch (Exception e) {
             throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + ": " + e.getMessage(), e);
+                    + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
 
         }
         return webResults;
