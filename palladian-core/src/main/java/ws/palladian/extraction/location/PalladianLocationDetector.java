@@ -23,7 +23,9 @@ import ws.palladian.helper.math.MathHelper;
  * @author David Urbansky
  * 
  */
-public class PalladianLocationDetector {
+public class PalladianLocationDetector implements LocationExtractor {
+    
+    private static final String API_KEY= "ubve84tz3498zncq84z59238bzv5389";
 
     // words that are unlikely to be a location
     private final Set<String> skipWords;
@@ -52,6 +54,7 @@ public class PalladianLocationDetector {
         skipWords.add("Parliament");
     }
 
+    @Override
     public List<Location> detectLocations(String text) {
 
         Set<String> locationConceptNames = new HashSet<String>();
@@ -69,9 +72,8 @@ public class PalladianLocationDetector {
         // get candidates which could be locations
         // Annotations taggedEntities = StringTagger.getTaggedEntities(text);
 
-
-        WebKnoxNer textResource = new WebKnoxNer("FIXME");
-        LocationSource locationSource = new WebKnoxLocationSource("FIXME");
+        WebKnoxNer textResource = new WebKnoxNer(API_KEY);
+        LocationSource locationSource = new WebKnoxLocationSource(API_KEY);
         Annotations taggedEntities = textResource.getAnnotations(text);
 
         Set<String> locationNames = new HashSet<String>();
@@ -85,14 +87,15 @@ public class PalladianLocationDetector {
             }
 
             // search entities by name
-            Set<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
+            List<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
 
             // get all entities that are locations
             for (Location location : retrievedLocations) {
 
-                    if (location.getName().equalsIgnoreCase(locationCandidate.getEntity()) && !skipWords.contains(location.getName())) {
-                        locationEntities.add(location);
-                    }
+                if (location.getLocationName().equalsIgnoreCase(locationCandidate.getEntity())
+                        && !skipWords.contains(location.getName())) {
+                    locationEntities.add(location);
+                }
             }
         }
 
