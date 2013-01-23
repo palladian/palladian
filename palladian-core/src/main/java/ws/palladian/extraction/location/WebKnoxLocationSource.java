@@ -75,4 +75,9 @@ public class WebKnoxLocationSource implements LocationSource {
 
         return locations;
     }
+
+    @Override
+    public void save(Location location) {
+        throw new UnsupportedOperationException("Read only!");
+    }
 }
