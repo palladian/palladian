@@ -1,9 +1,10 @@
 package ws.palladian.extraction.location;
 
-import java.util.Set;
+import java.util.List;
 
 public interface LocationSource {
 
-    Set<Location> retrieveLocations(String locationName);
+    List<Location> retrieveLocations(String locationName);
+    void save(Location location);
 
 }
