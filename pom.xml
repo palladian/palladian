@@ -108,7 +108,7 @@
 				<version>2.5</version>
 				<configuration>
 					<rulesets>
-						<ruleset>${project.parent.basedir}/dev/pmd_ruleset</ruleset>
+						<ruleset>${project.parent.basedir}/config/pmd_ruleset</ruleset>
 					</rulesets>
 					<targetJdk>1.6</targetJdk>
 				</configuration>

@@ -54,7 +54,7 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
-					<configLocation>${project.parent.basedir}/dev/checkstyle_config.xml</configLocation>
+					<configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
 					<excludes>**/*.java</excludes>
 				</configuration>
 			</plugin>

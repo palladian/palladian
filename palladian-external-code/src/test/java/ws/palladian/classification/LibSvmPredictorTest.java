@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.processing.features.FeatureVector;
@@ -26,9 +25,7 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public class LibSvmPredictorTest {
 
-    // TODO The predictor currently predicts the wrong class. I need to understand LibSvm better to fix thix.
     @Test
-    @Ignore
     public void test() {
         List<Instance> instances = new ArrayList<Instance>();
         FeatureVector featureVector1 = new FeatureVector();
@@ -36,7 +33,7 @@ public class LibSvmPredictorTest {
         featureVector1.add(new NumericFeature("b", 0.9));
         FeatureVector featureVector2 = new FeatureVector();
         featureVector2.add(new NominalFeature("a", "b"));
-        featureVector2.add(new NumericFeature("b", 0.2));
+        featureVector2.add(new NumericFeature("b", 0.1));
         Instance instance1 = new Instance("A", featureVector1);
         Instance instance2 = new Instance("B", featureVector2);
         instances.add(instance1);
@@ -47,7 +44,7 @@ public class LibSvmPredictorTest {
         normalFeaturePaths.add("b");
         List<String> sparseFeaturePaths = new ArrayList<String>();
 
-        LibSvmPredictor predictor = new LibSvmPredictor(normalFeaturePaths, sparseFeaturePaths);
+        LibSvmPredictor predictor = new LibSvmPredictor(1.0d, normalFeaturePaths, sparseFeaturePaths);
         LibSvmModel model = predictor.train(instances);
         Assert.assertThat(model, Matchers.is(Matchers.notNullValue()));
 
