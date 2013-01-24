@@ -40,6 +40,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
 
     private final List<String> normalFeaturePaths;
     private final List<String> sparseFeaturePaths;
+    private final double regularizationParameter;
 
     private Map<NominalFeature, List<String>> possibleNominalValues;
     private int currentIndex;
@@ -50,11 +51,31 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
      */
     private List<Instance> instances;
 
-    public LibSvmPredictor(List<String> normalFeaturePaths, List<String> sparseFeaturePaths) {
+    /**
+     * <p>
+     * Creates a new completely initialized {@link LibSvmPredictor} using a linear kernel. It can be used to either
+     * train a new model or classify unlabeled {@link FeatureVector}s.
+     * </p>
+     * 
+     * @param regularizationParameter The regularization parameter (in (0,infinity]); large values cause a low bias,
+     *            high variance classifier, while small ones cause high bias, low variance. The correct value can be
+     *            determined for example via grid search. This parameter is ignored for classification since the model
+     *            provides the value in this case. The parameter is often called "C" within the SVM optimization
+     *            formula.
+     * @param normalFeaturePaths The feature paths identifying the normal features, which should be considered for
+     *            training. This parameter is ignored for classification since the model provides the value in this
+     *            case.
+     * @param sparseFeaturePaths The feature paths identifying the sparse features, which should be considered for
+     *            training. This parameter is ignored for classification since the model provides the value in this
+     *            case.
+     */
+    public LibSvmPredictor(double regularizationParameter, List<String> normalFeaturePaths,
+            List<String> sparseFeaturePaths) {
         super();
 
         this.normalFeaturePaths = new ArrayList<String>(normalFeaturePaths);
         this.sparseFeaturePaths = new ArrayList<String>(sparseFeaturePaths);
+        this.regularizationParameter = regularizationParameter;
     }
 
     @Override
@@ -235,13 +256,13 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
     private svm_parameter getParameter() {
         svm_parameter ret = new svm_parameter();
         ret.svm_type = svm_parameter.C_SVC;
-        ret.kernel_type = svm_parameter.RBF;
+        ret.kernel_type = svm_parameter.LINEAR;
         ret.degree = 3;
         ret.gamma = 0;
         ret.coef0 = 0;
         ret.nu = 0.5;
         ret.cache_size = 100;
-        ret.C = 1;
+        ret.C = regularizationParameter;
         ret.eps = 1e-3;
         ret.p = 0.1;
         ret.shrinking = 1;
