@@ -377,7 +377,7 @@ public class HttpRetriever {
 
     public HttpResult execute(HttpRequest request) throws HttpException {
         HttpUriRequest httpRequest;
-        
+
         switch (request.getMethod()) {
             case GET:
                 httpRequest = new HttpGet(createUrl(request));
@@ -401,7 +401,7 @@ public class HttpRetriever {
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
         }
-        
+
         for (Entry<String, String> header : request.getHeaders().entrySet()) {
             httpRequest.setHeader(header.getKey(), header.getValue());
         }
@@ -524,75 +524,75 @@ public class HttpRetriever {
         return result;
     }
 
-//    /**
-//     * <p>
-//     * Get the HTTP headers for a URL by sending a HEAD request.
-//     * </p>
-//     * 
-//     * @param url the URL of the page to get the headers from.
-//     * @return map with the headers, or an empty map if an error occurred.
-//     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
-//     */
-//    @Deprecated
-//    public Map<String, List<String>> getHeaders(String url) {
-//        Map<String, List<String>> result;
-//        try {
-//            HttpResult httpResult = httpHead(url);
-//            result = httpResult.getHeaders();
-//        } catch (HttpException e) {
-//            LOGGER.debug(e);
-//            result = Collections.emptyMap();
-//        }
-//        return result;
-//    }
+    //    /**
+    //     * <p>
+    //     * Get the HTTP headers for a URL by sending a HEAD request.
+    //     * </p>
+    //     *
+    //     * @param url the URL of the page to get the headers from.
+    //     * @return map with the headers, or an empty map if an error occurred.
+    //     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
+    //     */
+    //    @Deprecated
+    //    public Map<String, List<String>> getHeaders(String url) {
+    //        Map<String, List<String>> result;
+    //        try {
+    //            HttpResult httpResult = httpHead(url);
+    //            result = httpResult.getHeaders();
+    //        } catch (HttpException e) {
+    //            LOGGER.debug(e);
+    //            result = Collections.emptyMap();
+    //        }
+    //        return result;
+    //    }
 
-//    /**
-//     * <p>
-//     * Get the HTTP response code of the given URL after sending a HEAD request.
-//     * </p>
-//     * 
-//     * @param url the URL of the page to check for response code.
-//     * @return the HTTP response code, or -1 if an error occurred.
-//     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
-//     */
-//    @Deprecated
-//    public int getResponseCode(String url) {
-//        int result;
-//        try {
-//            HttpResult httpResult = httpHead(url);
-//            result = httpResult.getStatusCode();
-//        } catch (HttpException e) {
-//            LOGGER.debug(e);
-//            result = -1;
-//        }
-//        return result;
-//    }
+    //    /**
+    //     * <p>
+    //     * Get the HTTP response code of the given URL after sending a HEAD request.
+    //     * </p>
+    //     *
+    //     * @param url the URL of the page to check for response code.
+    //     * @return the HTTP response code, or -1 if an error occurred.
+    //     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
+    //     */
+    //    @Deprecated
+    //    public int getResponseCode(String url) {
+    //        int result;
+    //        try {
+    //            HttpResult httpResult = httpHead(url);
+    //            result = httpResult.getStatusCode();
+    //        } catch (HttpException e) {
+    //            LOGGER.debug(e);
+    //            result = -1;
+    //        }
+    //        return result;
+    //    }
 
-//    /**
-//     * <p>
-//     * Gets the redirect URL from the HTTP "Location" header, if such exists.
-//     * </p>
-//     * 
-//     * @param url the URL to check for redirect.
-//     * @return redirected URL as String, or <code>null</code>.
-//     * @deprecated Use {@link #getRedirectUrls(String)} instead.
-//     */
-//    @Deprecated
-//    public String getRedirectUrl(String url) {
-//        // TODO should be changed to use HttpComponents
-//        String location = null;
-//        try {
-//            URL urlObject = new URL(url);
-//            URLConnection urlCon = urlObject.openConnection();
-//            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
-//            httpUrlCon.setInstanceFollowRedirects(false);
-//            location = httpUrlCon.getHeaderField("Location");
-//        } catch (IOException e) {
-//            LOGGER.error(e);
-//        }
-//
-//        return location;
-//    }
+    //    /**
+    //     * <p>
+    //     * Gets the redirect URL from the HTTP "Location" header, if such exists.
+    //     * </p>
+    //     *
+    //     * @param url the URL to check for redirect.
+    //     * @return redirected URL as String, or <code>null</code>.
+    //     * @deprecated Use {@link #getRedirectUrls(String)} instead.
+    //     */
+    //    @Deprecated
+    //    public String getRedirectUrl(String url) {
+    //        // TODO should be changed to use HttpComponents
+    //        String location = null;
+    //        try {
+    //            URL urlObject = new URL(url);
+    //            URLConnection urlCon = urlObject.openConnection();
+    //            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
+    //            httpUrlCon.setInstanceFollowRedirects(false);
+    //            location = httpUrlCon.getHeaderField("Location");
+    //        } catch (IOException e) {
+    //            LOGGER.error(e);
+    //        }
+    //
+    //        return location;
+    //    }
 
     /**
      * <p>
@@ -649,6 +649,10 @@ public class HttpRetriever {
                         if (ret.contains(url)) {
                             throw new HttpException("Detected redirect loop for \"" + url
                                     + "\". URLs collected so far: " + StringUtils.join(ret, ","));
+                        }
+
+                        if (!url.startsWith("http")) {
+                            break;
                         }
 
                         ret.add(url);
@@ -909,27 +913,27 @@ public class HttpRetriever {
         return statusCode;
     }
 
-//    /**
-//     * <p>
-//     * Download a binary file from specified URL to a given path.
-//     * </p>
-//     * 
-//     * @param url the URL to download from.
-//     * @param filePath the path where the downloaded contents should be saved to.
-//     * @return the file were the downloaded contents were saved to.
-//     * @author Martin Werner
-//     * @deprecated use {@link #downloadAndSave(String, String)} instead.
-//     */
-//    @Deprecated
-//    public static File downloadBinaryFile(String url, String filePath) {
-//        File file = null;
-//        HttpRetriever httpRetriever = new HttpRetriever();
-//        boolean success = httpRetriever.downloadAndSave(url, filePath);
-//        if (success) {
-//            file = new File(filePath);
-//        }
-//        return file;
-//    }
+    //    /**
+    //     * <p>
+    //     * Download a binary file from specified URL to a given path.
+    //     * </p>
+    //     *
+    //     * @param url the URL to download from.
+    //     * @param filePath the path where the downloaded contents should be saved to.
+    //     * @return the file were the downloaded contents were saved to.
+    //     * @author Martin Werner
+    //     * @deprecated use {@link #downloadAndSave(String, String)} instead.
+    //     */
+    //    @Deprecated
+    //    public static File downloadBinaryFile(String url, String filePath) {
+    //        File file = null;
+    //        HttpRetriever httpRetriever = new HttpRetriever();
+    //        boolean success = httpRetriever.downloadAndSave(url, filePath);
+    //        if (success) {
+    //            file = new File(filePath);
+    //        }
+    //        return file;
+    //    }
 
     // ////////////////////////////////////////////////////////////////
     // Configuration options
