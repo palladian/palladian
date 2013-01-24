@@ -24,13 +24,13 @@ import ws.palladian.helper.math.MathHelper;
  * 
  */
 public class PalladianLocationDetector implements LocationExtractor {
-    
-    private static final String API_KEY= "ubve84tz3498zncq84z59238bzv5389";
+
+    private static final String API_KEY = "ubve84tz3498zncq84z59238bzv5389";
 
     // words that are unlikely to be a location
-    private final Set<String> skipWords;
+    private static final Set<String> skipWords;
 
-    public PalladianLocationDetector() {
+    static {
         skipWords = new HashSet<String>();
         skipWords.add("Monday");
         skipWords.add("Tuesday");
@@ -57,12 +57,12 @@ public class PalladianLocationDetector implements LocationExtractor {
     @Override
     public List<Location> detectLocations(String text) {
 
-        Set<String> locationConceptNames = new HashSet<String>();
-        locationConceptNames.add("Country");
-        locationConceptNames.add("Nation");
-        locationConceptNames.add("County");
-        locationConceptNames.add("City");
-        locationConceptNames.add("Metropole");
+//        Set<String> locationConceptNames = new HashSet<String>();
+//        locationConceptNames.add("Country");
+//        locationConceptNames.add("Nation");
+//        locationConceptNames.add("County");
+//        locationConceptNames.add("City");
+//        locationConceptNames.add("Metropole");
 
         List<Location> locationEntities = CollectionHelper.newArrayList();
 
@@ -76,7 +76,7 @@ public class PalladianLocationDetector implements LocationExtractor {
         LocationSource locationSource = new WebKnoxLocationSource(API_KEY);
         Annotations taggedEntities = textResource.getAnnotations(text);
 
-        Set<String> locationNames = new HashSet<String>();
+//        Set<String> locationNames = new HashSet<String>();
 
         // try to find them in the database
         for (Annotation locationCandidate : taggedEntities) {
@@ -92,7 +92,7 @@ public class PalladianLocationDetector implements LocationExtractor {
             // get all entities that are locations
             for (Location location : retrievedLocations) {
 
-                if (location.getLocationName().equalsIgnoreCase(locationCandidate.getEntity())
+                if (location.getPrimaryName().equalsIgnoreCase(locationCandidate.getEntity())
                         && !skipWords.contains(location.getName())) {
                     locationEntities.add(location);
                 }
@@ -129,7 +129,7 @@ public class PalladianLocationDetector implements LocationExtractor {
 
             // check whether entity is a city and we have a country
             // boolean keepLocation = true;
-            if (location.getType().equalsIgnoreCase("city")) {
+            if (location.getType() == LocationType.CITY) {
                 cities.add(location);
                 if (citiesWithSameName.get(location.getName()) != null) {
                     citiesWithSameName.get(location.getName()).add(location);
@@ -140,13 +140,13 @@ public class PalladianLocationDetector implements LocationExtractor {
                 }
 
                 for (Location entity2 : locations) {
-                    if (entity2.getType().equalsIgnoreCase("country")
+                    if (entity2.getType() == LocationType.COUNTRY
                             && entity2.getName().equalsIgnoreCase(location.getName())) {
                         // keepLocation = false;
                         entitiesToRemove.add(location);
                     }
                 }
-            } else if (location.getType().equalsIgnoreCase("country")) {
+            } else if (location.getType() == LocationType.COUNTRY) {
                 countries.add(location);
             }
 

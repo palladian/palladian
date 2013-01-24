@@ -1,9 +1,11 @@
 package ws.palladian.extraction.location;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,22 +17,62 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
-public class GeonamesImporter {
-    
+/**
+ * <p>
+ * This class reads data dumps from Geonames and imports them into a given {@link LocationSource}.
+ * </p>
+ * 
+ * @see <a href="http://download.geonames.org/export/dump/">Geonames dumps</a>
+ * @author Philipp Katz
+ */
+public final class GeonamesImporter {
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
 
+    /** Mapping from feature codes from the dataset to LocationType. */
+    private static final Map<String, LocationType> FEATURE_MAPPING;
+
+    static {
+        // TODO check, whether those mappings make sense
+        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        temp.put("A", LocationType.UNIT);
+        temp.put("H", LocationType.LANDMARK);
+        temp.put("L", LocationType.POI);
+        temp.put("P", LocationType.CITY);
+        temp.put("R", LocationType.POI);
+        temp.put("S", LocationType.POI);
+        temp.put("T", LocationType.LANDMARK);
+        temp.put("U", LocationType.LANDMARK);
+        temp.put("V", LocationType.POI);
+        FEATURE_MAPPING = Collections.unmodifiableMap(temp);
+    }
+
+    /**
+     * <p>
+     * Import a Geonames dump into the given {@link LocationSource}.
+     * </p>
+     * 
+     * @param filePath The path to the Geonames dump file, not <code>null</code>.
+     * @param locationSource The {@link LocationSource} where to store the data, not <code>null</code>.
+     */
     public static void importFromGeonames(File filePath, final LocationSource locationSource) {
-        LOGGER.info("Starting import from {}, storing to {}", filePath, locationSource);
-        
+        Validate.notNull(filePath, "filePath must not be null");
+        Validate.notNull(locationSource, "locationSource must not be null");
+
+        if (!filePath.isFile()) {
+            throw new IllegalArgumentException(filePath.getAbsolutePath() + " does not exist or is no file");
+        }
+
         final int totalLines = FileHelper.getNumberOfLines(filePath);
+        LOGGER.info("Starting import from {}, items to read {}", filePath, totalLines);
         final StopWatch stopWatch = new StopWatch();
         FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 Location location = parse(line);
                 locationSource.save(location);
-                ProgressHelper.printProgress(lineNumber, totalLines, 1, stopWatch);
+                LOGGER.info(ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch));
             }
         });
     }
@@ -60,8 +102,8 @@ public class GeonamesImporter {
      *   modification date : date of last modification in yyyy-MM-dd format
      * </pre>
      * 
-     * @param line
-     * @return
+     * @param line The line to parse, not <code>null</code>.
+     * @return The parser {@link Location}.
      */
     protected static Location parse(String line) {
         String[] parts = line.split("\\t");
@@ -69,37 +111,38 @@ public class GeonamesImporter {
             throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
                     + "('" + line + "')");
         }
-        
-        LOGGER.trace("Value array {}", Arrays.toString(parts));
-
-        // long id = Long.valueOf(parts[0]);
-        String name = parts[1];
-        String[] alternateNames = parts[3].split(",");
-        double latitude = Double.valueOf(parts[4]);
-        double longitude = Double.valueOf(parts[5]);
-        String featureClass = parts[6];
-        // String featureCode = parts[7];
-        // String countryCode = parts[8];
-        long population = Long.valueOf(parts[14]);
-        
-        List<String> names = CollectionHelper.newArrayList();
-        names.add(name);
-        names.addAll(Arrays.asList(alternateNames));
-
+        List<String> alternateNames = CollectionHelper.newArrayList();
+        for (String item : parts[3].split(",")) {
+            if (item.length() > 0) {
+                alternateNames.add(item);
+            }
+        }
         Location location = new Location();
-        location.setLongitude(longitude);
-        location.setLatitude(latitude);
-        location.setNames(names);
-        location.setPopulation((int)population);
-        // location.setValue(name);
-        location.setType(featureClass);
+        location.setLongitude(Double.valueOf(parts[5]));
+        location.setLatitude(Double.valueOf(parts[4]));
+        location.setPrimaryName(parts[1]);
+        location.setAlternativeNames(alternateNames);
+        location.setPopulation(Integer.valueOf(parts[14]));
+        location.setType(mapType(parts[6]));
         return location;
+    }
+
+    private static LocationType mapType(String featureClass) {
+        LocationType locationType = FEATURE_MAPPING.get(featureClass);
+        if (locationType == null) {
+            throw new IllegalArgumentException("Unknown featureClass " + featureClass);
+        }
+        return locationType;
+    }
+
+    private GeonamesImporter() {
+        // helper class.
     }
 
     public static void main(String[] args) {
         LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         locationSource.truncate();
-        importFromGeonames(new File("/Users/pk/Desktop/DE/DE.txt"), locationSource);
+        importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE/DE.txt"), locationSource);
     }
 
 }

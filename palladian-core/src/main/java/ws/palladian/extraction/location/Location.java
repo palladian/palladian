@@ -2,15 +2,17 @@ package ws.palladian.extraction.location;
 
 import java.util.List;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.PositionAnnotation;
 
 public class Location extends PositionAnnotation {
 
     private static final String LOCATION_ANNOTATION_NAME = "Location";
 
-    private List<String> names = CollectionHelper.newArrayList();
-    private String type;
+    private int id;
+
+    private String primaryName;
+    private List<String> alternativeNames;
+    private LocationType type;
     private Double latitude;
     private Double longitude;
     private Integer population;
@@ -24,38 +26,35 @@ public class Location extends PositionAnnotation {
         super(annotation);
     }
 
-    public String getLocationName() {
-        if (names.isEmpty()) {
-            return "";
-        }
-        return names.iterator().next();
+    public int getId() {
+        return id;
     }
 
-    public List<String> getLocationNames() {
-        return names;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    /**
-     * <p>
-     * Set the name(s) of this location. Of multiple names exist, the primary name is per definitionem the first in the
-     * list.
-     * </p>
-     * 
-     * @param names
-     */
-    public void setNames(List<String> names) {
-        this.names = names;
+    public String getPrimaryName() {
+        return primaryName;
     }
 
-    public void addName(String name) {
-        this.names.add(name);
+    public void setPrimaryName(String primaryName) {
+        this.primaryName = primaryName;
     }
 
-    public String getType() {
+    public List<String> getAlternativeNames() {
+        return alternativeNames;
+    }
+
+    public void setAlternativeNames(List<String> alternativeNames) {
+        this.alternativeNames = alternativeNames;
+    }
+
+    public LocationType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(LocationType type) {
         this.type = type;
     }
 
@@ -86,8 +85,12 @@ public class Location extends PositionAnnotation {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Location [names=");
-        builder.append(names);
+        builder.append("Location [id=");
+        builder.append(id);
+        builder.append(", primaryName=");
+        builder.append(primaryName);
+        builder.append(", alternativeNames=");
+        builder.append(alternativeNames);
         builder.append(", type=");
         builder.append(type);
         builder.append(", latitude=");
@@ -96,14 +99,6 @@ public class Location extends PositionAnnotation {
         builder.append(longitude);
         builder.append(", population=");
         builder.append(population);
-        builder.append(", getStartPosition()=");
-        builder.append(getStartPosition());
-        builder.append(", getEndPosition()=");
-        builder.append(getEndPosition());
-        builder.append(", getName()=");
-        builder.append(getName());
-        builder.append(", getValue()=");
-        builder.append(getValue());
         builder.append("]");
         return builder.toString();
     }

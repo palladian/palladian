@@ -1,7 +1,10 @@
 package ws.palladian.extraction.location;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
@@ -11,17 +14,24 @@ import ws.palladian.processing.features.PositionAnnotation;
 
 public class AlchemyLocationExtractor implements LocationExtractor {
 
-    private static final Set<String> LOCATION_TYPES = CollectionHelper.newHashSet();
-    private String apiKey;
-
+    private static final Map<String,LocationType> LOCATION_MAPPING;
+    
+    private final String apiKey;
+    
+    static {
+        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        temp.put("city", LocationType.CITY);
+        temp.put("country", LocationType.COUNTRY);
+        temp.put("facility", LocationType.POI);
+        temp.put("geographicfeature", LocationType.LANDMARK);
+        temp.put("region", LocationType.REGION);
+        temp.put("stateorcounty", LocationType.UNIT);
+        LOCATION_MAPPING = Collections.unmodifiableMap(temp);
+    }
+    
     public AlchemyLocationExtractor(String apiKey) {
+        Validate.notNull(apiKey, "apiKey must not be null");
         this.apiKey = apiKey;
-        LOCATION_TYPES.add("city");
-        LOCATION_TYPES.add("country");
-        LOCATION_TYPES.add("facility");
-        LOCATION_TYPES.add("geographicfeature");
-        LOCATION_TYPES.add("region");
-        LOCATION_TYPES.add("stateorcounty");
     }
 
     @Override
@@ -34,14 +44,14 @@ public class AlchemyLocationExtractor implements LocationExtractor {
 
         int index = 1;
         for (Annotation annotation : annotations) {
-            if (LOCATION_TYPES.contains(annotation.getMostLikelyTagName().toLowerCase())) {
+            if (LOCATION_MAPPING.containsKey(annotation.getMostLikelyTagName().toLowerCase())) {
 
                 // FIXME setPrimaryName and uncool positional annotation init, INDEX???
                 PositionAnnotation positionAnnotation = new PositionAnnotation("location", annotation.getOffset(),
                         annotation.getEndIndex(), index, annotation.getEntity());
                 Location location = new Location(positionAnnotation);
-                location.addName(annotation.getEntity());
-                location.setType(annotation.getMostLikelyTagName());
+                location.setPrimaryName(annotation.getEntity());
+                location.setType(LOCATION_MAPPING.get(annotation.getMostLikelyTagName()));
                 detectedLocations.add(location);
 
                 index++;

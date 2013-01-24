@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,11 +16,23 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 
 public class WebKnoxLocationSource implements LocationSource {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxLocationSource.class);
 
-    private String apiKey;
+    private static final Map<String, LocationType> LOCATION_MAPPING;
+
+    static {
+        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        temp.put("Country", LocationType.COUNTRY);
+        temp.put("Nation", LocationType.COUNTRY);
+        temp.put("County", LocationType.UNIT);
+        temp.put("City", LocationType.CITY);
+        temp.put("Metropole", LocationType.CITY);
+        LOCATION_MAPPING = Collections.unmodifiableMap(temp);
+    }
+
+    private final String apiKey;
 
     public WebKnoxLocationSource(String apiKey) {
         this.apiKey = apiKey;
@@ -29,10 +43,10 @@ public class WebKnoxLocationSource implements LocationSource {
         List<Location> locations = CollectionHelper.newArrayList();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
-        String url = "http://webknox.com/api/entities/search?entityName=" + UrlHelper.encodeParameter(locationName) + "&apiKey=" + apiKey;
-        LOGGER.debug("check " + url);
-        JSONArray locationCandidates = documentRetriever
-                .getJsonArray(url);
+        String url = "http://webknox.com/api/entities/search?entityName=" + UrlHelper.encodeParameter(locationName)
+                + "&apiKey=" + apiKey;
+        LOGGER.debug("check {}", url);
+        JSONArray locationCandidates = documentRetriever.getJsonArray(url);
         if (locationCandidates == null) {
             throw new IllegalStateException("Null return from DocumentRetriever");
         }
@@ -48,9 +62,9 @@ public class WebKnoxLocationSource implements LocationSource {
                     JsonObjectWrapper json = new JsonObjectWrapper(jsonObject);
 
                     Location location = new Location();
-                    location.addName(locationCandidate.getString("name"));
-                    location.setType(concept);
-                    
+                    location.setPrimaryName(locationCandidate.getString("name"));
+                    location.setType(LOCATION_MAPPING.get(concept));
+
                     JSONArray facts = json.getJSONArray("facts");
                     for (int j = 0; j < facts.length(); j++) {
                         JsonObjectWrapper fact = new JsonObjectWrapper(facts.getJSONObject(j));
