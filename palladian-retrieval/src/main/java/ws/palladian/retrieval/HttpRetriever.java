@@ -67,9 +67,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 
-// TODO remove deprecated methods, after dependent code has been adapted
-// TODO completely remove all java.net.* stuff
-
 /**
  * <p>
  * The {@link HttpRetriever} performs all HTTP specific operations within Palladian. This includes HTTP requests like
