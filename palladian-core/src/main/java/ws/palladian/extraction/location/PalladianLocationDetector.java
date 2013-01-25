@@ -217,10 +217,10 @@ public class PalladianLocationDetector implements LocationExtractor {
 
         try {
 
-            Double lat1 = Double.valueOf(city.getLatitude());
-            Double lng1 = Double.valueOf(city.getLongitude());
-            Double lat2 = Double.valueOf(country.getLatitude());
-            Double lng2 = Double.valueOf(country.getLongitude());
+            Double lat1 = city.getLatitude();
+            Double lng1 = city.getLongitude();
+            Double lat2 = country.getLatitude();
+            Double lng2 = country.getLongitude();
 
             distance = MathHelper.computeDistanceBetweenWorldCoordinates(lat1, lng1, lat2, lng2);
 

@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -32,6 +33,8 @@ final class DatasetCheck {
 
     public static void main(String[] args) {
         File[] datasetFiles = FileHelper.getFiles(DATASET_PATH, "text");
+        CountMap<String> assignedTags = CountMap.create();
+        
         for (File file : datasetFiles) {
             String filePath = file.getAbsolutePath();
             String stringContent = FileHelper.readFileToString(filePath);
@@ -60,8 +63,15 @@ final class DatasetCheck {
                 if (content.length() > 50) {
                     System.out.println(content + " seems rather long for an annotation");
                 }
+                
+                assignedTags.add(openingTag);
             }
 
+        }
+        
+        System.out.println("Assigned tags:");
+        for (String tag : assignedTags) {
+            System.out.println(tag + " " + assignedTags.getCount(tag));
         }
 
     }

@@ -1,9 +1,14 @@
 package ws.palladian.extraction.location;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -19,7 +24,8 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
- * This class reads data dumps from Geonames and imports them into a given {@link LocationSource}.
+ * This class reads data dumps from Geonames (usually you want to take the file "allCountries.zip") and imports them
+ * into a given {@link LocationSource}.
  * </p>
  * 
  * @see <a href="http://download.geonames.org/export/dump/">Geonames dumps</a>
@@ -53,28 +59,65 @@ public final class GeonamesImporter {
      * Import a Geonames dump into the given {@link LocationSource}.
      * </p>
      * 
-     * @param filePath The path to the Geonames dump file, not <code>null</code>.
+     * @param filePath The path to the Geonames dump ZIP file, not <code>null</code>.
      * @param locationSource The {@link LocationSource} where to store the data, not <code>null</code>.
+     * @throws IOException 
      */
-    public static void importFromGeonames(File filePath, final LocationSource locationSource) {
+    public static void importFromGeonames(File filePath, final LocationSource locationSource) throws IOException {
         Validate.notNull(filePath, "filePath must not be null");
         Validate.notNull(locationSource, "locationSource must not be null");
 
         if (!filePath.isFile()) {
             throw new IllegalArgumentException(filePath.getAbsolutePath() + " does not exist or is no file");
         }
-
-        final int totalLines = FileHelper.getNumberOfLines(filePath);
-        LOGGER.info("Starting import from {}, items to read {}", filePath, totalLines);
-        final StopWatch stopWatch = new StopWatch();
-        FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
-            @Override
-            public void performAction(String line, int lineNumber) {
-                Location location = parse(line);
-                locationSource.save(location);
-                LOGGER.info(ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch));
+        if (!filePath.getName().endsWith(".zip")) {
+            throw new IllegalArgumentException("Input data must be a ZIP file");
+        }
+        
+        // read directly from the ZIP file
+        ZipFile zipFile = null;
+        InputStream inputStream1 = null;
+        InputStream inputStream2 = null;
+        try {
+            zipFile = new ZipFile(filePath);
+            Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+            while (zipEntries.hasMoreElements()) {
+                ZipEntry currentEntry = zipEntries.nextElement();
+                if (currentEntry.getName().endsWith(".txt")) {
+                    LOGGER.info("Checking size of {}", currentEntry.getName());
+                    inputStream1 = zipFile.getInputStream(currentEntry);
+                    final int totalLines = FileHelper.getNumberOfLines(inputStream1);
+                    LOGGER.info("Starting import, items to read {}", filePath, totalLines);
+                    final StopWatch stopWatch = new StopWatch();
+                    inputStream2 = zipFile.getInputStream(currentEntry);
+                    FileHelper.performActionOnEveryLine(inputStream2, new LineAction() {
+                        @Override
+                        public void performAction(String line, int lineNumber) {
+                            Location location = parse(line);
+                            locationSource.save(location);
+                            String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
+                            if (progress.length() > 0) {
+                                LOGGER.info(progress);
+                            }
+                        }
+                    });
+                }
             }
-        });
+        } finally {
+            FileHelper.close(zipFile, inputStream1, inputStream2);
+        }
+
+//        final int totalLines = FileHelper.getNumberOfLines(filePath);
+//        LOGGER.info("Starting import from {}, items to read {}", filePath, totalLines);
+//        final StopWatch stopWatch = new StopWatch();
+//        FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
+//            @Override
+//            public void performAction(String line, int lineNumber) {
+//                Location location = parse(line);
+//                locationSource.save(location);
+//                LOGGER.info(ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch));
+//            }
+//        });
     }
 
     /**
@@ -130,7 +173,9 @@ public final class GeonamesImporter {
     private static LocationType mapType(String featureClass) {
         LocationType locationType = FEATURE_MAPPING.get(featureClass);
         if (locationType == null) {
-            throw new IllegalArgumentException("Unknown featureClass " + featureClass);
+            // throw new IllegalArgumentException("Unknown featureClass " + featureClass);
+            LOGGER.warn("Unknown feature class: {}", featureClass);
+            locationType = LocationType.UNDETERMINED;
         }
         return locationType;
     }
@@ -139,10 +184,11 @@ public final class GeonamesImporter {
         // helper class.
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         locationSource.truncate();
-        importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE/DE.txt"), locationSource);
+        // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE/DE.txt"), locationSource);
+        importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
     }
 
 }
