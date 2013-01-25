@@ -84,10 +84,10 @@ public final class GeonamesImporter {
             while (zipEntries.hasMoreElements()) {
                 ZipEntry currentEntry = zipEntries.nextElement();
                 if (currentEntry.getName().endsWith(".txt")) {
-                    LOGGER.info("Checking size of {}", currentEntry.getName());
+                    LOGGER.info("Checking size of {} in {}", currentEntry.getName(), filePath);
                     inputStream1 = zipFile.getInputStream(currentEntry);
                     final int totalLines = FileHelper.getNumberOfLines(inputStream1);
-                    LOGGER.info("Starting import, items to read {}", filePath, totalLines);
+                    LOGGER.info("Starting import, {} items to read", totalLines);
                     final StopWatch stopWatch = new StopWatch();
                     inputStream2 = zipFile.getInputStream(currentEntry);
                     FileHelper.performActionOnEveryLine(inputStream2, new LineAction() {
@@ -181,7 +181,7 @@ public final class GeonamesImporter {
         LocationType locationType = FEATURE_MAPPING.get(featureClass);
         if (locationType == null) {
             // throw new IllegalArgumentException("Unknown featureClass " + featureClass);
-            LOGGER.warn("Unknown feature class: {}", featureClass);
+            // LOGGER.warn("Unknown feature class: {}", featureClass);
             locationType = LocationType.UNDETERMINED;
         }
         return locationType;
@@ -194,7 +194,6 @@ public final class GeonamesImporter {
     public static void main(String[] args) throws IOException {
         LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         locationSource.truncate();
-        // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE/DE.txt"), locationSource);
         importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
     }
 
