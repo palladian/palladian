@@ -105,6 +105,13 @@ public final class FileHelper {
         BINARY_FILE_EXTENSIONS = Collections.unmodifiableList(binaryFileExtensions);
     }
     
+    /** A no-operation {@link LineAction}. Used for getting the number of lines. */
+    private static final LineAction NOP_LINE_ACTION = new LineAction() {
+        @Override
+        public void performAction(String line, int lineNumber) {
+        }
+    };
+    
     private FileHelper() {
         // prevent instantiation.
     }
@@ -1280,6 +1287,10 @@ public final class FileHelper {
 
         return new File[0];
     }
+    
+    public static int getNumberOfLines(InputStream inputStream) {
+        return performActionOnEveryLine(inputStream, NOP_LINE_ACTION);
+    }
 
     /**
      * <p>
@@ -1290,12 +1301,12 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(String fileName) {
-        LineAction la = new LineAction() {
-            @Override
-            public void performAction(String line, int lineNumber) {
-            }
-        };
-        return FileHelper.performActionOnEveryLine(fileName, la);
+//        LineAction la = new LineAction() {
+//            @Override
+//            public void performAction(String line, int lineNumber) {
+//            }
+//        };
+        return performActionOnEveryLine(fileName, NOP_LINE_ACTION);
     }
 
     /**
@@ -1307,7 +1318,7 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(File file) {
-        return FileHelper.getNumberOfLines(file.getPath());
+        return getNumberOfLines(file.getPath());
     }
 
     /**
