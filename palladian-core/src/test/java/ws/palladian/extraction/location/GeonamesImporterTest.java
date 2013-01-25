@@ -13,7 +13,7 @@ public class GeonamesImporterTest {
         assertEquals("Flein", location.getPrimaryName());
         assertEquals(49.10306, location.getLatitude(), 0);
         assertEquals(9.21083, location.getLongitude(), 0);
-        assertEquals(6558, (int)location.getPopulation());
+        assertEquals((Long) 6558l, location.getPopulation());
         
         line = "1529666\tBahnhof Grenzau\tBahnhof Grenzau\t\t50.45715\t7.66512\tS\tRSTN\tDE\t\t08\t\t\t\t0\t\t285\tEurope/Berlin\t2012-09-06";
         location = GeonamesImporter.parse(line);
