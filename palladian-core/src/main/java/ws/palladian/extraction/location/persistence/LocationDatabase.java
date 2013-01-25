@@ -42,7 +42,7 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
             location.setPrimaryName(resultSet.getString("name"));
             location.setLatitude(resultSet.getDouble("latitude"));
             location.setLongitude(resultSet.getDouble("longitude"));
-            location.setPopulation(resultSet.getInt("population"));
+            location.setPopulation(resultSet.getLong("population"));
             return location;
         }
     };

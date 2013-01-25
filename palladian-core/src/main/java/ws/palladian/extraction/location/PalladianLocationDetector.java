@@ -164,11 +164,11 @@ public class PalladianLocationDetector implements LocationExtractor {
                 Location closestCity = null;
                 double closestDistance = Integer.MAX_VALUE;
                 Location biggestCity = null;
-                int biggestPopulation = -1;
+                long biggestPopulation = -1;
                 for (Location city : citySet) {
 
                     // update biggest city
-                    int population = getPopulation(city);
+                    long population = getPopulation(city);
                     if (population > biggestPopulation) {
                         biggestCity = city;
                         biggestPopulation = population;
@@ -230,8 +230,8 @@ public class PalladianLocationDetector implements LocationExtractor {
         return distance;
     }
 
-    private int getPopulation(Location city) {
-        int population = -1;
+    private long getPopulation(Location city) {
+        long population = -1;
         population = city.getPopulation();
         return population;
     }

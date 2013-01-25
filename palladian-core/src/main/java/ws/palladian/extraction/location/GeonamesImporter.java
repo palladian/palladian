@@ -172,7 +172,7 @@ public final class GeonamesImporter {
         location.setLatitude(Double.valueOf(parts[4]));
         location.setPrimaryName(parts[1]);
         location.setAlternativeNames(alternateNames);
-        location.setPopulation(Integer.valueOf(parts[14]));
+        location.setPopulation(Long.valueOf(parts[14]));
         location.setType(mapType(parts[6]));
         return location;
     }

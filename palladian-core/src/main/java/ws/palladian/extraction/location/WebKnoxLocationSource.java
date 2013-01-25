@@ -76,7 +76,7 @@ public class WebKnoxLocationSource implements LocationSource {
                         } else if (key.equalsIgnoreCase("longitude")) {
                             location.setLongitude(Double.valueOf(value));
                         } else if (key.equalsIgnoreCase("population")) {
-                            location.setPopulation(Integer.valueOf(value));
+                            location.setPopulation(Long.valueOf(value));
                         }
                     }
 

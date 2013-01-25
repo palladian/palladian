@@ -15,7 +15,7 @@ public class Location extends PositionAnnotation {
     private LocationType type;
     private Double latitude;
     private Double longitude;
-    private Integer population;
+    private Long population;
 
     public Location() {
         // FIXME
@@ -74,11 +74,11 @@ public class Location extends PositionAnnotation {
         this.longitude = longitude;
     }
 
-    public Integer getPopulation() {
+    public Long getPopulation() {
         return population;
     }
 
-    public void setPopulation(Integer population) {
+    public void setPopulation(Long population) {
         this.population = population;
     }
 
