@@ -28,7 +28,8 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?";
-    private static final String GET_LOCATION = "SELECT * FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND (l.name = ? OR lan.alternativeName = ?) GROUP BY id";
+    // private static final String GET_LOCATION = "SELECT * FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND (l.name = ? OR lan.alternativeName = ?) GROUP BY id";
+    private static final String GET_LOCATION = "SELECT * FROM (SELECT * FROM locations WHERE name = ?) AS l, (SELECT * FROM location_alternative_names WHERE alternativeName = ?) AS lan WHERE l.id = lan.locationId GROUP BY id;";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT alternativeName FROM location_alternative_names WHERE locationId = ?";
 
     // ////////////////// row converts ////////////////////////////////////

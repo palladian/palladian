@@ -19,8 +19,9 @@ DROP TABLE IF EXISTS `location_alternative_names`;
 CREATE TABLE `location_alternative_names` (
   `locationId` bigint(20) unsigned NOT NULL COMMENT 'The id of the location.',
   `alternativeName` varchar(200) DEFAULT NULL COMMENT 'An alternative name used for the location.',
-  KEY `locationId` (`locationId`)
-) ENGINE=MyISAM AUTO_INCREMENT=10240108 DEFAULT CHARSET=utf8;
+  KEY `locationId` (`locationId`),
+  KEY `alternativeName` (`alternativeName`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `locations` */
 
@@ -37,7 +38,7 @@ CREATE TABLE `locations` (
   UNIQUE KEY `unique` (`type`,`name`,`longitude`,`latitude`),
   KEY `name` (`name`),
   KEY `type` (`type`)
-) ENGINE=MyISAM AUTO_INCREMENT=4490216 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
