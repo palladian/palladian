@@ -104,7 +104,14 @@ public final class GeonamesImporter {
                 }
             }
         } finally {
-            FileHelper.close(zipFile, inputStream1, inputStream2);
+            // FileHelper.close(zipFile, inputStream1, inputStream2);
+            if (zipFile != null) {
+                try {
+                    zipFile.close();
+                } catch (IOException e) {
+                }
+            }
+            FileHelper.close(inputStream1, inputStream2);
         }
 
 //        final int totalLines = FileHelper.getNumberOfLines(filePath);
