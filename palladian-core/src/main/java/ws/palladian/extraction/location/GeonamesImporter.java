@@ -41,15 +41,27 @@ public final class GeonamesImporter {
 
     static {
         // TODO check, whether those mappings make sense
+        // http://download.geonames.org/export/dump/featureCodes_en.txt
         Map<String, LocationType> temp = CollectionHelper.newHashMap();
-        temp.put("A", LocationType.UNIT);
+        temp.put("A", LocationType.COUNTRY);
+        temp.put("A.ADM1", LocationType.UNIT);
         temp.put("H", LocationType.LANDMARK);
         temp.put("L", LocationType.POI);
+        temp.put("L.AREA", LocationType.REGION);
+        temp.put("L.COLF", LocationType.REGION);
+        temp.put("L.CONT", LocationType.CONTINENT);
+        temp.put("L.RGN", LocationType.REGION);
+        temp.put("L.RGNE", LocationType.REGION);
+        temp.put("L.RGNH", LocationType.REGION);
+        temp.put("L.RGNL", LocationType.REGION);
         temp.put("P", LocationType.CITY);
         temp.put("R", LocationType.POI);
         temp.put("S", LocationType.POI);
         temp.put("T", LocationType.LANDMARK);
         temp.put("U", LocationType.LANDMARK);
+        temp.put("U.BDLU", LocationType.REGION);
+        temp.put("U.PLNU", LocationType.REGION);
+        temp.put("U.PRVU", LocationType.REGION);
         temp.put("V", LocationType.POI);
         FEATURE_MAPPING = Collections.unmodifiableMap(temp);
     }
@@ -163,16 +175,22 @@ public final class GeonamesImporter {
         location.setPrimaryName(primaryName);
         location.setAlternativeNames(alternateNames);
         location.setPopulation(Long.valueOf(parts[14]));
-        location.setType(mapType(parts[6]));
+        location.setType(mapType(parts[6], parts[7]));
         return location;
     }
 
-    private static LocationType mapType(String featureClass) {
-        LocationType locationType = FEATURE_MAPPING.get(featureClass);
-        if (locationType == null) {
-            locationType = LocationType.UNDETERMINED;
+    private static LocationType mapType(String featureClass, String featureCode) {
+        // first, try lookup by full feature code (e.g. 'L.CONT')
+        LocationType locationType = FEATURE_MAPPING.get(String.format("%s.%s", featureClass, featureCode));
+        if (locationType != null) {
+            return locationType;
         }
-        return locationType;
+        // second, try lookup only be feature class (e.g. 'A')
+        locationType = FEATURE_MAPPING.get(featureClass);
+        if (locationType != null) {
+            return locationType;
+        }
+        return LocationType.UNDETERMINED;
     }
 
     private GeonamesImporter() {
