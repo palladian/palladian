@@ -26,10 +26,10 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
 
     // ////////////////// location prepared statements ////////////////////
-    private static final String ADD_LOCATION = "INSERT INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
-    private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?";
-    // private static final String GET_LOCATION = "SELECT * FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND (l.name = ? OR lan.alternativeName = ?) GROUP BY id";
-    private static final String GET_LOCATION = "SELECT * FROM (SELECT * FROM locations WHERE name = ?) AS l, (SELECT * FROM location_alternative_names WHERE alternativeName = ?) AS lan WHERE l.id = lan.locationId GROUP BY id;";
+    // XXX using INSERT IGNORE to avoid lots of errors because of unique constraints
+    private static final String ADD_LOCATION = "INSERT IGNORE INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
+    private static final String ADD_ALTERNATIVE_NAME = "INSERT IGNORE INTO location_alternative_names SET locationId = ?, alternativeName = ?";
+    private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT alternativeName FROM location_alternative_names WHERE locationId = ?";
 
     // ////////////////// row converts ////////////////////////////////////
@@ -94,10 +94,10 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
         runUpdate("TRUNCATE TABLE locations");
         runUpdate("TRUNCATE TABLE location_alternative_names");
     }
-    
+
     public static void main(String[] args) {
         LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        for (String city : Arrays.asList("flein", "köln", "dresden")) {
+        for (String city : Arrays.asList("flein", "köln", "dresden", "norway")) {
             StopWatch stopWatch = new StopWatch();
             List<Location> locations = locationSource.retrieveLocations(city);
             CollectionHelper.print(locations);
