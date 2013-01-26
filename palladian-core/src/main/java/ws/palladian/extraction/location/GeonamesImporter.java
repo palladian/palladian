@@ -101,10 +101,10 @@ public final class GeonamesImporter {
                             }
                         }
                     });
+                    LOGGER.info("Finished importing in {}", stopWatch);
                 }
             }
         } finally {
-            // FileHelper.close(zipFile, inputStream1, inputStream2);
             if (zipFile != null) {
                 try {
                     zipFile.close();
@@ -113,18 +113,6 @@ public final class GeonamesImporter {
             }
             FileHelper.close(inputStream1, inputStream2);
         }
-
-//        final int totalLines = FileHelper.getNumberOfLines(filePath);
-//        LOGGER.info("Starting import from {}, items to read {}", filePath, totalLines);
-//        final StopWatch stopWatch = new StopWatch();
-//        FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//                Location location = parse(line);
-//                locationSource.save(location);
-//                LOGGER.info(ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch));
-//            }
-//        });
     }
 
     /**
@@ -161,16 +149,18 @@ public final class GeonamesImporter {
             throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
                     + "('" + line + "')");
         }
+        String primaryName = parts[1];
         List<String> alternateNames = CollectionHelper.newArrayList();
         for (String item : parts[3].split(",")) {
-            if (item.length() > 0) {
+            // do not add empty entries and names, which are already set as primary name
+            if (item.length() > 0 && !item.equals(primaryName)) {
                 alternateNames.add(item);
             }
         }
         Location location = new Location();
         location.setLongitude(Double.valueOf(parts[5]));
         location.setLatitude(Double.valueOf(parts[4]));
-        location.setPrimaryName(parts[1]);
+        location.setPrimaryName(primaryName);
         location.setAlternativeNames(alternateNames);
         location.setPopulation(Long.valueOf(parts[14]));
         location.setType(mapType(parts[6]));
@@ -180,8 +170,6 @@ public final class GeonamesImporter {
     private static LocationType mapType(String featureClass) {
         LocationType locationType = FEATURE_MAPPING.get(featureClass);
         if (locationType == null) {
-            // throw new IllegalArgumentException("Unknown featureClass " + featureClass);
-            // LOGGER.warn("Unknown feature class: {}", featureClass);
             locationType = LocationType.UNDETERMINED;
         }
         return locationType;
