@@ -3,7 +3,9 @@ package ws.palladian.extraction.location.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.sql.DataSource;
 
@@ -27,8 +29,8 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
 
     // ////////////////// location prepared statements ////////////////////
     // XXX using INSERT IGNORE to avoid lots of errors because of unique constraints
-    private static final String ADD_LOCATION = "INSERT IGNORE INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
-    private static final String ADD_ALTERNATIVE_NAME = "INSERT IGNORE INTO location_alternative_names SET locationId = ?, alternativeName = ?";
+    private static final String ADD_LOCATION = "INSERT INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
+    private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT alternativeName FROM location_alternative_names WHERE locationId = ?";
 
@@ -90,6 +92,9 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
     }
 
     public void truncate() {
+        System.out.println("Really truncate the location database?");
+        new Scanner(System.in).nextLine();
+        
         LOGGER.warn("Truncating the database");
         runUpdate("TRUNCATE TABLE locations");
         runUpdate("TRUNCATE TABLE location_alternative_names");
@@ -97,6 +102,19 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
 
     public static void main(String[] args) {
         LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        // Exception Incorrect string value: '\xC4\x81wi' for column 'name' at row 1 when performing SQL "INSERT INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?" with args "CITY,Aj Jenqāwi,31.2623,12.9076,0"
+
+        Location location = new Location();
+        location.setPrimaryName("Aj Jenqāwi");
+        location.setType(LocationType.CITY);
+        location.setLongitude(31.2623);
+        location.setLatitude(12.9076);
+        location.setPopulation(0l);
+        location.setAlternativeNames(Collections.<String>emptyList());
+        locationSource.save(location);
+        
+        System.exit(0);
+        
         for (String city : Arrays.asList("flein", "köln", "dresden", "norway")) {
             StopWatch stopWatch = new StopWatch();
             List<Location> locations = locationSource.retrieveLocations(city);

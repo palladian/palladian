@@ -43,8 +43,14 @@ public final class GeonamesImporter {
         // TODO check, whether those mappings make sense
         // http://download.geonames.org/export/dump/featureCodes_en.txt
         Map<String, LocationType> temp = CollectionHelper.newHashMap();
-        temp.put("A", LocationType.COUNTRY);
-        temp.put("A.ADM1", LocationType.UNIT);
+        temp.put("A", LocationType.UNIT);
+        temp.put("A.PCL", LocationType.COUNTRY);    
+        temp.put("A.PCLD", LocationType.COUNTRY);  
+        temp.put("A.PCLF", LocationType.COUNTRY); 
+        temp.put("A.PCLH", LocationType.COUNTRY);
+        temp.put("A.PCLI", LocationType.COUNTRY);    
+        temp.put("A.PCLIX", LocationType.COUNTRY); 
+        temp.put("A.PCLS", LocationType.COUNTRY);   
         temp.put("H", LocationType.LANDMARK);
         temp.put("L", LocationType.POI);
         temp.put("L.AREA", LocationType.REGION);
