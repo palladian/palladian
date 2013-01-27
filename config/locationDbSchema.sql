@@ -30,7 +30,7 @@ DROP TABLE IF EXISTS `locations`;
 CREATE TABLE `locations` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'The id of the location.',
   `type` varchar(50) NOT NULL COMMENT 'The type of the location.',
-  `name` varchar(255) CHARACTER SET latin1 NOT NULL COMMENT 'The primary name of the location.',
+  `name` varchar(255) NOT NULL COMMENT 'The primary name of the location.',
   `longitude` double(15,3) NOT NULL COMMENT 'The longitude of the location.',
   `latitude` double(15,3) NOT NULL COMMENT 'The latitude of the location.',
   `population` int(11) DEFAULT NULL COMMENT 'If applicable, the population of the location.',
