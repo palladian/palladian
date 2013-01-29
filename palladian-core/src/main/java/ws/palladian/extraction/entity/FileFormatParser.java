@@ -25,12 +25,12 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  */
 public class FileFormatParser {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
 
     /**
-     * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the conll 2003 file.
+     * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the ConLL 2003 file.
      * 
      * @param trainingFilePath The path to the training file.
      * @param separator The separator used.
@@ -584,7 +584,10 @@ public class FileFormatParser {
         // text <PERSON><PHONE>John <PERSON>J</PERSON></PHONE>. <PHONE>Smith</PHONE></PERSON> lives
 
         // get locations of annotations
-        Pattern pattern = Pattern.compile("<(.*?)>(.{1,1000}?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\<(.*?)(?:\\s.*?)?\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL
+                | Pattern.CASE_INSENSITIVE);
+        // Pattern pattern = Pattern.compile("\\<(.*?)(\\s.*?)\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL
+        // | Pattern.CASE_INSENSITIVE);
         // Pattern pattern = Pattern.compile("(?<=[.?!]\\s?)([A-Z][A-Za-z]*)", Pattern.DOTALL |
         // Pattern.CASE_INSENSITIVE);
 
@@ -628,7 +631,7 @@ public class FileFormatParser {
             Annotation annotation = new Annotation(offset, entityName, conceptName, annotations);
             annotation.setLeftContext(leftContext.trim());
             annotation.setRightContext(rightContext.trim());
-//            annotation.createFeatures();
+            //            annotation.createFeatures();
             annotations.add(annotation);
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
@@ -699,7 +702,10 @@ public class FileFormatParser {
         // "data/datasets/ner/taggedTextTestingColumn.tsv", "\t");
         // FileFormatParser.xmlToColumn("data/datasets/ner/all.xml", "data/datasets/ner/all.tsv", "\t");
         // FileFormatParser.columnToXML("data/datasets/ner/all.tsv", "data/datasets/ner/allBack.xml", "\t");
-        FileFormatParser.columnToXmlTokenBased("data/datasets/ner/all.tsv", "data/datasets/ner/allBack2.xml", "\t");
+        // FileFormatParser.columnToXmlTokenBased("data/datasets/ner/all.tsv", "data/datasets/ner/allBack2.xml", "\t");
+        String a = "asdfasdf <CITY role=\"main\">Dresden</CITY> asdfasdf asdf asdf <C>Berlin</C> asdfk <CITY>Berlin</CITY>";
+        // FileHelper.writeToFile("a.xml", a);
+        CollectionHelper.print(FileFormatParser.getAnnotationsFromXmlText(a));
         System.exit(0);
 
         FileFormatParser.columnToXml("data/temp/columnFormat.tsv", "data/temp/xmlFormat.xml", "\\t");
