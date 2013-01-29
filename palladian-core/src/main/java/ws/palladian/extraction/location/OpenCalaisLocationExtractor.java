@@ -4,33 +4,34 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.extraction.entity.tagger.AlchemyNer;
+import ws.palladian.extraction.entity.tagger.OpenCalaisNer;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public class AlchemyLocationExtractor extends WebBasedLocationExtractor {
+public class OpenCalaisLocationExtractor extends WebBasedLocationExtractor {
 
     static {
         Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        temp.put("continent", LocationType.CONTINENT);
         temp.put("city", LocationType.CITY);
         temp.put("country", LocationType.COUNTRY);
         temp.put("facility", LocationType.POI);
-        temp.put("geographicfeature", LocationType.LANDMARK);
+        temp.put("naturalfeature", LocationType.LANDMARK);
         temp.put("region", LocationType.REGION);
-        temp.put("stateorcounty", LocationType.UNIT);
+        temp.put("provinceorstate", LocationType.UNIT);
         LOCATION_MAPPING = Collections.unmodifiableMap(temp);
     }
 
-    public AlchemyLocationExtractor(String apiKey) {
-        super(new AlchemyNer(apiKey));
+    public OpenCalaisLocationExtractor(String apiKey) {
+        super(new OpenCalaisNer(apiKey));
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        AlchemyLocationExtractor alchemyLocationExtractor = new AlchemyLocationExtractor("get your own key");
+        OpenCalaisLocationExtractor alchemyLocationExtractor = new OpenCalaisLocationExtractor("get your own key");
         List<Location> detectedLocations = alchemyLocationExtractor
-                .detectLocations("Dresden and Berlin are cities in Germany which lies in Europe on planet Earth");
+                .detectLocations("Dresden (Saxony) and Berlin are cities in Germany which lies in Europe on planet Earth, the middle east is somewhere else");
         CollectionHelper.print(detectedLocations);
     }
 
