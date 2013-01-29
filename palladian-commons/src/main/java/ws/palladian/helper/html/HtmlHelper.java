@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -53,7 +54,7 @@ import ws.palladian.helper.UrlHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class HtmlHelper {
+public final class HtmlHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(HtmlHelper.class);
@@ -705,8 +706,10 @@ public class HtmlHelper {
             TransformerFactory factory = TRANSFORMER_FACTORIES.get();
             Transformer transformer = factory.newTransformer();
             if (omitXmlDeclaration) {
-                transformer.setOutputProperty("omit-xml-declaration", "yes");
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             }
+            // http://stackoverflow.com/questions/1409091/how-do-i-prevent-the-java-xml-transformer-using-html-method-from-adding-meta
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.transform(source, result);
             ret = stringWriter.toString();
         } catch (TransformerConfigurationException e) {
