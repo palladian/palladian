@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -75,7 +76,8 @@ public class FeatureSelectorTest {
 
     @Test
     public void testInformationGainFeatureExtraction() throws Exception {
-        Map<NominalFeature, Double> result = FeatureSelector.calculateInformationGain("testfeature", fixture);
+        Map<NominalFeature, Double> result = FeatureSelector.calculateInformationGain("testfeature",
+                NominalFeature.class, fixture);
 
         Assert.assertThat(result.get(new NominalFeature("testfeature", "d")),
                 Matchers.closeTo(0.6759197036979384, 0.001));
@@ -89,5 +91,26 @@ public class FeatureSelectorTest {
                 Matchers.closeTo(0.9638892693751062, 0.001));
         Assert.assertThat(result.get(new NominalFeature("testfeature", "e")),
                 Matchers.closeTo(0.9638892693751062, 0.001));
+    }
+
+    @Test
+    public void testNumericFeature() throws Exception {
+        List<Instance> dataset = new ArrayList<Instance>();
+        FeatureVector fV1 = new FeatureVector();
+        fV1.add(new NumericFeature("numeric", 1.0d));
+        Instance instance1 = new Instance("a", fV1);
+        dataset.add(instance1);
+        FeatureVector fV2 = new FeatureVector();
+        fV2.add(new NumericFeature("numeric", 2.0d));
+        Instance instance2 = new Instance("b", fV2);
+        dataset.add(instance2);
+        FeatureVector fV3 = new FeatureVector();
+        fV3.add(new NumericFeature("numeric", 3.0d));
+        Instance instance3 = new Instance("a", fV3);
+        dataset.add(instance3);
+
+        Map<NumericFeature, Double> result = FeatureSelector.calculateInformationGain("numeric", NumericFeature.class,
+                dataset);
+        System.out.println(result);
     }
 }
