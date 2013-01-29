@@ -3,10 +3,8 @@ package ws.palladian.extraction.location;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -36,41 +34,42 @@ public final class GeonamesImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
 
-    /** Mapping from feature codes from the dataset to LocationType. */
-    private static final Map<String, LocationType> FEATURE_MAPPING;
-
-    static {
-        // TODO check, whether those mappings make sense
-        // http://download.geonames.org/export/dump/featureCodes_en.txt
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
-        temp.put("A", LocationType.UNIT);
-        temp.put("A.PCL", LocationType.COUNTRY);    
-        temp.put("A.PCLD", LocationType.COUNTRY);  
-        temp.put("A.PCLF", LocationType.COUNTRY); 
-        temp.put("A.PCLH", LocationType.COUNTRY);
-        temp.put("A.PCLI", LocationType.COUNTRY);    
-        temp.put("A.PCLIX", LocationType.COUNTRY); 
-        temp.put("A.PCLS", LocationType.COUNTRY);   
-        temp.put("H", LocationType.LANDMARK);
-        temp.put("L", LocationType.POI);
-        temp.put("L.AREA", LocationType.REGION);
-        temp.put("L.COLF", LocationType.REGION);
-        temp.put("L.CONT", LocationType.CONTINENT);
-        temp.put("L.RGN", LocationType.REGION);
-        temp.put("L.RGNE", LocationType.REGION);
-        temp.put("L.RGNH", LocationType.REGION);
-        temp.put("L.RGNL", LocationType.REGION);
-        temp.put("P", LocationType.CITY);
-        temp.put("R", LocationType.POI);
-        temp.put("S", LocationType.POI);
-        temp.put("T", LocationType.LANDMARK);
-        temp.put("U", LocationType.LANDMARK);
-        temp.put("U.BDLU", LocationType.REGION);
-        temp.put("U.PLNU", LocationType.REGION);
-        temp.put("U.PRVU", LocationType.REGION);
-        temp.put("V", LocationType.POI);
-        FEATURE_MAPPING = Collections.unmodifiableMap(temp);
-    }
+//    /** Mapping from feature codes from the dataset to LocationType. */
+//    private static final Map<String, LocationType> FEATURE_MAPPING;
+//
+//    static {
+//        // TODO check, whether those mappings make sense
+//        // http://download.geonames.org/export/dump/featureCodes_en.txt
+//        // http://www.geonames.org/export/codes.html
+//        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+//        temp.put("A", LocationType.UNIT);
+//        temp.put("A.PCL", LocationType.COUNTRY);
+//        temp.put("A.PCLD", LocationType.COUNTRY);
+//        temp.put("A.PCLF", LocationType.COUNTRY);
+//        temp.put("A.PCLH", LocationType.COUNTRY);
+//        temp.put("A.PCLI", LocationType.COUNTRY);
+//        temp.put("A.PCLIX", LocationType.COUNTRY);
+//        temp.put("A.PCLS", LocationType.COUNTRY);
+//        temp.put("H", LocationType.LANDMARK);
+//        temp.put("L", LocationType.POI);
+//        temp.put("L.AREA", LocationType.REGION);
+//        temp.put("L.COLF", LocationType.REGION);
+//        temp.put("L.CONT", LocationType.CONTINENT);
+//        temp.put("L.RGN", LocationType.REGION);
+//        temp.put("L.RGNE", LocationType.REGION);
+//        temp.put("L.RGNH", LocationType.REGION);
+//        temp.put("L.RGNL", LocationType.REGION);
+//        temp.put("P", LocationType.CITY);
+//        temp.put("R", LocationType.POI);
+//        temp.put("S", LocationType.POI);
+//        temp.put("T", LocationType.LANDMARK);
+//        temp.put("U", LocationType.LANDMARK);
+//        temp.put("U.BDLU", LocationType.REGION);
+//        temp.put("U.PLNU", LocationType.REGION);
+//        temp.put("U.PRVU", LocationType.REGION);
+//        temp.put("V", LocationType.POI);
+//        FEATURE_MAPPING = Collections.unmodifiableMap(temp);
+//    }
 
     /**
      * <p>
@@ -79,7 +78,7 @@ public final class GeonamesImporter {
      * 
      * @param filePath The path to the Geonames dump ZIP file, not <code>null</code>.
      * @param locationSource The {@link LocationSource} where to store the data, not <code>null</code>.
-     * @throws IOException 
+     * @throws IOException
      */
     public static void importFromGeonames(File filePath, final LocationSource locationSource) throws IOException {
         Validate.notNull(filePath, "filePath must not be null");
@@ -91,7 +90,7 @@ public final class GeonamesImporter {
         if (!filePath.getName().endsWith(".zip")) {
             throw new IllegalArgumentException("Input data must be a ZIP file");
         }
-        
+
         // read directly from the ZIP file
         ZipFile zipFile = null;
         InputStream inputStream1 = null;
@@ -131,6 +130,51 @@ public final class GeonamesImporter {
             }
             FileHelper.close(inputStream1, inputStream2);
         }
+    }
+
+    /**
+     * <p>
+     * Import a Geonames hierarchy file.
+     * </p>
+     * 
+     * @param hierarchyFilePath The path to the hierarchy.txt file, not <code>null</code>.
+     * @param locationSource The {@link LocationSource} where to store the data, not <code>null</code>.
+     */
+    public static void importHierarchy(File hierarchyFilePath, final LocationSource locationSource) {
+        Validate.notNull(hierarchyFilePath, "hierarchyFilePath must not be null");
+        Validate.notNull(locationSource, "locationSource must not be null");
+
+        if (!hierarchyFilePath.isFile()) {
+            throw new IllegalArgumentException(hierarchyFilePath.getAbsolutePath() + " does not exist or is no file");
+        }
+        if (!hierarchyFilePath.getName().endsWith(".txt")) {
+            throw new IllegalArgumentException("Input data must be a TXT file");
+        }
+
+        final int numLines = FileHelper.getNumberOfLines(hierarchyFilePath);
+        final StopWatch stopWatch = new StopWatch();
+        LOGGER.info("Reading hierachy, {} lines to read", numLines);
+        FileHelper.performActionOnEveryLine(hierarchyFilePath.getAbsolutePath(), new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] split = line.split("\\s");
+                if (split.length < 2) {
+                    return;
+                }
+                int from = Integer.valueOf(split[0]);
+                int to = Integer.valueOf(split[1]);
+                String type = null;
+                if (split.length == 3) {
+                    type = split[2];
+                }
+                locationSource.addHierarchy(from, to, type);
+                String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
+                if (!progress.isEmpty()) {
+                    LOGGER.info(progress);
+                }
+            }
+        });
+        LOGGER.info("Finished import in {}", stopWatch);
     }
 
     /**
@@ -176,37 +220,41 @@ public final class GeonamesImporter {
             }
         }
         Location location = new Location();
+        location.setId(Integer.valueOf(parts[0]));
         location.setLongitude(Double.valueOf(parts[5]));
         location.setLatitude(Double.valueOf(parts[4]));
         location.setPrimaryName(primaryName);
         location.setAlternativeNames(alternateNames);
         location.setPopulation(Long.valueOf(parts[14]));
-        location.setType(mapType(parts[6], parts[7]));
+        location.setType(GeonamesLocationSource.mapType(parts[6], parts[7]));
         return location;
     }
 
-    private static LocationType mapType(String featureClass, String featureCode) {
-        // first, try lookup by full feature code (e.g. 'L.CONT')
-        LocationType locationType = FEATURE_MAPPING.get(String.format("%s.%s", featureClass, featureCode));
-        if (locationType != null) {
-            return locationType;
-        }
-        // second, try lookup only be feature class (e.g. 'A')
-        locationType = FEATURE_MAPPING.get(featureClass);
-        if (locationType != null) {
-            return locationType;
-        }
-        return LocationType.UNDETERMINED;
-    }
+//    private static LocationType mapType(String featureClass, String featureCode) {
+//        // first, try lookup by full feature code (e.g. 'L.CONT')
+//        LocationType locationType = FEATURE_MAPPING.get(String.format("%s.%s", featureClass, featureCode));
+//        if (locationType != null) {
+//            return locationType;
+//        }
+//        // second, try lookup only be feature class (e.g. 'A')
+//        locationType = FEATURE_MAPPING.get(featureClass);
+//        if (locationType != null) {
+//            return locationType;
+//        }
+//        return LocationType.UNDETERMINED;
+//    }
 
     private GeonamesImporter() {
         // helper class.
     }
 
     public static void main(String[] args) throws IOException {
+        // LocationSource locationSource = new MockLocationSource();
         LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        locationSource.truncate();
-        importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
+         locationSource.truncate();
+        // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
+        importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"), locationSource);
+         importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"), locationSource);
     }
 
 }

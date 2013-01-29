@@ -89,8 +89,8 @@ public class Location extends PositionAnnotation {
         builder.append(id);
         builder.append(", primaryName=");
         builder.append(primaryName);
-        builder.append(", alternativeNames=");
-        builder.append(alternativeNames);
+        // builder.append(", alternativeNames=");
+        // builder.append(alternativeNames);
         builder.append(", type=");
         builder.append(type);
         builder.append(", latitude=");
@@ -101,6 +101,28 @@ public class Location extends PositionAnnotation {
         builder.append(population);
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + id;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Location other = (Location)obj;
+        if (id != other.id)
+            return false;
+        return true;
     }
 
 }
