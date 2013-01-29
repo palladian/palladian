@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Set;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -12,8 +13,9 @@ import ws.palladian.helper.html.XPathHelper;
 
 public class PageAnalyzerTest {
 
-
     @Test
+    @Ignore
+    // FIXME
     public void testXPathConstruction_issue159() throws Exception {
         DocumentRetriever ret = new DocumentRetriever();
         Document wd = ret.getWebDocument("http://www.evi.com/q/who_starred_in_the_invisible_army");
