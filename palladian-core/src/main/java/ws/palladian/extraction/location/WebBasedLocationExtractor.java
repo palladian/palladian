@@ -9,7 +9,7 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.PositionAnnotation;
 
-public abstract class WebBasedLocationExtractor implements LocationExtractor {
+public abstract class WebBasedLocationExtractor extends LocationExtractor {
 
     private NamedEntityRecognizer ner;
     protected static Map<String, LocationType> LOCATION_MAPPING;
