@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -34,10 +35,43 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * @see <a href="http://developer.yahoo.com/boss/geo/">Yahoo! BOSS Geo Services</a>
  * @see <a href="http://developer.yahoo.com/boss/geo/docs/free_YQL.html">Non-Commercial usage of Yahoo Geo API's</a>
  */
-public class YahooLocationExtractor implements LocationExtractor {
+public class YahooLocationExtractor extends LocationExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YahooLocationExtractor.class);
+
+    public YahooLocationExtractor() {
+        setName("Yahoo Location Extractor");
+    }
+
+    @Override
+    public String getModelFileEnding() {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return false;
+    }
+
+    @Override
+    public boolean loadModel(String configModelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+        LOGGER.warn("the configModelFilePath is ignored");
+        return getAnnotations(inputText);
+    }
+
+    @Override
+    public boolean train(String trainingFilePath, String modelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
 
     @Override
     public List<Location> detectLocations(String text) {
@@ -114,7 +148,7 @@ public class YahooLocationExtractor implements LocationExtractor {
                 tempReferences.put(reference.getInt("start"), reference);
             }
         }
-        
+
         List<Location> result = CollectionHelper.newArrayList();
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory("location", text);
         for (JSONObject referenceJson : tempReferences.values()) {
