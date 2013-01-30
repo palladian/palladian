@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.tagger.OpenCalaisNer;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -23,6 +24,36 @@ public class OpenCalaisLocationExtractor extends WebBasedLocationExtractor {
 
     public OpenCalaisLocationExtractor(String apiKey) {
         super(new OpenCalaisNer(apiKey));
+        setName("Open Calais Location Extractor");
+    }
+
+    @Override
+    public String getModelFileEnding() {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return false;
+    }
+
+    @Override
+    public boolean loadModel(String configModelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+        LOGGER.warn("the configModelFilePath is ignored");
+        return getAnnotations(inputText);
+    }
+
+    @Override
+    public boolean train(String trainingFilePath, String modelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
     }
 
     /**

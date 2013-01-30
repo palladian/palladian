@@ -23,7 +23,7 @@ import ws.palladian.helper.math.MathHelper;
  * @author David Urbansky
  * 
  */
-public class PalladianLocationDetector implements LocationExtractor {
+public class PalladianLocationExtractor extends LocationExtractor {
 
     private static final String API_KEY = "ubve84tz3498zncq84z59238bzv5389";
 
@@ -54,15 +54,48 @@ public class PalladianLocationDetector implements LocationExtractor {
         skipWords.add("Parliament");
     }
 
+    public PalladianLocationExtractor() {
+        setName("Palladian Location Extractor");
+    }
+
+    @Override
+    public String getModelFileEnding() {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return false;
+    }
+
+    @Override
+    public boolean loadModel(String configModelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+        LOGGER.warn("the configModelFilePath is ignored");
+        return getAnnotations(inputText);
+    }
+
+    @Override
+    public boolean train(String trainingFilePath, String modelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
     @Override
     public List<Location> detectLocations(String text) {
 
-//        Set<String> locationConceptNames = new HashSet<String>();
-//        locationConceptNames.add("Country");
-//        locationConceptNames.add("Nation");
-//        locationConceptNames.add("County");
-//        locationConceptNames.add("City");
-//        locationConceptNames.add("Metropole");
+        //        Set<String> locationConceptNames = new HashSet<String>();
+        //        locationConceptNames.add("Country");
+        //        locationConceptNames.add("Nation");
+        //        locationConceptNames.add("County");
+        //        locationConceptNames.add("City");
+        //        locationConceptNames.add("Metropole");
 
         List<Location> locationEntities = CollectionHelper.newArrayList();
 
@@ -76,7 +109,7 @@ public class PalladianLocationDetector implements LocationExtractor {
         LocationSource locationSource = new WebKnoxLocationSource(API_KEY);
         Annotations taggedEntities = textResource.getAnnotations(text);
 
-//        Set<String> locationNames = new HashSet<String>();
+        //        Set<String> locationNames = new HashSet<String>();
 
         // try to find them in the database
         for (Annotation locationCandidate : taggedEntities) {
@@ -242,7 +275,7 @@ public class PalladianLocationDetector implements LocationExtractor {
         PalladianContentExtractor pce = new PalladianContentExtractor();
         text = pce.setDocument("http://www.bbc.co.uk/news/world-africa-17887914").getResultText();
 
-        PalladianLocationDetector locationDetector = new PalladianLocationDetector();
+        PalladianLocationExtractor locationDetector = new PalladianLocationExtractor();
         Collection<Location> locations = locationDetector.detectLocations(text);
 
         CollectionHelper.print(locations);
