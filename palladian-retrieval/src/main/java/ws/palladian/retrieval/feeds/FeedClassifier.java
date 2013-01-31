@@ -13,6 +13,7 @@ import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
@@ -154,7 +155,7 @@ public class FeedClassifier {
         FeedActivityPattern ret;
 
         try {
-            HttpRetriever retriever = new HttpRetriever();
+            HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
             HttpResult httpResult = retriever.httpGet(feedUrl);
             
             FeedParser feedParser = new RomeFeedParser();
