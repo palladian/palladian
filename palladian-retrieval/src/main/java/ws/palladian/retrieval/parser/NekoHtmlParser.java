@@ -21,6 +21,10 @@ import org.xml.sax.SAXNotSupportedException;
  * @author Philipp Katz
  */
 public final class NekoHtmlParser extends BaseDocumentParser implements DocumentParser {
+    
+    protected NekoHtmlParser() {
+        // instances should be created by the factory.
+    }
 
     @Override
     public Document parse(InputSource inputSource) throws ParserException {

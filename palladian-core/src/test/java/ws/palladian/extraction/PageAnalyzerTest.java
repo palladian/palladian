@@ -13,8 +13,10 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.PageAnalyzer;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * Test cases for the XPath handling via PageAnalyzer.
@@ -28,7 +30,7 @@ public class PageAnalyzerTest {
     // FIXME PageAnalyzer is in palladian-retrieval, test in palladian-core,
     // but test resources in palladian-core, so I cannot just move it.
 
-    private final NekoHtmlParser parser = new NekoHtmlParser();
+    private final DocumentParser parser = ParserFactory.createHtmlParser();
 
     @Test
     public void testMakeMutualXPath() {

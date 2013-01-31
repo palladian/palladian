@@ -23,7 +23,8 @@ public class ParserFactory {
      * @return
      */
     public static DocumentParser createHtmlParser() {
-        return new NekoHtmlParser();
+        // return new NekoHtmlParser();
+        return new ValidatorNuParser();
     }
 
     /**

@@ -17,8 +17,10 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * <p>
@@ -66,7 +68,7 @@ public class FiveFiltersContentExtractor extends WebPageContentExtractor {
             extractedResult = feedItem.getDescription();
             extractedTitle = feedItem.getTitle();
 
-            NekoHtmlParser htmlParser = new NekoHtmlParser();
+            DocumentParser htmlParser = ParserFactory.createHtmlParser();
             try {
                 resultNode = htmlParser.parse(new StringInputStream(extractedResult));
                 extractedResult = HtmlHelper.documentToReadableText(resultNode);

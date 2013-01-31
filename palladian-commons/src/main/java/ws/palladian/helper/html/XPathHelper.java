@@ -51,9 +51,12 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Martin Werner
  */
 public final class XPathHelper {
-
+    
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(XPathHelper.class);
+    
+    /** XHTML namespace URI. */
+    private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
 
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<String, String>();
@@ -134,7 +137,7 @@ public final class XPathHelper {
         XPath xPathObject = factory.newXPath();
 
         MyNamespaceContext namespaceContext = new MyNamespaceContext();
-        namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+        namespaceContext.addNamespace("xhtml", XHTML_NAMESPACE);
         if (namespaces != null) {
             for (Entry<String, String> entry : namespaces.entrySet()) {
                 String prefix = entry.getKey();
@@ -531,6 +534,12 @@ public final class XPathHelper {
      */
     public static boolean hasXhtmlNs(Document document) {
         Validate.notNull(document, "document must not be null.");
+        
+        // added this when adding Validator.nu parser; I'm not sure,
+        // whether the code below is still necessary -- Philipp, 2013-01-31
+        if (XHTML_NAMESPACE.equals(document.getFirstChild().getNamespaceURI())) {
+            return true;
+        }
 
         boolean result = false;
         Node node = null;

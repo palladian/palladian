@@ -12,8 +12,10 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * <p>
@@ -54,7 +56,7 @@ public class ViewTextContentExtractor extends WebPageContentExtractor {
         JsonObjectWrapper json = new JsonObjectWrapper(extractedResult);
         extractedResult = json.getString("content");
 
-        NekoHtmlParser parser = new NekoHtmlParser();
+        DocumentParser parser = ParserFactory.createHtmlParser();
         try {
             resultNode = parser.parse(new StringInputStream(extractedResult));
             extractedResult = HtmlHelper.documentToReadableText(resultNode);
