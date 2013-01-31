@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
@@ -65,6 +66,9 @@ public class GeonamesLocationSource implements LocationSource {
 
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
+    /** Count the number of executed request since start. */
+    public static int requestCount = 0;
+
     public GeonamesLocationSource(String username) {
         Validate.notEmpty(username, "username must not be empty");
         this.username = username;
@@ -76,14 +80,16 @@ public class GeonamesLocationSource implements LocationSource {
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=LONG&username=%s",
                     UrlHelper.encodeParameter(locationName), username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            requestCount++;
             Document document = xmlParser.parse(httpResult);
             return parseLocations(document);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
-    
+
     static List<Location> parseLocations(Document document) {
+        checkError(document);
         List<Location> result = CollectionHelper.newArrayList();
         List<Node> geonames = XPathHelper.getNodes(document, "//geoname");
         for (Node node : geonames) {
@@ -91,6 +97,28 @@ public class GeonamesLocationSource implements LocationSource {
             result.add(location);
         }
         return result;
+    }
+
+    /**
+     * Check, whether the service sent an error (usually, when the quota has been exceeded).
+     * 
+     * @param document
+     */
+    static void checkError(Document document) {
+        Node statusNode = XPathHelper.getNode(document, "//geonames/status");
+        if (statusNode != null) {
+            StringBuilder diagnosticsMessage = new StringBuilder();
+            diagnosticsMessage.append("Error from the web service");
+            NamedNodeMap attributes = statusNode.getAttributes();
+            if (attributes != null) {
+                Node message = attributes.getNamedItem("message");
+                if (message != null) {
+                    diagnosticsMessage.append(": ");
+                    diagnosticsMessage.append(message.getTextContent());
+                }
+            }
+            throw new IllegalStateException(diagnosticsMessage.toString());
+        }
     }
 
     static Location parseLocation(Node node) {
@@ -135,11 +163,15 @@ public class GeonamesLocationSource implements LocationSource {
             String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&username=%s",
                     location.getId(), username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            requestCount++;
             Document document = xmlParser.parse(httpResult);
             List<Node> geonames = XPathHelper.getNodes(document, "//geoname/geonameId");
             List<Location> result = CollectionHelper.newArrayList();
             for (Node node : geonames) {
                 int geonameId = Integer.valueOf(node.getTextContent());
+                if (geonameId == location.getId()) { // do not add the supplied Location itself.
+                    continue;
+                }
                 Location retrievedLocation = retrieveLocation(geonameId);
                 result.add(retrievedLocation);
             }
@@ -165,6 +197,7 @@ public class GeonamesLocationSource implements LocationSource {
             String getUrl = String.format("http://api.geonames.org/get?geonameId=%s&username=%s&style=LONG",
                     locationId, username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            requestCount++;
             Document document = xmlParser.parse(httpResult);
             List<Location> locations = parseLocations(document);
             return CollectionHelper.getFirst(locations);
