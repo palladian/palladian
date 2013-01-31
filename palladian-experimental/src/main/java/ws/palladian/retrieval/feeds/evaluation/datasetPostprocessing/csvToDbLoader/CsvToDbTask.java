@@ -14,12 +14,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
@@ -56,7 +56,7 @@ public class CsvToDbTask implements Callable<FeedTaskResult> {
     /**
      * Warn if processing of a feed takes longer than this.
      */
-    public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
+    public static final long EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
 
     /**
      * 1999-03-01, It is very unlikely that the an item is older than the RSS 0.9 spec introduced by Netscape

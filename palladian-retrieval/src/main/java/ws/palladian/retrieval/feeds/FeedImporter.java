@@ -164,7 +164,7 @@ public class FeedImporter {
         int counter = 1;
         for (DiscoveredFeed discoveredFeed : discoveredFeeds) {
             feedUrls.add(discoveredFeed.getFeedLink());
-            ProgressHelper.showProgress(counter++, discoveredFeeds.size(), 1);
+            ProgressHelper.printProgress(counter++, discoveredFeeds.size(), 1);
         }
         return addFeeds(feedUrls);
     }
@@ -295,7 +295,7 @@ public class FeedImporter {
                 .withLongOpt("noDownload")
                 .withDescription(
                         "do not poll and downlaod feed, just add it to database. Must not be combined with -storeItems and -classifyText")
-                .create());
+                        .create());
 
         try {
 

@@ -81,7 +81,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
             correctlyClassified[0] += evaluatedResult[0];
             correctlyClassified[1] += evaluatedResult[1];
             correctlyClassified[2] += evaluatedResult[2];
-            ProgressHelper.showProgress(c++, instances.size(), 0);
+            ProgressHelper.printProgress(c++, instances.size(), 0);
         }
 
         model.setWeights(correctlyClassified[0] / (double)instances.size(),
@@ -121,7 +121,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
         CategoryEntries text = null;
         CategoryEntries numeric = null;
         CategoryEntries nominal = null;
-        
+
         FeatureVector featureVectorWithoutTerms = new FeatureVector(classifiable.getFeatureVector());
         featureVectorWithoutTerms.removeAll(BaseTokenizer.PROVIDED_FEATURE);
 
@@ -208,7 +208,7 @@ public class UniversalClassifier implements Classifier<UniversalClassifierModel>
             LOGGER.debug("training text classifier");
             textModel = textClassifier.train(trainables);
         }
-        
+
         // XXX thats not really nice because we alter the original feature vector,
         // better would be to supply a filter or view on the existing one.
         for (Trainable trainable : trainables) {

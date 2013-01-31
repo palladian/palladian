@@ -141,15 +141,6 @@ public class StringHelperTest {
         assertEquals(false, StringHelper.containsNumber("A-1 GB"));
     }
 
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testRemoveStopWords() {
-        assertEquals("...neighborhoodthe ofrocking.",
-                StringHelper.removeStopWords("...The neighborhoodthe is ofrocking of."));
-        assertEquals("neighborhood; REALLY; rocking!",
-                StringHelper.removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
-    }
-
     @Test
     public void testTrim() {
         // System.out.println(StringHelper.trim("'80GB'))"));

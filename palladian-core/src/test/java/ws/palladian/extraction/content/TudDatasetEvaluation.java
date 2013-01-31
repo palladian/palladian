@@ -86,7 +86,7 @@ public class TudDatasetEvaluation {
 
             FileHelper.appendFile(resultFileName, resultLine);
 
-            ProgressHelper.showProgress(i, textFiles.length, 0);
+            ProgressHelper.printProgress(i, textFiles.length, 0);
         }
 
         double totalScore = (totalScore1 + totalScore2 + totalScore3) / (3 * textFiles.length);

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
 import net.sourceforge.jwbf.mediawiki.actions.meta.Siteinfo;
@@ -99,16 +100,16 @@ public class MediaWikiCrawler implements Runnable {
      * 
      * @see #maxConsecutiveLoginErrors
      */
-    private static final long LOGIN_RETRY_TIME = DateHelper.HOUR_MS;
+    private static final long LOGIN_RETRY_TIME = TimeUnit.HOURS.toMillis(1);
 
     /** Flag, checked periodically to stop the thread if set to true. */
     private boolean stopThread = false;
 
     /** time period to check the Wiki for new pages */
-    private long pageCheckInterval = DateHelper.MINUTE_MS;
+    private long pageCheckInterval = TimeUnit.MINUTES.toMillis(1);
 
     /** time period to wake up and check database for pages that need to be checked for new revisions */
-    private final long newRevisionsInterval = DateHelper.MINUTE_MS;
+    private final long newRevisionsInterval = TimeUnit.MINUTES.toMillis(1);
 
     /** Synchronized FIFO queue to put new pages. Multiple consumers can process these pages. */
     private final LinkedBlockingQueue<WikiPage> pageQueue;
@@ -378,9 +379,9 @@ public class MediaWikiCrawler implements Runnable {
 
             if (INFO) {
                 LOGGER
-                        .info("Finished crawling of all page titles for namespaceID=" + namespaceID + ".   " + counter
-                                + " page titles have been added to database, crawling took "
-                                + stopWatch.getElapsedTimeString());
+                .info("Finished crawling of all page titles for namespaceID=" + namespaceID + ".   " + counter
+                        + " page titles have been added to database, crawling took "
+                        + stopWatch.getElapsedTimeString());
             }
         }
     }
@@ -513,11 +514,11 @@ public class MediaWikiCrawler implements Runnable {
         if (TRACE) {
             dbTime += stopWatch2.getElapsedTime();
             LOGGER.trace("[API] crawlRevisionsByTitle, get Revisions from API for page \"" + pageTitle + "\" took "
-                    + DateHelper.getRuntime(0L, (stopWatch1.getElapsedTime() - dbTime)));
+                    + DateHelper.formatDuration(0L, (stopWatch1.getElapsedTime() - dbTime)));
             LOGGER
-                    .trace("[DB ] crawlRevisionsByTitle, add " + (revisionCounter - revisionsSkipped)
-                            + " Revisions to database for page \"" + pageTitle + "\" took "
-                            + DateHelper.getRuntime(0L, dbTime));
+            .trace("[DB ] crawlRevisionsByTitle, add " + (revisionCounter - revisionsSkipped)
+                    + " Revisions to database for page \"" + pageTitle + "\" took "
+                    + DateHelper.formatDuration(0L, dbTime));
             stopWatch1.start();
         }
 
@@ -599,7 +600,7 @@ public class MediaWikiCrawler implements Runnable {
             if (namespacesDB.size() == 0) {
                 for (int namespaceID : namespacesAPI.keySet()) {
                     mwDatabase
-                            .addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID), true);
+                    .addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID), true);
                 }
             } else {
                 for (int namespaceID : namespacesAPI.keySet()) {
@@ -699,7 +700,7 @@ public class MediaWikiCrawler implements Runnable {
      */
     @Deprecated
     private Date predictNextCheck(final int pageID) {
-        return new Date(System.currentTimeMillis() + DateHelper.MINUTE_MS);
+        return new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1));
     }
 
     /*
@@ -891,8 +892,8 @@ public class MediaWikiCrawler implements Runnable {
                 }
                 if (pageQueue.remainingCapacity() < QUEUE_WARN_CAPACITY) {
                     LOGGER
-                            .warn("Queue to PageConsumers almost full, increase number of consumers! Remaining capacity: "
-                                    + pageQueue.remainingCapacity());
+                    .warn("Queue to PageConsumers almost full, increase number of consumers! Remaining capacity: "
+                            + pageQueue.remainingCapacity());
                 }
 
                 pageQueue.put(page);
@@ -934,7 +935,7 @@ public class MediaWikiCrawler implements Runnable {
         }
         if (FASTMODE) {
             LOGGER
-                    .warn("Crawler uses the fastmode, detection of links to other wiki pages may be erroneous (links are dropped even if page is existing).");
+            .warn("Crawler uses the fastmode, detection of links to other wiki pages may be erroneous (links are dropped even if page is existing).");
         }
 
         login();
@@ -1003,7 +1004,7 @@ public class MediaWikiCrawler implements Runnable {
                         if (DEBUG) {
                             LOGGER.debug("Nothing to do for Wiki \"" + mwDescriptor.getWikiName()
                                     + "\", going to sleep for " + (newRevisionsInterval - timeElapsed)
- / 1000
+                                    / 1000
                                     + " seconds.");
                         }
 
@@ -1016,9 +1017,9 @@ public class MediaWikiCrawler implements Runnable {
                     } else {
                         LOGGER.error("Could not process all tasks for Wiki \"" + mwDescriptor.getWikiName()
                                 + "\" in time, processing took "
- + ((timeElapsed - newRevisionsInterval) / 1000)
+                                + ((timeElapsed - newRevisionsInterval) / 1000)
                                 + " seconds, but should have been done within "
- + (newRevisionsInterval / 1000)
+                                + (newRevisionsInterval / 1000)
                                 + " seconds. Please provide more resources!");
                     }
                 }

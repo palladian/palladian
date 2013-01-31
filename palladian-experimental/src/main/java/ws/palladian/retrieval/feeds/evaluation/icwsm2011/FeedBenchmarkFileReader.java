@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.feeds.Feed;
@@ -56,7 +56,7 @@ public class FeedBenchmarkFileReader {
 
         // if file doesn't exist skip the feed
         if (!new File(historyFilePath).exists()) {
-//            feed.setHistoryFileCompletelyRead(true);
+            //            feed.setHistoryFileCompletelyRead(true);
         } else {
             try {
                 this.historyFileLines = FileHelper.readFileToArray(historyFilePath);
@@ -150,8 +150,8 @@ public class FeedBenchmarkFileReader {
 
             boolean windowStartIndexFound = false;
 
-            
-            
+
+
 
             // ---------- Start of main loop -----------
             for (int i = lastStartIndex; i <= totalEntries; i++) {
@@ -167,7 +167,7 @@ public class FeedBenchmarkFileReader {
                     }
                     if (windowSize > 1000) {
                         LOGGER.info("feed has a window size of " + windowSize + " and will be discarded");
-//                        feed.setHistoryFileCompletelyRead(true);
+                        //                        feed.setHistoryFileCompletelyRead(true);
                         feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND);
                         return;
                     }
@@ -211,7 +211,7 @@ public class FeedBenchmarkFileReader {
                             && totalEntries - i + 1 == feed.getWindowSize()) {
                         LOGGER.error("we disregard this feed (" + feed.getId()
                                 + ") since it does not comply with our start date " + entryTimestamp);
-//                        feed.setHistoryFileCompletelyRead(true);
+                        //                        feed.setHistoryFileCompletelyRead(true);
                         feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND);
                         return;
                     }
@@ -269,7 +269,7 @@ public class FeedBenchmarkFileReader {
                     if (i == 1) {
                         LOGGER.debug("complete history has been read for feed " + feed.getId() + " ("
                                 + feed.getFeedUrl() + ")");
-//                        feed.setHistoryFileCompletelyRead(true);
+                        //                        feed.setHistoryFileCompletelyRead(true);
                     }
 
                     // check whether current post entry is the last one in the window
@@ -408,12 +408,12 @@ public class FeedBenchmarkFileReader {
             // add poll data object to series of poll data
             // feed.getPollDataSeries().add(pollData);
 
-            feed.addToBenchmarkLookupTime(feed.getUpdateInterval() * DateHelper.MINUTE_MS);
+            feed.addToBenchmarkLookupTime(feed.getUpdateInterval() * TimeUnit.MINUTES.toMillis(1));
 
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error(e.getMessage());
-//            feed.setHistoryFileCompletelyRead(true);
+            //            feed.setHistoryFileCompletelyRead(true);
             feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND);
         }
 

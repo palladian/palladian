@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -141,7 +142,7 @@ public class FeedStatisticCreator {
 
                 // build csv
                 csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
-                        .append(", regardless of feed activity pattern) =================\"\n");
+                .append(", regardless of feed activity pattern) =================\"\n");
                 csv.append("Coverage:;" + format.format(coverage)).append("\n");
                 csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
                 csv.append("Missed:;" + format.format(missed)).append("\n");
@@ -163,8 +164,8 @@ public class FeedStatisticCreator {
             }
 
             csv.append("\"================= Performance for ").append(activityPattern.getClassName())
-                    .append(" (").append(avgStyleExplanation)
-                    .append(", only feeds matching the feed activity pattern) =================\"\n");
+            .append(" (").append(avgStyleExplanation)
+            .append(", only feeds matching the feed activity pattern) =================\"\n");
 
             String queryAP = query.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
                     + activityPattern);
@@ -210,7 +211,7 @@ public class FeedStatisticCreator {
         };
 
         Integer maxOffset = dbm.runAggregateQuery(countQuery);
-        
+
         if (maxOffset != null) {
 
             for (int currentOffset = 0; currentOffset < maxOffset; currentOffset += 500000) {
@@ -325,13 +326,13 @@ public class FeedStatisticCreator {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
-                        .append(", regardless of feed activity pattern) =================\"\n");
+                .append(", regardless of feed activity pattern) =================\"\n");
                 csv.append("Timeliness:;" + format.format(resultSet.getDouble("timeliness"))).append("\n");
                 csv.append("Timeliness Late:;" + format.format(resultSet.getDouble("timelinessLate"))).append("\n");
                 csv.append(
                         "Average Delay:;"
                                 + DateHelper.getTimeString(1000L * ((Double) resultSet.getDouble("delay")).longValue()))
-                        .append("\n");
+                                .append("\n");
                 csv.append("Avg. Missed Items:;" + format.format(resultSet.getDouble("missedItems"))).append("\n");
             }
         };
@@ -359,7 +360,7 @@ public class FeedStatisticCreator {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 csv.append("New Items Per Discovery:;" + format.format(resultSet.getDouble("newItemsPerDiscovery")))
-                        .append("\n");
+                .append("\n");
             }
 
         };
@@ -385,8 +386,8 @@ public class FeedStatisticCreator {
             }
 
             csv.append("\"================= Performance for ").append(activityPattern.getClassName())
-                    .append(" (").append(avgStyleExplanation)
-                    .append(", only feeds matching the activity pattern) =================\"\n");
+            .append(" (").append(avgStyleExplanation)
+            .append(", only feeds matching the activity pattern) =================\"\n");
 
             String queryAP = query.replaceAll("timeliness IS NOT NULL", "timeliness IS NOT NULL AND activityPattern = "
                     + activityPattern.getIdentifier());
@@ -556,7 +557,7 @@ public class FeedStatisticCreator {
         for (Entry<Integer, Double[]> dataEntry : delayChartData.entrySet()) {
             double avgTimeliness = dataEntry.getValue()[0] / dataEntry.getValue()[1];
             csv.append(dataEntry.getKey()).append(";").append(avgTimeliness).append(";")
-                    .append(dataEntry.getValue()[1]).append("\n");
+            .append(dataEntry.getValue()[1]).append("\n");
         }
 
         String path = "data/temp/feedEvaluationDelayChart_" + pollsWithNewItems + "polls_" + tableName + ".csv";
@@ -610,7 +611,7 @@ public class FeedStatisticCreator {
         for (Entry<Integer, Double[]> dataEntry : timelinessChartData.entrySet()) {
             double avgTimeliness = dataEntry.getValue()[0] / dataEntry.getValue()[1];
             csv.append(dataEntry.getKey()).append(";").append(avgTimeliness).append(";")
-                    .append(dataEntry.getValue()[1]).append("\n");
+            .append(dataEntry.getValue()[1]).append("\n");
         }
 
         FileHelper.writeToFile("data/temp/feedEvaluationTimelinessChart.csv", csv);
@@ -685,7 +686,7 @@ public class FeedStatisticCreator {
                 + FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / 1000 + " AND "
                 + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000
                 + " AND b.pollTimestamp BETWEEN " + FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND
- / 1000 + " AND "
+                / 1000 + " AND "
                 + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000;
 
         LOGGER.info(sql);
@@ -728,7 +729,7 @@ public class FeedStatisticCreator {
      * @throws SQLException
      */
     public static void createFeedUpdateIntervals(FeedStore feedStore, String statisticOutputPath) throws IOException,
-            SQLException {
+    SQLException {
 
         // String psFix1d =
         // "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_poll WHERE feedID = ? AND numberOfPoll > 1";
@@ -811,17 +812,17 @@ public class FeedStatisticCreator {
             }
 
             double realAverageUpdateInterval = MathHelper.round(
-                    (totalTime / ((double) numberOfUpdatesDuringExperiment - 1)), 2) / DateHelper.MINUTE_MS;
+                    (totalTime / ((double)numberOfUpdatesDuringExperiment - 1)), 2) / TimeUnit.MINUTES.toMillis(1);
 
             double realAverageItemInterval = MathHelper.round(
-                    (totalTime / ((double) numberOfItemsDuringExperiment - 1)), 2) / DateHelper.MINUTE_MS;
+                    (totalTime / ((double)numberOfItemsDuringExperiment - 1)), 2) / TimeUnit.MINUTES.toMillis(1);
 
             // limit feeds to a maximum real average update interval of 31 days
             // = 44640 minutes
             if (realAverageUpdateInterval > 44640) {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("feed had real update interval of "
-                            + DateHelper.getRuntime(0L, (long) realAverageUpdateInterval)
+                            + DateHelper.formatDuration(0L, (long) realAverageUpdateInterval)
                             + ", that is too few updates, we should skip, but don't :)");
                 }
                 // continue;
@@ -942,7 +943,7 @@ public class FeedStatisticCreator {
         String chartColors = "";
         for (FeedActivityPattern o : updateClassCounts.uniqueItems()) {
             stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.getCount(o))
-                    .append("\n");
+            .append("\n");
             chartData += updateClassCounts.getCount(o) + ",";
             chartDataLabels += o + "|";
             chartColors += colors.get(o.getIdentifier()) + "|";
@@ -952,8 +953,8 @@ public class FeedStatisticCreator {
         chartColors = chartColors.substring(0, chartColors.length() - 1);
 
         stats.append("Google pie chart:").append("http://chart.apis.google.com/chart?chs=600x425&chco=")
-                .append(chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size())
-                .append("&cht=p&chd=t:").append(chartData).append("\n");
+        .append(chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size())
+        .append("&cht=p&chd=t:").append(chartData).append("\n");
 
         FileHelper.writeToFile(statisticOutputPath, stats);
 
