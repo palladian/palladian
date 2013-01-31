@@ -246,10 +246,6 @@ public final class MathHelper {
         return sum / values.length;
     }
 
-    /**
-     * @deprecated Use {@link #getDistances(Collection)}, then {@link #getMedian(Collection)} instead.
-     */
-    @Deprecated
     public static long getMedianDifference(long[] sortedList) {
         long[] distances = getDistances(sortedList);
         return (long)getMedian(distances);

@@ -48,7 +48,6 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author David Urbansky
  * @author Philipp Katz
- * @author Martin Werner
  */
 public final class XPathHelper {
 
@@ -96,35 +95,7 @@ public final class XPathHelper {
      * @return Matching nodes for the given XPath expression, or an empty {@link List} if no nodes match or an error
      *         occurred.
      */
-    //    @SuppressWarnings("unchecked")
     public static List<Node> getNodes(Node node, String xPath, Map<String, String> namespaces) {
-        //        Validate.notNull(node, "node must not be null.");
-        //        Validate.notEmpty(xPath, "xPath must not be empty.");
-        //
-        //        List<Node> nodes = new ArrayList<Node>();
-        //
-        //        try {
-        //
-        //            DOMXPath xpathObj = new DOMXPath(xPath);
-        //            SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
-        //            namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-        //            if (namespaces != null) {
-        //                for (Entry<String, String> entry : namespaces.entrySet()) {
-        //                    String prefix = entry.getKey();
-        //                    String uri = entry.getValue();
-        //                    namespaceContext.addNamespace(prefix, uri);
-        //                }
-        //            }
-        //            xpathObj.setNamespaceContext(namespaceContext);
-        //
-        //            nodes = xpathObj.selectNodes(node);
-        //
-        //        } catch (JaxenException e) {
-        //            LOGGER.error("Exception for XPath \"" + xPath + "\" : " + e.getMessage());
-        //        }
-        //
-        //        return nodes;
-
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
@@ -247,119 +218,6 @@ public final class XPathHelper {
 
     /**
      * <p>
-     * Get the child {@link Node}s of a given node that are addressed by the given XPath.
-     * </p>
-     * 
-     * @param node The parent node of the children, not <code>null</code>
-     * @param xPath The XPath that addresses the children, not <code>null</code> or empty.
-     * @return The child nodes, or an empty {@link List} if no matching child nodes.
-     * @deprecated Use {@link #getNodes(Node, String)} instead and explicitly specify an XPath addressing child nodes.
-     */
-    @Deprecated
-    public static List<Node> getChildNodes(Node node, String xPath) {
-        Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty.");
-        return getChildNodes(node, xPath, null);
-    }
-
-    /**
-     * <p>
-     * Get the child {@link Node}s of a given node that are addressed by the given XPath.
-     * </p>
-     * 
-     * @param node The parent node of the children, not <code>null</code>
-     * @param xPath The XPath that addresses the children, not <code>null</code> or empty.
-     * @param namespaces (Optional) Map with namespaces, necessary to bind prefixes in XPath expression to namespaces.
-     * @return The child nodes, or an empty {@link List} if no matching child nodes.
-     * @deprecated Use {@link #getNodes(Node, String, Map)} instead and explicitly specify an XPath addressing child
-     *             nodes.
-     */
-    @Deprecated
-    public static List<Node> getChildNodes(Node node, String xPath, Map<String, String> namespaces) {
-        Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty.");
-
-        List<Node> childNodesMatch = new ArrayList<Node>();
-        List<Node> childNodes = getNodes(node, xPath, namespaces);
-
-        for (Node cn : childNodes) {
-            if (isChildOf(cn, node)) {
-                childNodesMatch.add(cn);
-            }
-        }
-
-        return childNodesMatch;
-    }
-
-    /**
-     * <p>
-     * Get the child nodes of a given node.
-     * </p>
-     * 
-     * @param node The parent of the children, not <code>null</code>.
-     * @return The child nodes, or an empty {@link List} if no matching child nodes.
-     * @deprecated Use {@link #getNodes(Node, String)} instead and explicitly specify an XPath addressing all child
-     *             nodes.
-     */
-    @Deprecated
-    public static List<Node> getChildNodes(Node node) {
-        Validate.notNull(node, "node must not be null");
-        List<Node> children = new ArrayList<Node>();
-
-        NodeList childNodes = node.getChildNodes();
-        if (childNodes != null) {
-            for (int x = 0; x < childNodes.getLength(); x++) {
-                if (childNodes.item(x).getNodeName() != null && isChildOf(childNodes.item(x), node)) {
-                    children.add(childNodes.item(x));
-                }
-            }
-        }
-
-        return children;
-    }
-
-    /**
-     * <p>
-     * Get a child node from the {@link Node} matching the given XPath.
-     * </p>
-     * 
-     * @param node The parent node under which the sought node must descend, not <code>null</code>
-     * @param xPath The XPath that points to a node, not <code>null</code> or empty.
-     * @return A node that matches the XPath and descends from the given node.
-     * @deprecated Use {@link #getNode(Node, String)} instead and explicitly specify an XPath addressing child
-     *             nodes.
-     */
-    @Deprecated
-    public static Node getChildNode(Node node, String xPath) {
-        Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty.");
-
-        List<Node> childNodes = getChildNodes(node, xPath);
-        return CollectionHelper.getFirst(childNodes);
-    }
-
-    /**
-     * <p>
-     * Check whether a node is a child (descendant) of another node.
-     * </p>
-     * 
-     * @param childCandidate The node that is checked to be a child.
-     * @param parent The node under which the childCandidate must descend.
-     * @return <code>true</code>, if the childCandidate really descends from the parent, <code>false</code> otherwise.
-     */
-    private static boolean isChildOf(Node childCandidate, Node parent) {
-        Node modChildCandidate = childCandidate.getParentNode();
-        while (modChildCandidate != null) {
-            if (modChildCandidate.equals(parent)) {
-                return true;
-            }
-            modChildCandidate = modChildCandidate.getParentNode();
-        }
-        return false;
-    }
-
-    /**
-     * <p>
      * Get the text content of a child node with the given XPath expression.
      * </p>
      * 
@@ -413,12 +271,12 @@ public final class XPathHelper {
      */
     public static List<Node> getPreviousSiblings(Node node) {
         Validate.notNull(node, "node must not be null");
-
         Node parentNode = node.getParentNode();
         List<Node> previousSiblings = new ArrayList<Node>();
-        List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
+        NodeList childNodes = parentNode.getChildNodes();
 
-        for (Node childNode : childNodes) {
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
             if (childNode.isSameNode(node)) {
                 break;
             } else {
@@ -476,49 +334,6 @@ public final class XPathHelper {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNode(node, addXhtmlNsToXPath(xPath));
-    }
-
-    /**
-     * <p>
-     * Get a list of {@link Node}s from the supplied XHTML {@link Node} matching the given XPath expression. The XHTML
-     * namespace prefixes are inserted automatically.
-     * </p>
-     * 
-     * @param node The {@link Node} to consider, not <code>null</code>.
-     * @param xPath The XPath expression, not <code>null</code> or empty.
-     * @return Matching nodes for the given XPath expression, or an empty {@link List} if no nodes match or an error
-     *         occurred.
-     * @deprecated Use {@link #getXhtmlNodes(Node, String)} instead and explicitly specify an XPath addressing child
-     *             nodes.
-     */
-    @Deprecated
-    public static List<Node> getXhtmlChildNodes(Node node, String xPath) {
-        Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty.");
-        return getChildNodes(node, addXhtmlNsToXPath(xPath));
-
-    }
-
-    /**
-     * <p>
-     * Get a {@link Node} from the supplied XHTML {@link Document} matching the given XPath expression. The XHTML
-     * namespace prefixes are inserted automatically.
-     * </p>
-     * 
-     * @param document The {@link Node} to consider, not <code>null</code>.
-     * @param xPath The XPath expression, not <code>null</code> or empty.
-     * @return Matching node for the given XPath expression, or <code>null</code> if no matching node or an error
-     *         occurred.
-     * @deprecated Use {@link #getXhtmlNode(Node, String)} instead and explicitly specify an XPath addressing child
-     *             nodes.
-     */
-    @Deprecated
-    public static Node getXhtmlChildNode(Node node, String xPath) {
-        Validate.notNull(node, "node must not be null.");
-        Validate.notEmpty(xPath, "xPath must not be empty.");
-
-        List<Node> childNodes = getXhtmlChildNodes(node, xPath);
-        return CollectionHelper.getFirst(childNodes);
     }
 
     /**

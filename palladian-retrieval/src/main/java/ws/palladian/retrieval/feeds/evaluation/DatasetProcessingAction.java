@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
@@ -23,16 +22,16 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 class DatasetProcessingAction extends DefaultFeedProcessingAction {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetProcessingAction.class);
-    
+
     private final FeedStore feedStore;
-    
+
     DatasetProcessingAction(FeedStore feedStore) {
         this.feedStore = feedStore;
     }
-    
+
     @Override
     public boolean performAction(Feed feed, HttpResult httpResult) {
 
@@ -99,14 +98,14 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         if (!metadata) {
             success = false;
         }
-        
+
         LOGGER.debug("added " + newItems + " new posts to file " + csvFilePath + " (feed: " + feed.getId() + ")");
 
         return success;
     }
 
     private static String buildCsvLine(FeedItem item) {
-        
+
         // build csv line for new entry
         StringBuilder fileEntry = new StringBuilder();
 
@@ -128,7 +127,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
             fileEntry.append(DatasetCreator.NO_TITLE_REPLACEMENT).append(";");
         } else {
             fileEntry.append("\"");
-            fileEntry.append(StringHelper.cleanStringToCsv(item.getTitle()));
+            fileEntry.append(item.getTitle().replace("\"", "'")); // TODO clean string?
             fileEntry.append("\";");
         }
 
@@ -137,7 +136,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
             fileEntry.append(DatasetCreator.NO_LINK_REPLACEMENT).append(";");
         } else {
             fileEntry.append("\"");
-            fileEntry.append(StringHelper.cleanStringToCsv(item.getLink()));
+            fileEntry.append(item.getLink().replace("\"", "'")); // TODO clean string?
             fileEntry.append("\";");
         }
 
@@ -205,7 +204,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         }
         return gzWritten;
     }
-    
+
     /**
      * Put data to PollMetaInformation, write to database.
      * 
@@ -231,7 +230,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
 
         return feedStore.addFeedPoll(pollMetaInfo);
     }
-    
+
 
     public static void main(String[] args) throws Exception {
         FeedParser fr = new RomeFeedParser();

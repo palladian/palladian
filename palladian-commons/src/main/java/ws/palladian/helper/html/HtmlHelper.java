@@ -213,69 +213,6 @@ public class HtmlHelper {
 
     /**
      * <p>
-     * Remove all style and script tags including their content (CSS, JavaScript). Remove all other tags as well. Close
-     * gaps. The text might not be readable since all format hints are discarded. Consider using
-     * {@link HtmlHelper.htmlToReableText} in case you need formatting.
-     * </p>
-     * 
-     * @param htmlContent
-     *            the html content
-     * @param stripTags
-     *            the strip tags
-     * @param stripComments
-     *            the strip comments
-     * @param stripJSAndCSS
-     *            the strip js and css
-     * @param joinTagsAndRemoveNewlines
-     *            the join tags and remove newlines
-     * @return The text of the web page.
-     */
-    @Deprecated
-    public static String stripHtmlTags(String htmlText, boolean stripTags, boolean stripComments,
-            boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
-
-        if (htmlText == null) {
-            return htmlText;
-        }
-
-        String regExp = "";
-
-        if (joinTagsAndRemoveNewlines) {
-            htmlText = htmlText.replaceAll(">\\s*?<", "><");
-            htmlText = htmlText.replaceAll("\n", "");
-        }
-
-        if (stripComments) {
-            regExp += "<!--.*?-->|";
-        }
-
-        if (stripJSAndCSS) {
-            regExp += "<style.*?>.*?</style>|<script.*?>.*?</script>|";
-        }
-
-        if (stripTags) {
-            regExp += "<.*?>";
-        }
-
-        if (regExp.length() == 0) {
-            return htmlText;
-        }
-
-        if (regExp.endsWith("|")) {
-            regExp = regExp.substring(0, regExp.length() - 1);
-        }
-
-        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        return pattern.matcher(htmlText).replaceAll("");
-
-        // close gaps
-        // htmlText = htmlText.replaceAll("[ ]{2,}", " ");
-
-        // return htmlText.trim();
-    }
-
-    /**
-     * <p>
      * Removes the concrete HTML tag.
      * </p>
      * 

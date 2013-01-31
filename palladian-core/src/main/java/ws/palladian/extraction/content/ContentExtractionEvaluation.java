@@ -49,16 +49,16 @@ public final class ContentExtractionEvaluation {
      * compared.
      */
     private final Mode mode;
-    
+
     public static enum Mode {
         MAIN_CONTENT, WHOLE_CONTENT
     }
-    
+
     /** Base path with the evaluation data set. */
     private final String datasetPath;
-    
+
     private final List<WebPageContentExtractor> extractors;
-    
+
     public ContentExtractionEvaluation(String datasetPath, Mode mode, List<WebPageContentExtractor> extractors) {
         this.datasetPath = datasetPath;
         this.mode = mode;
@@ -73,7 +73,7 @@ public final class ContentExtractionEvaluation {
      * @return
      */
     public void evaluate(Map<String, String> dataset, String outputFile) {
-        
+
         FileHelper.delete(outputFile);
 
         boolean writeHeader = true;
@@ -87,8 +87,8 @@ public final class ContentExtractionEvaluation {
 
         // loop through the dataset
         for (Entry<String, String> entry : dataset.entrySet()) {
-            
-            ProgressHelper.showProgress(index++, totalSize, 0);
+
+            ProgressHelper.printProgress(index++, totalSize, 0);
 
             // evaluate all provided implementations
             LinkedHashMap<WebPageContentExtractor, Float> result = evaluate(entry.getKey());
@@ -138,7 +138,7 @@ public final class ContentExtractionEvaluation {
         FileHelper.appendFile(outputFile, "------------- stats ------------------\n");
         for (WebPageContentExtractor extractor : extractors) {
             String extractorStats = " " + extractor.getExtractorName() + "\t#wins:" + wins.getCount(extractor) + "\t#errors:"
-                    + errors.getCount(extractor) + "\tavg. score:" + (double) stats.get(extractor) / dataset.size();
+                    + errors.getCount(extractor) + "\tavg. score:" + stats.get(extractor) / dataset.size();
             FileHelper.appendFile(outputFile, extractorStats + "\n");
         }
     }
@@ -246,7 +246,7 @@ public final class ContentExtractionEvaluation {
         return data;
 
     }
-    
+
     /**
      * Normalizes the supplied string by stripping new lines, multiple white spaces. Also protected white space
      * characters are removed, as they cause trouble in conjunction with Simmetrics library.
@@ -259,7 +259,7 @@ public final class ContentExtractionEvaluation {
         input = input.replace("\n", " ");
         return input.replaceAll(" {2,}", " ");
     }
-    
+
     public static void main(String[] args) {
 
         List<WebPageContentExtractor> extractors = CollectionHelper.newArrayList();
@@ -268,7 +268,7 @@ public final class ContentExtractionEvaluation {
         extractors.add(new ReadabilityContentExtractor());
         extractors.add(new PalladianContentExtractor());
         // extractors.add(new NewsseecrContentExtractor());
-        
+
         String datasetPath = "/Users/pk/Dropbox/Uni/Datasets/L3S-GN1-20100130203947-00001";
 
         // ////////////////////////////////////////////////////////////////////////////////
