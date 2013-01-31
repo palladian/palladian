@@ -17,6 +17,7 @@ import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.HakiaNewsSearcher;
@@ -31,7 +32,7 @@ public class HakiaDateGetter {
     private String url;
     private String title = null;
     private DocumentRetriever documentRetriever = new DocumentRetriever();
-    private HttpRetriever httpRetriever = new HttpRetriever();
+    private HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
     private void setTitle() {
         Document doc = documentRetriever.getWebDocument(url);
