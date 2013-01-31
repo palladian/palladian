@@ -14,8 +14,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.parser.NekoHtmlParser;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
  * <p>
@@ -81,7 +82,7 @@ public abstract class WebPageContentExtractor {
 
     public WebPageContentExtractor setDocument(HttpResult httpResult) throws PageContentExtractorException {
         try {
-            NekoHtmlParser parser = new NekoHtmlParser();
+            DocumentParser parser = ParserFactory.createHtmlParser();
             Document document = parser.parse(httpResult);
             return setDocument(document);
         } catch (ParserException e) {
@@ -100,7 +101,7 @@ public abstract class WebPageContentExtractor {
      */
     public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
         try {
-            NekoHtmlParser parser = new NekoHtmlParser();
+            DocumentParser parser = ParserFactory.createHtmlParser();
             Document document = parser.parse(file);
             return setDocument(document);
         } catch (ParserException e) {
