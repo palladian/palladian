@@ -23,7 +23,9 @@ import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
@@ -53,6 +55,12 @@ public final class Tokenizer {
     /** The compiled pattern used for tokenization, using {@link Tokenizer#TOKEN_SPLIT_REGEX}. */
     public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
             | Pattern.CASE_INSENSITIVE);
+
+    private static final DateFormat[] ALL_DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM,
+            RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
+            RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
+            RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
+
 
     private static UrlTagger urlTagger = new UrlTagger();
     private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
@@ -431,7 +439,7 @@ public final class Tokenizer {
         }
 
         // recognize dates so we don't break them
-        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText, ALL_DATES_WITH_DOTS);
         int dCount = 1;
         Map<String, String> dateMapping = new HashMap<String, String>();
         for (Annotation annotation : taggedDates) {
