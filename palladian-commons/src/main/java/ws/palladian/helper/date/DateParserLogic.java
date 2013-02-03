@@ -32,6 +32,12 @@ final class DateParserLogic {
     int second;
     String timeZone;
 
+    static final Pattern TIME_ZONE_PATTERN;
+
+    static {
+        TIME_ZONE_PATTERN = Pattern.compile(RegExp.TIMEZONE, Pattern.CASE_INSENSITIVE);
+    }
+
     /**
      * <p>
      * Initialize the date parse logic with the provided date string and the given format used for parsing.
@@ -645,8 +651,7 @@ final class DateParserLogic {
      *         if the date string did not contain any time zone information.
      */
     static String[] splitTimeZone(String dateString) {
-        Pattern pattern = Pattern.compile(RegExp.TIMEZONE, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(dateString);
+        Matcher matcher = TIME_ZONE_PATTERN.matcher(dateString);
 
         if (matcher.find()) {
             String timeZonePart = matcher.group().trim();
