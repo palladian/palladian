@@ -9,9 +9,19 @@ package ws.palladian.helper.constants;
  */
 public enum Language {
 
-    // TODO replace this by java.util.Locale?
-
-    ENGLISH("en"), GERMAN("de"), FRENCH("fr"), CHINESE("zh");
+    ENGLISH("en"), //
+    GERMAN("de"), //
+    FRENCH("fr"), //
+    CHINESE("zh"), //
+    JAPANESE("ja"), //
+    RUSSIAN("ru"), //
+    SPANISH("es"), //
+    HINDI("hi"), //
+    ARABIC("ar"), //
+    PORTUGESE("pt"), //
+    BENGALI("bn"), //
+    PUNJABI("pa"), //
+    JAVANESE("jv");
 
     private final String iso6391;
 
@@ -21,19 +31,19 @@ public enum Language {
 
     /**
      * <p>
-     * Get an ISO 639-1 Code of the language.
+     * Get an <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php">ISO 639-1</a> Code of the language.
      * </p>
      * 
      * @return
      */
     public String getIso6391() {
-        // http://www.loc.gov/standards/iso639-2/php/code_list.php
         return iso6391;
     }
 
     /**
      * <p>
-     * Retrieve a {@link Language} by its ISO 639-1 Code.
+     * Retrieve a {@link Language} by its <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php">ISO
+     * 639-1</a> Code.
      * </p>
      * 
      * @param iso6391 The ISO 639-1 Code, not <code>null</code>.
