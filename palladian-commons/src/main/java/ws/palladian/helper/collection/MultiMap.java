@@ -193,4 +193,20 @@ public class MultiMap<K, V> implements Map<K, List<V>> {
         return values;
     }
 
+    /**
+     * <p>
+     * Get the first value for the given key.
+     * </p>
+     * 
+     * @param key The key for which to retrieve the first value.
+     * @return The first value for the given key, or <code>null</code> if no values exist.
+     */
+    public V getFirst(K key) {
+        List<V> values = get(key);
+        if (values == null) {
+            return null;
+        }
+        return CollectionHelper.getFirst(values);
+    }
+
 }
