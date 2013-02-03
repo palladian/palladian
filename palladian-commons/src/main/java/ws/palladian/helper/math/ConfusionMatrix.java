@@ -134,7 +134,7 @@ public class ConfusionMatrix {
      * @return The categories in the data set.
      */
     public Set<String> getCategories() {
-        return confusionMatrix.getKeysX();
+        return confusionMatrix.getKeysY();
     }
 
     /**
@@ -146,7 +146,7 @@ public class ConfusionMatrix {
      */
     public int getTotalDocuments() {
         int total = 0;
-        for (String value : confusionMatrix.getKeysX()) {
+        for (String value : confusionMatrix.getKeysY()) {
             total += confusionMatrix.getRowSum(value);
         }
         return total;

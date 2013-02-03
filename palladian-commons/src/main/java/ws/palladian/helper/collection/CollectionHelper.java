@@ -29,8 +29,8 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class CollectionHelper {
 
-    public static boolean ASCENDING = true;
-    public static boolean DESCENDING = false;
+    public static final boolean ASCENDING = true;
+    public static final boolean DESCENDING = false;
 
     private CollectionHelper() {
         // prevent instantiation.
