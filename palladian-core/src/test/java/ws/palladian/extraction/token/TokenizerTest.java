@@ -232,7 +232,7 @@ public class TokenizerTest {
                 "Ok I donated man million dollars in cash http://images.icanhascheezburger.com/completestore/2008/12/22/128744482782438694.jpg",
                 sentences.get(0));
 
-        inputText = "MAIDUGURI, Nigeria, Apr. 30, 2012 (Reuters) -- Nigerian Islamist sect Boko Haram killed four people.";
+        inputText = "MAIDUGURI, Nigeria, Apr. 30, 2012 (Reuters) -- Nigerian Islamist 2. January 2009, sect 15.06.2004 Boko Haram killed four people.";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
         assertEquals(inputText, sentences.get(0));
