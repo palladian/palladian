@@ -86,6 +86,8 @@ public class ConfusionMatrixTest {
 
         assertEquals(0.8, confusionMatrix.getPrior("c1"), DELTA);
         assertEquals(0.2, confusionMatrix.getPrior("c2"), DELTA);
+
+        // System.out.println(confusionMatrix);
     }
 
 }

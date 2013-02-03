@@ -2,7 +2,6 @@ package ws.palladian.helper.math;
 
 import java.nio.CharBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -545,7 +544,7 @@ public class ConfusionMatrix {
         // // builder.append(MathHelper.round(getRecall(predictedCategory), 4)).append("\t");
         // // }
         StringBuilder out = new StringBuilder("Confusion Matrix:\n");
-        List<String> possibleClasses = new ArrayList<String>(getRealCategories());
+        List<String> possibleClasses = new ArrayList<String>(getCategories());
         StringBuilder headerBuilder = new StringBuilder();
         Integer maxClassNameLength = 0;
         for (String clazz : possibleClasses) {
@@ -615,11 +614,6 @@ public class ConfusionMatrix {
         // out.append(MathHelper.round(getF(category, 0.5), 4)).append('\n');
         // }
 
-        double correct = 0.;
-        if (getTotalDocuments() > 0) {
-            correct = (double)getTotalCorrect() / (double)getTotalDocuments();
-        }
-
         out.append("\n\n\n");
         out.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
         out.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
@@ -631,21 +625,10 @@ public class ConfusionMatrix {
         out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
         out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
-        out.append("=>:\t").append(MathHelper.round(100 * correct, 2)).append("%\n");
 
         return out.toString();
 
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @return
-     */
-    private Collection<? extends String> getRealCategories() {
-        return confusionMatrix.getKeysY();
-    }
 
 }
