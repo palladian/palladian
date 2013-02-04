@@ -577,7 +577,7 @@ public class ConfusionMatrix {
         out.append("\n\n\n");
 
         out.append("\n");
-        out.append(classNameLengthSpace).append("  ").append("prior precision recall f1-measure accuracy\n");
+        out.append(classNameLengthSpace).append("  ").append("prior  precision recall f1-measure accuracy\n");
 
         for (String clazz : possibleClasses) {
             out.append(clazz).append(": ");
@@ -592,7 +592,7 @@ public class ConfusionMatrix {
             double accuracy = MathHelper.round(getAccuracy(clazz), 4);
             double f1measure = MathHelper.round(getF(clazz, 0.5), 4);
             out.append(prior);
-            int precisionSpaces = "prior ".length() - String.valueOf(prior).length();
+            int precisionSpaces = "prior  ".length() - String.valueOf(prior).length();
             out.append(CharBuffer.allocate(Math.max(precisionSpaces, 0)).toString().replace('\0', ' ')).append(
                     precision);
             int recallSpaces = "precision ".length() - String.valueOf(precision).length();
@@ -629,6 +629,5 @@ public class ConfusionMatrix {
         return out.toString();
 
     }
-
 
 }
