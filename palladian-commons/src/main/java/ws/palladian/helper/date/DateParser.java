@@ -181,6 +181,7 @@ public final class DateParser {
             List<ExtractedDate> dates = findDates(text, format);
             for (ExtractedDate date : dates) {
                 String dateString = date.getDateString();
+                // XXX this seems to be the slow part
                 text = text.replaceFirst(dateString, StringUtils.repeat('x', dateString.length()));
                 result.add(date);
             }
@@ -192,6 +193,7 @@ public final class DateParser {
     /**
      * <p>
      * Find all dates in a text matching the given {@link DateFormat}.
+     * </p>
      * 
      * @param text The text to check for dates, not <code>null</code>.
      * @param format The format to try for parsing, not <code>null</code>.

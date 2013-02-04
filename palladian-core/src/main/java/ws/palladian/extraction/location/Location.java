@@ -2,6 +2,7 @@ package ws.palladian.extraction.location;
 
 import java.util.List;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.processing.features.PositionAnnotation;
 
 public class Location extends PositionAnnotation {
@@ -22,8 +23,14 @@ public class Location extends PositionAnnotation {
         super(LOCATION_ANNOTATION_NAME, 0, 1, 0, "");
     }
 
+    @Deprecated
     public Location(PositionAnnotation annotation) {
         super(annotation);
+    }
+
+    @Deprecated
+    public Location(Annotation a) {
+        super(LOCATION_ANNOTATION_NAME, a.getOffset(), a.getOffset() + a.getLength(), 0, a.getEntity());
     }
 
     public int getId() {

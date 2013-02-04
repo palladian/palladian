@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
-import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.tagger.WebKnoxNer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -25,10 +24,12 @@ import ws.palladian.helper.math.MathHelper;
  */
 public class PalladianLocationExtractor extends LocationExtractor {
 
-    private static final String API_KEY = "ubve84tz3498zncq84z59238bzv5389";
-
     // words that are unlikely to be a location
     private static final Set<String> skipWords;
+
+    private final LocationSource locationSource;
+
+    private final NamedEntityRecognizer entityRecognizer;
 
     static {
         skipWords = new HashSet<String>();
@@ -54,8 +55,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
         skipWords.add("Parliament");
     }
 
-    public PalladianLocationExtractor() {
+    public PalladianLocationExtractor(String webKnoxApiKey, String geonamesUsername) {
         setName("Palladian Location Extractor");
+        this.entityRecognizer = new WebKnoxNer(webKnoxApiKey);
+        this.locationSource = new CachingLocationSource(new GeonamesLocationSource(geonamesUsername));
     }
 
     @Override
@@ -105,19 +108,17 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // get candidates which could be locations
         // Annotations taggedEntities = StringTagger.getTaggedEntities(text);
 
-        WebKnoxNer textResource = new WebKnoxNer(API_KEY);
-        LocationSource locationSource = new WebKnoxLocationSource(API_KEY);
-        Annotations taggedEntities = textResource.getAnnotations(text);
+        Annotations taggedEntities = entityRecognizer.getAnnotations(text);
 
         //        Set<String> locationNames = new HashSet<String>();
 
         // try to find them in the database
         for (Annotation locationCandidate : taggedEntities) {
 
-            if (!(locationCandidate.getMostLikelyTagName().equalsIgnoreCase("country") || locationCandidate
-                    .getMostLikelyTagName().equalsIgnoreCase("city"))) {
-                continue;
-            }
+            // if (!(locationCandidate.getMostLikelyTagName().equalsIgnoreCase("country") || locationCandidate
+            // .getMostLikelyTagName().equalsIgnoreCase("city"))) {
+            // continue;
+            // }
 
             // search entities by name
             List<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
@@ -125,9 +126,25 @@ public class PalladianLocationExtractor extends LocationExtractor {
             // get all entities that are locations
             for (Location location : retrievedLocations) {
 
+                // XXX make even more beautifuller!
+                location.setPrimaryName(locationCandidate.getEntity());
+
                 if (location.getPrimaryName().equalsIgnoreCase(locationCandidate.getEntity())
-                        && !skipWords.contains(location.getName())) {
-                    locationEntities.add(location);
+                        && !skipWords.contains(location.getPrimaryName())) {
+                    // locationEntities.add(location);
+
+                    // FIXME use common interface!
+                    Location fixme = new Location(locationCandidate);
+                    fixme.setAlternativeNames(location.getAlternativeNames());
+                    fixme.setId(location.getId());
+                    fixme.setLatitude(location.getLatitude());
+                    fixme.setLongitude(location.getLongitude());
+                    fixme.setPopulation(location.getPopulation());
+                    fixme.setPrimaryName(location.getPrimaryName());
+                    fixme.setType(location.getType());
+                    fixme.setValue(location.getValue());
+                    locationEntities.add(fixme);
+
                 }
             }
         }
@@ -143,7 +160,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
      * </p>
      * <ol>
      * <li>First we replace all city entities if we also found a country entity with the same name.</li>
-     * <li>If we have several cities witht the same name we pick the one that is in a country of the list or if there is
+     * <li>If we have several cities with the same name we pick the one that is in a country of the list or if there is
      * no country, we pick the largest city.</li>
      * </ol>
      * 
@@ -164,17 +181,17 @@ public class PalladianLocationExtractor extends LocationExtractor {
             // boolean keepLocation = true;
             if (location.getType() == LocationType.CITY) {
                 cities.add(location);
-                if (citiesWithSameName.get(location.getName()) != null) {
-                    citiesWithSameName.get(location.getName()).add(location);
+                if (citiesWithSameName.get(location.getPrimaryName()) != null) {
+                    citiesWithSameName.get(location.getPrimaryName()).add(location);
                 } else {
                     Set<Location> set = new HashSet<Location>();
                     set.add(location);
-                    citiesWithSameName.put(location.getName(), set);
+                    citiesWithSameName.put(location.getPrimaryName(), set);
                 }
 
                 for (Location entity2 : locations) {
                     if (entity2.getType() == LocationType.COUNTRY
-                            && entity2.getName().equalsIgnoreCase(location.getName())) {
+                            && entity2.getPrimaryName().equalsIgnoreCase(location.getPrimaryName())) {
                         // keepLocation = false;
                         entitiesToRemove.add(location);
                     }
@@ -189,54 +206,56 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
 
         // STEP 2: if we have several cities with the same name, we pick the one in the country or the largest
-        for (Set<Location> citySet : citiesWithSameName.values()) {
-            // cities with the same name
-            if (citySet.size() > 1) {
+        // for (Set<Location> citySet : citiesWithSameName.values()) {
+        // // cities with the same name
+        // if (citySet.size() > 1) {
+        //
+        // // calculate distance to all countries, take the city closest to any country
+        // Location closestCity = null;
+        // double closestDistance = Integer.MAX_VALUE;
+        // Location biggestCity = null;
+        // long biggestPopulation = -1;
+        // for (Location city : citySet) {
+        //
+        // // update biggest city
+        // long population = getPopulation(city);
+        // if (population > biggestPopulation) {
+        // biggestCity = city;
+        // biggestPopulation = population;
+        // }
+        //
+        // // upate closest city to countries
+        // for (Location country : countries) {
+        //
+        // double distance = getDistance(city, country);
+        // if (distance < closestDistance) {
+        // closestCity = city;
+        // closestDistance = distance;
+        // }
+        //
+        // }
+        // }
+        //
+        // // we keep only one city
+        // Location keepCity = null;
+        // if (closestCity != null) {
+        // keepCity = closestCity;
+        // } else if (biggestCity != null) {
+        // keepCity = biggestCity;
+        // } else {
+        // keepCity = citySet.iterator().next();
+        // }
+        //
+        // citySet.remove(keepCity);
+        //
+        // for (Location entity : citySet) {
+        // entitiesToRemove.add(entity);
+        // }
+        // // entitiesToRemove.addAll(citySet);
+        // }
+        // }
 
-                // calculate distance to all countries, take the city closest to any country
-                Location closestCity = null;
-                double closestDistance = Integer.MAX_VALUE;
-                Location biggestCity = null;
-                long biggestPopulation = -1;
-                for (Location city : citySet) {
-
-                    // update biggest city
-                    long population = getPopulation(city);
-                    if (population > biggestPopulation) {
-                        biggestCity = city;
-                        biggestPopulation = population;
-                    }
-
-                    // upate closest city to countries
-                    for (Location country : countries) {
-
-                        double distance = getDistance(city, country);
-                        if (distance < closestDistance) {
-                            closestCity = city;
-                            closestDistance = distance;
-                        }
-
-                    }
-                }
-
-                // we keep only one city
-                Location keepCity = null;
-                if (closestCity != null) {
-                    keepCity = closestCity;
-                } else if (biggestCity != null) {
-                    keepCity = biggestCity;
-                } else {
-                    keepCity = citySet.iterator().next();
-                }
-
-                citySet.remove(keepCity);
-
-                for (Location entity : citySet) {
-                    entitiesToRemove.add(entity);
-                }
-                // entitiesToRemove.addAll(citySet);
-            }
-        }
+        // CollectionHelper.print(entitiesToRemove);
 
         for (Location entity : entitiesToRemove) {
             locations.remove(entity);
@@ -270,15 +289,15 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public static void main(String[] args) throws PageContentExtractorException {
-        String text = "";
-
-        PalladianContentExtractor pce = new PalladianContentExtractor();
-        text = pce.setDocument("http://www.bbc.co.uk/news/world-africa-17887914").getResultText();
-
-        PalladianLocationExtractor locationDetector = new PalladianLocationExtractor();
-        Collection<Location> locations = locationDetector.detectLocations(text);
-
-        CollectionHelper.print(locations);
+        // String text = "";
+        //
+        // PalladianContentExtractor pce = new PalladianContentExtractor();
+        // text = pce.setDocument("http://www.bbc.co.uk/news/world-africa-17887914").getResultText();
+        //
+        // PalladianLocationExtractor locationDetector = new PalladianLocationExtractor();
+        // Collection<Location> locations = locationDetector.detectLocations(text);
+        //
+        // CollectionHelper.print(locations);
     }
 
 }
