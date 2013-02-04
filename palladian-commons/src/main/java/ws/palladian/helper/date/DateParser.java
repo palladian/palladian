@@ -181,7 +181,6 @@ public final class DateParser {
             List<ExtractedDate> dates = findDates(text, format);
             for (ExtractedDate date : dates) {
                 String dateString = date.getDateString();
-                // XXX this seems to be the slow part
                 text = text.replaceFirst(dateString, StringUtils.repeat('x', dateString.length()));
                 result.add(date);
             }
