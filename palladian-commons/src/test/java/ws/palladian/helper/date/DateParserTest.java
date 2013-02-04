@@ -3,11 +3,14 @@ package ws.palladian.helper.date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 /** @formatter:off */
 public class DateParserTest {
@@ -509,6 +512,14 @@ public class DateParserTest {
         dateParserLogic.setTimeDiff("06:30", "-");
         assertEquals(dateParserLogic.hour, 19);
         assertEquals(dateParserLogic.minute, 0);
+    }
+    
+    @Test
+    public void testExtractFromText() throws FileNotFoundException {
+        String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("/wikipedia_2011_Egyptian_revolution.txt"));
+        for (int i = 0; i < 100; i++) {
+            DateParser.findDates(text);
+        }
     }
 
 }
