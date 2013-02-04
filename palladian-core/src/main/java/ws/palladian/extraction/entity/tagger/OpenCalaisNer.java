@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +32,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -196,7 +196,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                 // JSONObject json = c.getJSONDocument(restCall);
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = new String(httpResult.getContent(), Charset.forName("UTF-8"));
+                String response = HttpHelper.getStringContent(httpResult);
 
                 JSONObject json = new JSONObject(response);
 
