@@ -45,6 +45,9 @@ public class CollectionLocationSource implements LocationSource {
 
     @Override
     public void addHierarchy(int childId, int parentId, String type) {
+        if (childId == parentId) {
+            throw new IllegalArgumentException("A child cannot be the parent of itself (id was " + childId + ")");
+        }
         hierarchy.add(childId, parentId);
     }
 

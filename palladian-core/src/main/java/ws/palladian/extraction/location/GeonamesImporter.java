@@ -341,6 +341,18 @@ public final class GeonamesImporter {
         String getParentCode() {
             List<String> hierarchyCode = getHierarchyCode();
 
+            // special case: countries have no parent in the schema
+            // (this is modeled in the dedicated hierarchy schema).
+            if (isCountry()) {
+                return StringUtils.EMPTY;
+            }
+
+            // special case; if we only have one parent code (i.e. country code like DE),
+            // we return this
+            if (hierarchyCode.size() == 1) {
+                return hierarchyCode.get(0);
+            }
+
             // remove the last item
             hierarchyCode.remove(hierarchyCode.size() - 1);
 
@@ -414,7 +426,7 @@ public final class GeonamesImporter {
                     return 5;
                 }
             }
-            return -1; // not administrative, therefor no hierarchy level.
+            return -1; // not administrative, therefore no hierarchy level.
         }
 
         Location buildLocation() {
