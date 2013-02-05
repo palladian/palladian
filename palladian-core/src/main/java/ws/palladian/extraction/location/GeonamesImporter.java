@@ -3,22 +3,25 @@ package ws.palladian.extraction.location;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
@@ -91,6 +94,7 @@ public final class GeonamesImporter {
             throw new IllegalArgumentException("Input data must be a ZIP file");
         }
 
+
         // read directly from the ZIP file
         ZipFile zipFile = null;
         InputStream inputStream1 = null;
@@ -100,25 +104,54 @@ public final class GeonamesImporter {
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
             while (zipEntries.hasMoreElements()) {
                 ZipEntry currentEntry = zipEntries.nextElement();
-                if (currentEntry.getName().endsWith(".txt")) {
+                String zipEntryName = currentEntry.getName().toLowerCase();
+                if (zipEntryName.endsWith(".txt") && !zipEntryName.contains("readme")) {
+
+                    final Map<String, GeonameLocation> adminLocations = CollectionHelper.newHashMap();
+
                     LOGGER.info("Checking size of {} in {}", currentEntry.getName(), filePath);
                     inputStream1 = zipFile.getInputStream(currentEntry);
                     final int totalLines = FileHelper.getNumberOfLines(inputStream1);
-                    LOGGER.info("Starting import, {} items to read", totalLines);
-                    final StopWatch stopWatch = new StopWatch();
+                    LOGGER.info("Starting import, {} items in total", totalLines);
+
+                    LOGGER.info("/////////////////// Reading administrative items //////////////////////");
                     inputStream2 = zipFile.getInputStream(currentEntry);
-                    FileHelper.performActionOnEveryLine(inputStream2, new LineAction() {
+                    readLocations(inputStream2, totalLines, new LocationLineCallback() {
                         @Override
-                        public void performAction(String line, int lineNumber) {
-                            Location location = parse(line);
-                            locationSource.save(location);
-                            String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
-                            if (progress.length() > 0) {
-                                LOGGER.info(progress);
+                        public void readLocation(GeonameLocation geonameLocation) {
+                            if (geonameLocation.isAdministrative()) {
+                                adminLocations.put(geonameLocation.getCombinedCode(), geonameLocation);
                             }
                         }
                     });
-                    LOGGER.info("Finished importing in {}", stopWatch);
+                    LOGGER.info("Finished reading {} administrative items", adminLocations.size());
+
+                    // insert administrative hierarchy
+                    LOGGER.info("///////////////////// Inserting hierarchy /////////////////////////////");
+                    Collection<GeonameLocation> adminLocationsCollection = adminLocations.values();
+                    for (int i = 0; i <= 5; i++) { // XXX was 5
+                        System.out.println("========== LEVEL " + i + " ===========");
+                        for (GeonameLocation location : adminLocationsCollection) {
+                            if (location.getLevel() == i) {
+                                GeonameLocation parent = adminLocations.get(location.getParentCode());
+                                String parentName = parent == null ? null : parent.primaryName;
+                                System.out.println(location.getCombinedCode() + " : " + location.primaryName + " < "
+                                        + parentName);
+                            }
+                        }
+                    }
+
+                    // Location location = locationHolder.buildLocation();
+                    // locationSource.save(location);
+                    // String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
+                    // if (progress.length() > 0) {
+                    // LOGGER.info(progress);
+                    // }
+                    // }
+                    // });
+                    // System.out.println(adminLocations.size());
+                    // CollectionHelper.print(adminLocations);
+                    LOGGER.info("Finished importing");
                 }
             }
         } finally {
@@ -174,7 +207,7 @@ public final class GeonamesImporter {
                 }
             }
         });
-        LOGGER.info("Finished import in {}", stopWatch);
+        LOGGER.info("Finished import");
     }
 
     /**
@@ -205,7 +238,7 @@ public final class GeonamesImporter {
      * @param line The line to parse, not <code>null</code>.
      * @return The parser {@link Location}.
      */
-    protected static Location parse(String line) {
+    protected static GeonameLocation parse(String line) {
         String[] parts = line.split("\\t");
         if (parts.length != 19) {
             throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
@@ -219,42 +252,216 @@ public final class GeonamesImporter {
                 alternateNames.add(item);
             }
         }
-        Location location = new Location();
-        location.setId(Integer.valueOf(parts[0]));
-        location.setLongitude(Double.valueOf(parts[5]));
-        location.setLatitude(Double.valueOf(parts[4]));
-        location.setPrimaryName(primaryName);
-        location.setAlternativeNames(alternateNames);
-        location.setPopulation(Long.valueOf(parts[14]));
-        location.setType(GeonamesLocationSource.mapType(parts[6], parts[7]));
+        GeonameLocation location = new GeonameLocation();
+        location.geonamesId = Integer.valueOf(parts[0]);
+        location.longitude = Double.valueOf(parts[5]);
+        location.latitude = Double.valueOf(parts[4]);
+        location.primaryName = stringOrNull(primaryName);
+        location.alternativeNames = alternateNames; // FIXME; we can import those in a second run.
+        location.population = Long.valueOf(parts[14]);
+        location.featureClass = stringOrNull(parts[6]);
+        location.featureCode = stringOrNull(parts[7]);
+        location.countryCode = stringOrNull(parts[8]);
+        location.admin1Code = stringOrNull(parts[10]);
+        location.admin2Code = stringOrNull(parts[11]);
+        location.admin3Code = stringOrNull(parts[12]);
+        location.admin4Code = stringOrNull(parts[13]);
         return location;
     }
 
-//    private static LocationType mapType(String featureClass, String featureCode) {
-//        // first, try lookup by full feature code (e.g. 'L.CONT')
-//        LocationType locationType = FEATURE_MAPPING.get(String.format("%s.%s", featureClass, featureCode));
-//        if (locationType != null) {
-//            return locationType;
-//        }
-//        // second, try lookup only be feature class (e.g. 'A')
-//        locationType = FEATURE_MAPPING.get(featureClass);
-//        if (locationType != null) {
-//            return locationType;
-//        }
-//        return LocationType.UNDETERMINED;
-//    }
+    /**
+     * Reduce empty string to null, lower memory consumption by creating new strings.
+     * 
+     * @param string
+     * @return
+     */
+    private static final String stringOrNull(String string) {
+        if (string.isEmpty()) {
+            return null;
+        }
+        return new String(string);
+    }
+
+    private static interface LocationLineCallback {
+        void readLocation(GeonameLocation geonameLocation);
+    }
+
+    private static final void readLocations(InputStream inputStream, final int totalLines,
+            final LocationLineCallback callback) {
+        final StopWatch stopWatch = new StopWatch();
+        FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                GeonameLocation geonameLocation = parse(line);
+                callback.readLocation(geonameLocation);
+                String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
+                if (progress.length() > 0) {
+                    LOGGER.info(progress);
+                }
+            }
+        });
+        LOGGER.debug("Finished processing, took {}", stopWatch.getTotalElapsedTimeString());
+    }
+
+    /**
+     * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
+     */
+    static final class GeonameLocation {
+        int geonamesId;
+        double longitude;
+        double latitude;
+        String primaryName;
+        List<String> alternativeNames;
+        long population;
+        String featureClass;
+        String featureCode;
+        String countryCode;
+        String admin1Code;
+        String admin2Code;
+        String admin3Code;
+        String admin4Code;
+
+        String getCombinedCode() {
+            return StringUtils.join(getHierarchyCode(), '.');
+        }
+
+        String getParentCode() {
+            List<String> hierarchyCode = getHierarchyCode();
+
+            // remove the last item
+            hierarchyCode.remove(hierarchyCode.size() - 1);
+
+            // if we have entries with zeros, remove them and the following;
+            // this is necessary, if we have a hierarchy spanning more than one level
+            // (e.g. ADM1 < ADM3)
+            Iterator<String> iterator = hierarchyCode.iterator();
+            boolean remove = false;
+            while (iterator.hasNext()) {
+                String current = iterator.next();
+                if (remove || current.matches("[0]+")) {
+                    iterator.remove();
+                    remove = true;
+                }
+            }
+            return StringUtils.join(hierarchyCode, '.');
+        }
+
+        private List<String> getHierarchyCode() {
+            List<String> ret = CollectionHelper.newArrayList();
+            if (countryCode != null) {
+                ret.add(countryCode);
+            } else {
+                ret.add("*");
+            }
+            if (!isCountry() && admin1Code != null) {
+                ret.add(admin1Code);
+                if (admin2Code != null) {
+                    ret.add(admin2Code);
+                    if (admin3Code != null) {
+                        ret.add(admin3Code);
+                        if (admin4Code != null) {
+                            ret.add(admin4Code);
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+
+        boolean isAdministrative() {
+            boolean continent = "L".equals(featureClass) && "CONT".equals(featureCode);
+            boolean adminFeatureClass = "A".equals(featureClass);
+            boolean adminDivision = Arrays.asList("ADM1", "ADM2", "ADM3", "ADM4", "PCLI").contains(featureCode);
+            return continent || (adminFeatureClass && adminDivision);
+        }
+
+        boolean isCountry() {
+            return "A".equals(featureClass) && "PCLI".equals(featureCode);
+        }
+
+        /** Retrieve the hierarchy level. */
+        int getLevel() {
+            if ("L".equals(featureClass) && "CONT".equals(featureCode)) {
+                return 0;
+            }
+            if ("A".equals(featureClass)) {
+                if ("PCLI".equals(featureCode)) {
+                    return 1;
+                }
+                if ("ADM1".equals(featureCode)) {
+                    return 2;
+                }
+                if ("ADM2".equals(featureCode)) {
+                    return 3;
+                }
+                if ("ADM3".equals(featureCode)) {
+                    return 4;
+                }
+                if ("ADM4".equals(featureCode)) {
+                    return 5;
+                }
+            }
+            return -1; // not administrative, therefor no hierarchy level.
+        }
+
+        Location buildLocation() {
+            Location location = new Location();
+            location.setId(geonamesId);
+            location.setLongitude(longitude);
+            location.setLatitude(latitude);
+            location.setPrimaryName(primaryName);
+            location.setAlternativeNames(alternativeNames);
+            location.setPopulation(population);
+            location.setType(GeonamesLocationSource.mapType(featureClass, featureCode));
+            return location;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("GeonameLocation [geonamesId=");
+            builder.append(geonamesId);
+            builder.append(", longitude=");
+            builder.append(longitude);
+            builder.append(", latitude=");
+            builder.append(latitude);
+            builder.append(", primaryName=");
+            builder.append(primaryName);
+            builder.append(", alternativeNames=");
+            builder.append(alternativeNames);
+            builder.append(", population=");
+            builder.append(population);
+            builder.append(", featureClass=");
+            builder.append(featureClass);
+            builder.append(", featureCode=");
+            builder.append(featureCode);
+            builder.append(", countryCode=");
+            builder.append(countryCode);
+            builder.append(", admin1Code=");
+            builder.append(admin1Code);
+            builder.append(", admin2Code=");
+            builder.append(admin2Code);
+            builder.append(", admin3Code=");
+            builder.append(admin3Code);
+            builder.append(", admin4Code=");
+            builder.append(admin4Code);
+            builder.append("]");
+            return builder.toString();
+        }
+
+    }
 
     private GeonamesImporter() {
         // helper class.
     }
 
     public static void main(String[] args) throws IOException {
-        // LocationSource locationSource = new MockLocationSource();
-        LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-         locationSource.truncate();
-        // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
+        LocationSource locationSource = new MockLocationSource();
+        // LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        // locationSource.truncate();
         importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"), locationSource);
-         importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"), locationSource);
+        // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
+        // importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"), locationSource);
     }
 
 }
