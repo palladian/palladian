@@ -6,10 +6,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MockLocationSource implements LocationSource {
+public class MockLocationStore implements LocationStore {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(MockLocationSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockLocationStore.class);
 
     @Override
     public List<Location> retrieveLocations(String locationName) {
@@ -22,8 +22,8 @@ public class MockLocationSource implements LocationSource {
     }
 
     @Override
-    public void addHierarchy(int fromId, int toId, String type) {
-        LOGGER.trace("Hierarchy from {} to {} with type {}", new Object[] {fromId, toId, type});
+    public void addHierarchy(int fromId, int toId) {
+        LOGGER.trace("Hierarchy from {} to {}", fromId, toId);
     }
 
     @Override

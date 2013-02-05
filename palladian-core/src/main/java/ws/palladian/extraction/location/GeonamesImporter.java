@@ -25,7 +25,7 @@ import ws.palladian.helper.io.LineAction;
 /**
  * <p>
  * This class reads data dumps from Geonames (usually you want to take the file "allCountries.zip") and imports them
- * into a given {@link LocationSource}.
+ * into a given {@link LocationStore}.
  * </p>
  * 
  * @see <a href="http://download.geonames.org/export/dump/">Geonames dumps</a>
@@ -75,16 +75,16 @@ public final class GeonamesImporter {
 
     /**
      * <p>
-     * Import a Geonames dump into the given {@link LocationSource}.
+     * Import a Geonames dump into the given {@link LocationStore}.
      * </p>
      * 
      * @param filePath The path to the Geonames dump ZIP file, not <code>null</code>.
-     * @param locationSource The {@link LocationSource} where to store the data, not <code>null</code>.
+     * @param locationStore The {@link LocationStore} where to store the data, not <code>null</code>.
      * @throws IOException
      */
-    public static void importFromGeonames(File filePath, final LocationSource locationSource) throws IOException {
+    public static void importFromGeonames(File filePath, final LocationStore locationStore) throws IOException {
         Validate.notNull(filePath, "filePath must not be null");
-        Validate.notNull(locationSource, "locationSource must not be null");
+        Validate.notNull(locationStore, "locationStore must not be null");
 
         if (!filePath.isFile()) {
             throw new IllegalArgumentException(filePath.getAbsolutePath() + " does not exist or is no file");
@@ -92,7 +92,6 @@ public final class GeonamesImporter {
         if (!filePath.getName().endsWith(".zip")) {
             throw new IllegalArgumentException("Input data must be a ZIP file");
         }
-
 
         // read directly from the ZIP file
         ZipFile zipFile = null;
@@ -106,7 +105,6 @@ public final class GeonamesImporter {
                 ZipEntry currentEntry = zipEntries.nextElement();
                 String zipEntryName = currentEntry.getName().toLowerCase();
                 if (zipEntryName.endsWith(".txt") && !zipEntryName.contains("readme")) {
-
 
                     LOGGER.info("Checking size of {} in {}", currentEntry.getName(), filePath);
                     inputStream1 = zipFile.getInputStream(currentEntry);
@@ -139,7 +137,7 @@ public final class GeonamesImporter {
                                                     currentLocation.getParentCode()});
                                     continue;
                                 }
-                                locationSource.addHierarchy(currentLocation.geonamesId, parent.geonamesId, null);
+                                locationStore.addHierarchy(currentLocation.geonamesId, parent.geonamesId);
                             }
                         }
                     }
@@ -150,13 +148,12 @@ public final class GeonamesImporter {
                     readLocations(inputStream3, totalLines, new LocationLineCallback() {
                         @Override
                         public void readLocation(GeonameLocation geonameLocation) {
-                            locationSource.save(geonameLocation.buildLocation());
+                            locationStore.save(geonameLocation.buildLocation());
                             // for non administrative, we have to add the parent here...
                             if (!geonameLocation.isAdministrative()) {
                                 GeonameLocation parentLocation = adminLocations.get(geonameLocation.getParentCode());
                                 if (parentLocation != null) {
-                                    locationSource.addHierarchy(geonameLocation.geonamesId, parentLocation.geonamesId,
-                                            null);
+                                    locationStore.addHierarchy(geonameLocation.geonamesId, parentLocation.geonamesId);
                                 } else {
                                     System.out.println("No parent for " + geonameLocation.geonamesId);
                                 }
@@ -184,11 +181,11 @@ public final class GeonamesImporter {
      * </p>
      * 
      * @param hierarchyFilePath The path to the hierarchy.txt file, not <code>null</code>.
-     * @param locationSource The {@link LocationSource} where to store the data, not <code>null</code>.
+     * @param locationStore The {@link LocationStore} where to store the data, not <code>null</code>.
      */
-    public static void importHierarchy(File hierarchyFilePath, final LocationSource locationSource) {
+    public static void importHierarchy(File hierarchyFilePath, final LocationStore locationStore) {
         Validate.notNull(hierarchyFilePath, "hierarchyFilePath must not be null");
-        Validate.notNull(locationSource, "locationSource must not be null");
+        Validate.notNull(locationStore, "locationStore must not be null");
 
         if (!hierarchyFilePath.isFile()) {
             throw new IllegalArgumentException(hierarchyFilePath.getAbsolutePath() + " does not exist or is no file");
@@ -213,7 +210,7 @@ public final class GeonamesImporter {
                 if (split.length == 3) {
                     type = split[2];
                 }
-                locationSource.addHierarchy(from, to, type);
+                locationStore.addHierarchy(from, to);
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
@@ -481,8 +478,8 @@ public final class GeonamesImporter {
     }
 
     public static void main(String[] args) throws IOException {
-        // LocationSource locationSource = new MockLocationSource();
-        LocationSource locationSource = new CollectionLocationSource();
+        // LocationSource locationSource = new MockLocationStore();
+        LocationStore locationSource = new CollectionLocationStore();
         // LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // locationSource.truncate();
         importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"), locationSource);
