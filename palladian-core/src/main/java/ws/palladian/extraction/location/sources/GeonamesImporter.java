@@ -353,6 +353,11 @@ public final class GeonamesImporter {
                 return StringUtils.EMPTY;
             }
 
+            // if the location is an administrative city, the parent has the same code
+            if (isAdministrativeCity()) {
+                return getCombinedCode();
+            }
+
             // special case; if we only have one parent code (i.e. country code like DE),
             // we return this
             if (hierarchyCode.size() == 1) {
@@ -404,6 +409,12 @@ public final class GeonamesImporter {
             boolean adminFeatureClass = "A".equals(featureClass);
             boolean adminDivision = Arrays.asList("ADM1", "ADM2", "ADM3", "ADM4", "PCLI").contains(featureCode);
             return continent || (adminFeatureClass && adminDivision);
+        }
+
+        boolean isAdministrativeCity() {
+            boolean city = "P".equals(featureClass);
+            boolean adminSeat = Arrays.asList("PPLC", "PPLA", "PPLA2", "PPLA3", "PPLA4").contains(featureCode);
+            return city && adminSeat;
         }
 
         boolean isCountry() {
