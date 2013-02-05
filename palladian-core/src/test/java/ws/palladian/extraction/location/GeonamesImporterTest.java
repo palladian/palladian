@@ -6,7 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.location.GeonamesImporter.GeonameLocation;
+import ws.palladian.extraction.location.sources.GeonamesImporter;
+import ws.palladian.extraction.location.sources.GeonamesImporter.GeonameLocation;
 
 public class GeonamesImporterTest {
 

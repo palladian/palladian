@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.sources;
 
 import java.util.List;
 
@@ -7,6 +7,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;

@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.sources;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +10,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.DocumentRetriever;
