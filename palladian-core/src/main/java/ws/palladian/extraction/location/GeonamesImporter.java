@@ -36,43 +36,6 @@ public final class GeonamesImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
 
-//    /** Mapping from feature codes from the dataset to LocationType. */
-//    private static final Map<String, LocationType> FEATURE_MAPPING;
-//
-//    static {
-//        // TODO check, whether those mappings make sense
-//        // http://download.geonames.org/export/dump/featureCodes_en.txt
-//        // http://www.geonames.org/export/codes.html
-//        Map<String, LocationType> temp = CollectionHelper.newHashMap();
-//        temp.put("A", LocationType.UNIT);
-//        temp.put("A.PCL", LocationType.COUNTRY);
-//        temp.put("A.PCLD", LocationType.COUNTRY);
-//        temp.put("A.PCLF", LocationType.COUNTRY);
-//        temp.put("A.PCLH", LocationType.COUNTRY);
-//        temp.put("A.PCLI", LocationType.COUNTRY);
-//        temp.put("A.PCLIX", LocationType.COUNTRY);
-//        temp.put("A.PCLS", LocationType.COUNTRY);
-//        temp.put("H", LocationType.LANDMARK);
-//        temp.put("L", LocationType.POI);
-//        temp.put("L.AREA", LocationType.REGION);
-//        temp.put("L.COLF", LocationType.REGION);
-//        temp.put("L.CONT", LocationType.CONTINENT);
-//        temp.put("L.RGN", LocationType.REGION);
-//        temp.put("L.RGNE", LocationType.REGION);
-//        temp.put("L.RGNH", LocationType.REGION);
-//        temp.put("L.RGNL", LocationType.REGION);
-//        temp.put("P", LocationType.CITY);
-//        temp.put("R", LocationType.POI);
-//        temp.put("S", LocationType.POI);
-//        temp.put("T", LocationType.LANDMARK);
-//        temp.put("U", LocationType.LANDMARK);
-//        temp.put("U.BDLU", LocationType.REGION);
-//        temp.put("U.PLNU", LocationType.REGION);
-//        temp.put("U.PRVU", LocationType.REGION);
-//        temp.put("V", LocationType.POI);
-//        FEATURE_MAPPING = Collections.unmodifiableMap(temp);
-//    }
-
     /**
      * <p>
      * Import a Geonames dump into the given {@link LocationStore}.
@@ -434,7 +397,7 @@ public final class GeonamesImporter {
             location.setPrimaryName(primaryName);
             location.setAlternativeNames(alternativeNames);
             location.setPopulation(population);
-            location.setType(GeonamesLocationSource.mapType(featureClass, featureCode));
+            location.setType(GeonamesUtil.mapType(featureClass, featureCode));
             return location;
         }
 
