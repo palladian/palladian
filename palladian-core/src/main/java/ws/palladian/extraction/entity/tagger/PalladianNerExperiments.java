@@ -69,13 +69,8 @@ public class PalladianNerExperiments {
 
         String taggerName = tagger.getName();
 
-        // PalladianContentExtractor pce = new PalladianContentExtractor();
-
-        // pce.setDocument(url);
-        // String text = pce.getResultText();
         text = HtmlHelper.stripHtmlTags(text);
         String taggedText = tagger.tag(text);
-        // taggedText = taggedText.replaceAll("\\</(PER|LOC|MISC|ORG|City|Country)\\>", "</span>");
         List<String> temp = CollectionHelper.newArrayList();
         for (LocationType t : LocationType.values()) {
             temp.add(t.name());
@@ -83,6 +78,7 @@ public class PalladianNerExperiments {
         String typeString = StringUtils.join(temp, "|");
         taggedText = taggedText.replaceAll("\\<(" + typeString + ")\\>", "<span class=\"$1\">");
         taggedText = taggedText.replaceAll("\\</(" + typeString + ")\\>", "</span>");
+        taggedText = taggedText.replace("\n", "<br>");
 
         String html = FileHelper.readFileToString("data/temp/raw.html");
         html = html.replace("XXX", taggedText);
@@ -102,7 +98,7 @@ public class PalladianNerExperiments {
         LocationExtractor calaisTagger = new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5");
         PalladianNerExperiments exp = new PalladianNerExperiments();
 
-        File[] files = FileHelper.getFiles("/Users/pk/Desktop/LocationLab/LocationExtractionDataset", ".txt");
+        File[] files = FileHelper.getFiles("C:\\Users\\Sky\\Desktop\\LocationExtractionDataset", "text");
         for (File file : files) {
             System.out.println(file);
             String text = FileHelper.readFileToString(file);
