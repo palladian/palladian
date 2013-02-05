@@ -21,7 +21,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
 /**
  * <p>
  * A {@link LocationSource} witch uses the <a href="http://www.geonames.org">Geonames</a> API. The services provides
- * 2000 queries/hour for free accounts.
+ * 2,000 queries/hour, 30,000 queries/day for free accounts.
  * </p>
  * 
  * @see <a href="http://www.geonames.org/login">Account registration</a>

@@ -65,48 +65,66 @@ public class GeonamesImporterTest {
     public void testParse2() {
         String line = "6555517\tFlein\tFlein\t\t49.1031\t9.21083\tA\tADM4\tDE\t\t01\t081\t08125\t08125030\t6644\t\t191\tEurope/Berlin\t2010-11-24";
         GeonameLocation geonameLocation = GeonamesImporter.parse(line);
-        assertTrue(geonameLocation.isAdministrative());
+        assertTrue(geonameLocation.isAdministrativeUnit());
         assertEquals("DE.01.081.08125.08125030", geonameLocation.getCombinedCode());
+
+        line = "2926304\tFlein\tFlein\tFlein\t49.10306\t9.21083\tP\tPPLA4\tDE\t\t01\t081\t08125\t08125030\t6558\t\t191\tEurope/Berlin\t2011-04-25";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertFalse(geonameLocation.isAdministrativeUnit());
+        assertEquals("DE.01.081.08125.08125030", geonameLocation.getCombinedCode());
+        assertEquals("DE.01.081.08125", geonameLocation.getParentCode());
 
         line = "2921044\tFederal Republic of Germany\tFederal Republic of Germany\tA' Ghearmailt,Alamagn,Alemagne,Alemaina,Alemana,Alemana - Deutschland,Alemanha,Alemani,Alemania,Alemanu,Alemanya,Alemaña,Alemaña - Deutschland,Alimaniya,Alimanya,Alimaɲi,Allemagne,Allemangne,Almaan,Almaañ,Almanija,Almaniya,Almanya,Almayn,Alémani,An Ghearmain,An Ghearmáin,Budaaki,Bundesrepublik Deutschland,Daeitschland,Deitschland,Deitschlånd,Deutaen,Deutschland,Deutän,Discuessiun sura la fundazziun,Discüssiun sura la fundazziun,Dueuetschland,Duiska,Duiskka,Duitschland,Duitsland,Dutslan,Duutsjlandj,Duutsland,Däitschland,Dútslân,Düütschland,Federal Republic of Germany,GJuc,German,Germani,Germania,Germania nutome,Germanija,Germanio,Germanja,Germanujo,Germany,Germània,Girimane,Girmania,Gjermani,Gjermania,Gjermanie,Gyaaman,Heremani,IJalimani,Jamani,Jamus,Jarmal,Jarmalka,Jerman,Jermaniya,Jámánì,Jėrman,Miemiecko,Miemieckô,Nemachka,Nemacka,Nemačka,Nemcija,Nemecko,Nemetorszag,Nemska,Nemčija,Niemcy,Nimeccina,Njamechchyna,Njemacka,Njemačka,Njeremani,Németország,Německo,Němska,Olmon,Olmonija,Olmoniya,Orileede Gemani,Orílẹ́ède Gemani,Saksa,Saksamaa,Siaman,Siamane,THeodiscland,THyskaland,Teutotitlan,Teutōtitlan,Tiamana,Toitshi,Tyskland,Tysklandi,Tôitšhi,Týskland,Ubudage,Udachi,Ujerumani,Vacija,Vokietija,Vācija,Yn Ghermaan,Yr Almaen,Zamani,Zermania,Zâmani,alman,almanya,de guo,dog-il,doitsu,doitsu lian bang gong he guo,dotygu'e,germania,grmn,grmnyh,i-Germany,jamina,jarmani,jerman,jermani,jrmny,jrmny/alman,narmani,prathes yexrmni,shphanth satharnrath yexrmni,yexrman,yexrmni,Þýskaland,Þēodiscland,Đức,Ġermanja,Γερμανία,Алмания,Герман,Германи,Германия,Германија,Германія,Немачка,Нямеччына,Німеччина,Олмон,Олмония,Ӂермания,Գերմանիա,גרמניה,דייטשלאנד,آلمان,ألمانيا,ئەڵمانیا,المان,المانيا,جرمني/آلمان,جرمنی,گېرمانىيە,ܓܪܡܢ,जमिन,जर्मनी,জার্মানি,জাৰ্মানি,જર્મની,ଜର୍ମାନୀ,ஜெர்மனி,ஜெர்மன்,ఙర్మని,ಜರ್ಮನಿ,ജര്‍മനി,ജര്‍മ്മനി,ජර්මනිය,ประเทศเยอรมนี,สหพันธ์สาธารณรัฐเยอรมนี,เยอรมนี,เยอรมัน,ເຢຍລະມັນ,ཇཱར་མ་ནི,འཇར་མན་,ဂျာမဏီ,გერმანია,ጀርመን,អាល្លឺម៉ង់,ドイツ,ドイツ連邦共和国,德国,ꄓꇩ,독일\t51.5\t10.5\tA\tPCLI\tDE\t\t00\t\t\t\t81802257\t\t303\tEurope/Berlin\t2012-09-19";
         geonameLocation = GeonamesImporter.parse(line);
         assertTrue(geonameLocation.isCountry());
-        // assertEquals("DE", geonameLocation.getCombinedCode());
         assertEquals("", geonameLocation.getParentCode());
-        assertTrue(geonameLocation.isAdministrative());
+        assertTrue(geonameLocation.isAdministrativeUnit());
         assertEquals(1, geonameLocation.getLevel());
 
         line = "2953481\tBaden-Württemberg\tBaden-Wuerttemberg\tBadaen-Vuertaen,Bade-Wirddebaersch,Bade-Wirddebärsch,Bade-Woeoetebersch,Bade-Wurtemberg,Bade-Wöötebersch,Badehn-Vjurtehmberg,Baden-Virtemberg,Baden-Virtembergo,Baden-Vjurtemberg,Baden-Vuertemberq,Baden-Vyrtemberg,Baden-Vürtemberq,Baden-Wuerrtenberg,Baden-Wuertembaerj,Baden-Wuertembergska,Baden-Wuertembierich,Baden-Wuerttemberg,Baden-Wurtemberch,Baden-Wurtemberg,Baden-Wúrtemberch,Baden-Würrtenberg,Baden-Würtembergska,Baden-Würtembierich,Baden-Würtembärj,Baden-Württemberg,Badenas-Viurtembergas,Badene-Virtemberga,Badenia-Virtembergia,Badenia-Wirtembergia,Badenia-Wurtemberg,Badensko-Wuerttembergska,Badensko-Wuerttembersko,Badensko-Württembergska,Badn-Wuerttmberg,Badän-Vürtän,Bádensko-Württembersko,Bådn-Württmberg,Bādene-Virtemberga,Pays de Bade,Vadi-Vyrtemvergi,Vuitemberg,Wurtemberg,ba deng-fu teng bao,baden=vu~yurutenberuku zhou,badena-vyurtembarga,badenbwileutembeleukeu ju,badenvirtemberg,badn fwrtmbyrgh,badn-wwrtmbrg,badnwrtmbrg,Βάδη-Βυρτεμβέργη,Баден-Виртемберг,Баден-Вюртемберг,Бадэн-Вюртэмберг,באדין-בורטינבירג,באדן-וירטמברג,بادن فورتمبيرغ,بادن-وورتمبرگ,بادنورتمبرگ,بادێن-ڤوورتمبێرگ,باډن ورټم بېرګ,बाडेन-व्युर्टेंबर्ग,รัฐบาเดิน-เวือร์ทเทมแบร์ก,ბადენ-ვიურტემბერგი,バーデン＝ヴュルテンベルク州,巴登-符腾堡,바덴뷔르템베르크 주\t48.5\t9\tA\tADM1\tDE\t\t01\t\t\t\t10744921\t\t327\tEurope/Berlin\t2012-08-08";
         geonameLocation = GeonamesImporter.parse(line);
-        assertTrue(geonameLocation.isAdministrative());
+        assertTrue(geonameLocation.isAdministrativeUnit());
         assertEquals(2, geonameLocation.getLevel());
 
         line = "3214105\tRegierungsbezirk Stuttgart\tRegierungsbezirk Stuttgart\tDistrict de Stuttgart,Regierungsbezirk Stuttgart\t49.08333\t9.66667\tA\tADM2\tDE\t\t01\t081\t\t\t4000848\t\t365\tEurope/Berlin\t2012-01-19";
         geonameLocation = GeonamesImporter.parse(line);
-        assertTrue(geonameLocation.isAdministrative());
+        assertTrue(geonameLocation.isAdministrativeUnit());
         assertEquals(3, geonameLocation.getLevel());
 
         line = "3220785\tStadtkreis Stuttgart\tStadtkreis Stuttgart\t\t48.7825\t9.17694\tA\tADM3\tDE\t\t01\t081\t08111\t\t601646\t\t252\tEurope/Berlin\t2010-11-24";
         geonameLocation = GeonamesImporter.parse(line);
-        assertTrue(geonameLocation.isAdministrative());
+        assertTrue(geonameLocation.isAdministrativeUnit());
         assertEquals(4, geonameLocation.getLevel());
 
         line = "2825297\tStuttgart\tStuttgart\tEstugarda,Gorad Shtutgart,STR,Shhutgart,Shtutgart,Shtutgarti,Shtuttgart,Stocarda,Stoccarda,Stoutnkarde,Stucarda,Stuggart,Stutgardia,Stutgartas,Stutgarte,Stutgarto,Stutqart,Stuttgart,ashtwtgart,ch tuthth kar th,icututkart,shtwtghart,shuto~uttogaruto,si tu jia te,stutagarta,stwtgrt,syututeugaleuteu,Ştutqart,Štutgartas,Štutgarte,Στουτγκάρδη,Горад Штутгарт,Штутгарт,Штуттгарт,Щутгарт,שטוטגארט,שטוטגרט,اشتوتگارت,سٹٹگارٹ,شتوتغارت,شٹوٹگارٹ,श्टुटगार्ट,স্টুটগার্ট,સ્ટુટગાર્ટ,இசுடுட்கார்ட்,സ്റ്റുട്ട്ഗാർട്ട്,ชตุทท์การ์ท,შტუტგარტი,シュトゥットガルト,斯图加特,슈투트가르트\t48.78232\t9.17702\tP\tPPLA\tDE\t\t01\t081\t08111\t\t589793\t\t252\tEurope/Berlin\t2011-06-16";
         geonameLocation = GeonamesImporter.parse(line);
         assertEquals(-1, geonameLocation.getLevel());
-        assertFalse(geonameLocation.isAdministrative());
+        assertFalse(geonameLocation.isAdministrativeUnit());
 
         line = "2917786\tKreisfreie Stadt Greifswald\tKreisfreie Stadt Greifswald\tKreisfreie Stadt Greifswald,Stadtkreis Greifswald\t54.085\t13.41806\tA\tADM3\tDE\t\t12\t00\t13001\t\t54362\t\t4\tEurope/Berlin\t2012-01-18";
         geonameLocation = GeonamesImporter.parse(line);
-        assertTrue(geonameLocation.isAdministrative());
+        assertTrue(geonameLocation.isAdministrativeUnit());
         assertEquals(4, geonameLocation.getLevel());
+        assertEquals("DE.12.00.13001", geonameLocation.getCombinedCode());
         assertEquals("DE.12", geonameLocation.getParentCode());
 
         line = "3076167\tFlöha\tFloha\tFlajsky Patok,Fleyh-Bach,Floeha River,Flohe,Flájský Patok,Flöhe\t50.85911\t13.08626\tH\tSTM\tDE\tDE,CZ\t\t\t\t\t0\t\t273\tEurope/Berlin\t2008-12-26";
         geonameLocation = GeonamesImporter.parse(line);
-        assertFalse(geonameLocation.isAdministrative());
+        assertFalse(geonameLocation.isAdministrativeUnit());
         assertEquals(-1, geonameLocation.getLevel());
         assertEquals("DE", geonameLocation.getParentCode());
+
+        line = "2831574\tSolkau\tSolkau\t\t52.91123\t10.83853\tP\tPPL\tDE\t\t06\t00\t\t\t0\t\t61\tEurope/Berlin\t2010-11-22";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertFalse(geonameLocation.isAdministrativeUnit());
+        assertEquals(-1, geonameLocation.getLevel());
+        assertEquals("DE.06", geonameLocation.getParentCode());
+
+        line = "3220743\tLandkreis Heilbronn\tLandkreis Heilbronn\tLandkreis Heilbronn\t49.2\t9.2\tA\tADM3\tDE\t\t01\t081\t08125\t\t329054\t\t166\tEurope/Berlin\t2012-05-06";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertTrue(geonameLocation.isAdministrativeUnit());
+        assertEquals("DE.01.081.08125", geonameLocation.getCombinedCode());
+        assertEquals("DE.01.081", geonameLocation.getParentCode());
     }
 
 }

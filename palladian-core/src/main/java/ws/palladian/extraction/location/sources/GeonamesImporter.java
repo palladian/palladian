@@ -124,7 +124,7 @@ public final class GeonamesImporter {
             public void readLocation(GeonameLocation geonameLocation) {
                 locationStore.save(geonameLocation.buildLocation());
                 // for non administrative, we have to add the parent here...
-                if (!geonameLocation.isAdministrative()) {
+                if (!geonameLocation.isAdministrativeUnit()) {
                     GeonameLocation parentLocation = adminLocations.get(geonameLocation.getParentCode());
                     if (parentLocation != null) {
                         locationStore.addHierarchy(geonameLocation.geonamesId, parentLocation.geonamesId);
@@ -150,7 +150,7 @@ public final class GeonamesImporter {
                 if (currentLocation.getLevel() == i) {
                     GeonameLocation parent = adminLocations.get(currentLocation.getParentCode());
                     if (parent == null) {
-                        LOGGER.error("No parent found for {} ({}) with {}", new Object[] {currentLocation.primaryName,
+                        LOGGER.warn("No parent found for {} ({}) with {}", new Object[] {currentLocation.primaryName,
                                 currentLocation.geonamesId, currentLocation.getParentCode()});
                         continue;
                     }
@@ -175,7 +175,7 @@ public final class GeonamesImporter {
         readLocations(inputStream, totalLines, new LocationLineCallback() {
             @Override
             public void readLocation(GeonameLocation geonameLocation) {
-                if (geonameLocation.isAdministrative()) {
+                if (geonameLocation.isAdministrativeUnit()) {
                     adminLocations.put(geonameLocation.getCombinedCode(), geonameLocation);
                 }
             }
@@ -213,13 +213,13 @@ public final class GeonamesImporter {
                 if (split.length < 2) {
                     return;
                 }
-                int from = Integer.valueOf(split[0]);
-                int to = Integer.valueOf(split[1]);
+                int parentId = Integer.valueOf(split[0]);
+                int childId = Integer.valueOf(split[1]);
 //                String type = null;
 //                if (split.length == 3) {
 //                    type = split[2];
 //                }
-                locationStore.addHierarchy(from, to);
+                locationStore.addHierarchy(childId, parentId);
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
@@ -399,7 +399,7 @@ public final class GeonamesImporter {
             return ret;
         }
 
-        boolean isAdministrative() {
+        boolean isAdministrativeUnit() {
             boolean continent = "L".equals(featureClass) && "CONT".equals(featureCode);
             boolean adminFeatureClass = "A".equals(featureClass);
             boolean adminDivision = Arrays.asList("ADM1", "ADM2", "ADM3", "ADM4", "PCLI").contains(featureCode);
