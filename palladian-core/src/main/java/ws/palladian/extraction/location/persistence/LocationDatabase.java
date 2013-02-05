@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,15 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.OneColumnRowConverter;
 import ws.palladian.persistence.RowConverter;
 
-public class LocationDatabase extends DatabaseManager implements LocationStore {
+/**
+ * <p>
+ * A {@link LocationStore} which is realized by a SQL database. Use the {@link DatabaseManagerFactory} to create
+ * instances of this class. The database schema can be found in <code>/config/locationDbSchema.sql</code>.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
+public final class LocationDatabase extends DatabaseManager implements LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
@@ -27,10 +36,10 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?";
-    private static final String ADD_HIERARCHY = "INSERT INTO location_hierarchy SET parentId = ?, childId = ?";
+    private static final String ADD_HIERARCHY = "INSERT INTO location_hierarchy SET childId = ?, parentId = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT alternativeName FROM location_alternative_names WHERE locationId = ?";
-    private static final String GET_LOCATION_PARENT = "SELECT * FROM locations, location_hierarchy WHERE locations.id = parentId AND childId = ?";
+    private static final String GET_LOCATION_PARENT = "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.childId AND h.parentId = ?";
     private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
 
     // ////////////////// row converts ////////////////////////////////////
@@ -97,13 +106,22 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     }
     
     @Override
-    public void addHierarchy(int fromId, int toId) {
-        runInsertReturnId(ADD_HIERARCHY, fromId, toId);
+    public void addHierarchy(int childId, int parentId) {
+        runInsertReturnId(ADD_HIERARCHY, childId, parentId);
     }
     
     @Override
     public List<Location> getHierarchy(Location location) {
-        return runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, location.getId());
+        List<Location> ret = CollectionHelper.newArrayList();
+        Location currentLocation = location;
+        for (;;) {
+            currentLocation = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, currentLocation.getId());
+            if (currentLocation == null) {
+                break;
+            }
+            ret.add(currentLocation);
+        }
+        return ret;
     }
 
     public void truncate() {
@@ -139,12 +157,13 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 //            System.out.println(stopWatch);
 //        }
         
-        List<Location> locations = locationSource.retrieveLocations("Berlin");
+        List<Location> locations = locationSource.retrieveLocations("flein");
         for (Location location : locations) {
             System.out.println(location);
             List<Location> parents = locationSource.getHierarchy(location);
+            int indent = 0;
             for (Location parent : parents) {
-                System.out.println(" -> " + parent);
+                System.out.println(StringUtils.repeat("  ", ++indent) + parent);
             }
         }
     }
