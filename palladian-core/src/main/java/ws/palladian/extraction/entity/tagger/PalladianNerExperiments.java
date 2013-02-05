@@ -17,15 +17,15 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.OpenCalaisLocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 
 public class PalladianNerExperiments {
 
-    private static final String WX_API_KEY = "ubve84tz3498zncq84z59238bzv5389";
-    private static final String GEONAMES_USERNAME = "qqilihq";
+    // FIXME remove hard coded api keys
+    public static final String WX_API_KEY = "ubve84tz3498zncq84z59238bzv5389";
+    public static final String GEONAMES_USERNAME = "qqilihq";
 
     public void trainTest() {
         PalladianNer tagger = new PalladianNer();
@@ -51,7 +51,7 @@ public class PalladianNerExperiments {
 
         // train the tagger on the training file (with or without additional training annotations)
 
-//         tagger.train(trainingPath, modelPath);
+        //         tagger.train(trainingPath, modelPath);
 
         // Annotations annotations = new Annotations();
         String trainingSeedFilePath = "data/namesNerDictionary.txt";
@@ -62,7 +62,7 @@ public class PalladianNerExperiments {
                 TaggingFormat.COLUMN);
         System.out.println(evaluationResult.getMUCResultsReadable());
         System.out.println(evaluationResult.getExactMatchResultsReadable());
-//        FileHelper.writeToFile("data/temp/conllEvaluation", evaluationResult.toString());
+        //        FileHelper.writeToFile("data/temp/conllEvaluation", evaluationResult.toString());
     }
 
     public void tag(String text, String fileName, NamedEntityRecognizer tagger) throws PageContentExtractorException {
@@ -110,8 +110,8 @@ public class PalladianNerExperiments {
                 exp.tag(text, file.getName(), palladianTagger);
                 exp.tag(text, file.getName(), calaisTagger);
 
-                LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-                evaluator.evaluate(file.getAbsolutePath());
+                // LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
+                // evaluator.evaluate(file.getAbsolutePath());
 
             } catch (Exception e) {
                 e.printStackTrace();
