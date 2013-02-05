@@ -14,16 +14,16 @@ import ws.palladian.helper.collection.MultiMap;
  * 
  * @author Philipp Katz
  */
-public class CollectionLocationSource implements LocationSource {
+public class CollectionLocationStore implements LocationStore {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(CollectionLocationSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CollectionLocationStore.class);
 
     private final Map<Integer, Location> locationsIds;
     private final MultiMap<String, Location> locationsNames;
     private final MultiMap<Integer, Integer> hierarchy; // XXX not sure, if a normal map wouldn't be sufficient here
 
-    public CollectionLocationSource() {
+    public CollectionLocationStore() {
         locationsIds = CollectionHelper.newHashMap();
         locationsNames = MultiMap.create();
         hierarchy = MultiMap.create();
@@ -44,7 +44,10 @@ public class CollectionLocationSource implements LocationSource {
     }
 
     @Override
-    public void addHierarchy(int childId, int parentId, String type) {
+    public void addHierarchy(int childId, int parentId) {
+        if (childId == parentId) {
+            throw new IllegalArgumentException("A child cannot be the parent of itself (id was " + childId + ")");
+        }
         hierarchy.add(childId, parentId);
     }
 
@@ -82,7 +85,7 @@ public class CollectionLocationSource implements LocationSource {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("CollectionLocationSource [#locationsIds=");
+        builder.append("CollectionLocationStore [#locationsIds=");
         builder.append(locationsIds.size());
         builder.append(", #locationsNames=");
         builder.append(locationsNames.size());

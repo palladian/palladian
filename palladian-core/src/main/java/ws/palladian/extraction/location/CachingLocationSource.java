@@ -72,16 +72,6 @@ public final class CachingLocationSource implements LocationSource {
     }
 
     @Override
-    public void save(Location location) {
-        locationSource.save(location);
-    }
-
-    @Override
-    public void addHierarchy(int fromId, int toId, String type) {
-        locationSource.addHierarchy(fromId, toId, type);
-    }
-
-    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("CachingLocationSource (");

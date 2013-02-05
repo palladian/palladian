@@ -91,16 +91,6 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public void save(Location location) {
-        throw new UnsupportedOperationException("Read only!");
-    }
-
-    @Override
-    public void addHierarchy(int fromId, int toId, String type) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Location retrieveLocation(int locationId) {
         throw new UnsupportedOperationException();
     }

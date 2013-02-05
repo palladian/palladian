@@ -182,16 +182,6 @@ public class GeonamesLocationSource implements LocationSource {
     }
 
     @Override
-    public void save(Location location) {
-        throw new UnsupportedOperationException("Modifications are not supported.");
-    }
-
-    @Override
-    public void addHierarchy(int fromId, int toId, String type) {
-        throw new UnsupportedOperationException("Modifications are not supported.");
-    }
-
-    @Override
     public Location retrieveLocation(int locationId) {
         try {
             String getUrl = String.format("http://api.geonames.org/get?geonameId=%s&username=%s&style=LONG",
