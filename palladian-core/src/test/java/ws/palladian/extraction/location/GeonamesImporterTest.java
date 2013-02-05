@@ -68,6 +68,9 @@ public class GeonamesImporterTest {
 
         line = "2921044\tFederal Republic of Germany\tFederal Republic of Germany\tA' Ghearmailt,Alamagn,Alemagne,Alemaina,Alemana,Alemana - Deutschland,Alemanha,Alemani,Alemania,Alemanu,Alemanya,Alemaña,Alemaña - Deutschland,Alimaniya,Alimanya,Alimaɲi,Allemagne,Allemangne,Almaan,Almaañ,Almanija,Almaniya,Almanya,Almayn,Alémani,An Ghearmain,An Ghearmáin,Budaaki,Bundesrepublik Deutschland,Daeitschland,Deitschland,Deitschlånd,Deutaen,Deutschland,Deutän,Discuessiun sura la fundazziun,Discüssiun sura la fundazziun,Dueuetschland,Duiska,Duiskka,Duitschland,Duitsland,Dutslan,Duutsjlandj,Duutsland,Däitschland,Dútslân,Düütschland,Federal Republic of Germany,GJuc,German,Germani,Germania,Germania nutome,Germanija,Germanio,Germanja,Germanujo,Germany,Germània,Girimane,Girmania,Gjermani,Gjermania,Gjermanie,Gyaaman,Heremani,IJalimani,Jamani,Jamus,Jarmal,Jarmalka,Jerman,Jermaniya,Jámánì,Jėrman,Miemiecko,Miemieckô,Nemachka,Nemacka,Nemačka,Nemcija,Nemecko,Nemetorszag,Nemska,Nemčija,Niemcy,Nimeccina,Njamechchyna,Njemacka,Njemačka,Njeremani,Németország,Německo,Němska,Olmon,Olmonija,Olmoniya,Orileede Gemani,Orílẹ́ède Gemani,Saksa,Saksamaa,Siaman,Siamane,THeodiscland,THyskaland,Teutotitlan,Teutōtitlan,Tiamana,Toitshi,Tyskland,Tysklandi,Tôitšhi,Týskland,Ubudage,Udachi,Ujerumani,Vacija,Vokietija,Vācija,Yn Ghermaan,Yr Almaen,Zamani,Zermania,Zâmani,alman,almanya,de guo,dog-il,doitsu,doitsu lian bang gong he guo,dotygu'e,germania,grmn,grmnyh,i-Germany,jamina,jarmani,jerman,jermani,jrmny,jrmny/alman,narmani,prathes yexrmni,shphanth satharnrath yexrmni,yexrman,yexrmni,Þýskaland,Þēodiscland,Đức,Ġermanja,Γερμανία,Алмания,Герман,Германи,Германия,Германија,Германія,Немачка,Нямеччына,Німеччина,Олмон,Олмония,Ӂермания,Գերմանիա,גרמניה,דייטשלאנד,آلمان,ألمانيا,ئەڵمانیا,المان,المانيا,جرمني/آلمان,جرمنی,گېرمانىيە,ܓܪܡܢ,जमिन,जर्मनी,জার্মানি,জাৰ্মানি,જર્મની,ଜର୍ମାନୀ,ஜெர்மனி,ஜெர்மன்,ఙర్మని,ಜರ್ಮನಿ,ജര്‍മനി,ജര്‍മ്മനി,ජර්මනිය,ประเทศเยอรมนี,สหพันธ์สาธารณรัฐเยอรมนี,เยอรมนี,เยอรมัน,ເຢຍລະມັນ,ཇཱར་མ་ནི,འཇར་མན་,ဂျာမဏီ,გერმანია,ጀርመን,អាល្លឺម៉ង់,ドイツ,ドイツ連邦共和国,德国,ꄓꇩ,독일\t51.5\t10.5\tA\tPCLI\tDE\t\t00\t\t\t\t81802257\t\t303\tEurope/Berlin\t2012-09-19";
         geonameLocation = GeonamesImporter.parse(line);
+        assertTrue(geonameLocation.isCountry());
+        // assertEquals("DE", geonameLocation.getCombinedCode());
+        assertEquals("", geonameLocation.getParentCode());
         assertTrue(geonameLocation.isAdministrative());
         assertEquals(1, geonameLocation.getLevel());
 
@@ -96,6 +99,12 @@ public class GeonamesImporterTest {
         assertTrue(geonameLocation.isAdministrative());
         assertEquals(4, geonameLocation.getLevel());
         assertEquals("DE.12", geonameLocation.getParentCode());
+
+        line = "3076167\tFlöha\tFloha\tFlajsky Patok,Fleyh-Bach,Floeha River,Flohe,Flájský Patok,Flöhe\t50.85911\t13.08626\tH\tSTM\tDE\tDE,CZ\t\t\t\t\t0\t\t273\tEurope/Berlin\t2008-12-26";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertFalse(geonameLocation.isAdministrative());
+        assertEquals(-1, geonameLocation.getLevel());
+        assertEquals("DE", geonameLocation.getParentCode());
     }
 
 }
