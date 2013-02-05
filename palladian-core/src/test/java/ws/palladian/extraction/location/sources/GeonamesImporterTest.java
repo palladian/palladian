@@ -71,8 +71,9 @@ public class GeonamesImporterTest {
         line = "2926304\tFlein\tFlein\tFlein\t49.10306\t9.21083\tP\tPPLA4\tDE\t\t01\t081\t08125\t08125030\t6558\t\t191\tEurope/Berlin\t2011-04-25";
         geonameLocation = GeonamesImporter.parse(line);
         assertFalse(geonameLocation.isAdministrativeUnit());
+        assertTrue(geonameLocation.isAdministrativeCity());
         assertEquals("DE.01.081.08125.08125030", geonameLocation.getCombinedCode());
-        assertEquals("DE.01.081.08125", geonameLocation.getParentCode());
+        assertEquals("DE.01.081.08125.08125030", geonameLocation.getParentCode());
 
         line = "2921044\tFederal Republic of Germany\tFederal Republic of Germany\tA' Ghearmailt,Alamagn,Alemagne,Alemaina,Alemana,Alemana - Deutschland,Alemanha,Alemani,Alemania,Alemanu,Alemanya,Alemaña,Alemaña - Deutschland,Alimaniya,Alimanya,Alimaɲi,Allemagne,Allemangne,Almaan,Almaañ,Almanija,Almaniya,Almanya,Almayn,Alémani,An Ghearmain,An Ghearmáin,Budaaki,Bundesrepublik Deutschland,Daeitschland,Deitschland,Deitschlånd,Deutaen,Deutschland,Deutän,Discuessiun sura la fundazziun,Discüssiun sura la fundazziun,Dueuetschland,Duiska,Duiskka,Duitschland,Duitsland,Dutslan,Duutsjlandj,Duutsland,Däitschland,Dútslân,Düütschland,Federal Republic of Germany,GJuc,German,Germani,Germania,Germania nutome,Germanija,Germanio,Germanja,Germanujo,Germany,Germània,Girimane,Girmania,Gjermani,Gjermania,Gjermanie,Gyaaman,Heremani,IJalimani,Jamani,Jamus,Jarmal,Jarmalka,Jerman,Jermaniya,Jámánì,Jėrman,Miemiecko,Miemieckô,Nemachka,Nemacka,Nemačka,Nemcija,Nemecko,Nemetorszag,Nemska,Nemčija,Niemcy,Nimeccina,Njamechchyna,Njemacka,Njemačka,Njeremani,Németország,Německo,Němska,Olmon,Olmonija,Olmoniya,Orileede Gemani,Orílẹ́ède Gemani,Saksa,Saksamaa,Siaman,Siamane,THeodiscland,THyskaland,Teutotitlan,Teutōtitlan,Tiamana,Toitshi,Tyskland,Tysklandi,Tôitšhi,Týskland,Ubudage,Udachi,Ujerumani,Vacija,Vokietija,Vācija,Yn Ghermaan,Yr Almaen,Zamani,Zermania,Zâmani,alman,almanya,de guo,dog-il,doitsu,doitsu lian bang gong he guo,dotygu'e,germania,grmn,grmnyh,i-Germany,jamina,jarmani,jerman,jermani,jrmny,jrmny/alman,narmani,prathes yexrmni,shphanth satharnrath yexrmni,yexrman,yexrmni,Þýskaland,Þēodiscland,Đức,Ġermanja,Γερμανία,Алмания,Герман,Германи,Германия,Германија,Германія,Немачка,Нямеччына,Німеччина,Олмон,Олмония,Ӂермания,Գերմանիա,גרמניה,דייטשלאנד,آلمان,ألمانيا,ئەڵمانیا,المان,المانيا,جرمني/آلمان,جرمنی,گېرمانىيە,ܓܪܡܢ,जमिन,जर्मनी,জার্মানি,জাৰ্মানি,જર્મની,ଜର୍ମାନୀ,ஜெர்மனி,ஜெர்மன்,ఙర్మని,ಜರ್ಮನಿ,ജര്‍മനി,ജര്‍മ്മനി,ජර්මනිය,ประเทศเยอรมนี,สหพันธ์สาธารณรัฐเยอรมนี,เยอรมนี,เยอรมัน,ເຢຍລະມັນ,ཇཱར་མ་ནི,འཇར་མན་,ဂျာမဏီ,გერმანია,ጀርመን,អាល្លឺម៉ង់,ドイツ,ドイツ連邦共和国,德国,ꄓꇩ,독일\t51.5\t10.5\tA\tPCLI\tDE\t\t00\t\t\t\t81802257\t\t303\tEurope/Berlin\t2012-09-19";
         geonameLocation = GeonamesImporter.parse(line);
@@ -125,6 +126,12 @@ public class GeonamesImporterTest {
         assertTrue(geonameLocation.isAdministrativeUnit());
         assertEquals("DE.01.081.08125", geonameLocation.getCombinedCode());
         assertEquals("DE.01.081", geonameLocation.getParentCode());
+
+        line = "2803474\tZwota\tZwota\t\t50.38333\t12.43333\tP\tPPLA4\tDE\t\t13\t145\t14523\t14523470\t1541\t\t744\tEurope/Berlin\t2011-07-31";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertTrue(geonameLocation.isAdministrativeCity());
+        assertEquals("DE.13.145.14523.14523470", geonameLocation.getCombinedCode());
+        assertEquals("DE.13.145.14523.14523470", geonameLocation.getParentCode());
     }
 
 }
