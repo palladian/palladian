@@ -1,34 +1,93 @@
 package ws.palladian.extraction.location.evaluation;
 
-import java.util.List;
+import java.io.File;
+import java.util.Map;
 
 import ws.palladian.extraction.entity.TaggingFormat;
-import ws.palladian.extraction.location.AlchemyLocationExtractor;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.tagger.PalladianNerExperiments;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.OpenCalaisLocationExtractor;
+import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 
 public class LocationExtractionEvaluator {
 
-    public void evaluate(String goldStandardTaggedTextPath) {
+    public Map<String, Double> evaluateAll(LocationExtractor extractor, String goldStandardFileFolderPath) {
 
-        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
-        extractors.add(new AlchemyLocationExtractor("FIXME"));
-        extractors.add(new OpenCalaisLocationExtractor("FIXME"));
-        // extractors.add(new PalladianLocationExtractor());
+        Map<String, Double> averageResult = CollectionHelper.newHashMap();
 
-        for (LocationExtractor locationExtractor : extractors) {
-            locationExtractor.evaluate(goldStandardTaggedTextPath, TaggingFormat.XML);
+        File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
+
+        double precisionMuc = 0;
+        double precisionExact = 0;
+        double recallMuc = 0;
+        double recallExact = 0;
+        double f1Muc = 0;
+        double f1Exact = 0;
+
+        for (File file : files) {
+            EvaluationResult result = extractor.evaluate(file.getAbsolutePath(), TaggingFormat.XML);
+
+            Double precision = result.getPrecision(EvaluationResult.MUC);
+            if (!precision.equals(Double.NaN)) {
+                precisionMuc += precision;
+            }
+            Double precision2 = result.getPrecision(EvaluationResult.EXACT_MATCH);
+            if (!precision2.equals(Double.NaN)) {
+                precisionExact += precision2;
+            }
+            Double recall = result.getRecall(EvaluationResult.MUC);
+            if (!recall.equals(Double.NaN)) {
+                recallMuc += recall;
+            }
+            Double recall2 = result.getRecall(EvaluationResult.EXACT_MATCH);
+            if (!recall2.equals(Double.NaN)) {
+                recallExact += recall2;
+            }
+            Double f1 = result.getF1(EvaluationResult.MUC);
+            if (!f1.equals(Double.NaN)) {
+                f1Muc += f1;
+            }
+            Double f12 = result.getF1(EvaluationResult.EXACT_MATCH);
+            if (!f12.equals(Double.NaN)) {
+                f1Exact += f12;
+            }
         }
 
+        averageResult.put("Precision-MUC", precisionMuc / files.length);
+        averageResult.put("Precision-Exact", precisionExact / files.length);
+        averageResult.put("Recall-MUC", recallMuc / files.length);
+        averageResult.put("Recall-Exact", recallExact / files.length);
+        averageResult.put("F1-MUC", f1Muc / files.length);
+        averageResult.put("F1-Exact", f1Exact / files.length);
+
+        return averageResult;
     }
+
+    // public EvaluationResult evaluate(LocationExtractor extractor, String goldStandardTaggedTextPath) {
+    //
+    // EvaluationResult result = locationExtractor.evaluate(goldStandardTaggedTextPath, TaggingFormat.XML);
+    // System.out.println(result.getF1(EvaluationResult.EXACT_MATCH));
+    //
+    // return averageResult;
+    // }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        evaluator.evaluate("text5.txt");
+        Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(
+                PalladianNerExperiments.WX_API_KEY, PalladianNerExperiments.GEONAMES_USERNAME),
+                "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
+        // Map<String, Double> results = evaluator.evaluateAll(
+        // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"),
+        // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
+
+        CollectionHelper.print(results);
+
+        // EvaluationResult result = extractor.evaluate("text5.txt", TaggingFormat.XML);
     }
 
 }
