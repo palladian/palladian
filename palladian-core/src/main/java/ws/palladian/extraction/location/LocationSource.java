@@ -10,6 +10,6 @@ public interface LocationSource {
     
     // for writeble implementations only
     void save(Location location);
-    void addHierarchy(int fromId, int toId, String type);
+    void addHierarchy(int childId, int parentId, String type);
 
 }

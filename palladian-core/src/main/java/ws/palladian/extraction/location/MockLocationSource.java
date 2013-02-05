@@ -18,12 +18,12 @@ public class MockLocationSource implements LocationSource {
 
     @Override
     public void save(Location location) {
-        LOGGER.info("Saving {}", location);
+        LOGGER.trace("Saving {}", location);
     }
 
     @Override
     public void addHierarchy(int fromId, int toId, String type) {
-        LOGGER.info("Hierarchy from {} to {} with type {}", new Object[] {fromId, toId, type});
+        LOGGER.trace("Hierarchy from {} to {} with type {}", new Object[] {fromId, toId, type});
     }
 
     @Override
