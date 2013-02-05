@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationSource;
+import ws.palladian.extraction.location.LocationStore;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.DatabaseManager;
@@ -19,17 +19,15 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.OneColumnRowConverter;
 import ws.palladian.persistence.RowConverter;
 
-public class LocationDatabase extends DatabaseManager implements LocationSource {
+public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
 
     // ////////////////// location prepared statements ////////////////////
-    // XXX using INSERT IGNORE to avoid lots of errors because of unique constraints
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
-    // private static final String ADD_LOCATION = "INSERT INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?";
-    private static final String ADD_HIERARCHY = "INSERT INTO location_hierarchy SET parentId = ?, childId = ?, type = ?";
+    private static final String ADD_HIERARCHY = "INSERT INTO location_hierarchy SET parentId = ?, childId = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT alternativeName FROM location_alternative_names WHERE locationId = ?";
     private static final String GET_LOCATION_PARENT = "SELECT * FROM locations, location_hierarchy WHERE locations.id = parentId AND childId = ?";
@@ -67,6 +65,11 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
         return locations;
     }
 
+    @Override
+    public Location retrieveLocation(int locationId) {
+        return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
+    }
+
     private List<String> getAlternativeNames(int locationId) {
         return runQuery(OneColumnRowConverter.STRING, GET_LOCATION_ALTERNATIVE_NAMES, locationId);
     }
@@ -94,15 +97,14 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
     }
     
     @Override
-    public void addHierarchy(int fromId, int toId, String type) {
-        runInsertReturnId(ADD_HIERARCHY, fromId, toId, type);
+    public void addHierarchy(int fromId, int toId) {
+        runInsertReturnId(ADD_HIERARCHY, fromId, toId);
     }
     
     @Override
     public List<Location> getHierarchy(Location location) {
         return runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, location.getId());
     }
-
 
     public void truncate() {
         System.out.println("Really truncate the location database?");
@@ -145,11 +147,6 @@ public class LocationDatabase extends DatabaseManager implements LocationSource 
                 System.out.println(" -> " + parent);
             }
         }
-    }
-
-    @Override
-    public Location retrieveLocation(int locationId) {
-        return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
     }
 
 }
