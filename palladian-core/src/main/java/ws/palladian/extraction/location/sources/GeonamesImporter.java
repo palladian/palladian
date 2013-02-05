@@ -17,11 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
@@ -486,24 +488,24 @@ public final class GeonamesImporter {
 
     public static void main(String[] args) throws IOException {
         // LocationSource locationSource = new MockLocationStore();
-        LocationStore locationSource = new CollectionLocationStore();
-        // LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        // locationSource.truncate();
+        // LocationStore locationSource = new CollectionLocationStore();
+        LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        locationSource.truncate();
         importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"), locationSource);
         // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
         // importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"), locationSource);
 
-        System.out.println(locationSource);
-
-        // List<Location> locations = locationSource.retrieveLocations("stuttgart");
-        List<Location> locations = locationSource.retrieveLocations("Wiendorf");
-        CollectionHelper.print(locations);
-
-        System.out.println("-------");
-
-        Location firstLocation = CollectionHelper.getLast(locations);
-        List<Location> hierarchy = locationSource.getHierarchy(firstLocation);
-        CollectionHelper.print(hierarchy);
+        // System.out.println(locationSource);
+        //
+        // // List<Location> locations = locationSource.retrieveLocations("stuttgart");
+        // List<Location> locations = locationSource.retrieveLocations("Wiendorf");
+        // CollectionHelper.print(locations);
+        //
+        // System.out.println("-------");
+        //
+        // Location firstLocation = CollectionHelper.getLast(locations);
+        // List<Location> hierarchy = locationSource.getHierarchy(firstLocation);
+        // CollectionHelper.print(hierarchy);
 
     }
 
