@@ -13,7 +13,7 @@ import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
-public class YahooPlaceSpotterTest {
+public class YahooLocationExtractorTest {
     
     @Test
     public void testParse() throws Exception {

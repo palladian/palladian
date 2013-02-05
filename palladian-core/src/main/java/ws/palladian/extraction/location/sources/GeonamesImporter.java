@@ -57,7 +57,7 @@ public final class GeonamesImporter {
             throw new IllegalArgumentException("Input data must be a ZIP file");
         }
 
-        // read directly from the ZIP file
+        // read directly from the ZIP file, get the entry in the file with the location data
         ZipFile zipFile = null;
         InputStream inputStream1 = null;
         InputStream inputStream2 = null;
@@ -65,69 +65,36 @@ public final class GeonamesImporter {
         try {
             zipFile = new ZipFile(filePath);
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+            ZipEntry locationZipEntry = null;
             while (zipEntries.hasMoreElements()) {
-                ZipEntry currentEntry = zipEntries.nextElement();
-                String zipEntryName = currentEntry.getName().toLowerCase();
+                locationZipEntry = zipEntries.nextElement();
+                String zipEntryName = locationZipEntry.getName().toLowerCase();
                 if (zipEntryName.endsWith(".txt") && !zipEntryName.contains("readme")) {
-
-                    LOGGER.info("Checking size of {} in {}", currentEntry.getName(), filePath);
-                    inputStream1 = zipFile.getInputStream(currentEntry);
-                    final int totalLines = FileHelper.getNumberOfLines(inputStream1);
-                    FileHelper.close(inputStream1);
-                    LOGGER.info("Starting import, {} items in total", totalLines);
-
-                    LOGGER.info("/////////////////// Reading administrative items //////////////////////");
-                    final Map<String, GeonameLocation> adminLocations = CollectionHelper.newHashMap();
-                    inputStream2 = zipFile.getInputStream(currentEntry);
-                    readLocations(inputStream2, totalLines, new LocationLineCallback() {
-                        @Override
-                        public void readLocation(GeonameLocation geonameLocation) {
-                            if (geonameLocation.isAdministrative()) {
-                                adminLocations.put(geonameLocation.getCombinedCode(), geonameLocation);
-                            }
-                        }
-                    });
-                    FileHelper.close(inputStream2);
-                    LOGGER.info("Finished reading {} administrative items", adminLocations.size());
-
-                    LOGGER.info("///////////////////// Inserting hierarchy /////////////////////////////");
-                    for (int i = 0; i <= 5; i++) {
-                        for (GeonameLocation currentLocation : adminLocations.values()) {
-                            if (currentLocation.getLevel() == i) {
-                                GeonameLocation parent = adminLocations.get(currentLocation.getParentCode());
-                                if (parent == null) {
-                                    LOGGER.error("No parent found for {} ({}) with {}",
-                                            new Object[] {currentLocation.primaryName, currentLocation.geonamesId,
-                                                    currentLocation.getParentCode()});
-                                    continue;
-                                }
-                                locationStore.addHierarchy(currentLocation.geonamesId, parent.geonamesId);
-                            }
-                        }
-                    }
-                    LOGGER.info("Finished inserting hierarchy");
-
-                    LOGGER.info("///////////////////// Inserting locations /////////////////////////////");
-                    inputStream3 = zipFile.getInputStream(currentEntry);
-                    readLocations(inputStream3, totalLines, new LocationLineCallback() {
-                        @Override
-                        public void readLocation(GeonameLocation geonameLocation) {
-                            locationStore.save(geonameLocation.buildLocation());
-                            // for non administrative, we have to add the parent here...
-                            if (!geonameLocation.isAdministrative()) {
-                                GeonameLocation parentLocation = adminLocations.get(geonameLocation.getParentCode());
-                                if (parentLocation != null) {
-                                    locationStore.addHierarchy(geonameLocation.geonamesId, parentLocation.geonamesId);
-                                } else {
-                                    System.out.println("No parent for " + geonameLocation.geonamesId);
-                                }
-                            }
-                        }
-                    });
-                    FileHelper.close(inputStream3);
-                    LOGGER.info("Finished importing {} items", totalLines);
+                    break;
                 }
             }
+            if (locationZipEntry == null) {
+                throw new IllegalStateException(
+                        "No suitable ZIP entry for import found; make sure the correct file was supplied.");
+            }
+
+            LOGGER.info("Checking size of {} in {}", locationZipEntry.getName(), filePath);
+            inputStream1 = zipFile.getInputStream(locationZipEntry);
+            int totalLines = FileHelper.getNumberOfLines(inputStream1);
+            FileHelper.close(inputStream1);
+            LOGGER.info("Starting import, {} items in total", totalLines);
+
+            inputStream2 = zipFile.getInputStream(locationZipEntry);
+            Map<String, GeonameLocation> adminLocations = readAdministrativeItems(totalLines, inputStream2);
+            FileHelper.close(inputStream2);
+
+            insertAdministrativeItems(locationStore, adminLocations);
+
+            inputStream3 = zipFile.getInputStream(locationZipEntry);
+            insertRemainingItems(locationStore, inputStream3, totalLines, adminLocations);
+            FileHelper.close(inputStream3);
+
+            LOGGER.info("Finished importing {} items", totalLines);
         } finally {
             if (zipFile != null) {
                 try {
@@ -137,6 +104,82 @@ public final class GeonamesImporter {
             }
             FileHelper.close(inputStream1, inputStream2, inputStream3);
         }
+    }
+
+    /**
+     * Insert non-administrative entries and establish their hierarchical relations.
+     * 
+     * @param locationStore
+     * @param inputStream
+     * @param totalLines
+     * @param adminLocations
+     */
+    private static void insertRemainingItems(final LocationStore locationStore, InputStream inputStream,
+            final int totalLines, final Map<String, GeonameLocation> adminLocations) {
+        LOGGER.info("///////////////////// Inserting locations /////////////////////////////");
+        readLocations(inputStream, totalLines, new LocationLineCallback() {
+            @Override
+            public void readLocation(GeonameLocation geonameLocation) {
+                locationStore.save(geonameLocation.buildLocation());
+                // for non administrative, we have to add the parent here...
+                if (!geonameLocation.isAdministrative()) {
+                    GeonameLocation parentLocation = adminLocations.get(geonameLocation.getParentCode());
+                    if (parentLocation != null) {
+                        locationStore.addHierarchy(geonameLocation.geonamesId, parentLocation.geonamesId);
+                    } else {
+                        LOGGER.warn("No parent for {}", geonameLocation.geonamesId);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Insert administrative entries and establish their hierarchical relations.
+     * 
+     * @param locationStore
+     * @param adminLocations
+     */
+    private static void insertAdministrativeItems(final LocationStore locationStore,
+            final Map<String, GeonameLocation> adminLocations) {
+        LOGGER.info("///////////////////// Inserting hierarchy /////////////////////////////");
+        for (int i = 0; i <= 5; i++) {
+            for (GeonameLocation currentLocation : adminLocations.values()) {
+                if (currentLocation.getLevel() == i) {
+                    GeonameLocation parent = adminLocations.get(currentLocation.getParentCode());
+                    if (parent == null) {
+                        LOGGER.error("No parent found for {} ({}) with {}", new Object[] {currentLocation.primaryName,
+                                currentLocation.geonamesId, currentLocation.getParentCode()});
+                        continue;
+                    }
+                    locationStore.addHierarchy(currentLocation.geonamesId, parent.geonamesId);
+                }
+            }
+        }
+        LOGGER.info("Finished inserting hierarchy");
+    }
+
+    /**
+     * Read administrative entries and return them as {@link Map}, so that they can be refered to later, when we need to
+     * look up hierarchical relations.
+     * 
+     * @param totalLines The total number of lines to process, just for informative reasons (progress display).
+     * @param inputStream Stream to the input file.
+     * @return
+     */
+    private static Map<String, GeonameLocation> readAdministrativeItems(final int totalLines, InputStream inputStream) {
+        LOGGER.info("/////////////////// Reading administrative items //////////////////////");
+        final Map<String, GeonameLocation> adminLocations = CollectionHelper.newHashMap();
+        readLocations(inputStream, totalLines, new LocationLineCallback() {
+            @Override
+            public void readLocation(GeonameLocation geonameLocation) {
+                if (geonameLocation.isAdministrative()) {
+                    adminLocations.put(geonameLocation.getCombinedCode(), geonameLocation);
+                }
+            }
+        });
+        LOGGER.info("Finished reading {} administrative items", adminLocations.size());
+        return adminLocations;
     }
 
     /**
@@ -170,10 +213,10 @@ public final class GeonamesImporter {
                 }
                 int from = Integer.valueOf(split[0]);
                 int to = Integer.valueOf(split[1]);
-                String type = null;
-                if (split.length == 3) {
-                    type = split[2];
-                }
+//                String type = null;
+//                if (split.length == 3) {
+//                    type = split[2];
+//                }
                 locationStore.addHierarchy(from, to);
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
