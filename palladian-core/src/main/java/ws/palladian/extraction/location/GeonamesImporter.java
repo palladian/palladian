@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -99,6 +98,7 @@ public final class GeonamesImporter {
         ZipFile zipFile = null;
         InputStream inputStream1 = null;
         InputStream inputStream2 = null;
+        InputStream inputStream3 = null;
         try {
             zipFile = new ZipFile(filePath);
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
@@ -107,14 +107,15 @@ public final class GeonamesImporter {
                 String zipEntryName = currentEntry.getName().toLowerCase();
                 if (zipEntryName.endsWith(".txt") && !zipEntryName.contains("readme")) {
 
-                    final Map<String, GeonameLocation> adminLocations = CollectionHelper.newHashMap();
 
                     LOGGER.info("Checking size of {} in {}", currentEntry.getName(), filePath);
                     inputStream1 = zipFile.getInputStream(currentEntry);
                     final int totalLines = FileHelper.getNumberOfLines(inputStream1);
+                    FileHelper.close(inputStream1);
                     LOGGER.info("Starting import, {} items in total", totalLines);
 
                     LOGGER.info("/////////////////// Reading administrative items //////////////////////");
+                    final Map<String, GeonameLocation> adminLocations = CollectionHelper.newHashMap();
                     inputStream2 = zipFile.getInputStream(currentEntry);
                     readLocations(inputStream2, totalLines, new LocationLineCallback() {
                         @Override
@@ -124,34 +125,46 @@ public final class GeonamesImporter {
                             }
                         }
                     });
+                    FileHelper.close(inputStream2);
                     LOGGER.info("Finished reading {} administrative items", adminLocations.size());
 
-                    // insert administrative hierarchy
                     LOGGER.info("///////////////////// Inserting hierarchy /////////////////////////////");
-                    Collection<GeonameLocation> adminLocationsCollection = adminLocations.values();
-                    for (int i = 0; i <= 5; i++) { // XXX was 5
-                        System.out.println("========== LEVEL " + i + " ===========");
-                        for (GeonameLocation location : adminLocationsCollection) {
-                            if (location.getLevel() == i) {
-                                GeonameLocation parent = adminLocations.get(location.getParentCode());
-                                String parentName = parent == null ? null : parent.primaryName;
-                                System.out.println(location.getCombinedCode() + " : " + location.primaryName + " < "
-                                        + parentName);
+                    for (int i = 0; i <= 5; i++) {
+                        for (GeonameLocation currentLocation : adminLocations.values()) {
+                            if (currentLocation.getLevel() == i) {
+                                GeonameLocation parent = adminLocations.get(currentLocation.getParentCode());
+                                if (parent == null) {
+                                    LOGGER.error("No parent found for {} ({}) with {}",
+                                            new Object[] {currentLocation.primaryName, currentLocation.geonamesId,
+                                                    currentLocation.getParentCode()});
+                                    continue;
+                                }
+                                locationSource.addHierarchy(currentLocation.geonamesId, parent.geonamesId, null);
                             }
                         }
                     }
+                    LOGGER.info("Finished inserting hierarchy");
 
-                    // Location location = locationHolder.buildLocation();
-                    // locationSource.save(location);
-                    // String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
-                    // if (progress.length() > 0) {
-                    // LOGGER.info(progress);
-                    // }
-                    // }
-                    // });
-                    // System.out.println(adminLocations.size());
-                    // CollectionHelper.print(adminLocations);
-                    LOGGER.info("Finished importing");
+                    LOGGER.info("///////////////////// Inserting locations /////////////////////////////");
+                    inputStream3 = zipFile.getInputStream(currentEntry);
+                    readLocations(inputStream3, totalLines, new LocationLineCallback() {
+                        @Override
+                        public void readLocation(GeonameLocation geonameLocation) {
+                            locationSource.save(geonameLocation.buildLocation());
+                            // for non administrative, we have to add the parent here...
+                            if (!geonameLocation.isAdministrative()) {
+                                GeonameLocation parentLocation = adminLocations.get(geonameLocation.getParentCode());
+                                if (parentLocation != null) {
+                                    locationSource.addHierarchy(geonameLocation.geonamesId, parentLocation.geonamesId,
+                                            null);
+                                } else {
+                                    System.out.println("No parent for " + geonameLocation.geonamesId);
+                                }
+                            }
+                        }
+                    });
+                    FileHelper.close(inputStream3);
+                    LOGGER.info("Finished importing {} items", totalLines);
                 }
             }
         } finally {
@@ -161,7 +174,7 @@ public final class GeonamesImporter {
                 } catch (IOException e) {
                 }
             }
-            FileHelper.close(inputStream1, inputStream2);
+            FileHelper.close(inputStream1, inputStream2, inputStream3);
         }
     }
 
@@ -456,12 +469,26 @@ public final class GeonamesImporter {
     }
 
     public static void main(String[] args) throws IOException {
-        LocationSource locationSource = new MockLocationSource();
+        // LocationSource locationSource = new MockLocationSource();
+        LocationSource locationSource = new CollectionLocationSource();
         // LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // locationSource.truncate();
         importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"), locationSource);
         // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
         // importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"), locationSource);
+
+        System.out.println(locationSource);
+
+        // List<Location> locations = locationSource.retrieveLocations("stuttgart");
+        List<Location> locations = locationSource.retrieveLocations("Wiendorf");
+        CollectionHelper.print(locations);
+
+        System.out.println("-------");
+
+        Location firstLocation = CollectionHelper.getLast(locations);
+        List<Location> hierarchy = locationSource.getHierarchy(firstLocation);
+        CollectionHelper.print(hierarchy);
+
     }
 
 }
