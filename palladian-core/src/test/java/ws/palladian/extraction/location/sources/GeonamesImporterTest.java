@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.sources;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -6,7 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.location.sources.GeonamesImporter;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.GeonamesImporter.GeonameLocation;
 
 public class GeonamesImporterTest {

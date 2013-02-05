@@ -1,13 +1,13 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.sources;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import ws.palladian.extraction.location.sources.GeonamesLocationSource;
+import ws.palladian.extraction.location.Location;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
