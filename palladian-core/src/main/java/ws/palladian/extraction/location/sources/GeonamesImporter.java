@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.sources;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.Location;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;

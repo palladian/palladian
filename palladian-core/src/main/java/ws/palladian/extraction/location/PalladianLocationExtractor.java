@@ -11,6 +11,8 @@ import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.tagger.WebKnoxNer;
+import ws.palladian.extraction.location.sources.CachingLocationSource;
+import ws.palladian.extraction.location.sources.GeonamesLocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
 

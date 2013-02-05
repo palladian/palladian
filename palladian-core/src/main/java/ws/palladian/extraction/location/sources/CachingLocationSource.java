@@ -1,8 +1,10 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.sources;
 
 import java.util.List;
 import java.util.Map;
 
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**

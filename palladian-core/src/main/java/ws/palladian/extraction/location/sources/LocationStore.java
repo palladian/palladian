@@ -1,4 +1,7 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.sources;
+
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
 
 /**
  * <p>

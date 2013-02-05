@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
+import ws.palladian.extraction.location.sources.GeonamesLocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
