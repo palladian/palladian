@@ -135,6 +135,14 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         runUpdate("TRUNCATE TABLE location_hierarchy");
     }
 
+    /**
+     * Flush tables and reset query cache for performance checks.
+     */
+    public void resetForPerformanceCheck() {
+        runUpdate("FLUSH TABLES");
+        runUpdate("RESET QUERY CACHE");
+    }
+
     public static void main(String[] args) {
         LocationDatabase locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // Exception Incorrect string value: '\xC4\x81wi' for column 'name' at row 1 when performing SQL "INSERT INTO locations SET type = ?, name= ?, longitude = ?, latitude = ?, population = ?" with args "CITY,Aj Jenqāwi,31.2623,12.9076,0"
@@ -156,16 +164,24 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 //            CollectionHelper.print(locations);
 //            System.out.println(stopWatch);
 //        }
-        
-        List<Location> locations = locationSource.retrieveLocations("flein");
-        for (Location location : locations) {
-            System.out.println(location);
-            List<Location> parents = locationSource.getHierarchy(location);
-            int indent = 0;
-            for (Location parent : parents) {
-                System.out.println(StringUtils.repeat("  ", ++indent) + parent);
+
+        // StopWatch stopWatch = new StopWatch();
+        // for (int i = 0; i < 10; i++) {
+        // System.out.println(i);
+        // locationSource.resetForPerformanceCheck();
+        List<Location> locations = locationSource.retrieveLocations("Kleindehsa");
+            for (Location location : locations) {
+                System.out.println(location);
+                List<Location> parents = locationSource.getHierarchy(location);
+                int indent = 0;
+                for (Location parent : parents) {
+                    System.out.println(StringUtils.repeat("  ", ++indent) + parent);
+                }
             }
-        }
+        // }
+        // System.out.println(stopWatch);
+
+        // 52s:767ms
     }
 
 }

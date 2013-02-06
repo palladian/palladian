@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-02-05 16:18:50 +0000
+# Erstellungsdauer: 2013-02-06 14:04:12 +0000
 # ************************************************************
 
 
@@ -42,7 +42,9 @@ DROP TABLE IF EXISTS `location_hierarchy`;
 CREATE TABLE `location_hierarchy` (
   `parentId` bigint(20) unsigned NOT NULL COMMENT 'The parent in the hierarchical relation.',
   `childId` bigint(20) unsigned NOT NULL COMMENT 'The child in the hierarchical relation.',
-  UNIQUE KEY `parentChildUnique` (`parentId`,`childId`)
+  UNIQUE KEY `parentChildUnique` (`parentId`,`childId`),
+  KEY `parentId` (`parentId`),
+  KEY `childId` (`childId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -54,10 +56,10 @@ DROP TABLE IF EXISTS `locations`;
 
 CREATE TABLE `locations` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'The id of the location.',
-  `type` varchar(50) NOT NULL COMMENT 'The type of the location.',
+  `type` varchar(20) NOT NULL DEFAULT '' COMMENT 'The type of the location.',
   `name` varchar(255) NOT NULL COMMENT 'The primary name of the location.',
-  `longitude` double(15,3) NOT NULL COMMENT 'The longitude of the location.',
-  `latitude` double(15,3) NOT NULL COMMENT 'The latitude of the location.',
+  `longitude` double(8,5) NOT NULL COMMENT 'The longitude of the location.',
+  `latitude` double(8,5) NOT NULL COMMENT 'The latitude of the location.',
   `population` int(11) DEFAULT NULL COMMENT 'If applicable, the population of the location.',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`type`,`name`,`longitude`,`latitude`),

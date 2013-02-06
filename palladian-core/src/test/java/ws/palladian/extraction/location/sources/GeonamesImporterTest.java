@@ -132,6 +132,25 @@ public class GeonamesImporterTest {
         assertTrue(geonameLocation.isAdministrativeCity());
         assertEquals("DE.13.145.14523.14523470", geonameLocation.getCombinedCode());
         assertEquals("DE.13.145.14523.14523470", geonameLocation.getParentCode());
+
+        line = "2889621\tKleindehsa\tKleindehsa\t\t51.10518\t14.59419\tP\tPPL\tDE\t\t13\t\t\t\t0\t\t332\tEurope/Berlin\t2012-06-05";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertFalse(geonameLocation.isAdministrativeCity());
+        assertEquals("DE.13", geonameLocation.getCombinedCode());
+        assertEquals("DE.13", geonameLocation.getParentCode());
+
+        line = "2950159\tBerlin\tBerlin\tBER,Beirlin,Beirlín,Berleno,Berlien,Berliin,Berliini,Berlijn,Berlim,Berlin,Berline,Berlini,Berlino,Berlyn,Berlynas,Berlëno,Berlín,Berlîn,Berlīne,Berolino,Berolinum,Birlinu,Bèrlîn,Estat de Berlin,Estat de Berlín,bai lin,barlina,beleullin,berlini,berurin,bexrlin,brlyn,perlin,Βερολίνο,Берлин,Берлін,Бэрлін,Բերլին,בערלין,ברלין,برلين,برلین,بېرلىن,ܒܪܠܝܢ,बर्लिन,বার্লিন,பெர்லின்,เบอร์ลิน,ბერლინი,ベルリン,柏林,베를린\t52.52437\t13.41053\tP\tPPLC\tDE\t\t16\t00\t11000\t11000000\t3426354\t74\t43\tEurope/Berlin\t2012-09-19";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertTrue(geonameLocation.isAdministrativeCity());
+        assertEquals("DE.16.00.11000.11000000", geonameLocation.getCombinedCode());
+        assertEquals("DE.16.00.11000.11000000", geonameLocation.getParentCode());
+
+        line = "2917484\tGriefstedt\tGriefstedt\t\t51.22957\t11.12932\tP\tPPLA4\tDE\t\t15\t00\t16068\t16068015\t326\t\t140\tEurope/Berlin\t2012-08-28";
+        geonameLocation = GeonamesImporter.parse(line);
+        assertTrue(geonameLocation.isAdministrativeCity());
+        assertEquals("DE.15.00.16068.16068015", geonameLocation.getCombinedCode());
+        assertEquals("DE.15.00.16068.16068015", geonameLocation.getParentCode());
+
     }
 
 }
