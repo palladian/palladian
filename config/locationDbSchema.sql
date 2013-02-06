@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-02-06 14:04:12 +0000
+# Erstellungsdauer: 2013-02-06 15:08:10 +0000
 # ************************************************************
 
 
@@ -62,7 +62,6 @@ CREATE TABLE `locations` (
   `latitude` double(8,5) NOT NULL COMMENT 'The latitude of the location.',
   `population` int(11) DEFAULT NULL COMMENT 'If applicable, the population of the location.',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique` (`type`,`name`,`longitude`,`latitude`),
   KEY `name` (`name`),
   KEY `type` (`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
