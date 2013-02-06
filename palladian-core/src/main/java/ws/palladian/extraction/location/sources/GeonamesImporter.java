@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -380,15 +379,22 @@ public final class GeonamesImporter {
             // if we have entries with zeros, remove them and the following;
             // this is necessary, if we have a hierarchy spanning more than one level
             // (e.g. ADM1 < ADM3)
-            Iterator<String> iterator = hierarchyCode.iterator();
-            boolean remove = false;
-            while (iterator.hasNext()) {
-                String current = iterator.next();
-                if (remove || current.matches("[0]+")) {
-                    iterator.remove();
-                    remove = true;
-                }
+//            Iterator<String> iterator = hierarchyCode.iterator();
+//            boolean remove = false;
+//            while (iterator.hasNext()) {
+//                String current = iterator.next();
+//                if (remove || current.matches("[0]+")) {
+//                    iterator.remove();
+//                    remove = true;
+//                }
+//            }
+
+            // if we end on a part only consisting of zeros, remove that
+            String lastPart = CollectionHelper.getLast(hierarchyCode);
+            if (lastPart.matches("[0]+")) {
+                hierarchyCode.remove(hierarchyCode.size() - 1);
             }
+
             return StringUtils.join(hierarchyCode, '.');
         }
 
