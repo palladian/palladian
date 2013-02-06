@@ -226,7 +226,7 @@ public final class GeonamesImporter {
                 }
             }
         });
-        LOGGER.info("Finished import");
+        LOGGER.info("Finished importing hierarchy in {}", stopWatch.getTotalElapsedTimeString());
     }
 
     /**
@@ -344,6 +344,14 @@ public final class GeonamesImporter {
             return StringUtils.join(getHierarchyCode(), '.');
         }
 
+        /**
+         * This is the core logic of mapping the admin columns to a single code which we can use for looking up parents.
+         * It started simple, then grew complicated. And I'm pretty sure there are more exceptions which we have to
+         * consider, so if you find, that the imported geonames data has errors in the hierarchy, here is the place to
+         * fix.
+         * 
+         * @return
+         */
         String getParentCode() {
             List<String> hierarchyCode = getHierarchyCode();
 
@@ -365,7 +373,9 @@ public final class GeonamesImporter {
             }
 
             // remove the last item
-            hierarchyCode.remove(hierarchyCode.size() - 1);
+            if (isAdministrativeUnit()) {
+                hierarchyCode.remove(hierarchyCode.size() - 1);
+            }
 
             // if we have entries with zeros, remove them and the following;
             // this is necessary, if we have a hierarchy spanning more than one level
@@ -504,20 +514,7 @@ public final class GeonamesImporter {
         locationSource.truncate();
         importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"), locationSource);
         // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"), locationSource);
-        // importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"), locationSource);
-
-        // System.out.println(locationSource);
-        //
-        // // List<Location> locations = locationSource.retrieveLocations("stuttgart");
-        // List<Location> locations = locationSource.retrieveLocations("Wiendorf");
-        // CollectionHelper.print(locations);
-        //
-        // System.out.println("-------");
-        //
-        // Location firstLocation = CollectionHelper.getLast(locations);
-        // List<Location> hierarchy = locationSource.getHierarchy(firstLocation);
-        // CollectionHelper.print(hierarchy);
-
+        importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"), locationSource);
     }
 
 }
