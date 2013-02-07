@@ -173,7 +173,7 @@ public final class GeonamesImporter {
                 if (parentLocationId != null) {
                     locationStore.addHierarchy(geonameLocation.geonamesId, parentLocationId);
                 } else {
-                    LOGGER.warn("No parent for {}", geonameLocation.geonamesId);
+                    LOGGER.debug("No parent for {}", geonameLocation.geonamesId);
                 }
             }
         });
@@ -206,7 +206,8 @@ public final class GeonamesImporter {
         readLocations(inputStream, totalLines, new LocationLineCallback() {
             @Override
             public void readLocation(GeonameLocation geonameLocation) {
-                if (geonameLocation.isAdministrativeUnit()) {
+                Integer existingItem = adminMappings.get(geonameLocation.getCodeCombined());
+                if (existingItem == null && geonameLocation.isAdministrativeUnit()) {
                     Integer temp = adminMappings.get(geonameLocation.getCodeCombined());
                     if (temp == null) {
                         adminMappings.put(geonameLocation.getCodeCombined(), geonameLocation.geonamesId);
@@ -332,6 +333,9 @@ public final class GeonamesImporter {
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
+                if (line.isEmpty()) {
+                    return;
+                }
                 GeonameLocation geonameLocation = parse(line);
                 callback.readLocation(geonameLocation);
                 String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
@@ -454,9 +458,9 @@ public final class GeonamesImporter {
         locationStore.truncate();
 
         GeonamesImporter importer = new GeonamesImporter(locationStore);
+        importer.importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"));
         importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"));
         // importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"));
-        importer.importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"));
     }
 
 }

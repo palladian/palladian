@@ -21,8 +21,8 @@ public class GeonamesImporterTest {
     public void readData() throws FileNotFoundException, IOException {
         locationStore = new CollectionLocationStore();
         GeonamesImporter importer = new GeonamesImporter(locationStore);
-        importer.importLocations(ResourceHelper.getResourceFile("/geonames.org/locationData.txt"));
         importer.importHierarchy(ResourceHelper.getResourceFile("/geonames.org/hierarchy.txt"));
+        importer.importLocations(ResourceHelper.getResourceFile("/geonames.org/locationData.txt"));
     }
 
     @Test
@@ -56,6 +56,8 @@ public class GeonamesImporterTest {
         location = locationStore.retrieveLocation(6295630);
         assertEquals("Earth", location.getPrimaryName());
         assertEquals(LocationType.REGION, location.getType());
+        assertEquals(0, location.getLongitude(), 0);
+        assertEquals(0, location.getLatitude(), 0);
 
         location = locationStore.retrieveLocation(7268814);
         assertEquals("Pueblo Sud Subbarrio", location.getPrimaryName());
@@ -137,6 +139,10 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(location);
         checkHierarchy(hierarchy, 6547383, 2950157, 2921044, 6255148, 6295630);
 
+        location = locationStore.retrieveLocation(2950159);
+        hierarchy = locationStore.getHierarchy(location);
+        checkHierarchy(hierarchy, 6547539, 6547383, 2950157, 2921044, 6255148, 6295630);
+
         location = locationStore.retrieveLocation(1529666);
         hierarchy = locationStore.getHierarchy(location);
         checkHierarchy(hierarchy, 2847618, 2921044, 6255148, 6295630);
@@ -157,15 +163,17 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(location);
         checkHierarchy(hierarchy, 6295630);
 
-        // FIXME
-        // location = locationStore.retrieveLocation(5148141);
-        // hierarchy = locationStore.getHierarchy(location);
-        // CollectionHelper.print(hierarchy);
-        // checkHierarchy(hierarchy, 5173541, 5159079, 5165418, 6252001, 6255149, 6295630);
+        location = locationStore.retrieveLocation(5148141);
+        hierarchy = locationStore.getHierarchy(location);
+        checkHierarchy(hierarchy, 5173541, 5159079, 5165418, 6252001, 6255149, 6295630);
 
         location = locationStore.retrieveLocation(5173541);
         hierarchy = locationStore.getHierarchy(location);
         checkHierarchy(hierarchy, 5159079, 5165418, 6252001, 6255149, 6295630);
+
+        location = locationStore.retrieveLocation(6527550);
+        hierarchy = locationStore.getHierarchy(location);
+        checkHierarchy(hierarchy, 8133957, 263021, 6697808, 390903, 6255148, 6295630);
 
     }
 
