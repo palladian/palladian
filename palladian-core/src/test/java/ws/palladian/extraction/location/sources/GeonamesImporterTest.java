@@ -107,118 +107,73 @@ public class GeonamesImporterTest {
     public void testHierarchies() {
         Location location = locationStore.retrieveLocation(2926304);
         List<Location> hierarchy = locationStore.getHierarchy(location);
-        assertEquals(7, hierarchy.size());
-        assertEquals(6555517, hierarchy.get(0).getId());
-        assertEquals(3220743, hierarchy.get(1).getId());
-        assertEquals(3214105, hierarchy.get(2).getId());
-        assertEquals(2953481, hierarchy.get(3).getId());
-        assertEquals(2921044, hierarchy.get(4).getId());
-        assertEquals(6255148, hierarchy.get(5).getId());
-        assertEquals(6295630, hierarchy.get(6).getId());
+        checkHierarchy(hierarchy, 6555517, 3220743, 3214105, 2953481, 2921044, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(2825297);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(6, hierarchy.size());
-        assertEquals(3220785, hierarchy.get(0).getId());
-        assertEquals(3214105, hierarchy.get(1).getId());
-        assertEquals(2953481, hierarchy.get(2).getId());
-        assertEquals(2921044, hierarchy.get(3).getId());
-        assertEquals(6255148, hierarchy.get(4).getId());
-        assertEquals(6295630, hierarchy.get(5).getId());
+        checkHierarchy(hierarchy, 3220785, 3214105, 2953481, 2921044, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(7268814);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(4, hierarchy.size());
-        assertEquals(4562997, hierarchy.get(0).getId());
-        assertEquals(4566966, hierarchy.get(1).getId());
-        assertEquals(6255149, hierarchy.get(2).getId());
-        assertEquals(6295630, hierarchy.get(3).getId());
+        checkHierarchy(hierarchy, 4562997, 4566966, 6255149, 6295630);
 
         location = locationStore.retrieveLocation(2766409);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(5, hierarchy.size());
-        assertEquals(2771016, hierarchy.get(0).getId());
-        assertEquals(2764581, hierarchy.get(1).getId());
-        assertEquals(2782113, hierarchy.get(2).getId());
-        assertEquals(6255148, hierarchy.get(3).getId());
-        assertEquals(6295630, hierarchy.get(4).getId());
+        checkHierarchy(hierarchy, 2771016, 2764581, 2782113, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(2803474);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(7, hierarchy.size());
-        assertEquals(6548548, hierarchy.get(0).getId());
-        assertEquals(6547384, hierarchy.get(1).getId());
-        assertEquals(3305801, hierarchy.get(2).getId());
-        assertEquals(2842566, hierarchy.get(3).getId());
-        assertEquals(2921044, hierarchy.get(4).getId());
-        assertEquals(6255148, hierarchy.get(5).getId());
-        assertEquals(6295630, hierarchy.get(6).getId());
+        checkHierarchy(hierarchy, 6548548, 6547384, 3305801, 2842566, 2921044, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(2831574);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(4, hierarchy.size());
-        assertEquals(2862926, hierarchy.get(0).getId());
-        assertEquals(2921044, hierarchy.get(1).getId());
-        assertEquals(6255148, hierarchy.get(2).getId());
-        assertEquals(6295630, hierarchy.get(3).getId());
+        checkHierarchy(hierarchy, 2862926, 2921044, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(2917786);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(4, hierarchy.size());
-        assertEquals(2872567, hierarchy.get(0).getId());
-        assertEquals(2921044, hierarchy.get(1).getId());
-        assertEquals(6255148, hierarchy.get(2).getId());
-        assertEquals(6295630, hierarchy.get(3).getId());
+        checkHierarchy(hierarchy, 2872567, 2921044, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(6547539);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(5, hierarchy.size());
-        assertEquals(6547383, hierarchy.get(0).getId());
-        assertEquals(2950157, hierarchy.get(1).getId());
-        assertEquals(2921044, hierarchy.get(2).getId());
-        assertEquals(6255148, hierarchy.get(3).getId());
-        assertEquals(6295630, hierarchy.get(4).getId());
+        checkHierarchy(hierarchy, 6547383, 2950157, 2921044, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(1529666);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(4, hierarchy.size());
-        assertEquals(2847618, hierarchy.get(0).getId());
-        assertEquals(2921044, hierarchy.get(1).getId());
-        assertEquals(6255148, hierarchy.get(2).getId());
-        assertEquals(6295630, hierarchy.get(3).getId());
+        checkHierarchy(hierarchy, 2847618, 2921044, 6255148, 6295630);
 
         location = locationStore.retrieveLocation(4953706);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(5, hierarchy.size());
-        assertEquals(4938757, hierarchy.get(0).getId());
-        assertEquals(6254926, hierarchy.get(1).getId());
-        assertEquals(6252001, hierarchy.get(2).getId());
-        assertEquals(6255149, hierarchy.get(3).getId());
-        assertEquals(6295630, hierarchy.get(4).getId());
+        checkHierarchy(hierarchy, 4938757, 6254926, 6252001, 6255149, 6295630);
 
         location = locationStore.retrieveLocation(5795921);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(5, hierarchy.size());
-        assertEquals(5790164, hierarchy.get(0).getId());
-        assertEquals(5815135, hierarchy.get(1).getId());
-        assertEquals(6252001, hierarchy.get(2).getId());
-        assertEquals(6255149, hierarchy.get(3).getId());
-        assertEquals(6295630, hierarchy.get(4).getId());
+        checkHierarchy(hierarchy, 5790164, 5815135, 6252001, 6255149, 6295630);
 
         location = locationStore.retrieveLocation(5342044);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(5, hierarchy.size());
-        assertEquals(5359604, hierarchy.get(0).getId());
-        assertEquals(5332921, hierarchy.get(1).getId());
-        assertEquals(6252001, hierarchy.get(2).getId());
-        assertEquals(6255149, hierarchy.get(3).getId());
-        assertEquals(6295630, hierarchy.get(4).getId());
+        checkHierarchy(hierarchy, 5359604, 5332921, 6252001, 6255149, 6295630);
 
         location = locationStore.retrieveLocation(6255147);
         hierarchy = locationStore.getHierarchy(location);
-        assertEquals(1, hierarchy.size());
-        assertEquals(6295630, hierarchy.get(0).getId());
+        checkHierarchy(hierarchy, 6295630);
 
+        // FIXME
+        // location = locationStore.retrieveLocation(5148141);
+        // hierarchy = locationStore.getHierarchy(location);
+        // CollectionHelper.print(hierarchy);
+        // checkHierarchy(hierarchy, 5173541, 5159079, 5165418, 6252001, 6255149, 6295630);
+
+        location = locationStore.retrieveLocation(5173541);
+        hierarchy = locationStore.getHierarchy(location);
+        checkHierarchy(hierarchy, 5159079, 5165418, 6252001, 6255149, 6295630);
+
+    }
+
+    private void checkHierarchy(List<Location> hierarchy, int... values) {
+        assertEquals(values.length, hierarchy.size());
+        for (int i = 0; i < values.length; i++) {
+            assertEquals(values[i], hierarchy.get(i).getId());
+        }
     }
 
 }

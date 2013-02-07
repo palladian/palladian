@@ -223,7 +223,6 @@ public final class GeonamesImporter {
      * </p>
      * 
      * @param filePath The path to the hierarchy.txt file, not <code>null</code>.
-     * @param locationStore The {@link LocationStore} where to store the data, not <code>null</code>.
      */
     public void importHierarchy(File filePath) {
         Validate.notNull(filePath, "filePath must not be null");
@@ -455,8 +454,8 @@ public final class GeonamesImporter {
         locationStore.truncate();
 
         GeonamesImporter importer = new GeonamesImporter(locationStore);
-        // importFromGeonames(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"), locationSource);
-        importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"));
+        importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"));
+        // importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"));
         importer.importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"));
     }
 
