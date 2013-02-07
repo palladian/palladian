@@ -22,9 +22,11 @@ public class PageAnalyzerTest {
         xps.add(xPaths);
         String longestXPath = xps.getLongestXPath();
 
-        System.out.println("constructed xPath: " + longestXPath);
+        // System.out.println("constructed xPath: " + longestXPath);
         Node node = XPathHelper.getXhtmlNode(wd, longestXPath);
-        System.out.println("node that was found when constructing, must not be null and it is: " + node);
+        // System.out.println("node that was found when constructing, must not be null and it is: " + node);
+        // System.out.println("node that was found when constructing, must not be null and it is: "
+        // + node.getTextContent());
 
         assertNotNull(node);
     }
