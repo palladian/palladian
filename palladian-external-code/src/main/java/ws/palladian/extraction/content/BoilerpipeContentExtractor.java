@@ -13,11 +13,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import ws.palladian.helper.html.HtmlHelper;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.document.TextDocument;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.ExtractorBase;
-import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
+import ws.palladian.processing.TextDocument;
 
 /**
  * <p>

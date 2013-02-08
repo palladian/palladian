@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.images;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>

@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -26,7 +27,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://webknox.com/api">WebKnox API</a>
  * @author David Urbansky
  */
-abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
+public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseWebKnoxSearcher.class);

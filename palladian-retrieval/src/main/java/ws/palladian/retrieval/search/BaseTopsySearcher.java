@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search;
 
 import java.util.List;
 
@@ -13,9 +13,10 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
-abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
+public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
 
     /** The identifier for the API key when provided via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.topsy.key";
@@ -29,7 +30,7 @@ abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
      * 
      * @param apiKey The API key, not <code>null</code> or empty.
      */
-    BaseTopsySearcher(String apiKey) {
+    protected BaseTopsySearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
     }
@@ -42,7 +43,7 @@ abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
      * @param configuration The Configuration providing the required API key via key {@value #CONFIG_API_KEY}, not
      *            <code>null</code>.
      */
-    BaseTopsySearcher(Configuration configuration) {
+    protected BaseTopsySearcher(Configuration configuration) {
         Validate.notNull(configuration, "configuration must not be null");
         this.apiKey = configuration.getString(CONFIG_API_KEY);
     }

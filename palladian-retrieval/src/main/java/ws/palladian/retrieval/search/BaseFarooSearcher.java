@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -27,7 +28,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see http://www.faroo.com/hp/api/api.html#jsonp
  * @author David Urbansky
  */
-abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
+public abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 

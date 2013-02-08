@@ -1,6 +1,8 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.videos;
 
 import java.util.Date;
+
+import ws.palladian.retrieval.search.web.WebResult;
 
 /**
  * <p>

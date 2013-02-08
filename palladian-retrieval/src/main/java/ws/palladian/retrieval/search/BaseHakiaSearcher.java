@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -22,7 +22,8 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -32,7 +33,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see http://blog.hakia.com/?p=312
  * @author Philipp Katz
  */
-abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
+public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseHakiaSearcher.class);

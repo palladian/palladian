@@ -46,7 +46,7 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.search.web.WebImageResult;
+import ws.palladian.retrieval.search.images.WebImageResult;
 
 /**
  * <p>

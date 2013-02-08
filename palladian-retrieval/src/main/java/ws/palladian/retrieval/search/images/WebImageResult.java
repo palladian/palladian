@@ -1,7 +1,10 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.images;
 
 import java.awt.image.BufferedImage;
 import java.util.Date;
+
+import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.web.WebResult;
 
 /**
  * <p>
@@ -17,6 +20,8 @@ public class WebImageResult extends WebResult {
     private final int width;
     private final int height;
     private BufferedImage imageContent = null;
+    private License license = License.UNKNOWN;
+    private ImageType imageType = ImageType.UNKNOWN;
 
     /**
      * <p>
@@ -73,6 +78,22 @@ public class WebImageResult extends WebResult {
 
     public void setImageContent(BufferedImage imageContent) {
         this.imageContent = imageContent;
+    }
+
+    public License getLicense() {
+        return license;
+    }
+
+    public void setLicense(License license) {
+        this.license = license;
+    }
+
+    public ImageType getImageType() {
+        return imageType;
+    }
+
+    public void setImageType(ImageType imageType) {
+        this.imageType = imageType;
     }
 
     /*
