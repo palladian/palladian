@@ -27,8 +27,10 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
- * This class reads data dumps from Geonames (usually you want to take the file "allCountries.zip") and imports them
- * into a given {@link LocationStore}.
+ * This class reads data dumps from Geonames (usually you want to take the files "hierarchy.txt" and "allCountries.zip")
+ * and imports them into a given {@link LocationStore}. <b>Important:</b> When importing, <b>first</b> import the
+ * hierarchy using {@link #importHierarchy(File)}, then import the location data using either
+ * {@link #importLocationsZip(File)} or {@link #importLocations(File)}.
  * </p>
  * 
  * @see <a href="http://download.geonames.org/export/dump/">Geonames dumps</a>
@@ -459,8 +461,8 @@ public final class GeonamesImporter {
 
         GeonamesImporter importer = new GeonamesImporter(locationStore);
         importer.importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"));
-        importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"));
-        // importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"));
+        // importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"));
+        importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"));
     }
 
 }
