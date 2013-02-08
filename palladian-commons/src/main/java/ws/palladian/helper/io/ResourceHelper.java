@@ -17,10 +17,10 @@ import java.net.URLDecoder;
  * 
  * @author Philipp Katz
  */
-public class ResourceHelper {
+public final class ResourceHelper {
 
     private ResourceHelper() {
-
+        // no instances, please.
     }
 
     /**

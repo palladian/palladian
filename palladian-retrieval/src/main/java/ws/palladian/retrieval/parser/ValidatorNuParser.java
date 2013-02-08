@@ -30,7 +30,6 @@ public final class ValidatorNuParser extends BaseDocumentParser {
     @Override
     public Document parse(InputSource inputSource) throws ParserException {
         try {
-            // HtmlDocumentBuilder builder = new HtmlDocumentBuilder(XmlViolationPolicy.ALLOW);
             HtmlDocumentBuilder builder = new HtmlDocumentBuilder();
             return builder.parse(inputSource);
         } catch (SAXException e) {
