@@ -48,6 +48,7 @@ public class WordTransformerTest {
 
     @Test
     public void testWordToPlural() {
+        assertEquals("qualcomm msm7627 3", WordTransformer.wordToPlural("qualcomm msm7627 3", Language.ENGLISH));
         assertEquals(WordTransformer.wordToPlural("elephant", Language.ENGLISH), "elephants");
         assertEquals(WordTransformer.wordToPlural("city", Language.ENGLISH), "cities");
         assertEquals(WordTransformer.wordToPlural("enemy", Language.ENGLISH), "enemies");
@@ -206,68 +207,68 @@ public class WordTransformerTest {
 
     @Test
     public void testGetTense() {
-        
-//        LingPipePosTagger posTagger = new LingPipePosTagger();
-//        posTagger.loadModel("data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
-        
+
+        //        LingPipePosTagger posTagger = new LingPipePosTagger();
+        //        posTagger.loadModel("data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
+
         TagAnnotations tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "VB", ""));
-//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",posTagger));
+        //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",tas));
-        
+
         tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "BEZ", ""));
         tas.add(new TagAnnotation(0, "VBN", ""));
         tas.add(new TagAnnotation(0, "BE", ""));
-//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("He is said to be nice?",posTagger));
+        //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("He is said to be nice?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("He is said to be nice?",tas));
-        
+
         tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "VBN", ""));
-//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("The books are written?",posTagger));
+        //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("The books are written?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("The books are written?",tas));
-        
+
         tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "VBD", ""));
-//        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("They wrote the books?",posTagger));
+        //        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("They wrote the books?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("They wrote the books?",tas));
-        
+
         tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "VB", ""));
         tas.add(new TagAnnotation(0, "DOD", ""));
-//        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there.",posTagger));
+        //        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there.",posTagger));
         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I did not go there.",tas));
-        
+
         tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "BEDZ", ""));
-//        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?",posTagger));
+        //        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("Where was Woodstock?",tas));
-        
+
         tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "BEZ", ""));
-//        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?",posTagger));
+        //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("When is Easter this year?",tas));
 
         tas = new TagAnnotations();
         tas.add(new TagAnnotation(0, "VB", ""));
-//         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence.",posTagger));
-         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence.",tas));
-         
-         tas = new TagAnnotations();
-         tas.add(new TagAnnotation(0, "VBD", ""));
-//         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",posTagger));
-         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",tas));
-         
-         tas = new TagAnnotations();
-         tas.add(new TagAnnotation(0, "HV", ""));
-         tas.add(new TagAnnotation(0, "HVN", ""));
-//         assertEquals(EnglishTense.PRESENT_PERFECT, WordTransformer.getTense("Have you ever had pancakes?",posTagger));
-         assertEquals(EnglishTense.PRESENT_PERFECT, WordTransformer.getTense("Have you ever had pancakes?",tas));
-         
-         tas = new TagAnnotations();
-         tas.add(new TagAnnotation(0, "HVD", ""));
-         tas.add(new TagAnnotation(0, "VBN", ""));
-//         assertEquals(EnglishTense.PAST_PERFECT,WordTransformer.getTense("No, I never had eaten pancakes before today?",posTagger));
-         assertEquals(EnglishTense.PAST_PERFECT,WordTransformer.getTense("No, I never had eaten pancakes before today?",tas));
+        //         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence.",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("I jump over a fence.",tas));
+
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "VBD", ""));
+        //         assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",posTagger));
+        assertEquals(EnglishTense.SIMPLE_PAST, WordTransformer.getTense("I jumped over a fence.",tas));
+
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "HV", ""));
+        tas.add(new TagAnnotation(0, "HVN", ""));
+        //         assertEquals(EnglishTense.PRESENT_PERFECT, WordTransformer.getTense("Have you ever had pancakes?",posTagger));
+        assertEquals(EnglishTense.PRESENT_PERFECT, WordTransformer.getTense("Have you ever had pancakes?",tas));
+
+        tas = new TagAnnotations();
+        tas.add(new TagAnnotation(0, "HVD", ""));
+        tas.add(new TagAnnotation(0, "VBN", ""));
+        //         assertEquals(EnglishTense.PAST_PERFECT,WordTransformer.getTense("No, I never had eaten pancakes before today?",posTagger));
+        assertEquals(EnglishTense.PAST_PERFECT,WordTransformer.getTense("No, I never had eaten pancakes before today?",tas));
     }
 }
