@@ -1,9 +1,11 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.news;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.search.BaseFarooSearcher;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>

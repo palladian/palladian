@@ -1,8 +1,10 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.images;
 
 import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import ws.palladian.retrieval.search.BaseBingSearcher;
 
 /**
  * <p>

@@ -1,7 +1,9 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.images;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import ws.palladian.retrieval.search.BaseGoogleSearcher;
 
 /**
  * <p>

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
+import ws.palladian.retrieval.search.news.NewsSeecrSearcher;
+
 public class NewsSeecrSearcherTest {
 
     @Test

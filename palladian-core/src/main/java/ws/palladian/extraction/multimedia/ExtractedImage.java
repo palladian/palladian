@@ -1,6 +1,6 @@
 package ws.palladian.extraction.multimedia;
 
-import ws.palladian.retrieval.search.web.WebImageResult;
+import ws.palladian.retrieval.search.images.WebImageResult;
 
 /**
  * <p>

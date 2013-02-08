@@ -1,6 +1,8 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.news;
 
 import org.apache.commons.configuration.Configuration;
+
+import ws.palladian.retrieval.search.BaseHakiaSearcher;
 
 /**
  * <p>

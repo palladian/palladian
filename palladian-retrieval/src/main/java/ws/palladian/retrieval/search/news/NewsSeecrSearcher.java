@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.news;
 
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
@@ -31,6 +31,8 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -160,8 +162,8 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
     }
 
     // https://www.mashape.com/docs/consume/rest
-    static String generateMashapeHeader(String publicKey, String privateKey) throws InvalidKeyException,
-            NoSuchAlgorithmException {
+    public static String generateMashapeHeader(String publicKey, String privateKey) throws InvalidKeyException,
+    NoSuchAlgorithmException {
         return new String(Base64.encodeBase64(String.format("%s:%s", publicKey, sha1hmac(publicKey, privateKey))
                 .getBytes()));
     }
@@ -181,7 +183,7 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
         return hmac;
     }
 
-    static Date parseDate(String dateString) {
+    public static Date parseDate(String dateString) {
         DateFormat dateParser = new SimpleDateFormat(DATE_FORMAT);
         try {
             return dateParser.parse(dateString);
