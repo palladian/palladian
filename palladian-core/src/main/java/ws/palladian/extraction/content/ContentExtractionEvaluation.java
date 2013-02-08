@@ -138,7 +138,7 @@ public final class ContentExtractionEvaluation {
         FileHelper.appendFile(outputFile, "------------- stats ------------------\n");
         for (WebPageContentExtractor extractor : extractors) {
             String extractorStats = " " + extractor.getExtractorName() + "\t#wins:" + wins.getCount(extractor) + "\t#errors:"
-                    + errors.getCount(extractor) + "\tavg. score:" + (double) stats.get(extractor) / dataset.size();
+                    + errors.getCount(extractor) + "\tavg. score:" + stats.get(extractor) / dataset.size();
             FileHelper.appendFile(outputFile, extractorStats + "\n");
         }
     }
@@ -264,7 +264,7 @@ public final class ContentExtractionEvaluation {
 
         List<WebPageContentExtractor> extractors = CollectionHelper.newArrayList();
         // extractors to evaluate
-        extractors.add(new BoilerpipeContentExtractor());
+        // extractors.add(new BoilerpipeContentExtractor());
         extractors.add(new ReadabilityContentExtractor());
         extractors.add(new PalladianContentExtractor());
         // extractors.add(new NewsseecrContentExtractor());

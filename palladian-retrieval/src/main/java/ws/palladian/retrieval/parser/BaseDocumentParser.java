@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -31,7 +33,16 @@ public abstract class BaseDocumentParser implements DocumentParser {
         if (content.length == 0) {
             throw new ParserException("HttpResult has no content");
         }
-        Document document = parse(new ByteArrayInputStream(content));
+        InputSource inputSource = new InputSource(new ByteArrayInputStream(content));
+
+        // detect the encoding in advance, this avoids wrongly interpreted documents
+        String charset = HttpHelper.getCharset(httpResult);
+        if (charset != null && Charset.isSupported(charset)) {
+            inputSource.setEncoding(charset);
+        }
+
+        // Document document = parse(new ByteArrayInputStream(content));
+        Document document = parse(inputSource);
         document.setDocumentURI(httpResult.getUrl());
         return document;
     }
