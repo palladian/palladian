@@ -19,8 +19,9 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.parser.XmlParser;
+import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -45,7 +46,7 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
 
     private final String apiKey;
 
-    private final XmlParser xmlParser;
+    private final DocumentParser xmlParser;
 
     /**
      * <p>
@@ -60,7 +61,7 @@ abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
             throw new IllegalStateException("The required API key is missing");
         }
         this.apiKey = apiKey;
-        xmlParser = new XmlParser();
+        xmlParser = ParserFactory.createXmlParser();
     }
 
     /**

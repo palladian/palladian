@@ -1532,6 +1532,7 @@ public final class StringHelper {
      * @return The in String, stripped of non-valid characters.
      * @see http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
      */
+    // TODO move this method to HtmlHelper
     public static String stripNonValidXMLCharacters(String in) {
         StringBuffer out = new StringBuffer(); // Used to hold the output.
         char current; // Used to reference the current character.

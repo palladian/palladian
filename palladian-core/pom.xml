@@ -103,10 +103,10 @@
 			<groupId>com.lingway.ld</groupId>
 			<artifactId>JLangDetect</artifactId>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>de.l3s.boilerpipe</groupId>
 			<artifactId>boilerpipe</artifactId>
-		</dependency>
+		</dependency -->
 		<!-- dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
