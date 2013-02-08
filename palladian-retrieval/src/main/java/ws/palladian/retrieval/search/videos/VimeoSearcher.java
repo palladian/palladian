@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.videos;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -25,6 +25,7 @@ import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -152,7 +153,7 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
     }
 
-    static List<WebVideoResult> parseVideoResult(String jsonString) throws JSONException {
+    public static List<WebVideoResult> parseVideoResult(String jsonString) throws JSONException {
         List<WebVideoResult> result = CollectionHelper.newArrayList();
         JSONArray jsonVideos = JPathHelper.get(jsonString, "videos/video", JSONArray.class);
         for (int i = 0; i < jsonVideos.length(); i++) {
@@ -181,7 +182,7 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
         }
     }
 
-    static int parseResultCount(String jsonString) {
+    public static int parseResultCount(String jsonString) {
         return JPathHelper.get(jsonString, "videos/total", Integer.class);
     }
 

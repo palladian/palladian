@@ -20,7 +20,7 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
-import ws.palladian.retrieval.search.web.HakiaNewsSearcher;
+import ws.palladian.retrieval.search.news.HakiaNewsSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 

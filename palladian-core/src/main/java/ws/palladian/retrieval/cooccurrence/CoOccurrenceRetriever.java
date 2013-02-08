@@ -12,8 +12,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
-import ws.palladian.retrieval.search.web.TwitterSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 

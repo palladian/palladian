@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -23,7 +23,8 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -33,7 +34,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="https://datamarket.azure.com/dataset/bing/search">Bing Search API on Windows Azure Marketplace</a>
  * @author Philipp Katz
  */
-abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
+public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseBingSearcher.class);
