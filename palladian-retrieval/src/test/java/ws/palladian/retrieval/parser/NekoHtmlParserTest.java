@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNull;
 import java.io.FileNotFoundException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -24,11 +23,11 @@ import ws.palladian.helper.io.ResourceHelper;
  */
 public class NekoHtmlParserTest {
 
-    private NekoHtmlParser htmlParser;
+    private DocumentParser htmlParser;
 
     @Before
     public void setUp() {
-        htmlParser = new NekoHtmlParser();
+        htmlParser = ParserFactory.createHtmlParser();
     }
 
     /**
@@ -41,7 +40,6 @@ public class NekoHtmlParserTest {
      * @throws ParserException
      */
     @Test
-    @Ignore
     public void testNeko3109537() throws FileNotFoundException, ParserException {
         htmlParser.parse(ResourceHelper.getResourceFile("/webPages/NekoTestcase3109537.html"));
     }

@@ -4,8 +4,6 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.apache.xerces.util.XMLChar;
-
 /**
  * <p>
  * {@link FilterReader} to skip invalid xml version 1.0 characters. Valid Unicode chars for xml version 1.0 according to
@@ -15,8 +13,8 @@ import org.apache.xerces.util.XMLChar;
  * 
  * @author Philipp Katz
  * 
- * @see http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html
- * 
+ * @see <a href="http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html">Skipping Invalid XML
+ *      Character with ReaderFilter</a>
  */
 class Xml10FilterReader extends FilterReader {
 
@@ -55,7 +53,7 @@ class Xml10FilterReader extends FilterReader {
                 ignoreCharacter = false;
             }
 
-            if (XMLChar.isValid(cbuf[readPos]) && !ignoreCharacter) {
+            if (isValidXmlChar(cbuf[readPos]) && !ignoreCharacter) {
                 pos++;
             } else {
                 continue;
@@ -67,6 +65,20 @@ class Xml10FilterReader extends FilterReader {
         }
         // Number of read valid characters.
         return pos - off + 1;
+    }
+
+    /**
+     * <p>
+     * Checks, whether the supplied character is a valid XML character.
+     * </p>
+     * 
+     * @param c The char to check.
+     * @return <code>true</code> if char is allowed XML character, <code>false</code> otherwise.
+     */
+    // TODO move this method to HtmlHelper.
+    private static boolean isValidXmlChar(char c) {
+        return c == 0x9 || c == 0xA || c == 0xD || c >= 0x20 && c <= 0xD7FF || c >= 0xE000 && c <= 0xFFFD
+                || c >= 0x10000 && c <= 0x10FFFF;
     }
 
 }

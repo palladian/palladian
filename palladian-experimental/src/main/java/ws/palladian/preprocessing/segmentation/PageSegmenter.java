@@ -1,9 +1,9 @@
 package ws.palladian.preprocessing.segmentation;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,8 +17,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -214,14 +212,7 @@ public class PageSegmenter {
 
         if (storeLocation != "") {
             // writes the segmented result-document on local disc
-            try {
-                OutputStream os = new FileOutputStream(storeLocation);
-                OutputFormat format = new OutputFormat(document);
-                XMLSerializer serializer = new XMLSerializer(os, format);
-                serializer.serialize(document);
-            } catch (IOException e) {
-                LOGGER.error("could not write to local file, " + e.getMessage());
-            }
+            HtmlHelper.writeToFile(document, new File(storeLocation));
         }
 
         // ////////////////////////////////////////////////////////////////////////

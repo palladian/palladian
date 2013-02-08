@@ -78,7 +78,7 @@ public class CollectionLocationStore implements LocationStore {
             return null;
         }
         if (parentIds.size() > 1) {
-            LOGGER.warn("Multiple parent for {}", location.getId());
+            LOGGER.warn("Multiple parents for {}: {}", location.getId(), parentIds);
         }
         return locationsIds.get(parentIds.get(0));
     }
