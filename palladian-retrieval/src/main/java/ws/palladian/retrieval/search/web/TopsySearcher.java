@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.search.BaseTopsySearcher;
 
 /**
  * <p>

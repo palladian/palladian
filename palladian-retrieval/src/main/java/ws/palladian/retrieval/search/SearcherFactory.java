@@ -6,13 +6,13 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.retrieval.search.images.WebImageResult;
+import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.BlekkoSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.HakiaSearcher;
 import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
-import ws.palladian.retrieval.search.web.TwitterSearcher;
-import ws.palladian.retrieval.search.web.WebImageResult;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 

@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.news;
 
 import java.util.Date;
 
@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.search.BaseBingSearcher;
+import ws.palladian.retrieval.search.web.WebResult;
 
 /**
  * <p>

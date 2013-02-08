@@ -20,6 +20,19 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.images.BingImageSearcher;
+import ws.palladian.retrieval.search.images.FlickrSearcher;
+import ws.palladian.retrieval.search.news.BingNewsSearcher;
+import ws.palladian.retrieval.search.news.FarooNewsSearcher;
+import ws.palladian.retrieval.search.news.HakiaNewsSearcher;
+import ws.palladian.retrieval.search.news.NewsSeecrSearcher;
+import ws.palladian.retrieval.search.news.WebKnoxNewsSearcher;
+import ws.palladian.retrieval.search.socialmedia.FacebookSearcher;
+import ws.palladian.retrieval.search.socialmedia.InstagramTagSearcher;
+import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
+import ws.palladian.retrieval.search.videos.BingVideoSearcher;
+import ws.palladian.retrieval.search.videos.VimeoSearcher;
+import ws.palladian.retrieval.search.videos.YouTubeSearcher;
 
 /**
  * <p>
