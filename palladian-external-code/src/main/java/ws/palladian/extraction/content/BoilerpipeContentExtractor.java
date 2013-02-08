@@ -1,9 +1,21 @@
 package ws.palladian.extraction.content;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.StringReader;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import ws.palladian.helper.html.HtmlHelper;
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.document.TextDocument;
+import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import de.l3s.boilerpipe.extractors.ExtractorBase;
+import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
 
 /**
  * <p>
@@ -20,104 +32,69 @@ import org.w3c.dom.Node;
  */
 public class BoilerpipeContentExtractor extends WebPageContentExtractor {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BoilerpipeContentExtractor.class);
+    private final ExtractorBase extractor;
+    private TextDocument textDocument;
 
-    // private final ExtractorBase extractor;
-    // private TextDocument textDocument;
-    //
-    // public BoilerpipeContentExtractor() {
-    // this(ArticleExtractor.INSTANCE);
-    // }
-    //
-    // public BoilerpipeContentExtractor(ExtractorBase extractor) {
-    // this.extractor = extractor;
-    // }
-    //
-    // @Override
-    // public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
-    // try {
-    // InputSource inputSource = new InputSource(new FileInputStream(file));
-    // setDocument(inputSource);
-    // } catch (FileNotFoundException e) {
-    // throw new PageContentExtractorException(e);
-    // }
-    // return this;
-    // }
-    //
-    // @Override
-    // public BoilerpipeContentExtractor setDocument(Document document) throws PageContentExtractorException {
-    // StringReader stringReader = new StringReader(HtmlHelper.xmlToString(document, false));
-    // InputSource inputSource = new InputSource(stringReader);
-    // setDocument(inputSource);
-    // return this;
-    // }
-    //
-    // // TODO pull up?
-    // public BoilerpipeContentExtractor setDocument(InputSource inputSource) throws PageContentExtractorException {
-    // try {
-    // BoilerpipeSAXInput boilerpipeInput = new BoilerpipeSAXInput(inputSource);
-    // textDocument = boilerpipeInput.getTextDocument();
-    // extractor.process(textDocument);
-    // } catch (SAXException e) {
-    // throw new PageContentExtractorException(e);
-    // } catch (BoilerpipeProcessingException e) {
-    // throw new PageContentExtractorException(e);
-    // }
-    // return this;
-    // }
-    //
-    // @Override
-    // public Node getResultNode() {
-    // throw new UnsupportedOperationException();
-    // }
-    //
-    // @Override
-    // public String getResultText() {
-    // return textDocument.getContent();
-    //
-    // }
-    //
-    // @Override
-    // public String getResultTitle() {
-    // return textDocument.getTitle();
-    // }
-
-    @Override
-    public String getExtractorName() {
-        return "boilerpipe";
+    public BoilerpipeContentExtractor() {
+        this(ArticleExtractor.INSTANCE);
     }
 
-    public static void main(String[] args) throws Exception {
-        BoilerpipeContentExtractor bpce = new BoilerpipeContentExtractor();
-        bpce.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
-        // bpce.setDocument("http://www.bbc.co.uk/news/world/europe/");
-        LOGGER.info("ResultText: " + bpce.getResultText());
-        LOGGER.info("ResultTitle: " + bpce.getResultTitle());
+    public BoilerpipeContentExtractor(ExtractorBase extractor) {
+        this.extractor = extractor;
     }
 
     @Override
-    public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
-        // TODO Auto-generated method stub
-        return null;
+    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
+        try {
+            InputSource inputSource = new InputSource(new FileInputStream(file));
+            setDocument(inputSource);
+        } catch (FileNotFoundException e) {
+            throw new PageContentExtractorException(e);
+        }
+        return this;
+    }
+
+    @Override
+    public BoilerpipeContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        StringReader stringReader = new StringReader(HtmlHelper.xmlToString(document, false));
+        InputSource inputSource = new InputSource(stringReader);
+        setDocument(inputSource);
+        return this;
+    }
+
+    // TODO pull up?
+    public BoilerpipeContentExtractor setDocument(InputSource inputSource) throws PageContentExtractorException {
+        try {
+            BoilerpipeSAXInput boilerpipeInput = new BoilerpipeSAXInput(inputSource);
+            textDocument = boilerpipeInput.getTextDocument();
+            extractor.process(textDocument);
+        } catch (SAXException e) {
+            throw new PageContentExtractorException(e);
+        } catch (BoilerpipeProcessingException e) {
+            throw new PageContentExtractorException(e);
+        }
+        return this;
     }
 
     @Override
     public Node getResultNode() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getResultText() {
-        // TODO Auto-generated method stub
-        return null;
+        return textDocument.getContent();
+
     }
 
     @Override
     public String getResultTitle() {
-        // TODO Auto-generated method stub
-        return null;
+        return textDocument.getTitle();
+    }
+
+    @Override
+    public String getExtractorName() {
+        return "BoilerpipeContentExtractor";
     }
 
 }
