@@ -13,7 +13,6 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.NekoHtmlParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
@@ -31,7 +30,7 @@ public class ViewTextContentExtractor extends WebPageContentExtractor {
     private final HttpRetriever httpRetriever;
 
     private Node resultNode = null;
-    private String extractedTitle = "";
+    private final String extractedTitle = "";
     private String extractedResult = "";
 
     public ViewTextContentExtractor() {
