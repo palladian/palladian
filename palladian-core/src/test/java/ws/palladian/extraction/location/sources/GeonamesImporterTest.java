@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.sources;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
@@ -21,8 +22,9 @@ public class GeonamesImporterTest {
     public void readData() throws FileNotFoundException, IOException {
         locationStore = new CollectionLocationStore();
         GeonamesImporter importer = new GeonamesImporter(locationStore);
-        importer.importHierarchy(ResourceHelper.getResourceFile("/geonames.org/hierarchy.txt"));
-        importer.importLocations(ResourceHelper.getResourceFile("/geonames.org/locationData.txt"));
+        File hierarchyFile = ResourceHelper.getResourceFile("/geonames.org/hierarchy.txt");
+        File locationFile = ResourceHelper.getResourceFile("/geonames.org/locationData.txt");
+        importer.importLocations(locationFile, hierarchyFile);
     }
 
     @Test
