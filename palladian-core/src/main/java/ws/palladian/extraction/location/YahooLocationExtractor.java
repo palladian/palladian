@@ -44,6 +44,25 @@ public class YahooLocationExtractor extends LocationExtractor {
         setName("Yahoo Location Extractor");
     }
 
+    private static final Map<String, LocationType> TYPE_MAPPING;
+
+    // http://developer.yahoo.com/geo/geoplanet/guide/concepts.html#placetypes
+    static {
+        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        temp.put("Continent", LocationType.CONTINENT);
+        temp.put("Country", LocationType.COUNTRY);
+        temp.put("Admin", LocationType.UNIT);
+        temp.put("Admin2", LocationType.UNIT);
+        temp.put("Admin3", LocationType.UNIT);
+        temp.put("Town", LocationType.CITY);
+        temp.put("Suburb", LocationType.UNIT);
+        temp.put("Postal Code", LocationType.ZIP);
+        temp.put("Supername", LocationType.REGION);
+        temp.put("Colloquial", null);
+        temp.put("Time Zone", null);
+        TYPE_MAPPING = Collections.unmodifiableMap(temp);
+    }
+
     @Override
     public String getModelFileEnding() {
         throw new UnsupportedOperationException(
@@ -111,6 +130,7 @@ public class YahooLocationExtractor extends LocationExtractor {
         return result;
     }
 
+
     static List<Location> parseJson(String text, String response) throws JSONException {
 
         JSONObject jsonResult = new JSONObject(response);
@@ -173,7 +193,13 @@ public class YahooLocationExtractor extends LocationExtractor {
             featureVector.add(new NominalFeature("type", type));
             featureVector.add(new NumericFeature("longitude", longitude));
             featureVector.add(new NumericFeature("latitude", latitude));
-            result.add(new Location(annotation));
+            Location location = new Location(annotation);
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            location.setPrimaryName(name);
+            location.setType(TYPE_MAPPING.get(type));
+            location.setId(woeId);
+            result.add(location);
         }
         return result;
     }
