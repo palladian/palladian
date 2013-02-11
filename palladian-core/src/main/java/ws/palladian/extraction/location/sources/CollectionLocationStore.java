@@ -49,7 +49,10 @@ public class CollectionLocationStore implements LocationStore {
         if (childId == parentId) {
             throw new IllegalArgumentException("A child cannot be the parent of itself (id was " + childId + ")");
         }
-        hierarchy.add(childId, parentId);
+        List<Integer> existingParents = hierarchy.get(childId);
+        if (existingParents == null || !existingParents.contains(parentId)) {
+            hierarchy.add(childId, parentId);
+        }
     }
 
     @Override
