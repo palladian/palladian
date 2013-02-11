@@ -13,6 +13,7 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.tagger.WebKnoxNer;
 import ws.palladian.extraction.location.sources.CachingLocationSource;
 import ws.palladian.extraction.location.sources.GeonamesLocationSource;
+import ws.palladian.extraction.location.sources.NewsSeecrLocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
 
@@ -61,6 +62,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
         setName("Palladian Location Extractor");
         this.entityRecognizer = new WebKnoxNer(webKnoxApiKey);
         this.locationSource = new CachingLocationSource(new GeonamesLocationSource(geonamesUsername));
+    }
+
+    public PalladianLocationExtractor(String webKnoxApiKey, String mashapePublicKey, String mashapePrivateKey) {
+        setName("Palladian Location Extractor");
+        this.entityRecognizer = new WebKnoxNer(webKnoxApiKey);
+        this.locationSource = new CachingLocationSource(new NewsSeecrLocationSource(mashapePublicKey, mashapePrivateKey));
     }
 
     @Override
