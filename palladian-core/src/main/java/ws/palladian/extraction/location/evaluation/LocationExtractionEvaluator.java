@@ -78,11 +78,13 @@ public class LocationExtractionEvaluator {
      */
     public static void main(String[] args) {
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(
-                PalladianNerExperiments.WX_API_KEY, PalladianNerExperiments.GEONAMES_USERNAME),
-                "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
+        Map<String, Double> results = evaluator.evaluateAll(
+                new PalladianLocationExtractor(PalladianNerExperiments.WX_API_KEY, "52feznh45ezmjxgfzorrk6ooagyadg",
+                        "iwjiagid3rqhbyu5bwwevrbpyicrk2"), "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"),
+        // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
+        // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(),
         // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
 
         CollectionHelper.print(results);
