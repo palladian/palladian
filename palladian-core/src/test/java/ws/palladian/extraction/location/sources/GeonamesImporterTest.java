@@ -175,6 +175,15 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(location);
         checkHierarchy(hierarchy, 8133957, 263021, 6697808, 390903, 6255148, 6295630);
 
+        // this seems to be an error in the data
+        // location = locationStore.retrieveLocation(7731002);
+        // hierarchy = locationStore.getHierarchy(location);
+        // checkHierarchy(hierarchy, 6295630);
+
+        location = locationStore.retrieveLocation(1279493);
+        hierarchy = locationStore.getHierarchy(location);
+        checkHierarchy(hierarchy, 1279685, 1814991, 6255147, 6295630);
+
     }
 
     private void checkHierarchy(List<Location> hierarchy, int... values) {

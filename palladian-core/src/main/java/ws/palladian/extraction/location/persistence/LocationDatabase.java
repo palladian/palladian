@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,6 +149,20 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     public void resetForPerformanceCheck() {
         runUpdate("FLUSH TABLES");
         runUpdate("RESET QUERY CACHE");
+    }
+
+    public static void main(String[] args) {
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        List<Location> locations = database.retrieveLocations("colombo");
+
+        for (Location location : locations) {
+            List<Location> hierarchy = database.getHierarchy(location);
+            System.out.println(location);
+            int index = 0;
+            for (Location hierarchyLocation : hierarchy) {
+                System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
+            }
+        }
     }
 
 }

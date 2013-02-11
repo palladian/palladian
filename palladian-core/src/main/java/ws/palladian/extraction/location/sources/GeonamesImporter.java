@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +41,32 @@ public final class GeonamesImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
 
+    /** Mapping between the administrative/country codes and our internal numeric level. */
+    private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
+
+    static {
+        Map<String, Integer> temp = CollectionHelper.newHashMap();
+        temp.put("PCLI", 0);
+        temp.put("PCLD", 0);
+        temp.put("ADM1", 1);
+        temp.put("ADM2", 2);
+        temp.put("ADM3", 3);
+        temp.put("ADM4", 4);
+        ADMIN_LEVELS_MAPPING = Collections.unmodifiableMap(temp);
+    }
+
     /** The store where the imported locations are saved. */
     private final LocationStore locationStore;
 
     /** Mapping between administrative codes and the corresponding location ID, needed to establish hierarchy. */
-    private final Map<String, Integer> adminMappings;
+    private final Map<String, Integer> countryMapping;
+    private final Map<String, Integer> admin1Mapping;
+    private final Map<String, Integer> admin2Mapping;
+    private final Map<String, Integer> admin3Mapping;
+    private final Map<String, Integer> admin4Mapping;
+
+    /** Explicitly given hierarchy relations, they have precedence over the administrative relations. */
+    private final Map<Integer, Integer> hierarchyMappings;
 
     /**
      * <p>
@@ -58,7 +79,12 @@ public final class GeonamesImporter {
         Validate.notNull(locationStore, "locationStore must not be null");
 
         this.locationStore = locationStore;
-        this.adminMappings = CollectionHelper.newHashMap();
+        this.countryMapping = CollectionHelper.newHashMap();
+        this.admin1Mapping = CollectionHelper.newHashMap();
+        this.admin2Mapping = CollectionHelper.newHashMap();
+        this.admin3Mapping = CollectionHelper.newHashMap();
+        this.admin4Mapping = CollectionHelper.newHashMap();
+        this.hierarchyMappings = CollectionHelper.newHashMap();
     }
 
     /**
@@ -182,15 +208,49 @@ public final class GeonamesImporter {
     }
 
     private Integer getParent(GeonameLocation location) {
+
+        // explicitly given hierarchy relations (as defined in the hierarchy.txt file) have precedence over the derived
+        // parental relations
+        Integer explicitMapping = hierarchyMappings.get(location.geonamesId);
+        if (explicitMapping != null) {
+            return explicitMapping;
+        }
+
         List<String> hierarchyCode = location.getCodeParts();
-        for (int i = hierarchyCode.size(); i > 0; i--) {
-            String parentCode = StringUtils.join(hierarchyCode.subList(0, i), '.');
-            Integer retrievedParentId = adminMappings.get(parentCode);
-            if (retrievedParentId != null && retrievedParentId != location.geonamesId) {
-                return retrievedParentId;
+
+        if (hierarchyCode.size() > 0) {
+            // if it is an administrative location, we need to remove the last part in the code,
+            // in order to walk up in the hierarchy
+            if (location.isAdministrativeUnit()) {
+                hierarchyCode.remove(hierarchyCode.get(hierarchyCode.size() - 1));
+            }
+
+            for (int i = hierarchyCode.size(); i > 0; i--) {
+                String parentCode = StringUtils.join(hierarchyCode.subList(0, i), '.');
+                Map<String, Integer> mapping = getMappingForLevel(i - 1);
+                Integer retrievedParentId = mapping.get(parentCode);
+                if (retrievedParentId != null && retrievedParentId != location.geonamesId) {
+                    return retrievedParentId;
+                }
             }
         }
         return null;
+    }
+    
+    private Map<String, Integer> getMappingForLevel(int level) {
+        switch (level) {
+            case 0:
+                return countryMapping;
+            case 1:
+                return admin1Mapping;
+            case 2:
+                return admin2Mapping;
+            case 3:
+                return admin3Mapping;
+            case 4:
+                return admin4Mapping;
+        }
+        throw new IllegalArgumentException("Level " + level + " is not allowed.");
     }
 
     /**
@@ -204,20 +264,31 @@ public final class GeonamesImporter {
      */
     private void readAdministrativeItems(InputStream inputStream, final int totalLines) {
         LOGGER.info("/////////////////// Reading administrative items //////////////////////");
-        adminMappings.clear();
         readLocations(inputStream, totalLines, new LocationLineCallback() {
             @Override
             public void readLocation(GeonameLocation geonameLocation) {
-                Integer existingItem = adminMappings.get(geonameLocation.getCodeCombined());
-                if (existingItem == null && geonameLocation.isAdministrativeUnit()) {
-                    Integer temp = adminMappings.get(geonameLocation.getCodeCombined());
-                    if (temp == null) {
-                        adminMappings.put(geonameLocation.getCodeCombined(), geonameLocation.geonamesId);
-                    }
+                String codeCombined = geonameLocation.getCodeCombined();
+                if (!geonameLocation.isAdministrativeUnit() || codeCombined.isEmpty() || codeCombined.endsWith("*")) {
+                    return;
+                }
+
+                Map<String, Integer> mapping = getMappingForLevel(geonameLocation.getLevel());
+                Integer existingItem = mapping.get(codeCombined);
+                if (existingItem == null) {
+                    mapping.put(codeCombined, geonameLocation.geonamesId);
+                } else {
+                    LOGGER.error(
+                            "There is already an item with code {} in the mappings, this will almost certainly lead to inconsistencies and should be fixed! (item with Geonames ID {})",
+                            codeCombined, geonameLocation.geonamesId);
                 }
             }
         });
-        LOGGER.info("Finished reading {} administrative items", adminMappings.size());
+        LOGGER.info("Finished reading administrative items");
+        LOGGER.info("# country: {}", countryMapping.size());
+        LOGGER.info("# level 1: {}", admin1Mapping.size());
+        LOGGER.info("# level 2: {}", admin2Mapping.size());
+        LOGGER.info("# level 3: {}", admin3Mapping.size());
+        LOGGER.info("# level 4: {}", admin4Mapping.size());
     }
 
     /**
@@ -233,7 +304,7 @@ public final class GeonamesImporter {
 
         final int numLines = FileHelper.getNumberOfLines(filePath);
         final StopWatch stopWatch = new StopWatch();
-        LOGGER.info("Reading hierachy, {} lines to read", numLines);
+        LOGGER.info("Reading hierarchy, {} lines to read", numLines);
         FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -244,6 +315,7 @@ public final class GeonamesImporter {
                 int parentId = Integer.valueOf(split[0]);
                 int childId = Integer.valueOf(split[1]);
                 locationStore.addHierarchy(childId, parentId);
+                hierarchyMappings.put(childId, parentId);
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
@@ -373,28 +445,35 @@ public final class GeonamesImporter {
 
         List<String> getCodeParts() {
             List<String> ret = CollectionHelper.newArrayList();
-            if (countryCode != null) {
-                ret.add(countryCode);
-            } else {
-                ret.add("*");
-            }
-            if (admin1Code != null) {
-                ret.add(admin1Code);
-                if (admin2Code != null) {
-                    ret.add(admin2Code);
-                    if (admin3Code != null) {
-                        ret.add(admin3Code);
-                        if (admin4Code != null) {
-                            ret.add(admin4Code);
+
+            int level = getLevel();
+            if (level >= 0) {
+                ret.add(countryCode != null ? countryCode : "*");
+                if (level >= 1) {
+                    ret.add(admin1Code != null ? admin1Code : "*");
+                    if (level >= 2) {
+                        ret.add(admin2Code != null ? admin2Code : "*");
+                        if (level >= 3) {
+                            ret.add(admin3Code != null ? admin3Code : "*");
+                            if (level >= 4) {
+                                ret.add(admin4Code != null ? admin4Code : "*");
+                            }
                         }
                     }
                 }
             }
 
-            // if we end on a part only consisting of zeros, remove that
-            String lastPart = CollectionHelper.getLast(ret);
-            if (lastPart.matches("[0]+")) {
-                ret.remove(ret.size() - 1);
+            // did we get any meaningful content at all? If we only have a result like "*.*.*.*",
+            // just return an empty list instead.
+            boolean noContent = true;
+            for (String part : ret) {
+                if (!part.equals("*")) {
+                    noContent = false;
+                }
+            }
+
+            if (noContent) {
+                return Collections.emptyList();
             }
 
             return ret;
@@ -402,8 +481,18 @@ public final class GeonamesImporter {
 
         boolean isAdministrativeUnit() {
             boolean adminFeatureClass = "A".equals(featureClass);
-            boolean adminDivision = Arrays.asList("ADM1", "ADM2", "ADM3", "ADM4", "PCLI", "PCLD").contains(featureCode);
+            boolean adminDivision = ADMIN_LEVELS_MAPPING.containsKey(featureCode);
             return adminFeatureClass && adminDivision;
+        }
+
+        int getLevel() {
+            if ("A".equals(featureClass)) {
+                Integer result = ADMIN_LEVELS_MAPPING.get(featureCode);
+                if (result != null) {
+                    return result;
+                }
+            }
+            return Integer.MAX_VALUE;
         }
 
         Location buildLocation() {
@@ -454,7 +543,6 @@ public final class GeonamesImporter {
     }
 
     public static void main(String[] args) throws IOException {
-        // LocationSource locationStore = new MockLocationStore();
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         locationStore.truncate();
