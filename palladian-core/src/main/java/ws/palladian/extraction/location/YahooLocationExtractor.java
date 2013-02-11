@@ -14,12 +14,16 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -34,6 +38,8 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * @author Philipp Katz
  * @see <a href="http://developer.yahoo.com/boss/geo/">Yahoo! BOSS Geo Services</a>
  * @see <a href="http://developer.yahoo.com/boss/geo/docs/free_YQL.html">Non-Commercial usage of Yahoo Geo API's</a>
+ * @see <a href="http://developer.yahoo.com/geo/geoplanet/guide/concepts.html#placetypes">Overview over available
+ *      types</a>
  */
 public class YahooLocationExtractor extends LocationExtractor {
 
@@ -58,8 +64,17 @@ public class YahooLocationExtractor extends LocationExtractor {
         temp.put("Suburb", LocationType.UNIT);
         temp.put("Postal Code", LocationType.ZIP);
         temp.put("Supername", LocationType.REGION);
-        temp.put("Colloquial", null);
+        temp.put("Colloquial", LocationType.UNDETERMINED);
         temp.put("Time Zone", null);
+        temp.put("State", LocationType.UNIT);
+        temp.put("POI", LocationType.POI);
+        temp.put("County", LocationType.UNIT);
+        temp.put("Island", LocationType.LANDMARK);
+        temp.put("LandFeature", LocationType.LANDMARK);
+        temp.put("Drainage", LocationType.LANDMARK);
+        temp.put("Airport", LocationType.POI);
+        temp.put("Sea", LocationType.LANDMARK);
+        temp.put("Zip", LocationType.ZIP);
         TYPE_MAPPING = Collections.unmodifiableMap(temp);
     }
 
@@ -95,25 +110,24 @@ public class YahooLocationExtractor extends LocationExtractor {
     @Override
     public List<Location> detectLocations(String text) {
 
-        Map<String, String> headers = CollectionHelper.newHashMap();
-        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        headers.put("Accept", "application/json");
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://query.yahooapis.com/v1/public/yql");
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.addHeader("Accept", "application/json");
 
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM geo.placemaker ");
         queryBuilder.append("WHERE documentContent=\"");
-        queryBuilder.append(text.replace("\"", "\\\""));
+        queryBuilder.append(text.replace("\"", "%22"));
         queryBuilder.append("\"");
         queryBuilder.append(" AND documentType=\"text/plain\"");
 
-        Map<String, String> content = CollectionHelper.newHashMap();
-        content.put("q", queryBuilder.toString());
-        content.put("format", "json");
+        request.addParameter("q", queryBuilder.toString());
+        request.addParameter("format", "json");
 
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult postResult;
         try {
-            postResult = retriever.httpPost("http://query.yahooapis.com/v1/public/yql", headers, content);
+            postResult = retriever.execute(request);
         } catch (HttpException e) {
             LOGGER.error("HTTP error when accessing the service", e);
             return Collections.emptyList();
@@ -197,7 +211,12 @@ public class YahooLocationExtractor extends LocationExtractor {
             location.setLatitude(latitude);
             location.setLongitude(longitude);
             location.setPrimaryName(name);
-            location.setType(TYPE_MAPPING.get(type));
+            LocationType mappedType = TYPE_MAPPING.get(type);
+            if (mappedType == null) {
+                LOGGER.error("Unmapped type {}", type);
+            }
+            location.setType(mappedType);
+
             location.setId(woeId);
             result.add(location);
         }
@@ -207,7 +226,12 @@ public class YahooLocationExtractor extends LocationExtractor {
     public static void main(String[] args) throws Exception {
         LocationExtractor extractor = new YahooLocationExtractor();
         // String text = "They followed him to deepest Africa and found him there, in Timbuktu";
-        String text = "The Prime Minister of Mali Cheick Modibo Diarra resigns himself and his government on television after his arrest hours earlier by leaders of the recent Malian coup d'état. (AFP via The Telegraph) (BBC) (Reuters)";
+        // String text =
+        // "The Prime Minister of Mali Cheick Modibo Diarra resigns himself and his government on television after his arrest hours earlier by leaders of the recent Malian coup d'état. (AFP via The Telegraph) (BBC) (Reuters)";
+        // String text =
+        // FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text27.txt");
+        String text = FileHelper.readFileToString("/Users/pk/Desktop/test.txt");
+        text = HtmlHelper.stripHtmlTags(text);
         // String text = FileHelper.readFileToString("src/test/resources/testText2.txt");
         List<Location> list = extractor.detectLocations(text);
         CollectionHelper.print(list);
