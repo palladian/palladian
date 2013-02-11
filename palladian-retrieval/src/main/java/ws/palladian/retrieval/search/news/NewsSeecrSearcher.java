@@ -1,20 +1,12 @@
 package ws.palladian.retrieval.search.news;
 
-import java.math.BigInteger;
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
@@ -30,6 +22,7 @@ import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.helper.MashapeUtil;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -52,8 +45,6 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/news/search";
-
-    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 
     private static final int RESULTS_PER_REQUEST = 100;
 
@@ -111,14 +102,7 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
             request.addParameter("page", offset);
             request.addParameter("numResults", Math.min(resultCount, RESULTS_PER_REQUEST));
 
-            String mashapeHeader;
-            try {
-                mashapeHeader = generateMashapeHeader(mashapePublicKey, mashapePrivateKey);
-            } catch (GeneralSecurityException e) {
-                throw new SearcherException("Error while creating Authorization header: " + e.getMessage(), e);
-            }
-            LOGGER.debug("Authorization header = " + mashapeHeader);
-            request.addHeader("X-Mashape-Authorization", mashapeHeader);
+            MashapeUtil.signRequest(request, mashapePublicKey, mashapePrivateKey);
 
             LOGGER.debug("Performing request: " + request);
             HttpResult result;
@@ -159,28 +143,6 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
         }
 
         return webResults;
-    }
-
-    // https://www.mashape.com/docs/consume/rest
-    public static String generateMashapeHeader(String publicKey, String privateKey) throws InvalidKeyException,
-    NoSuchAlgorithmException {
-        return new String(Base64.encodeBase64(String.format("%s:%s", publicKey, sha1hmac(publicKey, privateKey))
-                .getBytes()));
-    }
-
-    // Code taken from:
-    // https://github.com/Mashape/mashape-java-client-library/blob/master/src/main/java/com/mashape/client/http/utils/CryptUtils.java
-    static String sha1hmac(String publicKey, String privateKey) throws NoSuchAlgorithmException, InvalidKeyException {
-        SecretKey key = new SecretKeySpec(privateKey.getBytes(), HMAC_SHA1_ALGORITHM);
-        Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-        mac.init(key);
-        byte[] rawHmac = mac.doFinal(publicKey.getBytes());
-        BigInteger hash = new BigInteger(1, rawHmac);
-        String hmac = hash.toString(16);
-        if (hmac.length() % 2 != 0) {
-            hmac = "0" + hmac;
-        }
-        return hmac;
     }
 
     public static Date parseDate(String dateString) {

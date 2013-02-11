@@ -21,6 +21,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.helper.MashapeUtil;
 
 /**
  * FIXME:
