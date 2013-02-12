@@ -12,7 +12,7 @@ public class Location extends PositionAnnotation {
     private int id;
 
     private String primaryName;
-    private List<String> alternativeNames;
+    private List<AlternativeName> alternativeNames;
     private LocationType type;
     private Double latitude;
     private Double longitude;
@@ -49,11 +49,11 @@ public class Location extends PositionAnnotation {
         this.primaryName = primaryName;
     }
 
-    public List<String> getAlternativeNames() {
+    public List<AlternativeName> getAlternativeNames() {
         return alternativeNames;
     }
 
-    public void setAlternativeNames(List<String> alternativeNames) {
+    public void setAlternativeNames(List<AlternativeName> alternativeNames) {
         this.alternativeNames = alternativeNames;
     }
 
@@ -106,6 +106,8 @@ public class Location extends PositionAnnotation {
         builder.append(longitude);
         builder.append(", population=");
         builder.append(population);
+        builder.append(", startPos=");
+        builder.append(getStartPosition());
         builder.append("]");
         return builder.toString();
     }

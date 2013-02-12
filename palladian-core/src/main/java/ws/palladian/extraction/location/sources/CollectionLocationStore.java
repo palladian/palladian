@@ -1,11 +1,13 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
@@ -38,8 +40,8 @@ public class CollectionLocationStore implements LocationStore {
     @Override
     public void save(Location location) {
         locationsNames.add(location.getPrimaryName().toLowerCase(), location);
-        for (String alternativeName : location.getAlternativeNames()) {
-            locationsNames.add(alternativeName.toLowerCase(), location);
+        if (location.getAlternativeNames() != null) {
+            addAlternativeNames(location.getId(), location.getAlternativeNames());
         }
         locationsIds.put(location.getId(), location);
     }
@@ -97,6 +99,14 @@ public class CollectionLocationStore implements LocationStore {
         builder.append(hierarchy.size());
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
+        Location location = retrieveLocation(locationId);
+        for (AlternativeName alternativeName : alternativeNames) {
+            locationsNames.add(alternativeName.getName().toLowerCase(), location);
+        }
     }
 
 }

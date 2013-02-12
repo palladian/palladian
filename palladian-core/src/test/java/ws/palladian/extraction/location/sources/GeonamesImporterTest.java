@@ -24,7 +24,8 @@ public class GeonamesImporterTest {
         GeonamesImporter importer = new GeonamesImporter(locationStore);
         File hierarchyFile = ResourceHelper.getResourceFile("/geonames.org/hierarchy.txt");
         File locationFile = ResourceHelper.getResourceFile("/geonames.org/locationData.txt");
-        importer.importLocations(locationFile, hierarchyFile);
+        File alternateNamesFile = ResourceHelper.getResourceFile("/geonames.org/alternateNames.txt");
+        importer.importLocations(locationFile, hierarchyFile, alternateNamesFile);
     }
 
     @Test

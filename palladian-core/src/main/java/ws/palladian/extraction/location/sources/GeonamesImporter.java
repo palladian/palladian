@@ -18,11 +18,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -94,14 +96,18 @@ public final class GeonamesImporter {
      * 
      * @param locationFile The path to the Geonames dump ZIP file, not <code>null</code>.
      * @param hierarchyFile The path to the hierarchy file, not <code>null</code>.
+     * @param alternateNamesFile The path to the alternate names file, not <code>null</code>.
      * @throws IOException
      */
-    public void importLocationsZip(File locationFile, File hierarchyFile) throws IOException {
+    public void importLocationsZip(File locationFile, File hierarchyFile, File alternateNamesFile) throws IOException {
         Validate.notNull(locationFile, "locationFile must not be null");
         checkIsFileOfType(locationFile, "zip");
 
         // read the hierarchy first
         importHierarchy(hierarchyFile);
+
+        // read the alternate names file
+        importAlternativeNames(alternateNamesFile);
 
         // read directly from the ZIP file, get the entry in the file with the location data
         ZipFile zipFile = null;
@@ -158,13 +164,15 @@ public final class GeonamesImporter {
      * 
      * @param locationFile The path to the Geonames dump TXT file, not <code>null</code>.
      * @param hierarchyFile The path to the hierarchy file, not <code>null</code>.
+     * @param alternateNamesFile The path to the alternate names file, not <code>null</code>.
      * @throws IOException
      */
-    public void importLocations(File locationFile, File hierarchyFile) throws IOException {
+    public void importLocations(File locationFile, File hierarchyFile, File alternateNamesFile) throws IOException {
         Validate.notNull(locationFile, "locationFile must not be null");
         checkIsFileOfType(locationFile, "txt");
 
         importHierarchy(hierarchyFile);
+        importAlternativeNames(alternateNamesFile);
 
         LOGGER.info("Checking size of {}", locationFile);
         int totalLines = FileHelper.getNumberOfLines(locationFile);
@@ -363,7 +371,6 @@ public final class GeonamesImporter {
                 }
                 int parentId = Integer.valueOf(split[0]);
                 int childId = Integer.valueOf(split[1]);
-//                locationStore.addHierarchy(childId, parentId);
                 hierarchyMappings.put(childId, parentId);
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
@@ -372,6 +379,49 @@ public final class GeonamesImporter {
             }
         });
         LOGGER.info("Finished importing hierarchy in {}", stopWatch.getTotalElapsedTimeString());
+    }
+
+    /**
+     * <p>
+     * Import a Geonames alternate names file.
+     * </p>
+     * 
+     * @param filePath The path to the alternative names file, not <code>null</code>.
+     */
+    private void importAlternativeNames(File filePath) {
+        Validate.notNull(filePath, "filePath must not be null");
+        checkIsFileOfType(filePath, "txt");
+
+        final int numLines = FileHelper.getNumberOfLines(filePath);
+        final StopWatch stopWatch = new StopWatch();
+        LOGGER.info("Reading alternative names from {}, {} lines to read", filePath.getAbsolutePath(), numLines);
+        FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
+                if (!progress.isEmpty()) {
+                    LOGGER.info(progress);
+                }
+                String[] split = line.split("\\t");
+                if (split.length < 4) {
+                    return;
+                }
+                int geonameid = Integer.valueOf(split[1]);
+                String isoLanguage = split[2];
+                String alternateName = split[3];
+                Language language = null;
+                if (!isoLanguage.isEmpty()) {
+                    language = Language.getByIso6391(isoLanguage);
+                    if (language == null) {
+                        // a language was specified, but not mapped in our enum. Thank you, we're not interested.
+                        return;
+                    }
+                }
+                AlternativeName name = new AlternativeName(alternateName, language);
+                locationStore.addAlternativeNames(geonameid, Collections.singletonList(name));
+            }
+        });
+        LOGGER.info("Finished importing alternative names in {}", stopWatch.getTotalElapsedTimeString());
     }
 
     /**
@@ -409,19 +459,18 @@ public final class GeonamesImporter {
                     + "('" + line + "')");
         }
         String primaryName = parts[1];
-        List<String> alternateNames = CollectionHelper.newArrayList();
-        for (String item : parts[3].split(",")) {
-            // do not add empty entries and names, which are already set as primary name
-            if (item.length() > 0 && !item.equals(primaryName)) {
-                alternateNames.add(item);
-            }
-        }
+//        List<String> alternateNames = CollectionHelper.newArrayList();
+//        for (String item : parts[3].split(",")) {
+//            // do not add empty entries and names, which are already set as primary name
+//            if (item.length() > 0 && !item.equals(primaryName)) {
+//                alternateNames.add(item);
+//            }
+//        }
         GeonameLocation location = new GeonameLocation();
         location.geonamesId = Integer.valueOf(parts[0]);
         location.longitude = Double.valueOf(parts[5]);
         location.latitude = Double.valueOf(parts[4]);
         location.primaryName = stringOrNull(primaryName);
-        location.alternativeNames = alternateNames; // FIXME; we can import those in a second run.
         location.population = Long.valueOf(parts[14]);
         location.featureClass = stringOrNull(parts[6]);
         location.featureCode = stringOrNull(parts[7]);
@@ -478,7 +527,6 @@ public final class GeonamesImporter {
         double longitude;
         double latitude;
         String primaryName;
-        List<String> alternativeNames;
         long population;
         String featureClass;
         String featureCode;
@@ -562,7 +610,6 @@ public final class GeonamesImporter {
             location.setLongitude(longitude);
             location.setLatitude(latitude);
             location.setPrimaryName(primaryName);
-            location.setAlternativeNames(alternativeNames);
             location.setPopulation(population);
             location.setType(GeonamesUtil.mapType(featureClass, featureCode));
             return location;
@@ -579,8 +626,6 @@ public final class GeonamesImporter {
             builder.append(latitude);
             builder.append(", primaryName=");
             builder.append(primaryName);
-            builder.append(", alternativeNames=");
-            builder.append(alternativeNames);
             builder.append(", population=");
             builder.append(population);
             builder.append(", featureClass=");
@@ -619,12 +664,15 @@ public final class GeonamesImporter {
     public static void main(String[] args) throws IOException {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        locationStore.truncate();
+        // locationStore.truncate();
 
         GeonamesImporter importer = new GeonamesImporter(locationStore);
         File locationFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip");
         File hierarchyFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt");
-        importer.importLocationsZip(locationFile, hierarchyFile);
+        File alternateNamesFile = new File(
+                "/Users/pk/Desktop/LocationLab/geonames.org/alternateNames/alternateNames.txt");
+        // importer.importLocationsZip(locationFile, hierarchyFile, alternateNamesFile);
+        importer.importAlternativeNames(alternateNamesFile);
     }
 
 }

@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
@@ -11,13 +12,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.persistence.OneColumnRowConverter;
 import ws.palladian.persistence.RowConverter;
 
 /**
@@ -35,7 +37,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
-    private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?";
+    private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
     // we can safely ignore potential constraint violations here:
     private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
@@ -58,6 +60,16 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
     };
 
+    private static final RowConverter<AlternativeName> ALTERNATIVE_NAME_ROW_CONVERTER = new RowConverter<AlternativeName>() {
+        @Override
+        public AlternativeName convert(ResultSet resultSet) throws SQLException {
+            String name = resultSet.getString("name");
+            String languageString = resultSet.getString("language");
+            Language language = languageString != null ? Language.getByIso6391(languageString) : null;
+            return new AlternativeName(name, language);
+        }
+    };
+
     /** Instances are created using the {@link DatabaseManagerFactory}. */
     protected LocationDatabase(DataSource dataSource) {
         super(dataSource);
@@ -67,7 +79,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     public List<Location> retrieveLocations(String locationName) {
         List<Location> locations = runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION, locationName, locationName);
         for (Location location : locations) {
-            List<String> alternativeNames = getAlternativeNames(location.getId());
+            List<AlternativeName> alternativeNames = getAlternativeNames(location.getId());
             if (alternativeNames.size() > 0) {
                 location.setAlternativeNames(alternativeNames);
             }
@@ -80,8 +92,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
     }
 
-    private List<String> getAlternativeNames(int locationId) {
-        return runQuery(OneColumnRowConverter.STRING, GET_LOCATION_ALTERNATIVE_NAMES, locationId);
+    private List<AlternativeName> getAlternativeNames(int locationId) {
+        return runQuery(ALTERNATIVE_NAME_ROW_CONVERTER, GET_LOCATION_ALTERNATIVE_NAMES, locationId);
     }
 
     @Override
@@ -101,8 +113,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
 
         // save alternative location names
-        for (String alternativeName : location.getAlternativeNames()) {
-            runInsertReturnId(ADD_ALTERNATIVE_NAME, generatedLocationId, alternativeName);
+        if (location.getAlternativeNames() != null) {
+            addAlternativeNames(generatedLocationId, location.getAlternativeNames());
         }
     }
 
@@ -149,6 +161,17 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     public void resetForPerformanceCheck() {
         runUpdate("FLUSH TABLES");
         runUpdate("RESET QUERY CACHE");
+    }
+
+    @Override
+    public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
+        for (AlternativeName alternativeName : alternativeNames) {
+            String languageString = null;
+            if (alternativeName.getLanguage() != null) {
+                languageString = alternativeName.getLanguage().getIso6391();
+            }
+            runInsertReturnId(ADD_ALTERNATIVE_NAME, locationId, alternativeName.getName(), languageString);
+        }
     }
 
     public static void main(String[] args) {
