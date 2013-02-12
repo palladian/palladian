@@ -65,7 +65,7 @@ public class YahooLocationExtractor extends LocationExtractor {
         temp.put("Postal Code", LocationType.ZIP);
         temp.put("Supername", LocationType.REGION);
         temp.put("Colloquial", LocationType.UNDETERMINED);
-        temp.put("Time Zone", null);
+        temp.put("Time Zone", LocationType.UNDETERMINED);
         temp.put("State", LocationType.UNIT);
         temp.put("POI", LocationType.POI);
         temp.put("County", LocationType.UNIT);
@@ -75,6 +75,7 @@ public class YahooLocationExtractor extends LocationExtractor {
         temp.put("Airport", LocationType.POI);
         temp.put("Sea", LocationType.LANDMARK);
         temp.put("Zip", LocationType.ZIP);
+        temp.put("Ocean", LocationType.LANDMARK);
         TYPE_MAPPING = Collections.unmodifiableMap(temp);
     }
 

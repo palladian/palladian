@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.sources;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
@@ -21,8 +22,9 @@ public class GeonamesImporterTest {
     public void readData() throws FileNotFoundException, IOException {
         locationStore = new CollectionLocationStore();
         GeonamesImporter importer = new GeonamesImporter(locationStore);
-        importer.importHierarchy(ResourceHelper.getResourceFile("/geonames.org/hierarchy.txt"));
-        importer.importLocations(ResourceHelper.getResourceFile("/geonames.org/locationData.txt"));
+        File hierarchyFile = ResourceHelper.getResourceFile("/geonames.org/hierarchy.txt");
+        File locationFile = ResourceHelper.getResourceFile("/geonames.org/locationData.txt");
+        importer.importLocations(locationFile, hierarchyFile);
     }
 
     @Test
@@ -103,6 +105,15 @@ public class GeonamesImporterTest {
         assertEquals("Asia", location.getPrimaryName());
         assertEquals((Long)3812366000l, location.getPopulation());
         assertEquals(LocationType.CONTINENT, location.getType());
+
+        location = locationStore.retrieveLocation(2622320);
+        assertEquals("Faroe Islands", location.getPrimaryName());
+        assertEquals(LocationType.UNIT, location.getType());
+
+        location = locationStore.retrieveLocation(6518215);
+        assertEquals("Hotel Torshavn", location.getPrimaryName());
+        assertEquals(LocationType.POI, location.getType());
+
     }
 
     @Test
@@ -184,6 +195,9 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(location);
         checkHierarchy(hierarchy, 1279685, 1814991, 6255147, 6295630);
 
+        location = locationStore.retrieveLocation(6518215);
+        hierarchy = locationStore.getHierarchy(location);
+        checkHierarchy(hierarchy, 2611396, 2611397, 2612225, 2622320, 6255148, 6295630);
     }
 
     private void checkHierarchy(List<Location> hierarchy, int... values) {

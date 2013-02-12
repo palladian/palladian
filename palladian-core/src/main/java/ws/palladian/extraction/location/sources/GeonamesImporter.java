@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -28,9 +30,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 /**
  * <p>
  * This class reads data dumps from Geonames (usually you want to take the files "hierarchy.txt" and "allCountries.zip")
- * and imports them into a given {@link LocationStore}. <b>Important:</b> When importing, <b>first</b> import the
- * hierarchy using {@link #importHierarchy(File)}, then import the location data using either
- * {@link #importLocationsZip(File)} or {@link #importLocations(File)}.
+ * and imports them into a given {@link LocationStore}.
  * </p>
  * 
  * @see <a href="http://download.geonames.org/export/dump/">Geonames dumps</a>
@@ -92,19 +92,23 @@ public final class GeonamesImporter {
      * Import a Geonames dump from a ZIP file.
      * </p>
      * 
-     * @param filePath The path to the Geonames dump ZIP file, not <code>null</code>.
+     * @param locationFile The path to the Geonames dump ZIP file, not <code>null</code>.
+     * @param hierarchyFile The path to the hierarchy file, not <code>null</code>.
      * @throws IOException
      */
-    public void importLocationsZip(File filePath) throws IOException {
-        Validate.notNull(filePath, "filePath must not be null");
-        checkIsFileOfType(filePath, "zip");
+    public void importLocationsZip(File locationFile, File hierarchyFile) throws IOException {
+        Validate.notNull(locationFile, "locationFile must not be null");
+        checkIsFileOfType(locationFile, "zip");
+
+        // read the hierarchy first
+        importHierarchy(hierarchyFile);
 
         // read directly from the ZIP file, get the entry in the file with the location data
         ZipFile zipFile = null;
         InputStream inputStream1, inputStream2, inputStream3;
         inputStream1 = inputStream2 = inputStream3 = null;
         try {
-            zipFile = new ZipFile(filePath);
+            zipFile = new ZipFile(locationFile);
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
             ZipEntry locationZipEntry = null;
             while (zipEntries.hasMoreElements()) {
@@ -119,7 +123,7 @@ public final class GeonamesImporter {
                         "No suitable ZIP entry for import found; make sure the correct file was supplied.");
             }
 
-            LOGGER.info("Checking size of {} in {}", locationZipEntry.getName(), filePath);
+            LOGGER.info("Checking size of {} in {}", locationZipEntry.getName(), locationFile);
             inputStream1 = zipFile.getInputStream(locationZipEntry);
             int totalLines = FileHelper.getNumberOfLines(inputStream1);
             FileHelper.close(inputStream1);
@@ -132,6 +136,8 @@ public final class GeonamesImporter {
             inputStream3 = zipFile.getInputStream(locationZipEntry);
             importLocations(inputStream3, totalLines);
             FileHelper.close(inputStream3);
+
+            saveHierarchy();
 
             LOGGER.info("Finished importing {} items", totalLines);
         } finally {
@@ -150,29 +156,41 @@ public final class GeonamesImporter {
      * Import a Geonames dump from a TXT file.
      * </p>
      * 
-     * @param filePath The path to the Geonames dump TXT file, not <code>null</code>.
+     * @param locationFile The path to the Geonames dump TXT file, not <code>null</code>.
+     * @param hierarchyFile The path to the hierarchy file, not <code>null</code>.
      * @throws IOException
      */
-    public void importLocations(File filePath) throws IOException {
-        Validate.notNull(filePath, "filePath must not be null");
-        checkIsFileOfType(filePath, "txt");
+    public void importLocations(File locationFile, File hierarchyFile) throws IOException {
+        Validate.notNull(locationFile, "locationFile must not be null");
+        checkIsFileOfType(locationFile, "txt");
 
-        LOGGER.info("Checking size of {}", filePath);
-        int totalLines = FileHelper.getNumberOfLines(filePath);
+        importHierarchy(hierarchyFile);
+
+        LOGGER.info("Checking size of {}", locationFile);
+        int totalLines = FileHelper.getNumberOfLines(locationFile);
         LOGGER.info("Starting import, {} items in total", totalLines);
 
         InputStream inputStream1, inputStream2;
         inputStream1 = inputStream2 = null;
         try {
-            inputStream1 = new FileInputStream(filePath);
+            inputStream1 = new FileInputStream(locationFile);
             readAdministrativeItems(inputStream1, totalLines);
 
-            inputStream2 = new FileInputStream(filePath);
+            inputStream2 = new FileInputStream(locationFile);
             importLocations(inputStream2, totalLines);
+
+            saveHierarchy();
 
             LOGGER.info("Finished importing {} items", totalLines);
         } finally {
             FileHelper.close(inputStream1, inputStream2);
+        }
+    }
+
+    private void saveHierarchy() {
+        for (Integer childId : hierarchyMappings.keySet()) {
+            Integer parentId = hierarchyMappings.get(childId);
+            locationStore.addHierarchy(childId, parentId);
         }
     }
 
@@ -268,6 +286,16 @@ public final class GeonamesImporter {
             @Override
             public void readLocation(GeonameLocation geonameLocation) {
                 String codeCombined = geonameLocation.getCodeCombined();
+
+                // remove historic locations from the hierarchy mapping again, as we do not want the DDR in the
+                // hierarchy list ... sorry, Erich.
+                if (geonameLocation.isHistoric()) {
+                    int removeCount = removeByValue(hierarchyMappings, geonameLocation.geonamesId);
+                    LOGGER.debug("Removed {} occurences of historic location {} with type {} from hierarchy mappings",
+                            new Object[] {removeCount, geonameLocation.geonamesId, codeCombined});
+                    return;
+                }
+
                 if (!geonameLocation.isAdministrativeUnit() || codeCombined.isEmpty() || codeCombined.endsWith("*")) {
                     return;
                 }
@@ -282,6 +310,7 @@ public final class GeonamesImporter {
                             codeCombined, geonameLocation.geonamesId);
                 }
             }
+
         });
         LOGGER.info("Finished reading administrative items");
         LOGGER.info("# country: {}", countryMapping.size());
@@ -292,19 +321,39 @@ public final class GeonamesImporter {
     }
 
     /**
+     * Remove entries from a map with a given value.
+     * 
+     * @param map The map.
+     * @param value The value.
+     * @return The number of removed entries.
+     */
+    private <K, V> int removeByValue(Map<K, V> map, V value) {
+        int removeCount = 0;
+        Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry<K, V> entry = iterator.next();
+            if (entry.getValue().equals(value)) {
+                iterator.remove();
+                removeCount++;
+            }
+        }
+        return removeCount;
+    }
+
+    /**
      * <p>
      * Import a Geonames hierarchy file.
      * </p>
      * 
      * @param filePath The path to the hierarchy.txt file, not <code>null</code>.
      */
-    public void importHierarchy(File filePath) {
+    private void importHierarchy(File filePath) {
         Validate.notNull(filePath, "filePath must not be null");
         checkIsFileOfType(filePath, "txt");
 
         final int numLines = FileHelper.getNumberOfLines(filePath);
         final StopWatch stopWatch = new StopWatch();
-        LOGGER.info("Reading hierarchy, {} lines to read", numLines);
+        LOGGER.info("Reading hierarchy from {}, {} lines to read", filePath.getAbsolutePath(), numLines);
         FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -314,7 +363,7 @@ public final class GeonamesImporter {
                 }
                 int parentId = Integer.valueOf(split[0]);
                 int childId = Integer.valueOf(split[1]);
-                locationStore.addHierarchy(childId, parentId);
+//                locationStore.addHierarchy(childId, parentId);
                 hierarchyMappings.put(childId, parentId);
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
@@ -480,19 +529,31 @@ public final class GeonamesImporter {
         }
 
         boolean isAdministrativeUnit() {
-            boolean adminFeatureClass = "A".equals(featureClass);
             boolean adminDivision = ADMIN_LEVELS_MAPPING.containsKey(featureCode);
-            return adminFeatureClass && adminDivision;
+            return isAdministrativeClass() && adminDivision;
         }
 
         int getLevel() {
-            if ("A".equals(featureClass)) {
+            if (isAdministrativeClass()) {
                 Integer result = ADMIN_LEVELS_MAPPING.get(featureCode);
                 if (result != null) {
                     return result;
                 }
             }
             return Integer.MAX_VALUE;
+        }
+
+        boolean isHistoric() {
+            if (isAdministrativeClass()) {
+                if (featureCode != null && featureCode.endsWith("H")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        boolean isAdministrativeClass() {
+            return "A".equals(featureClass);
         }
 
         Location buildLocation() {
@@ -542,15 +603,28 @@ public final class GeonamesImporter {
 
     }
 
+    @Override
+    public String toString() {
+        StringBuilder bob = new StringBuilder();
+        bob.append("Mappings:").append('\n');
+        bob.append("CountryMapping=").append(countryMapping).append('\n');
+        bob.append("Admin1Mapping=").append(admin1Mapping).append('\n');
+        bob.append("Admin2Mapping=").append(admin2Mapping).append('\n');
+        bob.append("Admin3Mapping=").append(admin3Mapping).append('\n');
+        bob.append("Admin4Mapping=").append(admin4Mapping).append('\n');
+        bob.append("HierarchyMapping=").append(hierarchyMappings);
+        return bob.toString();
+    }
+
     public static void main(String[] args) throws IOException {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         locationStore.truncate();
 
         GeonamesImporter importer = new GeonamesImporter(locationStore);
-        importer.importHierarchy(new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt"));
-        // importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/DE.zip"));
-        importer.importLocationsZip(new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip"));
+        File locationFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip");
+        File hierarchyFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt");
+        importer.importLocationsZip(locationFile, hierarchyFile);
     }
 
 }
