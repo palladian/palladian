@@ -25,7 +25,6 @@ final class GeonamesUtil {
         Map<String, LocationType> temp = CollectionHelper.newHashMap();
         temp.put("A", LocationType.UNIT);
         temp.put("A.PCL", LocationType.COUNTRY);
-        temp.put("A.PCLD", LocationType.COUNTRY);
         temp.put("A.PCLF", LocationType.COUNTRY);
         temp.put("A.PCLH", LocationType.COUNTRY);
         temp.put("A.PCLI", LocationType.COUNTRY);
