@@ -353,7 +353,7 @@ public final class GeonamesImporter {
 
         final int numLines = FileHelper.getNumberOfLines(filePath);
         final StopWatch stopWatch = new StopWatch();
-        LOGGER.info("Reading hierarchy, {} lines to read", numLines);
+        LOGGER.info("Reading hierarchy from {}, {} lines to read", filePath.getAbsolutePath(), numLines);
         FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -545,7 +545,7 @@ public final class GeonamesImporter {
 
         boolean isHistoric() {
             if (isAdministrativeClass()) {
-                if (featureCode.endsWith("H")) {
+                if (featureCode != null && featureCode.endsWith("H")) {
                     return true;
                 }
             }
