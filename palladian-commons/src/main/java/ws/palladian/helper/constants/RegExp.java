@@ -102,7 +102,7 @@ public class RegExp {
 
     /** Years in context. */
     public static final DateFormat DATE_CONTEXT_YYYY = new DateFormat(
-            "(?<=(in|of|from|year|until|through|during)\\s)[0-9]{4}", "YYYY");
+            "(?<=(in )|(of )|(from )|(year )|(until )|(through )|(during )|(^))[0-9]{4}", "YYYY");
 
     /** <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO8601<a> YYYY-MM-DD TIME+UTC. */
     public static final DateFormat DATE_ISO8601_YMD_T = new DateFormat(YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE
