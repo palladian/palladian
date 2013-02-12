@@ -24,10 +24,12 @@ import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.MashapeUtil;
 
 /**
- * FIXME:
- * 52feznh45ezmjxgfzorrk6ooagyadg
+ * <p>
+ * {@link LocationSource} from <a href="http://newsseecr.com">NewsSeecr</a>.
+ * </p>
  * 
- * @author Sky
+ * @see <a href="https://www.mashape.com/qqilihq/location-lab">API documentation on Mashape</a>
+ * @author David Urbansky
  * @author Philipp Katz
  */
 public class NewsSeecrLocationSource implements LocationSource {
@@ -100,12 +102,13 @@ public class NewsSeecrLocationSource implements LocationSource {
             throw new IllegalStateException("Encountered HTTP error when executing the request: " + request + ": "
                     + e.getMessage(), e);
         }
+        String resultString = HttpHelper.getStringContent(result);
         if (result.getStatusCode() != 200) {
             // TODO get message
             throw new IllegalStateException("Encountered HTTP status " + result.getStatusCode()
-                    + " when executing the request: " + request + ", result: " + HttpHelper.getStringContent(result));
+                    + " when executing the request: " + request + ", result: " + resultString);
         }
-        return HttpHelper.getStringContent(result);
+        return resultString;
     }
 
     private List<Location> parseResultArray(String jsonString) {
@@ -124,7 +127,7 @@ public class NewsSeecrLocationSource implements LocationSource {
         return locations;
     }
 
-    public Location parseSingleResult(JSONObject resultObject) throws JSONException {
+    private Location parseSingleResult(JSONObject resultObject) throws JSONException {
         Integer id = JPathHelper.get(resultObject, "id", Integer.class);
         Double latitude = JPathHelper.get(resultObject, "latitude", Double.class);
         Double longitude = JPathHelper.get(resultObject, "longitude", Double.class);
