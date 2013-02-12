@@ -4,22 +4,19 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 public class StringTaggerTest {
 
     @Test
     public void testTagString() {
 
         Annotations annotations = null;
-        String taggedText = "";
+        String text = "";
 
         // abbreviations
-        taggedText = "the United States of America (USA) are often called the USA, the U.S.A., or simply the U.S., the U.S.S. Enterprise is a space ship.";
+        text = "the United States of America (USA) are often called the USA, the U.S.A., or simply the U.S., the U.S.S. Enterprise is a space ship.";
 
-        taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        CollectionHelper.print(annotations);
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         assertEquals(6, annotations.size());
         assertEquals("United States of America", annotations.get(0).getEntity());
@@ -30,11 +27,10 @@ public class StringTaggerTest {
         assertEquals("U.S.S. Enterprise", annotations.get(5).getEntity());
 
         // names
-        taggedText = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
+        text = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
 
-        taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        CollectionHelper.print(annotations);
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         assertEquals(14, annotations.size());
         assertEquals("Mr. Yakomoto", annotations.get(0).getEntity());
@@ -54,11 +50,10 @@ public class StringTaggerTest {
         // assertEquals("Google Inc.", annotations.get(12).getEntity());
 
         // composites
-        taggedText = "Dolce & Gabana as well as S&P are companies.";
+        text = "Dolce & Gabana as well as S&P are companies.";
 
-        taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        CollectionHelper.print(annotations);
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         assertEquals(2, annotations.size());
         assertEquals("Dolce & Gabana", annotations.get(0).getEntity());
@@ -81,11 +76,10 @@ public class StringTaggerTest {
         // assertEquals("H2", annotations.get(5).getEntity());
 
         // fill words
-        taggedText = "the Republic of Ireland, and Return of King Arthur, the National Bank of Scotland, Erin Purcell of Boston-based Reagan Communications";
+        text = "the Republic of Ireland, and Return of King Arthur, the National Bank of Scotland, Erin Purcell of Boston-based Reagan Communications";
 
-        taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        CollectionHelper.print(annotations);
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         assertEquals(6, annotations.size());
         assertEquals("Republic of Ireland", annotations.get(0).getEntity());
@@ -96,11 +90,10 @@ public class StringTaggerTest {
         assertEquals("Reagan Communications", annotations.get(5).getEntity());
 
         // dashes
-        taggedText = "Maria-Hillary Johnson lives on Chester-le-Street and Ontario-based Victor Vool, the All-England Club and Patricia Djate-Taillard were in the United Nations-sponsored ceasfire with St. Louis-based NFL coach trains in MG-Gym (MG-GYM), the Real- Rumble, TOTALLY FREE- Choice, Australia-- Germany";
+        text = "Maria-Hillary Johnson lives on Chester-le-Street and Ontario-based Victor Vool, the All-England Club and Patricia Djate-Taillard were in the United Nations-sponsored ceasfire with St. Louis-based NFL coach trains in MG-Gym (MG-GYM), the Real- Rumble, TOTALLY FREE- Choice, Australia-- Germany";
 
-        taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        CollectionHelper.print(annotations);
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         assertEquals(17, annotations.size());
         assertEquals("Maria-Hillary Johnson", annotations.get(0).getEntity());
@@ -122,11 +115,10 @@ public class StringTaggerTest {
         assertEquals("Germany", annotations.get(16).getEntity());
 
         // starting small and camel case
-        taggedText = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
+        text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
 
-        taggedText = StringTagger.tagString(taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        CollectionHelper.print(annotations);
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         assertEquals(9, annotations.size());
         assertEquals("ex-England", annotations.get(0).getEntity());
@@ -138,6 +130,18 @@ public class StringTaggerTest {
         assertEquals("VENICE", annotations.get(6).getEntity());
         assertEquals("Frank", annotations.get(7).getEntity());
         assertEquals("HERALD", annotations.get(8).getEntity());
+
+        // apostrophes
+        text = "Early in 1939, Georgia O’Keeffe, the artist most famous for depicting the arid Southwest, suddenly decided to paint America’s diametrically opposite landscape — the lush tropical valleys of Hawaii.";
+
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
+        assertEquals(5, annotations.size());
+        assertEquals("Early", annotations.get(0).getEntity());
+        assertEquals("Georgia O’Keeffe", annotations.get(1).getEntity());
+        assertEquals("Southwest", annotations.get(2).getEntity());
+        assertEquals("America", annotations.get(3).getEntity());
+        assertEquals("Hawaii", annotations.get(4).getEntity());
 
     }
 

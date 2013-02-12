@@ -34,7 +34,7 @@ public class StringTagger {
 
         // names
         regexp += "|";
-        regexp += "([A-Z]\\.)( )?[A-Z]{1}['A-Za-z]{1,100}";
+        regexp += "([A-Z]\\.)( )?[A-Z]{1}[['’]A-Za-z]{1,100}";
         regexp += "|";
         regexp += "[A-Z][a-z]+ [A-Z]{1}\\. [A-Za-z]{1,100}";
         regexp += "|";
@@ -62,11 +62,11 @@ public class StringTagger {
 
         // prevent mixtures of mix camel cases => "Veronica Swenston VENICE" should be two matches
         regexp += "|";
-        regexp += "([A-Z]{1}([a-z-0-9]+)(([ &])*([A-Z]')?[A-Z]{1}([a-z-0-9]+))*)";
+        regexp += "([A-Z]{1}([a-z-0-9]+)(([ &])*([A-Z]['’])?[A-Z]{1}([a-z-0-9]+))*)";
 
         // names (such as "O'Sullivan"), compounds such as "D&G"
         regexp += "|";
-        regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+|'[A-Z][A-Za-z]{2,20}))+(([ &])*[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+        regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+|['’][A-Z][A-Za-z]{2,20}))+(([ &])*[A-Z]+(['’][A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
 
         // regexp += "|";
         // regexp +=
