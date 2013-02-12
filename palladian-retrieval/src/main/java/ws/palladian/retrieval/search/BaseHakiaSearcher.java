@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -30,7 +31,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * Base implementation for Hakia searcher.
  * </p>
  * 
- * @see http://blog.hakia.com/?p=312
+ * @see <a href="http://blog.hakia.com/?p=312">hakia Semantic Search – Now Available for Syndication [...]</a>
  * @author Philipp Katz
  */
 public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
@@ -54,13 +55,10 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
      * Creates a new Hakia searcher.
      * </p>
      * 
-     * @param apiKey The API key for accessing Hakia.
+     * @param apiKey The API key for accessing Hakia, not <code>null</code> or empty.
      */
     public BaseHakiaSearcher(String apiKey) {
-        super();
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("The required API key is missing");
-        }
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
         xmlParser = ParserFactory.createXmlParser();
     }
@@ -71,7 +69,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
      * </p>
      * 
      * @param configuration The configuration which must provide an API key for accessing Hakia, which must be provided
-     *            as string via key <tt>api.hakia.key</tt> in the configuration.
+     *            as string via key {@value #CONFIG_API_KEY} in the configuration.
      */
     public BaseHakiaSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -81,7 +79,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         String requestUrl = buildRequestUrl(query, resultCount);
-        LOGGER.debug("Requesting " + requestUrl);
+        LOGGER.debug("Requesting {}", requestUrl);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
@@ -99,7 +97,35 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
                     + "(request url: \"" + requestUrl + "\"): " + e.getMessage(), e);
         }
 
+        checkError(resultDocument);
+
         return extractWebResults(resultDocument, resultCount);
+    }
+
+    /**
+     * Check, if an error occurred, and throw a {@link SearcherException} if applicable.
+     * 
+     * @param resultDocument The parsed result from Hakia.
+     * @throws SearcherException In case the result returned an error.
+     */
+    private void checkError(Document resultDocument) throws SearcherException {
+        Node errorNumNode = XPathHelper.getNode(resultDocument, "//Error/Num");
+        if (errorNumNode == null) {
+            // error num should be given in either case, also if request went fine.
+            throw new SearcherException("Unexpected result");
+        }
+        if (errorNumNode.getTextContent().equals("0")) {
+            // error num 0 means okay.
+            return;
+        }
+        StringBuilder errorMsg = new StringBuilder();
+        errorMsg.append("An error occured while searching with " + getName()).append(':');
+        Node descNode = XPathHelper.getNode(resultDocument, "//Error/Desc");
+        if (descNode != null) {
+            errorMsg.append(' ').append(descNode.getTextContent());
+        }
+        errorMsg.append(" (").append(errorNumNode.getTextContent()).append(')');
+        throw new SearcherException(errorMsg.toString());
     }
 
     /**
@@ -134,7 +160,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
             }
 
             WebResult webResult = new WebResult(url, title, summary, date);
-            LOGGER.debug("hakia retrieved " + webResult);
+            LOGGER.debug("hakia retrieved {}", webResult);
             webResults.add(webResult);
 
             if (webResults.size() >= resultCount) {
