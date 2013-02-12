@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
@@ -134,10 +135,11 @@ public class NewsSeecrLocationSource implements LocationSource {
         String primaryName = JPathHelper.get(resultObject, "primaryName", String.class);
         String type = JPathHelper.get(resultObject, "locationType", String.class);
         Long population = JPathHelper.get(resultObject, "population", Long.class);
-        List<String> alternativeNames = CollectionHelper.newArrayList();
+        List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
         JSONArray jsonArray = JPathHelper.get(resultObject, "alternateNames", JSONArray.class);
         for (int i = 0; i < jsonArray.length(); i++) {
-            alternativeNames.add(jsonArray.getString(i));
+            // FIXME currently the language is not supplied.
+            alternativeNames.add(new AlternativeName(jsonArray.getString(i), null));
         }
         Location location = new Location();
         location.setId(id);

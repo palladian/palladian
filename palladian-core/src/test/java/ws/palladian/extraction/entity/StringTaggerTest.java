@@ -143,6 +143,18 @@ public class StringTaggerTest {
         assertEquals("America", annotations.get(3).getEntity());
         assertEquals("Hawaii", annotations.get(4).getEntity());
 
+        // FIXME 'gives The Adam Opel Gmb'
+        // text = "The Adam Opel GmbH unit is based in Germany.";
+        // annotations = StringTagger.getTaggedEntities(text);
+        // assertEquals("The Adam Opel GmbH", annotations.get(0).getEntity());
+        // CollectionHelper.print(annotations);
+
+        // FIXME gives 'Magna International Inc'
+        // text = "In 2009, GM scrapped a plan — favored by Berlin — to sell a majority stake to a consortium led by Canadian auto parts maker Magna International Inc. and decided to restructure the brands itself instead.";
+        // annotations = StringTagger.getTaggedEntities(text);
+        // assertEquals("Magna International Inc.", annotations.get(4).getEntity());
+        // CollectionHelper.print(annotations);
+
     }
 
 }

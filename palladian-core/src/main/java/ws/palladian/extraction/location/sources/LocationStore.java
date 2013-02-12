@@ -1,5 +1,8 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
+
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 
@@ -40,5 +43,15 @@ public interface LocationStore extends LocationSource {
      * @param parentId The identifier of the parent {@link Location}, not equal {@code childId}.
      */
     void addHierarchy(int childId, int parentId);
+
+    /**
+     * <p>
+     * Add a {@link Collection} of {@link AlternativeName}s to the location with the specified ID.
+     * </p>
+     * 
+     * @param locationId The identifier of the location to which to add the alternative names.
+     * @param alternativeNames The {@link Collection} of {@link AlternativeName}s, not <code>null</code>.
+     */
+    void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames);
 
 }

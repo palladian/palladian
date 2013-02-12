@@ -9,19 +9,50 @@ package ws.palladian.helper.constants;
  */
 public enum Language {
 
-    ENGLISH("en"), //
-    GERMAN("de"), //
-    FRENCH("fr"), //
-    CHINESE("zh"), //
-    JAPANESE("ja"), //
-    RUSSIAN("ru"), //
-    SPANISH("es"), //
-    HINDI("hi"), //
+    ALBANIAN("sq"), //
     ARABIC("ar"), //
-    PORTUGESE("pt"), //
+    BASQUE("eu"), //
+    BELARUSIAN("be"), //
     BENGALI("bn"), //
+    BULGARIAN("bg"), //
+    CATALAN("ca"), //
+    CHINESE("zh"), //
+    DUTCH("nl"), //
+    ENGLISH("en"), //
+    ESPERANTO("eo"), //
+    FINNISH("fi"), //
+    FRENCH("fr"), //
+    GEORGIAN("ka"), //
+    GERMAN("de"), //
+    GREEK("el"), //
+    HEBREW("he"), //
+    HINDI("hi"), //
+    HUNGARIAN("hu"), //
+    ICELANDIC("is"), //
+    INDONESIAN("id"), //
+    ITALIAN("it"), //
+    JAPANESE("ja"), //
+    JAVANESE("jv"), //
+    KOREAN("ko"), //
+    KURDISH("ku"), //
+    MACEDONIAN("mk"), //
+    MALAY("ms"), //
+    NORWEGIAN("no"), //
+    PERSIAN("fa"), //
+    POLISH("pl"), //
+    PORTUGUESE("pt"), //
     PUNJABI("pa"), //
-    JAVANESE("jv");
+    ROMANIAN("ro"), //
+    RUSSIAN("ru"), //
+    SERBIAN("sr"), //
+    SOMALI("so"), //
+    SPANISH("es"), //
+    SWEDISH("sv"), //
+    THAI("th"), //
+    TIBETAN("bo"), //
+    TURKISH("tr"), //
+    UKRAINIAN("uk"), //
+    VIETNAMESE("vi"); //
 
     private final String iso6391;
 
