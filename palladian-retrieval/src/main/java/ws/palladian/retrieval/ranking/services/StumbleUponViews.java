@@ -64,7 +64,7 @@ public final class StumbleUponViews extends BaseRankingService implements Rankin
                 LOGGER.trace("Stumble Upon Views for " + url + " : " + views);
             }
         } catch (Exception e) {
-            throw new RankingServiceException(e);
+            throw new RankingServiceException("url:" + url, e);
         }
 
         results.put(VIEWS, (float)views);
