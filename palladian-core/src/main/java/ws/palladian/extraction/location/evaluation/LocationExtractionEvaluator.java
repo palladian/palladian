@@ -5,8 +5,9 @@ import java.util.Map;
 
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.tagger.PalladianNerExperiments;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.YahooLocationExtractor;
+import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -30,7 +31,10 @@ public class LocationExtractionEvaluator {
             ProgressHelper.printProgress(i, files.length, 1);
 
             File file = files[i];
-            EvaluationResult result = extractor.evaluate(file.getAbsolutePath(), TaggingFormat.XML);
+            String path = "data/temp/" + file.getName();
+            File file1 = new File(path);
+            FileHelper.writeToFile(path, FileHelper.readFileToString(file).replace(" role=\"main\"", ""));
+            EvaluationResult result = extractor.evaluate(file1.getAbsolutePath(), TaggingFormat.XML);
 
             Double precision = result.getPrecision(EvaluationResult.MUC);
             if (!precision.equals(Double.NaN)) {
@@ -80,13 +84,13 @@ public class LocationExtractionEvaluator {
      * @param args
      */
     public static void main(String[] args) {
-        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
-        // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset";
+        // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset";
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        // Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(
-        // PalladianNerExperiments.WX_API_KEY, PalladianNerExperiments.GEONAMES_USERNAME),
-        // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
-        Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
+        Map<String, Double> results = evaluator.evaluateAll(
+                new PalladianLocationExtractor(PalladianNerExperiments.WX_API_KEY, "52feznh45ezmjxgfzorrk6ooagyadg",
+                        "iwjiagid3rqhbyu5bwwevrbpyicrk2"), DATASET_LOCATION);
+        // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"),
         // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
