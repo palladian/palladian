@@ -1,17 +1,32 @@
 package ws.palladian.extraction.location;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.helper.constants.Language;
 
+/**
+ * <p>
+ * An alternative name, usually in a specific language. For example, we might have the alternative name "Vienna" with
+ * English {@link Language} for the city "Wien".
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public final class AlternativeName {
 
-    private String name;
-    private Language language;
+    private final String name;
+    private final Language language;
 
     /**
-     * @param name
-     * @param language
+     * <p>
+     * Create a new AlternativeName.
+     * </p>
+     * 
+     * @param name The name, not <code>null</code> or empty.
+     * @param language The language, may be null if not specified.
      */
     public AlternativeName(String name, Language language) {
+        Validate.notEmpty(name, "name must not be empty");
         this.name = name;
         this.language = language;
     }
@@ -20,24 +35,17 @@ public final class AlternativeName {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Language getLanguage() {
         return language;
-    }
-
-    public void setLanguage(Language language) {
-        this.language = language;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(name);
-        builder.append(" (").append(language).append(')');
+        if (language != null) {
+            builder.append(" (").append(language).append(')');
+        }
         return builder.toString();
     }
-
 }

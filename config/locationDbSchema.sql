@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-02-12 00:32:58 +0000
+# Erstellungsdauer: 2013-02-13 10:45:53 +0000
 # ************************************************************
 
 
@@ -28,8 +28,10 @@ DROP TABLE IF EXISTS `location_alternative_names`;
 CREATE TABLE `location_alternative_names` (
   `locationId` bigint(20) unsigned NOT NULL COMMENT 'The id of the location.',
   `alternativeName` varchar(200) DEFAULT NULL COMMENT 'An alternative name used for the location.',
+  `language` char(2) DEFAULT NULL COMMENT 'The language for this alternative name, in ISO 639-1 format. NULL means no specified language.',
   KEY `locationId` (`locationId`),
-  KEY `alternativeName` (`alternativeName`)
+  KEY `alternativeName` (`alternativeName`),
+  KEY `language` (`language`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
