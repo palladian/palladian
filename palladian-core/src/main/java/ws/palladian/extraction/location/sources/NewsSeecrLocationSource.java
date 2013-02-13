@@ -14,6 +14,7 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.JPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
@@ -33,7 +34,7 @@ import ws.palladian.retrieval.helper.MashapeUtil;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class NewsSeecrLocationSource implements LocationSource {
+public final class NewsSeecrLocationSource implements LocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsSeecrLocationSource.class);
@@ -81,7 +82,7 @@ public class NewsSeecrLocationSource implements LocationSource {
         try {
             return parseSingleResult(new JSONObject(jsonString));
         } catch (JSONException e) {
-            throw new IllegalStateException("Error while parsing the JSON response (" + jsonString + "): "
+            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
                     + e.getMessage(), e);
         }
     }
@@ -122,7 +123,7 @@ public class NewsSeecrLocationSource implements LocationSource {
                 locations.add(location);
             }
         } catch (Exception e) {
-            throw new IllegalStateException("Error while parsing the JSON response (" + jsonString + "): "
+            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
                     + e.getMessage(), e);
         }
         return locations;
@@ -138,8 +139,14 @@ public class NewsSeecrLocationSource implements LocationSource {
         List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
         JSONArray jsonArray = JPathHelper.get(resultObject, "alternateNames", JSONArray.class);
         for (int i = 0; i < jsonArray.length(); i++) {
-            // FIXME currently the language is not supplied.
-            alternativeNames.add(new AlternativeName(jsonArray.getString(i), null));
+            JSONObject altLanguageJson = jsonArray.getJSONObject(i);
+            String nameValue = altLanguageJson.getString("name");
+            String langValue = altLanguageJson.getString("language");
+            Language language = null;
+            if (langValue != null) {
+                language = Language.getByIso6391(langValue);
+            }
+            alternativeNames.add(new AlternativeName(nameValue, language));
         }
         Location location = new Location();
         location.setId(id);
