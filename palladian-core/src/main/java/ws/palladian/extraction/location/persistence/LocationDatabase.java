@@ -80,18 +80,27 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         List<Location> locations = runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION, locationName, locationName);
         for (Location location : locations) {
             List<AlternativeName> alternativeNames = getAlternativeNames(location.getId());
-            if (alternativeNames.size() > 0) {
-                location.setAlternativeNames(alternativeNames);
-            }
+            location.setAlternativeNames(alternativeNames);
         }
         return locations;
     }
 
     @Override
     public Location retrieveLocation(int locationId) {
-        return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
+        Location location = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
+        if (location != null) {
+            List<AlternativeName> alternativeNames = getAlternativeNames(location.getId());
+            location.setAlternativeNames(alternativeNames);
+        }
+        return location;
     }
 
+    /**
+     * Get alternative names for the location with the specified ID.
+     * 
+     * @param locationId The ID for the location for which to get alternative names.
+     * @return List with alternative names, or empty list.
+     */
     private List<AlternativeName> getAlternativeNames(int locationId) {
         return runQuery(ALTERNATIVE_NAME_ROW_CONVERTER, GET_LOCATION_ALTERNATIVE_NAMES, locationId);
     }
