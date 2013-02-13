@@ -41,7 +41,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     // we can safely ignore potential constraint violations here:
     private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
-    private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT alternativeName FROM location_alternative_names WHERE locationId = ?";
+    private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT * FROM location_alternative_names WHERE locationId = ?";
     private static final String GET_LOCATION_PARENT = "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ?";
     private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
 
@@ -63,7 +63,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final RowConverter<AlternativeName> ALTERNATIVE_NAME_ROW_CONVERTER = new RowConverter<AlternativeName>() {
         @Override
         public AlternativeName convert(ResultSet resultSet) throws SQLException {
-            String name = resultSet.getString("name");
+            String name = resultSet.getString("alternativeName");
             String languageString = resultSet.getString("language");
             Language language = languageString != null ? Language.getByIso6391(languageString) : null;
             return new AlternativeName(name, language);
