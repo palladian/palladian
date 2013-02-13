@@ -262,7 +262,7 @@ public final class GeonamesImporter {
         }
         return null;
     }
-    
+
     private Map<String, Integer> getMappingForLevel(int level) {
         switch (level) {
             case 0:
@@ -458,19 +458,11 @@ public final class GeonamesImporter {
             throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
                     + "('" + line + "')");
         }
-        String primaryName = parts[1];
-//        List<String> alternateNames = CollectionHelper.newArrayList();
-//        for (String item : parts[3].split(",")) {
-//            // do not add empty entries and names, which are already set as primary name
-//            if (item.length() > 0 && !item.equals(primaryName)) {
-//                alternateNames.add(item);
-//            }
-//        }
         GeonameLocation location = new GeonameLocation();
         location.geonamesId = Integer.valueOf(parts[0]);
         location.longitude = Double.valueOf(parts[5]);
         location.latitude = Double.valueOf(parts[4]);
-        location.primaryName = stringOrNull(primaryName);
+        location.primaryName = stringOrNull(parts[1]);
         location.population = Long.valueOf(parts[14]);
         location.featureClass = stringOrNull(parts[6]);
         location.featureCode = stringOrNull(parts[7]);
@@ -664,15 +656,13 @@ public final class GeonamesImporter {
     public static void main(String[] args) throws IOException {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        // locationStore.truncate();
+        locationStore.truncate();
 
         GeonamesImporter importer = new GeonamesImporter(locationStore);
         File locationFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip");
         File hierarchyFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt");
-        File alternateNamesFile = new File(
-                "/Users/pk/Desktop/LocationLab/geonames.org/alternateNames/alternateNames.txt");
-        // importer.importLocationsZip(locationFile, hierarchyFile, alternateNamesFile);
-        importer.importAlternativeNames(alternateNamesFile);
+        File alternateNames = new File("/Users/pk/Desktop/LocationLab/geonames.org/alternateNames/alternateNames.txt");
+        importer.importLocationsZip(locationFile, hierarchyFile, alternateNames);
     }
 
 }
