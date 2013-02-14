@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
@@ -128,9 +130,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public List<Location> detectLocations(String text) {
+    public Annotations getAnnotations(String text) {
 
-        List<Location> locationEntities = CollectionHelper.newArrayList();
+        Annotations locationEntities = new Annotations();
 
         // get candidates which could be locations
         // Annotations taggedEntities = entityRecognizer.getAnnotations(text);
@@ -183,16 +185,23 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
 
             Location location = selectLocation(retrievedLocations);
-            Location fixme = new Location(locationCandidate);
-            fixme.setAlternativeNames(location.getAlternativeNames());
-            fixme.setId(location.getId());
-            fixme.setLatitude(location.getLatitude());
-            fixme.setLongitude(location.getLongitude());
-            fixme.setPopulation(location.getPopulation());
-            fixme.setPrimaryName(entityValue);
-            fixme.setType(location.getType());
-            fixme.setValue(location.getValue());
-            locationEntities.add(fixme);
+            
+            CategoryEntries categoryEntries = new CategoryEntries();
+            categoryEntries.add(new CategoryEntry(location.getType().toString(), 1));
+            locationCandidate.setTags(categoryEntries);
+            
+            locationEntities.add(locationCandidate);
+
+//            Location fixme = new Location(locationCandidate);
+//            fixme.setAlternativeNames(location.getAlternativeNames());
+//            fixme.setId(location.getId());
+//            fixme.setLatitude(location.getLatitude());
+//            fixme.setLongitude(location.getLongitude());
+//            fixme.setPopulation(location.getPopulation());
+//            fixme.setPrimaryName(entityValue);
+//            fixme.setType(location.getType());
+//            fixme.setValue(location.getValue());
+//            locationEntities.add(fixme);
 
             // XXX
             if (!ambiguous && entityValue.split("\\s").length >= 3) {
@@ -200,7 +209,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
         }
 
-        disambiguate(anchorLocations, ambiguousLocations);
+        // disambiguate(anchorLocations, ambiguousLocations);
 
         // if we have cities and countries with the same name, we remove the cities
         // return processCandidateList(locationEntities);
@@ -493,7 +502,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(webKnoxApiKey, database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text19.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text1.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
@@ -502,7 +511,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // CollectionHelper.print(taggedEntities);
         // System.exit(0);
 
-        List<Location> locations = extractor.detectLocations(cleanText);
+        // List<Location> locations = extractor.detectLocations(cleanText);
+        List<Annotation> locations = extractor.getAnnotations(cleanText);
         CollectionHelper.print(locations);
 
         // String text = "";

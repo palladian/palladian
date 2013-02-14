@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -114,7 +115,7 @@ public class GeonamesLocationSource implements LocationSource {
         String primaryName = XPathHelper.getNode(node, "./toponymName").getTextContent();
         double latitude = Double.valueOf(XPathHelper.getNode(node, "./lat").getTextContent());
         double longitude = Double.valueOf(XPathHelper.getNode(node, "./lng").getTextContent());
-        String geonameId = XPathHelper.getNode(node, "./geonameId").getTextContent();
+        int geonameId = Integer.valueOf(XPathHelper.getNode(node, "./geonameId").getTextContent());
         String featureClass = XPathHelper.getNode(node, "./fcl").getTextContent();
         String featureCode = XPathHelper.getNode(node, "./fcode").getTextContent();
         String populationString = XPathHelper.getNode(node, "./population").getTextContent();
@@ -122,14 +123,8 @@ public class GeonamesLocationSource implements LocationSource {
         if (!populationString.isEmpty()) {
             population = Long.valueOf(populationString);
         }
-        Location location = new Location();
-        location.setId(Integer.valueOf(geonameId));
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
-        location.setPopulation(population);
-        location.setPrimaryName(primaryName);
-        location.setType(GeonamesUtil.mapType(featureClass, featureCode));
-        return location;
+        LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
+        return new Location(geonameId, primaryName, null, locationType, latitude, longitude, population);
     }
 
     @Override
