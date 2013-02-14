@@ -78,8 +78,22 @@ public final class NewsSeecrLocationSource implements LocationSource {
 
     @Override
     public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
-        // TODO Auto-generated method stub
-        return null;
+        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
+        request.addParameter("name", locationName);
+        if (languages != null && !languages.isEmpty()) {
+            StringBuilder langParameter = new StringBuilder();
+            boolean first = true;
+            for (Language language : languages) {
+                if (!first) {
+                    langParameter.append(',');
+                }
+                langParameter.append(language.getIso6391());
+                first = false;
+            }
+            request.addParameter("languages", langParameter.toString());
+        }
+        String jsonString = retrieveResult(request);
+        return parseResultArray(jsonString);
     }
 
     @Override
@@ -169,7 +183,9 @@ public final class NewsSeecrLocationSource implements LocationSource {
     public static void main(String[] args) {
         NewsSeecrLocationSource newsSeecrLocationSource = new NewsSeecrLocationSource("52feznh45ezmjxgfzorrk6ooagyadg",
                 "iwjiagid3rqhbyu5bwwevrbpyicrk2");
-        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin");
+        EnumSet<Language> languages = EnumSet.of(Language.ENGLISH, Language.GERMAN, Language.FRENCH);
+        // EnumSet<Language> languages = EnumSet.noneOf(Language.class);
+        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin", languages);
         CollectionHelper.print(locations);
 
         Location loc = locations.get(53);
