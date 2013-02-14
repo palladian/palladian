@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.constants.Language;
 
 /**
  * A simple, in-memory location source.
@@ -35,6 +37,12 @@ public class CollectionLocationStore implements LocationStore {
     @Override
     public List<Location> retrieveLocations(String locationName) {
         return locationsNames.get(locationName.toLowerCase());
+    }
+
+    @Override
+    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -63,27 +71,28 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     @Override
-    public List<Location> getHierarchy(Location location) {
+    public List<Location> getHierarchy(int locationId) {
         List<Location> ret = CollectionHelper.newArrayList();
-        Location currentLocation = location;
+        int currentLocationId = locationId;
         for (;;) {
-            currentLocation = getParentLocation(currentLocation);
+            Location currentLocation = getParentLocation(currentLocationId);
             if (currentLocation == null) {
                 break;
             }
             ret.add(currentLocation);
+            currentLocationId = currentLocation.getId();
         }
         return ret;
     }
 
-    private Location getParentLocation(Location location) {
-        List<Integer> parentIds = hierarchy.get(location.getId());
+    private Location getParentLocation(int locationId) {
+        List<Integer> parentIds = hierarchy.get(locationId);
         if (parentIds == null) {
-            LOGGER.trace("No parent for {}", location.getId());
+            LOGGER.trace("No parent for {}", locationId);
             return null;
         }
         if (parentIds.size() > 1) {
-            LOGGER.warn("Multiple parents for {}: {}", location.getId(), parentIds);
+            LOGGER.warn("Multiple parents for {}: {}", locationId, parentIds);
         }
         return locationsIds.get(parentIds.get(0));
     }

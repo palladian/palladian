@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -86,6 +87,31 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
+    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder
+                .append("SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan");
+        sqlBuilder.append(" WHERE l.id = lan.locationId AND lan.alternativeName = ?");
+        // alternative name with NULL language always matches
+        sqlBuilder.append(" AND (lan.language IS NULL");
+        if (languages.size() > 0) {
+            sqlBuilder.append(" OR lan.language IN (");
+            boolean first = true;
+            for (Language language : languages) {
+                if (!first) {
+                    sqlBuilder.append(',');
+                }
+                sqlBuilder.append('\'').append(language.getIso6391()).append('\'');
+                first = false;
+            }
+            sqlBuilder.append(')');
+        }
+        sqlBuilder.append(")");
+        sqlBuilder.append(" GROUP BY id");
+        return runQuery(LOCATION_ROW_CONVERTER, sqlBuilder.toString(), locationName, locationName);
+    }
+
+    @Override
     public Location retrieveLocation(int locationId) {
         Location location = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
         if (location != null) {
@@ -133,15 +159,16 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public List<Location> getHierarchy(Location location) {
+    public List<Location> getHierarchy(int locationId) {
         List<Location> ret = CollectionHelper.newArrayList();
-        Location currentLocation = location;
+        int currentLocationId = locationId;
         for (;;) {
-            currentLocation = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, currentLocation.getId());
+            Location currentLocation = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, currentLocationId);
             if (currentLocation == null) {
                 break;
             }
             ret.add(currentLocation);
+            currentLocationId = currentLocation.getId();
         }
         return ret;
     }
@@ -188,7 +215,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         List<Location> locations = database.retrieveLocations("colombo");
 
         for (Location location : locations) {
-            List<Location> hierarchy = database.getHierarchy(location);
+            List<Location> hierarchy = database.getHierarchy(location.getId());
             System.out.println(location);
             int index = 0;
             for (Location hierarchyLocation : hierarchy) {
