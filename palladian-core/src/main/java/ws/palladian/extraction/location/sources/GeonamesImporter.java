@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -615,14 +616,8 @@ public final class GeonamesImporter {
         }
 
         Location buildLocation() {
-            Location location = new Location();
-            location.setId(geonamesId);
-            location.setLongitude(longitude);
-            location.setLatitude(latitude);
-            location.setPrimaryName(primaryName);
-            location.setPopulation(population);
-            location.setType(GeonamesUtil.mapType(featureClass, featureCode));
-            return location;
+            LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
+            return new Location(geonamesId, primaryName, null, locationType, latitude, longitude, population);
         }
 
         @Override

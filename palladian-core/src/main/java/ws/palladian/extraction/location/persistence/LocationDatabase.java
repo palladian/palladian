@@ -48,17 +48,17 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
 
     // ////////////////// row converts ////////////////////////////////////
-    private static final RowConverter<Location> LOCATION_ROW_CONVERTER = new RowConverter<Location>() {
+    private final RowConverter<Location> locationRowConverter = new RowConverter<Location>() {
         @Override
         public Location convert(ResultSet resultSet) throws SQLException {
-            Location location = new Location();
-            location.setId(resultSet.getInt("id"));
-            location.setType(LocationType.valueOf(resultSet.getString("type")));
-            location.setPrimaryName(resultSet.getString("name"));
-            location.setLatitude(resultSet.getDouble("latitude"));
-            location.setLongitude(resultSet.getDouble("longitude"));
-            location.setPopulation(resultSet.getLong("population"));
-            return location;
+            int id = resultSet.getInt("id");
+            LocationType locationType = LocationType.valueOf(resultSet.getString("type"));
+            String primaryName = resultSet.getString("name");
+            List<AlternativeName> alternativeNames = getAlternativeNames(id);
+            Double latitude = resultSet.getDouble("latitude");
+            Double longitude = resultSet.getDouble("longitude");
+            Long population = resultSet.getLong("population");
+            return new Location(id, primaryName, alternativeNames, locationType, latitude, longitude, population);
         }
     };
 
@@ -79,12 +79,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> retrieveLocations(String locationName) {
-        List<Location> locations = runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION, locationName, locationName);
-        for (Location location : locations) {
-            List<AlternativeName> alternativeNames = getAlternativeNames(location.getId());
-            location.setAlternativeNames(alternativeNames);
-        }
-        return locations;
+        return runQuery(locationRowConverter, GET_LOCATION, locationName, locationName);
     }
 
     @Override
@@ -109,17 +104,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
         sqlBuilder.append(")");
         sqlBuilder.append(" GROUP BY id");
-        return runQuery(LOCATION_ROW_CONVERTER, sqlBuilder.toString(), locationName, locationName);
+        return runQuery(locationRowConverter, sqlBuilder.toString(), locationName, locationName);
     }
 
     @Override
     public Location retrieveLocation(int locationId) {
-        Location location = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
-        if (location != null) {
-            List<AlternativeName> alternativeNames = getAlternativeNames(location.getId());
-            location.setAlternativeNames(alternativeNames);
-        }
-        return location;
+        return runSingleQuery(locationRowConverter, GET_LOCATION_BY_ID, locationId);
     }
 
     /**
@@ -162,10 +152,11 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> getHierarchy(int locationId) {
+        // FIXME add a check to avaid infinite loops
         List<Location> ret = CollectionHelper.newArrayList();
         int currentLocationId = locationId;
         for (;;) {
-            Location currentLocation = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, currentLocationId);
+            Location currentLocation = runSingleQuery(locationRowConverter, GET_LOCATION_PARENT, currentLocationId);
             if (currentLocation == null) {
                 break;
             }

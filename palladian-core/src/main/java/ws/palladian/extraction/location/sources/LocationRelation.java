@@ -65,4 +65,9 @@ public final class LocationRelation implements Comparable<LocationRelation> {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return String.format("(%s,%s,%s)", parentId, childId, priority);
+    }
+
 }

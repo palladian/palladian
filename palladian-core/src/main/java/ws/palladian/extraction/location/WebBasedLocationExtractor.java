@@ -1,47 +1,75 @@
 package ws.palladian.extraction.location;
 
 import java.util.List;
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.PositionAnnotation;
 
 public abstract class WebBasedLocationExtractor extends LocationExtractor {
 
-    private NamedEntityRecognizer ner;
-    protected static Map<String, LocationType> LOCATION_MAPPING;
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebBasedLocationExtractor.class);
 
-    public WebBasedLocationExtractor(NamedEntityRecognizer ner) {
-        this.ner = ner;
+    private final NamedEntityRecognizer entityRecognizer;
+
+    public WebBasedLocationExtractor(NamedEntityRecognizer entityRecognizer) {
+        this.entityRecognizer = entityRecognizer;
+    }
+
+    protected abstract LocationType map(String value);
+
+    @Override
+    public String getModelFileEnding() {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
     }
 
     @Override
-    public List<Location> detectLocations(String text) {
+    public boolean setsModelFileEndingAutomatically() {
+        return false;
+    }
 
-        List<Location> detectedLocations = CollectionHelper.newArrayList();
+    @Override
+    public boolean loadModel(String configModelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
 
-        Annotations annotations = ner.getAnnotations(text);
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+        LOGGER.warn("the configModelFilePath is ignored");
+        return getAnnotations(inputText);
+    }
 
-        int index = 1;
+    @Override
+    public boolean train(String trainingFilePath, String modelFilePath) {
+        throw new UnsupportedOperationException(
+                "this location detector does not support training and does not work with model files");
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
+        Annotations annotations = entityRecognizer.getAnnotations(inputText);
+        List<Annotation> unmappedAnnotations = CollectionHelper.newArrayList();
         for (Annotation annotation : annotations) {
-            if (LOCATION_MAPPING.containsKey(annotation.getMostLikelyTagName().toLowerCase())) {
-
-                // FIXME setPrimaryName and uncool positional annotation init, INDEX???
-                PositionAnnotation positionAnnotation = new PositionAnnotation("location", annotation.getOffset(),
-                        annotation.getEndIndex(), index, annotation.getEntity());
-                Location location = new Location(positionAnnotation);
-                location.setPrimaryName(annotation.getEntity());
-                location.setType(LOCATION_MAPPING.get(annotation.getMostLikelyTagName().toLowerCase()));
-                detectedLocations.add(location);
-
-                index++;
+            LocationType mappedType = map(annotation.getMostLikelyTagName());
+            if (mappedType == null) {
+                LOGGER.warn("No mapping for tag {}, will be dropped", annotation.getMostLikelyTagName());
+                unmappedAnnotations.add(annotation);
             }
+            CategoryEntries categoryEntries = new CategoryEntries();
+            categoryEntries.add(new CategoryEntry(mappedType.toString(), 1));
+            annotation.setTags(categoryEntries);
         }
-
-        return detectedLocations;
+        annotations.removeAll(unmappedAnnotations);
+        return annotations;
     }
 
 }
