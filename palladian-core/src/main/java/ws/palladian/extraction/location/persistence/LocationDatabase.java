@@ -40,7 +40,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
     // we can safely ignore potential constraint violations here:
-    private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?";
+    private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?, priority = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT * FROM location_alternative_names WHERE locationId = ?";
     private static final String GET_LOCATION_PARENT = "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ?";
@@ -154,7 +154,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public void addHierarchy(int childId, int parentId) {
+    public void addHierarchy(int childId, int parentId, int priority) {
+        // FIXME priority is not considered currently
         runInsertReturnId(ADD_HIERARCHY, childId, parentId);
     }
 

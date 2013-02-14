@@ -179,6 +179,23 @@ public class GeonamesImporterTest {
 
         hierarchy = locationStore.getHierarchy(6518215);
         checkHierarchy(hierarchy, 2611396, 2611397, 2612225, 2622320, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(6940309);
+        checkHierarchy(hierarchy, 5393021, 5332921, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(5322745);
+        checkHierarchy(hierarchy, 5332921, 6252001, 6255149, 6295630);
+
+        // XXX the commented line below is the version as being returned by the GeoNames.org web service, our
+        // implementation additionaly gives the location '5378538' in the hierarchy. I am not sure about this issue, as
+        // it is given like that in the hierarchy.txt file.
+        hierarchy = locationStore.getHierarchy(5410563);
+        // checkHierarchy(hierarchy, 5322745, 5332921, 6252001, 6255149, 6295630);
+        checkHierarchy(hierarchy, 5378538, 5322745, 5332921, 6252001, 6255149, 6295630);
+
+        // the Alps have multiple parents, so the hierarchy should return an empty list
+        hierarchy = locationStore.getHierarchy(2661786);
+        checkHierarchy(hierarchy);
     }
 
     private void checkHierarchy(List<Location> hierarchy, int... values) {

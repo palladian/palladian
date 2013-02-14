@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-02-13 10:45:53 +0000
+# Erstellungsdauer: 2013-02-14 20:18:28 +0000
 # ************************************************************
 
 
@@ -44,9 +44,11 @@ DROP TABLE IF EXISTS `location_hierarchy`;
 CREATE TABLE `location_hierarchy` (
   `parentId` bigint(20) unsigned NOT NULL COMMENT 'The parent in the hierarchical relation.',
   `childId` bigint(20) unsigned NOT NULL COMMENT 'The child in the hierarchical relation.',
+  `priority` tinyint(4) unsigned NOT NULL COMMENT 'A priority for the parent relation, where smaller values denote a higher priority.',
   UNIQUE KEY `parentChildUnique` (`parentId`,`childId`),
   KEY `parentId` (`parentId`),
-  KEY `childId` (`childId`)
+  KEY `childId` (`childId`),
+  KEY `priority` (`priority`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 

@@ -24,6 +24,7 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -68,7 +69,7 @@ public final class GeonamesImporter {
     private final Map<String, Integer> admin4Mapping;
 
     /** Explicitly given hierarchy relations, they have precedence over the administrative relations. */
-    private final Map<Integer, Integer> hierarchyMappings;
+    private final MultiMap<Integer, ParentRelation> hierarchyMappings;
 
     /**
      * <p>
@@ -86,7 +87,7 @@ public final class GeonamesImporter {
         this.admin2Mapping = CollectionHelper.newHashMap();
         this.admin3Mapping = CollectionHelper.newHashMap();
         this.admin4Mapping = CollectionHelper.newHashMap();
-        this.hierarchyMappings = CollectionHelper.newHashMap();
+        this.hierarchyMappings = MultiMap.create();
     }
 
     /**
@@ -197,8 +198,10 @@ public final class GeonamesImporter {
 
     private void saveHierarchy() {
         for (Integer childId : hierarchyMappings.keySet()) {
-            Integer parentId = hierarchyMappings.get(childId);
-            locationStore.addHierarchy(childId, parentId);
+            List<ParentRelation> parentIds = hierarchyMappings.get(childId);
+            for (ParentRelation parent : parentIds) {
+                locationStore.addHierarchy(childId, parent.geonamesId, parent.priority);
+            }
         }
     }
 
@@ -223,9 +226,12 @@ public final class GeonamesImporter {
             @Override
             public void readLocation(GeonameLocation geonameLocation) {
                 locationStore.save(geonameLocation.buildLocation());
-                Integer parentLocationId = getParent(geonameLocation);
-                if (parentLocationId != null) {
-                    locationStore.addHierarchy(geonameLocation.geonamesId, parentLocationId);
+                List<ParentRelation> parentLocations = getParent(geonameLocation);
+                if (parentLocations != null) {
+                    for (ParentRelation parentLocation : parentLocations) {
+                        locationStore.addHierarchy(geonameLocation.geonamesId, parentLocation.geonamesId,
+                                parentLocation.priority);
+                    }
                 } else {
                     LOGGER.debug("No parent for {}", geonameLocation.geonamesId);
                 }
@@ -233,13 +239,13 @@ public final class GeonamesImporter {
         });
     }
 
-    private Integer getParent(GeonameLocation location) {
+    private List<ParentRelation> getParent(GeonameLocation location) {
 
         // explicitly given hierarchy relations (as defined in the hierarchy.txt file) have precedence over the derived
         // parental relations
-        Integer explicitMapping = hierarchyMappings.get(location.geonamesId);
-        if (explicitMapping != null) {
-            return explicitMapping;
+        List<ParentRelation> explicitMappings = hierarchyMappings.get(location.geonamesId);
+        if (explicitMappings != null && explicitMappings.size() > 0) {
+            return explicitMappings;
         }
 
         List<String> hierarchyCode = location.getCodeParts();
@@ -256,7 +262,10 @@ public final class GeonamesImporter {
                 Map<String, Integer> mapping = getMappingForLevel(i - 1);
                 Integer retrievedParentId = mapping.get(parentCode);
                 if (retrievedParentId != null && retrievedParentId != location.geonamesId) {
-                    return retrievedParentId;
+                    ParentRelation parentRelation = new ParentRelation();
+                    parentRelation.geonamesId = retrievedParentId;
+                    parentRelation.priority = 0;
+                    return Collections.singletonList(parentRelation);
                 }
             }
         }
@@ -298,7 +307,7 @@ public final class GeonamesImporter {
                 // remove historic locations from the hierarchy mapping again, as we do not want the DDR in the
                 // hierarchy list ... sorry, Erich.
                 if (geonameLocation.isHistoric()) {
-                    int removeCount = removeByValue(hierarchyMappings, geonameLocation.geonamesId);
+                    int removeCount = removeChildFromHierarchy(geonameLocation.geonamesId);
                     LOGGER.debug("Removed {} occurences of historic location {} with type {} from hierarchy mappings",
                             new Object[] {removeCount, geonameLocation.geonamesId, codeCombined});
                     return;
@@ -331,18 +340,24 @@ public final class GeonamesImporter {
     /**
      * Remove entries from a map with a given value.
      * 
-     * @param map The map.
-     * @param value The value.
+     * @param geonamesId The geonames id which to remove.
      * @return The number of removed entries.
      */
-    private <K, V> int removeByValue(Map<K, V> map, V value) {
+    private int removeChildFromHierarchy(final int geonamesid) {
         int removeCount = 0;
-        Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
+        Iterator<Entry<Integer, List<ParentRelation>>> iterator = hierarchyMappings.entrySet().iterator();
         while (iterator.hasNext()) {
-            Entry<K, V> entry = iterator.next();
-            if (entry.getValue().equals(value)) {
+            Entry<Integer, List<ParentRelation>> entry = iterator.next();
+            Iterator<ParentRelation> parentIterator = entry.getValue().iterator();
+            while (parentIterator.hasNext()) {
+                ParentRelation currentRelation = parentIterator.next();
+                if (currentRelation.geonamesId == geonamesid) {
+                    iterator.remove();
+                    removeCount++;
+                }
+            }
+            if (entry.getValue().isEmpty()) {
                 iterator.remove();
-                removeCount++;
             }
         }
         return removeCount;
@@ -371,7 +386,14 @@ public final class GeonamesImporter {
                 }
                 int parentId = Integer.valueOf(split[0]);
                 int childId = Integer.valueOf(split[1]);
-                hierarchyMappings.put(childId, parentId);
+                String type = null;
+                if (split.length > 2) {
+                    type = split[2];
+                }
+                ParentRelation parentRelation = new ParentRelation();
+                parentRelation.geonamesId = parentId;
+                parentRelation.priority = "ADM".equals(type) ? 0 : 1;
+                hierarchyMappings.add(childId, parentRelation);
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
@@ -638,6 +660,22 @@ public final class GeonamesImporter {
             return builder.toString();
         }
 
+    }
+
+    static final class ParentRelation {
+        int geonamesId;
+        int priority;
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("ParentRelation [geonamesId=");
+            builder.append(geonamesId);
+            builder.append(", priority=");
+            builder.append(priority);
+            builder.append("]");
+            return builder.toString();
+        }
     }
 
     @Override

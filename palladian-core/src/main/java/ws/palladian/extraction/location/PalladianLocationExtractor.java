@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -145,6 +146,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         // CollectionHelper.print(taggedEntities);
 
+        Set<List<Location>> ambiguousLocations = CollectionHelper.newHashSet();
+
         // try to find them in the database
         for (Annotation locationCandidate : taggedEntities) {
 
@@ -173,6 +176,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
             boolean ambiguous = checkAmbiguity(retrievedLocations);
             if (ambiguous) {
+                ambiguousLocations.add(retrievedLocations);
                 System.out.println("- " + entityValue + " is ambiguous!");
             } else {
                 System.out.println("+ " + entityValue + " is not amiguous: " + retrievedLocations);
@@ -195,12 +199,59 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 anchorLocations.add(location);
             }
         }
-        System.out.println("Anchor locations: ");
-        CollectionHelper.print(anchorLocations);
+
+        disambiguate(anchorLocations, ambiguousLocations);
 
         // if we have cities and countries with the same name, we remove the cities
         // return processCandidateList(locationEntities);
         return locationEntities;
+    }
+
+    private Collection<Location> getByType(Collection<Location> locations, final LocationType type) {
+        return CollectionHelper.filter(locations, new Filter<Location>() {
+            @Override
+            public boolean accept(Location item) {
+                return item.getType() == type;
+            }
+        }, new HashSet<Location>());
+    }
+
+    private void disambiguate(Set<Location> anchorLocations, Set<List<Location>> ambiguousLocations) {
+
+        // if we have countries as anchors, we remove the continents, to be more precise.
+        if (getByType(anchorLocations, LocationType.COUNTRY).size() > 0) {
+            CollectionHelper.filter(anchorLocations, new Filter<Location>() {
+                @Override
+                public boolean accept(Location item) {
+                    return item.getType() == LocationType.COUNTRY;
+                }
+            });
+        }
+
+        System.out.println("Anchor locations: ");
+        CollectionHelper.print(anchorLocations);
+
+        // go through each group
+        for (List<Location> list : ambiguousLocations) {
+
+            // check each location in group
+            for (Location location : list) {
+
+                boolean anchored = false;
+                System.out.println("get hierarchy for " + location.getId());
+                List<Location> hierarchy = locationSource.getHierarchy(location.getId());
+                for (Location anchorLocation : anchorLocations) {
+                    if (hierarchy.contains(anchorLocation)) {
+                        anchored = true;
+                    }
+                }
+
+                System.out.println(anchored + " -> " + location);
+
+            }
+            System.out.println("-----------");
+        }
+
     }
 
     private void filterNonEntities(Annotations taggedEntities, String text) {
@@ -442,7 +493,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(webKnoxApiKey, database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text14.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text19.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
