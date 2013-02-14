@@ -21,6 +21,7 @@ public class WebImageResult extends WebResult {
     private final int height;
     private BufferedImage imageContent = null;
     private License license = License.UNKNOWN;
+    private String licenseLink = "";
     private ImageType imageType = ImageType.UNKNOWN;
 
     /**
@@ -94,6 +95,14 @@ public class WebImageResult extends WebResult {
 
     public void setImageType(ImageType imageType) {
         this.imageType = imageType;
+    }
+
+    public String getLicenseLink() {
+        return licenseLink;
+    }
+
+    public void setLicenseLink(String licenseLink) {
+        this.licenseLink = licenseLink;
     }
 
     /*
