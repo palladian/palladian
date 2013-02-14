@@ -173,7 +173,17 @@
 		    <groupId>org.imgscalr</groupId>
 		    <artifactId>imgscalr-lib</artifactId>
 		    <version>4.2</version>
-		  </dependency-->
+		  </dependency-->	
+	  <!-- FIXME - remove those dependencies again later -->	
+	  <dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
 	</dependencies>
 </project>
 

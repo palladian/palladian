@@ -1,7 +1,12 @@
 package ws.palladian.extraction.location;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,12 +15,22 @@ import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
+import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.entity.tagger.WebKnoxNer;
+import ws.palladian.extraction.feature.StopTokenRemover;
+import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.CachingLocationSource;
 import ws.palladian.extraction.location.sources.GeonamesLocationSource;
 import ws.palladian.extraction.location.sources.NewsSeecrLocationSource;
+import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
@@ -33,6 +48,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
     private final LocationSource locationSource;
 
     private final NamedEntityRecognizer entityRecognizer;
+
+    private final List<LocationType> TYPE_PRIORITY = Arrays.asList(LocationType.COUNTRY, LocationType.CITY,
+            LocationType.UNIT, LocationType.LANDMARK, LocationType.POI, LocationType.REGION, LocationType.CONTINENT,
+            LocationType.STREET, LocationType.ZIP, LocationType.STREETNR);
+
+    private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
 
     static {
         skipWords = new HashSet<String>();
@@ -70,6 +91,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
         this.locationSource = new CachingLocationSource(new NewsSeecrLocationSource(mashapePublicKey, mashapePrivateKey));
     }
 
+    public PalladianLocationExtractor(String webKnoxApiKey, LocationSource locationSource) {
+        setName("Palladian Location Extractor");
+        this.entityRecognizer = new WebKnoxNer(webKnoxApiKey);
+        this.locationSource = locationSource;
+    }
+
     @Override
     public String getModelFileEnding() {
         throw new UnsupportedOperationException(
@@ -102,64 +129,139 @@ public class PalladianLocationExtractor extends LocationExtractor {
     @Override
     public List<Location> detectLocations(String text) {
 
-        //        Set<String> locationConceptNames = new HashSet<String>();
-        //        locationConceptNames.add("Country");
-        //        locationConceptNames.add("Nation");
-        //        locationConceptNames.add("County");
-        //        locationConceptNames.add("City");
-        //        locationConceptNames.add("Metropole");
-
         List<Location> locationEntities = CollectionHelper.newArrayList();
 
-        // StopWordRemover stopWordRemover = new StopWordRemover();
-        // text = stopWordRemover.removeStopWords(text);
-
         // get candidates which could be locations
-        // Annotations taggedEntities = StringTagger.getTaggedEntities(text);
+        // Annotations taggedEntities = entityRecognizer.getAnnotations(text);
 
-        Annotations taggedEntities = entityRecognizer.getAnnotations(text);
+        Annotations taggedEntities = StringTagger.getTaggedEntities(text);
 
-        //        Set<String> locationNames = new HashSet<String>();
+        Set<Location> anchorLocations = CollectionHelper.newHashSet();
+
+        // CollectionHelper.print(taggedEntities);
+
+        filterPersonEntities(taggedEntities);
+        filterNonEntities(taggedEntities, text);
+
+        // CollectionHelper.print(taggedEntities);
 
         // try to find them in the database
         for (Annotation locationCandidate : taggedEntities) {
 
-            // if (!(locationCandidate.getMostLikelyTagName().equalsIgnoreCase("country") || locationCandidate
-            // .getMostLikelyTagName().equalsIgnoreCase("city"))) {
-            // continue;
-            // }
+            String entityValue = locationCandidate.getEntity();
+
+            if (!StringHelper.isCompletelyUppercase(entityValue) && stopTokenRemover.isStopword(entityValue)) {
+                continue;
+            }
+
+            if (skipWords.contains(entityValue)) {
+                continue;
+            }
 
             // search entities by name
-            List<Location> retrievedLocations = locationSource.retrieveLocations(locationCandidate.getEntity());
-
-            // get all entities that are locations
+            // List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue);
+            List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue,
+                    EnumSet.of(Language.ENGLISH));
+            if (retrievedLocations.isEmpty()) {
+                continue;
+            }
             for (Location location : retrievedLocations) {
-
-                // XXX make even more beautifuller!
-                location.setPrimaryName(locationCandidate.getEntity());
-
-                if (location.getPrimaryName().equalsIgnoreCase(locationCandidate.getEntity())
-                        && !skipWords.contains(location.getPrimaryName())) {
-                    // locationEntities.add(location);
-
-                    // FIXME use common interface!
-                    Location fixme = new Location(locationCandidate);
-                    fixme.setAlternativeNames(location.getAlternativeNames());
-                    fixme.setId(location.getId());
-                    fixme.setLatitude(location.getLatitude());
-                    fixme.setLongitude(location.getLongitude());
-                    fixme.setPopulation(location.getPopulation());
-                    fixme.setPrimaryName(location.getPrimaryName());
-                    fixme.setType(location.getType());
-                    fixme.setValue(location.getValue());
-                    locationEntities.add(fixme);
-
+                if (EnumSet.of(LocationType.CONTINENT, LocationType.COUNTRY).contains(location.getType())) {
+                    anchorLocations.add(location);
                 }
+            }
+
+            boolean ambiguous = checkAmbiguity(retrievedLocations);
+            if (ambiguous) {
+                System.out.println("- " + entityValue + " is ambiguous!");
+            } else {
+                System.out.println("+ " + entityValue + " is not amiguous: " + retrievedLocations);
+            }
+
+            Location location = selectLocation(retrievedLocations);
+            Location fixme = new Location(locationCandidate);
+            fixme.setAlternativeNames(location.getAlternativeNames());
+            fixme.setId(location.getId());
+            fixme.setLatitude(location.getLatitude());
+            fixme.setLongitude(location.getLongitude());
+            fixme.setPopulation(location.getPopulation());
+            fixme.setPrimaryName(entityValue);
+            fixme.setType(location.getType());
+            fixme.setValue(location.getValue());
+            locationEntities.add(fixme);
+
+            // XXX
+            if (!ambiguous && entityValue.split("\\s").length >= 3) {
+                anchorLocations.add(location);
+            }
+        }
+        System.out.println("Anchor locations: ");
+        CollectionHelper.print(anchorLocations);
+
+        // if we have cities and countries with the same name, we remove the cities
+        // return processCandidateList(locationEntities);
+        return locationEntities;
+    }
+
+    private void filterNonEntities(Annotations taggedEntities, String text) {
+        List<String> tokens = Tokenizer.tokenize(text);
+        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
+            @Override
+            public boolean accept(String item) {
+                return !StringHelper.startsUppercase(item);
+            }
+        }, new HashSet<String>());
+        Iterator<Annotation> iterator = taggedEntities.iterator();
+        while (iterator.hasNext()) {
+            Annotation current = iterator.next();
+            if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
+                iterator.remove();
+                System.out.println("Remove lowercase entity " + current.getEntity());
             }
         }
 
-        // if we have cities and countries with the same name, we remove the cities
-        return processCandidateList(locationEntities);
+    }
+
+    /**
+     * Check, if a Collection of {@link Location}s are "ambiguous". The condition of ambiguity is fulfilled, if two
+     * given Locations in the Collection have a greater distance then a specified threshold.
+     * 
+     * @param retrievedLocations
+     * @return
+     */
+    private boolean checkAmbiguity(List<Location> retrievedLocations) {
+        if (retrievedLocations.size() <= 1) {
+            return false;
+        }
+        for (int i = 0; i < retrievedLocations.size(); i++) {
+            Location location1 = retrievedLocations.get(i);
+            for (int j = i + 1; j < retrievedLocations.size(); j++) {
+                Location location2 = retrievedLocations.get(j);
+                double distance = getDistance(location1, location2);
+                if (distance > 50) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Select one location when multiple were retrieved. Currently simply rank by prior.
+     * 
+     * @param retrievedLocations
+     * @return
+     */
+    private Location selectLocation(List<Location> retrievedLocations) {
+        Collections.sort(retrievedLocations, new Comparator<Location>() {
+            @Override
+            public int compare(Location l1, Location l2) {
+                int priority1 = TYPE_PRIORITY.indexOf(l1.getType());
+                int priority2 = TYPE_PRIORITY.indexOf(l2.getType());
+                return Integer.valueOf(priority1).compareTo(priority2);
+            }
+        });
+        return CollectionHelper.getFirst(retrievedLocations);
     }
 
     /**
@@ -291,13 +393,67 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return distance;
     }
 
-    private long getPopulation(Location city) {
-        long population = -1;
-        population = city.getPopulation();
-        return population;
+    private static final List<String> PREFIXES = Arrays.asList("Mrs.", "Mrs", "Mr.", "Mr", "Ms.", "Ms", "President",
+            "Minister", "General", "Sir", "Lady", "Democrat", "Republican", "Senator", "Chief", "Whip", "Reverend",
+            "Detective", "Det", "Superintendent", "Supt", "Chancellor", "Cardinal", "Premier", "Representative",
+            "Governor", "Minister", "Dr.", "Dr", "Professor", "Prof.", "Prof", "Lawyer", "Inspector", "Admiral",
+            "Officer", "Cyclist", "Commissioner", "Olympian", "Sergeant", "Shareholder", "Coroner", "Constable",
+            "Magistrate", "Judge", "Futurist", "Recorder", "Councillor", "Councilor", "King", "Reporter", "Leader",
+            "Executive", "Justice", "Secretary", "Prince", "Congressman", "Skipper", "Liberal", "Analyst", "Major",
+            "Writer", "Ombudsman", "Examiner");
+
+    private void filterPersonEntities(Annotations annotations) {
+        Set<String> blacklist = CollectionHelper.newHashSet();
+        for (Annotation annotation : annotations) {
+            String value = annotation.getEntity().toLowerCase();
+            for (String prefix : PREFIXES) {
+                if (value.contains(prefix.toLowerCase() + " ")) {
+                    blacklist.addAll(Arrays.asList(annotation.getEntity().toLowerCase().split("\\s")));
+                }
+                if (value.endsWith(" gmb")||value.endsWith(" inc")||value.endsWith(" co")) {
+                    blacklist.addAll(Arrays.asList(annotation.getEntity().toLowerCase().split("\\s")));
+                }
+            }
+        }
+        Iterator<Annotation> iterator = annotations.iterator();
+        while (iterator.hasNext()) {
+            Annotation annotation = iterator.next();
+            String value = annotation.getEntity().toLowerCase();
+            boolean remove = blacklist.contains(value);
+            for (String blacklistedItem : blacklist) {
+                if (StringHelper.containsWord(blacklistedItem, value)) {
+                    remove = true;
+                    break;
+                }
+            }
+            if (remove) {
+                System.out.println("Remove " + annotation);
+                iterator.remove();
+            }
+        }
     }
 
     public static void main(String[] args) throws PageContentExtractorException {
+
+        // String mashapePublicKey = "u3ewnlzvxvbg3gochzqcrulimgngsb";
+        // String mashapePrivateKey = "dxkyimj8rjoyti1mqx2lqragbbg71k";
+        String webKnoxApiKey = "v30170b8523o23il4bz3v04";
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        PalladianLocationExtractor extractor = new PalladianLocationExtractor(webKnoxApiKey, database);
+
+        String rawText = FileHelper
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text14.txt");
+        String cleanText = HtmlHelper.stripHtmlTags(rawText);
+
+        // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
+        // CollectionHelper.print(taggedEntities);
+        // filterNonLocations(taggedEntities);
+        // CollectionHelper.print(taggedEntities);
+        // System.exit(0);
+
+        List<Location> locations = extractor.detectLocations(cleanText);
+        CollectionHelper.print(locations);
+
         // String text = "";
         //
         // PalladianContentExtractor pce = new PalladianContentExtractor();
