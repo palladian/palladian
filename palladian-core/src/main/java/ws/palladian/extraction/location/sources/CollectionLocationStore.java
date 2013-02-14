@@ -26,71 +26,17 @@ import ws.palladian.helper.constants.Language;
  */
 public class CollectionLocationStore implements LocationStore {
 
-    /**
-     * <p>
-     * Container for parent relations with an associated priority.
-     * </p>
-     * 
-     * @author Philipp Katz
-     */
-    static class PriorizedRelation implements Comparable<PriorizedRelation> {
-
-        public PriorizedRelation(int parentId, int priority) {
-            this.parentId = parentId;
-            this.priority = priority;
-        }
-
-        final int parentId;
-        final int priority;
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + parentId;
-            result = prime * result + priority;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            PriorizedRelation other = (PriorizedRelation)obj;
-            if (parentId != other.parentId)
-                return false;
-            if (priority != other.priority)
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s@%s", parentId, priority);
-        }
-
-        @Override
-        public int compareTo(PriorizedRelation o) {
-            return Integer.valueOf(priority).compareTo(o.priority);
-        }
-
-    }
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectionLocationStore.class);
 
     private final Map<Integer, Location> locationsIds;
     private final MultiMap<String, Location> locationsNames;
-    private final Map<Integer, Set<PriorizedRelation>> hierarchy;
+    private final Map<Integer, Set<LocationRelation>> hierarchyIds;
 
     public CollectionLocationStore() {
         locationsIds = CollectionHelper.newHashMap();
         locationsNames = MultiMap.create();
-        hierarchy = CollectionHelper.newHashMap();
+        hierarchyIds = CollectionHelper.newHashMap();
     }
 
     @Override
@@ -114,16 +60,17 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     @Override
-    public void addHierarchy(int childId, int parentId, int priority) {
-        if (childId == parentId) {
-            throw new IllegalArgumentException("A child cannot be the parent of itself (id was " + childId + ")");
+    public void addHierarchy(LocationRelation hierarchy) {
+        if (hierarchy.getChildId() == hierarchy.getParentId()) {
+            throw new IllegalArgumentException("A child cannot be the parent of itself (id was "
+                    + hierarchy.getChildId() + ")");
         }
-        Set<PriorizedRelation> parentSet = hierarchy.get(childId);
+        Set<LocationRelation> parentSet = hierarchyIds.get(hierarchy.getChildId());
         if (parentSet == null) {
             parentSet = CollectionHelper.newHashSet();
-            hierarchy.put(childId, parentSet);
+            hierarchyIds.put(hierarchy.getChildId(), parentSet);
         }
-        parentSet.add(new PriorizedRelation(parentId, priority));
+        parentSet.add(hierarchy);
     }
 
     @Override
@@ -153,20 +100,20 @@ public class CollectionLocationStore implements LocationStore {
         // all other locations). If there are more top locations with equal priority, we can no determine the parent
         // correctly.
         //
-        Set<PriorizedRelation> parentRelations = hierarchy.get(locationId);
+        Set<LocationRelation> parentRelations = hierarchyIds.get(locationId);
         if (parentRelations == null || parentRelations.isEmpty()) {
             LOGGER.trace("No parent for {}", locationId);
             return null;
         }
-        List<PriorizedRelation> parentList = new ArrayList<PriorizedRelation>(parentRelations);
+        List<LocationRelation> parentList = new ArrayList<LocationRelation>(parentRelations);
         Collections.sort(parentList);
-        PriorizedRelation firstRelation = parentList.get(0);
+        LocationRelation firstRelation = parentList.get(0);
         if (parentRelations.size() == 1) {
-            return locationsIds.get(firstRelation.parentId);
+            return locationsIds.get(firstRelation.getParentId());
         }
-        PriorizedRelation secondRelation = parentList.get(1);
-        if (firstRelation.priority != secondRelation.priority) {
-            return locationsIds.get(firstRelation.parentId);
+        LocationRelation secondRelation = parentList.get(1);
+        if (firstRelation.getPriority() != secondRelation.getPriority()) {
+            return locationsIds.get(firstRelation.getParentId());
         }
         LOGGER.warn("Multiple parents for {}: {}", locationId, parentRelations);
         return null;
@@ -180,7 +127,7 @@ public class CollectionLocationStore implements LocationStore {
         builder.append(", #locationsNames=");
         builder.append(locationsNames.size());
         builder.append(", #hierarchy=");
-        builder.append(hierarchy.size());
+        builder.append(hierarchyIds.size());
         builder.append("]");
         return builder.toString();
     }

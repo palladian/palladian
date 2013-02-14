@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.sources.LocationRelation;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -154,9 +155,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public void addHierarchy(int childId, int parentId, int priority) {
+    public void addHierarchy(LocationRelation hierarchy) {
         // FIXME priority is not considered currently
-        runInsertReturnId(ADD_HIERARCHY, childId, parentId);
+        runInsertReturnId(ADD_HIERARCHY, hierarchy.getChildId(), hierarchy.getParentId());
     }
 
     @Override
