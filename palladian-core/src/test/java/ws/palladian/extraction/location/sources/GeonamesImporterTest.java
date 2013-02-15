@@ -119,85 +119,65 @@ public class GeonamesImporterTest {
 
     @Test
     public void testHierarchies() {
-        Location location = locationStore.retrieveLocation(2926304);
-        List<Location> hierarchy = locationStore.getHierarchy(location);
+        List<Location> hierarchy = locationStore.getHierarchy(2926304);
         checkHierarchy(hierarchy, 6555517, 3220743, 3214105, 2953481, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(2825297);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(2825297);
         checkHierarchy(hierarchy, 3220785, 3214105, 2953481, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(7268814);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(7268814);
         checkHierarchy(hierarchy, 4562997, 4566966, 6255149, 6295630);
 
-        location = locationStore.retrieveLocation(2766409);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(2766409);
         checkHierarchy(hierarchy, 2771016, 2764581, 2782113, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(2803474);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(2803474);
         checkHierarchy(hierarchy, 6548548, 6547384, 3305801, 2842566, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(2831574);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(2831574);
         checkHierarchy(hierarchy, 2862926, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(2917786);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(2917786);
         checkHierarchy(hierarchy, 2872567, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(6547539);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(6547539);
         checkHierarchy(hierarchy, 6547383, 2950157, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(2950159);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(2950159);
         checkHierarchy(hierarchy, 6547539, 6547383, 2950157, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(1529666);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(1529666);
         checkHierarchy(hierarchy, 2847618, 2921044, 6255148, 6295630);
 
-        location = locationStore.retrieveLocation(4953706);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(4953706);
         checkHierarchy(hierarchy, 4938757, 6254926, 6252001, 6255149, 6295630);
 
-        location = locationStore.retrieveLocation(5795921);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(5795921);
         checkHierarchy(hierarchy, 5790164, 5815135, 6252001, 6255149, 6295630);
 
-        location = locationStore.retrieveLocation(5342044);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(5342044);
         checkHierarchy(hierarchy, 5359604, 5332921, 6252001, 6255149, 6295630);
 
-        location = locationStore.retrieveLocation(6255147);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(6255147);
         checkHierarchy(hierarchy, 6295630);
 
-        location = locationStore.retrieveLocation(5148141);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(5148141);
         checkHierarchy(hierarchy, 5173541, 5159079, 5165418, 6252001, 6255149, 6295630);
 
-        location = locationStore.retrieveLocation(5173541);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(5173541);
         checkHierarchy(hierarchy, 5159079, 5165418, 6252001, 6255149, 6295630);
 
-        location = locationStore.retrieveLocation(6527550);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(6527550);
         checkHierarchy(hierarchy, 8133957, 263021, 6697808, 390903, 6255148, 6295630);
 
         // this seems to be an error in the data
-        // location = locationStore.retrieveLocation(7731002);
-        // hierarchy = locationStore.getHierarchy(location);
+        // hierarchy = locationStore.getHierarchy(7731002);
         // checkHierarchy(hierarchy, 6295630);
 
-        location = locationStore.retrieveLocation(1279493);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(1279493);
         checkHierarchy(hierarchy, 1279685, 1814991, 6255147, 6295630);
 
-        location = locationStore.retrieveLocation(6518215);
-        hierarchy = locationStore.getHierarchy(location);
+        hierarchy = locationStore.getHierarchy(6518215);
         checkHierarchy(hierarchy, 2611396, 2611397, 2612225, 2622320, 6255148, 6295630);
     }
 

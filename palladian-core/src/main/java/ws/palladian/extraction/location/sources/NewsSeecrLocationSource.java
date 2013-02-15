@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -76,6 +77,26 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
+    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
+        request.addParameter("name", locationName);
+        if (languages != null && !languages.isEmpty()) {
+            StringBuilder langParameter = new StringBuilder();
+            boolean first = true;
+            for (Language language : languages) {
+                if (!first) {
+                    langParameter.append(',');
+                }
+                langParameter.append(language.getIso6391());
+                first = false;
+            }
+            request.addParameter("languages", langParameter.toString());
+        }
+        String jsonString = retrieveResult(request);
+        return parseResultArray(jsonString);
+    }
+
+    @Override
     public Location retrieveLocation(int locationId) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + locationId);
         String jsonString = retrieveResult(request);
@@ -88,8 +109,8 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getHierarchy(Location location) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + location.getId() + "/hierarchy");
+    public List<Location> getHierarchy(int locationId) {
+        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + locationId + "/hierarchy");
         String jsonString = retrieveResult(request);
         return parseResultArray(jsonString);
     }
@@ -162,17 +183,24 @@ public final class NewsSeecrLocationSource implements LocationSource {
     public static void main(String[] args) {
         NewsSeecrLocationSource newsSeecrLocationSource = new NewsSeecrLocationSource("52feznh45ezmjxgfzorrk6ooagyadg",
                 "iwjiagid3rqhbyu5bwwevrbpyicrk2");
-        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin");
+        EnumSet<Language> languages = EnumSet.of(Language.ENGLISH, Language.GERMAN, Language.FRENCH);
+        // EnumSet<Language> languages = EnumSet.noneOf(Language.class);
+        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin", languages);
         CollectionHelper.print(locations);
 
         Location loc = locations.get(53);
         System.out.println(loc);
 
-        List<Location> hierarchyLocations = newsSeecrLocationSource.getHierarchy(loc);
-        CollectionHelper.print(hierarchyLocations);
+        for (;;) {
 
-        Location loc2 = newsSeecrLocationSource.retrieveLocation(2921044);
-        System.out.println(loc2);
-        System.out.println(loc2.getAlternativeNames());
+            List<Location> hierarchyLocations = newsSeecrLocationSource.getHierarchy(loc.getId());
+            CollectionHelper.print(hierarchyLocations);
+
+        }
+
+        // Location loc2 = newsSeecrLocationSource.retrieveLocation(2921044);
+        // System.out.println(loc2);
+        // System.out.println(loc2.getAlternativeNames());
     }
+
 }

@@ -1,11 +1,13 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 
 /**
  * <p>
@@ -47,6 +49,21 @@ public final class CachingLocationSource implements LocationSource {
         return locations;
     }
 
+    // XXX if the same location is queried with different languages set, this will not yield currect results, because it
+    // is already cached.
+    @Override
+    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+        List<Location> locations = locationNameCache.get(locationName);
+        if (locations == null) {
+            locations = locationSource.retrieveLocations(locationName, languages);
+            locationNameCache.put(locationName, locations);
+            cacheFails++;
+        } else {
+            cacheHits++;
+        }
+        return locations;
+    }
+
     @Override
     public Location retrieveLocation(int locationId) {
         Location location = locationIdCache.get(locationId);
@@ -61,11 +78,11 @@ public final class CachingLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getHierarchy(Location location) {
-        List<Location> locations = locationHierachyCache.get(location.getId());
+    public List<Location> getHierarchy(int locationId) {
+        List<Location> locations = locationHierachyCache.get(locationId);
         if (locations == null) {
-            locations = locationSource.getHierarchy(location);
-            locationHierachyCache.put(location.getId(), locations);
+            locations = locationSource.getHierarchy(locationId);
+            locationHierachyCache.put(locationId, locations);
             cacheFails++;
         } else {
             cacheHits++;
@@ -81,5 +98,6 @@ public final class CachingLocationSource implements LocationSource {
         stringBuilder.append(", Fails=").append(cacheFails).append(")");
         return stringBuilder.toString();
     }
+
 
 }
