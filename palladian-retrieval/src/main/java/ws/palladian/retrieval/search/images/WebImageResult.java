@@ -17,6 +17,7 @@ import ws.palladian.retrieval.search.web.WebResult;
 public class WebImageResult extends WebResult {
 
     private final String imageUrl;
+    private String thumbImageUrl;
     private final int width;
     private final int height;
     private BufferedImage imageContent = null;
@@ -67,6 +68,14 @@ public class WebImageResult extends WebResult {
      */
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public String getThumbImageUrl() {
+        return thumbImageUrl;
+    }
+
+    public void setThumbImageUrl(String thumbImageUrl) {
+        this.thumbImageUrl = thumbImageUrl;
     }
 
     public double getWidthHeightRatio() {

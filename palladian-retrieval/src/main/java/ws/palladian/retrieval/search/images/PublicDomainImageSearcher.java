@@ -46,14 +46,17 @@ public class PublicDomainImageSearcher extends WebSearcher<WebImageResult> {
 
                 String summary = node.getAttributes().getNamedItem("alt").getTextContent();
                 String imageUrl = node.getAttributes().getNamedItem("src").getTextContent();
+                String thumbImageUrl = imageUrl;
                 imageUrl = imageUrl.replace("cache/", "public-domain-images-pictures-free-stock-photos/");
                 imageUrl = imageUrl.replace("_85_thumb", "");
                 imageUrl = "http://www.public-domain-image.com" + imageUrl;
 
                 WebImageResult webImageResult = new WebImageResult(imageUrl, imageUrl, summary, summary, -1, -1, null,
                         null);
+                webImageResult.setThumbImageUrl(thumbImageUrl);
 
                 webImageResult.setLicense(License.PUBLIC_DOMAIN);
+                webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
                 webImageResult.setImageType(ImageType.PHOTO);
 
                 results.add(webImageResult);
