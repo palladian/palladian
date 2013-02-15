@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -11,6 +12,7 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -69,6 +71,12 @@ public class GeonamesLocationSource implements LocationSource {
         }
     }
 
+    @Override
+    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     static List<Location> parseLocations(Document document) {
         checkError(document);
         List<Location> result = CollectionHelper.newArrayList();
@@ -125,10 +133,10 @@ public class GeonamesLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getHierarchy(Location location) {
+    public List<Location> getHierarchy(int locationId) {
         try {
-            String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&username=%s",
-                    location.getId(), username);
+            String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&username=%s", locationId,
+                    username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
             requestCount++;
             Document document = xmlParser.parse(httpResult);
@@ -136,7 +144,7 @@ public class GeonamesLocationSource implements LocationSource {
             List<Location> result = CollectionHelper.newArrayList();
             for (Node node : geonames) {
                 int geonameId = Integer.valueOf(node.getTextContent());
-                if (geonameId == location.getId()) { // do not add the supplied Location itself.
+                if (geonameId == locationId) { // do not add the supplied Location itself.
                     continue;
                 }
                 Location retrievedLocation = retrieveLocation(geonameId);
@@ -171,7 +179,7 @@ public class GeonamesLocationSource implements LocationSource {
         System.out.println("-------");
 
         Location firstLocation = CollectionHelper.getFirst(locations);
-        List<Location> hierarchy = locationSource.getHierarchy(firstLocation);
+        List<Location> hierarchy = locationSource.getHierarchy(firstLocation.getId());
         CollectionHelper.print(hierarchy);
     }
 
