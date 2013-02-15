@@ -59,6 +59,12 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
                     title = titleNode.getTextContent();
                 }
 
+                Node imageNode = XPathHelper.getXhtmlNode(node, ".//img/@src");
+                String imageThumbUrl = "";
+                if (imageNode != null) {
+                    imageThumbUrl = "http://www.sxc.hu/" + imageNode.getTextContent();
+                }
+
                 String imageUrl = XPathHelper.getXhtmlNode(node, ".//a/@href").getTextContent();
                 String url = "http://www.sxc.hu/" + imageUrl;
                 imageUrl = imageUrl.replace("photo/", "");
@@ -67,6 +73,7 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
                 WebImageResult webImageResult = new WebImageResult(url, imageUrl, title, title, width, height, null,
                         null);
 
+                webImageResult.setThumbImageUrl(imageThumbUrl);
                 webImageResult.setLicense(License.ATTRIBUTION);
                 webImageResult.setLicenseLink("http://www.sxc.hu/help/7_2");
                 webImageResult.setImageType(ImageType.PHOTO);
@@ -116,5 +123,6 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
         StockXchngSearcher searcher = new StockXchngSearcher();
         List<WebImageResult> results = searcher.search("planet earth", 10);
         CollectionHelper.print(results);
+        System.out.println(results.get(0).getThumbImageUrl());
     }
 }
