@@ -387,4 +387,25 @@ public final class CollectionHelper {
         return list.get(list.size() - 1);
     }
 
+    /**
+     * <p>
+     * SQL like group by functionality. The returned {@link MultiMap} contains the groups, a specified {@link Function}
+     * supplies the values for grouping.
+     * </p>
+     * 
+     * @param iterable The Iterable to group, not <code>null</code>.
+     * @param function The Function which returns the value which is used for grouping, not <code>null</code>.
+     * @return A MultiMap representing the groups.
+     */
+    public static <I, V> MultiMap<V, I> groupBy(Iterable<I> iterable, Function<I, V> function) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+
+        MultiMap<V, I> result = MultiMap.create();
+        for (I item : iterable) {
+            result.add(function.compute(item), item);
+        }
+        return result;
+    }
+
 }
