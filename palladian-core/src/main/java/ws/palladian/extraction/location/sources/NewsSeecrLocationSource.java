@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -171,6 +172,12 @@ public final class NewsSeecrLocationSource implements LocationSource {
         }
         LocationType type = LocationType.valueOf(typeString);
         return new Location(id, primaryName, alternativeNames, type, latitude, longitude, population);
+    }
+
+    @Override
+    public Collection<LocationRelation> getParents(int locationId) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public static void main(String[] args) {

@@ -1,8 +1,10 @@
 package ws.palladian.extraction.location;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
+import ws.palladian.extraction.location.sources.LocationRelation;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -65,5 +67,7 @@ public interface LocationSource {
      *         never <code>null</code>.
      */
     List<Location> getHierarchy(int locationId);
+
+    Collection<LocationRelation> getParents(int locationId);
 
 }

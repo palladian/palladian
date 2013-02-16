@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +25,14 @@ public final class CachingLocationSource implements LocationSource {
     private final Map<Integer, List<Location>> locationHierachyCache;
 
     private static int cacheHits = 0;
-    private static int cacheFails = 0;
+    private static int cacheMisses = 0;
 
     /**
-     * @param locationSource
+     * <p>
+     * Create a new {@link CachingLocationSource} wrapping the given {@link LocationSource}.
+     * </p>
+     * 
+     * @param locationSource The {@link LocationSource} for which to provide caching, not <code>null</code>.
      */
     public CachingLocationSource(LocationSource locationSource) {
         this.locationSource = locationSource;
@@ -42,7 +47,7 @@ public final class CachingLocationSource implements LocationSource {
         if (locations == null) {
             locations = locationSource.retrieveLocations(locationName);
             locationNameCache.put(locationName, locations);
-            cacheFails++;
+            cacheMisses++;
         } else {
             cacheHits++;
         }
@@ -57,7 +62,7 @@ public final class CachingLocationSource implements LocationSource {
         if (locations == null) {
             locations = locationSource.retrieveLocations(locationName, languages);
             locationNameCache.put(locationName, locations);
-            cacheFails++;
+            cacheMisses++;
         } else {
             cacheHits++;
         }
@@ -70,7 +75,7 @@ public final class CachingLocationSource implements LocationSource {
         if (location == null) {
             location = locationSource.retrieveLocation(locationId);
             locationIdCache.put(locationId, location);
-            cacheFails++;
+            cacheMisses++;
         } else {
             cacheHits++;
         }
@@ -83,7 +88,7 @@ public final class CachingLocationSource implements LocationSource {
         if (locations == null) {
             locations = locationSource.getHierarchy(locationId);
             locationHierachyCache.put(locationId, locations);
-            cacheFails++;
+            cacheMisses++;
         } else {
             cacheHits++;
         }
@@ -91,13 +96,18 @@ public final class CachingLocationSource implements LocationSource {
     }
 
     @Override
+    public Collection<LocationRelation> getParents(int locationId) {
+        // XXX not cached
+        return locationSource.getParents(locationId);
+    }
+
+    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("CachingLocationSource (");
         stringBuilder.append("Hits=").append(cacheHits);
-        stringBuilder.append(", Fails=").append(cacheFails).append(")");
+        stringBuilder.append(", Misses=").append(cacheMisses).append(")");
         return stringBuilder.toString();
     }
-
 
 }

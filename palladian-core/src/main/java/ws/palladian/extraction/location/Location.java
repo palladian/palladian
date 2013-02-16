@@ -84,8 +84,8 @@ public class Location {
         builder.append(id);
         builder.append(", primaryName=");
         builder.append(primaryName);
-        builder.append(", alternativeNames=");
-        builder.append(alternativeNames);
+        // builder.append(", alternativeNames=");
+        // builder.append(alternativeNames);
         builder.append(", type=");
         builder.append(type);
         builder.append(", latitude=");

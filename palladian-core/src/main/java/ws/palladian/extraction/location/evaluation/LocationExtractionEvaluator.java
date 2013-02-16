@@ -5,9 +5,8 @@ import java.util.Map;
 
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.tagger.PalladianNerExperiments;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.YahooLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -95,9 +94,9 @@ public class LocationExtractionEvaluator {
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(new AlchemyLocationExtractor(
         // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
-        // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
-        Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(
-                PalladianNerExperiments.WX_API_KEY, database), DATASET_LOCATION);
+        Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
+        // Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(
+        // PalladianNerExperiments.WX_API_KEY, database), DATASET_LOCATION);
         // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
         // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(

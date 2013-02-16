@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -164,6 +165,11 @@ public class GeonamesLocationSource implements LocationSource {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public Collection<LocationRelation> getParents(int locationId) {
+        throw new UnsupportedOperationException("Not supported by GeoNames.org");
     }
 
     public static void main(String[] args) {
