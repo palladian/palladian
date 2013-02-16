@@ -247,6 +247,8 @@ public final class GeonamesImporter {
         if (explicitMappings != null && explicitMappings.size() > 0) {
             return explicitMappings;
         }
+        
+        // FIXME if we did not get an administrative location above, we still have to dig with the code below ...:
 
         List<String> hierarchyCode = location.getCodeParts();
 
@@ -350,7 +352,7 @@ public final class GeonamesImporter {
             while (parentIterator.hasNext()) {
                 LocationRelation currentRelation = parentIterator.next();
                 if (currentRelation.getParentId() == geonamesid) {
-                    iterator.remove();
+                    parentIterator.remove();
                     removeCount++;
                 }
             }

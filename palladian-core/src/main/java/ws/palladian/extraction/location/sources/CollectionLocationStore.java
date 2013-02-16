@@ -93,6 +93,15 @@ public class CollectionLocationStore implements LocationStore {
         return ret;
     }
 
+    @Override
+    public Collection<LocationRelation> getParents(int locationId) {
+        Set<LocationRelation> parents = hierarchyIds.get(locationId);
+        if (parents == null) {
+            return Collections.emptySet();
+        }
+        return parents;
+    }
+
     private Location getParentLocation(int locationId) {
         //
         // XXX I have a feeling that this method is more complicated than absolutely necessary. We sort our candidates
@@ -100,8 +109,8 @@ public class CollectionLocationStore implements LocationStore {
         // all other locations). If there are more top locations with equal priority, we can no determine the parent
         // correctly.
         //
-        Set<LocationRelation> parentRelations = hierarchyIds.get(locationId);
-        if (parentRelations == null || parentRelations.isEmpty()) {
+        Collection<LocationRelation> parentRelations = getParents(locationId);
+        if (parentRelations.isEmpty()) {
             LOGGER.trace("No parent for {}", locationId);
             return null;
         }
