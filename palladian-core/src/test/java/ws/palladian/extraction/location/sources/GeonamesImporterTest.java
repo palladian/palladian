@@ -305,6 +305,45 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(2509951);
         checkHierarchy(hierarchy, 2593113, 2510769, 6255148, 6295630);
 
+        // FIXME
+        // hierarchy = locationStore.getHierarchy(5125771);
+        // checkHierarchy(hierarchy, 5128594, 5128638, 6252001, 6255149, 6295630);
+
+        // FIXME not correct via GeoNames either!
+        // hierarchy = locationStore.getHierarchy(7729881);
+        // checkHierarchy(hierarchy, 2953481, 2921044, 6255148, 6295630);
+
+        // FIXME
+        // hierarchy = locationStore.getHierarchy(3183559);
+        // checkHierarchy(hierarchy, 3183560, 3175395, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(3024635);
+        checkHierarchy(hierarchy, 6440000, 3024634, 2984986, 3035876, 3017382, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(7932547);
+        checkHierarchy(hierarchy, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(8285544);
+        checkHierarchy(hierarchy, 7285902, 6458783, 2660645, 2658434, 6255148, 6295630);
+
+        // FIXME
+        // hierarchy = locationStore.getHierarchy(4830564);
+        // checkHierarchy(hierarchy, 4094463, 4829764, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(2515699);
+        checkHierarchy(hierarchy, 2515271, 2593110, 2510769, 6255148, 6295630);
+
+        // FIXME
+        // hierarchy = locationStore.getHierarchy(5322473);
+        // checkHierarchy(hierarchy, 5393021, 5332921, 6252001, 6255149, 6295630);
+
+        // FIXME
+        // hierarchy = locationStore.getHierarchy(3253374);
+        // checkHierarchy(hierarchy, 3294874, 3230000, 3277605, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(2875431);
+        checkHierarchy(hierarchy, 6548199, 3302143, 2872567, 2921044, 6255148, 6295630);
+
     }
 
     private void checkHierarchy(List<Location> hierarchy, int... values) {
