@@ -259,7 +259,7 @@ public final class GeonamesImporter {
             // if it is an administrative location, we need to remove the last part in the code,
             // in order to walk up in the hierarchy
             if (location.isAdministrativeUnit()) {
-                hierarchyCode.remove(hierarchyCode.get(hierarchyCode.size() - 1));
+                hierarchyCode.remove(hierarchyCode.size() - 1);
             }
 
             if (location.isAdministrativeUnitUnleveled()) {
@@ -321,6 +321,7 @@ public final class GeonamesImporter {
                 // remove historic locations from the hierarchy mapping again, as we do not want the DDR in the
                 // hierarchy list ... sorry, Erich.
                 if (geonameLocation.isHistoric()) {
+                    // XXX keep, but lower priority here?
                     int removeCount = removeChildFromHierarchy(geonameLocation.geonamesId);
                     LOGGER.debug("Removed {} occurences of historic location {} with type {} from hierarchy mappings",
                             new Object[] {removeCount, geonameLocation.geonamesId, codeCombined});
@@ -328,6 +329,7 @@ public final class GeonamesImporter {
                 }
 
                 if (geonameLocation.isLowerOrderAdminDivision()) {
+                    // XXX keep, but lower priority here?
                     removeChildFromHierarchy(geonameLocation.geonamesId);
                     LOGGER.warn("Remove second order relation {}", geonameLocation.geonamesId);
                 }
