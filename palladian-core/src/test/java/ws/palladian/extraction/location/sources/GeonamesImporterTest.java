@@ -190,12 +190,91 @@ public class GeonamesImporterTest {
         // implementation additionaly gives the location '5378538' in the hierarchy. I am not sure about this issue, as
         // it is given like that in the hierarchy.txt file.
         hierarchy = locationStore.getHierarchy(5410563);
-        // checkHierarchy(hierarchy, 5322745, 5332921, 6252001, 6255149, 6295630);
-        checkHierarchy(hierarchy, 5378538, 5322745, 5332921, 6252001, 6255149, 6295630);
+        // checkHierarchy(hierarchy, 5378538, 5322745, 5332921, 6252001, 6255149, 6295630);
+
+        // now working, as we remove "second order" administrative divison relations...
+        checkHierarchy(hierarchy, 5322745, 5332921, 6252001, 6255149, 6295630);
 
         // the Alps have multiple parents, so the hierarchy should return an empty list
         hierarchy = locationStore.getHierarchy(2661786);
         checkHierarchy(hierarchy);
+
+        hierarchy = locationStore.getHierarchy(4147702);
+        checkHierarchy(hierarchy, 4155751, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(3042142);
+        checkHierarchy(hierarchy, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(661882);
+        checkHierarchy(hierarchy, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(1559582);
+        checkHierarchy(hierarchy, 6255151, 6295630);
+
+        hierarchy = locationStore.getHierarchy(49518);
+        checkHierarchy(hierarchy, 6255146, 6295630);
+
+        hierarchy = locationStore.getHierarchy(1546748);
+        checkHierarchy(hierarchy, 6255152, 6295630);
+
+        hierarchy = locationStore.getHierarchy(1819730);
+        checkHierarchy(hierarchy, 6255147, 6295630);
+
+        hierarchy = locationStore.getHierarchy(5059103);
+        checkHierarchy(hierarchy, 5061068, 5690763, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(4180439);
+        checkHierarchy(hierarchy, 4196508, 4197000, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(4049979);
+        checkHierarchy(hierarchy, 4069696, 4829764, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(4722244);
+        checkHierarchy(hierarchy, 4682500, 4736286, 6252001, 6255149, 6295630);
+        
+        hierarchy = locationStore.getHierarchy(3126783);
+        checkHierarchy(hierarchy, 6359853, 3114964, 3336902, 2510769, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(4524474);
+        checkHierarchy(hierarchy, 4513583, 5165418, 6252001, 6255149, 6295630);
+
+        hierarchy = locationStore.getHierarchy(2461445);
+        checkHierarchy(hierarchy, 6255146, 6295630);
+
+        hierarchy = locationStore.getHierarchy(1280019);
+        checkHierarchy(hierarchy, 1279685, 1814991, 6255147, 6295630);
+
+        hierarchy = locationStore.getHierarchy(216030);
+        checkHierarchy(hierarchy, 204697, 216661, 203312, 6255146, 6295630);
+
+        hierarchy = locationStore.getHierarchy(6690301);
+        checkHierarchy(hierarchy, 935213, 6690284, 6690283, 935317, 6255146, 6295630);
+
+        hierarchy = locationStore.getHierarchy(2949766);
+        checkHierarchy(hierarchy, 2949188, 3221125, 2937935, 2861876, 2921044, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(6620384);
+        checkHierarchy(hierarchy, 3042142, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(3041733);
+        checkHierarchy(hierarchy, 661882, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(4038261);
+        checkHierarchy(hierarchy, 1559582, 6255151, 6295630);
+
+        hierarchy = locationStore.getHierarchy(2953481);
+        checkHierarchy(hierarchy, 2921044, 6255148, 6295630);
+
+        hierarchy = locationStore.getHierarchy(6413339);
+        checkHierarchy(hierarchy, 49518, 6255146, 6295630);
+
+        hierarchy = locationStore.getHierarchy(6690917);
+        checkHierarchy(hierarchy, 1546748, 6255152, 6295630);
+
+        hierarchy = locationStore.getHierarchy(7533618);
+        checkHierarchy(hierarchy, 1819730, 6255147, 6295630);
+
+
     }
 
     private void checkHierarchy(List<Location> hierarchy, int... values) {

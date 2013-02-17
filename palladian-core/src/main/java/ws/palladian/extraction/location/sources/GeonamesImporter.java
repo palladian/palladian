@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -44,6 +45,10 @@ public final class GeonamesImporter {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
+
+    private static final int HIERARCHY_PRIORITY = 0;
+
+    private static final int IMPLICIT_ADM_PRIORITY = 10;
 
     /** Mapping between the administrative/country codes and our internal numeric level. */
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
@@ -240,18 +245,16 @@ public final class GeonamesImporter {
     }
 
     private List<LocationRelation> getParent(GeonameLocation location) {
+        List<LocationRelation> ret = CollectionHelper.newArrayList();
 
         // explicitly given hierarchy relations (as defined in the hierarchy.txt file) have precedence over the derived
         // parental relations
         List<LocationRelation> explicitMappings = hierarchyMappings.get(location.geonamesId);
-        if (explicitMappings != null && explicitMappings.size() > 0) {
-            return explicitMappings;
+        if (explicitMappings != null) {
+            ret.addAll(explicitMappings);
         }
-        
-        // FIXME if we did not get an administrative location above, we still have to dig with the code below ...:
 
         List<String> hierarchyCode = location.getCodeParts();
-
         if (hierarchyCode.size() > 0) {
             // if it is an administrative location, we need to remove the last part in the code,
             // in order to walk up in the hierarchy
@@ -259,17 +262,28 @@ public final class GeonamesImporter {
                 hierarchyCode.remove(hierarchyCode.get(hierarchyCode.size() - 1));
             }
 
+            if (location.isAdministrativeUnitUnleveled()) {
+                for (int i = hierarchyCode.size() - 1; i >= 0; i--) {
+                    if (hierarchyCode.get(hierarchyCode.size() - 1).equals("*")) {
+                        hierarchyCode.remove(hierarchyCode.size() - 1);
+                    } else {
+                        break;
+                    }
+                }
+                hierarchyCode.remove(hierarchyCode.size() - 1);
+            }
+
             for (int i = hierarchyCode.size(); i > 0; i--) {
                 String parentCode = StringUtils.join(hierarchyCode.subList(0, i), '.');
                 Map<String, Integer> mapping = getMappingForLevel(i - 1);
                 Integer retrievedParentId = mapping.get(parentCode);
                 if (retrievedParentId != null && retrievedParentId != location.geonamesId) {
-                    LocationRelation parentRelation = new LocationRelation(retrievedParentId, location.geonamesId, 0);
-                    return Collections.singletonList(parentRelation);
+                    ret.add(new LocationRelation(retrievedParentId, location.geonamesId, IMPLICIT_ADM_PRIORITY));
+                    break;
                 }
             }
         }
-        return null;
+        return ret;
     }
 
     private Map<String, Integer> getMappingForLevel(int level) {
@@ -311,6 +325,11 @@ public final class GeonamesImporter {
                     LOGGER.debug("Removed {} occurences of historic location {} with type {} from hierarchy mappings",
                             new Object[] {removeCount, geonameLocation.geonamesId, codeCombined});
                     return;
+                }
+
+                if (geonameLocation.isLowerOrderAdminDivision()) {
+                    removeChildFromHierarchy(geonameLocation.geonamesId);
+                    LOGGER.warn("Remove second order relation {}", geonameLocation.geonamesId);
                 }
 
                 if (!geonameLocation.isAdministrativeUnit() || codeCombined.isEmpty() || codeCombined.endsWith("*")) {
@@ -390,9 +409,10 @@ public final class GeonamesImporter {
                 if (split.length > 2) {
                     type = split[2];
                 }
-                int priority = "ADM".equals(type) ? 0 : 1;
-                LocationRelation parentRelation = new LocationRelation(parentId, childId, priority);
-                hierarchyMappings.add(childId, parentRelation);
+                if (type == null || type.equals("ADM")) {
+                    LocationRelation parentRelation = new LocationRelation(parentId, childId, HIERARCHY_PRIORITY);
+                    hierarchyMappings.add(childId, parentRelation);
+                }
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
@@ -594,6 +614,10 @@ public final class GeonamesImporter {
             return isAdministrativeClass() && adminDivision;
         }
 
+        boolean isAdministrativeUnitUnleveled() {
+            return isAdministrativeClass() && featureCode.equals("ADMD");
+        }
+
         int getLevel() {
             if (isAdministrativeClass()) {
                 Integer result = ADMIN_LEVELS_MAPPING.get(featureCode);
@@ -607,6 +631,15 @@ public final class GeonamesImporter {
         boolean isHistoric() {
             if (isAdministrativeClass()) {
                 if (featureCode != null && featureCode.endsWith("H")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        boolean isLowerOrderAdminDivision() {
+            if ("P".equals(featureClass)) {
+                if (featureCode != null && Arrays.asList("PPLA2", "PPLA3", "PPLA4").contains(featureCode)) {
                     return true;
                 }
             }

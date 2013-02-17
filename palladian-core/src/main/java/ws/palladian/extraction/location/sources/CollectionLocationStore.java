@@ -1,12 +1,12 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
@@ -103,28 +104,27 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     private Location getParentLocation(int locationId) {
-        //
-        // XXX I have a feeling that this method is more complicated than absolutely necessary. We sort our candidates
-        // by priority and check if we have a clear winner (i.e. exact on top location which has a higher priority than
-        // all other locations). If there are more top locations with equal priority, we can no determine the parent
-        // correctly.
-        //
         Collection<LocationRelation> parentRelations = getParents(locationId);
         if (parentRelations.isEmpty()) {
             LOGGER.trace("No parent for {}", locationId);
             return null;
         }
-        List<LocationRelation> parentList = new ArrayList<LocationRelation>(parentRelations);
-        Collections.sort(parentList);
-        LocationRelation firstRelation = parentList.get(0);
-        if (parentRelations.size() == 1) {
-            return locationsIds.get(firstRelation.getParentId());
+        if (parentRelations.size() > 1) {
+            LOGGER.warn("Ambiguities for {}: {}", locationId, parentRelations);
         }
-        LocationRelation secondRelation = parentList.get(1);
-        if (firstRelation.getPriority() != secondRelation.getPriority()) {
-            return locationsIds.get(firstRelation.getParentId());
+        MultiMap<Integer, LocationRelation> groupBy = CollectionHelper.groupBy(parentRelations,
+                new Function<LocationRelation, Integer>() {
+                    @Override
+                    public Integer compute(LocationRelation input) {
+                        return input.getPriority();
+                    }
+                });
+        for (int index : new TreeSet<Integer>(groupBy.keySet())) {
+            List<LocationRelation> values = groupBy.get(index);
+            if (values.size() == 1) {
+                return locationsIds.get(values.get(0).getParentId());
+            }
         }
-        LOGGER.warn("Multiple parents for {}: {}", locationId, parentRelations);
         return null;
     }
 
