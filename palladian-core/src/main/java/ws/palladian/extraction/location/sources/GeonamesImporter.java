@@ -331,7 +331,7 @@ public final class GeonamesImporter {
                 if (geonameLocation.isLowerOrderAdminDivision()) {
                     // XXX keep, but lower priority here?
                     removeChildFromHierarchy(geonameLocation.geonamesId);
-                    LOGGER.warn("Remove second order relation {}", geonameLocation.geonamesId);
+                    LOGGER.debug("Remove second order relation {}", geonameLocation.geonamesId);
                 }
 
                 // FIXME priority needs to be determined based on the destination of relation

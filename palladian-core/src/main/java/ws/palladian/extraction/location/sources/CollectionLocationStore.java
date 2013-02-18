@@ -110,7 +110,7 @@ public class CollectionLocationStore implements LocationStore {
             return null;
         }
         if (parentRelations.size() > 1) {
-            LOGGER.warn("Ambiguities for {}: {}", locationId, parentRelations);
+            LOGGER.debug("Ambiguities for {}: {}", locationId, parentRelations);
         }
         MultiMap<Integer, LocationRelation> groupBy = CollectionHelper.groupBy(parentRelations,
                 new Function<LocationRelation, Integer>() {

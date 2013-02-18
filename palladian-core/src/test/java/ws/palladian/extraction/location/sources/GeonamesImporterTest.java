@@ -207,14 +207,9 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(5322745);
         checkHierarchy(hierarchy, 5332921, 6252001, 6255149, 6295630);
 
-        // XXX the commented line below is the version as being returned by the GeoNames.org web service, our
-        // implementation additionaly gives the location '5378538' in the hierarchy. I am not sure about this issue, as
-        // it is given like that in the hierarchy.txt file.
-        hierarchy = locationStore.getHierarchy(5410563);
-        // checkHierarchy(hierarchy, 5378538, 5322745, 5332921, 6252001, 6255149, 6295630);
-
-        // now working, as we remove "second order" administrative divison relations...
         // P.PPLX > A.ADM2 > ...
+        // now working, as we remove "second order" administrative division relations...
+        hierarchy = locationStore.getHierarchy(5410563);
         checkHierarchy(hierarchy, 5322745, 5332921, 6252001, 6255149, 6295630);
 
         // the Alps have multiple parents, so the hierarchy should return an empty list
@@ -321,7 +316,7 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(7533618);
         checkHierarchy(hierarchy, 1819730, 6255147, 6295630);
 
-        // FIXME
+        // FIXME gives one wrong entry in hierarchy
         // S.HTL > A.ADM1 > ...
         // hierarchy = locationStore.getHierarchy(6506150);
         // checkHierarchy(hierarchy, 6201196, 69543, 6255147, 6295630);
@@ -338,17 +333,17 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(2515819);
         checkHierarchy(hierarchy, 2511173, 2593110, 2510769, 6255148, 6295630);
 
-        // FIXME
+        // FIXME gives one additional entry in hierarchy (PPLX)
         // P.PPL > A.ADM1 > ...
         // hierarchy = locationStore.getHierarchy(2934163);
         // checkHierarchy(hierarchy, 2911297, 2921044, 6255148, 6295630);
 
-        // FIXME
+        // FIXME gives one wrong entry in hierarchy
         // P.PPLL > A.ADM1 > ...
         // hierarchy = locationStore.getHierarchy(3480877);
         // checkHierarchy(hierarchy, 3631462, 3625428, 6255150, 6295630);
 
-        // FIXME
+        // FIXME gives one wrong entry in hierarchy
         // P.PPLA3 > A.ADM3 > ...
         // hierarchy = locationStore.getHierarchy(2643741);
         // checkHierarchy(hierarchy, 2643744, 2648110, 6269131, 2635167, 6255148, 6295630);
@@ -366,12 +361,13 @@ public class GeonamesImporterTest {
         // hierarchy = locationStore.getHierarchy(5125771);
         // checkHierarchy(hierarchy, 5128594, 5128638, 6252001, 6255149, 6295630);
 
-        // FIXME not correct via GeoNames either!
         // L.AREA > A.ADM1 > ...
-        // hierarchy = locationStore.getHierarchy(7729881);
+        // my solution is correct, result from GeoNames is wrong
+        hierarchy = locationStore.getHierarchy(7729881);
         // checkHierarchy(hierarchy, 2953481, 2921044, 6255148, 6295630);
+        checkHierarchy(hierarchy, 6255148, 6295630);
 
-        // FIXME
+        // FIXME gives a wrong entry in the hierarchy (taken from hierarchy.txt instead of admin hierarchy)
         // L.PRK > A.ADM1 > ...
         // hierarchy = locationStore.getHierarchy(3183559);
         // checkHierarchy(hierarchy, 3183560, 3175395, 6255148, 6295630);
@@ -396,12 +392,12 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(2515699);
         checkHierarchy(hierarchy, 2515271, 2593110, 2510769, 6255148, 6295630);
 
-        // FIXME
+        // FIXME gives one additional step in the hierarchy
         // S.HSE > A.ADM2 > ...
         // hierarchy = locationStore.getHierarchy(5322473);
         // checkHierarchy(hierarchy, 5393021, 5332921, 6252001, 6255149, 6295630);
 
-        // FIXME
+        // FIXME gives one additional step in the hierarchy
         // L.LCTY > A.ADM2 > ...
         // hierarchy = locationStore.getHierarchy(3253374);
         // checkHierarchy(hierarchy, 3294874, 3230000, 3277605, 6255148, 6295630);
