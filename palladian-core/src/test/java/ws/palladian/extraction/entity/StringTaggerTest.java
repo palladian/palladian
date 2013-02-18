@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 public class StringTaggerTest {
 
     @Test
@@ -114,23 +116,6 @@ public class StringTaggerTest {
         assertEquals("Australia", annotations.get(15).getEntity());
         assertEquals("Germany", annotations.get(16).getEntity());
 
-        // starting small and camel case
-        text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
-
-        annotations = StringTagger.getTaggedEntities(text);
-        // CollectionHelper.print(annotations);
-
-        assertEquals(9, annotations.size());
-        assertEquals("ex-England", annotations.get(0).getEntity());
-        assertEquals("mid-SCORER", annotations.get(1).getEntity());
-        assertEquals("al-Rama", annotations.get(2).getEntity());
-        assertEquals("Rami al-Sadani", annotations.get(3).getEntity());
-        assertEquals("iPhone 4", annotations.get(4).getEntity());
-        assertEquals("Veronica Swenston", annotations.get(5).getEntity());
-        assertEquals("VENICE", annotations.get(6).getEntity());
-        assertEquals("Frank", annotations.get(7).getEntity());
-        assertEquals("HERALD", annotations.get(8).getEntity());
-
         // apostrophes
         text = "Early in 1939, Georgia O’Keeffe, the artist most famous for depicting the arid Southwest, suddenly decided to paint America’s diametrically opposite landscape — the lush tropical valleys of Hawaii.";
 
@@ -143,17 +128,32 @@ public class StringTaggerTest {
         assertEquals("America", annotations.get(3).getEntity());
         assertEquals("Hawaii", annotations.get(4).getEntity());
 
-        // FIXME 'gives The Adam Opel Gmb'
-        // text = "The Adam Opel GmbH unit is based in Germany.";
-        // annotations = StringTagger.getTaggedEntities(text);
-        // assertEquals("The Adam Opel GmbH", annotations.get(0).getEntity());
+        text = "The Adam Opel GmbH unit is based in Germany.";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals("The Adam Opel GmbH", annotations.get(0).getEntity());
         // CollectionHelper.print(annotations);
 
-        // FIXME gives 'Magna International Inc'
-        // text = "In 2009, GM scrapped a plan — favored by Berlin — to sell a majority stake to a consortium led by Canadian auto parts maker Magna International Inc. and decided to restructure the brands itself instead.";
-        // annotations = StringTagger.getTaggedEntities(text);
-        // assertEquals("Magna International Inc.", annotations.get(4).getEntity());
+        text = "In 2009, GM scrapped a plan — favored by Berlin — to sell a majority stake to a consortium led by Canadian auto parts maker Magna International Inc. and decided to restructure the brands itself instead.";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals("Magna International Inc.", annotations.get(4).getEntity());
         // CollectionHelper.print(annotations);
+
+        // starting small and camel case
+        text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
+
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+
+        assertEquals(9, annotations.size());
+        assertEquals("ex-England", annotations.get(0).getEntity());
+        assertEquals("mid-SCORER", annotations.get(1).getEntity());
+        assertEquals("al-Rama", annotations.get(2).getEntity());
+        assertEquals("Rami al-Sadani", annotations.get(3).getEntity());
+        assertEquals("iPhone 4", annotations.get(4).getEntity());
+        assertEquals("Veronica Swenston", annotations.get(5).getEntity());
+        assertEquals("VENICE", annotations.get(6).getEntity());
+        assertEquals("Frank", annotations.get(7).getEntity());
+        assertEquals("HERALD", annotations.get(8).getEntity());
 
     }
 
