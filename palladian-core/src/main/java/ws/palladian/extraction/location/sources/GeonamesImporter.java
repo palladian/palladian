@@ -334,6 +334,8 @@ public final class GeonamesImporter {
                     LOGGER.warn("Remove second order relation {}", geonameLocation.geonamesId);
                 }
 
+                // FIXME priority needs to be determined based on the destination of relation
+
                 if (!geonameLocation.isAdministrativeUnit() || codeCombined.isEmpty() || codeCombined.endsWith("*")) {
                     return;
                 }

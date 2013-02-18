@@ -122,7 +122,11 @@ public class CollectionLocationStore implements LocationStore {
         for (int index : new TreeSet<Integer>(groupBy.keySet())) {
             List<LocationRelation> values = groupBy.get(index);
             if (values.size() == 1) {
-                return locationsIds.get(values.get(0).getParentId());
+                Location location = locationsIds.get(values.get(0).getParentId());
+                if (location == null) {
+                    LOGGER.error("Location {} is null", values.get(0).getParentId());
+                }
+                return location;
             }
         }
         return null;
