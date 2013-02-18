@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class ConfusionMatrixTest {
 
-    private static final double DELTA = 0.0000001;
+    private static final double EPSILON = 0.0000001;
 
     @Test
     public void testConfusionMatrix() {
@@ -30,7 +30,7 @@ public class ConfusionMatrixTest {
         assertEquals(12, confusionMatrix.getClassifiedDocuments("rabbit"));
 
         assertEquals(19, confusionMatrix.getTotalCorrect());
-        assertEquals(19. / 27, confusionMatrix.getAccuracy(), DELTA);
+        assertEquals(19. / 27, confusionMatrix.getAccuracy(), EPSILON);
 
         assertEquals(5, confusionMatrix.getCorrectlyClassifiedDocuments("cat"));
         assertEquals(3, confusionMatrix.getCorrectlyClassifiedDocuments("dog"));
@@ -45,35 +45,37 @@ public class ConfusionMatrixTest {
 
         assertEquals(27, confusionMatrix.getTotalDocuments());
 
-        assertEquals(13. / 27, confusionMatrix.getHighestPrior(), DELTA);
+        assertEquals(13. / 27, confusionMatrix.getHighestPrior(), EPSILON);
 
-        assertEquals(5. / 7, confusionMatrix.getPrecision("cat"), DELTA);
-        assertEquals(5. / 8, confusionMatrix.getRecall("cat"), DELTA);
-        assertEquals(22. / 27, confusionMatrix.getAccuracy("cat"), DELTA);
-        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getF("cat", 0.5), DELTA);
+        assertEquals(5. / 7, confusionMatrix.getPrecision("cat"), EPSILON);
+        assertEquals(5. / 8, confusionMatrix.getRecall("cat"), EPSILON);
+        assertEquals(22. / 27, confusionMatrix.getAccuracy("cat"), EPSILON);
+        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getF("cat", 0.5), EPSILON);
 
-        assertEquals(3. / 8, confusionMatrix.getPrecision("dog"), DELTA);
-        assertEquals(3. / 6, confusionMatrix.getRecall("dog"), DELTA);
-        assertEquals(19. / 27, confusionMatrix.getAccuracy("dog"), DELTA);
-        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getF("dog", 0.5), DELTA);
+        assertEquals(3. / 8, confusionMatrix.getPrecision("dog"), EPSILON);
+        assertEquals(3. / 6, confusionMatrix.getRecall("dog"), EPSILON);
+        assertEquals(19. / 27, confusionMatrix.getAccuracy("dog"), EPSILON);
+        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getF("dog", 0.5), EPSILON);
 
-        assertEquals(11. / 12, confusionMatrix.getPrecision("rabbit"), DELTA);
-        assertEquals(11. / 13, confusionMatrix.getRecall("rabbit"), DELTA);
-        assertEquals(24. / 27, confusionMatrix.getAccuracy("rabbit"), DELTA);
-        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getF("rabbit", 0.5), DELTA);
+        assertEquals(11. / 12, confusionMatrix.getPrecision("rabbit"), EPSILON);
+        assertEquals(11. / 13, confusionMatrix.getRecall("rabbit"), EPSILON);
+        assertEquals(24. / 27, confusionMatrix.getAccuracy("rabbit"), EPSILON);
+        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getF("rabbit", 0.5), EPSILON);
 
-        assertEquals(8. / 27, confusionMatrix.getPrior("cat"), DELTA);
-        assertEquals(6. / 27, confusionMatrix.getPrior("dog"), DELTA);
-        assertEquals(13. / 27, confusionMatrix.getPrior("rabbit"), DELTA);
+        assertEquals(8. / 27, confusionMatrix.getPrior("cat"), EPSILON);
+        assertEquals(6. / 27, confusionMatrix.getPrior("dog"), EPSILON);
+        assertEquals(13. / 27, confusionMatrix.getPrior("rabbit"), EPSILON);
 
-        assertEquals((5. / 7 + 3. / 8 + 11. / 12) / 3, confusionMatrix.getAveragePrecision(false), DELTA);
-        assertEquals((5. / 8 + 3. / 6 + 11. / 13) / 3, confusionMatrix.getAverageRecall(false), DELTA);
+        assertEquals((5. / 7 + 3. / 8 + 11. / 12) / 3, confusionMatrix.getAveragePrecision(false), EPSILON);
+        assertEquals((5. / 8 + 3. / 6 + 11. / 13) / 3, confusionMatrix.getAverageRecall(false), EPSILON);
 
-        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12, confusionMatrix.getAveragePrecision(true), DELTA);
-        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true), DELTA);
+        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12,
+                confusionMatrix.getAveragePrecision(true), EPSILON);
+        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true),
+                EPSILON);
 
         // TODO test for superiority
-        
+
         // System.out.println(confusionMatrix);
 
     }
@@ -84,8 +86,8 @@ public class ConfusionMatrixTest {
         confusionMatrix.add("c1", "c1", 12);
         confusionMatrix.add("c2", "c1", 3);
 
-        assertEquals(0.8, confusionMatrix.getPrior("c1"), DELTA);
-        assertEquals(0.2, confusionMatrix.getPrior("c2"), DELTA);
+        assertEquals(0.8, confusionMatrix.getPrior("c1"), EPSILON);
+        assertEquals(0.2, confusionMatrix.getPrior("c2"), EPSILON);
 
         // System.out.println(confusionMatrix);
     }
