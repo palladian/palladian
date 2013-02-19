@@ -10,7 +10,6 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +18,10 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationRelation;
 import ws.palladian.extraction.location.sources.LocationStore;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.RowConverter;
@@ -242,12 +243,32 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 //                System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
 //            }
 //        }
-        List<Location> hierarchy = database.getHierarchy(5059103);
-        int index = 0;
-        for (Location hierarchyLocation : hierarchy) {
-            System.out.println(StringUtils.repeat("   ", index++) + hierarchyLocation);
+        
+//        StopWatch stopWatch = new StopWatch();
+//        for (int i = 0; i < 10; i++) {
+//            database.resetForPerformanceCheck();
+//            List<Location> hierarchy = database.getHierarchy(2926304);
+//            int index = 0;
+//            for (Location hierarchyLocation : hierarchy) {
+//                System.out.println(StringUtils.repeat("   ", index++) + hierarchyLocation);
+//            }
+//            System.out.println(stopWatch);
+//        }
+//        System.out.println(stopWatch);
+        
+        
+        int totalCount = 10000;
+        for (int i = 0; i < totalCount; i++) {
+            ProgressHelper.printProgress(i, totalCount, 1);
+            int randomInt = MathHelper.getRandomIntBetween(0, 8468576);
+            Location location = database.retrieveLocation(randomInt);
+            if (location != null) {
+                List<Location> hierarchy = database.getHierarchy(randomInt);
+                if (hierarchy == null || hierarchy.isEmpty()) {
+                    System.out.println("*** " + randomInt);
+                }
+            }
         }
-
     }
 
 
