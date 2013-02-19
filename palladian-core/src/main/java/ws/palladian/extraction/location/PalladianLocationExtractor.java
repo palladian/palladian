@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,7 +68,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public PalladianLocationExtractor(String webKnoxApiKey, String mashapePublicKey, String mashapePrivateKey) {
         setName("Palladian Location Extractor");
         this.entityRecognizer = new WebKnoxNer(webKnoxApiKey);
-        this.locationSource = new CachingLocationSource(new NewsSeecrLocationSource(mashapePublicKey, mashapePrivateKey));
+        this.locationSource = new CachingLocationSource(
+                new NewsSeecrLocationSource(mashapePublicKey, mashapePrivateKey));
     }
 
     @Override
@@ -102,12 +104,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
     @Override
     public List<Location> detectLocations(String text) {
 
-        //        Set<String> locationConceptNames = new HashSet<String>();
-        //        locationConceptNames.add("Country");
-        //        locationConceptNames.add("Nation");
-        //        locationConceptNames.add("County");
-        //        locationConceptNames.add("City");
-        //        locationConceptNames.add("Metropole");
+        // Set<String> locationConceptNames = new HashSet<String>();
+        // locationConceptNames.add("Country");
+        // locationConceptNames.add("Nation");
+        // locationConceptNames.add("County");
+        // locationConceptNames.add("City");
+        // locationConceptNames.add("Metropole");
 
         List<Location> locationEntities = CollectionHelper.newArrayList();
 
@@ -119,7 +121,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         Annotations taggedEntities = entityRecognizer.getAnnotations(text);
 
-        //        Set<String> locationNames = new HashSet<String>();
+        // Set<String> locationNames = new HashSet<String>();
 
         // try to find them in the database
         for (Annotation locationCandidate : taggedEntities) {
@@ -210,7 +212,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
 
             // if (keepLocation) {
-            // entitiesToRemove.add(entity);
+            // entitiesToRemove.add(location);
             // }
         }
 
@@ -269,7 +271,43 @@ public class PalladianLocationExtractor extends LocationExtractor {
         for (Location entity : entitiesToRemove) {
             locations.remove(entity);
         }
+        // entitiesToRemove.addAll(removeLocationsOutOfBounds(locations));
+        // for (Location entity : entitiesToRemove) {
+        // locations.remove(entity);
+        // }
 
+
+        return locations;
+    }
+
+    /**
+     * <p>
+     * We remove locations that are not in one "bounding location". A bounding location is a country or continent.
+     * </p>
+     * 
+     * @param locations The locations to check.
+     * @return A collection of locations that should be removed.
+     */
+    private Collection<Location> removeLocationsOutOfBounds(Collection<Location> locations) {
+        Collection<Location> toKeep = new HashSet<Location>();
+
+        for (Location location : locations) {
+            List<Location> hierarchy = locationSource.getHierarchy(location.getId());
+
+            // check whether another location is in the hierarchy of this location
+            for (Location hierarchyLocation : hierarchy) {
+                if (hierarchyLocation.getType() == LocationType.COUNTRY) {
+                    for (Location location2 : locations) {
+                        if (location2.getType() == LocationType.COUNTRY
+                                && location2.getPrimaryName().equalsIgnoreCase(hierarchyLocation.getPrimaryName())) {
+                            toKeep.add(location);
+                        }
+                    }
+                }
+            }
+        }
+
+        locations.removeAll(toKeep);
         return locations;
     }
 

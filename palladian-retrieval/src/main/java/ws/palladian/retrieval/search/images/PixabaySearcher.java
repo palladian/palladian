@@ -85,12 +85,17 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
                     JsonObjectWrapper resultHit = new JsonObjectWrapper(jsonArray.getJSONObject(i));
                     String url = resultHit.getString("pageURL");
                     String imageUrl = resultHit.getString("webformatURL");
-                    String summary = resultHit.getString("tags"); // TODO add tags to image
+                    String summary = resultHit.getString("tags");
                     String imageTypeString = resultHit.getString("type");
-                    WebImageResult webImageResult = new WebImageResult(url, imageUrl, summary, summary, -1, -1, null,
+                    int width = resultHit.getInt("imageWidth");
+                    int height = resultHit.getInt("imageHeight");
+                    WebImageResult webImageResult = new WebImageResult(url, imageUrl, summary, summary, width, height,
+                            null,
                             null);
 
+                    webImageResult.setThumbImageUrl(resultHit.getString("previewURL"));
                     webImageResult.setLicense(License.PUBLIC_DOMAIN);
+                    webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
                     webImageResult.setImageType(getImageType(imageTypeString));
 
                     results.add(webImageResult);

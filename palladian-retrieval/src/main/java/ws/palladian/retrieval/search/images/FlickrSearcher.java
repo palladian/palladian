@@ -1,15 +1,18 @@
 package ws.palladian.retrieval.search.images;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -35,6 +38,9 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
 
     private final String apiKey;
 
+    /** Search only photos with one of the given licenses. */
+    private Collection<Integer> allowedLicenses = CollectionHelper.newHashSet();
+
     /**
      * <p>
      * Creates a new Flickr searcher.
@@ -57,6 +63,25 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
      */
     public FlickrSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
+    }
+
+    /**
+     * <pre>
+     * 0 = "All Rights Reserved"
+     * 1 = "Attribution-NonCommercial-ShareAlike License"
+     * 2 = "Attribution-NonCommercial License"
+     * 3 = "Attribution-NonCommercial-NoDerivs License"
+     * 4 = "Attribution License"
+     * 5 = "Attribution-ShareAlike License"
+     * 6 = "Attribution-NoDerivs License"
+     * 7 = "No known copyright restrictions"
+     * 8 = "United States Government Work"
+     * </pre>
+     * 
+     * @param licenses
+     */
+    public void setAllowedLicenses(Collection<Integer> licenses) {
+        allowedLicenses = licenses;
     }
 
     @Override
@@ -135,6 +160,9 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
         }
         if (uploadDate != null) {
             urlBuilder.append("&min_upload_date=").append(uploadDate);
+        }
+        if (!allowedLicenses.isEmpty()) {
+            urlBuilder.append("&license=").append(StringUtils.join(allowedLicenses, ","));
         }
         urlBuilder.append("&per_page=").append(perPage);
         urlBuilder.append("&page=").append(page);
