@@ -17,10 +17,12 @@ import ws.palladian.retrieval.search.web.WebResult;
 public class WebImageResult extends WebResult {
 
     private final String imageUrl;
+    private String thumbImageUrl;
     private final int width;
     private final int height;
     private BufferedImage imageContent = null;
     private License license = License.UNKNOWN;
+    private String licenseLink = "";
     private ImageType imageType = ImageType.UNKNOWN;
 
     /**
@@ -68,6 +70,14 @@ public class WebImageResult extends WebResult {
         return imageUrl;
     }
 
+    public String getThumbImageUrl() {
+        return thumbImageUrl;
+    }
+
+    public void setThumbImageUrl(String thumbImageUrl) {
+        this.thumbImageUrl = thumbImageUrl;
+    }
+
     public double getWidthHeightRatio() {
         return (double)getWidth() / (double)getHeight();
     }
@@ -94,6 +104,14 @@ public class WebImageResult extends WebResult {
 
     public void setImageType(ImageType imageType) {
         this.imageType = imageType;
+    }
+
+    public String getLicenseLink() {
+        return licenseLink;
+    }
+
+    public void setLicenseLink(String licenseLink) {
+        this.licenseLink = licenseLink;
     }
 
     /*
