@@ -28,6 +28,7 @@ import ws.palladian.extraction.location.sources.NewsSeecrLocationSource;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -151,6 +152,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         Set<List<Location>> ambiguousLocations = CollectionHelper.newHashSet();
 
+        MultiMap<String, Location> locationMap = MultiMap.create();
+
         // try to find them in the database
         for (Annotation locationCandidate : taggedEntities) {
 
@@ -185,6 +188,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 System.out.println("+ " + entityValue + " is not amiguous: " + retrievedLocations);
             }
 
+            if (!locationMap.containsKey(entityValue)) {
+                locationMap.addAll(entityValue, retrievedLocations);
+            }
+
             Location location = selectLocation(retrievedLocations);
             
             CategoryEntries categoryEntries = new CategoryEntries();
@@ -193,27 +200,50 @@ public class PalladianLocationExtractor extends LocationExtractor {
             
             locationEntities.add(locationCandidate);
 
-//            Location fixme = new Location(locationCandidate);
-//            fixme.setAlternativeNames(location.getAlternativeNames());
-//            fixme.setId(location.getId());
-//            fixme.setLatitude(location.getLatitude());
-//            fixme.setLongitude(location.getLongitude());
-//            fixme.setPopulation(location.getPopulation());
-//            fixme.setPrimaryName(entityValue);
-//            fixme.setType(location.getType());
-//            fixme.setValue(location.getValue());
-//            locationEntities.add(fixme);
-
             // XXX
             if (!ambiguous && entityValue.split("\\s").length >= 3) {
                 anchorLocations.add(location);
             }
         }
 
-        disambiguate(anchorLocations, ambiguousLocations);
+        disambiguate(anchorLocations, locationMap);
+        // Set<String> toRemove = disambiguate(anchorLocations, locationMap);
+        // System.out.println("to remove = " + toRemove);
+
+        // Iterator<Annotation> iterator = locationEntities.iterator();
+        // while (iterator.hasNext()) {
+        // Annotation annotation = iterator.next();
+        // if (toRemove.contains(annotation.getEntity())) {
+        // System.out.println("remove " + annotation.getEntity());
+        // iterator.remove();
+        // }
+        // }
 
         // if we have cities and countries with the same name, we remove the cities
         // return processCandidateList(locationEntities);
+
+//        Iterator<Annotation> iterator = locationEntities.iterator();
+//        while (iterator.hasNext()) {
+//            Annotation annotation = iterator.next();
+//            String entityValue = annotation.getEntity();
+//            if (!locationMap.containsKey(entityValue)) {
+//                iterator.remove();
+//                continue;
+//            }
+//            if (locationMap.get(entityValue).size() == 0) {
+//                iterator.remove();
+//                continue;
+//            }
+//            if (locationMap.get(entityValue).size() > 1) {
+//                System.out.println("Ambiguity for " + entityValue);
+//            }
+//            Location loc = locationMap.get(entityValue).get(0);
+//            CategoryEntries ces = new CategoryEntries();
+//            ces.add(new CategoryEntry(loc.getType().toString(), 1.));
+//            annotation.setTags(ces);
+//            System.out.println("set " + entityValue + " to " + loc.getType());
+//        }
+
         return locationEntities;
     }
 
@@ -226,7 +256,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }, new HashSet<Location>());
     }
 
-    private void disambiguate(Set<Location> anchorLocations, Set<List<Location>> ambiguousLocations) {
+    private void disambiguate(Set<Location> anchorLocations, MultiMap<String, Location> ambiguousLocations) {
 
         // if we have countries as anchors, we remove the continents, to be more precise.
         if (getByType(anchorLocations, LocationType.COUNTRY).size() > 0) {
@@ -242,13 +272,19 @@ public class PalladianLocationExtractor extends LocationExtractor {
         CollectionHelper.print(anchorLocations);
 
         // go through each group
-        for (List<Location> list : ambiguousLocations) {
+        for (String locationName : ambiguousLocations.keySet()) {
+
+            System.out.println(locationName);
+
+            List<Location> list = ambiguousLocations.get(locationName);
 
             // check each location in group
-            for (Location location : list) {
+            Iterator<Location> it = list.iterator();
+            while (it.hasNext()) {
+
+                Location location = it.next();
 
                 boolean anchored = false;
-                // System.out.println("get hierarchy for " + location.getId());
                 List<Location> hierarchy = locationSource.getHierarchy(location.getId());
                 for (Location anchorLocation : anchorLocations) {
                     if (hierarchy.contains(anchorLocation)) {
@@ -261,9 +297,18 @@ public class PalladianLocationExtractor extends LocationExtractor {
                     anchored = true;
                 }
 
+                if (location.getType() == LocationType.CONTINENT) {
+                    anchored = true;
+                }
+
                 System.out.println(anchored + " -> " + location);
 
+                if (!anchored) {
+                    it.remove();
+                }
+
             }
+
             System.out.println("-----------");
         }
 
@@ -279,6 +324,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }, new HashSet<String>());
         Iterator<Annotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
+            // FIXME only do this with entities which are at sentence start!
             Annotation current = iterator.next();
             if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
                 iterator.remove();
@@ -545,7 +591,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(webKnoxApiKey, database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text11.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text1.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
