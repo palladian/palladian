@@ -37,7 +37,7 @@ public class StringTagger {
         String regexp = "";
 
         String camelCaseWords = "(GmbH)";
-        String companySuffixes = "((?<=(Inc)|(Corp))\\.)?";
+        String companySuffixes = "((?<=(Inc)|(Corp)|(Co))\\.)?";
 
         // dashes (such as "Ontario-based" "Victor" or St. Louis-based)
         regexp += "([A-Z][a-z]\\. )?([A-Z]{1}[A-Za-z]+(-[a-z]+)(-[A-Za-z]+)*)";
