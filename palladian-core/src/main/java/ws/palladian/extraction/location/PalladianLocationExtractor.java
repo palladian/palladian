@@ -507,7 +507,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 if (value.contains(prefix.toLowerCase() + " ")) {
                     blacklist.addAll(Arrays.asList(annotation.getEntity().toLowerCase().split("\\s")));
                 }
-                if (value.endsWith(" gmb")||value.endsWith(" inc")||value.endsWith(" co")) {
+                if (value.endsWith(" gmbh") || value.endsWith(" inc.") || value.endsWith(" co.")
+                        || value.endsWith(" corp.")) {
                     blacklist.addAll(Arrays.asList(annotation.getEntity().toLowerCase().split("\\s")));
                 }
             }
@@ -539,7 +540,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(webKnoxApiKey, database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text1.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text11.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);

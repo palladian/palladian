@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 public class StringTaggerTest {
 
     @Test
@@ -138,11 +136,16 @@ public class StringTaggerTest {
         assertEquals("Magna International Inc.", annotations.get(4).getEntity());
         // CollectionHelper.print(annotations);
 
+        text = "General Motors Co.'s Opel unit said Monday that it plans to end car production at one plant in Germany in 2016, but a slimmed-down factory may continue to make components.";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals("General Motors Co.", annotations.get(0).getEntity());
+        // CollectionHelper.print(annotations);
+
         // starting small and camel case
         text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
 
         annotations = StringTagger.getTaggedEntities(text);
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         assertEquals(9, annotations.size());
         assertEquals("ex-England", annotations.get(0).getEntity());
