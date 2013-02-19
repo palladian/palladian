@@ -115,58 +115,79 @@ public class GeonamesImporterTest {
         assertEquals("Hotel Torshavn", location.getPrimaryName());
         assertEquals(LocationType.POI, location.getType());
 
+        location = locationStore.retrieveLocation(6632604);
+        assertEquals("Ehlers Knob", location.getPrimaryName());
+        assertEquals(LocationType.LANDMARK, location.getType());
+
     }
 
     @Test
     public void testHierarchies() {
+        // P.PPLA4 > A.ADM4 > ...
         List<Location> hierarchy = locationStore.getHierarchy(2926304);
         checkHierarchy(hierarchy, 6555517, 3220743, 3214105, 2953481, 2921044, 6255148, 6295630);
 
+        // P.PPLA > A.ADM3 > ...
         hierarchy = locationStore.getHierarchy(2825297);
         checkHierarchy(hierarchy, 3220785, 3214105, 2953481, 2921044, 6255148, 6295630);
 
+        // A.ADM3 > ...
         hierarchy = locationStore.getHierarchy(7268814);
         checkHierarchy(hierarchy, 4562997, 4566966, 6255149, 6295630);
 
+        // P.PPL > A.ADM2 > ...
         hierarchy = locationStore.getHierarchy(2766409);
         checkHierarchy(hierarchy, 2771016, 2764581, 2782113, 6255148, 6295630);
 
+        // P.PPLA4 > A.ADM4 > ...
         hierarchy = locationStore.getHierarchy(2803474);
         checkHierarchy(hierarchy, 6548548, 6547384, 3305801, 2842566, 2921044, 6255148, 6295630);
 
+        // P.PPL > A.ADM1 > ...
         hierarchy = locationStore.getHierarchy(2831574);
         checkHierarchy(hierarchy, 2862926, 2921044, 6255148, 6295630);
 
+        // A.ADM3 > ...
         hierarchy = locationStore.getHierarchy(2917786);
         checkHierarchy(hierarchy, 2872567, 2921044, 6255148, 6295630);
 
+        // A.ADM4 > ...
         hierarchy = locationStore.getHierarchy(6547539);
         checkHierarchy(hierarchy, 6547383, 2950157, 2921044, 6255148, 6295630);
 
+        // P.PPLC > A.ADM4 > ...
         hierarchy = locationStore.getHierarchy(2950159);
         checkHierarchy(hierarchy, 6547539, 6547383, 2950157, 2921044, 6255148, 6295630);
 
+        // S.RSTN > A.ADM1 > ...
         hierarchy = locationStore.getHierarchy(1529666);
         checkHierarchy(hierarchy, 2847618, 2921044, 6255148, 6295630);
 
+        // S.SCH > A.ADM2 > ...
         hierarchy = locationStore.getHierarchy(4953706);
         checkHierarchy(hierarchy, 4938757, 6254926, 6252001, 6255149, 6295630);
 
+        // T.VAL > A.ADM2 > ...
         hierarchy = locationStore.getHierarchy(5795921);
         checkHierarchy(hierarchy, 5790164, 5815135, 6252001, 6255149, 6295630);
 
+        // T.VAL > A.ADM2 > ...
         hierarchy = locationStore.getHierarchy(5342044);
         checkHierarchy(hierarchy, 5359604, 5332921, 6252001, 6255149, 6295630);
 
+        // L.CONT > ...
         hierarchy = locationStore.getHierarchy(6255147);
         checkHierarchy(hierarchy, 6295630);
 
+        // P.PPLX > P.PPL > A.ADM2 > ...
         hierarchy = locationStore.getHierarchy(5148141);
         checkHierarchy(hierarchy, 5173541, 5159079, 5165418, 6252001, 6255149, 6295630);
 
+        // P.PPL > A.ADM2 > ...
         hierarchy = locationStore.getHierarchy(5173541);
         checkHierarchy(hierarchy, 5159079, 5165418, 6252001, 6255149, 6295630);
 
+        // S.HTL > A.ADM3 > ...
         hierarchy = locationStore.getHierarchy(6527550);
         checkHierarchy(hierarchy, 8133957, 263021, 6697808, 390903, 6255148, 6295630);
 
@@ -174,11 +195,229 @@ public class GeonamesImporterTest {
         // hierarchy = locationStore.getHierarchy(7731002);
         // checkHierarchy(hierarchy, 6295630);
 
+        // A.ADM3 > ...
         hierarchy = locationStore.getHierarchy(1279493);
         checkHierarchy(hierarchy, 1279685, 1814991, 6255147, 6295630);
 
+        // S.HTL > P.PPLC > A.ADM2 > ...
         hierarchy = locationStore.getHierarchy(6518215);
         checkHierarchy(hierarchy, 2611396, 2611397, 2612225, 2622320, 6255148, 6295630);
+
+        // L.AREA > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(6940309);
+        checkHierarchy(hierarchy, 5393021, 5332921, 6252001, 6255149, 6295630);
+
+        // A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(5322745);
+        checkHierarchy(hierarchy, 5332921, 6252001, 6255149, 6295630);
+
+        // P.PPLX > A.ADM2 > ...
+        // now working, as we remove "second order" administrative division relations...
+        hierarchy = locationStore.getHierarchy(5410563);
+        checkHierarchy(hierarchy, 5322745, 5332921, 6252001, 6255149, 6295630);
+
+        // the Alps have multiple parents, so the hierarchy should return an empty list
+        hierarchy = locationStore.getHierarchy(2661786);
+        checkHierarchy(hierarchy);
+
+        // A.ADMD > A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(4147702);
+        checkHierarchy(hierarchy, 4155751, 6252001, 6255149, 6295630);
+
+        // A.PCL > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(3042142);
+        checkHierarchy(hierarchy, 6255148, 6295630);
+
+        // P.PCLD > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(661882);
+        checkHierarchy(hierarchy, 6255148, 6295630);
+
+        // A.PCLF > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(1559582);
+        checkHierarchy(hierarchy, 6255151, 6295630);
+
+        // A.PCLI > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(49518);
+        checkHierarchy(hierarchy, 6255146, 6295630);
+
+        // A.PCLIX > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(1546748);
+        checkHierarchy(hierarchy, 6255152, 6295630);
+
+        // A.PCLS > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(1819730);
+        checkHierarchy(hierarchy, 6255147, 6295630);
+
+        // P.PPL > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(5059103);
+        checkHierarchy(hierarchy, 5061068, 5690763, 6252001, 6255149, 6295630);
+
+        // P.PPLA > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(4180439);
+        checkHierarchy(hierarchy, 4196508, 4197000, 6252001, 6255149, 6295630);
+
+        // P.PPLA2 > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(4049979);
+        checkHierarchy(hierarchy, 4069696, 4829764, 6252001, 6255149, 6295630);
+
+        // P.PPLX > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(4722244);
+        checkHierarchy(hierarchy, 4682500, 4736286, 6252001, 6255149, 6295630);
+
+        // A.PRSH > A.ADM3 > ...
+        hierarchy = locationStore.getHierarchy(3126783);
+        checkHierarchy(hierarchy, 6359853, 3114964, 3336902, 2510769, 6255148, 6295630);
+
+        // S.RSTN > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(4524474);
+        checkHierarchy(hierarchy, 4513583, 5165418, 6252001, 6255149, 6295630);
+
+        // A.TERR > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(2461445);
+        checkHierarchy(hierarchy, 6255146, 6295630);
+
+        // A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(1280019);
+        checkHierarchy(hierarchy, 1279685, 1814991, 6255147, 6295630);
+
+        // A.ADM3 > ...
+        hierarchy = locationStore.getHierarchy(216030);
+        checkHierarchy(hierarchy, 204697, 216661, 203312, 6255146, 6295630);
+
+        // A.ADM4 > ...
+        hierarchy = locationStore.getHierarchy(6690301);
+        checkHierarchy(hierarchy, 935213, 6690284, 6690283, 935317, 6255146, 6295630);
+
+        // A.ADM5 > ...
+        hierarchy = locationStore.getHierarchy(2949766);
+        checkHierarchy(hierarchy, 2949188, 3221125, 2937935, 2861876, 2921044, 6255148, 6295630);
+
+        // A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(6620384);
+        checkHierarchy(hierarchy, 3042142, 6255148, 6295630);
+
+        // A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(3041733);
+        checkHierarchy(hierarchy, 661882, 6255148, 6295630);
+
+        // A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(4038261);
+        checkHierarchy(hierarchy, 1559582, 6255151, 6295630);
+
+        // A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(2953481);
+        checkHierarchy(hierarchy, 2921044, 6255148, 6295630);
+
+        // A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(6413339);
+        checkHierarchy(hierarchy, 49518, 6255146, 6295630);
+
+        // A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(6690917);
+        checkHierarchy(hierarchy, 1546748, 6255152, 6295630);
+
+        // A.ADM1 > ...
+        hierarchy = locationStore.getHierarchy(7533618);
+        checkHierarchy(hierarchy, 1819730, 6255147, 6295630);
+
+        // FIXME gives one wrong entry in hierarchy
+        // S.HTL > A.ADM1 > ...
+        // hierarchy = locationStore.getHierarchy(6506150);
+        // checkHierarchy(hierarchy, 6201196, 69543, 6255147, 6295630);
+
+        // P.PPLX > P.PPL > A.PCLI > ...
+        hierarchy = locationStore.getHierarchy(1882557);
+        checkHierarchy(hierarchy, 1880755, 1880251, 6255147, 6295630);
+
+        // A.ADM4 > ....
+        hierarchy = locationStore.getHierarchy(2816530);
+        checkHierarchy(hierarchy, 3249069, 2838632, 2921044, 6255148, 6295630);
+
+        // A.ADM3 > ...
+        hierarchy = locationStore.getHierarchy(2515819);
+        checkHierarchy(hierarchy, 2511173, 2593110, 2510769, 6255148, 6295630);
+
+        // FIXME gives one additional entry in hierarchy (PPLX)
+        // P.PPL > A.ADM1 > ...
+        // hierarchy = locationStore.getHierarchy(2934163);
+        // checkHierarchy(hierarchy, 2911297, 2921044, 6255148, 6295630);
+
+        // FIXME gives one wrong entry in hierarchy
+        // P.PPLL > A.ADM1 > ...
+        // hierarchy = locationStore.getHierarchy(3480877);
+        // checkHierarchy(hierarchy, 3631462, 3625428, 6255150, 6295630);
+
+        // FIXME gives one wrong entry in hierarchy
+        // P.PPLA3 > A.ADM3 > ...
+        // hierarchy = locationStore.getHierarchy(2643741);
+        // checkHierarchy(hierarchy, 2643744, 2648110, 6269131, 2635167, 6255148, 6295630);
+
+        // A.ADM1H > A.ADM1
+        hierarchy = locationStore.getHierarchy(8133605);
+        checkHierarchy(hierarchy, 2769848, 2782113, 6255148, 6295630);
+
+        // A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(2509951);
+        checkHierarchy(hierarchy, 2593113, 2510769, 6255148, 6295630);
+
+        // FIXME
+        // P.PPLA2 > A.ADM2 > ...
+        // hierarchy = locationStore.getHierarchy(5125771);
+        // checkHierarchy(hierarchy, 5128594, 5128638, 6252001, 6255149, 6295630);
+
+        // L.AREA > A.ADM1 > ...
+        // my solution is correct, result from GeoNames is wrong
+        hierarchy = locationStore.getHierarchy(7729881);
+        // checkHierarchy(hierarchy, 2953481, 2921044, 6255148, 6295630);
+        checkHierarchy(hierarchy, 6255148, 6295630);
+
+        // FIXME gives a wrong entry in the hierarchy (taken from hierarchy.txt instead of admin hierarchy)
+        // L.PRK > A.ADM1 > ...
+        // hierarchy = locationStore.getHierarchy(3183559);
+        // checkHierarchy(hierarchy, 3183560, 3175395, 6255148, 6295630);
+
+        // P.PPLA > A.ADM4 > ...
+        hierarchy = locationStore.getHierarchy(3024635);
+        checkHierarchy(hierarchy, 6440000, 3024634, 2984986, 3035876, 3017382, 6255148, 6295630);
+
+        // H.STM > P.PCLI > L.CONT > ...
+        hierarchy = locationStore.getHierarchy(7932547);
+        checkHierarchy(hierarchy, 6252001, 6255149, 6295630);
+
+        // S.UNIV > A.ADM3 > ...
+        hierarchy = locationStore.getHierarchy(8285544);
+        checkHierarchy(hierarchy, 7285902, 6458783, 2660645, 2658434, 6255148, 6295630);
+
+        // P.PPLQ > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(4830564);
+        checkHierarchy(hierarchy, 4094463, 4829764, 6252001, 6255149, 6295630);
+
+        // T.ISL > A.ADM2 > ...
+        hierarchy = locationStore.getHierarchy(2515699);
+        checkHierarchy(hierarchy, 2515271, 2593110, 2510769, 6255148, 6295630);
+
+        // FIXME gives one additional step in the hierarchy
+        // S.HSE > A.ADM2 > ...
+        // hierarchy = locationStore.getHierarchy(5322473);
+        // checkHierarchy(hierarchy, 5393021, 5332921, 6252001, 6255149, 6295630);
+
+        // FIXME gives one additional step in the hierarchy
+        // L.LCTY > A.ADM2 > ...
+        // hierarchy = locationStore.getHierarchy(3253374);
+        // checkHierarchy(hierarchy, 3294874, 3230000, 3277605, 6255148, 6295630);
+
+        // P.PPLA4 > A.ADM4 > ...
+        hierarchy = locationStore.getHierarchy(2875431);
+        checkHierarchy(hierarchy, 6548199, 3302143, 2872567, 2921044, 6255148, 6295630);
+
+        // T.HLL > A.TERR > L.CONT > L.AREA
+        hierarchy = locationStore.getHierarchy(6632604);
+        checkHierarchy(hierarchy, 6697173, 6255152, 6295630);
+
+        // H.RF > A.PCLIX > L.CONT > L.AREA
+        hierarchy = locationStore.getHierarchy(1546121);
+        checkHierarchy(hierarchy, 1546748, 6255152, 6295630);
+
     }
 
     private void checkHierarchy(List<Location> hierarchy, int... values) {

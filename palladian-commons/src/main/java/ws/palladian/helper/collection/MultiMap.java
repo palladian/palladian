@@ -174,6 +174,11 @@ public class MultiMap<K, V> implements Map<K, List<V>> {
         return map.values();
     }
 
+    @Override
+    public String toString() {
+        return map.toString();
+    }
+
     // MultiMap specific API
 
     public void add(K key, V value) {

@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -155,7 +156,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
         Double latitude = JPathHelper.get(resultObject, "latitude", Double.class);
         Double longitude = JPathHelper.get(resultObject, "longitude", Double.class);
         String primaryName = JPathHelper.get(resultObject, "primaryName", String.class);
-        String type = JPathHelper.get(resultObject, "locationType", String.class);
+        String typeString = JPathHelper.get(resultObject, "locationType", String.class);
         Long population = JPathHelper.get(resultObject, "population", Long.class);
         List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
         JSONArray jsonArray = JPathHelper.get(resultObject, "alternateNames", JSONArray.class);
@@ -169,15 +170,14 @@ public final class NewsSeecrLocationSource implements LocationSource {
             }
             alternativeNames.add(new AlternativeName(nameValue, language));
         }
-        Location location = new Location();
-        location.setId(id);
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
-        location.setPopulation(population);
-        location.setPrimaryName(primaryName);
-        location.setType(LocationType.valueOf(type));
-        location.setAlternativeNames(alternativeNames);
-        return location;
+        LocationType type = LocationType.valueOf(typeString);
+        return new Location(id, primaryName, alternativeNames, type, latitude, longitude, population);
+    }
+
+    @Override
+    public Collection<LocationRelation> getParents(int locationId) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public static void main(String[] args) {
