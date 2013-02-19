@@ -414,6 +414,10 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getHierarchy(6632604);
         checkHierarchy(hierarchy, 6697173, 6255152, 6295630);
 
+        // H.RF > A.PCLIX > L.CONT > L.AREA
+        hierarchy = locationStore.getHierarchy(1546121);
+        checkHierarchy(hierarchy, 1546748, 6255152, 6295630);
+
     }
 
     private void checkHierarchy(List<Location> hierarchy, int... values) {
