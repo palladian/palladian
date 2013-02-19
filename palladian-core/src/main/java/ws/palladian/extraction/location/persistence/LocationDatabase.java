@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -162,8 +163,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> getHierarchy(int locationId) {
-        // FIXME add a check to avoid infinite loops
         List<Location> ret = CollectionHelper.newArrayList();
+        // prevent infinite loops
+        Set<Integer> retrievedIds = CollectionHelper.newHashSet();
         int currentId = locationId;
         for (;;) {
             List<Location> parents = runQuery(locationRowConverter, GET_LOCATION_PARENT, currentId, currentId);
@@ -172,11 +174,15 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
                 break;
             }
             if (parents.size() > 1) {
-                LOGGER.warn("Multiple parents for {}: {}", currentId, parents);
+                LOGGER.debug("Multiple parents for {}: {}", currentId, parents);
                 break;
             }
             ret.add(parents.get(0));
             currentId = parents.get(0).getId();
+            if (!retrievedIds.add(currentId)) {
+                LOGGER.error("Detected infinite loop for {}", locationId);
+                break;
+            }
         }
         return ret;
     }
