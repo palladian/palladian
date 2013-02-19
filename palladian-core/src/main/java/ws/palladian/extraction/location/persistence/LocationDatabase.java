@@ -6,19 +6,22 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.sources.LocationRelation;
 import ws.palladian.extraction.location.sources.LocationStore;
+import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.RowConverter;
@@ -40,24 +43,27 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
     // we can safely ignore potential constraint violations here:
-    private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?";
+    private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?, priority = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT * FROM location_alternative_names WHERE locationId = ?";
-    private static final String GET_LOCATION_PARENT = "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ?";
+    // private static final String GET_LOCATION_PARENT =
+    // "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? AND priority = (SELECT MIN(priority) FROM location_hierarchy WHERE childId = ?)";
+    private static final String GET_LOCATION_PARENT = "SELECT DISTINCT l.* FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? GROUP BY priority HAVING COUNT(priority) = 1 ORDER BY priority;";
     private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
+    private static final String GET_LOCATION_PARENTS = "SELECT * FROM location_hierarchy WHERE childId = ?";
 
     // ////////////////// row converts ////////////////////////////////////
-    private static final RowConverter<Location> LOCATION_ROW_CONVERTER = new RowConverter<Location>() {
+    private final RowConverter<Location> locationRowConverter = new RowConverter<Location>() {
         @Override
         public Location convert(ResultSet resultSet) throws SQLException {
-            Location location = new Location();
-            location.setId(resultSet.getInt("id"));
-            location.setType(LocationType.valueOf(resultSet.getString("type")));
-            location.setPrimaryName(resultSet.getString("name"));
-            location.setLatitude(resultSet.getDouble("latitude"));
-            location.setLongitude(resultSet.getDouble("longitude"));
-            location.setPopulation(resultSet.getLong("population"));
-            return location;
+            int id = resultSet.getInt("id");
+            LocationType locationType = LocationType.valueOf(resultSet.getString("type"));
+            String primaryName = resultSet.getString("name");
+            List<AlternativeName> alternativeNames = getAlternativeNames(id);
+            Double latitude = resultSet.getDouble("latitude");
+            Double longitude = resultSet.getDouble("longitude");
+            Long population = resultSet.getLong("population");
+            return new Location(id, primaryName, alternativeNames, locationType, latitude, longitude, population);
         }
     };
 
@@ -71,6 +77,16 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
     };
 
+    private static final RowConverter<LocationRelation> LOCATION_RELATION_ROW_CONVERTER = new RowConverter<LocationRelation>() {
+        @Override
+        public LocationRelation convert(ResultSet resultSet) throws SQLException {
+            int parentId = resultSet.getInt("parentId");
+            int childId = resultSet.getInt("childId");
+            int priority = resultSet.getInt("priority");
+            return new LocationRelation(parentId, childId, priority);
+        }
+    };
+
     /** Instances are created using the {@link DatabaseManagerFactory}. */
     protected LocationDatabase(DataSource dataSource) {
         super(dataSource);
@@ -78,12 +94,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> retrieveLocations(String locationName) {
-        List<Location> locations = runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION, locationName, locationName);
-        for (Location location : locations) {
-            List<AlternativeName> alternativeNames = getAlternativeNames(location.getId());
-            location.setAlternativeNames(alternativeNames);
-        }
-        return locations;
+        return runQuery(locationRowConverter, GET_LOCATION, locationName, locationName);
     }
 
     @Override
@@ -108,17 +119,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
         sqlBuilder.append(")");
         sqlBuilder.append(" GROUP BY id");
-        return runQuery(LOCATION_ROW_CONVERTER, sqlBuilder.toString(), locationName, locationName);
+        return runQuery(locationRowConverter, sqlBuilder.toString(), locationName, locationName);
     }
 
     @Override
     public Location retrieveLocation(int locationId) {
-        Location location = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
-        if (location != null) {
-            List<AlternativeName> alternativeNames = getAlternativeNames(location.getId());
-            location.setAlternativeNames(alternativeNames);
-        }
-        return location;
+        return runSingleQuery(locationRowConverter, GET_LOCATION_BY_ID, locationId);
     }
 
     /**
@@ -154,21 +160,31 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public void addHierarchy(int childId, int parentId) {
-        runInsertReturnId(ADD_HIERARCHY, childId, parentId);
+    public void addHierarchy(LocationRelation hierarchy) {
+        runInsertReturnId(ADD_HIERARCHY, hierarchy.getChildId(), hierarchy.getParentId(), hierarchy.getPriority());
     }
 
     @Override
     public List<Location> getHierarchy(int locationId) {
         List<Location> ret = CollectionHelper.newArrayList();
-        int currentLocationId = locationId;
+        // prevent infinite loops
+        Set<Integer> retrievedIds = CollectionHelper.newHashSet();
+        int currentId = locationId;
         for (;;) {
-            Location currentLocation = runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, currentLocationId);
-            if (currentLocation == null) {
+            List<Location> parents = runQuery(locationRowConverter, GET_LOCATION_PARENT, currentId);
+            if (parents.isEmpty()) {
+                LOGGER.trace("No parent for {}", currentId);
                 break;
             }
-            ret.add(currentLocation);
-            currentLocationId = currentLocation.getId();
+            if (parents.size() > 1) {
+                LOGGER.debug("Multiple parents for {}: {}", currentId, parents);
+            }
+            ret.add(parents.get(0));
+            currentId = parents.get(0).getId();
+            if (!retrievedIds.add(currentId)) {
+                LOGGER.error("Detected infinite loop for {}", locationId);
+                break;
+            }
         }
         return ret;
     }
@@ -210,18 +226,50 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
     }
 
+    @Override
+    public Collection<LocationRelation> getParents(int locationId) {
+        return runQuery(LOCATION_RELATION_ROW_CONVERTER, GET_LOCATION_PARENTS, locationId);
+    }
+
     public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        List<Location> locations = database.retrieveLocations("colombo");
-
-        for (Location location : locations) {
-            List<Location> hierarchy = database.getHierarchy(location.getId());
-            System.out.println(location);
-            int index = 0;
-            for (Location hierarchyLocation : hierarchy) {
-                System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
+//        List<Location> locations = database.retrieveLocations("colombo");
+//
+//        for (Location location : locations) {
+//            List<Location> hierarchy = database.getHierarchy(location.getId());
+//            System.out.println(location);
+//            int index = 0;
+//            for (Location hierarchyLocation : hierarchy) {
+//                System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
+//            }
+//        }
+        
+//        StopWatch stopWatch = new StopWatch();
+//        for (int i = 0; i < 10; i++) {
+//            database.resetForPerformanceCheck();
+//            List<Location> hierarchy = database.getHierarchy(2926304);
+//            int index = 0;
+//            for (Location hierarchyLocation : hierarchy) {
+//                System.out.println(StringUtils.repeat("   ", index++) + hierarchyLocation);
+//            }
+//            System.out.println(stopWatch);
+//        }
+//        System.out.println(stopWatch);
+        
+        
+        int totalCount = 10000;
+        for (int i = 0; i < totalCount; i++) {
+            ProgressHelper.printProgress(i, totalCount, 1);
+            int randomInt = MathHelper.getRandomIntBetween(0, 8468576);
+            Location location = database.retrieveLocation(randomInt);
+            if (location != null) {
+                List<Location> hierarchy = database.getHierarchy(randomInt);
+                if (hierarchy == null || hierarchy.isEmpty()) {
+                    System.out.println("*** " + randomInt);
+                }
             }
         }
     }
+
 
 }

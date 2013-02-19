@@ -1,92 +1,80 @@
 package ws.palladian.extraction.location;
 
+import java.util.Collections;
 import java.util.List;
 
-import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.processing.features.PositionAnnotation;
+import org.apache.commons.lang3.Validate;
 
-public class Location extends PositionAnnotation {
+/**
+ * <p>
+ * A geographic location, like a city, country, continent, etc.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
+public class Location {
 
-    private static final String LOCATION_ANNOTATION_NAME = "Location";
+    private final int id;
+    private final String primaryName;
+    private final List<AlternativeName> alternativeNames;
+    private final LocationType type;
+    private final Double latitude;
+    private final Double longitude;
+    private final Long population;
 
-    private int id;
-
-    private String primaryName;
-    private List<AlternativeName> alternativeNames;
-    private LocationType type;
-    private Double latitude;
-    private Double longitude;
-    private Long population;
-
-    public Location() {
-        // FIXME
-        super(LOCATION_ANNOTATION_NAME, 0, 1, 0, "");
-    }
-
-    @Deprecated
-    public Location(PositionAnnotation annotation) {
-        super(annotation);
-    }
-
-    @Deprecated
-    public Location(Annotation a) {
-        super(LOCATION_ANNOTATION_NAME, a.getOffset(), a.getOffset() + a.getLength(), 0, a.getEntity());
+    /**
+     * <p>
+     * Create a new location with the specified attributes.
+     * </p>
+     * 
+     * @param id The unique identifier of the location.
+     * @param primaryName The primary name of the location, not <code>null</code>.
+     * @param alternativeNames A list of potential alternative names for the location, may be <code>null</code>, if no
+     *            alternative names exist.
+     * @param type The type of the location, not <code>null</code>.
+     * @param latitude The latitude, or <code>null</code> if no coordinates exist.
+     * @param longitude The longitude, or <code>null</code> if no coordinates exist.
+     * @param population The population, or <code>null</code> if no populartion values exist.
+     */
+    public Location(int id, String primaryName, List<AlternativeName> alternativeNames, LocationType type,
+            Double latitude, Double longitude, Long population) {
+        Validate.notNull(primaryName, "primaryName must not be null");
+        Validate.notNull(type, "type must not be null");
+        this.id = id;
+        this.primaryName = primaryName;
+        this.alternativeNames = alternativeNames != null ? alternativeNames : Collections.<AlternativeName> emptyList();
+        this.type = type;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.population = population;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getPrimaryName() {
         return primaryName;
     }
 
-    public void setPrimaryName(String primaryName) {
-        this.primaryName = primaryName;
-    }
-
     public List<AlternativeName> getAlternativeNames() {
-        return alternativeNames;
-    }
-
-    public void setAlternativeNames(List<AlternativeName> alternativeNames) {
-        this.alternativeNames = alternativeNames;
+        return Collections.unmodifiableList(alternativeNames);
     }
 
     public LocationType getType() {
         return type;
     }
 
-    public void setType(LocationType type) {
-        this.type = type;
-    }
-
     public Double getLatitude() {
         return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
     }
 
     public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-
     public Long getPopulation() {
         return population;
-    }
-
-    public void setPopulation(Long population) {
-        this.population = population;
     }
 
     @Override
@@ -106,8 +94,6 @@ public class Location extends PositionAnnotation {
         builder.append(longitude);
         builder.append(", population=");
         builder.append(population);
-        builder.append(", startPos=");
-        builder.append(getStartPosition());
         builder.append("]");
         return builder.toString();
     }
