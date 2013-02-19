@@ -75,8 +75,7 @@ public class GeonamesLocationSource implements LocationSource {
 
     @Override
     public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("Searching by languages is not supported by GeoNames.org");
     }
 
     static List<Location> parseLocations(Document document) {

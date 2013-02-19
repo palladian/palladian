@@ -619,7 +619,8 @@ public final class GeonamesImporter {
         }
 
         boolean isAdministrativeUnitUnleveled() {
-            return isAdministrativeClass() && featureCode.equals("ADMD");
+            boolean unleveledAdminDiv = featureCode != null && featureCode.equals("ADMD");
+            return isAdministrativeClass() && unleveledAdminDiv;
         }
 
         int getLevel() {
