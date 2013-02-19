@@ -115,6 +115,10 @@ public class GeonamesImporterTest {
         assertEquals("Hotel Torshavn", location.getPrimaryName());
         assertEquals(LocationType.POI, location.getType());
 
+        location = locationStore.retrieveLocation(6632604);
+        assertEquals("Ehlers Knob", location.getPrimaryName());
+        assertEquals(LocationType.LANDMARK, location.getType());
+
     }
 
     @Test
@@ -405,6 +409,10 @@ public class GeonamesImporterTest {
         // P.PPLA4 > A.ADM4 > ...
         hierarchy = locationStore.getHierarchy(2875431);
         checkHierarchy(hierarchy, 6548199, 3302143, 2872567, 2921044, 6255148, 6295630);
+
+        // T.HLL > A.TERR > L.CONT > L.AREA
+        hierarchy = locationStore.getHierarchy(6632604);
+        checkHierarchy(hierarchy, 6697173, 6255152, 6295630);
 
     }
 
