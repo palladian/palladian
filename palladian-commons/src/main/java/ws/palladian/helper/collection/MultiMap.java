@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,12 +183,22 @@ public class MultiMap<K, V> implements Map<K, List<V>> {
     // MultiMap specific API
 
     public void add(K key, V value) {
-        List<V> values = map.get(key);
-        if (values == null) {
-            values = new ArrayList<V>();
-            map.put(key, values);
+//        List<V> values = map.get(key);
+//        if (values == null) {
+//            values = new ArrayList<V>();
+//            map.put(key, values);
+//        }
+//        values.add(value);
+        addAll(key, Collections.singleton(value));
+    }
+
+    public void addAll(K key, Collection<? extends V> values) {
+        List<V> existingValues = map.get(key);
+        if (existingValues == null) {
+            existingValues = new ArrayList<V>();
+            map.put(key, existingValues);
         }
-        values.add(value);
+        existingValues.addAll(values);
     }
 
     public List<V> allValues() {
