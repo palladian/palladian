@@ -58,6 +58,7 @@ public final class GeonamesImporter {
         temp.put("PCLI", 0);
         temp.put("PCLD", 0);
         temp.put("TERR", 0);
+        temp.put("PCLIX", 0);
         temp.put("ADM1", 1);
         temp.put("ADM2", 2);
         temp.put("ADM3", 3);
