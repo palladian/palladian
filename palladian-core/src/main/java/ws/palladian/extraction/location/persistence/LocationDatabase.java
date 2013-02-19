@@ -45,7 +45,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?, priority = ?";
     private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
     private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT * FROM location_alternative_names WHERE locationId = ?";
-    private static final String GET_LOCATION_PARENT = "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? AND priority = (SELECT MIN(priority) FROM location_hierarchy WHERE childId = ?)";
+    // private static final String GET_LOCATION_PARENT =
+    // "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? AND priority = (SELECT MIN(priority) FROM location_hierarchy WHERE childId = ?)";
+    private static final String GET_LOCATION_PARENT = "SELECT DISTINCT l.* FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? GROUP BY priority HAVING COUNT(priority) = 1 ORDER BY priority;";
     private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
     private static final String GET_LOCATION_PARENTS = "SELECT * FROM location_hierarchy WHERE childId = ?";
 
@@ -168,14 +170,13 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         Set<Integer> retrievedIds = CollectionHelper.newHashSet();
         int currentId = locationId;
         for (;;) {
-            List<Location> parents = runQuery(locationRowConverter, GET_LOCATION_PARENT, currentId, currentId);
+            List<Location> parents = runQuery(locationRowConverter, GET_LOCATION_PARENT, currentId);
             if (parents.isEmpty()) {
                 LOGGER.trace("No parent for {}", currentId);
                 break;
             }
             if (parents.size() > 1) {
                 LOGGER.debug("Multiple parents for {}: {}", currentId, parents);
-                break;
             }
             ret.add(parents.get(0));
             currentId = parents.get(0).getId();
@@ -241,10 +242,10 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 //                System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
 //            }
 //        }
-        List<Location> hierarchy = database.getHierarchy(5410563);
+        List<Location> hierarchy = database.getHierarchy(5059103);
         int index = 0;
         for (Location hierarchyLocation : hierarchy) {
-            System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
+            System.out.println(StringUtils.repeat("   ", index++) + hierarchyLocation);
         }
 
     }
