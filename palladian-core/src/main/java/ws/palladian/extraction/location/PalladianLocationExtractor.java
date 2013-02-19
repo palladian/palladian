@@ -210,7 +210,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
         }
 
-        // disambiguate(anchorLocations, ambiguousLocations);
+        disambiguate(anchorLocations, ambiguousLocations);
 
         // if we have cities and countries with the same name, we remove the cities
         // return processCandidateList(locationEntities);
@@ -248,12 +248,17 @@ public class PalladianLocationExtractor extends LocationExtractor {
             for (Location location : list) {
 
                 boolean anchored = false;
-                System.out.println("get hierarchy for " + location.getId());
+                // System.out.println("get hierarchy for " + location.getId());
                 List<Location> hierarchy = locationSource.getHierarchy(location.getId());
                 for (Location anchorLocation : anchorLocations) {
                     if (hierarchy.contains(anchorLocation)) {
                         anchored = true;
                     }
+                }
+
+                // trivial case
+                if (anchorLocations.contains(location)) {
+                    anchored = true;
                 }
 
                 System.out.println(anchored + " -> " + location);
