@@ -46,6 +46,7 @@ public class ReadabilityContentExtractorTest {
         assertEquals("website100.html", "ef16a6defb01319914dabb2a2816a52d", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/webPages/website100.html")).getResultText()));
         assertEquals("website101.html", "7dd8bce48bb8a98653d4554ec4aac31a", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/webPages/website101.html")).getResultText()));
         assertEquals("website102.html", "812ad4ee50f5d6f21c8f9634f45e3585", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/webPages/website102.html")).getResultText()));
+        assertEquals("test208.html", "fbd37860a4cb2b68144b092a7c2e0c31", DigestUtils.md5Hex(e.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test208.html")).getResultText()));
     }
 
     public static void main(String[] args) throws PageContentExtractorException, FileNotFoundException, ParserException {
