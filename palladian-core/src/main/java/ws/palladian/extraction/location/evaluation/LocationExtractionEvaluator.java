@@ -10,6 +10,7 @@ import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -58,27 +59,27 @@ public class LocationExtractionEvaluator {
             errors.get(EvaluationResult.ERROR4).put(file.getName(), fileErrors.get(EvaluationResult.ERROR4));
             errors.get(EvaluationResult.ERROR5).put(file.getName(), fileErrors.get(EvaluationResult.ERROR5));
 
-            Double precision = result.getPrecision(EvaluationResult.MUC);
+            Double precision = result.getPrecision(EvaluationMode.MUC);
             if (!precision.equals(Double.NaN)) {
                 precisionMuc += precision;
             }
-            Double precision2 = result.getPrecision(EvaluationResult.EXACT_MATCH);
+            Double precision2 = result.getPrecision(EvaluationMode.EXACT_MATCH);
             if (!precision2.equals(Double.NaN)) {
                 precisionExact += precision2;
             }
-            Double recall = result.getRecall(EvaluationResult.MUC);
+            Double recall = result.getRecall(EvaluationMode.MUC);
             if (!recall.equals(Double.NaN)) {
                 recallMuc += recall;
             }
-            Double recall2 = result.getRecall(EvaluationResult.EXACT_MATCH);
+            Double recall2 = result.getRecall(EvaluationMode.EXACT_MATCH);
             if (!recall2.equals(Double.NaN)) {
                 recallExact += recall2;
             }
-            Double f1 = result.getF1(EvaluationResult.MUC);
+            Double f1 = result.getF1(EvaluationMode.MUC);
             if (!f1.equals(Double.NaN)) {
                 f1Muc += f1;
             }
-            Double f12 = result.getF1(EvaluationResult.EXACT_MATCH);
+            Double f12 = result.getF1(EvaluationMode.EXACT_MATCH);
             if (!f12.equals(Double.NaN)) {
                 f1Exact += f12;
             }

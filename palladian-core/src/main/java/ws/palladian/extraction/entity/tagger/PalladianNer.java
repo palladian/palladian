@@ -39,6 +39,7 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -1869,12 +1870,12 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN, ignoreAnnotations);
 
-            evaluationResults.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-            evaluationResults.append(er.getRecall(EvaluationResult.MUC)).append(";");
-            evaluationResults.append(er.getF1(EvaluationResult.MUC)).append(";");
+            evaluationResults.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
+            evaluationResults.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
+            evaluationResults.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
+            evaluationResults.append(er.getPrecision(EvaluationMode.MUC)).append(";");
+            evaluationResults.append(er.getRecall(EvaluationMode.MUC)).append(";");
+            evaluationResults.append(er.getF1(EvaluationMode.MUC)).append(";");
 
             evaluationResults.append("\n");
             FileHelper.writeToFile("results.txt", evaluationResults);
