@@ -40,10 +40,11 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
      * Creates a new Pixabay searcher.
      * </p>
      * 
+     * @param apiUser The API user for accessing Pixabay, not <code>null</code> or empty.
      * @param apiKey The API key for accessing Pixabay, not <code>null</code> or empty.
      */
     public PixabaySearcher(String apiUser, String apiKey) {
-        Validate.notEmpty(apiKey, "apiUser must not be empty");
+        Validate.notEmpty(apiUser, "apiUser must not be empty");
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiUser = apiUser;
         this.apiKey = apiKey;

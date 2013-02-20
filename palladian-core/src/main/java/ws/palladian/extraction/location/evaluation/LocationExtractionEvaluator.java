@@ -1,22 +1,32 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import ws.palladian.extraction.entity.Annotation;
+import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.YahooLocationExtractor;
-import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
 
 public class LocationExtractionEvaluator {
 
     public Map<String, Double> evaluateAll(LocationExtractor extractor, String goldStandardFileFolderPath) {
 
+        Map<String, Map<String, Annotations>> errors = new LinkedHashMap<String, Map<String, Annotations>>();
+        errors.put(EvaluationResult.CORRECT, new HashMap<String, Annotations>());
+        errors.put(EvaluationResult.ERROR1, new HashMap<String, Annotations>());
+        errors.put(EvaluationResult.ERROR2, new HashMap<String, Annotations>());
+        errors.put(EvaluationResult.ERROR3, new HashMap<String, Annotations>());
+        errors.put(EvaluationResult.ERROR4, new HashMap<String, Annotations>());
+        errors.put(EvaluationResult.ERROR5, new HashMap<String, Annotations>());
         Map<String, Double> averageResult = CollectionHelper.newHashMap();
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
@@ -36,6 +46,15 @@ public class LocationExtractionEvaluator {
             File file1 = new File(path);
             FileHelper.writeToFile(path, FileHelper.readFileToString(file).replace(" role=\"main\"", ""));
             EvaluationResult result = extractor.evaluate(file1.getAbsolutePath(), TaggingFormat.XML);
+
+            // write major error log
+            Map<String, Annotations> fileErrors = result.getErrorAnnotations();
+            errors.get(EvaluationResult.CORRECT).put(file.getName(), fileErrors.get(EvaluationResult.CORRECT));
+            errors.get(EvaluationResult.ERROR1).put(file.getName(), fileErrors.get(EvaluationResult.ERROR1));
+            errors.get(EvaluationResult.ERROR2).put(file.getName(), fileErrors.get(EvaluationResult.ERROR2));
+            errors.get(EvaluationResult.ERROR3).put(file.getName(), fileErrors.get(EvaluationResult.ERROR3));
+            errors.get(EvaluationResult.ERROR4).put(file.getName(), fileErrors.get(EvaluationResult.ERROR4));
+            errors.get(EvaluationResult.ERROR5).put(file.getName(), fileErrors.get(EvaluationResult.ERROR5));
 
             Double precision = result.getPrecision(EvaluationResult.MUC);
             if (!precision.equals(Double.NaN)) {
@@ -70,7 +89,44 @@ public class LocationExtractionEvaluator {
         averageResult.put("F1-MUC", f1Muc / files.length);
         averageResult.put("F1-Exact", f1Exact / files.length);
 
+        StringBuilder allErrors = new StringBuilder();
+        for (Entry<String, Map<String, Annotations>> entry : errors.entrySet()) {
+            String key = entry.getKey();
+            allErrors.append(getErrorTypeLine(key)).append("\n");
+            for (Entry<String, Annotations> errorEntry : entry.getValue().entrySet()) {
+                for (Annotation annotation : errorEntry.getValue()) {
+                    allErrors.append("\t").append(annotation).append(";").append(errorEntry.getKey()).append("\n");
+                }
+            }
+            allErrors.append("\n\n");
+        }
+        FileHelper.writeToFile("data/temp/"+System.currentTimeMillis()+"_allErrors.csv", allErrors);
+
         return averageResult;
+    }
+
+    private String getErrorTypeLine(String key) {
+
+        if (key.equals(EvaluationResult.CORRECT)) {
+            return "CORRECT (tag and boundaries correct)";
+        }
+        if (key.equals(EvaluationResult.ERROR1)) {
+            return "ERROR 1 (tagged something that should not have been tagged, false positive - bad for precision)";
+        }
+        if (key.equals(EvaluationResult.ERROR2)) {
+            return "ERROR 2 (completely missed a location, false negative - bad for recall)";
+        }
+        if (key.equals(EvaluationResult.ERROR3)) {
+            return "ERROR 3 (incorrect location type but correct boundaries - bad for precision and recall)";
+        }
+        if (key.equals(EvaluationResult.ERROR4)) {
+            return "ERROR 4 (correct location type but incorrect boundaries - bad for precision and recall)";
+        }
+        if (key.equals(EvaluationResult.ERROR5)) {
+            return "ERROR 5 (incorrect location type and incorrect boundaries - bad for precision and recall)";
+        }
+
+        return "FAIL";
     }
 
     // public EvaluationResult evaluate(LocationExtractor extractor, String goldStandardTaggedTextPath) {
@@ -85,10 +141,10 @@ public class LocationExtractionEvaluator {
      * @param args
      */
     public static void main(String[] args) {
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        // LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
         // String DATASET_LOCATION = "/Users/pk/Desktop/Test";
-        // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset";
+        String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
