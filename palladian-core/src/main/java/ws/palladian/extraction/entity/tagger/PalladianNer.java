@@ -39,6 +39,7 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProgressHelper;
@@ -611,7 +612,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
-            for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
+            for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(ResultType.ERROR1)) {
 
                 // for the numeric classifier it is better if only annotations are removed that never appeared in the
                 // gold standard for the text classifier it is better to remove annotations that are just wrong even

@@ -11,6 +11,7 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -23,13 +24,13 @@ public class LocationExtractionEvaluator {
 
     public Map<String, Double> evaluateAll(LocationExtractor extractor, String goldStandardFileFolderPath) {
 
-        Map<String, Map<String, Annotations>> errors = new LinkedHashMap<String, Map<String, Annotations>>();
-        errors.put(EvaluationResult.CORRECT, new HashMap<String, Annotations>());
-        errors.put(EvaluationResult.ERROR1, new HashMap<String, Annotations>());
-        errors.put(EvaluationResult.ERROR2, new HashMap<String, Annotations>());
-        errors.put(EvaluationResult.ERROR3, new HashMap<String, Annotations>());
-        errors.put(EvaluationResult.ERROR4, new HashMap<String, Annotations>());
-        errors.put(EvaluationResult.ERROR5, new HashMap<String, Annotations>());
+        Map<ResultType, Map<String, Annotations>> errors = new LinkedHashMap<ResultType, Map<String, Annotations>>();
+        errors.put(ResultType.CORRECT, new HashMap<String, Annotations>());
+        errors.put(ResultType.ERROR1, new HashMap<String, Annotations>());
+        errors.put(ResultType.ERROR2, new HashMap<String, Annotations>());
+        errors.put(ResultType.ERROR3, new HashMap<String, Annotations>());
+        errors.put(ResultType.ERROR4, new HashMap<String, Annotations>());
+        errors.put(ResultType.ERROR5, new HashMap<String, Annotations>());
         Map<String, Double> averageResult = CollectionHelper.newHashMap();
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
@@ -51,13 +52,13 @@ public class LocationExtractionEvaluator {
             EvaluationResult result = extractor.evaluate(file1.getAbsolutePath(), TaggingFormat.XML);
 
             // write major error log
-            Map<String, Annotations> fileErrors = result.getErrorAnnotations();
-            errors.get(EvaluationResult.CORRECT).put(file.getName(), fileErrors.get(EvaluationResult.CORRECT));
-            errors.get(EvaluationResult.ERROR1).put(file.getName(), fileErrors.get(EvaluationResult.ERROR1));
-            errors.get(EvaluationResult.ERROR2).put(file.getName(), fileErrors.get(EvaluationResult.ERROR2));
-            errors.get(EvaluationResult.ERROR3).put(file.getName(), fileErrors.get(EvaluationResult.ERROR3));
-            errors.get(EvaluationResult.ERROR4).put(file.getName(), fileErrors.get(EvaluationResult.ERROR4));
-            errors.get(EvaluationResult.ERROR5).put(file.getName(), fileErrors.get(EvaluationResult.ERROR5));
+            Map<ResultType, Annotations> fileErrors = result.getErrorAnnotations();
+            errors.get(ResultType.CORRECT).put(file.getName(), fileErrors.get(ResultType.CORRECT));
+            errors.get(ResultType.ERROR1).put(file.getName(), fileErrors.get(ResultType.ERROR1));
+            errors.get(ResultType.ERROR2).put(file.getName(), fileErrors.get(ResultType.ERROR2));
+            errors.get(ResultType.ERROR3).put(file.getName(), fileErrors.get(ResultType.ERROR3));
+            errors.get(ResultType.ERROR4).put(file.getName(), fileErrors.get(ResultType.ERROR4));
+            errors.get(ResultType.ERROR5).put(file.getName(), fileErrors.get(ResultType.ERROR5));
 
             Double precision = result.getPrecision(EvaluationMode.MUC);
             if (!precision.equals(Double.NaN)) {
@@ -93,13 +94,13 @@ public class LocationExtractionEvaluator {
         averageResult.put("F1-Exact", f1Exact / files.length);
 
         StringBuilder allErrors = new StringBuilder();
-        for (Entry<String, Map<String, Annotations>> entry : errors.entrySet()) {
-            String errorType = entry.getKey();
+        for (Entry<ResultType, Map<String, Annotations>> entry : errors.entrySet()) {
+            ResultType resultType = entry.getKey();
             int errorTypeCount = 0;
             for (Annotations errorEntry : entry.getValue().values()) {
                 errorTypeCount += errorEntry.size();
             }
-            allErrors.append(getErrorTypeLine(errorType)).append(";").append(errorTypeCount).append("\n");
+            allErrors.append(getErrorTypeLine(resultType)).append(";").append(errorTypeCount).append("\n");
             for (Entry<String, Annotations> errorEntry : entry.getValue().entrySet()) {
                 for (Annotation annotation : errorEntry.getValue()) {
                     String fileName = errorEntry.getKey();
@@ -113,27 +114,21 @@ public class LocationExtractionEvaluator {
         return averageResult;
     }
 
-    private String getErrorTypeLine(String key) {
-
-        if (key.equals(EvaluationResult.CORRECT)) {
-            return "CORRECT (tag and boundaries correct)";
+    private String getErrorTypeLine(ResultType resultType) {
+        switch (resultType) {
+            case CORRECT:
+                return "CORRECT (tag and boundaries correct)";
+            case ERROR1:
+                return "ERROR 1 (tagged something that should not have been tagged, false positive - bad for precision)";
+            case ERROR2:
+                return "ERROR 2 (completely missed a location, false negative - bad for recall)";
+            case ERROR3:
+                return "ERROR 3 (incorrect location type but correct boundaries - bad for precision and recall)";
+            case ERROR4:
+                return "ERROR 4 (correct location type but incorrect boundaries - bad for precision and recall)";
+            case ERROR5:
+                return "ERROR 5 (incorrect location type and incorrect boundaries - bad for precision and recall)";
         }
-        if (key.equals(EvaluationResult.ERROR1)) {
-            return "ERROR 1 (tagged something that should not have been tagged, false positive - bad for precision)";
-        }
-        if (key.equals(EvaluationResult.ERROR2)) {
-            return "ERROR 2 (completely missed a location, false negative - bad for recall)";
-        }
-        if (key.equals(EvaluationResult.ERROR3)) {
-            return "ERROR 3 (incorrect location type but correct boundaries - bad for precision and recall)";
-        }
-        if (key.equals(EvaluationResult.ERROR4)) {
-            return "ERROR 4 (correct location type but incorrect boundaries - bad for precision and recall)";
-        }
-        if (key.equals(EvaluationResult.ERROR5)) {
-            return "ERROR 5 (incorrect location type and incorrect boundaries - bad for precision and recall)";
-        }
-
         return "FAIL";
     }
 

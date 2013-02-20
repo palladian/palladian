@@ -17,12 +17,14 @@ import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
@@ -44,9 +46,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
 
-//    public static final FeatureDescriptor<TextAnnotationFeature> PROVIDED_FEATURE_DESCRIPTOR = FeatureDescriptorBuilder
-//            .build("ws.palladian.processing.entity.ner", TextAnnotationFeature.class);
-    
     public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
 
     /** The format in which the text should be tagged. */
@@ -288,7 +287,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 errorString.append("found: " + correctText + "\n");
                 errorString.append("instead of: " + annotation.getEntity() + "(" + annotation + ")\n");
                 errorString.append("last annotation: " + lastAnnotation);
-                //System.exit(1);
                 throw new IllegalStateException(errorString.toString());
             }
 
@@ -382,32 +380,34 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 + DateHelper.getCurrentDatetime() + ".txt");
 
         // see EvaluationResult for explanation of that field
-        Map<String, CountMap<String>> assignments = new HashMap<String, CountMap<String>>();
+        Map<String, CountMap<ResultType>> assignments = new HashMap<String, CountMap<ResultType>>();
+
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
         // create count maps for each possible tag (for gold standard and annotation because both could have different
         // tags)
         for (Annotation goldStandardAnnotation : goldStandard) {
             String tagName = goldStandardAnnotation.getTargetClass();
             if (assignments.get(tagName) == null) {
-                assignments.put(tagName, CountMap.<String>create());
+                assignments.put(tagName, CountMap.<ResultType> create());
             }
-            assignments.get(tagName).add(EvaluationResult.POSSIBLE);
+            assignments.get(tagName).add(ResultType.POSSIBLE);
         }
         for (Annotation nerAnnotation : nerAnnotations) {
             String tagName = nerAnnotation.getMostLikelyTagName();
             if (assignments.get(tagName) == null) {
-                assignments.put(tagName, CountMap.<String>create());
+                assignments.put(tagName, CountMap.<ResultType> create());
             }
         }
 
         // error map of annotations to precisely show which errors were made
-        Map<String, Annotations> annotationsErrors = new HashMap<String, Annotations>();
-        annotationsErrors.put(EvaluationResult.CORRECT, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR1, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR2, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR3, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR4, new Annotations());
-        annotationsErrors.put(EvaluationResult.ERROR5, new Annotations());
+        Map<ResultType, Annotations> annotationsErrors = new HashMap<ResultType, Annotations>();
+        annotationsErrors.put(ResultType.CORRECT, new Annotations());
+        annotationsErrors.put(ResultType.ERROR1, new Annotations());
+        annotationsErrors.put(ResultType.ERROR2, new Annotations());
+        annotationsErrors.put(ResultType.ERROR3, new Annotations());
+        annotationsErrors.put(ResultType.ERROR4, new Annotations());
+        annotationsErrors.put(ResultType.ERROR5, new Annotations());
 
         Set<Integer> ignoreAnnotationSet = new HashSet<Integer>();
         for (Annotation annotation : ignoreAnnotations) {
@@ -449,12 +449,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
 
                         // correct tag (no error)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.CORRECT);
-                        annotationsErrors.get(EvaluationResult.CORRECT).add(nerAnnotation);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.CORRECT);
+                        annotationsErrors.get(ResultType.CORRECT).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getTargetClass());
+                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
+                                nerAnnotation.getMostLikelyTagName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -463,13 +463,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     } else {
 
                         // wrong tag (error3)
-                        assignments.get(goldStandardAnnotation.getTargetClass()).add(
-                                EvaluationResult.ERROR3);
-                        annotationsErrors.get(EvaluationResult.ERROR3).add(nerAnnotation);
+                        assignments.get(goldStandardAnnotation.getTargetClass()).add(ResultType.ERROR3);
+                        annotationsErrors.get(ResultType.ERROR3).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getTargetClass());
+                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
+                                nerAnnotation.getMostLikelyTagName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -483,12 +482,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
 
                         // correct tag (error4)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR4);
-                        annotationsErrors.get(EvaluationResult.ERROR4).add(nerAnnotation);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.ERROR4);
+                        annotationsErrors.get(ResultType.ERROR4).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getTargetClass());
+                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
+                                nerAnnotation.getMostLikelyTagName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -497,12 +496,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     } else {
 
                         // wrong tag (error5)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR5);
-                        annotationsErrors.get(EvaluationResult.ERROR5).add(nerAnnotation);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.ERROR5);
+                        annotationsErrors.get(ResultType.ERROR5).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                goldStandardAnnotation.getTargetClass());
+                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
+                                nerAnnotation.getMostLikelyTagName());
 
                         ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
 
@@ -522,13 +521,14 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         // }
 
                         // tagged something that should not have been tagged (error1)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(EvaluationResult.ERROR1);
-                        annotationsErrors.get(EvaluationResult.ERROR1).add(nerAnnotation);
+                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.ERROR1);
+                        annotationsErrors.get(ResultType.ERROR1).add(nerAnnotation);
 
                         // in confusion matrix add count to "other" since NER tagged something that should not have been
                         // tagged
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(
-                                EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
+                        confusionMatrix.add(
+                                EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER,
+                                nerAnnotation.getMostLikelyTagName());
                     }
 
                     break;
@@ -547,14 +547,15 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         // check which gold standard annotations have not been found by the NER (error2)
         for (Annotation goldStandardAnnotation : goldStandard) {
             if (!((EvaluationAnnotation) goldStandardAnnotation).isTagged()) {
-                assignments.get(goldStandardAnnotation.getTargetClass()).add(EvaluationResult.ERROR2);
-                annotationsErrors.get(EvaluationResult.ERROR2).add(goldStandardAnnotation);
+                assignments.get(goldStandardAnnotation.getTargetClass()).add(ResultType.ERROR2);
+                annotationsErrors.get(ResultType.ERROR2).add(goldStandardAnnotation);
             }
         }
 
         EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors);
 
-        printEvaluationDetails(evaluationResult, annotationsErrors, FileHelper.getFilePath(testingFilePath)
+        printEvaluationDetails(evaluationResult, annotationsErrors, confusionMatrix,
+                FileHelper.getFilePath(testingFilePath)
                 + DateHelper.getCurrentDatetime() + "_results_" + inputFile + "_" + getName().replace(" ", "") + ".csv");
 
         return evaluationResult;
@@ -562,10 +563,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
 
     public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult) {
-        return printEvaluationDetails(evaluationResult, new HashMap<String, Annotations>(), null);
+        return printEvaluationDetails(evaluationResult, new HashMap<ResultType, Annotations>(), new ConfusionMatrix(),
+                null);
     }
     public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult,
-            Map<String, Annotations> annotationErrors, String targetPath) {
+            Map<ResultType, Annotations> annotationsErrors, ConfusionMatrix confusionMatrix, String targetPath) {
 
         // write evaluation results to file
         StringBuilder results = new StringBuilder();
@@ -580,11 +582,8 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         // order of tag names for matrix
         List<String> tagOrder = new ArrayList<String>();
         for (String tagName : evaluationResult.getAssignments().keySet()) {
-            if (!(tagName.startsWith(EvaluationResult.SPECIAL_MARKER) && tagName
-                    .endsWith(EvaluationResult.SPECIAL_MARKER))) {
-                tagOrder.add(tagName);
-                results.append(tagName).append(";");
-            }
+            tagOrder.add(tagName);
+            results.append(tagName).append(";");
         }
         // add "OTHER" in case of ERROR1
         tagOrder.add(EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
@@ -593,18 +592,18 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         results.append("#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
 
         int totalTagAssignments = 0;
-        for (Entry<String, CountMap<String>> tagEntry : evaluationResult.getAssignments().entrySet()) {
+        for (Entry<String, CountMap<ResultType>> tagEntry : evaluationResult.getAssignments().entrySet()) {
 
-            CountMap<String> cm = tagEntry.getValue();
-
+            String predictedTageName = tagEntry.getKey();
             int totalNumber = 0;
 
             results.append(tagEntry.getKey()).append(";");
 
             // write frequencies of confusion matrix
             for (String tagName : tagOrder) {
-                results.append(cm.getCount(tagName)).append(";");
-                totalNumber += cm.getCount(tagName);
+                int confusionCount = confusionMatrix.getConfusions(tagName, predictedTageName);
+                results.append(confusionCount).append(";");
+                totalNumber += confusionCount;
             }
 
             // total number of real tags in test set
@@ -612,8 +611,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             totalTagAssignments += totalNumber;
 
             // precision, recall, and F1 for exact match
-            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(
-            ";");
+            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
             results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
             results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
 
@@ -627,10 +625,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         // write last line with averages over all tags
         results.append("ALL TAGS;");
         for (String tagName : tagOrder) {
-            int totalAssignments = 0;
-            for (CountMap<String> countMap : evaluationResult.getAssignments().values()) {
-                totalAssignments += countMap.getCount(tagName);
-            }
+            int totalAssignments = confusionMatrix.getRealDocuments(tagName);
             results.append(totalAssignments).append(";");
         }
 
@@ -665,32 +660,32 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getF1(EvaluationMode.MUC), 4)).append("\n");
 
-        Map<String, String> errorTypes = new TreeMap<String, String>();
-        errorTypes.put(EvaluationResult.ERROR1, "ERROR 1: Completely Incorrect Annotations");
-        errorTypes.put(EvaluationResult.ERROR2, "ERROR 2: Missed Annotations");
-        errorTypes.put(EvaluationResult.ERROR3, "ERROR 3: Correct Boundaries, Wrong Tag");
-        errorTypes.put(EvaluationResult.ERROR4, "ERROR 4: Wrong Boundaries, Correct Tag");
-        errorTypes.put(EvaluationResult.ERROR5, "ERROR 5: Wrong Boundaries, Wrong Tag");
+        Map<ResultType, String> resultTypes = new TreeMap<ResultType, String>();
+        resultTypes.put(ResultType.ERROR1, "ERROR 1: Completely Incorrect Annotations");
+        resultTypes.put(ResultType.ERROR2, "ERROR 2: Missed Annotations");
+        resultTypes.put(ResultType.ERROR3, "ERROR 3: Correct Boundaries, Wrong Tag");
+        resultTypes.put(ResultType.ERROR4, "ERROR 4: Wrong Boundaries, Correct Tag");
+        resultTypes.put(ResultType.ERROR5, "ERROR 5: Wrong Boundaries, Wrong Tag");
 
         results.append("\n\n");
         results.append("CORRECT:");
-        results.append(" : ").append(annotationErrors.get(EvaluationResult.CORRECT).size()).append("\n");
-        for (Entry<String, String> errorTypeEntry : errorTypes.entrySet()) {
+        results.append(" : ").append(annotationsErrors.get(ResultType.CORRECT).size()).append("\n");
+        for (Entry<ResultType, String> errorTypeEntry : resultTypes.entrySet()) {
             results.append(errorTypeEntry.getValue());
-            results.append(" : ").append(annotationErrors.get(errorTypeEntry.getKey()).size()).append("\n");
+            results.append(" : ").append(annotationsErrors.get(errorTypeEntry.getKey()).size()).append("\n");
         }
 
-        for (Entry<String, String> errorTypeEntry : errorTypes.entrySet()) {
+        for (Entry<ResultType, String> errorTypeEntry : resultTypes.entrySet()) {
             results.append("\n\n");
             results.append(errorTypeEntry.getValue());
-            results.append(" (total: ").append(annotationErrors.get(errorTypeEntry.getKey()).size()).append("):\n\n");
+            results.append(" (total: ").append(annotationsErrors.get(errorTypeEntry.getKey()).size()).append("):\n\n");
 
-            CountMap<String> cm = getAnnotationCountForTag(annotationErrors.get(errorTypeEntry.getKey()));
+            CountMap<String> cm = getAnnotationCountForTag(annotationsErrors.get(errorTypeEntry.getKey()));
             for (String item : cm) {
                 results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
             }
             results.append("\n");
-            for (Annotation annotation : annotationErrors.get(errorTypeEntry.getKey())) {
+            for (Annotation annotation : annotationsErrors.get(errorTypeEntry.getKey())) {
                 results.append("  ").append(annotation).append("\n");
             }
         }
