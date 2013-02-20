@@ -2,6 +2,7 @@ package ws.palladian.extraction.content;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -249,7 +250,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
          * content so we couldn't parse it. So re-run init while preserving unlikely candidates to have a better shot at
          * getting our content out properly.
          **/
-        if (getInnerText(result.getDocumentElement(), false).length() < 250) {
+        if (result == null || getInnerText(result.getDocumentElement(), false).length() < 250) {
             if (stripUnlikelyCandidates) {
                 stripUnlikelyCandidates = false;
                 LOGGER.debug("re-running without stripping unlikely candidates");
@@ -429,13 +430,11 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
         if (tagName.equals("div")) {
             contentScore += 5;
-        } else if (tagName.equals("pre") || tagName.equals("td") || tagName.equals("blockquote")) {
+        } else if (Arrays.asList("pre", "td", "blockquote").contains(tagName)) {
             contentScore += 3;
-        } else if (tagName.equals("address") || tagName.equals("ol") || tagName.equals("ul") || tagName.equals("dl")
-                || tagName.equals("dd") || tagName.equals("dt") || tagName.equals("li") || tagName.equals("form")) {
+        } else if (Arrays.asList("address", "ol", "ul", "dl", "dd", "dt", "li", "form").contains(tagName)) {
             contentScore -= 3;
-        } else if (tagName.equals("h1") || tagName.equals("h2") || tagName.equals("h3") || tagName.equals("h4")
-                || tagName.equals("h5") || tagName.equals("h6") || tagName.equals("th")) {
+        } else if (Arrays.asList("h1", "h2", "h3", "h4", "h5", "h6", "th").contains(tagName)) {
             contentScore -= 5;
         }
 
@@ -599,8 +598,13 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
          **/
         if (topCandidate == null) {
             LOGGER.debug("No top candidate found, using the body");
-            topCandidate = (Element) document.getElementsByTagName("body").item(0);
-            document.renameNode(topCandidate, topCandidate.getNamespaceURI(), "div");
+            NodeList bodyNodes = document.getElementsByTagName("body");
+            if (bodyNodes.getLength() > 0) {
+                topCandidate = (Element)bodyNodes.item(0);
+                document.renameNode(topCandidate, topCandidate.getNamespaceURI(), "div");
+            } else {
+                return null;
+            }
         }
 
         /**
