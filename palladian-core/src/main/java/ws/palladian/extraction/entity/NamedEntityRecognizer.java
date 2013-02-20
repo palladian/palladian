@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
@@ -611,15 +612,15 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             totalTagAssignments += totalNumber;
 
             // precision, recall, and F1 for exact match
-            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(
+            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(
             ";");
-            results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(";");
-            results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationResult.EXACT_MATCH)).append(";");
+            results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
+            results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
 
             // precision, recall, and F1 for MUC score
-            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationResult.MUC)).append(";");
-            results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationResult.MUC)).append(";");
-            results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationResult.MUC)).append("\n");
+            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationMode.MUC)).append(";");
+            results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationMode.MUC)).append(";");
+            results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationMode.MUC)).append("\n");
 
         }
 
@@ -638,31 +639,31 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // precision, recall, and F1 for exact match
         results.append("tag averaged:")
-        .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationResult.EXACT_MATCH), 4))
+                .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4))
         .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationResult.EXACT_MATCH), 4)).append(";");
+        results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationMode.EXACT_MATCH), 4)).append(";");
         results.append("tag averaged:")
-        .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationResult.EXACT_MATCH), 4))
+                .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4))
         .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getRecall(EvaluationResult.EXACT_MATCH), 4)).append(";");
+        results.append(MathHelper.round(evaluationResult.getRecall(EvaluationMode.EXACT_MATCH), 4)).append(";");
         results.append("tag averaged:")
-        .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationResult.EXACT_MATCH), 4))
+                .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationMode.EXACT_MATCH), 4))
         .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getF1(EvaluationResult.EXACT_MATCH), 4)).append(";");
+        results.append(MathHelper.round(evaluationResult.getF1(EvaluationMode.EXACT_MATCH), 4)).append(";");
 
         // precision, recall, and F1 for MUC score
         results.append("tag averaged:")
-        .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationResult.MUC), 4))
+                .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationMode.MUC), 4))
         .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationResult.MUC), 4)).append(";");
+        results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationMode.MUC), 4)).append(";");
         results.append("tag averaged:")
-        .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationResult.MUC), 4))
+                .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationMode.MUC), 4))
         .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getRecall(EvaluationResult.MUC), 4)).append(";");
+        results.append(MathHelper.round(evaluationResult.getRecall(EvaluationMode.MUC), 4)).append(";");
         results.append("tag averaged:")
-        .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationResult.MUC), 4))
+                .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationMode.MUC), 4))
         .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getF1(EvaluationResult.MUC), 4)).append("\n");
+        results.append(MathHelper.round(evaluationResult.getF1(EvaluationMode.MUC), 4)).append("\n");
 
         Map<String, String> errorTypes = new TreeMap<String, String>();
         errorTypes.put(EvaluationResult.ERROR1, "ERROR 1: Completely Incorrect Annotations");

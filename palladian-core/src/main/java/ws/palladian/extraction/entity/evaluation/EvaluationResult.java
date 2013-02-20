@@ -26,9 +26,9 @@ import ws.palladian.helper.math.MathHelper;
  * <p>
  * We can evaluate using two approaches:<br>
  * <ol>
- * <li>Exact match ({@link EvaluationResult.EXACT_MATCH}), that is, only if boundary and tag are assigned correctly, the
+ * <li>Exact match ({@link EvaluationMode.EXACT_MATCH}), that is, only if boundary and tag are assigned correctly, the
  * assignment is true positive. Error types are not taken into account, all errors are equally wrong.</li>
- * <li>MUC ({@link EvaluationResult.MUC}), takes error types into account. 1 point for correct tag (regardless of
+ * <li>MUC ({@link EvaluationMode.MUC}), takes error types into account. 1 point for correct tag (regardless of
  * boundaries), 1 point for correct text (regardless of tag). Totally correct (correct boundaries and correct tag) = 2
  * points</li>
  * </ol>
@@ -106,11 +106,12 @@ public class EvaluationResult {
      */
     private Map<String, CountMap<String>> assignments = new HashMap<String, CountMap<String>>();
 
-    /** The exact match evaluation mode. */
-    public static final int EXACT_MATCH = 0;
-
-    /** The MUC evaluation mode. */
-    public static final int MUC = 1;
+    public enum EvaluationMode {
+        /** The exact match evaluation mode. */
+        EXACT_MATCH,
+        /** The MUC evaluation mode. */
+        MUC
+    }
 
     /** A marker that marks special fields. */
     public static final String SPECIAL_MARKER = "#";
@@ -136,7 +137,7 @@ public class EvaluationResult {
     /** Number of possible annotations. */
     public static final String POSSIBLE = SPECIAL_MARKER + "possible" + SPECIAL_MARKER;
 
-    public double getPrecisionFor(String tagName, int type) {
+    public double getPrecisionFor(String tagName, EvaluationMode type) {
         double precision = -1;
 
         CountMap<String> cm = assignments.get(tagName);
@@ -148,13 +149,13 @@ public class EvaluationResult {
         int correctAssignments = 0;
         int totalAssignments = 0;
 
-        if (type == EXACT_MATCH) {
+        if (type == EvaluationMode.EXACT_MATCH) {
 
             correctAssignments = cm.getCount(CORRECT);
             totalAssignments = cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5)
             + correctAssignments;
 
-        } else if (type == MUC) {
+        } else if (type == EvaluationMode.MUC) {
 
             correctAssignments = cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
             totalAssignments = 2 * (cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5) + cm.getCount(CORRECT));
@@ -170,7 +171,7 @@ public class EvaluationResult {
         return precision;
     }
 
-    public double getRecallFor(String tagName, int type) {
+    public double getRecallFor(String tagName, EvaluationMode type) {
         double recall = -1;
 
         CountMap<String> cm = assignments.get(tagName);
@@ -182,12 +183,12 @@ public class EvaluationResult {
         int correctAssignments = 0;
         int possibleAssignments = 0;
 
-        if (type == EXACT_MATCH) {
+        if (type == EvaluationMode.EXACT_MATCH) {
 
             correctAssignments = cm.getCount(CORRECT);
             possibleAssignments = cm.getCount(POSSIBLE);
 
-        } else if (type == MUC) {
+        } else if (type == EvaluationMode.MUC) {
 
             correctAssignments = cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
             possibleAssignments = 2 * cm.getCount(POSSIBLE);
@@ -203,7 +204,7 @@ public class EvaluationResult {
         return recall;
     }
 
-    public double getF1For(String tagName, int type) {
+    public double getF1For(String tagName, EvaluationMode type) {
         double f1 = -1;
 
         double precision = 0;
@@ -225,7 +226,7 @@ public class EvaluationResult {
         return f1;
     }
 
-    public double getTagAveragedPrecision(int type) {
+    public double getTagAveragedPrecision(EvaluationMode type) {
 
         double totalPrecision = 0;
 
@@ -244,7 +245,7 @@ public class EvaluationResult {
         return tagAveragedPrecision;
     }
 
-    public double getTagAveragedRecall(int type) {
+    public double getTagAveragedRecall(EvaluationMode type) {
 
         double totalRecall = 0;
 
@@ -263,7 +264,7 @@ public class EvaluationResult {
         return tagAveragedRecall;
     }
 
-    public double getTagAveragedF1(int type) {
+    public double getTagAveragedF1(EvaluationMode type) {
 
         double f1 = -1;
 
@@ -281,7 +282,7 @@ public class EvaluationResult {
         return f1;
     }
 
-    public double getPrecision(int type) {
+    public double getPrecision(EvaluationMode type) {
         double precision = 0;
 
         int correctAssignments = 0;
@@ -295,12 +296,12 @@ public class EvaluationResult {
                 continue;
             }
 
-            if (type == EXACT_MATCH) {
+            if (type == EvaluationMode.EXACT_MATCH) {
 
                 correctAssignments += cm.getCount(CORRECT);
                 totalAssignments += cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5) + cm.getCount(CORRECT);
 
-            } else if (type == MUC) {
+            } else if (type == EvaluationMode.MUC) {
 
                 correctAssignments += cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
                 totalAssignments += 2 * (cm.getCount(ERROR1) + cm.getCount(ERROR3) + cm.getCount(ERROR4) + cm.getCount(ERROR5) + cm
@@ -315,7 +316,7 @@ public class EvaluationResult {
         return precision;
     }
 
-    public double getRecall(int type) {
+    public double getRecall(EvaluationMode type) {
         double recall = 0;
 
         int correctAssignments = 0;
@@ -329,12 +330,12 @@ public class EvaluationResult {
                 continue;
             }
 
-            if (type == EXACT_MATCH) {
+            if (type == EvaluationMode.EXACT_MATCH) {
 
                 correctAssignments += cm.getCount(CORRECT);
                 possibleAssignments += cm.getCount(POSSIBLE);
 
-            } else if (type == MUC) {
+            } else if (type == EvaluationMode.MUC) {
 
                 correctAssignments += cm.getCount(ERROR3) + cm.getCount(ERROR4) + 2 * cm.getCount(CORRECT);
                 possibleAssignments += 2 * cm.getCount(POSSIBLE);
@@ -348,7 +349,7 @@ public class EvaluationResult {
         return recall;
     }
 
-    public double getF1(int type) {
+    public double getF1(EvaluationMode type) {
         double f1 = -1;
 
         double precision = 0;
@@ -399,22 +400,22 @@ public class EvaluationResult {
     public String getExactMatchResultsReadable() {
         StringBuilder builder = new StringBuilder();
         builder.append("precision exact: ");
-        builder.append(MathHelper.round(100 * getPrecision(EXACT_MATCH), 2)).append("%");
+        builder.append(MathHelper.round(100 * getPrecision(EvaluationMode.EXACT_MATCH), 2)).append("%");
         builder.append(", recall exact: ");
-        builder.append(MathHelper.round(100 * getRecall(EXACT_MATCH), 2)).append("%");
+        builder.append(MathHelper.round(100 * getRecall(EvaluationMode.EXACT_MATCH), 2)).append("%");
         builder.append(", F1 exact: ");
-        builder.append(MathHelper.round(100 * getF1(EXACT_MATCH), 2)).append("%");
+        builder.append(MathHelper.round(100 * getF1(EvaluationMode.EXACT_MATCH), 2)).append("%");
         return builder.toString();
     }
 
     public String getMUCResultsReadable() {
         StringBuilder builder = new StringBuilder();
         builder.append("precision MUC: ");
-        builder.append(MathHelper.round(100 * getPrecision(MUC), 2)).append("%");
+        builder.append(MathHelper.round(100 * getPrecision(EvaluationMode.MUC), 2)).append("%");
         builder.append(", recall MUC: ");
-        builder.append(MathHelper.round(100 * getRecall(MUC), 2)).append("%");
+        builder.append(MathHelper.round(100 * getRecall(EvaluationMode.MUC), 2)).append("%");
         builder.append(", F1 MUC: ");
-        builder.append(MathHelper.round(100 * getF1(MUC), 2)).append("%");
+        builder.append(MathHelper.round(100 * getF1(EvaluationMode.MUC), 2)).append("%");
         return builder.toString();
     }
 
