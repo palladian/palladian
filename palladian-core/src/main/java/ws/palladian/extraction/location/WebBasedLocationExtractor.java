@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +19,16 @@ public abstract class WebBasedLocationExtractor extends LocationExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebBasedLocationExtractor.class);
 
     private final NamedEntityRecognizer entityRecognizer;
+    private final Map<String, LocationType> mapping;
 
-    public WebBasedLocationExtractor(NamedEntityRecognizer entityRecognizer) {
+    public WebBasedLocationExtractor(NamedEntityRecognizer entityRecognizer, Map<String, LocationType> mapping) {
         this.entityRecognizer = entityRecognizer;
+        this.mapping = mapping;
     }
 
-    protected abstract LocationType map(String value);
+    protected LocationType map(String value) {
+        return mapping.get(value.toLowerCase());
+    }
 
     @Override
     public String getModelFileEnding() {
@@ -61,12 +66,13 @@ public abstract class WebBasedLocationExtractor extends LocationExtractor {
         for (Annotation annotation : annotations) {
             LocationType mappedType = map(annotation.getMostLikelyTagName());
             if (mappedType == null) {
-                LOGGER.warn("No mapping for tag {}, will be dropped", annotation.getMostLikelyTagName());
+                LOGGER.debug("No mapping for tag {}, will be dropped", annotation.getMostLikelyTagName());
                 unmappedAnnotations.add(annotation);
+            } else {
+                CategoryEntries categoryEntries = new CategoryEntries();
+                categoryEntries.add(new CategoryEntry(mappedType.toString(), 1));
+                annotation.setTags(categoryEntries);
             }
-            CategoryEntries categoryEntries = new CategoryEntries();
-            categoryEntries.add(new CategoryEntry(mappedType.toString(), 1));
-            annotation.setTags(categoryEntries);
         }
         annotations.removeAll(unmappedAnnotations);
         return annotations;
