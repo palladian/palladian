@@ -54,7 +54,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
     private final NamedEntityRecognizer entityRecognizer;
 
     private final List<LocationType> TYPE_PRIORITY = Arrays.asList(LocationType.COUNTRY, LocationType.CITY,
-            LocationType.UNIT, LocationType.LANDMARK, LocationType.POI, LocationType.REGION, LocationType.CONTINENT,
+            LocationType.CONTINENT,
+            LocationType.UNIT, LocationType.LANDMARK, LocationType.POI, LocationType.REGION, //LocationType.CONTINENT,
             LocationType.STREET, LocationType.ZIP, LocationType.STREETNR);
 
     private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
@@ -202,6 +203,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
             // XXX
             if (!ambiguous && entityValue.split("\\s").length >= 3) {
+                System.err.println("add " + location);
                 anchorLocations.add(location);
             }
         }
@@ -210,39 +212,31 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // Set<String> toRemove = disambiguate(anchorLocations, locationMap);
         // System.out.println("to remove = " + toRemove);
 
-        // Iterator<Annotation> iterator = locationEntities.iterator();
-        // while (iterator.hasNext()) {
-        // Annotation annotation = iterator.next();
-        // if (toRemove.contains(annotation.getEntity())) {
-        // System.out.println("remove " + annotation.getEntity());
-        // iterator.remove();
-        // }
-        // }
-
         // if we have cities and countries with the same name, we remove the cities
         // return processCandidateList(locationEntities);
 
-//        Iterator<Annotation> iterator = locationEntities.iterator();
-//        while (iterator.hasNext()) {
-//            Annotation annotation = iterator.next();
-//            String entityValue = annotation.getEntity();
-//            if (!locationMap.containsKey(entityValue)) {
-//                iterator.remove();
-//                continue;
-//            }
-//            if (locationMap.get(entityValue).size() == 0) {
-//                iterator.remove();
-//                continue;
-//            }
+        Iterator<Annotation> iterator = locationEntities.iterator();
+        while (iterator.hasNext()) {
+            Annotation annotation = iterator.next();
+            String entityValue = annotation.getEntity();
+            if (!locationMap.containsKey(entityValue)) {
+                iterator.remove();
+                continue;
+            }
+            if (locationMap.get(entityValue).size() == 0) {
+                iterator.remove();
+                continue;
+            }
+            Location loc = selectLocation(locationMap.get(entityValue));
 //            if (locationMap.get(entityValue).size() > 1) {
 //                System.out.println("Ambiguity for " + entityValue);
 //            }
 //            Location loc = locationMap.get(entityValue).get(0);
-//            CategoryEntries ces = new CategoryEntries();
-//            ces.add(new CategoryEntry(loc.getType().toString(), 1.));
-//            annotation.setTags(ces);
+            CategoryEntries ces = new CategoryEntries();
+            ces.add(new CategoryEntry(loc.getType().toString(), 1.));
+            annotation.setTags(ces);
 //            System.out.println("set " + entityValue + " to " + loc.getType());
-//        }
+        }
 
         return locationEntities;
     }
@@ -258,15 +252,36 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private void disambiguate(Set<Location> anchorLocations, MultiMap<String, Location> ambiguousLocations) {
 
-        // if we have countries as anchors, we remove the continents, to be more precise.
-        if (getByType(anchorLocations, LocationType.COUNTRY).size() > 0) {
-            CollectionHelper.filter(anchorLocations, new Filter<Location>() {
-                @Override
-                public boolean accept(Location item) {
-                    return item.getType() == LocationType.COUNTRY;
+        Set<Location> toAdd = CollectionHelper.newHashSet();
+        for (Location location : anchorLocations) {
+            System.err.println("xxxxxx " + location);
+            List<Location> hierarchy = locationSource.getHierarchy(location.getId());
+            System.out.println("hierarchy ::::: " + hierarchy);
+            for (Location x : hierarchy) {
+                if (x.getPrimaryName().equals("Earth")) {
+                    continue;
                 }
-            });
+                // if (x.getType() == LocationType.COUNTRY || x.getType() == LocationType.CONTINENT) {
+                    toAdd.add(x);
+                // }
+            }
         }
+
+        anchorLocations.addAll(toAdd);
+
+        // if we have countries as anchors, we remove the continents, to be more precise.
+        // if (getByType(anchorLocations, LocationType.COUNTRY).size() > 0) {
+        // CollectionHelper.filter(anchorLocations, new Filter<Location>() {
+        // @Override
+        // public boolean accept(Location item) {
+        // return item.getType() == LocationType.COUNTRY;
+        // }
+        // });
+        // }
+
+        // if (anchorLocations.size() == 0) {
+        // System.out.println("No anchor locations ..........");
+        // }
 
         System.out.println("Anchor locations: ");
         CollectionHelper.print(anchorLocations);
@@ -303,9 +318,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
                 System.out.println(anchored + " -> " + location);
 
-                if (!anchored) {
-                    it.remove();
-                }
+                // if (!anchored) {
+                // it.remove();
+                // }
 
             }
 
@@ -368,11 +383,17 @@ public class PalladianLocationExtractor extends LocationExtractor {
         Collections.sort(retrievedLocations, new Comparator<Location>() {
             @Override
             public int compare(Location l1, Location l2) {
-                int priority1 = TYPE_PRIORITY.indexOf(l1.getType());
-                int priority2 = TYPE_PRIORITY.indexOf(l2.getType());
-                return Integer.valueOf(priority1).compareTo(priority2);
+                return l2.getPopulation().compareTo(l1.getPopulation());
             }
         });
+        // Collections.sort(retrievedLocations, new Comparator<Location>() {
+        // @Override
+        // public int compare(Location l1, Location l2) {
+        // int priority1 = TYPE_PRIORITY.indexOf(l1.getType());
+        // int priority2 = TYPE_PRIORITY.indexOf(l2.getType());
+        // return Integer.valueOf(priority1).compareTo(priority2);
+        // }
+        // });
         return CollectionHelper.getFirst(retrievedLocations);
     }
 
@@ -591,7 +612,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(webKnoxApiKey, database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text1.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text4.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);

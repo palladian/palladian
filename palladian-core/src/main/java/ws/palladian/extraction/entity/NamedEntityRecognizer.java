@@ -375,7 +375,9 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         nerAnnotations.removeNestedAnnotations();
         nerAnnotations.sort();
-        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + getName()
+        String inputFile = FileHelper.getFileName(testingFilePath);
+        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + inputFile + "_"
+                + getName().replace(" ", "")
                 + DateHelper.getCurrentDatetime() + ".txt");
 
         // see EvaluationResult for explanation of that field
@@ -424,7 +426,10 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
             boolean taggedOverlap = false;
 
+            int counter = 0;
             for (Annotation goldStandardAnnotation : goldStandard) {
+
+                counter++;
 
                 // skip ignored annotations for error cases 2,3,4, and 5, however, leave the possibility for error 1
                 // (tagged something that should not have been tagged)
@@ -506,7 +511,8 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
                     taggedOverlap = true;
 
-                } else if (nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex()) {
+                } else if (nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex()
+                        || counter == goldStandard.size()) {
 
                     if (!taggedOverlap) {
 
@@ -548,7 +554,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors);
 
         printEvaluationDetails(evaluationResult, annotationsErrors, FileHelper.getFilePath(testingFilePath)
-                + DateHelper.getCurrentDatetime() + "_results_" + getName() + ".csv");
+                + DateHelper.getCurrentDatetime() + "_results_" + inputFile + "_" + getName().replace(" ", "") + ".csv");
 
         return evaluationResult;
     }
