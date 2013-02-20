@@ -12,6 +12,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,13 +20,11 @@ import org.json.JSONObject;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.Entity;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpException;
@@ -85,16 +84,15 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * </ul>
  * </p>
  * 
- * <p>
- * See also <a
- * href="http://www.opencalais.com/documentation/calais-web-service-api/api-metadata/entity-index-and-definitions"
- * >http://www.opencalais.com/documentation/calais-web-service-api/api-metadata/entity-index-and-definitions</a>
- * </p>
- * 
+ * @see <a
+ *      href="http://www.opencalais.com/documentation/calais-web-service-api/api-metadata/entity-index-and-definitions">English
+ *      Semantic Metadata: Entity/Fact/Event Definitions and Descriptions</a>
  * @author David Urbansky
- * 
  */
 public class OpenCalaisNer extends NamedEntityRecognizer {
+
+    /** Identifier for the API key when supplied via {@link Configuration}. */
+    public static final String CONFIG_API_KEY = "api.opencalais.key";
 
     /** The API key for the Open Calais service. */
     private final String apiKey;
@@ -106,17 +104,22 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     private final HttpRetriever httpRetriever;
 
     /**
-     * Constructor. Uses the API key from the configuration, at place
-     * "api.opencalais.key"
+     * <p>
+     * Create a new {@link OpenCalaisNer} with an API key provided by the supplied {@link Configuration} instance.
+     * </p>
+     * 
+     * @param configuration The configuration providing the API key via {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
-    public OpenCalaisNer() {
-        this(ConfigHolder.getInstance().getConfig().getString("api.opencalais.key"));
+    public OpenCalaisNer(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     /**
-     * This constructor should be used to specify an explicit API key.
+     * <p>
+     * Create a new {@link OpenCalaisNer} with the specified API key.
+     * </p>
      * 
-     * @param apiKey API key to use for connecting with OpenCalais
+     * @param apiKey API key to use for connecting with OpenCalais, not <code>null</code> or empty.
      */
     public OpenCalaisNer(String apiKey) {
         Validate.notEmpty(apiKey, "API key must be given.");
@@ -165,12 +168,12 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
             List<String> sentences = Tokenizer.getSentences(inputText);
             StringBuilder currentTextChunk = new StringBuilder();
             for (String sentence : sentences) {
-    
+
                 if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
                     textChunks.add(currentTextChunk);
                     currentTextChunk = new StringBuilder();
                 }
-    
+
                 currentTextChunk.append(sentence).append(" ");
             }
             textChunks.add(currentTextChunk);
@@ -186,14 +189,6 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         for (StringBuilder textChunk : textChunks) {
 
             try {
-                // use get
-                // Crawler c = new Crawler();
-                // String parameters =
-                // "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"Application/JSON\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
-                // String restCall = "http://api.opencalais.com/enlighten/rest/?licenseID=" + apiKey + "&content="
-                // + inputText + "&paramsXML=" + URLEncoder.encode(parameters, "UTF-8");
-                // // System.out.println(restCall);
-                // JSONObject json = c.getJSONDocument(restCall);
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
                 String response = HttpHelper.getStringContent(httpResult);
@@ -210,9 +205,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                     if (obj.has("_typeGroup") && obj.getString("_typeGroup").equalsIgnoreCase("entities")) {
 
                         String entityName = obj.getString("name");
-                        Entity namedEntity = new Entity(entityName, obj.getString("_type"));
-
-                        // recognizedEntities.add(namedEntity);
+                        String entityTag = obj.getString("_type");
 
                         if (obj.has("instances")) {
                             JSONArray instances = obj.getJSONArray("instances");
@@ -221,21 +214,14 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                                 JSONObject instance = instances.getJSONObject(i);
 
                                 // take only instances that are as long as the entity name, this way we discard
-                                // co-reference
-                                // resolution instances
+                                // co-reference resolution instances
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
-
-                                    Annotation annotation = new Annotation(cumulatedOffset + offset,
-                                            namedEntity.getName(), namedEntity.getTagName());
-                                    annotations.add(annotation);
+                                    annotations.add(new Annotation(cumulatedOffset + offset, entityName, entityTag));
                                 }
                             }
-
                         }
-
                     }
-
                 }
 
             } catch (JSONException e) {
@@ -248,7 +234,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         }
 
         annotations.sort();
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         return annotations;
     }
@@ -267,21 +253,10 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         return httpRetriever.httpPost("http://api.opencalais.com/tag/rs/enrich", headers, content);
     }
 
-    /**
-     * Tag the input text. Open Calais does not require to specify a model.
-     * 
-     * @param inputText The text to be tagged.
-     * @return The tagged text.
-     */
-    @Override
-    public String tag(String inputText) {
-        return super.tag(inputText);
-    }
-
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        OpenCalaisNer tagger = new OpenCalaisNer();
+        OpenCalaisNer tagger = new OpenCalaisNer(ConfigHolder.getInstance().getConfig());
 
         if (args.length > 0) {
 
@@ -318,7 +293,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         // HOW TO USE ////
         System.out
                 .println(tagger
- .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+                        .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////

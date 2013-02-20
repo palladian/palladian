@@ -25,13 +25,8 @@ public class OpenCalaisLocationExtractor extends WebBasedLocationExtractor {
     }
 
     public OpenCalaisLocationExtractor(String apiKey) {
-        super(new OpenCalaisNer(apiKey));
+        super(new OpenCalaisNer(apiKey), LOCATION_MAPPING);
         setName("Open Calais Location Extractor");
-    }
-
-    @Override
-    protected LocationType map(String value) {
-        return LOCATION_MAPPING.get(value);
     }
 
     public static void main(String[] args) {
