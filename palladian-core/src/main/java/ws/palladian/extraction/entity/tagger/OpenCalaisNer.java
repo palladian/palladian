@@ -19,7 +19,6 @@ import org.json.JSONObject;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.Entity;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
@@ -165,12 +164,12 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
             List<String> sentences = Tokenizer.getSentences(inputText);
             StringBuilder currentTextChunk = new StringBuilder();
             for (String sentence : sentences) {
-    
+
                 if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
                     textChunks.add(currentTextChunk);
                     currentTextChunk = new StringBuilder();
                 }
-    
+
                 currentTextChunk.append(sentence).append(" ");
             }
             textChunks.add(currentTextChunk);
@@ -186,14 +185,6 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         for (StringBuilder textChunk : textChunks) {
 
             try {
-                // use get
-                // Crawler c = new Crawler();
-                // String parameters =
-                // "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"Application/JSON\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
-                // String restCall = "http://api.opencalais.com/enlighten/rest/?licenseID=" + apiKey + "&content="
-                // + inputText + "&paramsXML=" + URLEncoder.encode(parameters, "UTF-8");
-                // // System.out.println(restCall);
-                // JSONObject json = c.getJSONDocument(restCall);
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
                 String response = HttpHelper.getStringContent(httpResult);
@@ -210,9 +201,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                     if (obj.has("_typeGroup") && obj.getString("_typeGroup").equalsIgnoreCase("entities")) {
 
                         String entityName = obj.getString("name");
-                        Entity namedEntity = new Entity(entityName, obj.getString("_type"));
-
-                        // recognizedEntities.add(namedEntity);
+                        String entityTag = obj.getString("_type");
 
                         if (obj.has("instances")) {
                             JSONArray instances = obj.getJSONArray("instances");
@@ -221,21 +210,14 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                                 JSONObject instance = instances.getJSONObject(i);
 
                                 // take only instances that are as long as the entity name, this way we discard
-                                // co-reference
-                                // resolution instances
+                                // co-reference resolution instances
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
-
-                                    Annotation annotation = new Annotation(cumulatedOffset + offset,
-                                            namedEntity.getName(), namedEntity.getTagName());
-                                    annotations.add(annotation);
+                                    annotations.add(new Annotation(cumulatedOffset + offset, entityName, entityTag));
                                 }
                             }
-
                         }
-
                     }
-
                 }
 
             } catch (JSONException e) {
@@ -318,7 +300,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         // HOW TO USE ////
         System.out
                 .println(tagger
- .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+                        .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////
