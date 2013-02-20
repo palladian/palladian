@@ -11,10 +11,12 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.YahooLocationExtractor;
+import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 
 public class LocationExtractionEvaluator {
 
@@ -91,11 +93,16 @@ public class LocationExtractionEvaluator {
 
         StringBuilder allErrors = new StringBuilder();
         for (Entry<String, Map<String, Annotations>> entry : errors.entrySet()) {
-            String key = entry.getKey();
-            allErrors.append(getErrorTypeLine(key)).append("\n");
+            String errorType = entry.getKey();
+            int errorTypeCount = 0;
+            for (Annotations errorEntry : entry.getValue().values()) {
+                errorTypeCount += errorEntry.size();
+            }
+            allErrors.append(getErrorTypeLine(errorType)).append(";").append(errorTypeCount).append("\n");
             for (Entry<String, Annotations> errorEntry : entry.getValue().entrySet()) {
                 for (Annotation annotation : errorEntry.getValue()) {
-                    allErrors.append("\t").append(annotation).append(";").append(errorEntry.getKey()).append("\n");
+                    String fileName = errorEntry.getKey();
+                    allErrors.append("\t").append(annotation).append(";").append(fileName).append("\n");
                 }
             }
             allErrors.append("\n\n");
@@ -141,18 +148,17 @@ public class LocationExtractionEvaluator {
      * @param args
      */
     public static void main(String[] args) {
-        // LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
         // String DATASET_LOCATION = "/Users/pk/Desktop/Test";
-        String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
+        // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(new AlchemyLocationExtractor(
         // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
-        Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
-        // Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(
-        // PalladianNerExperiments.WX_API_KEY, database), DATASET_LOCATION);
+        // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
+        Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(database), DATASET_LOCATION);
         // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
         // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(
