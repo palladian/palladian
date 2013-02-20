@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +15,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +27,6 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
@@ -36,6 +35,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * 
@@ -370,29 +370,23 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
  * <li>AdministrativeDivision</li>
  * <li>GovernmentalJurisdiction</li>
  * </ul>
- * 
- * <p>
- * See also <a href="http://www.alchemyapi.com/api/entity/types.html"
- * >http://www.alchemyapi.com/api/entity/types.html</a>
  * </p>
  * 
- * 
+ * @see <a href="http://www.alchemyapi.com/api/entity/types.html">http://www.alchemyapi.com/api/entity/types.html</a>
  * @author David Urbansky
- * 
  */
 public class AlchemyNer extends NamedEntityRecognizer {
+
+    /** Identifier for the API key when supplied via {@link Configuration}. */
+    public static final String CONFIG_API_KEY = "api.alchemy.key";
 
     /** The API key for the Alchemy API service. */
     private final String apiKey;
 
-    /**
-     * The maximum number of characters allowed to send per request.
-     */
+    /** The maximum number of characters allowed to send per request. */
     private final int MAXIMUM_TEXT_LENGTH = 15000;
 	
-	/**
-	 * Turns coreference resolution on/off.
-	 */
+    /** Turns coreference resolution on/off. */
 	private boolean coreferenceResolution = false;
 
     /** The {@link HttpRetriever} is used for performing the POST requests to the API. */
@@ -400,33 +394,26 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
     /**
      * <p>
-     * Constructor. Uses the API key from the configuration, at place "api.alchemy.key"
+     * Create a new {@link AlchemyNer} with an API key provided by the supplied {@link Configuration} instance.
      * </p>
+     * 
+     * @param configuration The configuration providing the API key via {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
-    public AlchemyNer() {
-        this("");
+    public AlchemyNer(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     /**
      * <p>
-     * This constructor should be used to specify an explicit API key.
+     * Create a new {@link AlchemyNer} with the specified API key.
      * </p>
      * 
-     * @param apiKey
-     *            API key to use for connecting with Alchemy API
+     * @param apiKey The API key to use for connecting with Alchemy API, not <code>null</code> or empty.
      */
     public AlchemyNer(String apiKey) {
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
         setName("Alchemy API NER");
-
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        if (!apiKey.equals("")) {
-            this.apiKey = apiKey;
-        } else if (config != null) {
-            this.apiKey = config.getString("api.alchemy.key");
-        } else {
-            this.apiKey = "";
-        }
+        this.apiKey = apiKey;
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
@@ -492,7 +479,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = new String(httpResult.getContent(), Charset.forName("UTF-8"));
+                String response = HttpHelper.getStringContent(httpResult);
 
                 if (response.contains("daily-transaction-limit-exceeded")) {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");
@@ -569,22 +556,10 @@ public class AlchemyNer extends NamedEntityRecognizer {
                 content);
     }
 
-    /**
-     * Tag the input text. Alchemy API does not require to specify a model.
-     * 
-     * @param inputText
-     *            The text to be tagged.
-     * @return The tagged text.
-     */
-    @Override
-    public String tag(String inputText) {
-        return super.tag(inputText);
-    }
-
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        AlchemyNer tagger = new AlchemyNer();
+        AlchemyNer tagger = new AlchemyNer("");
 
         if (args.length > 0) {
 
