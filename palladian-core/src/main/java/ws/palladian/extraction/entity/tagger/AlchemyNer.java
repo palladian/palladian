@@ -3,7 +3,6 @@ package ws.palladian.extraction.entity.tagger;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +23,6 @@ import org.json.JSONObject;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.Entity;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
@@ -508,15 +506,16 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     JSONObject entity = entities.getJSONObject(i);
 
                     String entityName = entity.getString("text");
-                    Entity namedEntity = new Entity(entityName, entity.getString("type"));
+                    String entityType = entity.getString("type");
 
-                    List<String> subTypeList = new LinkedList<String>();
+                    List<String> subTypeList = CollectionHelper.newArrayList();
                     if (entity.has("disambiguated")) {
                         JSONObject disambiguated = entity.getJSONObject("disambiguated");
-                        JSONArray subTypes = disambiguated.getJSONArray("subType");
-
-                        for (int j = 0; j < subTypes.length(); j++) {
-                            subTypeList.add(subTypes.getString(j));
+                        if (disambiguated.has("subType")) {
+                            JSONArray subTypes = disambiguated.getJSONArray("subType");
+                            for (int j = 0; j < subTypes.length(); j++) {
+                                subTypeList.add(subTypes.getString(j));
+                            }
                         }
                     }
 
@@ -525,8 +524,6 @@ public class AlchemyNer extends NamedEntityRecognizer {
                         continue;
                     }
 
-                    // recognizedEntities.add(namedEntity);
-
                     // get locations of named entity
                     String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
                     Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
@@ -534,10 +531,8 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
                     Matcher matcher = pattern.matcher(inputText);
                     while (matcher.find()) {
-
                         int offset = matcher.start();
-
-                        Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getTagName());
+                        Annotation annotation = new Annotation(offset, entityName, entityType);
                         annotation.addSubTypes(subTypeList);
                         annotations.add(annotation);
                     }

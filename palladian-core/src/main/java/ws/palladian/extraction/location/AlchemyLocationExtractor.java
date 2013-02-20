@@ -24,13 +24,8 @@ public class AlchemyLocationExtractor extends WebBasedLocationExtractor {
     }
 
     public AlchemyLocationExtractor(String apiKey) {
-        super(new AlchemyNer(apiKey));
+        super(new AlchemyNer(apiKey), LOCATION_MAPPING);
         setName("Alchemy Location Extractor");
-    }
-
-    @Override
-    protected LocationType map(String value) {
-        return LOCATION_MAPPING.get(value);
     }
 
     public static void main(String[] args) {
