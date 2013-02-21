@@ -12,6 +12,7 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.dataset.DatasetProcessor;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
@@ -123,12 +124,12 @@ public class Evaluator {
                         results.append(j).append(";");
                     }
 
-                    results.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-                    results.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-                    results.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-                    results.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-                    results.append(er.getRecall(EvaluationResult.MUC)).append(";");
-                    results.append(er.getF1(EvaluationResult.MUC)).append(";");
+                    results.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
+                    results.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
+                    results.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
+                    results.append(er.getPrecision(EvaluationMode.MUC)).append(";");
+                    results.append(er.getRecall(EvaluationMode.MUC)).append(";");
+                    results.append(er.getF1(EvaluationMode.MUC)).append(";");
 
                     if (k > 0) {
                         results.append("\n");
@@ -221,12 +222,12 @@ public class Evaluator {
                     results.append(numberOfDocuments).append(";");
                 }
 
-                results.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-                results.append(er.getRecall(EvaluationResult.MUC)).append(";");
-                results.append(er.getF1(EvaluationResult.MUC)).append(";");
+                results.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getPrecision(EvaluationMode.MUC)).append(";");
+                results.append(er.getRecall(EvaluationMode.MUC)).append(";");
+                results.append(er.getF1(EvaluationMode.MUC)).append(";");
 
                 if (k > 0) {
                     results.append("\n");
@@ -327,12 +328,12 @@ public class Evaluator {
                     results.append(concept).append(";");
                 }
 
-                results.append(er.getPrecisionFor(concept, EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getRecallFor(concept, EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getF1For(concept, EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getPrecisionFor(concept, EvaluationResult.MUC)).append(";");
-                results.append(er.getRecallFor(concept, EvaluationResult.MUC)).append(";");
-                results.append(er.getF1For(concept, EvaluationResult.MUC)).append(";");
+                results.append(er.getPrecisionFor(concept, EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getRecallFor(concept, EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getF1For(concept, EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getPrecisionFor(concept, EvaluationMode.MUC)).append(";");
+                results.append(er.getRecallFor(concept, EvaluationMode.MUC)).append(";");
+                results.append(er.getF1For(concept, EvaluationMode.MUC)).append(";");
 
                 if (k > 0) {
                     results.append("\n");
@@ -357,12 +358,12 @@ public class Evaluator {
                 results.append("Averaged").append(";");
             }
 
-            averagedLine.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-            averagedLine.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-            averagedLine.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-            averagedLine.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-            averagedLine.append(er.getRecall(EvaluationResult.MUC)).append(";");
-            averagedLine.append(er.getF1(EvaluationResult.MUC)).append(";");
+            averagedLine.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getPrecision(EvaluationMode.MUC)).append(";");
+            averagedLine.append(er.getRecall(EvaluationMode.MUC)).append(";");
+            averagedLine.append(er.getF1(EvaluationMode.MUC)).append(";");
 
 
         }

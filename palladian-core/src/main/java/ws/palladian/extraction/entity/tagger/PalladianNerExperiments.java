@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,10 +12,7 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNer.TrainingMode;
-import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.extraction.location.OpenCalaisLocationExtractor;
-import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -94,26 +90,26 @@ public class PalladianNerExperiments {
 
         // FileHelper.removeDuplicateLines("data/temp/nerDictionary.csv");
         // System.exit(0);
-        LocationExtractor palladianTagger = new PalladianLocationExtractor(WX_API_KEY, GEONAMES_USERNAME);
-        LocationExtractor calaisTagger = new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5");
-        PalladianNerExperiments exp = new PalladianNerExperiments();
-
-        File[] files = FileHelper.getFiles("C:\\Users\\Sky\\Desktop\\LocationExtractionDataset", "text");
-        for (File file : files) {
-            System.out.println(file);
-            String text = FileHelper.readFileToString(file);
-            try {
-                exp.tag(text, file.getName(), palladianTagger);
-                exp.tag(text, file.getName(), calaisTagger);
-
-                // LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-                // evaluator.evaluate(file.getAbsolutePath());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-
-            }
-        }
+        // LocationExtractor palladianTagger = new PalladianLocationExtractor(WX_API_KEY, GEONAMES_USERNAME);
+        // LocationExtractor calaisTagger = new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5");
+        // PalladianNerExperiments exp = new PalladianNerExperiments();
+        //
+        // File[] files = FileHelper.getFiles("C:\\Users\\Sky\\Desktop\\LocationExtractionDataset", "text");
+        // for (File file : files) {
+        // System.out.println(file);
+        // String text = FileHelper.readFileToString(file);
+        // try {
+        // exp.tag(text, file.getName(), palladianTagger);
+        // exp.tag(text, file.getName(), calaisTagger);
+        //
+        // // LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
+        // // evaluator.evaluate(file.getAbsolutePath());
+        //
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        //
+        // }
+        // }
 
         // PalladianNer tagger = PalladianNer.load("data/temp/conllModel.model.gz");
         // tagger.setEntityDictionary("data/temp/nerDictionary.csv");
