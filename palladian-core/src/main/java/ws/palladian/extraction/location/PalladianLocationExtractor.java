@@ -23,7 +23,6 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
@@ -295,23 +294,40 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     private void filterNonEntities(Annotations taggedEntities, String text) {
-        List<String> tokens = Tokenizer.tokenize(text);
-        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
-            @Override
-            public boolean accept(String item) {
-                return !StringHelper.startsUppercase(item);
-            }
-        }, new HashSet<String>());
+//        List<String> tokens = Tokenizer.tokenize(text);
+//        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
+//            @Override
+//            public boolean accept(String item) {
+//                return !StringHelper.startsUppercase(item);
+//            }
+//        }, new HashSet<String>());
+//        Iterator<Annotation> iterator = taggedEntities.iterator();
+//        while (iterator.hasNext()) {
+//            // FIXME only do this with entities which are at sentence start!
+//            Annotation current = iterator.next();
+//            if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
+//                iterator.remove();
+//                System.out.println("Remove lowercase entity " + current.getEntity());
+//            }
+//        }
+        
+        Map<String, String> result = EntityPreprocessor.correctAnnotations(text);
         Iterator<Annotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
-            // FIXME only do this with entities which are at sentence start!
             Annotation current = iterator.next();
-            if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
-                iterator.remove();
-                System.out.println("Remove lowercase entity " + current.getEntity());
+            String value = current.getEntity();
+            String mapping = result.get(value);
+            if (mapping == null) {
+                continue;
             }
+            if (mapping.isEmpty()) {
+                iterator.remove();
+            }
+            int indexCorrector = value.indexOf(mapping);
+            current.setOffset(current.getOffset() + indexCorrector);
+            current.setEntity(mapping);
+            current.setLength(mapping.length());
         }
-
     }
 
     /**
@@ -575,7 +591,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text20.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text34.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
