@@ -289,6 +289,10 @@ public class TokenizerTest {
         inputText = "Das ist z.B. sooo groß.";
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
         assertEquals(1, sentences.size());
+
+        inputText = "It added: \"Its government was consequently responsible for those acts performed by foreign officials. It had failed to submit any arguments explaining or justifying the degree of force used or the necessity of the invasive and potentially debasing measures. Those measures had been used with premeditation, the aim being to cause Mr Masri severe pain or suffering in order to obtain information. In the court's view, such treatment had amounted to torture, in violation of Article 3 [of the European human rights convention].\"\n\n In Afghanistan, Masri was incarcerated for more than four months in a small, dirty, dark concrete cell in a brick factory near the capital, Kabul, where he was repeatedly interrogated and was beaten, kicked and threatened. His repeated requests to meet with a representative of the German government were ignored, said the court.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(6, sentences.size());
     }
 
     @Test
