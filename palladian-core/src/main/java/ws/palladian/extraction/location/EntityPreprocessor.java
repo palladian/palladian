@@ -93,6 +93,8 @@ class EntityPreprocessor {
         Set<String> toRemove = CollectionHelper.newHashSet();
         Map<String, String> toModify = CollectionHelper.newHashMap();
         for (Annotation annotation : sentenceBeginAnnotations) {
+            // System.out.println("processing " + annotation);
+
             if (inSentenceStrings.contains(annotation.getEntity())) {
                 System.out.println("Everything fine with " + annotation.getEntity());
                 continue;
@@ -116,6 +118,14 @@ class EntityPreprocessor {
                         }
                     }
                     toModify.put(annotation.getEntity(), newValue);
+                    continue;
+                }
+            }
+            for (String inSentenceAnnotation : inSentenceStrings) {
+                if (value.endsWith(inSentenceAnnotation)) {
+                    // System.err.println("Special logic here! (for " + value + ", with " + inSentenceAnnotation + ")");
+                    toModify.put(value, inSentenceAnnotation);
+                    continue;
                 }
             }
         }
