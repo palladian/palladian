@@ -11,6 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.JulieNer;
 import ws.palladian.extraction.entity.tagger.LingPipeNer;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
@@ -63,8 +64,8 @@ public class NERTest {
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
         
-        assertTrue(er.getF1(EvaluationResult.MUC) > 0.68);
-        assertTrue(er.getF1(EvaluationResult.EXACT_MATCH) > 0.52);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.68);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.52);
 
         tagger.loadModel(tudnerLiModel);
         tagger.setTagUrls(false);
@@ -102,8 +103,8 @@ public class NERTest {
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
         
-        assertTrue(er.getF1(EvaluationResult.MUC) > 0.94);
-        assertTrue(er.getF1(EvaluationResult.EXACT_MATCH) > 0.90);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.94);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.90);
 
 
         tagger.loadModel(tudnerEnModel);
