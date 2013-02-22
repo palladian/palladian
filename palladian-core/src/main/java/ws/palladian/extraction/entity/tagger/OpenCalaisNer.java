@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
@@ -132,31 +130,14 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
 
         Annotations annotations = new Annotations();
 
-        // we need to build chunks of texts because we can not send very long texts at once to open calais
-        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
-        if (inputText.length() > MAXIMUM_TEXT_LENGTH) {
-            List<String> sentences = Tokenizer.getSentences(inputText);
-            StringBuilder currentTextChunk = new StringBuilder();
-            for (String sentence : sentences) {
-
-                if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
-                    textChunks.add(currentTextChunk);
-                    currentTextChunk = new StringBuilder();
-                }
-
-                currentTextChunk.append(sentence).append(" ");
-            }
-            textChunks.add(currentTextChunk);
-        } else {
-            textChunks.add(new StringBuilder(inputText));
-        }
+        List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
         // since the offset is per chunk we need to add the offset for each new chunk to get the real position of the
         // entity in the original text
         int cumulatedOffset = 0;
-        for (StringBuilder textChunk : textChunks) {
+        for (String textChunk : textChunks) {
 
             try {
 

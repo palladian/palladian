@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
@@ -424,27 +422,12 @@ public class AlchemyNer extends NamedEntityRecognizer {
     public Annotations getAnnotations(String inputText) {
 
         Annotations annotations = new Annotations();
-
-        // we need to build chunks of texts because we can not send very long
-        // texts at once to open calais
-        List<String> sentences = Tokenizer.getSentences(inputText);
-        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
-        StringBuilder currentTextChunk = new StringBuilder();
-        for (String sentence : sentences) {
-
-            if (currentTextChunk.length() + sentence.length() + 1 > MAXIMUM_TEXT_LENGTH) {
-                textChunks.add(currentTextChunk);
-                currentTextChunk = new StringBuilder();
-            }
-
-            currentTextChunk.append(" " + sentence);
-        }
-        textChunks.add(currentTextChunk);
+        List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
         Set<String> checkedEntities = new HashSet<String>();
-        for (StringBuilder textChunk : textChunks) {
+        for (String textChunk : textChunks) {
 
             try {
 
@@ -503,7 +486,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
         }
 
         annotations.sort();
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         return annotations;
     }
