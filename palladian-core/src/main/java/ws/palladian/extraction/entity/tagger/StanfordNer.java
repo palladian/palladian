@@ -61,6 +61,7 @@ public class StanfordNer extends NamedEntityRecognizer {
 
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
+    private AbstractSequenceClassifier<CoreLabel> classifier;
 
     public StanfordNer() {
         setName("Stanford NER");
@@ -223,7 +224,7 @@ public class StanfordNer extends NamedEntityRecognizer {
             return false;
         }
 
-        setModel(classifier);
+        this.classifier = classifier;
         LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
         return true;
@@ -233,8 +234,6 @@ public class StanfordNer extends NamedEntityRecognizer {
     @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
-
-        AbstractSequenceClassifier<CoreLabel> classifier = (AbstractSequenceClassifier) getModel();
 
         String inputTextPath = "data/temp/inputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);

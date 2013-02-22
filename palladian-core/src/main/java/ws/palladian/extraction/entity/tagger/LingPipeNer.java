@@ -56,6 +56,8 @@ public class LingPipeNer extends NamedEntityRecognizer {
     private static final int NUM_CHARS = 256;
     private static final double LM_INTERPOLATION = MAX_N_GRAM;
 
+    private Chunker chunker;
+
     public LingPipeNer() {
         setName("LingPipe NER");
     }
@@ -138,7 +140,7 @@ public class LingPipeNer extends NamedEntityRecognizer {
             return false;
         }
 
-        setModel(chunker);
+        this.chunker = chunker;
         LOGGER.info("model " + modelFile.toString() + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
         return true;
@@ -147,8 +149,6 @@ public class LingPipeNer extends NamedEntityRecognizer {
     @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
-
-        Chunker chunker = (Chunker)getModel();
 
         String[] args = new String[1];
         args[0] = inputText;

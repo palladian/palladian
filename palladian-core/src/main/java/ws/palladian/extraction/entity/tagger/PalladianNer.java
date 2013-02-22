@@ -39,8 +39,8 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -288,8 +288,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // assign tagging options
         this.tagDates = n.tagDates;
         this.tagUrls = n.tagUrls;
-
-        setModel(this);
 
         LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
 

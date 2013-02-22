@@ -150,6 +150,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
                     EnumSet.of(Language.ENGLISH));
 
             // XXX experimental
+            // greatly improves pr, but drops recall/f1
 //            CollectionHelper.filter(retrievedLocations, new Filter<Location>() {
 //                @Override
 //                public boolean accept(Location item) {

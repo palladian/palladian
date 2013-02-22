@@ -202,8 +202,6 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
         Parameters.readConfigAndLoadExternalData("data/temp/illinoislbjNerConfig.config");
         Parameters.forceNewSentenceOnLineBreaks = true;
 
-        setModel(new Object());
-
         return true;
     }
 
