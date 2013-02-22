@@ -84,6 +84,8 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
+    private NameFinderME[] finders;
+    private String[] tags;
 
     public OpenNlpNer() {
         setName("OpenNLP NER");
@@ -235,11 +237,8 @@ public class OpenNlpNer extends NamedEntityRecognizer {
             tags[finderIndex] = tagName.toUpperCase();
         }
 
-        Object[] objs = new Object[2];
-        objs[0] = finders;
-        objs[1] = tags;
-
-        setModel(objs);
+        this.finders = finders;
+        this.tags = tags;
         LOGGER.info("model " + modelFileString + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
         return true;
@@ -248,10 +247,6 @@ public class OpenNlpNer extends NamedEntityRecognizer {
     @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
-
-        Object[] objs = (Object[]) getModel();
-        NameFinderME[] finders = (NameFinderME[]) objs[0];
-        String[] tags = (String[]) objs[1];
 
         String taggedText = "";
         try {

@@ -68,6 +68,8 @@ public class JulieNer extends NamedEntityRecognizer {
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
 
+    private NETagger tagger;
+
     public JulieNer() {
         setName("Julie NER");
 
@@ -132,7 +134,7 @@ public class JulieNer extends NamedEntityRecognizer {
             return false;
         }
 
-        setModel(tagger);
+        this.tagger = tagger;
         LOGGER.info("model " + modelFile.toString() + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
         return true;
@@ -154,8 +156,6 @@ public class JulieNer extends NamedEntityRecognizer {
 
         ArrayList<String> ppdTestData = Utils.readFile(testDataFile);
         ArrayList<Sentence> sentences = new ArrayList<Sentence>();
-        NETagger tagger = (NETagger) getModel();
-
 
         for (String ppdSentence : ppdTestData) {
             try {

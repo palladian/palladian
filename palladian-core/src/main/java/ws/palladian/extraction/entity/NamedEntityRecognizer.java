@@ -54,9 +54,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     /** Name of the named entity recognizer. */
     private String name = "unknown";
 
-    /** The loaded model. */
-    private Object model;
-
     /**
      * The file ending of the model file.
      * 
@@ -837,14 +834,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
     public TaggingFormat getTaggingFormat() {
         return taggingFormat;
-    }
-
-    public void setModel(Object model) {
-        this.model = model;
-    }
-
-    public Object getModel() {
-        return model;
     }
 
 }
