@@ -31,35 +31,6 @@ public abstract class WebBasedLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public String getModelFileEnding() {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        LOGGER.warn("the configModelFilePath is ignored");
-        return getAnnotations(inputText);
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = entityRecognizer.getAnnotations(inputText);
         List<Annotation> unmappedAnnotations = CollectionHelper.newArrayList();
@@ -76,6 +47,11 @@ public abstract class WebBasedLocationExtractor extends LocationExtractor {
         }
         annotations.removeAll(unmappedAnnotations);
         return annotations;
+    }
+
+    @Override
+    public String getName() {
+        return entityRecognizer.getName();
     }
 
 }

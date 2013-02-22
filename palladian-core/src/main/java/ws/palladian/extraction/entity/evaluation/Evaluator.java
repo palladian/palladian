@@ -11,6 +11,7 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
@@ -92,9 +93,7 @@ public class Evaluator {
 
                 LOGGER.info("evaluating with " + j + " seed entities");
 
-                PalladianNer tagger = new PalladianNer();
-                tagger.setLanguageMode(mode);
-                tagger.setTrainingMode(TrainingMode.Sparse);
+                PalladianNer tagger = new PalladianNer(mode, TrainingMode.Sparse);
 
                 Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, j);
 
@@ -109,8 +108,7 @@ public class Evaluator {
                 for (int k = 0; k < 2; k++) {
 
                     // load the trained model
-                    tagger = new PalladianNer();
-                    tagger.setLanguageMode(mode);
+                    tagger = new PalladianNer(mode);
                     EvaluationResult er = null;
 
                     if (k == 0) {
@@ -174,7 +172,7 @@ public class Evaluator {
      * @param maxDocuments The maximal number of documents to consider.
      * @param stepSize The size of the steps between minDocuments and maxDocuments.
      */
-    public void evaluateDependencyOnTrainingSetSize(NamedEntityRecognizer tagger, String trainingFilePath,
+    public void evaluateDependencyOnTrainingSetSize(TrainableNamedEntityRecognizer tagger, String trainingFilePath,
             String testFilePath, String documentSeparator, int minDocuments, int maxDocuments, int stepSize) {
 
         StopWatch stopWatch = new StopWatch();
@@ -273,7 +271,7 @@ public class Evaluator {
      * @param testFilePath The path to the test file on which the NER should be tested on.
      * @return Return the average performance for the given tagger on the given dataset.
      */
-    public String evaluatePerConceptPerformance(NamedEntityRecognizer tagger, String trainingFilePath,
+    public String evaluatePerConceptPerformance(TrainableNamedEntityRecognizer tagger, String trainingFilePath,
             String testFilePath, int numberOfSeeds) {
 
         StopWatch stopWatch = new StopWatch();
@@ -379,7 +377,7 @@ public class Evaluator {
         return averagedLine.toString();
     }
 
-    public void evaluateOnGeneratedTrainingset(List<NamedEntityRecognizer> taggers, String targetFolder,
+    public void evaluateOnGeneratedTrainingset(List<TrainableNamedEntityRecognizer> taggers, String targetFolder,
             String testFilePath) {
 
         StopWatch stopWatch = new StopWatch();
@@ -405,7 +403,7 @@ public class Evaluator {
 
             String generatedTrainingFilePath = targetFolder + "seedsTest" + i + ".txt";
 
-            for (NamedEntityRecognizer tagger : taggers) {
+            for (TrainableNamedEntityRecognizer tagger : taggers) {
                 results.append(evaluatePerConceptPerformance(tagger, generatedTrainingFilePath, testFilePath, i));
             }
 
@@ -434,7 +432,7 @@ public class Evaluator {
         // "data/datasets/ner/tud/manuallyPickedSeeds/seedListC.txt", 100, 100, 10);
         // System.exit(0);
 
-        List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
+        List<TrainableNamedEntityRecognizer> taggerList = new ArrayList<TrainableNamedEntityRecognizer>();
         // taggerList.add(new StanfordNER());
         // IllinoisLbjNer lbjNer = new IllinoisLbjNer();
         taggerList.add(new PalladianNer(LanguageMode.English));
@@ -463,7 +461,7 @@ public class Evaluator {
         // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 50);
 
         // evaluate all tagger how they depend on the number of documents in the training set
-        for (NamedEntityRecognizer tagger : taggerList) {
+        for (TrainableNamedEntityRecognizer tagger : taggerList) {
             evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             // evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
@@ -488,7 +486,7 @@ public class Evaluator {
         taggerList.clear();
         taggerList.add(new PalladianNer(LanguageMode.English));
         taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
-        for (NamedEntityRecognizer tagger : taggerList) {
+        for (TrainableNamedEntityRecognizer tagger : taggerList) {
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,
                     "=-DOCSTART-\tO", 1, 61, 5);

@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
@@ -385,9 +383,9 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
     /** The maximum number of characters allowed to send per request. */
     private final int MAXIMUM_TEXT_LENGTH = 15000;
-	
+
     /** Turns coreference resolution on/off. */
-	private boolean coreferenceResolution = false;
+    private boolean coreferenceResolution = false;
 
     /** The {@link HttpRetriever} is used for performing the POST requests to the API. */
     private final HttpRetriever httpRetriever;
@@ -412,69 +410,24 @@ public class AlchemyNer extends NamedEntityRecognizer {
      */
     public AlchemyNer(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
-        setName("Alchemy API NER");
         this.apiKey = apiKey;
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
-    @Override
-    public String getModelFileEnding() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return "";
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return false;
-    }
-	
-	public void setCoreferenceResolution(boolean value) {
-		coreferenceResolution = value;
-	}
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        LOGGER.warn(getName() + " does not support training");
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        LOGGER.warn(getName() + " does not support loading models");
-        return false;
+    public void setCoreferenceResolution(boolean value) {
+        coreferenceResolution = value;
     }
 
     @Override
     public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText, "");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
 
         Annotations annotations = new Annotations();
-
-        // we need to build chunks of texts because we can not send very long
-        // texts at once to open calais
-        List<String> sentences = Tokenizer.getSentences(inputText);
-        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
-        StringBuilder currentTextChunk = new StringBuilder();
-        for (String sentence : sentences) {
-
-            if (currentTextChunk.length() + sentence.length() + 1 > MAXIMUM_TEXT_LENGTH) {
-                textChunks.add(currentTextChunk);
-                currentTextChunk = new StringBuilder();
-            }
-
-            currentTextChunk.append(" " + sentence);
-        }
-        textChunks.add(currentTextChunk);
+        List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
         Set<String> checkedEntities = new HashSet<String>();
-        for (StringBuilder textChunk : textChunks) {
+        for (String textChunk : textChunks) {
 
             try {
 
@@ -533,9 +486,14 @@ public class AlchemyNer extends NamedEntityRecognizer {
         }
 
         annotations.sort();
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    @Override
+    public String getName() {
+        return "Alchemy API NER";
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
@@ -545,12 +503,8 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
         Map<String, String> content = new MapBuilder<String, String>().add("text", inputText).add("apikey", apiKey)
                 .add("outputMode", "json").add("disambiguate", "1").add("maxRetrieve", "500");
-				
-		if(coreferenceResolution){
-			content.put("coreference", "1");
-		}else{
-			content.put("coreference", "0");
-		}
+
+        content.put("coreference", coreferenceResolution ? "1" : "0");
 
         return httpRetriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities", headers,
                 content);
