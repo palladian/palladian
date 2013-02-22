@@ -26,7 +26,6 @@ public class OpenCalaisLocationExtractor extends WebBasedLocationExtractor {
 
     public OpenCalaisLocationExtractor(String apiKey) {
         super(new OpenCalaisNer(apiKey), LOCATION_MAPPING);
-        setName("Open Calais Location Extractor");
     }
 
     public static void main(String[] args) {

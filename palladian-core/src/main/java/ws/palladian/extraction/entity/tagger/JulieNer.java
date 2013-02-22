@@ -17,8 +17,8 @@ import org.apache.commons.cli.PosixParser;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -63,7 +63,7 @@ import de.julielab.jnet.utils.Utils;
  * @author David Urbansky
  * 
  */
-public class JulieNer extends NamedEntityRecognizer {
+public class JulieNer extends TrainableNamedEntityRecognizer {
 
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
@@ -71,8 +71,6 @@ public class JulieNer extends NamedEntityRecognizer {
     private NETagger tagger;
 
     public JulieNer() {
-        setName("Julie NER");
-
         // alignContent(new File("data/temp/t.TXT"), "THURSDAY'S GAMES. NEW YORK");
         // alignContent(new File("data/temp/t.TXT"), "MOODY'S: Aaa");
         // alignContent(
@@ -101,7 +99,8 @@ public class JulieNer extends NamedEntityRecognizer {
         train("data/datasets/ner/sample/trainingColumn.tsv", "data/temp/personPhoneCity.mod");
 
         // tag
-        String taggedText = tag(inputText, "data/temp/personPhoneCity.mod.gz");
+        loadModel("data/temp/personPhoneCity.mod.gz");
+        String taggedText = tag(inputText);
         System.out.println(taggedText);
     }
 
@@ -185,12 +184,6 @@ public class JulieNer extends NamedEntityRecognizer {
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
 
         return annotations;
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        loadModel(configModelFilePath);
-        return getAnnotations(inputText);
     }
 
     /**
@@ -277,6 +270,11 @@ public class JulieNer extends NamedEntityRecognizer {
         return true;
     }
 
+    @Override
+    public String getName() {
+        return "Julie NER";
+    }
+
     /**
      * @param args
      * @throws Exception
@@ -335,7 +333,8 @@ public class JulieNer extends NamedEntityRecognizer {
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
 
                     if (cmd.hasOption("outputFile")) {
                         FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);

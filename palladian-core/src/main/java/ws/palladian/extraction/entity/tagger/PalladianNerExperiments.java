@@ -24,7 +24,7 @@ public class PalladianNerExperiments {
     public static final String GEONAMES_USERNAME = "qqilihq";
 
     public void trainTest() {
-        PalladianNer tagger = new PalladianNer();
+        PalladianNer tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
 
         // String trainingPath = "data/ner/conll/training.txt";
         String trainingPath = "data/datasets/ner/conll/training.txt";
@@ -35,12 +35,6 @@ public class PalladianNerExperiments {
 
         // set whether to tag URLs
         tagger.setTagUrls(false);
-
-        // set mode (English or language independent)
-        tagger.setLanguageMode(LanguageMode.English);
-
-        // set type of training set (complete supervised or sparse semi-supervised)
-        tagger.setTrainingMode(TrainingMode.Complete);
 
         // create a dictionary from a dictionary txt file
         // tagger.makeDictionary("mergedDictComplete.csv");

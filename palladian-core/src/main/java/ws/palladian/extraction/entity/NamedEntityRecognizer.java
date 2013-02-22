@@ -34,12 +34,10 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
- * The abstract Named Entity Recognizer (NER). Every NER should provide functionality for tagging an input text. Some
- * might also be able to be trained on input data.
+ * The abstract Named Entity Recognizer (NER). Every NER should provide functionality for tagging an input text.
  * </p>
  * 
  * @author David Urbansky
- * 
  */
 public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor {
 
@@ -51,179 +49,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
 
-    /** Name of the named entity recognizer. */
-    private String name = "unknown";
-
-    /**
-     * The file ending of the model file.
-     * 
-     * @return The file ending of the model/config file.
-     */
-    public abstract String getModelFileEnding();
-
-    public String getModelFileEndingIfNotSetAutomatically() {
-        if (setsModelFileEndingAutomatically()) {
-            return "";
-        }
-
-        return getModelFileEnding();
-    }
-
-    /**
-     * Whether or not the NER sets the model file ending itself after specifying the model name.
-     * 
-     * @return True, if it does, false otherwise.
-     */
-    public abstract boolean setsModelFileEndingAutomatically();
-
-    /**
-     * Whether the NER needs one model file per concept. Usually you can train and recognize several entities using only
-     * one model.
-     * 
-     * @return True, if you need to train each concept separately, false otherwise.
-     */
-    public boolean oneModelPerConcept() {
-        return false;
-    }
-
-    public abstract boolean loadModel(String configModelFilePath);
-    public abstract Annotations getAnnotations(String inputText, String configModelFilePath);
-
     public abstract Annotations getAnnotations(String inputText);
-
-    public Annotations getAnnotations(File inputTextFile, String configModelFilePath) {
-        String inputText = FileHelper.readFileToString(inputTextFile.getPath());
-        return getAnnotations(inputText, configModelFilePath);
-    }
-
-    /**
-     * <p>
-     * Train the named entity recognizer using the data from the training file and save it to the model file path.
-     * </p>
-     * <p>
-     * The training file must be given in tab (\t) separated column format where the first column is the term and the
-     * second column is the concept.
-     * </p>
-     * 
-     * @param trainingFilePath The path where the training data can be found.
-     * @param modelFilePath The path where the trained model should be saved to.
-     * @return True, if the training succeeded, false otherwise.
-     */
-    public abstract boolean train(String trainingFilePath, String modelFilePath);
-
-    public boolean train(File trainingFile, File modelFile) {
-        return train(trainingFile.getPath(), modelFile.getPath());
-    }
-
-    public boolean train(Dataset dataset, String modelFilePath) {
-
-        if (dataset.isColumnNER()) {
-            return train(dataset.getPath(), modelFilePath);
-        }
-
-        String tempFilePath = "data/temp/nerConcatenated.xml";
-        String tempColumnFilePath = FileHelper.appendToFileName(tempFilePath, "_tsv");
-
-        // delete temp file that might have been created
-        FileHelper.delete(tempFilePath);
-        FileHelper.delete(tempColumnFilePath);
-
-        if (!oneModelPerConcept()) {
-
-            // concatenate all xml files from the training index to one large file
-            List<String> lines = FileHelper.readFileToArray(dataset.getPath());
-            for (String line : lines) {
-
-                String[] parts = line.split(" ");
-
-                FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath() + parts[0]));
-            }
-
-            // transform file to tsv format
-            FileFormatParser.xmlToColumn(tempFilePath, tempColumnFilePath, "\t");
-
-            return train(tempColumnFilePath, modelFilePath);
-
-        } else {
-
-            boolean trainingComplete = false;
-
-            // map containing the parts with the file links
-            Map<String, Set<String>> conceptMap = new HashMap<String, Set<String>>();
-
-            List<String> lines = FileHelper.readFileToArray(dataset.getPath());
-            for (String line : lines) {
-
-                if (line.length() == 0) {
-                    continue;
-                }
-
-                String[] lineParts = line.split(" ");
-                String part = lineParts[1].replaceAll("_part(\\d+)", "");
-
-                Set<String> links = conceptMap.get(part);
-                if (links == null) {
-                    links = new HashSet<String>();
-                    links.add(lineParts[0]);
-                    conceptMap.put(part, links);
-                } else {
-                    links.add(lineParts[0]);
-                }
-            }
-
-            // train x files where x is the number of concepts
-            for (Entry<String, Set<String>> partEntry : conceptMap.entrySet()) {
-
-                // concatenate all files for this current concept
-                for (String link : partEntry.getValue()) {
-                    String[] parts = link.split(" ");
-
-                    FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath() + parts[0]));
-                }
-
-                // transform file to tsv format
-                FileFormatParser.xmlToColumn(tempFilePath, tempColumnFilePath, "\t");
-
-                trainingComplete = train(tempColumnFilePath,
-                        FileHelper.appendToFileName(modelFilePath, "_" + partEntry.getKey().toUpperCase()));
-
-                if (!trainingComplete) {
-                    return false;
-                }
-
-            }
-
-            return trainingComplete;
-        }
-    }
-
-    /**
-     * Get the tags that were trained for this model.
-     * 
-     * @param modelPath The path to the model
-     * @return A list of tags that the model can apply to text.
-     */
-    public List<String> getModelTags(String modelPath) {
-        String filename = FileHelper.getFileName(modelPath);
-        String path = FileHelper.getFilePath(modelPath);
-        filename += "_meta.txt";
-        return FileHelper.readFileToArray(path + filename);
-    }
-
-    /**
-     * Tag the input text using the given model or model configuration.
-     * 
-     * @param inputText The text to be tagged.
-     * @param configModelFilePath The file to the model or the configuration depending on the NER. Every NER has it's
-     *            own model or configuration file.
-     * @return The tagged string in the specified {@link TaggingFormat}.
-     */
-    public String tag(String inputText, String configModelFilePath) {
-        if (configModelFilePath.length() > 0) {
-            loadModel(configModelFilePath);
-        }
-        return tag(inputText);
-    }
 
     public String tag(String inputText) {
         StopWatch stopWatch = new StopWatch();
@@ -231,31 +57,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         Annotations annotations = getAnnotations(inputText);
         String taggedText = tagText(inputText, annotations);
 
-        LOGGER.debug("tagged text in " + stopWatch.getElapsedTimeString(false));
+        LOGGER.debug("tagged text in {}", stopWatch.getElapsedTimeString(false));
 
         return taggedText;
     }
 
-    public String tag(File inputFile, File configModelFile) {
-        String inputText = FileHelper.readFileToString(inputFile.getPath());
-        return tag(inputText, configModelFile.getPath());
-    }
-
-    public void tag(String inputText, String outputFilePath, String configModelFilePath) {
-        String taggedText = tag(inputText, configModelFilePath);
-        FileHelper.writeToFile(outputFilePath, taggedText);
-    }
-
-    public void tag(File inputFile, File outputFile, File configModelFile) {
-        String inputText = FileHelper.readFileToString(inputFile.getPath());
-        tag(inputText, outputFile.getPath(), configModelFile.getPath());
-    }
-
     protected String tagText(String inputText, Annotations annotations) {
-        return tagText(inputText, annotations, getTaggingFormat());
-    }
-
-    protected String tagText(String inputText, Annotations annotations, TaggingFormat format) {
 
         StringBuilder taggedText = new StringBuilder();
 
@@ -287,19 +94,19 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 throw new IllegalStateException(errorString.toString());
             }
 
-            if (format == TaggingFormat.XML) {
+            if (taggingFormat == TaggingFormat.XML) {
 
                 taggedText.append("<").append(tagName).append(">");
                 taggedText.append(annotation.getEntity());
                 taggedText.append("</").append(tagName).append(">");
 
-            } else if (format == TaggingFormat.BRACKETS) {
+            } else if (taggingFormat == TaggingFormat.BRACKETS) {
 
                 taggedText.append("[").append(tagName).append(" ");
                 taggedText.append(annotation.getEntity());
                 taggedText.append(" ]");
 
-            } else if (format == TaggingFormat.SLASHES) {
+            } else if (taggingFormat == TaggingFormat.SLASHES) {
 
                 List<String> tokens = Tokenizer.tokenize(annotation.getEntity());
                 for (String token : tokens) {
@@ -327,6 +134,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public EvaluationResult evaluate(Dataset dataset) {
         return evaluate(dataset, "");
     }
+
     public EvaluationResult evaluate(Dataset dataset, String configModelFilePath) {
 
         String tempFilePath = "data/temp/nerConcatenatedEvaluation.xml";
@@ -349,9 +157,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format) {
         return evaluate(testingFilePath, configModelFilePath, format, new Annotations());
     }
+
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format) {
         return evaluate(testingFilePath, "", format, new Annotations());
     }
+
     public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format,
             Annotations ignoreAnnotations) {
 
@@ -363,18 +173,16 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // get the annotations of the NER
         Annotations nerAnnotations = null;
-        if (configModelFilePath.length() > 0) {
-            nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format), configModelFilePath);
-        } else {
-            nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
+        if (configModelFilePath.length() > 0 && this instanceof TrainableNamedEntityRecognizer) {
+            ((TrainableNamedEntityRecognizer)this).loadModel(configModelFilePath);
         }
+        nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
 
         nerAnnotations.removeNestedAnnotations();
         nerAnnotations.sort();
         String inputFile = FileHelper.getFileName(testingFilePath);
         nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + inputFile + "_"
-                + getName().replace(" ", "")
-                + DateHelper.getCurrentDatetime() + ".txt");
+                + getName().replace(" ", "") + DateHelper.getCurrentDatetime() + ".txt");
 
         // see EvaluationResult for explanation of that field
         Map<String, CountMap<ResultType>> assignments = new HashMap<String, CountMap<ResultType>>();
@@ -418,7 +226,8 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         for (Annotation nerAnnotation : nerAnnotations) {
 
             // skip "O" tags, XXX should this really be done here in this method?
-            if (nerAnnotation.getMostLikelyTagName().equalsIgnoreCase("o")) {
+            String assignedClass = nerAnnotation.getMostLikelyTagName();
+            if (assignedClass.equalsIgnoreCase("o")) {
                 continue;
             }
 
@@ -440,34 +249,35 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 // continue;
                 // }
 
+                String realClass = goldStandardAnnotation.getTargetClass();
+                EvaluationAnnotation evaluationAnnotation = (EvaluationAnnotation)goldStandardAnnotation;
+
                 if (nerAnnotation.matches(goldStandardAnnotation)) {
 
                     // exact match
-                    if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
+                    if (nerAnnotation.sameTag(evaluationAnnotation)) {
 
                         // correct tag (no error)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.CORRECT);
+                        assignments.get(assignedClass).add(ResultType.CORRECT);
                         annotationsErrors.get(ResultType.CORRECT).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
-                                nerAnnotation.getMostLikelyTagName());
+                        confusionMatrix.add(realClass, assignedClass);
 
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
+                        evaluationAnnotation.setTagged(true);
 
                         break;
 
                     } else {
 
                         // wrong tag (error3)
-                        assignments.get(goldStandardAnnotation.getTargetClass()).add(ResultType.ERROR3);
+                        assignments.get(realClass).add(ResultType.ERROR3);
                         annotationsErrors.get(ResultType.ERROR3).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
-                                nerAnnotation.getMostLikelyTagName());
+                        confusionMatrix.add(realClass, assignedClass);
 
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
+                        evaluationAnnotation.setTagged(true);
 
                         break;
 
@@ -476,31 +286,29 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 } else if (nerAnnotation.overlaps(goldStandardAnnotation)) {
 
                     // overlaps
-                    if (nerAnnotation.sameTag((EvaluationAnnotation) goldStandardAnnotation)) {
+                    if (nerAnnotation.sameTag(evaluationAnnotation)) {
 
                         // correct tag (error4)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.ERROR4);
+                        assignments.get(assignedClass).add(ResultType.ERROR4);
                         annotationsErrors.get(ResultType.ERROR4).add(nerAnnotation);
 
                         // in confusion matrix real = tagged
-                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
-                                nerAnnotation.getMostLikelyTagName());
+                        confusionMatrix.add(realClass, assignedClass);
 
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
+                        evaluationAnnotation.setTagged(true);
 
                         // break;
 
                     } else {
 
                         // wrong tag (error5)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.ERROR5);
+                        assignments.get(assignedClass).add(ResultType.ERROR5);
                         annotationsErrors.get(ResultType.ERROR5).add(nerAnnotation);
 
                         // in confusion matrix real != tagged
-                        confusionMatrix.add(goldStandardAnnotation.getTargetClass(),
-                                nerAnnotation.getMostLikelyTagName());
+                        confusionMatrix.add(realClass, assignedClass);
 
-                        ((EvaluationAnnotation) goldStandardAnnotation).setTagged(true);
+                        evaluationAnnotation.setTagged(true);
 
                         // break;
 
@@ -518,14 +326,14 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         // }
 
                         // tagged something that should not have been tagged (error1)
-                        assignments.get(nerAnnotation.getMostLikelyTagName()).add(ResultType.ERROR1);
+                        assignments.get(assignedClass).add(ResultType.ERROR1);
                         annotationsErrors.get(ResultType.ERROR1).add(nerAnnotation);
 
                         // in confusion matrix add count to "other" since NER tagged something that should not have been
                         // tagged
                         confusionMatrix.add(
                                 EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER,
-                                nerAnnotation.getMostLikelyTagName());
+                                assignedClass);
                     }
 
                     break;
@@ -543,7 +351,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // check which gold standard annotations have not been found by the NER (error2)
         for (Annotation goldStandardAnnotation : goldStandard) {
-            if (!((EvaluationAnnotation) goldStandardAnnotation).isTagged()) {
+            if (!((EvaluationAnnotation)goldStandardAnnotation).isTagged()) {
                 assignments.get(goldStandardAnnotation.getTargetClass()).add(ResultType.ERROR2);
                 annotationsErrors.get(ResultType.ERROR2).add(goldStandardAnnotation);
             }
@@ -552,17 +360,17 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors);
 
         printEvaluationDetails(evaluationResult, annotationsErrors, confusionMatrix,
-                FileHelper.getFilePath(testingFilePath)
-                + DateHelper.getCurrentDatetime() + "_results_" + inputFile + "_" + getName().replace(" ", "") + ".csv");
+                FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() + "_results_" + inputFile
+                        + "_" + getName().replace(" ", "") + ".csv");
 
         return evaluationResult;
     }
-
 
     public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult) {
         return printEvaluationDetails(evaluationResult, new HashMap<ResultType, Annotations>(), new ConfusionMatrix(),
                 null);
     }
+
     public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult,
             Map<ResultType, Annotations> annotationsErrors, ConfusionMatrix confusionMatrix, String targetPath) {
 
@@ -571,7 +379,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         results.append("Number of distinct tags:; ").append(evaluationResult.getAssignments().size()).append("\n");
         results.append("Total annotations in test set:; ").append(evaluationResult.getGoldStandardAnnotations().size())
-        .append("\n");
+                .append("\n");
         results.append("Confusion Matrix:\n");
 
         results.append("predicted\\real;");
@@ -632,29 +440,29 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         // precision, recall, and F1 for exact match
         results.append("tag averaged:")
                 .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4))
-        .append(", overall:");
+                .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationMode.EXACT_MATCH), 4)).append(";");
         results.append("tag averaged:")
                 .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4))
-        .append(", overall:");
+                .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getRecall(EvaluationMode.EXACT_MATCH), 4)).append(";");
         results.append("tag averaged:")
                 .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationMode.EXACT_MATCH), 4))
-        .append(", overall:");
+                .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getF1(EvaluationMode.EXACT_MATCH), 4)).append(";");
 
         // precision, recall, and F1 for MUC score
         results.append("tag averaged:")
                 .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationMode.MUC), 4))
-        .append(", overall:");
+                .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationMode.MUC), 4)).append(";");
         results.append("tag averaged:")
                 .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationMode.MUC), 4))
-        .append(", overall:");
+                .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getRecall(EvaluationMode.MUC), 4)).append(";");
         results.append("tag averaged:")
                 .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationMode.MUC), 4))
-        .append(", overall:");
+                .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getF1(EvaluationMode.MUC), 4)).append("\n");
 
         Map<ResultType, String> resultTypes = new TreeMap<ResultType, String>();
@@ -778,55 +586,52 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
             if (correctCharacter.charValue() == 10) {
                 alignedContent = alignedContent.substring(0, alignIndex) + "\n"
-                + alignedContent.substring(alignIndex, alignedContent.length());
+                        + alignedContent.substring(alignIndex, alignedContent.length());
                 // alignIndex--;
-            } else
-                if (Character.isWhitespace(alignedCharacter)) {
+            } else if (Character.isWhitespace(alignedCharacter)) {
 
-                    alignedContent = alignedContent.substring(0, alignIndex)
-                    + alignedContent.substring(alignIndex + 1, alignedContent.length());
-                    if (nextAlignedCharacter.charValue() == 60) {
-                        alignIndex--;
-                        jumpOne = true;
-                    } else {
-                        jumpOne = false;
-                    }
-
+                alignedContent = alignedContent.substring(0, alignIndex)
+                        + alignedContent.substring(alignIndex + 1, alignedContent.length());
+                if (nextAlignedCharacter.charValue() == 60) {
+                    alignIndex--;
+                    jumpOne = true;
                 } else {
-                    alignedContent = alignedContent.substring(0, alignIndex) + " "
-                    + alignedContent.substring(alignIndex, alignedContent.length());
+                    jumpOne = false;
                 }
+
+            } else {
+                alignedContent = alignedContent.substring(0, alignIndex) + " "
+                        + alignedContent.substring(alignIndex, alignedContent.length());
+            }
 
             FileHelper.writeToFile(alignFilePath, alignedContent);
         }
 
         FileHelper.writeToFile(alignFilePath, alignedContent);
     }
-    
+
     @Override
-    public void processDocument(TextDocument document)
-    		throws DocumentUnprocessableException {
-    	String content = document.getContent();
-    	// TODO merge annotation classes
-    	Annotations annotations = getAnnotations(content);
-    	
-    	FeatureVector featureVector = document.getFeatureVector();
-    	
-    	PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
-    	for(Annotation nerAnnotation:annotations) {
-    		PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getOffset(), nerAnnotation.getEndIndex());
-    		featureVector.add(procAnnotation);
-    		
-    	}
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+        String content = document.getContent();
+        // TODO merge annotation classes
+        Annotations annotations = getAnnotations(content);
+
+        FeatureVector featureVector = document.getFeatureVector();
+
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
+        for (Annotation nerAnnotation : annotations) {
+            PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getOffset(),
+                    nerAnnotation.getEndIndex());
+            featureVector.add(procAnnotation);
+
+        }
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    // public void setName(String name) {
+    // this.name = name;
+    // }
 
-    public String getName() {
-        return name;
-    }
+    public abstract String getName();
 
     public void setTaggingFormat(TaggingFormat taggingFormat) {
         this.taggingFormat = taggingFormat;

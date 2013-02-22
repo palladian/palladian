@@ -37,8 +37,8 @@ import org.apache.commons.cli.PosixParser;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -80,16 +80,12 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * 
  */
-public class OpenNlpNer extends NamedEntityRecognizer {
+public class OpenNlpNer extends TrainableNamedEntityRecognizer {
 
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
     private NameFinderME[] finders;
     private String[] tags;
-
-    public OpenNlpNer() {
-        setName("OpenNLP NER");
-    }
 
     public void demo() {
         String inputText = "Microsoft Inc. is a company which was founded by Bill Gates many years ago. The company's headquarters are close to Seattle in the USA.";
@@ -97,10 +93,8 @@ public class OpenNlpNer extends NamedEntityRecognizer {
     }
 
     public void demo(String inputText) {
-        System.out
-                .println(tag(
-                        inputText,
-                        "data/models/opennlp/openNLP_organization.bin.gz,data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz"));
+        loadModel("data/models/opennlp/openNLP_organization.bin.gz,data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz");
+        System.out.println(tag(inputText));
     }
 
     /**
@@ -269,13 +263,6 @@ public class OpenNlpNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-
-        loadModel(configModelFilePath);
-        return getAnnotations(inputText);
-    }
-
-    @Override
     public String getModelFileEnding() {
         return "bin";
     }
@@ -418,6 +405,11 @@ public class OpenNlpNer extends NamedEntityRecognizer {
         return conllEvaluation;
     }
 
+    @Override
+    public String getName() {
+        return "OpenNLP NER";
+    }
+
     /**
      * @param args
      * @throws Exception
@@ -476,7 +468,8 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
 
                     if (cmd.hasOption("outputFile")) {
                         FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);

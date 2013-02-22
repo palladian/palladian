@@ -78,37 +78,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
-        setName("Palladian Location Extractor");
         this.locationSource = locationSource;
-    }
-
-    @Override
-    public String getModelFileEnding() {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        LOGGER.warn("the configModelFilePath is ignored");
-        return getAnnotations(inputText);
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
     }
 
     @Override
@@ -631,6 +601,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // Collection<Location> locations = locationDetector.detectLocations(text);
         //
         // CollectionHelper.print(locations);
+    }
+
+    @Override
+    public String getName() {
+        return "PalladianLocationExtractor";
     }
 
 }
