@@ -68,26 +68,6 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public String getModelFileEnding() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        return getAnnotations(inputText);
-    }
-
-    @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations;
         try {
@@ -99,11 +79,6 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             throw new IllegalStateException("Encountered ParseException: " + e.getMessage(), e);
         }
         return annotations;
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        throw new UnsupportedOperationException();
     }
 
     private HttpResult performRequest(String inputText) throws HttpException {
@@ -196,6 +171,11 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     @Override
     protected String tagText(String inputText, Annotations annotations) {
         return super.tagText(inputText, annotations);
+    }
+
+    @Override
+    public String getName() {
+        return "Wikimeta NER";
     }
 
     public static void main(String[] args) {

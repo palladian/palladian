@@ -24,8 +24,8 @@ import ws.palladian.external.lbj.Tagger.NETester;
 import ws.palladian.external.lbj.Tagger.Parameters;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -63,7 +63,7 @@ import com.ibm.icu.util.StringTokenizer;
  * @author David Urbansky
  * 
  */
-public class IllinoisLbjNer extends NamedEntityRecognizer {
+public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";
@@ -75,7 +75,6 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
     private boolean conllEvaluation = false;
 
     public IllinoisLbjNer() {
-        setName("Lbj NER");
         buildConfigFile();
     }
 
@@ -275,12 +274,6 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
         FileHelper.writeToFile(taggedFilePath, content);
     }
 
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        loadModel(configModelFilePath);
-        return getAnnotations(inputText);
-    }
-
     public void testNER(String testingFilePath, boolean forceSentenceSplitsOnNewLines,
             String configFilePath) {
 
@@ -296,6 +289,11 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
 
     public boolean isConllEvaluation() {
         return conllEvaluation;
+    }
+
+    @Override
+    public String getName() {
+        return "Lbj NER";
     }
 
     @SuppressWarnings("static-access")
@@ -362,7 +360,8 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
 
                     if (cmd.hasOption("outputFile")) {
                         FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
@@ -447,4 +446,5 @@ public class IllinoisLbjNer extends NamedEntityRecognizer {
         // System.out.println(er.getExactMatchResultsReadable());
 
     }
+
 }

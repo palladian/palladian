@@ -40,10 +40,6 @@ public class YahooLocationExtractor extends LocationExtractor {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YahooLocationExtractor.class);
 
-    public YahooLocationExtractor() {
-        setName("Yahoo Location Extractor");
-    }
-
     private static final Map<String, LocationType> TYPE_MAPPING;
 
     // http://developer.yahoo.com/geo/geoplanet/guide/concepts.html#placetypes
@@ -71,35 +67,6 @@ public class YahooLocationExtractor extends LocationExtractor {
         temp.put("Zip", LocationType.ZIP);
         temp.put("Ocean", LocationType.LANDMARK);
         TYPE_MAPPING = Collections.unmodifiableMap(temp);
-    }
-
-    @Override
-    public String getModelFileEnding() {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        LOGGER.warn("the configModelFilePath is ignored");
-        return getAnnotations(inputText);
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
     }
 
     @Override
@@ -212,6 +179,11 @@ public class YahooLocationExtractor extends LocationExtractor {
             result.add(location);
         }
         return result;
+    }
+
+    @Override
+    public String getName() {
+        return "Yahoo! Placespotter";
     }
 
     public static void main(String[] args) throws Exception {
