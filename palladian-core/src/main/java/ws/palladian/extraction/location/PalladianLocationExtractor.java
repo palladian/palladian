@@ -148,6 +148,15 @@ public class PalladianLocationExtractor extends LocationExtractor {
             // List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue);
             List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue,
                     EnumSet.of(Language.ENGLISH));
+
+            // XXX experimental
+//            CollectionHelper.filter(retrievedLocations, new Filter<Location>() {
+//                @Override
+//                public boolean accept(Location item) {
+//                    return item.getPopulation() > 0;
+//                }
+//            });
+
             if (retrievedLocations.isEmpty()) {
                 continue;
             }
@@ -155,6 +164,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 if (EnumSet.of(LocationType.CONTINENT, LocationType.COUNTRY).contains(location.getType())) {
                     anchorLocations.add(location);
                 }
+                // XXX experimental : add places with high population count to
+                // anchor locations. we should determine how to set a good threshold here.
+                // improves recall/f1, slightly drops precision
+                if (location.getPopulation() > 500000) {
+                    System.out.println("High prob location " + location);
+                    anchorLocations.add(location);
+                }
+
             }
 
             boolean ambiguous = checkAmbiguity(retrievedLocations);
@@ -591,7 +608,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text34.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text10.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
