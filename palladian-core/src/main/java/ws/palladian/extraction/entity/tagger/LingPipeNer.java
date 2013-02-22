@@ -17,8 +17,8 @@ import org.apache.commons.cli.PosixParser;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.helper.Conll2002ChunkTagParser;
 import ws.palladian.helper.StopWatch;
@@ -49,16 +49,14 @@ import com.aliasi.util.AbstractExternalizable;
  * @author David Urbansky
  * 
  */
-public class LingPipeNer extends NamedEntityRecognizer {
+public class LingPipeNer extends TrainableNamedEntityRecognizer {
 
     private static final int NUM_CHUNKINGS_RESCORED = 64;
     private static final int MAX_N_GRAM = 8;
     private static final int NUM_CHARS = 256;
     private static final double LM_INTERPOLATION = MAX_N_GRAM;
 
-    public LingPipeNer() {
-        setName("LingPipe NER");
-    }
+    private Chunker chunker;
 
     @Override
     public String getModelFileEnding() {
@@ -138,7 +136,7 @@ public class LingPipeNer extends NamedEntityRecognizer {
             return false;
         }
 
-        setModel(chunker);
+        this.chunker = chunker;
         LOGGER.info("model " + modelFile.toString() + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
         return true;
@@ -147,8 +145,6 @@ public class LingPipeNer extends NamedEntityRecognizer {
     @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
-
-        Chunker chunker = (Chunker)getModel();
 
         String[] args = new String[1];
         args[0] = inputText;
@@ -173,10 +169,8 @@ public class LingPipeNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-
-        loadModel(configModelFilePath);
-        return getAnnotations(inputText);
+    public String getName() {
+        return "LingPipe NER";
     }
 
     // public void evaluateNER(String modelFilePath, String testFilePath)
@@ -280,7 +274,8 @@ public class LingPipeNer extends NamedEntityRecognizer {
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
 
                     if (cmd.hasOption("outputFile")) {
                         FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);

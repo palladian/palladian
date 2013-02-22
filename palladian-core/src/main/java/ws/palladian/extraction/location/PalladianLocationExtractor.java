@@ -23,7 +23,6 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
@@ -79,37 +78,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
-        setName("Palladian Location Extractor");
         this.locationSource = locationSource;
-    }
-
-    @Override
-    public String getModelFileEnding() {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        LOGGER.warn("the configModelFilePath is ignored");
-        return getAnnotations(inputText);
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
     }
 
     @Override
@@ -149,6 +118,16 @@ public class PalladianLocationExtractor extends LocationExtractor {
             // List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue);
             List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue,
                     EnumSet.of(Language.ENGLISH));
+
+            // XXX experimental
+            // greatly improves pr, but drops recall/f1
+//            CollectionHelper.filter(retrievedLocations, new Filter<Location>() {
+//                @Override
+//                public boolean accept(Location item) {
+//                    return item.getPopulation() > 0;
+//                }
+//            });
+
             if (retrievedLocations.isEmpty()) {
                 continue;
             }
@@ -156,6 +135,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 if (EnumSet.of(LocationType.CONTINENT, LocationType.COUNTRY).contains(location.getType())) {
                     anchorLocations.add(location);
                 }
+                // XXX experimental : add places with high population count to
+                // anchor locations. we should determine how to set a good threshold here.
+                // improves recall/f1, slightly drops precision
+                if (location.getPopulation() > 500000) {
+                    System.out.println("High prob location " + location);
+                    anchorLocations.add(location);
+                }
+
             }
 
             boolean ambiguous = checkAmbiguity(retrievedLocations);
@@ -295,23 +282,40 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     private void filterNonEntities(Annotations taggedEntities, String text) {
-        List<String> tokens = Tokenizer.tokenize(text);
-        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
-            @Override
-            public boolean accept(String item) {
-                return !StringHelper.startsUppercase(item);
-            }
-        }, new HashSet<String>());
+//        List<String> tokens = Tokenizer.tokenize(text);
+//        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
+//            @Override
+//            public boolean accept(String item) {
+//                return !StringHelper.startsUppercase(item);
+//            }
+//        }, new HashSet<String>());
+//        Iterator<Annotation> iterator = taggedEntities.iterator();
+//        while (iterator.hasNext()) {
+//            // FIXME only do this with entities which are at sentence start!
+//            Annotation current = iterator.next();
+//            if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
+//                iterator.remove();
+//                System.out.println("Remove lowercase entity " + current.getEntity());
+//            }
+//        }
+        
+        Map<String, String> result = EntityPreprocessor.correctAnnotations(text);
         Iterator<Annotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
-            // FIXME only do this with entities which are at sentence start!
             Annotation current = iterator.next();
-            if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
-                iterator.remove();
-                System.out.println("Remove lowercase entity " + current.getEntity());
+            String value = current.getEntity();
+            String mapping = result.get(value);
+            if (mapping == null) {
+                continue;
             }
+            if (mapping.isEmpty()) {
+                iterator.remove();
+            }
+            int indexCorrector = value.indexOf(mapping);
+            current.setOffset(current.getOffset() + indexCorrector);
+            current.setEntity(mapping);
+            current.setLength(mapping.length());
         }
-
     }
 
     /**
@@ -576,7 +580,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text20.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text10.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
@@ -598,6 +602,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // Collection<Location> locations = locationDetector.detectLocations(text);
         //
         // CollectionHelper.print(locations);
+    }
+
+    @Override
+    public String getName() {
+        return "PalladianLocationExtractor";
     }
 
 }

@@ -25,7 +25,6 @@ public class AlchemyLocationExtractor extends WebBasedLocationExtractor {
 
     public AlchemyLocationExtractor(String apiKey) {
         super(new AlchemyNer(apiKey), LOCATION_MAPPING);
-        setName("Alchemy Location Extractor");
     }
 
     public static void main(String[] args) {

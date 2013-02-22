@@ -408,4 +408,29 @@ public final class CollectionHelper {
         return result;
     }
 
+    /**
+     * <p>
+     * Convert contents of {@link Iterable}s to a different type. For example if, you have a {@link List} of Numbers and
+     * want to convert them to Strings, supply a {@link Function} which applies the <code>toString()</code> method to
+     * the Numbers (a predefined Function for this specific use case is available as {@link Function#TO_STRING_FUNCTION}
+     * ).
+     * </p>
+     * 
+     * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
+     * @param function The Function which converts the values in the iterable, not <code>null</code>.
+     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *            {@link HashSet}, not <code>null</code>.
+     * @return The supplied output Collection with the converted items.
+     */
+    public static <I, O, C extends Collection<O>> C convert(Iterable<I> iterable, Function<I, O> function, C output) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+        Validate.notNull(output, "output must not be null");
+
+        for (I item : iterable) {
+            output.add(function.compute(item));
+        }
+        return output;
+    }
+
 }

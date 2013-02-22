@@ -47,7 +47,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+    public Annotations getAnnotations(String inputText) {
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
         request.addParameter("text", inputText);
@@ -109,32 +109,8 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText, "");
-    }
-
-    @Override
-    public String getModelFileEnding() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return "";
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return false;
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        LOGGER.warn(getName() + " does not support training");
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        LOGGER.warn(getName() + " does not support loading models");
-        return false;
+    public String getName() {
+        return "WebKnoxNer";
     }
 
     public static void main(String[] args) {

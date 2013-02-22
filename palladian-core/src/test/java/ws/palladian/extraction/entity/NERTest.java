@@ -52,8 +52,7 @@ public class NERTest {
     public void testPalladianNer() throws FileNotFoundException {
 
         // language independent
-        PalladianNer tagger = new PalladianNer();
-        tagger.setLanguageMode(LanguageMode.LanguageIndependent);
+        PalladianNer tagger = new PalladianNer(LanguageMode.LanguageIndependent);
         String tudnerLiModel = ResourceHelper.getResourcePath("/ner/tudnerLI.model.gz");
         tagger.train(trainingFile, tudnerLiModel);
 
@@ -90,8 +89,7 @@ public class NERTest {
 //        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
 
         // English
-        tagger = new PalladianNer();
-        tagger.setLanguageMode(LanguageMode.English);
+        tagger = new PalladianNer(LanguageMode.English);
         tagger.setTagUrls(false);
         tagger.setTagDates(false);
         String tudnerEnModel = ResourceHelper.getResourcePath("/ner/tudnerEn.model.gz");

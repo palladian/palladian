@@ -18,6 +18,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +34,14 @@ import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -93,7 +94,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @author David Urbansky
  * 
  */
-public class PalladianNer extends NamedEntityRecognizer implements Serializable {
+public class PalladianNer extends TrainableNamedEntityRecognizer implements Serializable {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianNer.class);
@@ -132,7 +133,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
     private boolean switchTagAnnotationsUsingDictionary = true;
     private boolean unwrapEntities = true;
     private boolean unwrapEntitiesWithContext = true;
-    private boolean retraining = true;
+    private final boolean retraining = true;
 
     /** Whether the tagger should tag URLs. */
     private boolean tagUrls = true;
@@ -164,38 +165,20 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         Complete, Sparse
     }
 
+    private static final LanguageMode DEFAULT_LANGUAGE_MODE = LanguageMode.English;
+
+    private static final TrainingMode DEFAULT_TRAINING_MODE = TrainingMode.Complete;
+
     /** The language mode. */
-    private LanguageMode languageMode = LanguageMode.English;
+    private final LanguageMode languageMode;
 
     /** The training mode. */
-    private TrainingMode trainingMode = TrainingMode.Complete;
-
+    private final TrainingMode trainingMode;
 
     // /////////////////// Constructors /////////////////////
-    public PalladianNer(LanguageMode languageMode) {
-        this.languageMode = languageMode;
-        setup();
-    }
-
-    public PalladianNer(TrainingMode trainingMode) {
-        setTrainingMode(trainingMode);
-        setup();
-    }
-
     public PalladianNer(LanguageMode languageMode, TrainingMode trainingMode) {
-        this.languageMode = languageMode;
-        setTrainingMode(trainingMode);
-        setup();
-    }
-
-    public PalladianNer() {
-        setup();
-    }
-
-    // //////////////////////////////////////////////////////
-
-    private void setup() {
-        setName("Palladian NER (" + getLanguageMode() + ")");
+        Validate.notNull(languageMode, "languageMode must not be null");
+        Validate.notNull(trainingMode, "trainingMode must not be null");
 
         // hold entities in a dictionary that are learned from the training data
         entityDictionary = new DictionaryModel(null);
@@ -230,7 +213,24 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // with entity 2-8 and context 4-5, window size 40 was 120 in previous tests: 23MB model
         // precision MUC: 75.17%, recall MUC: 81.2%, F1 MUC: 78.07%
         // precision exact: 62.54%, recall exact: 67.56%, F1 exact: 64.95%
+
+        this.languageMode = languageMode;
+        this.trainingMode = trainingMode;
     }
+
+    public PalladianNer(LanguageMode languageMode) {
+        this(languageMode, DEFAULT_TRAINING_MODE);
+    }
+
+    public PalladianNer(TrainingMode trainingMode) {
+        this(DEFAULT_LANGUAGE_MODE, trainingMode);
+    }
+
+    public PalladianNer() {
+        this(DEFAULT_LANGUAGE_MODE, DEFAULT_TRAINING_MODE);
+    }
+
+    // //////////////////////////////////////////////////////
 
     public static String getModelFileEndingStatic() {
         return "model.gz";
@@ -288,8 +288,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // assign tagging options
         this.tagDates = n.tagDates;
         this.tagUrls = n.tagUrls;
-
-        setModel(this);
 
         LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
 
@@ -1238,12 +1236,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return ceMerge;
     }
 
-    @Override
-    public Annotations getAnnotations(String inputText, String modelPath) {
-        loadModel(modelPath);
-        return getAnnotations(inputText);
-    }
-
     /**
      * <p>Check whether the given text contains a date fragment. For example "June John Hiatt" would return true.</p>
      * 
@@ -1454,24 +1446,24 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return languageMode;
     }
 
-    public void setLanguageMode(LanguageMode languageMode) {
-        this.languageMode = languageMode;
-    }
-
-    public void setTrainingMode(TrainingMode trainingMode) {
-        this.trainingMode = trainingMode;
-        if (trainingMode == TrainingMode.Sparse) {
-            removeDates = true;
-            removeDateEntries = true;
-            removeIncorrectlyTaggedInTraining = false;
-            removeSentenceStartErrorsCaseDictionary = true;
-            switchTagAnnotationsUsingPatterns = true;
-            switchTagAnnotationsUsingDictionary = true;
-            unwrapEntities = true;
-            unwrapEntitiesWithContext = true;
-            retraining = false;
-        }
-    }
+    // public void setLanguageMode(LanguageMode languageMode) {
+    // this.languageMode = languageMode;
+    // }
+    //
+    // public void setTrainingMode(TrainingMode trainingMode) {
+    // this.trainingMode = trainingMode;
+    // if (trainingMode == TrainingMode.Sparse) {
+    // removeDates = true;
+    // removeDateEntries = true;
+    // removeIncorrectlyTaggedInTraining = false;
+    // removeSentenceStartErrorsCaseDictionary = true;
+    // switchTagAnnotationsUsingPatterns = true;
+    // switchTagAnnotationsUsingDictionary = true;
+    // unwrapEntities = true;
+    // unwrapEntitiesWithContext = true;
+    // retraining = false;
+    // }
+    // }
 
     public TrainingMode getTrainingMode() {
         return trainingMode;
@@ -1601,6 +1593,11 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         return unwrappedAnnotations;
     }
 
+    @Override
+    public String getName() {
+        return "Palladian NER (" + languageMode + "," + trainingMode + ")";
+    }
+
     /**
      * @param args
      */
@@ -1658,7 +1655,8 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
 
                     if (cmd.hasOption("outputFile")) {
                         FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
@@ -1687,6 +1685,10 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
 
         // ################################# HOW TO USE #################################
 
+        // set mode (English or language independent)
+        // set type of training set (complete supervised or sparse semi-supervised)
+        tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
+
         /**
          * ained = data/models/palladian/ner/palladianNerTudCs4Annotations
          * models.palladian.nerWebTrained = data/models/palladian/ner/
@@ -1710,12 +1712,6 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // set whether to tag URLs
         tagger.setTagUrls(false);
         // tagger.setTagUrls(true);
-
-        // set mode (English or language independent)
-        tagger.setLanguageMode(LanguageMode.English);
-
-        // set type of training set (complete supervised or sparse semi-supervised)
-        tagger.setTrainingMode(TrainingMode.Complete);
 
         // create a dictionary from a dictionary txt file
         // tagger.makeDictionary("mergedDictComplete.csv");
@@ -1859,9 +1855,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
             j = 10;
             trainingFilePath = datasetFolder + "newDataset" + j + ".txt";
 
-            tagger = new PalladianNer();
-            tagger.setLanguageMode(LanguageMode.English);
-            tagger.setTrainingMode(TrainingMode.Sparse);
+            tagger = new PalladianNer(LanguageMode.English, TrainingMode.Sparse);
 
             // Annotations annotations = FileFormatParser.getSeedAnnotations(seedFilePath, i);
             // tagger.train(trainingFilePath, annotations, "data/temp/tudner2.model");
@@ -1895,8 +1889,7 @@ public class PalladianNer extends NamedEntityRecognizer implements Serializable 
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
         // tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/tudner.model");
 
-        tagger.setLanguageMode(LanguageMode.English);
-        tagger.setTrainingMode(TrainingMode.Complete);
+        tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
 
         Annotations annotations = FileFormatParser.getSeedAnnotations(
                 "data/datasets/ner/tud/manuallyPickedSeeds/seedListC.txt", 50);

@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
@@ -123,70 +121,23 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
      */
     public OpenCalaisNer(String apiKey) {
         Validate.notEmpty(apiKey, "API key must be given.");
-        setName("OpenCalais NER");
         this.apiKey = apiKey;
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     @Override
-    public String getModelFileEnding() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return "";
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return false;
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        LOGGER.warn(getName() + " does not support training");
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        LOGGER.warn(getName() + " does not support loading models");
-        return false;
-    }
-
-    @Override
     public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText, "");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
 
         Annotations annotations = new Annotations();
 
-        // we need to build chunks of texts because we can not send very long texts at once to open calais
-        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
-        if (inputText.length() > MAXIMUM_TEXT_LENGTH) {
-            List<String> sentences = Tokenizer.getSentences(inputText);
-            StringBuilder currentTextChunk = new StringBuilder();
-            for (String sentence : sentences) {
-
-                if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
-                    textChunks.add(currentTextChunk);
-                    currentTextChunk = new StringBuilder();
-                }
-
-                currentTextChunk.append(sentence).append(" ");
-            }
-            textChunks.add(currentTextChunk);
-        } else {
-            textChunks.add(new StringBuilder(inputText));
-        }
+        List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
         // since the offset is per chunk we need to add the offset for each new chunk to get the real position of the
         // entity in the original text
         int cumulatedOffset = 0;
-        for (StringBuilder textChunk : textChunks) {
+        for (String textChunk : textChunks) {
 
             try {
 
@@ -251,6 +202,11 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                         "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
 
         return httpRetriever.httpPost("http://api.opencalais.com/tag/rs/enrich", headers, content);
+    }
+
+    @Override
+    public String getName() {
+        return "OpenCalais NER";
     }
 
     @SuppressWarnings("static-access")

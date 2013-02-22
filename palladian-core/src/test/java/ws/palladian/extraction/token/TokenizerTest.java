@@ -3,6 +3,7 @@ package ws.palladian.extraction.token;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -289,6 +290,15 @@ public class TokenizerTest {
         inputText = "Das ist z.B. sooo groß.";
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
         assertEquals(1, sentences.size());
+
+        inputText = "It added: \"Its government was consequently responsible for those acts performed by foreign officials. It had failed to submit any arguments explaining or justifying the degree of force used or the necessity of the invasive and potentially debasing measures. Those measures had been used with premeditation, the aim being to cause Mr Masri severe pain or suffering in order to obtain information. In the court's view, such treatment had amounted to torture, in violation of Article 3 [of the European human rights convention].\"\n\n In Afghanistan, Masri was incarcerated for more than four months in a small, dirty, dark concrete cell in a brick factory near the capital, Kabul, where he was repeatedly interrogated and was beaten, kicked and threatened. His repeated requests to meet with a representative of the German government were ignored, said the court.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(6, sentences.size());
+
+        inputText = "This isn’t the first time Texas has debated the perceived presence of too much Islam in its school books. In 2010, the Texas Board of Education banned any books that “paint Islam in too favorable of a light.” The reasoning was head-scratching: “the resolution adopted Friday cites ‘politically-correct whitewashes of Islamic culture and stigmas on Christian civilization’ in current textbooks and warns that ‘more such discriminatory treatment of religion may occur as Middle Easterners buy into the US public school textbook oligopoly.’” A Texas based civil liberties advocate said at the time that “the members who voted for this resolution were solely interested in playing on fear and bigotry in order to pit Christians against Muslims.”";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(4, sentences.size());
+        assertTrue(sentences.get(3).startsWith("A Texas based"));
     }
 
     @Test
