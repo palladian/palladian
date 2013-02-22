@@ -37,6 +37,13 @@ public class HtmlHelperTest {
     }
 
     @Test
+    public void testHtmlToReadableText() {
+        String s = "";
+        s = "Event: Dropkick Murphys<br>Venue: Aragon Ballroom<br>Start: 2/22/2013 7:00:00 PM<br>Category: CONCERTS ALTERNATIVE";
+        assertEquals(4, HtmlHelper.htmlToReadableText(s).split("\n").length);
+    }
+
+    @Test
     public void testStripTags() throws FileNotFoundException {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         htmlContent = HtmlHelper.joinTagsAndRemoveNewLines(htmlContent);
