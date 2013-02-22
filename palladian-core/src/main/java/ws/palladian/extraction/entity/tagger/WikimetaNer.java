@@ -21,6 +21,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -72,6 +73,10 @@ public final class WikimetaNer extends NamedEntityRecognizer {
         Annotations annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
+            String resultString = HttpHelper.getStringContent(httpResult);
+            if (resultString.contains("<error msg=")) {
+                throw new IllegalStateException("Error from the web service: " + resultString);
+            }
             annotations = parseXml(new InputSource(new ByteArrayInputStream(httpResult.getContent())), inputText);
         } catch (HttpException e) {
             throw new IllegalStateException("Encountered HttpException: " + e.getMessage(), e);
@@ -179,7 +184,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     public static void main(String[] args) {
-        WikimetaNer ner = new WikimetaNer("353407108989");
+        WikimetaNer ner = new WikimetaNer("useYourOwn!");
         String text = FileHelper.readFileToString("src/test/resources/NewsSampleText.txt");
         System.out.println(ner.tag(text));
     }
