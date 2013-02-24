@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.evaluation;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -47,10 +46,10 @@ public class EvaluationResult {
     }
 
     /** The annotations from the gold standard. */
-    private Annotations goldStandardAnnotations;
+    private final Annotations goldStandardAnnotations;
 
     /** All error annotations by error class. */
-    private Map<ResultType, Annotations> errorAnnotations;
+    private final Map<ResultType, Annotations> errorAnnotations;
 
     /**
      * <p>
@@ -104,7 +103,7 @@ public class EvaluationResult {
      * tag averaged recall = (17+50) / 2 = 33.5%
      * </p>
      */
-    private Map<String, CountMap<ResultType>> assignments = new HashMap<String, CountMap<ResultType>>();
+    private final Map<String, CountMap<ResultType>> assignments;
 
     public enum EvaluationMode {
         /** The exact match evaluation mode. */
@@ -378,10 +377,6 @@ public class EvaluationResult {
         return assignments;
     }
 
-    public void setAssignments(Map<String, CountMap<ResultType>> assignments) {
-        this.assignments = assignments;
-    }
-
     @Override
     public String toString() {
         // StringBuilder builder = new StringBuilder();
@@ -424,16 +419,8 @@ public class EvaluationResult {
         return builder.toString();
     }
 
-    public void setGoldStandardAnnotations(Annotations goldStandardAnnotations) {
-        this.goldStandardAnnotations = goldStandardAnnotations;
-    }
-
     public Annotations getGoldStandardAnnotations() {
         return goldStandardAnnotations;
-    }
-
-    public void setErrorAnnotations(Map<ResultType, Annotations> errorAnnotations) {
-        this.errorAnnotations = errorAnnotations;
     }
 
     public Map<ResultType, Annotations> getErrorAnnotations() {
