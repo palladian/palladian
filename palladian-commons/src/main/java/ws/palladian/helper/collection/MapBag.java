@@ -78,6 +78,7 @@ public class MapBag {
             bagId = map.values().size();
         }
 
+        map.put(bagKey, bagId);
         map.put(bagValue, bagId);
     }
 

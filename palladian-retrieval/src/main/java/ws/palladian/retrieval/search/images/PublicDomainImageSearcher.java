@@ -50,6 +50,7 @@ public class PublicDomainImageSearcher extends WebSearcher<WebImageResult> {
                 imageUrl = imageUrl.replace("cache/", "public-domain-images-pictures-free-stock-photos/");
                 imageUrl = imageUrl.replace("_85_thumb", "");
                 imageUrl = "http://www.public-domain-image.com" + imageUrl;
+                thumbImageUrl = "http://www.public-domain-image.com" + thumbImageUrl;
 
                 WebImageResult webImageResult = new WebImageResult(imageUrl, imageUrl, summary, summary, -1, -1, null,
                         null);
