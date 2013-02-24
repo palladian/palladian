@@ -664,6 +664,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return distance;
     }
 
+    // FIXME -> not cool, NER learns that stuff and many more
     private static final List<String> PREFIXES = Arrays.asList("Mrs.", "Mrs", "Mr.", "Mr", "Ms.", "Ms", "President",
             "Minister", "General", "Sir", "Lady", "Democrat", "Republican", "Senator", "Chief", "Whip", "Reverend",
             "Detective", "Det", "Superintendent", "Supt", "Chancellor", "Cardinal", "Premier", "Representative",
