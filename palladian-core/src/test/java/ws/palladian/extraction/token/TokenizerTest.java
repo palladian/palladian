@@ -277,8 +277,7 @@ public class TokenizerTest {
 
         inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
         sentences = Tokenizer.getSentences(inputText);
-        // XXX uncomment as soon as regex is fixed.
-        // assertEquals(2, sentences.size());
+        assertEquals(2, sentences.size());
 
         inputText = "IT IS three years since Senator Barack Obama pronounced that America “is no longer a Christian nation—at least, not just.” The words sounded harsher than he intended: bla.";
         sentences = Tokenizer.getSentences(inputText);
@@ -301,10 +300,10 @@ public class TokenizerTest {
         assertEquals(4, sentences.size());
         assertTrue(sentences.get(3).startsWith("A Texas based"));
 
-        // FIXME
-        // inputText = "RSS (engl. ursprünglich Rich Site Summary, später Really Simple Syndication) ist eine seit dem Anfang des Jahres 2000 kontinuierlich weiterentwickelte Familie von Formaten für die einfache und strukturierte Veröffentlichung von Änderungen auf Websites (z. B. News-Seiten, Blogs, Audio-/Video-Logs etc.) in einem standardisierten Format (XML).";
-        // sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
-        // assertEquals(1, sentences.size());
+        inputText = "RSS (engl. ursprünglich Rich Site Summary, später Really Simple Syndication) ist eine seit dem Anfang des Jahres 2000 kontinuierlich weiterentwickelte Familie von Formaten für die einfache und strukturierte Veröffentlichung von Änderungen auf Websites (z. B. News-Seiten, Blogs, Audio-/Video-Logs etc.) in einem standardisierten Format (XML).";
+        sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
+        CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
     }
 
     @Test
