@@ -32,7 +32,7 @@ class EntityPreprocessor {
 
     public static void main(String[] args) {
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text34.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text35.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         correctAnnotations(cleanText);
@@ -41,8 +41,8 @@ class EntityPreprocessor {
     public static Map<String, String> correctAnnotations(String text) {
         Annotations annotations = StringTagger.getTaggedEntities(text);
 
-        CollectionHelper.print(annotations);
-        System.out.println("------");
+        // CollectionHelper.print(annotations);
+        // System.out.println("------");
 
         List<String> paragraphs = tokenizeParagraphs(text);
         // CollectionHelper.print(paragraphs);
@@ -70,14 +70,19 @@ class EntityPreprocessor {
                 } else {
                     inSentenceAnnotations.add(annotation);
                 }
+
+                // XXX experimental
+                if (StringHelper.containsWord("of", annotation.getEntity())) {
+                    System.out.println("**** 'of' anntation: " + annotation);
+                }
             }
         }
 
-        System.out.println("Sentence begin:");
-        CollectionHelper.print(sentenceBeginAnnotations);
+        // System.out.println("Sentence begin:");
+        // CollectionHelper.print(sentenceBeginAnnotations);
 
-        System.out.println("In sentence:");
-        CollectionHelper.print(inSentenceAnnotations);
+        // System.out.println("In sentence:");
+        // CollectionHelper.print(inSentenceAnnotations);
         
         // List<String> sentenceBeginStrings = CollectionHelper.convert(sentenceBeginAnnotations, ANNOTATION_TO_STRING, new ArrayList<String>());
         List<String> inSentenceStrings = CollectionHelper.convert(inSentenceAnnotations, ANNOTATION_TO_STRING, new ArrayList<String>());
