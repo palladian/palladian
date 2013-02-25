@@ -508,41 +508,6 @@ public class ConfusionMatrix {
 
     @Override
     public String toString() {
-
-        // StringBuilder builder = new StringBuilder();
-        //
-        // boolean headWritten = false;
-        //
-        // // iterate through all rows (y)
-        // for (String realCategory : getCategories()) {
-        //
-        // // write table head
-        // if (!headWritten) {
-        // builder.append("Real\\Predicted\t");
-        //
-        // for (String key : getCategories()) {
-        // builder.append(key).append('\t');
-        // }
-        // builder.append('\n');
-        // // builder.append("<Precision>\n");
-        //
-        // headWritten = true;
-        // }
-        //
-        // builder.append(realCategory).append('\t');
-        //
-        // // iterate through all columns (x)
-        // for (String predictedCategory : getCategories()) {
-        // builder.append(getConfusions(realCategory, predictedCategory)).append('\t');
-        // }
-        // // builder.append(MathHelper.round(getPrecision(realCategory), 4)).append("\t");
-        // builder.append('\n');
-        // }
-        //
-        // // builder.append("<Recall>\t");
-        // // for (String predictedCategory : getCategories()) {
-        // // builder.append(MathHelper.round(getRecall(predictedCategory), 4)).append("\t");
-        // // }
         StringBuilder out = new StringBuilder("Confusion Matrix:\n");
         List<String> possibleClasses = new ArrayList<String>(getCategories());
         StringBuilder headerBuilder = new StringBuilder();
@@ -568,7 +533,7 @@ public class ConfusionMatrix {
                 int spacesInFrontOfValue = Math.max((int)Math.ceil((double)remainingLength / 2), 0);
                 out.append(CharBuffer.allocate(spacesInFrontOfValue).toString().replace('\0', ' '));
                 out.append(value);
-                int spacesAfterValue = Math.max(predictedClazz.length() - valueSize - spacesInFrontOfValue, 0);
+                int spacesAfterValue = Math.max(predictedClazz.length() - valueSize - spacesInFrontOfValue, 1);
                 out.append(CharBuffer.allocate(spacesAfterValue).toString().replace('\0', ' '));
             }
             out.append("\n");
