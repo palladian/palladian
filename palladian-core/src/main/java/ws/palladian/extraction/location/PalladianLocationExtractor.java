@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,8 +28,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -53,6 +54,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
 
+    private static final Map<String, Double> CASE_DICTIONARY;
+
     static {
         skipWords = new HashSet<String>();
         skipWords.add("Monday");
@@ -75,6 +78,28 @@ public class PalladianLocationExtractor extends LocationExtractor {
         skipWords.add("November");
         skipWords.add("December");
         skipWords.add("Parliament");
+
+        CASE_DICTIONARY = CollectionHelper.newHashMap();
+
+        List<String> array;
+        try {
+            array = FileHelper.readFileToArray(ResourceHelper.getResourceFile("/caseDictionary.csv"));
+
+            for (String string : array) {
+
+                String[] parts = string.split("\t");
+                String ratio = parts[3];
+                if (ratio.equalsIgnoreCase("infinity")) {
+                    CASE_DICTIONARY.put(parts[0], 99999.0);
+                } else {
+                    CASE_DICTIONARY.put(parts[0], Double.valueOf(ratio));
+                }
+
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
@@ -94,6 +119,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         filterPersonEntities(taggedEntities);
         filterNonEntities(taggedEntities, text);
+        filterNonEntitiesWithCaseDictionary(taggedEntities, text);
 
         // CollectionHelper.print(taggedEntities);
 
@@ -380,6 +406,20 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     }
 
+    private void filterNonEntitiesWithCaseDictionary(Annotations taggedEntities, String text) {
+        Iterator<Annotation> iterator = taggedEntities.iterator();
+        while (iterator.hasNext()) {
+            Annotation current = iterator.next();
+            String value = current.getEntity();
+
+            Double ratio = CASE_DICTIONARY.get(value.toLowerCase());
+            if (ratio != null && ratio > 1.0) {
+                iterator.remove();
+                System.out.println("remove " + value + " because of lc/uc ratio of " + ratio);
+            }
+        }
+    }
+
     private void filterNonEntities(Annotations taggedEntities, String text) {
 //        List<String> tokens = Tokenizer.tokenize(text);
 //        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
@@ -486,7 +526,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
         Collections.sort(retrievedLocations, new Comparator<Location>() {
             @Override
             public int compare(Location l1, Location l2) {
-                return l2.getPopulation().compareTo(l1.getPopulation());
+                // if (l2.getType() == LocationType.UNIT) {
+                // return -1;
+                // }
+                Long l1Population = l1.getPopulation();
+                if (l1.getType() == LocationType.CITY) {
+                    l1Population *= 2;
+                }
+                return l2.getPopulation().compareTo(l1Population);
             }
         });
         // Collections.sort(retrievedLocations, new Comparator<Location>() {
@@ -706,38 +753,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
     }
 
-    public static void main(String[] args) throws PageContentExtractorException {
-
-        // String mashapePublicKey = "u3ewnlzvxvbg3gochzqcrulimgngsb";
-        // String mashapePrivateKey = "dxkyimj8rjoyti1mqx2lqragbbg71k";
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-
-        String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text50.txt");
-        String cleanText = HtmlHelper.stripHtmlTags(rawText);
-
-        // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
-        // CollectionHelper.print(taggedEntities);
-        // filterNonLocations(taggedEntities);
-        // CollectionHelper.print(taggedEntities);
-        // System.exit(0);
-
-        // List<Location> locations = extractor.detectLocations(cleanText);
-        List<Annotation> locations = extractor.getAnnotations(cleanText);
-        CollectionHelper.print(locations);
-
-        // String text = "";
-        //
-        // PalladianContentExtractor pce = new PalladianContentExtractor();
-        // text = pce.setDocument("http://www.bbc.co.uk/news/world-africa-17887914").getResultText();
-        //
-        // PalladianLocationExtractor locationDetector = new PalladianLocationExtractor();
-        // Collection<Location> locations = locationDetector.detectLocations(text);
-        //
-        // CollectionHelper.print(locations);
-    }
-
     @Override
     public String getName() {
         return "PalladianLocationExtractor";
@@ -759,6 +774,40 @@ public class PalladianLocationExtractor extends LocationExtractor {
             return item.getType() == type;
         }
 
+    }
+
+    public static void main(String[] args) throws PageContentExtractorException {
+
+        // String mashapePublicKey = "u3ewnlzvxvbg3gochzqcrulimgngsb";
+        // String mashapePrivateKey = "dxkyimj8rjoyti1mqx2lqragbbg71k";
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
+
+        // String rawText = FileHelper
+        // .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text50.txt");
+        // String cleanText = HtmlHelper.stripHtmlTags(rawText);
+
+        String cleanText = "Light";
+
+        // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
+        // CollectionHelper.print(taggedEntities);
+        // filterNonLocations(taggedEntities);
+        // CollectionHelper.print(taggedEntities);
+        // System.exit(0);
+
+        // List<Location> locations = extractor.detectLocations(cleanText);
+        List<Annotation> locations = extractor.getAnnotations(cleanText);
+        CollectionHelper.print(locations);
+
+        // String text = "";
+        //
+        // PalladianContentExtractor pce = new PalladianContentExtractor();
+        // text = pce.setDocument("http://www.bbc.co.uk/news/world-africa-17887914").getResultText();
+        //
+        // PalladianLocationExtractor locationDetector = new PalladianLocationExtractor();
+        // Collection<Location> locations = locationDetector.detectLocations(text);
+        //
+        // CollectionHelper.print(locations);
     }
 
 }

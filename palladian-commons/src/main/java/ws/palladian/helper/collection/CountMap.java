@@ -322,6 +322,10 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return map.entrySet();
     }
 
+    public Set<T> keySet() {
+        return map.keySet();
+    }
+
     /*
      * (non-Javadoc)
      * @see java.lang.Object#toString()

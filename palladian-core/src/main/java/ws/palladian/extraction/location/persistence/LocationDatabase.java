@@ -233,8 +233,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-//        List<Location> locations = database.retrieveLocations("colombo");
-//
+        List<Location> locations = database.retrieveLocations("Social");
+
+        CollectionHelper.print(locations);
 //        for (Location location : locations) {
 //            List<Location> hierarchy = database.getHierarchy(location.getId());
 //            System.out.println(location);
@@ -244,6 +245,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 //            }
 //        }
         
+        System.exit(0);
+
 //        StopWatch stopWatch = new StopWatch();
 //        for (int i = 0; i < 10; i++) {
 //            database.resetForPerformanceCheck();

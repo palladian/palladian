@@ -13,9 +13,12 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNer.TrainingMode;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.persistence.DatabaseManagerFactory;
 
 public class PalladianNerExperiments {
 
@@ -86,7 +89,19 @@ public class PalladianNerExperiments {
         // System.exit(0);
         // LocationExtractor palladianTagger = new PalladianLocationExtractor(WX_API_KEY, GEONAMES_USERNAME);
         // LocationExtractor calaisTagger = new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5");
-        // PalladianNerExperiments exp = new PalladianNerExperiments();
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        // /String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        // String DATASET_LOCATION = "/Users/pk/Desktop/Test";
+        // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
+        String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDatasetSmall";
+        // Map<String, Double> results = evaluator.evaluateAll(
+        // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
+        // Map<String, Double> results = evaluator.evaluateAll(new AlchemyLocationExtractor(
+        // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
+        // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
+        PalladianLocationExtractor ex = new PalladianLocationExtractor(database);
+        PalladianNerExperiments exp = new PalladianNerExperiments();
+        exp.tag(HtmlHelper.stripHtmlTags(FileHelper.readFileToString(DATASET_LOCATION + "\\text14.txt")), "XXX", ex);
         //
         // File[] files = FileHelper.getFiles("C:\\Users\\Sky\\Desktop\\LocationExtractionDataset", "text");
         // for (File file : files) {
