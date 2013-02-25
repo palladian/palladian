@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 public class StringTaggerTest {
 
     @Test
@@ -142,12 +144,12 @@ public class StringTaggerTest {
         // CollectionHelper.print(annotations);
 
         // starting small and camel case
-        text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
+        text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD which was found at Universal Orlando® Resort";
 
         annotations = StringTagger.getTaggedEntities(text);
-        // CollectionHelper.print(annotations);
+        CollectionHelper.print(annotations);
 
-        assertEquals(9, annotations.size());
+        assertEquals(10, annotations.size());
         assertEquals("ex-England", annotations.get(0).getEntity());
         assertEquals("mid-SCORER", annotations.get(1).getEntity());
         assertEquals("al-Rama", annotations.get(2).getEntity());
@@ -157,6 +159,7 @@ public class StringTaggerTest {
         assertEquals("VENICE", annotations.get(6).getEntity());
         assertEquals("Frank", annotations.get(7).getEntity());
         assertEquals("HERALD", annotations.get(8).getEntity());
+        assertEquals("Universal Orlando® Resort", annotations.get(9).getEntity());
 
     }
 

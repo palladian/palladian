@@ -94,7 +94,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                      *            "type":"PER",
                      *            "normalizedEntity":"Ronnie Scott",
                      *            "offset":3344
-                     *         }, 
+                     *         },
                      *         […]
                      * </pre>
                      */
@@ -116,7 +116,12 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     public static void main(String[] args) {
         // WebKnoxNer webKnoxNer = new WebKnoxNer(ConfigHolder.getInstance().getConfig());
         WebKnoxNer webKnoxNer = new WebKnoxNer("v30170b8523o23il4bz3v04");
-        System.out.println(webKnoxNer.tag("Bill Gates founded Microsoft in April 1975"));
+        String text = "";
+        text = "Bill Gates founded Microsoft in April 1975";
+        text = "On November 27, the third committee of the UN General Assembly, the Social, Humanitarian and Cultural Affairs Committee, passed a resolution condemning the human rights situation in North Korea.";
+        text = "Shining a Light on North Korea’s Human Rights Crisis";
+
+        System.out.println(webKnoxNer.tag(text));
 
         // System.out
         // .println(webKnoxNer

@@ -84,6 +84,7 @@ public class LocationExtractionEvaluator {
             if (!f12.equals(Double.NaN)) {
                 f1Exact += f12;
             }
+
         }
 
         averageResult.put("Precision-MUC", precisionMuc / files.length);
@@ -145,9 +146,10 @@ public class LocationExtractionEvaluator {
      */
     public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        // /String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
         // String DATASET_LOCATION = "/Users/pk/Desktop/Test";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
+        String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
