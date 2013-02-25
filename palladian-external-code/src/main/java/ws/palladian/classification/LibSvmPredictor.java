@@ -346,7 +346,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
 
                 @Override
                 public int compare(svm_node o1, svm_node o2) {
-                    return Integer.compare(o1.index, o2.index);
+                    return Integer.valueOf(o1.index).compareTo(o2.index);
                 }
             });
 
