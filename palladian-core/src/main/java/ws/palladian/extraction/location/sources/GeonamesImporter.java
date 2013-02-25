@@ -6,13 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -26,6 +23,8 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.EqualsFilter;
+import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
@@ -46,8 +45,16 @@ public final class GeonamesImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
 
-    private static final int HIERARCHY_PRIORITY = 0;
+    /** Name of the file in the ZIP archive containing all countries. */
+    private static final String COUNTRIES_FILE_NAME = "allCountries.txt";
+    /** Name of the file in the ZIP archive containing alternate namings. */
+    private static final String ALTERNATE_FILE_NAME = "alternateNames.txt";
+    /** Name of the file in the ZIP archive containing the hierarchy. */
+    private static final String HIERARCHY_FILE_NAME = "hierarchy.txt";
 
+    /** The priority to assign for hierarchy relations as extracted from the hierarchies file. */
+    private static final int HIERARCHY_PRIORITY = 0;
+    /** The priority to assign for hierarchy relations extracted from the implicit administrative relations. */
     private static final int IMPLICIT_ADM_PRIORITY = 10;
 
     /** Mapping between the administrative/country codes and our internal numeric level. */
@@ -100,70 +107,63 @@ public final class GeonamesImporter {
 
     /**
      * <p>
-     * Import a Geonames dump from a ZIP file.
+     * Import a Geonames dump from given ZIP files.
      * </p>
      * 
      * @param locationFile The path to the Geonames dump ZIP file, not <code>null</code>.
-     * @param hierarchyFile The path to the hierarchy file, not <code>null</code>.
-     * @param alternateNamesFile The path to the alternate names file, not <code>null</code>.
+     * @param hierarchyFile The path to the hierarchy ZIP file, not <code>null</code>.
+     * @param alternateNamesFile The path to the alternate names ZIP file, not <code>null</code>.
      * @throws IOException
      */
     public void importLocationsZip(File locationFile, File hierarchyFile, File alternateNamesFile) throws IOException {
-        Validate.notNull(locationFile, "locationFile must not be null");
         checkIsFileOfType(locationFile, "zip");
+        checkIsFileOfType(hierarchyFile, "zip");
+        checkIsFileOfType(alternateNamesFile, "zip");
 
         // read the hierarchy first
-        importHierarchy(hierarchyFile);
+        EqualsFilter<String> hierarchyFilter = EqualsFilter.create(HIERARCHY_FILE_NAME);
+        final int numLinesHierarchy = ZipUtil.doWithZipEntry(hierarchyFile, hierarchyFilter, ZipUtil.LINE_COUNTER);
+        ZipUtil.doWithZipEntry(hierarchyFile, hierarchyFilter, new Function<InputStream, Void>() {
+            @Override
+            public Void compute(InputStream inputStream) {
+                importHierarchy(inputStream, numLinesHierarchy);
+                return null;
+            }
+        });
 
         // read the alternate names file
-        importAlternativeNames(alternateNamesFile);
-
-        // read directly from the ZIP file, get the entry in the file with the location data
-        ZipFile zipFile = null;
-        InputStream inputStream1, inputStream2, inputStream3;
-        inputStream1 = inputStream2 = inputStream3 = null;
-        try {
-            zipFile = new ZipFile(locationFile);
-            Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
-            ZipEntry locationZipEntry = null;
-            while (zipEntries.hasMoreElements()) {
-                locationZipEntry = zipEntries.nextElement();
-                String zipEntryName = locationZipEntry.getName().toLowerCase();
-                if (zipEntryName.endsWith(".txt") && !zipEntryName.contains("readme")) {
-                    break;
-                }
+        EqualsFilter<String> alternateFilter = EqualsFilter.create(ALTERNATE_FILE_NAME);
+        final int numLinesAltNames = ZipUtil.doWithZipEntry(alternateNamesFile, alternateFilter, ZipUtil.LINE_COUNTER);
+        ZipUtil.doWithZipEntry(alternateNamesFile, alternateFilter, new Function<InputStream, Void>() {
+            @Override
+            public Void compute(InputStream inputStream) {
+                importAlternativeNames(inputStream, numLinesAltNames);
+                return null;
             }
-            if (locationZipEntry == null) {
-                throw new IllegalStateException(
-                        "No suitable ZIP entry for import found; make sure the correct file was supplied.");
+        });
+
+        // read the actual location data
+        LOGGER.info("Checking size of countries file");
+        EqualsFilter<String> countryFilter = EqualsFilter.create(COUNTRIES_FILE_NAME);
+        final int numLinesCountries = ZipUtil.doWithZipEntry(locationFile, countryFilter, ZipUtil.LINE_COUNTER);
+
+        LOGGER.info("Starting import, {} items in total", numLinesCountries);
+        ZipUtil.doWithZipEntry(locationFile, countryFilter, new Function<InputStream, Void>() {
+            @Override
+            public Void compute(InputStream inputStream) {
+                readAdministrativeItems(inputStream, numLinesCountries);
+                return null;
             }
-
-            LOGGER.info("Checking size of {} in {}", locationZipEntry.getName(), locationFile);
-            inputStream1 = zipFile.getInputStream(locationZipEntry);
-            int totalLines = FileHelper.getNumberOfLines(inputStream1);
-            FileHelper.close(inputStream1);
-            LOGGER.info("Starting import, {} items in total", totalLines);
-
-            inputStream2 = zipFile.getInputStream(locationZipEntry);
-            readAdministrativeItems(inputStream2, totalLines);
-            FileHelper.close(inputStream2);
-
-            inputStream3 = zipFile.getInputStream(locationZipEntry);
-            importLocations(inputStream3, totalLines);
-            FileHelper.close(inputStream3);
-
-            saveHierarchy();
-
-            LOGGER.info("Finished importing {} items", totalLines);
-        } finally {
-            if (zipFile != null) {
-                try {
-                    zipFile.close();
-                } catch (IOException e) {
-                }
+        });
+        ZipUtil.doWithZipEntry(locationFile, countryFilter, new Function<InputStream, Void>() {
+            @Override
+            public Void compute(InputStream inputStream) {
+                importLocations(inputStream, numLinesCountries);
+                return null;
             }
-            FileHelper.close(inputStream1, inputStream2, inputStream3);
-        }
+        });
+        saveHierarchy();
+        LOGGER.info("Finished importing {} items", numLinesCountries);
     }
 
     /**
@@ -177,19 +177,34 @@ public final class GeonamesImporter {
      * @throws IOException
      */
     public void importLocations(File locationFile, File hierarchyFile, File alternateNamesFile) throws IOException {
-        Validate.notNull(locationFile, "locationFile must not be null");
         checkIsFileOfType(locationFile, "txt");
+        checkIsFileOfType(hierarchyFile, "txt");
+        checkIsFileOfType(alternateNamesFile, "txt");
 
-        importHierarchy(hierarchyFile);
-        importAlternativeNames(alternateNamesFile);
+        InputStream inputStream = null;
+        try {
+            int numLines = FileHelper.getNumberOfLines(hierarchyFile);
+            inputStream = new FileInputStream(hierarchyFile);
+            importHierarchy(inputStream, numLines);
+        } finally {
+            FileHelper.close(inputStream);
+        }
 
-        LOGGER.info("Checking size of {}", locationFile);
-        int totalLines = FileHelper.getNumberOfLines(locationFile);
-        LOGGER.info("Starting import, {} items in total", totalLines);
+        try {
+            int numLines = FileHelper.getNumberOfLines(hierarchyFile);
+            inputStream = new FileInputStream(alternateNamesFile);
+            importAlternativeNames(inputStream, numLines);
+        } finally {
+            FileHelper.close(inputStream);
+        }
 
         InputStream inputStream1, inputStream2;
         inputStream1 = inputStream2 = null;
         try {
+            LOGGER.info("Checking size of {}", locationFile);
+            int totalLines = FileHelper.getNumberOfLines(locationFile);
+            LOGGER.info("Starting import, {} items in total", totalLines);
+
             inputStream1 = new FileInputStream(locationFile);
             readAdministrativeItems(inputStream1, totalLines);
 
@@ -213,7 +228,8 @@ public final class GeonamesImporter {
         }
     }
 
-    private void checkIsFileOfType(File filePath, String fileType) {
+    private static void checkIsFileOfType(File filePath, String fileType) {
+        Validate.notNull(filePath, "filePath must not be null");
         if (!filePath.isFile()) {
             throw new IllegalArgumentException(filePath.getAbsolutePath() + " does not exist or is no file");
         }
@@ -393,16 +409,13 @@ public final class GeonamesImporter {
      * Import a Geonames hierarchy file.
      * </p>
      * 
-     * @param filePath The path to the hierarchy.txt file, not <code>null</code>.
+     * @param inputStream The {@link InputStream} providing the data.
+     * @param numLines The number of lines to process, for showing the progress display.
      */
-    private void importHierarchy(File filePath) {
-        Validate.notNull(filePath, "filePath must not be null");
-        checkIsFileOfType(filePath, "txt");
-
-        final int numLines = FileHelper.getNumberOfLines(filePath);
+    private void importHierarchy(InputStream inputStream, final int numLines) {
+        LOGGER.info("Importing hierarchy, {} lines to read", numLines);
         final StopWatch stopWatch = new StopWatch();
-        LOGGER.info("Reading hierarchy from {}, {} lines to read", filePath.getAbsolutePath(), numLines);
-        FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
+        FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] split = line.split("\\s");
@@ -433,16 +446,13 @@ public final class GeonamesImporter {
      * Import a Geonames alternate names file.
      * </p>
      * 
-     * @param filePath The path to the alternative names file, not <code>null</code>.
+     * @param inputStream The {@link InputStream} providing the data.
+     * @param numLines The number of lines to process, for showing the progress display.
      */
-    private void importAlternativeNames(File filePath) {
-        Validate.notNull(filePath, "filePath must not be null");
-        checkIsFileOfType(filePath, "txt");
-
-        final int numLines = FileHelper.getNumberOfLines(filePath);
+    private void importAlternativeNames(InputStream inputStream, final int numLines) {
+        LOGGER.info("Importing alternative names, {} lines to read", numLines);
         final StopWatch stopWatch = new StopWatch();
-        LOGGER.info("Reading alternative names from {}, {} lines to read", filePath.getAbsolutePath(), numLines);
-        FileHelper.performActionOnEveryLine(filePath.getAbsolutePath(), new LineAction() {
+        FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
@@ -457,7 +467,7 @@ public final class GeonamesImporter {
                 String isoLanguage = split[2];
                 String alternateName = split[3];
                 Language language = null;
-                if (!isoLanguage.isEmpty()) {
+                if (!isoLanguage.isEmpty() && !isoLanguage.equals("abbr")) {
                     language = Language.getByIso6391(isoLanguage);
                     if (language == null) {
                         // a language was specified, but not mapped in our enum. Thank you, we're not interested.
@@ -715,8 +725,8 @@ public final class GeonamesImporter {
 
         GeonamesImporter importer = new GeonamesImporter(locationStore);
         File locationFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip");
-        File hierarchyFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.txt");
-        File alternateNames = new File("/Users/pk/Desktop/LocationLab/geonames.org/alternateNames/alternateNames.txt");
+        File hierarchyFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.zip");
+        File alternateNames = new File("/Users/pk/Desktop/LocationLab/geonames.org/alternateNames.zip");
         importer.importLocationsZip(locationFile, hierarchyFile, alternateNames);
     }
 
