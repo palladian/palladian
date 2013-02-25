@@ -30,6 +30,9 @@ import ws.palladian.iirmodel.Author;
 import ws.palladian.iirmodel.Item;
 import ws.palladian.iirmodel.ItemRelation;
 import ws.palladian.iirmodel.ItemStream;
+import ws.palladian.iirmodel.Label;
+import ws.palladian.iirmodel.LabelType;
+import ws.palladian.iirmodel.Labeler;
 import ws.palladian.iirmodel.RelationType;
 import ws.palladian.iirmodel.StreamGroup;
 import ws.palladian.iirmodel.StreamSource;
@@ -64,34 +67,18 @@ public class PersistenceLayerTest {
     public void tearDown() throws Exception {
         persistenceLayer.shutdown();
         persistenceLayer = null;
-        
+
         EntityManager entityManager = emFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
         entityManager.createNativeQuery("SHUTDOWN").executeUpdate();
         transaction.commit();
         entityManager.close();
-        
+
         if (emFactory != null && emFactory.isOpen()) {
             emFactory.close();
         }
         emFactory = null;
-
-//        DriverManager.registerDriver(new org.hsqldb.jdbcDriver());
-//        Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:testdb", "sa", "");
-//        Statement statement = null;
-//        try {
-//            if (conn != null) {
-//                statement = conn.createStatement();
-//                statement.execute("SHUTDOWN");
-//                conn.commit();
-//            }
-//        } finally {
-//            if (statement != null) {
-//                statement.close();
-//            }
-//            conn.close();
-//        }
     }
 
     /**
@@ -414,5 +401,38 @@ public class PersistenceLayerTest {
         itemStream2.addItem(item2);
 
         persistenceLayer.saveStreamSource(forum);
+    }
+
+    @Test
+    public void testLoadLabelerForLabel() throws Exception {
+        LabelType type1 = new LabelType("TEST1", "");
+        LabelType type2 = new LabelType("TEST2", "");
+        Author author = new Author("a", "");
+        Item item1 = new Item("", author, "", "", new Date(), new Date(), "");
+        Item item2 = new Item("", author, "", "", new Date(), new Date(), "");
+        Label label1 = new Label(item1, type1, "");
+        Label label2 = new Label(item2, type2, "");
+        Label label3 = new Label(item1, type1, "");
+        Label label4 = new Label(item2, type2, "");
+
+        Labeler labeler1 = new Labeler("testLabeler1");
+        Labeler labeler2 = new Labeler("testLabeler2");
+
+        labeler1.addLabel(label1);
+        labeler1.addLabel(label2);
+        labeler2.addLabel(label3);
+        labeler2.addLabel(label4);
+
+        persistenceLayer.saveLabelType(type1);
+        persistenceLayer.saveLabelType(type2);
+        persistenceLayer.saveItem(item1);
+        persistenceLayer.saveItem(item2);
+        persistenceLayer.saveLabeler(labeler1);
+        persistenceLayer.saveLabeler(labeler2);
+
+        assertThat(labeler1, is(persistenceLayer.loadLabelerForLabel(label1)));
+        assertThat(labeler1, is(persistenceLayer.loadLabelerForLabel(label2)));
+        assertThat(labeler2, is(persistenceLayer.loadLabelerForLabel(label3)));
+        assertThat(labeler2, is(persistenceLayer.loadLabelerForLabel(label4)));
     }
 }

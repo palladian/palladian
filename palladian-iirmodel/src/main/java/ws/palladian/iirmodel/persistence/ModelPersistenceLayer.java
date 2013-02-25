@@ -1189,9 +1189,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
 
     /**
      * <p>
-     * Saves a non existing {@link Labeler} to the database.
+     * Saves a non existing {@link Labeler} to the database or updates an existing one..
      * </p>
-     * arg0
      * 
      * @param labeler The {@code Labeler} to save.
      */
@@ -1371,14 +1370,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         }
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param query
-     * @param parameterFiller
-     */
     public List<Object[]> runNativeQuery(String query, ParameterFiller parameterFiller) {
         Query queryObj = getManager().createNativeQuery(query);
         parameterFiller.fillParameter(queryObj);
@@ -1391,13 +1382,6 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         }
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param query
-     */
     public void runNativeUpdate(final String query) {
         Query queryObj = getManager().createNativeQuery(query);
         Boolean openedTransaction = openTransaction();
@@ -1421,6 +1405,18 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         Boolean openedTransaction = openTransaction();
         try {
             return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    public Labeler loadLabelerForLabel(final Label label) {
+        TypedQuery<Labeler> query = getManager().createQuery(
+                "SELECT l FROM Labeler l JOIN l.labels la WHERE la=:label", Labeler.class);
+        query.setParameter("label", label);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getSingleResult();
         } finally {
             commitTransaction(openedTransaction);
         }
