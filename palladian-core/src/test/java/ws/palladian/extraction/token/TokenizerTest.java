@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -302,7 +301,7 @@ public class TokenizerTest {
 
         inputText = "RSS (engl. ursprünglich Rich Site Summary, später Really Simple Syndication) ist eine seit dem Anfang des Jahres 2000 kontinuierlich weiterentwickelte Familie von Formaten für die einfache und strukturierte Veröffentlichung von Änderungen auf Websites (z. B. News-Seiten, Blogs, Audio-/Video-Logs etc.) in einem standardisierten Format (XML).";
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
-        CollectionHelper.print(sentences);
+        // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
     }
 
