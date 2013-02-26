@@ -28,6 +28,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -54,7 +55,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
 
-    private static final Map<String, Double> CASE_DICTIONARY;
+    public static final Map<String, Double> CASE_DICTIONARY;
 
     static {
         skipWords = new HashSet<String>();
@@ -438,7 +439,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 //            }
 //        }
         
-        Map<String, String> result = EntityPreprocessor.correctAnnotations(text);
+        Map<String, String> result = EntityPreprocessor.correctAnnotations(text, CASE_DICTIONARY);
         Iterator<Annotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
             Annotation current = iterator.next();
@@ -783,11 +784,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
-        // String rawText = FileHelper
-        // .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text50.txt");
-        // String cleanText = HtmlHelper.stripHtmlTags(rawText);
+        String rawText = FileHelper
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text49.txt");
+        String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
-        String cleanText = "Light";
+        // String cleanText = "Light";
 
         // Annotations taggedEntities = StringTagger.getTaggedEntities(cleanText);
         // CollectionHelper.print(taggedEntities);
@@ -795,7 +796,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // CollectionHelper.print(taggedEntities);
         // System.exit(0);
 
-        // List<Location> locations = extractor.detectLocations(cleanText);
         List<Annotation> locations = extractor.getAnnotations(cleanText);
         CollectionHelper.print(locations);
 

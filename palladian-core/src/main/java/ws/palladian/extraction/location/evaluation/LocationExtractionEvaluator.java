@@ -133,39 +133,25 @@ public class LocationExtractionEvaluator {
         return "FAIL";
     }
 
-    // public EvaluationResult evaluate(LocationExtractor extractor, String goldStandardTaggedTextPath) {
-    //
-    // EvaluationResult result = locationExtractor.evaluate(goldStandardTaggedTextPath, TaggingFormat.XML);
-    // System.out.println(result.getF1(EvaluationResult.EXACT_MATCH));
-    //
-    // return averageResult;
-    // }
-
     /**
      * @param args
      */
     public static void main(String[] args) {
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        // /String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
-        // String DATASET_LOCATION = "/Users/pk/Desktop/Test";
+        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        // String DATASET_LOCATION = "/Users/pk/Desktop/tmp";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
-        String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
+        // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(new AlchemyLocationExtractor(
         // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
+
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(database), DATASET_LOCATION);
-        // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
-        // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
-        // Map<String, Double> results = evaluator.evaluateAll(
-        // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"),
-        // "C:\\Users\\Sky\\Desktop\\LocationExtractionDataset");
 
         CollectionHelper.print(results);
-
-        // EvaluationResult result = extractor.evaluate("text5.txt", TaggingFormat.XML);
     }
 
 }
