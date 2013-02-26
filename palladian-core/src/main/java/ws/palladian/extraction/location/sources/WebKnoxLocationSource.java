@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -66,9 +67,11 @@ public class WebKnoxLocationSource implements LocationSource {
                             + locationCandidate.getString("id") + "?apiKey=" + apiKey);
                     JsonObjectWrapper json = new JsonObjectWrapper(jsonObject);
 
-                    Location location = new Location();
-                    location.setPrimaryName(locationCandidate.getString("name"));
-                    location.setType(LOCATION_MAPPING.get(concept));
+                    String primaryName = locationCandidate.getString("name");
+                    LocationType locationType = LOCATION_MAPPING.get(concept);
+                    Double latitude = null;
+                    Double longitude = null;
+                    Long population = null;
 
                     JSONArray facts = json.getJSONArray("facts");
                     for (int j = 0; j < facts.length(); j++) {
@@ -77,15 +80,14 @@ public class WebKnoxLocationSource implements LocationSource {
                         String value = fact.getString("value");
 
                         if (key.equalsIgnoreCase("latitude")) {
-                            location.setLatitude(Double.valueOf(value));
+                            latitude = Double.valueOf(value);
                         } else if (key.equalsIgnoreCase("longitude")) {
-                            location.setLongitude(Double.valueOf(value));
+                            longitude = Double.valueOf(value);
                         } else if (key.equalsIgnoreCase("population")) {
-                            location.setPopulation(Long.valueOf(value));
+                            population = Long.valueOf(value);
                         }
                     }
-
-                    locations.add(location);
+                    locations.add(new Location(-1, primaryName, null, locationType, latitude, longitude, population));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -109,4 +111,10 @@ public class WebKnoxLocationSource implements LocationSource {
     public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Collection<LocationRelation> getParents(int locationId) {
+        throw new UnsupportedOperationException();
+    }
+
 }

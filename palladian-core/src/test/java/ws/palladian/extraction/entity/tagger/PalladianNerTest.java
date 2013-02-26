@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.ResourceHelper;
 
 // XXX added temporarily for testing purposes, but could be removed again after refactoring.
@@ -18,8 +17,7 @@ public class PalladianNerTest {
 
     @Test
     public void testDictionariesLanguageIndependent() throws FileNotFoundException {
-        PalladianNer tagger = new PalladianNer();
-        tagger.setLanguageMode(LanguageMode.LanguageIndependent);
+        PalladianNer tagger = new PalladianNer(LanguageMode.LanguageIndependent);
         String trainingFile = ResourceHelper.getResourcePath("/ner/training.txt");
         String tudnerLiModel = ResourceHelper.getResourcePath("/ner/tudnerLI.model.gz");
         boolean trainingSuccessful = tagger.train(trainingFile, tudnerLiModel);
@@ -33,7 +31,7 @@ public class PalladianNerTest {
         assertEquals(0, caseDictionary.getNumTerms());
         assertEquals(0, caseDictionary.getNumCategories());
 
-        CountMap<String> leftContextMap = tagger.getLeftContextMap();
+        // CountMap<String> leftContextMap = tagger.getLeftContextMap();
         // assertEquals(8274, leftContextMap.size());
 
         List<String> removeAnnotations = tagger.getRemoveAnnotations();
@@ -51,8 +49,7 @@ public class PalladianNerTest {
 
     @Test
     public void testDictionariesEnglish() throws FileNotFoundException {
-        PalladianNer tagger = new PalladianNer();
-        tagger.setLanguageMode(LanguageMode.English);
+        PalladianNer tagger = new PalladianNer(LanguageMode.English);
         String trainingFile = ResourceHelper.getResourcePath("/ner/training.txt");
         String tudnerLiModel = ResourceHelper.getResourcePath("/ner/tudnerLI.model.gz");
         boolean trainingSuccessful = tagger.train(trainingFile, tudnerLiModel);
@@ -66,7 +63,7 @@ public class PalladianNerTest {
         assertEquals(5818, caseDictionary.getNumTerms());
         assertEquals(3, caseDictionary.getNumCategories());
 
-        CountMap<String> leftContextMap = tagger.getLeftContextMap();
+        // CountMap<String> leftContextMap = tagger.getLeftContextMap();
         // assertEquals(8274, leftContextMap.size());
 
         // Set<String> removeAnnotations = tagger.getRemoveAnnotations();

@@ -21,6 +21,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -68,30 +69,14 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public String getModelFileEnding() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        return getAnnotations(inputText);
-    }
-
-    @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
+            String resultString = HttpHelper.getStringContent(httpResult);
+            if (resultString.contains("<error msg=")) {
+                throw new IllegalStateException("Error from the web service: " + resultString);
+            }
             annotations = parseXml(new InputSource(new ByteArrayInputStream(httpResult.getContent())), inputText);
         } catch (HttpException e) {
             throw new IllegalStateException("Encountered HttpException: " + e.getMessage(), e);
@@ -99,11 +84,6 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             throw new IllegalStateException("Encountered ParseException: " + e.getMessage(), e);
         }
         return annotations;
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        throw new UnsupportedOperationException();
     }
 
     private HttpResult performRequest(String inputText) throws HttpException {
@@ -198,8 +178,13 @@ public final class WikimetaNer extends NamedEntityRecognizer {
         return super.tagText(inputText, annotations);
     }
 
+    @Override
+    public String getName() {
+        return "Wikimeta NER";
+    }
+
     public static void main(String[] args) {
-        WikimetaNer ner = new WikimetaNer("353407108989");
+        WikimetaNer ner = new WikimetaNer("useYourOwn!");
         String text = FileHelper.readFileToString("src/test/resources/NewsSampleText.txt");
         System.out.println(ner.tag(text));
     }

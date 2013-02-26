@@ -138,13 +138,18 @@ public class StringTaggerTest {
         assertEquals("Magna International Inc.", annotations.get(4).getEntity());
         // CollectionHelper.print(annotations);
 
+        text = "General Motors Co.'s Opel unit said Monday that it plans to end car production at one plant in Germany in 2016, but a slimmed-down factory may continue to make components.";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals("General Motors Co.", annotations.get(0).getEntity());
+        // CollectionHelper.print(annotations);
+
         // starting small and camel case
-        text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD";
+        text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD which was found at Universal Orlando® Resort";
 
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
 
-        assertEquals(9, annotations.size());
+        assertEquals(10, annotations.size());
         assertEquals("ex-England", annotations.get(0).getEntity());
         assertEquals("mid-SCORER", annotations.get(1).getEntity());
         assertEquals("al-Rama", annotations.get(2).getEntity());
@@ -154,6 +159,7 @@ public class StringTaggerTest {
         assertEquals("VENICE", annotations.get(6).getEntity());
         assertEquals("Frank", annotations.get(7).getEntity());
         assertEquals("HERALD", annotations.get(8).getEntity());
+        assertEquals("Universal Orlando® Resort", annotations.get(9).getEntity());
 
     }
 

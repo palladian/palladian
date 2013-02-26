@@ -12,15 +12,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -45,10 +39,6 @@ public class YahooLocationExtractor extends LocationExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YahooLocationExtractor.class);
-
-    public YahooLocationExtractor() {
-        setName("Yahoo Location Extractor");
-    }
 
     private static final Map<String, LocationType> TYPE_MAPPING;
 
@@ -80,36 +70,7 @@ public class YahooLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public String getModelFileEnding() {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-        LOGGER.warn("the configModelFilePath is ignored");
-        return getAnnotations(inputText);
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        throw new UnsupportedOperationException(
-                "this location detector does not support training and does not work with model files");
-    }
-
-    @Override
-    public List<Location> detectLocations(String text) {
+    public Annotations getAnnotations(String inputText) {
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://query.yahooapis.com/v1/public/yql");
         request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -118,7 +79,7 @@ public class YahooLocationExtractor extends LocationExtractor {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM geo.placemaker ");
         queryBuilder.append("WHERE documentContent=\"");
-        queryBuilder.append(text.replace("\"", "%22"));
+        queryBuilder.append(inputText.replace("\"", "%22"));
         queryBuilder.append("\"");
         queryBuilder.append(" AND documentType=\"text/plain\"");
 
@@ -131,22 +92,21 @@ public class YahooLocationExtractor extends LocationExtractor {
             postResult = retriever.execute(request);
         } catch (HttpException e) {
             LOGGER.error("HTTP error when accessing the service", e);
-            return Collections.emptyList();
+            return new Annotations();
         }
         String response = HttpHelper.getStringContent(postResult);
 
-        List<Location> result;
+        Annotations result;
         try {
-            result = parseJson(text, response);
+            result = parseJson(inputText, response);
         } catch (JSONException e) {
             LOGGER.error("Error parsing the JSON: '" + response + "'.", e);
-            return Collections.emptyList();
+            return new Annotations();
         }
         return result;
     }
 
-
-    static List<Location> parseJson(String text, String response) throws JSONException {
+    static Annotations parseJson(String text, String response) throws JSONException {
 
         JSONObject jsonResult = new JSONObject(response);
         JSONObject jsonObject = jsonResult.getJSONObject("query").getJSONObject("results").getJSONObject("matches");
@@ -184,8 +144,8 @@ public class YahooLocationExtractor extends LocationExtractor {
             }
         }
 
-        List<Location> result = CollectionHelper.newArrayList();
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory("location", text);
+        Annotations result = new Annotations();
+        // PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory("location", text);
         for (JSONObject referenceJson : tempReferences.values()) {
 
             int woeId = referenceJson.getInt("woeIds"); // XXX there might acutally be multiple IDs
@@ -195,46 +155,41 @@ public class YahooLocationExtractor extends LocationExtractor {
             int startOffset = referenceJson.getInt("start");
             int endOffset = referenceJson.getInt("end");
 
-            String name = placeJson.getString("name");
+            // String name = placeJson.getString("name");
             String type = placeJson.getString("type");
-            JSONObject jsonCentroid = placeJson.getJSONObject("centroid");
-            double longitude = jsonCentroid.getDouble("longitude");
-            double latitude = jsonCentroid.getDouble("latitude");
+            // JSONObject jsonCentroid = placeJson.getJSONObject("centroid");
+            // double longitude = jsonCentroid.getDouble("longitude");
+            // double latitude = jsonCentroid.getDouble("latitude");
 
-            PositionAnnotation annotation = annotationFactory.create(startOffset, endOffset);
-            FeatureVector featureVector = annotation.getFeatureVector();
-            featureVector.add(new NominalFeature("woeId", String.valueOf(woeId)));
-            featureVector.add(new NominalFeature("name", name));
-            featureVector.add(new NominalFeature("type", type));
-            featureVector.add(new NumericFeature("longitude", longitude));
-            featureVector.add(new NumericFeature("latitude", latitude));
-            Location location = new Location(annotation);
-            location.setLatitude(latitude);
-            location.setLongitude(longitude);
-            location.setPrimaryName(name);
+            // PositionAnnotation annotation = annotationFactory.create(startOffset, endOffset);
+            // FeatureVector featureVector = annotation.getFeatureVector();
+            // featureVector.add(new NominalFeature("woeId", String.valueOf(woeId)));
+            // featureVector.add(new NominalFeature("name", name));
+            // featureVector.add(new NominalFeature("type", type));
+            // featureVector.add(new NumericFeature("longitude", longitude));
+            // featureVector.add(new NumericFeature("latitude", latitude));
+
+            String actualName = text.substring(startOffset, endOffset);
             LocationType mappedType = TYPE_MAPPING.get(type);
             if (mappedType == null) {
                 LOGGER.error("Unmapped type {}", type);
+                continue;
             }
-            location.setType(mappedType);
-
-            location.setId(woeId);
+            Annotation location = new Annotation(startOffset, actualName, mappedType.toString());
             result.add(location);
         }
         return result;
     }
 
+    @Override
+    public String getName() {
+        return "Yahoo! Placespotter";
+    }
+
     public static void main(String[] args) throws Exception {
         LocationExtractor extractor = new YahooLocationExtractor();
-        // String text = "They followed him to deepest Africa and found him there, in Timbuktu";
-        // String text =
-        // "The Prime Minister of Mali Cheick Modibo Diarra resigns himself and his government on television after his arrest hours earlier by leaders of the recent Malian coup d'état. (AFP via The Telegraph) (BBC) (Reuters)";
-        // String text =
-        // FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text27.txt");
-        String text = FileHelper.readFileToString("/Users/pk/Desktop/test.txt");
-        text = HtmlHelper.stripHtmlTags(text);
-        // String text = FileHelper.readFileToString("src/test/resources/testText2.txt");
-        List<Location> list = extractor.detectLocations(text);
+        String text = "They followed him to deepest Africa and found him there, in Timbuktu";
+        Annotations list = extractor.getAnnotations(text);
         CollectionHelper.print(list);
     }
 

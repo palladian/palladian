@@ -126,7 +126,9 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
                     String userId = photoJson.getString("owner");
                     String imageUrl = buildImageUrl(farmId, serverId, id, secret);
                     String pageUrl = buildPageUrl(id, userId);
-                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null, null));
+                    WebImageResult webImageResult = new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null, null);
+                    webImageResult.setThumbImageUrl(imageUrl);
+                    result.add(webImageResult);
                 }
             } catch (JSONException e) {
                 throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()

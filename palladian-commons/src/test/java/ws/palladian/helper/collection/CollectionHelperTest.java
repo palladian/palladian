@@ -87,4 +87,19 @@ public class CollectionHelperTest {
         assertEquals(4, items.size());
     }
 
+    @Test
+    public void testGroupBy() {
+        List<String> items = Arrays.asList("one", "two", "three", "four", "five", "six");
+        MultiMap<Integer, String> groupedResult = CollectionHelper.groupBy(items, new Function<String, Integer>() {
+            @Override
+            public Integer compute(String input) {
+                return input.length();
+            }
+        });
+        assertEquals(3, groupedResult.size());
+        assertTrue(groupedResult.get(3).containsAll(Arrays.asList("one", "two", "six")));
+        assertTrue(groupedResult.get(4).containsAll(Arrays.asList("four", "five")));
+        assertTrue(groupedResult.get(5).containsAll(Arrays.asList("three")));
+    }
+
 }

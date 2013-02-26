@@ -67,6 +67,8 @@ public final class HtmlHelper {
     /** "Junk" elements which do not contain relevant content. */
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
+    private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("\\<br\\s?\\/?\\>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HTML_TO_READABLE_TEXT2 = Pattern.compile("\\<\\/p\\>", Pattern.CASE_INSENSITIVE);
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
     private static final Pattern STRIP_ALL_TAGS = Pattern
             .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
@@ -445,6 +447,13 @@ public final class HtmlHelper {
 
         result = result.trim();
         return result;
+    }
+
+    public static String htmlToReadableText(String htmlString) {
+        htmlString = HTML_TO_READABLE_TEXT.matcher(htmlString).replaceAll("\n");
+        htmlString = HTML_TO_READABLE_TEXT2.matcher(htmlString).replaceAll("\n");
+        htmlString = stripHtmlTags(htmlString);
+        return htmlString;
     }
 
     /**
