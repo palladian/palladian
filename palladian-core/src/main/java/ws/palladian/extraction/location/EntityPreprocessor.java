@@ -32,16 +32,143 @@ class EntityPreprocessor {
 
     public static void main(String[] args) {
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text35.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text2.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
-        correctAnnotations(cleanText);
+        correctAnnotations(cleanText, PalladianLocationExtractor.CASE_DICTIONARY);
     }
 
-    public static Map<String, String> correctAnnotations(String text) {
+//    public static Map<String, String> correctAnnotations(String text) {
+//        Annotations annotations = StringTagger.getTaggedEntities(text);
+//
+//        CollectionHelper.print(annotations);
+//        // System.out.println("------");
+//
+//        List<String> paragraphs = tokenizeParagraphs(text);
+//        // CollectionHelper.print(paragraphs);
+//        List<String> sentences = CollectionHelper.newArrayList();
+//        for (String paragraph : paragraphs) {
+//            List<String> currentSentences = Tokenizer.getSentences(paragraph);
+//            sentences.addAll(currentSentences);
+//        }
+//
+//        List<String> tokens = Tokenizer.tokenize(text);
+//        // List<String> sentences = Tokenizer.getSentences(cleanText);
+//
+//        List<Annotation> sentenceBeginAnnotations = CollectionHelper.newArrayList();
+//        List<Annotation> inSentenceAnnotations = CollectionHelper.newArrayList();
+//
+//        for (String sentence : sentences) {
+//
+//            // System.out.println(sentence);
+//            // System.out.println("/////");
+//
+//            Annotations sentenceAnnotations = StringTagger.getTaggedEntities(sentence);
+//            for (Annotation annotation : sentenceAnnotations) {
+//                if (annotation.getOffset() == 0) {
+//                    sentenceBeginAnnotations.add(annotation);
+//                } else {
+//                    inSentenceAnnotations.add(annotation);
+//                }
+//
+//                // XXX experimental
+//                if (StringHelper.containsWord("of", annotation.getEntity())) {
+//                    System.out.println("**** 'of' anntation: " + annotation);
+//                }
+//            }
+//        }
+//
+//        // System.out.println("Sentence begin:");
+//        // CollectionHelper.print(sentenceBeginAnnotations);
+//
+//        // System.out.println("In sentence:");
+//        // CollectionHelper.print(inSentenceAnnotations);
+//        
+//        // List<String> sentenceBeginStrings = CollectionHelper.convert(sentenceBeginAnnotations, ANNOTATION_TO_STRING, new ArrayList<String>());
+//        List<String> inSentenceStrings = CollectionHelper.convert(inSentenceAnnotations, ANNOTATION_TO_STRING, new ArrayList<String>());
+//
+//        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
+//            @Override
+//            public boolean accept(String item) {
+//                return !StringHelper.startsUppercase(item);
+//            }
+//        }, new HashSet<String>());
+//
+//        // now go through all sentence begin annotations
+//        Set<String> toRemove = CollectionHelper.newHashSet();
+//        Map<String, String> toModify = CollectionHelper.newHashMap();
+//        for (Annotation annotation : sentenceBeginAnnotations) {
+//            // System.out.println("processing " + annotation);
+//
+//            if (inSentenceStrings.contains(annotation.getEntity())) {
+//                System.out.println("Everything fine with " + annotation.getEntity());
+//                continue;
+//            }
+//            String value = annotation.getEntity();
+//            String[] tokenValues = value.split("\\s");
+//            if (lowercaseTokens.contains(tokenValues[0].toLowerCase())) {
+//                if (tokenValues.length == 1) {
+//                    // System.out.println("**** remove " + annotation);
+//                    toRemove.add(annotation.getEntity());
+//                } else {
+//                    // System.out.println("**** modify " + annotation);
+//                    String newValue = value.substring(tokenValues[0].length() + 1);
+//                    for (int i = 1; i < tokenValues.length; i++) {
+//                        String temp = tokenValues[i];
+//                        // System.out.println("> " + temp);
+//                        if (lowercaseTokens.contains(temp.toLowerCase())) {
+//                            newValue = newValue.substring(Math.min(newValue.length(), temp.length() + 1));
+//                        } else {
+//                            break;
+//                        }
+//                    }
+//                    toModify.put(annotation.getEntity(), newValue);
+//                    continue;
+//                }
+//            }
+//            for (String inSentenceAnnotation : inSentenceStrings) {
+//                if (value.endsWith(inSentenceAnnotation)) {
+//                    // System.err.println("Special logic here! (for " + value + ", with " + inSentenceAnnotation + ")");
+//                    toModify.put(value, inSentenceAnnotation);
+//                    continue;
+//                }
+//            }
+//        }
+//
+//        // System.out.println("To remove:");
+//        // CollectionHelper.print(toRemove);
+//
+//        // System.out.println("To modify:");
+//        // CollectionHelper.print(toModify);
+//
+//        Map<String, String> ret = CollectionHelper.newHashMap();
+//        ret.putAll(toModify);
+//        for (String toRemoveEntity : toRemove) {
+//            ret.put(toRemoveEntity, "");
+//        }
+//
+//        CollectionHelper.print(ret);
+//
+//        return ret;
+//    }
+
+    /**
+     * <p>
+     * Tokenize into paragraphs. Paragraphs are assumed to be separated by at least two newline characters.
+     * </p>
+     * 
+     * @param text The text to tokenize.
+     * @return A {@link List} with paragraphs.
+     */
+    private static List<String> tokenizeParagraphs(String text) {
+        Validate.notNull(text, "text must not be null");
+        return Arrays.asList(text.split("\n{2,}"));
+    }
+
+    public static Map<String, String> correctAnnotations(String text, Map<String, Double> caseDictionary) {
         Annotations annotations = StringTagger.getTaggedEntities(text);
 
-        // CollectionHelper.print(annotations);
+        CollectionHelper.print(annotations);
         // System.out.println("------");
 
         List<String> paragraphs = tokenizeParagraphs(text);
@@ -83,9 +210,11 @@ class EntityPreprocessor {
 
         // System.out.println("In sentence:");
         // CollectionHelper.print(inSentenceAnnotations);
-        
-        // List<String> sentenceBeginStrings = CollectionHelper.convert(sentenceBeginAnnotations, ANNOTATION_TO_STRING, new ArrayList<String>());
-        List<String> inSentenceStrings = CollectionHelper.convert(inSentenceAnnotations, ANNOTATION_TO_STRING, new ArrayList<String>());
+
+        // List<String> sentenceBeginStrings = CollectionHelper.convert(sentenceBeginAnnotations, ANNOTATION_TO_STRING,
+        // new ArrayList<String>());
+        List<String> inSentenceStrings = CollectionHelper.convert(inSentenceAnnotations, ANNOTATION_TO_STRING,
+                new ArrayList<String>());
 
         Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
             @Override
@@ -126,6 +255,22 @@ class EntityPreprocessor {
                     continue;
                 }
             }
+            if (tokenValues.length > 1) {
+                String newValue = value;
+                for (int i = 0; i < tokenValues.length; i++) {
+                    Double ratio = caseDictionary.get(tokenValues[i].toLowerCase());
+                    System.out.println("ratio for " + tokenValues[i] + " = " + ratio);
+                    if (ratio != null && ratio > 1.0) {
+                        newValue = newValue.substring(Math.min(newValue.length(), tokenValues[i].length() + 1));
+                    } else {
+                        break;
+                    }
+                }
+                if (!newValue.equals(value)) {
+                    System.out.println("change value by dictionary > " + newValue);
+                    toModify.put(annotation.getEntity(), newValue);
+                }
+            }
             for (String inSentenceAnnotation : inSentenceStrings) {
                 if (value.endsWith(inSentenceAnnotation)) {
                     // System.err.println("Special logic here! (for " + value + ", with " + inSentenceAnnotation + ")");
@@ -150,19 +295,6 @@ class EntityPreprocessor {
         CollectionHelper.print(ret);
 
         return ret;
-    }
-
-    /**
-     * <p>
-     * Tokenize into paragraphs. Paragraphs are assumed to be separated by at least two newline characters.
-     * </p>
-     * 
-     * @param text The text to tokenize.
-     * @return A {@link List} with paragraphs.
-     */
-    private static List<String> tokenizeParagraphs(String text) {
-        Validate.notNull(text, "text must not be null");
-        return Arrays.asList(text.split("\n{2,}"));
     }
 
 }
