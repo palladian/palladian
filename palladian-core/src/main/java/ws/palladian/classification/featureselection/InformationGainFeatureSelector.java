@@ -27,6 +27,10 @@ import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
+ * <p>
+ * A {@link FeatureSelector} applying the information gain selection criterion.
+ * </p>
+ * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.2.0
@@ -156,6 +160,18 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         return ret;
     }
 
+    /**
+     * <p>
+     * Descretize {@link NumericFeature}s following the algorithm proposed by Fayyad and Irani in
+     * "Multi-Interval Discretization of Continuous-Valued Attributes for Classification Learning."
+     * </p>
+     * 
+     * @param featurePath The path to the {@link NumericFeature} to discretize.
+     * @param dataset The dataset to base the discretization on. The provided {@link Instance}s should contain the
+     *            {@link Feature} for this algorithm to work.
+     * @return A {@link Binner} object capable of discretization of already encountered and unencountered values for the
+     *         provided {@link NumericFeature}.
+     */
     private static Binner discretize(final String featurePath, Collection<Instance> dataset) {
         List<Instance> sortedDataset = new LinkedList<Instance>(dataset);
         Collections.sort(sortedDataset, new Comparator<Instance>() {
@@ -166,8 +182,12 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                         NumericFeature.class, featurePath);
                 List<NumericFeature> o2Features = FeatureUtils.getFeaturesAtPath(o2.getFeatureVector(),
                         NumericFeature.class, featurePath);
-                Validate.isTrue(o1Features.size() == 1 && o2Features.size() == 1,
-                        "Feature %s is either sparse or not available", featurePath);
+                try {
+                    Validate.isTrue(o1Features.size() == 1 && o2Features.size() == 1,
+                            "Feature %s is either sparse or not available", featurePath);
+                } catch (Exception e) {
+                    System.out.println("###############");
+                }
                 return o1Features.get(0).getValue().compareTo(o2Features.get(0).getValue());
             }
         });
