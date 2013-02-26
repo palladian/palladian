@@ -11,6 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.JulieNer;
 import ws.palladian.extraction.entity.tagger.LingPipeNer;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
@@ -51,8 +52,7 @@ public class NERTest {
     public void testPalladianNer() throws FileNotFoundException {
 
         // language independent
-        PalladianNer tagger = new PalladianNer();
-        tagger.setLanguageMode(LanguageMode.LanguageIndependent);
+        PalladianNer tagger = new PalladianNer(LanguageMode.LanguageIndependent);
         String tudnerLiModel = ResourceHelper.getResourcePath("/ner/tudnerLI.model.gz");
         tagger.train(trainingFile, tudnerLiModel);
 
@@ -63,8 +63,8 @@ public class NERTest {
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
         
-        assertTrue(er.getF1(EvaluationResult.MUC) > 0.68);
-        assertTrue(er.getF1(EvaluationResult.EXACT_MATCH) > 0.52);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.68);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.52);
 
         tagger.loadModel(tudnerLiModel);
         tagger.setTagUrls(false);
@@ -89,8 +89,7 @@ public class NERTest {
 //        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
 
         // English
-        tagger = new PalladianNer();
-        tagger.setLanguageMode(LanguageMode.English);
+        tagger = new PalladianNer(LanguageMode.English);
         tagger.setTagUrls(false);
         tagger.setTagDates(false);
         String tudnerEnModel = ResourceHelper.getResourcePath("/ner/tudnerEn.model.gz");
@@ -102,8 +101,8 @@ public class NERTest {
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
         
-        assertTrue(er.getF1(EvaluationResult.MUC) > 0.94);
-        assertTrue(er.getF1(EvaluationResult.EXACT_MATCH) > 0.90);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.94);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.90);
 
 
         tagger.loadModel(tudnerEnModel);

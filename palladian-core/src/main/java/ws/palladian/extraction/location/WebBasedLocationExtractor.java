@@ -3,45 +3,55 @@ package ws.palladian.extraction.location;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntry;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.PositionAnnotation;
 
 public abstract class WebBasedLocationExtractor extends LocationExtractor {
 
-    private NamedEntityRecognizer ner;
-    protected static Map<String, LocationType> LOCATION_MAPPING;
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebBasedLocationExtractor.class);
 
-    public WebBasedLocationExtractor(NamedEntityRecognizer ner) {
-        this.ner = ner;
+    private final NamedEntityRecognizer entityRecognizer;
+    private final Map<String, LocationType> mapping;
+
+    public WebBasedLocationExtractor(NamedEntityRecognizer entityRecognizer, Map<String, LocationType> mapping) {
+        this.entityRecognizer = entityRecognizer;
+        this.mapping = mapping;
+    }
+
+    protected LocationType map(String value) {
+        return mapping.get(value.toLowerCase());
     }
 
     @Override
-    public List<Location> detectLocations(String text) {
-
-        List<Location> detectedLocations = CollectionHelper.newArrayList();
-
-        Annotations annotations = ner.getAnnotations(text);
-
-        int index = 1;
+    public Annotations getAnnotations(String inputText) {
+        Annotations annotations = entityRecognizer.getAnnotations(inputText);
+        List<Annotation> unmappedAnnotations = CollectionHelper.newArrayList();
         for (Annotation annotation : annotations) {
-            if (LOCATION_MAPPING.containsKey(annotation.getMostLikelyTagName().toLowerCase())) {
-
-                // FIXME setPrimaryName and uncool positional annotation init, INDEX???
-                PositionAnnotation positionAnnotation = new PositionAnnotation("location", annotation.getOffset(),
-                        annotation.getEndIndex(), index, annotation.getEntity());
-                Location location = new Location(positionAnnotation);
-                location.setPrimaryName(annotation.getEntity());
-                location.setType(LOCATION_MAPPING.get(annotation.getMostLikelyTagName().toLowerCase()));
-                detectedLocations.add(location);
-
-                index++;
+            LocationType mappedType = map(annotation.getMostLikelyTagName());
+            if (mappedType == null) {
+                LOGGER.debug("No mapping for tag {}, will be dropped", annotation.getMostLikelyTagName());
+                unmappedAnnotations.add(annotation);
+            } else {
+                CategoryEntries categoryEntries = new CategoryEntries();
+                categoryEntries.add(new CategoryEntry(mappedType.toString(), 1));
+                annotation.setTags(categoryEntries);
             }
         }
+        annotations.removeAll(unmappedAnnotations);
+        return annotations;
+    }
 
-        return detectedLocations;
+    @Override
+    public String getName() {
+        return entityRecognizer.getName();
     }
 
 }

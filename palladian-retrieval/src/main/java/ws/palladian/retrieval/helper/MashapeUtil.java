@@ -20,7 +20,10 @@ import ws.palladian.retrieval.HttpRequest;
  * 
  * @see <a href="https://www.mashape.com/docs/consume/rest">Consume an API in Plain REST</a>
  * @author Philipp Katz
+ * @deprecated Not needed any longer, authentication can be done using one single key now. See <a
+ *             href="http://blog.mashape.com/important-changes-to-mashape-authorization-ke">here</a>.
  */
+@Deprecated
 public final class MashapeUtil {
 
     /** Key of the Mashape Authorization header. */

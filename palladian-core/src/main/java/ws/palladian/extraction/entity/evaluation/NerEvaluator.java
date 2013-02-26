@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -42,14 +43,19 @@ public class NerEvaluator {
 
         for (NamedEntityRecognizer ner : getNerList()) {
 
-            String modelPath = "data/temp/nerEvaluation/" + StringHelper.makeSafeName(ner.getName());
+            if (ner instanceof TrainableNamedEntityRecognizer) {
+                TrainableNamedEntityRecognizer trainableNer = (TrainableNamedEntityRecognizer)ner;
 
-            if (!ner.setsModelFileEndingAutomatically()) {
-                modelPath += "." + ner.getModelFileEnding();
+                String modelPath = "data/temp/nerEvaluation/" + StringHelper.makeSafeName(ner.getName());
+
+                if (!trainableNer.setsModelFileEndingAutomatically()) {
+                    modelPath += "." + trainableNer.getModelFileEnding();
+                }
+
+                trainableNer.train(datasetTraining, modelPath);
+                trainableNer.loadModel(modelPath);
+
             }
-
-            ner.train(datasetTraining, modelPath);
-            ner.loadModel(modelPath);
 
         }
 

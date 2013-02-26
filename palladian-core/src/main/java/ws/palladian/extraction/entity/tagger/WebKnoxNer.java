@@ -47,7 +47,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+    public Annotations getAnnotations(String inputText) {
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
         request.addParameter("text", inputText);
@@ -94,7 +94,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                      *            "type":"PER",
                      *            "normalizedEntity":"Ronnie Scott",
                      *            "offset":3344
-                     *         }, 
+                     *         },
                      *         […]
                      * </pre>
                      */
@@ -109,38 +109,19 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText, "");
-    }
-
-    @Override
-    public String getModelFileEnding() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return "";
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return false;
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        LOGGER.warn(getName() + " does not support training");
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        LOGGER.warn(getName() + " does not support loading models");
-        return false;
+    public String getName() {
+        return "WebKnoxNer";
     }
 
     public static void main(String[] args) {
         // WebKnoxNer webKnoxNer = new WebKnoxNer(ConfigHolder.getInstance().getConfig());
         WebKnoxNer webKnoxNer = new WebKnoxNer("v30170b8523o23il4bz3v04");
-        System.out.println(webKnoxNer.tag("Bill Gates founded Microsoft in April 1975"));
+        String text = "";
+        text = "Bill Gates founded Microsoft in April 1975";
+        text = "On November 27, the third committee of the UN General Assembly, the Social, Humanitarian and Cultural Affairs Committee, passed a resolution condemning the human rights situation in North Korea.";
+        text = "Shining a Light on North Korea’s Human Rights Crisis";
+
+        System.out.println(webKnoxNer.tag(text));
 
         // System.out
         // .println(webKnoxNer
