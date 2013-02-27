@@ -9,6 +9,8 @@ Algerian
 Algerians
 American Samoan
 American Samoans
+Americani
+Americansj
 Andorran
 Andorrans
 Angolan
@@ -16,80 +18,75 @@ Angolans
 Anguillan
 Anguillans
 Antiguan
-Barbudan
 Antiguans
-Barbudans
 Argentine
 Argentinean
-Argentinian
-Argentines
 Argentineans
+Argentines
+Argentinian
 Argentinians
 Armenian
 Armenians
 Aruban
 Arubans
+Aussies
 Australian
 Australians
-Aussies
 Austrian
 Austrians
+Ayisyen
 Azerbaijani
-Azeri
 Azerbaijanis
+Azeri
 Azeris
 Bahamian
 Bahamians
 Bahraini
 Bahrainis
+Bajan
+Bajans
+Bamar
 Bangladeshi
 Bangladeshis
 Barbadian
-Bajan
 Barbadians
-Bajans
+Barbudan
+Barbudans
+Basotho
 Belarusian
 Belarusians
 Belgian
 Belgians
 Belizean
 Belizeans
+Belongers
 Beninese
 Beninois
-Beninese
-Beninois
-Bermudian
 Bermudan
-Bermudians
 Bermudans
-Bhutanese
+Bermudian
+Bermudians
 Bhutanese
 Bolivian
 Bolivians
-Bosnian
+Boricuas
 Bosniak
-Herzegovinian
-Bosnians
 Bosniaks
-Herzegovinians
-Motswana (pl. Batswana)
+Bosnian
+Bosnians
 Botswanan
-Batswana
 Botswanans
 Brazilian
 Brazilians
-British Virgin Island
+British
 British Virgin Islanders
+Britons
 Bruneian
 Bruneians
 Bulgarian
 Bulgarians
 Burkinabè
 Burkinabé
-Burkinabè
-Burkinabé
-Burmese
-Bamar
 Burmese
 Burundian
 Burundians
@@ -102,6 +99,7 @@ Canadians
 Canucks
 Cape Verdean
 Cape Verdeans
+Catrachos
 Caymanian
 Caymanians
 Central African
@@ -111,28 +109,17 @@ Chadians
 Chilean
 Chileans
 Chinese
-Chinese
-See Taiwan
-below
-Christmas Island
 Christmas Islanders
-Cocos Island
 Cocos Islanders
 Colombian
 Colombians
 Comorian
 Comorians
 Congolese
-Congo[citation needed]
-Congolese
-Cook Island
-Cook Islands
 Cook Islanders
+Cook Islands
 Costa Rican
 Costa Ricans
-Ticos
-Ivorian
-Ivorians
 Croatian
 Croatians
 Croats
@@ -142,55 +129,51 @@ Cypriot
 Cypriots
 Czech
 Czechs
-Danish
 Danes
+Danish
 Djiboutian
 Djiboutians
 Dominicand
-Dominicansd
 Dominicane
+Dominicansd
 Dominicanse
-Quisqueyanos
-Timorese
-Timorese
-Maubere
+Dutch
 Ecuadorian
 Ecuadorians
 Egyptian
 Egyptians
-Salvadoran
-Salvadorans
+Emirati
+Emiratis
+Emirian
+Emirians
 English
-English
-Equatorial Guinean
 Equatoguinean
-Equatorial Guineans
 Equatoguineans
+Equatorial Guinean
+Equatorial Guineans
 Eritrean
 Eritreans
 Estonian
 Estonians
 Ethiopian
 Ethiopians
-Falkland Island
 Falkland Islanders
-Belongers
-Faroese
 Faroese
 Fijian
 Fijians
+Filipinas
+Filipino
+Filipinos
 Finnish
 Finns
 French
-French
-Frenchman
-Frenchwoman
-French Guianese
 French Guianese
 French Polynesian
 French Polynesians
-Tahitians[1]
-Gabonese
+Frenchman
+Frenchwoman
+Futunan
+Futunans
 Gabonese
 Gambian
 Gambians
@@ -200,19 +183,13 @@ German
 Germans
 Ghanaian
 Ghanaians
-Gibraltar
 Gibraltarians
-Llanitos
-British
-Britons
+Grecian
+Grecians
 Greek
-Grecianf
-Hellenic
 Greeks
-Greciansf
-Hellenes
-Greenlandic
 Greenlanders
+Greenlandic
 Grenadian
 Grenadians
 Guadeloupe
@@ -224,86 +201,72 @@ Guatemalans
 Guinean
 Guineans
 Guyanese
-Guyanese
 Haitian
 Haitians
-Ayisyen
+Hellenes
+Hellenic
+Herzegovinian
+Herzegovinians
 Honduran
 Hondurans
-Catrachos
-Hong Kong
-Hongkongese
+Hongers
+Hongkies
 Hongkongers
 Hongkongese
-Hongkies
-Hongers
 Hungarian
-Magyar
 Hungarians
-Magyars
-Icelandic
+I-Kiribati
 Icelanders
+Icelandic
 Indian
 Indians
 Indonesian
 Indonesians
 Iranian
-Persian
 Iranians
-Persians
 Iraqi
 Iraqis
 Irish
-Irish
-Manx
-Manx
 Israeli
 Israelis
 Italian
-Italicf
 Italians
-Italicsf
+Italic
+Italics
+Ivorian
+Ivorians
 Jamaican
 Jamaicans
-Japanese
 Japanese
 Jordanian
 Jordanians
 Kazakh
+Kazakhs
 Kazakhstani
 Kazakhstanis
-Kazakhs
 Kenyan
 Kenyans
-I-Kiribati
-I-Kiribati
-North Korean
+Kirghiz
+Kirgiz
+Kittitian
+Kittitians
+Kiwis
 Koreans
-South Korean
-Kosovar
 Kosovan
+Kosovar
 Kosovars
 Kuwaiti
 Kuwaitis
+Kyrgyz
 Kyrgyzstani
-Kyrgyz
-Kirgiz
-Kirghiz
 Kyrgyzstanis
-Kyrgyz
-Kirgiz
-Kirghiz
-Laotian
 Lao
+Laotian
 Laotians
-Laos
 Latvian
 Latvians
+Lebanese
 Letts
-Lebanese
-Lebanese
-Basotho
-Basotho
 Liberian
 Liberians
 Libyan
@@ -312,16 +275,17 @@ Liechtenstein
 Liechtensteiners
 Lithuanian
 Lithuanians
+Llanitos
 Luxembourg
-Luxembourgish
 Luxembourgers
+Luxembourgish
 Macanese
-Chinese
-Macanese
-Chinese
 Macedonian
 Macedonians
-Malagasy
+Magyar
+Magyars
+Mahorais
+Mahoran
 Malagasy
 Malawian
 Malawians
@@ -332,27 +296,23 @@ Maldivians
 Malian
 Malians
 Maltese
-Maltese
+Manx
 Marshallese
-Marshallese
-Martiniquais
 Martinican
 Martiniquais
+Maubere
 Mauritanian
 Mauritanians
 Mauritian
 Mauritians
-Mahoran
-Mahorais
 Mexican
 Mexicans
 Micronesian
 Micronesians
+Miquelonnais
 Moldovan
 Moldovans
-Monégasque
 Monacan
-Monégasques
 Monacans
 Mongolian
 Mongolians
@@ -361,164 +321,146 @@ Montenegrin
 Montenegrins
 Montserratian
 Montserratians
+Monégasque
+Monégasques
 Moroccan
 Moroccans
+Motswana
 Mozambican
 Mozambicans
 Namibian
 Namibians
 Nauruan
 Nauruans
-Nepali
 Nepalese
-Dutch
-Dutch
+Nepali
+Nevisian
+Nevisians
 New Caledonian
 New Caledonians
-New Zealand
 New Zealanders
-Kiwis
+Ni-Vanuatu
 Nicaraguan
 Nicaraguans
-Niuean
-Niueans
-Nigerien
-Nigeriens
 Nigerian
 Nigerians
-Norwegian
-Norwegians
-Northern Irish
-British
-Irish
-British
-Irish
+Nigerien
+Nigeriens
+Niuean
+Niueans
+North Korean
 Northern Irish
 Northern Marianan
 Northern Marianans
+Norwegian
+Norwegians
 Omani
 Omanis
 Pakistani
 Pakistanis
-Palestinian
-Palestinians
 Palauan
 Palauans
+Palestinian
+Palestinians
 Panamanian
 Panamanians
 Papua New Guinean
-Papuan
 Papua New Guineans
+Papuan
 Papuans
 Paraguayan
 Paraguayans
+Persian
+Persians
 Peruvian
 Peruvians
 Philippine
-Filipino
-Filipinos
-Filipinas
 Pinoys
-Pitcairn Island
 Pitcairn Islanders
-Polish
 Poles
-Portuguese
+Polish
 Portuguese
 Puerto Rican
 Puerto Ricans
-Boricuas
 Qatari
 Qataris
-Irish
-Southern Irish
-Irish
-Southern Irish
-Réunionese
-Réunionnais
-Réunionese
-Réunionnais
+Quisqueyanos
 Romanian
 Romanians
 Russian
 Russians
 Rwandan
 Rwandans
-St. Helenian
-St. Helenians
-Kittitian
-Nevisian
-Kittitians
-Nevisians
-St. Lucian
-St. Lucians
+Réunionese
+Réunionnais
+Sahraouian
+Sahraouis
+Sahraw
+Sahrawian
+Sahrawis
 Saint-Pierrais
-Miquelonnais
-Saint-Pierrais
-Miquelonnais
-St. Vincentian
-Vincentian
-St. Vincentians
-Vincentians
+Salvadoran
+Salvadorans
+Sammarinese
 Samoan
 Samoans
-Sammarinese
-Sammarinese
-São Toméan
-São Toméans
 Saudi
 Saudi Arabian
-Saudis
 Saudi Arabians
-Scots
-Scottish
+Saudis
 Scotchh
 Scots
 Scotsmen
-Senegalese
+Scottish
 Senegalese
 Serbian
 Serbians
 Serbs
 Seychellois
-Seychellois
 Sierra Leonean
 Sierra Leoneans
-Singapore[2]
+Singapore
 Singaporeans
 Slovak
 Slovaks
-Slovenian
 Slovene
-Slovenians
 Slovenes
-Solomon Island
+Slovenian
+Slovenians
 Solomon Islanders
-Somali; Somalian
+Somali
+Somalian
 Somalis; Somalians
 South African
 South Africans
+South Korean
 South Ossetian
 South Ossetians
 South Sudanese
-South Sudanese
-Spanish
+Southern Irish
 Spaniards
+Spanish
 Sri Lankan
 Sri Lankans
+St. Helenian
+St. Helenians
+St. Lucian
+St. Lucians
+St. Vincentian
+St. Vincentians
 Sudanese
-Sudanese
-Surinamese
 Surinamers
+Surinamese
 Swazi
 Swazis
-Swedish
 Swedes
-Swiss
+Swedish
 Swiss
 Syrian
 Syrians
-Taiwanese
+São Toméan
+São Toméans
+Tahitians
 Taiwanese
 Tajikistani
 Tajikistanis
@@ -526,24 +468,23 @@ Tajiks
 Tanzanian
 Tanzanians
 Thai
-Thai
-Togolese
+Ticos
+Timorese
+Tobagonian
+Tobagonians
 Togolese
 Tongan
 Tongans
-Trinidadian
-Tobagonian
-Trinidadians
-Tobagonians
-Trinis
 Trinibagonians
+Trinidadian
+Trinidadians
+Trinis
 Tunisian
 Tunisians
 Turkish
-Turks
 Turkmen
 Turkmens
-none
+Turks
 Turks and Caicos Islanders
 Tuvaluan
 Tuvaluans
@@ -551,41 +492,22 @@ Ugandan
 Ugandans
 Ukrainian
 Ukrainians
-Emirati
-Emirian
-Emiratis
-Emirians
-British
-Britons
-Americani
-U.S.
-Americansj
 Uruguayan
 Uruguayans
-Uzbekistani
 Uzbek
+Uzbekistani
 Uzbekistanis
 Uzbeks
-Ni-Vanuatu
 Vanuatuan
-Ni-Vanuatu
 Venezuelan
 Venezuelans
 Vietnamese
-Vietnamese
-Virgin Island
+Vincentian
+Vincentians
 Virgin Islanders
-Welsh
-Welsh
 Wallisian
-Futunan
 Wallisians
-Futunans
-Sahraw
-Sahrawian
-Sahraouian
-Sahrawis
-Sahraouis
+Welsh
 Yemeni
 Yemenis
 Zambian
