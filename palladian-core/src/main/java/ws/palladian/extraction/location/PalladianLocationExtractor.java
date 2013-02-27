@@ -80,6 +80,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
         skipWords.add("December");
         skipWords.add("Parliament");
 
+        try {
+            skipWords.addAll(FileHelper.readFileToArray(ResourceHelper.getResourceFile("/adjectivesBlacklist.txt")));
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1.getMessage());
+        }
+
         CASE_DICTIONARY = CollectionHelper.newHashMap();
 
         List<String> array;
@@ -148,12 +154,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
             // XXX experimental
             // greatly improves pr, but drops recall/f1
-//            CollectionHelper.filter(retrievedLocations, new Filter<Location>() {
-//                @Override
-//                public boolean accept(Location item) {
-//                    return item.getPopulation() > 0;
-//                }
-//            });
+            //            CollectionHelper.filter(retrievedLocations, new Filter<Location>() {
+            //                @Override
+            //                public boolean accept(Location item) {
+            //                    return item.getPopulation() > 0;
+            //                }
+            //            });
 
             if (retrievedLocations.isEmpty()) {
                 continue;
@@ -225,16 +231,16 @@ public class PalladianLocationExtractor extends LocationExtractor {
             Location loc = selectLocation(locationMap.get(entityValue));
 
             // XXX exp.
-//            if (loc.getPopulation() == 0 && loc.getType() != LocationType.CONTINENT
-//                    && loc.getType() != LocationType.COUNTRY) {
-//                boolean proximityCheck = checkProximity(loc, consolidatedLocations, anchorLocations);
-//                // System.err.println("unsure about " + loc + " : " + proximityCheck);
-//                if (!proximityCheck) {
-//                    LOGGER.info("Removing small location {} after proximity check", entityValue);
-//                    iterator.remove();
-//                    continue;
-//                }
-//            }
+            //            if (loc.getPopulation() == 0 && loc.getType() != LocationType.CONTINENT
+            //                    && loc.getType() != LocationType.COUNTRY) {
+            //                boolean proximityCheck = checkProximity(loc, consolidatedLocations, anchorLocations);
+            //                // System.err.println("unsure about " + loc + " : " + proximityCheck);
+            //                if (!proximityCheck) {
+            //                    LOGGER.info("Removing small location {} after proximity check", entityValue);
+            //                    iterator.remove();
+            //                    continue;
+            //                }
+            //            }
 
             CategoryEntries ces = new CategoryEntries();
             ces.add(new CategoryEntry(loc.getType().toString(), 1.));
@@ -260,25 +266,25 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 closestLoc = location;
             }
             // if (distance < 100) {
-//            if (distance < 500) {
-//                System.out.println("match for " + loc + " and " + location);
-//                return true;
-//            }
+            //            if (distance < 500) {
+            //                System.out.println("match for " + loc + " and " + location);
+            //                return true;
+            //            }
         }
         System.out.println("Closest prox. for " + loc.getPrimaryName() + " : " + closesProximity + "("
                 + closestLoc.getPrimaryName() + ")");
         return closesProximity < 100;
-//        return false;
+        //        return false;
     }
 
-//    private Collection<Location> getByType(Collection<Location> locations, final LocationType type) {
-//        return CollectionHelper.filter(locations, new Filter<Location>() {
-//            @Override
-//            public boolean accept(Location item) {
-//                return item.getType() == type;
-//            }
-//        }, new HashSet<Location>());
-//    }
+    //    private Collection<Location> getByType(Collection<Location> locations, final LocationType type) {
+    //        return CollectionHelper.filter(locations, new Filter<Location>() {
+    //            @Override
+    //            public boolean accept(Location item) {
+    //                return item.getType() == type;
+    //            }
+    //        }, new HashSet<Location>());
+    //    }
 
     private void cluster(Set<Location> anchorLocations, MultiMap<String, Location> ambiguousLocations) {
 
@@ -348,12 +354,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
         // if (getByType(anchorLocations, LocationType.COUNTRY).size() > 0) {
         // CollectionHelper.filter(anchorLocations, new LocationTypeFilter(LocationType.COUNTRY));
-//            CollectionHelper.filter(anchorLocations, new Filter<Location>() {
-//                @Override
-//                public boolean accept(Location item) {
-//                    return item.getType() == LocationType.COUNTRY;
-//                }
-//            });
+        //            CollectionHelper.filter(anchorLocations, new Filter<Location>() {
+        //                @Override
+        //                public boolean accept(Location item) {
+        //                    return item.getType() == LocationType.COUNTRY;
+        //                }
+        //            });
         // }
 
         if (anchorLocations.size() == 0) {
@@ -422,23 +428,23 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     private void filterNonEntities(Annotations taggedEntities, String text) {
-//        List<String> tokens = Tokenizer.tokenize(text);
-//        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
-//            @Override
-//            public boolean accept(String item) {
-//                return !StringHelper.startsUppercase(item);
-//            }
-//        }, new HashSet<String>());
-//        Iterator<Annotation> iterator = taggedEntities.iterator();
-//        while (iterator.hasNext()) {
-//            // FIXME only do this with entities which are at sentence start!
-//            Annotation current = iterator.next();
-//            if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
-//                iterator.remove();
-//                System.out.println("Remove lowercase entity " + current.getEntity());
-//            }
-//        }
-        
+        //        List<String> tokens = Tokenizer.tokenize(text);
+        //        Set<String> lowercaseTokens = CollectionHelper.filter(tokens, new Filter<String>() {
+        //            @Override
+        //            public boolean accept(String item) {
+        //                return !StringHelper.startsUppercase(item);
+        //            }
+        //        }, new HashSet<String>());
+        //        Iterator<Annotation> iterator = taggedEntities.iterator();
+        //        while (iterator.hasNext()) {
+        //            // FIXME only do this with entities which are at sentence start!
+        //            Annotation current = iterator.next();
+        //            if (lowercaseTokens.contains(current.getEntity().toLowerCase())) {
+        //                iterator.remove();
+        //                System.out.println("Remove lowercase entity " + current.getEntity());
+        //            }
+        //        }
+
         Map<String, String> result = EntityPreprocessor.correctAnnotations(text, CASE_DICTIONARY);
         Iterator<Annotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
@@ -516,14 +522,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
      * @return
      */
     private Location selectLocation(List<Location> retrievedLocations) {
-//        Collections.sort(retrievedLocations, new Comparator<Location>() {
-//            @Override
-//            public int compare(Location o1, Location o2) {
-//                Integer prio1 = TYPE_PRIORITY.indexOf(o1.getType());
-//                Integer prio2 = TYPE_PRIORITY.indexOf(o2.getType());
-//                return prio1.compareTo(prio2);
-//            }
-//        });
+        //        Collections.sort(retrievedLocations, new Comparator<Location>() {
+        //            @Override
+        //            public int compare(Location o1, Location o2) {
+        //                Integer prio1 = TYPE_PRIORITY.indexOf(o1.getType());
+        //                Integer prio2 = TYPE_PRIORITY.indexOf(o2.getType());
+        //                return prio1.compareTo(prio2);
+        //            }
+        //        });
         Collections.sort(retrievedLocations, new Comparator<Location>() {
             @Override
             public int compare(Location l1, Location l2) {
