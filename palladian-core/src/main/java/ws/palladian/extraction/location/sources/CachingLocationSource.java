@@ -20,7 +20,7 @@ import ws.palladian.helper.constants.Language;
 public final class CachingLocationSource implements LocationSource {
 
     private final LocationSource locationSource;
-    private final Map<String, List<Location>> locationNameCache;
+    private final Map<String, Collection<Location>> locationNameCache;
     private final Map<Integer, Location> locationIdCache;
     private final Map<Integer, List<Location>> locationHierachyCache;
 
@@ -42,8 +42,8 @@ public final class CachingLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
-        List<Location> locations = locationNameCache.get(locationName);
+    public Collection<Location> retrieveLocations(String locationName) {
+        Collection<Location> locations = locationNameCache.get(locationName);
         if (locations == null) {
             locations = locationSource.retrieveLocations(locationName);
             locationNameCache.put(locationName, locations);
@@ -57,8 +57,8 @@ public final class CachingLocationSource implements LocationSource {
     // XXX if the same location is queried with different languages set, this will not yield currect results, because it
     // is already cached.
     @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
-        List<Location> locations = locationNameCache.get(locationName);
+    public Collection<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+        Collection<Location> locations = locationNameCache.get(locationName);
         if (locations == null) {
             locations = locationSource.retrieveLocations(locationName, languages);
             locationNameCache.put(locationName, locations);

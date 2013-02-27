@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -130,7 +131,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         // CollectionHelper.print(taggedEntities);
 
-        Set<List<Location>> ambiguousLocations = CollectionHelper.newHashSet();
+        Set<Collection<Location>> ambiguousLocations = CollectionHelper.newHashSet();
 
         MultiMap<String, Location> locationMap = MultiMap.create();
 
@@ -149,7 +150,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
             // search entities by name
             // List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue);
-            List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue,
+            Collection<Location> retrievedLocations = locationSource.retrieveLocations(entityValue,
                     EnumSet.of(Language.ENGLISH));
             
             
@@ -502,14 +503,15 @@ public class PalladianLocationExtractor extends LocationExtractor {
      * @param locations
      * @return
      */
-    private boolean checkAmbiguity(List<Location> locations) {
+    private boolean checkAmbiguity(Collection<Location> locations) {
         if (locations.size() <= 1) {
             return false;
         }
-        for (int i = 0; i < locations.size(); i++) {
-            Location location1 = locations.get(i);
-            for (int j = i + 1; j < locations.size(); j++) {
-                Location location2 = locations.get(j);
+        List<Location> temp = new ArrayList<Location>(locations);
+        for (int i = 0; i < temp.size(); i++) {
+            Location location1 = temp.get(i);
+            for (int j = i + 1; j < temp.size(); j++) {
+                Location location2 = temp.get(j);
                 double distance = getDistance(location1, location2);
                 if (distance > 50) {
                     return true;
@@ -552,7 +554,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
      * @param retrievedLocations
      * @return
      */
-    private Location selectLocation(List<Location> retrievedLocations) {
+    private Location selectLocation(Collection<Location> retrievedLocations) {
         //        Collections.sort(retrievedLocations, new Comparator<Location>() {
         //            @Override
         //            public int compare(Location o1, Location o2) {
@@ -561,7 +563,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
         //                return prio1.compareTo(prio2);
         //            }
         //        });
-        Collections.sort(retrievedLocations, new Comparator<Location>() {
+        List<Location> temp = new ArrayList<Location>(retrievedLocations);
+        Collections.sort(temp, new Comparator<Location>() {
             @Override
             public int compare(Location l1, Location l2) {
                 // if (l2.getType() == LocationType.UNIT) {
@@ -582,7 +585,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // return Integer.valueOf(priority1).compareTo(priority2);
         // }
         // });
-        return CollectionHelper.getFirst(retrievedLocations);
+        return CollectionHelper.getFirst(temp);
     }
 
     /**
