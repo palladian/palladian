@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.sources;
+package ws.palladian.extraction.location.sources.importers;
 
 import java.io.File;
 import java.io.IOException;

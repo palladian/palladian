@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -151,6 +152,14 @@ public class CollectionLocationStore implements LocationStore {
         for (AlternativeName alternativeName : alternativeNames) {
             locationsNames.add(alternativeName.getName().toLowerCase(), location);
         }
+    }
+
+    @Override
+    public Integer getHighestId() {
+        // FIXME, untested
+        List<Integer> locationIdList = new ArrayList<Integer>(locationsIds.keySet());
+        Collections.sort(locationIdList);
+        return CollectionHelper.getLast(locationIdList);
     }
 
 }

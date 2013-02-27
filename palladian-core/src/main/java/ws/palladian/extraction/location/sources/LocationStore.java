@@ -55,4 +55,12 @@ public interface LocationStore extends LocationSource {
      */
     void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames);
 
+    /**
+     * <p>
+     * Return the highest location id in the source so that other importers can avoid using duplicate location ids.
+     * </p>
+     * 
+     * @return The highest location id in the source.
+     */
+    Integer getHighestId();
 }
