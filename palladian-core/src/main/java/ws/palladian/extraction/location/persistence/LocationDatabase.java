@@ -22,6 +22,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.persistence.OneColumnRowConverter;
 import ws.palladian.persistence.RowConverter;
 
 /**
@@ -49,6 +50,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String GET_LOCATION_PARENT = "SELECT DISTINCT l.* FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? GROUP BY priority HAVING COUNT(priority) = 1 ORDER BY priority;";
     private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
     private static final String GET_LOCATION_PARENTS = "SELECT * FROM location_hierarchy WHERE childId = ?";
+    private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
 
     // ////////////////// row converts ////////////////////////////////////
     private final RowConverter<Location> locationRowConverter = new RowConverter<Location>() {
@@ -227,6 +229,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     @Override
     public Collection<LocationRelation> getParents(int locationId) {
         return runQuery(LOCATION_RELATION_ROW_CONVERTER, GET_LOCATION_PARENTS, locationId);
+    }
+
+    @Override
+    public Integer getHighestId() {
+        // FIXME, untested
+        return runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
     }
 
     public static void main(String[] args) {

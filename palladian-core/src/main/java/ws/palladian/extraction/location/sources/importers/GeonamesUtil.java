@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.sources;
+package ws.palladian.extraction.location.sources.importers;
 
 import java.util.Collections;
 import java.util.Map;
@@ -16,7 +16,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @see <a href="http://www.geonames.org/export/codes.html">List with feature codes (more clear)</a>
  * @author Philipp Katz
  */
-final class GeonamesUtil {
+public final class GeonamesUtil {
 
     /** Mapping from feature codes from the dataset to LocationType. */
     private static final Map<String, LocationType> FEATURE_MAPPING;
@@ -51,7 +51,7 @@ final class GeonamesUtil {
         FEATURE_MAPPING = Collections.unmodifiableMap(temp);
     }
 
-    static LocationType mapType(String featureClass, String featureCode) {
+    public static LocationType mapType(String featureClass, String featureCode) {
         // first, try lookup by full feature code (e.g. 'L.CONT')
         LocationType locationType = FEATURE_MAPPING.get(String.format("%s.%s", featureClass, featureCode));
         if (locationType != null) {

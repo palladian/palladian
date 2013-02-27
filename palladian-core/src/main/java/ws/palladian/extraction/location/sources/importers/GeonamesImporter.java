@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.sources;
+package ws.palladian.extraction.location.sources.importers;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +20,8 @@ import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.extraction.location.sources.LocationRelation;
+import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;

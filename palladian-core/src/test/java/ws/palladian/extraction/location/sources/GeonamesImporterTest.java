@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.sources.importers.GeonamesImporter;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class GeonamesImporterTest {

@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.sources.importers.GeonamesUtil;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
