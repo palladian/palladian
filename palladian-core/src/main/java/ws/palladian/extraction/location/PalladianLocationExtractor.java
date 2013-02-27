@@ -151,6 +151,24 @@ public class PalladianLocationExtractor extends LocationExtractor {
             // List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue);
             List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue,
                     EnumSet.of(Language.ENGLISH));
+            
+            
+            // FIXME make nicer
+            // XXX check total length, and avoid checking long capitalized words which are no acronyms (AMERICA)
+            if (StringHelper.isCompletelyUppercase(entityValue) || isAcronymSeparated(entityValue)) {
+
+                System.out.println("**** Acronym treatment : " + entityValue);
+
+                Set<Location> temp = CollectionHelper.newHashSet();
+
+                String temp1 = entityValue.replace(".", "");
+                temp.addAll(locationSource.retrieveLocations(temp1, EnumSet.of(Language.ENGLISH)));
+                String temp2 = makeAcronymSeparated(temp1);
+                temp.addAll(locationSource.retrieveLocations(temp2, EnumSet.of(Language.ENGLISH)));
+
+                retrievedLocations.clear();
+                retrievedLocations.addAll(temp);
+            }
 
             // XXX experimental
             // greatly improves pr, but drops recall/f1
@@ -248,6 +266,19 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
 
         return locationEntities;
+    }
+
+    public static boolean isAcronymSeparated(String string) {
+        return string.matches("([A-Z]\\.)+");
+    }
+
+    private static String makeAcronymSeparated(String entityValue) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < entityValue.length(); i++) {
+            result.append(entityValue.charAt(i));
+            result.append('.');
+        }
+        return result.toString();
     }
 
     private boolean checkProximity(Location loc, Set<Location> anchorLocations2, Set<Location> sureAnchors) {
@@ -784,6 +815,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public static void main(String[] args) throws PageContentExtractorException {
+
+        System.out.println(makeAcronymSeparated("USA"));
+        System.exit(0);
 
         // String mashapePublicKey = "u3ewnlzvxvbg3gochzqcrulimgngsb";
         // String mashapePrivateKey = "dxkyimj8rjoyti1mqx2lqragbbg71k";
