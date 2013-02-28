@@ -543,6 +543,7 @@ Zambian
 Zambians
 Zimbabwean
 Zimbabweans
+American
 
 # days, months
 Monday
