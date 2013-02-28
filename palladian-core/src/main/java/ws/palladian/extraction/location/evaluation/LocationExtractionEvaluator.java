@@ -16,13 +16,12 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
 public class LocationExtractionEvaluator {
 
-    public Map<String, Double> evaluateAll(LocationExtractor extractor, String goldStandardFileFolderPath) {
+    public void evaluateAll(LocationExtractor extractor, String goldStandardFileFolderPath) {
 
         Map<ResultType, Map<String, Annotations>> errors = new LinkedHashMap<ResultType, Map<String, Annotations>>();
         errors.put(ResultType.CORRECT, new HashMap<String, Annotations>());
@@ -31,7 +30,6 @@ public class LocationExtractionEvaluator {
         errors.put(ResultType.ERROR3, new HashMap<String, Annotations>());
         errors.put(ResultType.ERROR4, new HashMap<String, Annotations>());
         errors.put(ResultType.ERROR5, new HashMap<String, Annotations>());
-        Map<String, Double> averageResult = CollectionHelper.newHashMap();
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
 
@@ -87,50 +85,39 @@ public class LocationExtractionEvaluator {
 
         }
 
-        averageResult.put("Precision-MUC", precisionMuc / files.length);
-        averageResult.put("Precision-Exact", precisionExact / files.length);
-        averageResult.put("Recall-MUC", recallMuc / files.length);
-        averageResult.put("Recall-Exact", recallExact / files.length);
-        averageResult.put("F1-MUC", f1Muc / files.length);
-        averageResult.put("F1-Exact", f1Exact / files.length);
+        // summary
+        StringBuilder summary = new StringBuilder();
+        summary.append("Precision-Exact:").append(precisionExact / files.length).append('\n');
+        summary.append("Recall-Exact:").append(recallExact / files.length).append('\n');
+        summary.append("F1-Exact:").append(f1Exact / files.length).append('\n');
+        summary.append('\n');
+        summary.append("Precision-MUC:").append(precisionMuc / files.length).append('\n');
+        summary.append("Recall-MUC:").append(recallMuc / files.length).append('\n');
+        summary.append("F1-MUC:").append(f1Muc / files.length).append('\n');
 
-        StringBuilder allErrors = new StringBuilder();
+        StringBuilder detailedOutput = new StringBuilder();
+        detailedOutput.append(summary.toString().replace(':', ';'));
+        detailedOutput.append("\n\n\n");
+
+        // detailed error stats
         for (Entry<ResultType, Map<String, Annotations>> entry : errors.entrySet()) {
             ResultType resultType = entry.getKey();
             int errorTypeCount = 0;
             for (Annotations errorEntry : entry.getValue().values()) {
                 errorTypeCount += errorEntry.size();
             }
-            allErrors.append(getErrorTypeLine(resultType)).append(";").append(errorTypeCount).append("\n");
+            detailedOutput.append(resultType.getDescription()).append(";").append(errorTypeCount).append("\n");
             for (Entry<String, Annotations> errorEntry : entry.getValue().entrySet()) {
                 for (Annotation annotation : errorEntry.getValue()) {
                     String fileName = errorEntry.getKey();
-                    allErrors.append("\t").append(annotation).append(";").append(fileName).append("\n");
+                    detailedOutput.append("\t").append(annotation).append(";").append(fileName).append("\n");
                 }
             }
-            allErrors.append("\n\n");
+            detailedOutput.append("\n\n");
         }
-        FileHelper.writeToFile("data/temp/"+System.currentTimeMillis()+"_allErrors.csv", allErrors);
 
-        return averageResult;
-    }
-
-    private String getErrorTypeLine(ResultType resultType) {
-        switch (resultType) {
-            case CORRECT:
-                return "CORRECT (tag and boundaries correct)";
-            case ERROR1:
-                return "ERROR 1 (tagged something that should not have been tagged, false positive - bad for precision)";
-            case ERROR2:
-                return "ERROR 2 (completely missed a location, false negative - bad for recall)";
-            case ERROR3:
-                return "ERROR 3 (incorrect location type but correct boundaries - bad for precision and recall)";
-            case ERROR4:
-                return "ERROR 4 (correct location type but incorrect boundaries - bad for precision and recall)";
-            case ERROR5:
-                return "ERROR 5 (incorrect location type and incorrect boundaries - bad for precision and recall)";
-        }
-        return "FAIL";
+        FileHelper.writeToFile("data/temp/" + System.currentTimeMillis() + "_allErrors.csv", detailedOutput);
+        System.out.println(summary);
     }
 
     /**
@@ -150,9 +137,7 @@ public class LocationExtractionEvaluator {
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // LocationSource database = new NewsSeecrLocationSource("tr1dn3mc0bdhzzjngkvzahqloxph0e");
-        Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(database), DATASET_LOCATION);
-
-        CollectionHelper.print(results);
+        evaluator.evaluateAll(new PalladianLocationExtractor(database), DATASET_LOCATION);
     }
 
 }

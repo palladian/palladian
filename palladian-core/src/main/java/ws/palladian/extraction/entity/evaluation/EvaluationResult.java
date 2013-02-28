@@ -114,19 +114,36 @@ public class EvaluationResult {
 
     public enum ResultType {
         /** Tagged something that should not have been tagged. */
-        ERROR1,
+        ERROR1("ERROR1: Tagged something that should not have been tagged, false positive - bad for precision"),
         /** Completely missed to tag an entity. */
-        ERROR2,
+        ERROR2("ERROR2: Completely missed an annotation, false negative - bad for recall"),
         /** Exact same content but wrong tag. */
-        ERROR3,
+        ERROR3("ERROR3: Incorrect annotation type but correct boundaries - bad for precision and recall"),
         /** Overlapping content and correct tag. */
-        ERROR4,
+        ERROR4("ERROR4: Correct annotation type but incorrect boundaries - bad for precision and recall"),
         /** Overlapping content but wrong tag. */
-        ERROR5,
+        ERROR5("ERROR5: Incorrect annotation type and incorrect boundaries - bad for precision and recall"),
         /** Exact same content and correct tag. */
-        CORRECT,
+        CORRECT("CORRECT: Tag and boundaries correct"),
         /** Number of possible annotations. */
-        POSSIBLE
+        POSSIBLE(null);
+
+        private final String description;
+
+        ResultType(String description) {
+            this.description = description;
+        }
+
+        /**
+         * <p>
+         * Get an explanation about the result type.
+         * </p>
+         * 
+         * @return
+         */
+        public String getDescription() {
+            return description;
+        }
     }
 
     /** A marker that marks special fields. */
@@ -148,8 +165,7 @@ public class EvaluationResult {
 
             correctAssignments = cm.getCount(ResultType.CORRECT);
             totalAssignments = cm.getCount(ResultType.ERROR1) + cm.getCount(ResultType.ERROR3)
-                    + cm.getCount(ResultType.ERROR4) + cm.getCount(ResultType.ERROR5)
-            + correctAssignments;
+                    + cm.getCount(ResultType.ERROR4) + cm.getCount(ResultType.ERROR5) + correctAssignments;
 
         } else if (type == EvaluationMode.MUC) {
 
@@ -164,7 +180,7 @@ public class EvaluationResult {
             return precision;
         }
 
-        precision = (double) correctAssignments / (double) totalAssignments;
+        precision = (double)correctAssignments / (double)totalAssignments;
 
         return precision;
     }
@@ -198,7 +214,7 @@ public class EvaluationResult {
             return recall;
         }
 
-        recall = (double) correctAssignments / (double) possibleAssignments;
+        recall = (double)correctAssignments / (double)possibleAssignments;
 
         return recall;
     }
@@ -314,7 +330,7 @@ public class EvaluationResult {
 
         }
 
-        precision = (double) correctAssignments / (double) totalAssignments;
+        precision = (double)correctAssignments / (double)totalAssignments;
 
         return precision;
     }
@@ -348,7 +364,7 @@ public class EvaluationResult {
 
         }
 
-        recall = (double) correctAssignments / (double) possibleAssignments;
+        recall = (double)correctAssignments / (double)possibleAssignments;
 
         return recall;
     }
