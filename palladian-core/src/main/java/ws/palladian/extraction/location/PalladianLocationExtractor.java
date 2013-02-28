@@ -561,10 +561,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 // return -1;
                 // }
                 Long l1Population = l1.getPopulation();
+                Long l2Population = l2.getPopulation();
                 if (l1.getType() == LocationType.CITY) {
                     l1Population *= 2;
                 }
-                return l2.getPopulation().compareTo(l1Population);
+                if (l2.getType() == LocationType.CITY) {
+                    l2Population *= 2;
+                }
+                return l2Population.compareTo(l1Population);
             }
         });
         // Collections.sort(retrievedLocations, new Comparator<Location>() {
@@ -809,8 +813,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     public static void main(String[] args) throws PageContentExtractorException {
 
-        System.out.println(makeAcronymSeparated("USA"));
-        System.exit(0);
+        // System.out.println(makeAcronymSeparated("USA"));
+        // System.exit(0);
 
         // String mashapePublicKey = "u3ewnlzvxvbg3gochzqcrulimgngsb";
         // String mashapePrivateKey = "dxkyimj8rjoyti1mqx2lqragbbg71k";
@@ -818,7 +822,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text49.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text4.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // String cleanText = "Light";
