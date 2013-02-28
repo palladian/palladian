@@ -25,7 +25,6 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.helper.MashapeUtil;
 
 /**
  * <p>
@@ -41,16 +40,12 @@ public final class NewsSeecrLocationSource implements LocationSource {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsSeecrLocationSource.class);
 
-    /** Configuration key for the Mashape public key. */
-    public static final String CONFIG_MASHAPE_PUBLIC_KEY = "api.newsseecr.mashapePublicKey";
-    /** Configuration key for the Mashape private key. */
-    public static final String CONFIG_MASHAPE_PRIVATE_KEY = "api.newsseecr.mashapePrivateKey";
+    /** Configuration key for the Mashape key. */
+    public static final String CONFIG_MASHAPE_KEY = "api.newsseecr.mashapeKey";
 
     private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/locations";
 
-    private final String mashapePublicKey;
-
-    private final String mashapePrivateKey;
+    private final String mashapeKey;
 
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
@@ -59,14 +54,11 @@ public final class NewsSeecrLocationSource implements LocationSource {
      * Create a new {@link NewsSeecrLocationSource} with the provided credentials from Mashape.
      * </p>
      * 
-     * @param mashapePublicKey The Mashape public key, not empty or <code>null</code>.
-     * @param mashapePrivateKey The Mashape private key, not empty or <code>null</code>.
+     * @param mashapeKey The Mashape key, not empty or <code>null</code>.
      */
-    public NewsSeecrLocationSource(String mashapePublicKey, String mashapePrivateKey) {
-        Validate.notEmpty(mashapePublicKey, "mashapePublicKey must not be empty");
-        Validate.notEmpty(mashapePrivateKey, "mashapePrivateKey must not be empty");
-        this.mashapePublicKey = mashapePublicKey;
-        this.mashapePrivateKey = mashapePrivateKey;
+    public NewsSeecrLocationSource(String mashapeKey) {
+        Validate.notEmpty(mashapeKey, "mashapeKey must not be empty");
+        this.mashapeKey = mashapeKey;
     }
 
     @Override
@@ -117,7 +109,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     private String retrieveResult(HttpRequest request) {
-        MashapeUtil.signRequest(request, mashapePublicKey, mashapePrivateKey);
+        request.addHeader("X-Mashape-Authorization", mashapeKey);
         LOGGER.debug("Performing request: " + request);
         HttpResult result;
         try {
@@ -181,22 +173,22 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     public static void main(String[] args) {
-        NewsSeecrLocationSource newsSeecrLocationSource = new NewsSeecrLocationSource("52feznh45ezmjxgfzorrk6ooagyadg",
-                "iwjiagid3rqhbyu5bwwevrbpyicrk2");
-        EnumSet<Language> languages = EnumSet.of(Language.ENGLISH, Language.GERMAN, Language.FRENCH);
-        // EnumSet<Language> languages = EnumSet.noneOf(Language.class);
-        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin", languages);
-        CollectionHelper.print(locations);
-
-        Location loc = locations.get(53);
-        System.out.println(loc);
-
-        for (;;) {
-
-            List<Location> hierarchyLocations = newsSeecrLocationSource.getHierarchy(loc.getId());
-            CollectionHelper.print(hierarchyLocations);
-
-        }
+////        NewsSeecrLocationSource newsSeecrLocationSource = new NewsSeecrLocationSource("52feznh45ezmjxgfzorrk6ooagyadg",
+////                "iwjiagid3rqhbyu5bwwevrbpyicrk2");
+//        EnumSet<Language> languages = EnumSet.of(Language.ENGLISH, Language.GERMAN, Language.FRENCH);
+//        // EnumSet<Language> languages = EnumSet.noneOf(Language.class);
+//        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin", languages);
+//        CollectionHelper.print(locations);
+//
+//        Location loc = locations.get(53);
+//        System.out.println(loc);
+//
+//        for (;;) {
+//
+//            List<Location> hierarchyLocations = newsSeecrLocationSource.getHierarchy(loc.getId());
+//            CollectionHelper.print(hierarchyLocations);
+//
+//        }
 
         // Location loc2 = newsSeecrLocationSource.retrieveLocation(2921044);
         // System.out.println(loc2);

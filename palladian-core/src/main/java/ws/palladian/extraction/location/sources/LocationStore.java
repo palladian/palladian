@@ -62,5 +62,5 @@ public interface LocationStore extends LocationSource {
      * 
      * @return The highest location id in the source.
      */
-    Integer getHighestId();
+    int getHighestId();
 }

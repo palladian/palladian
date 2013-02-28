@@ -149,6 +149,7 @@ public class LocationExtractionEvaluator {
         // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        // LocationSource database = new NewsSeecrLocationSource("tr1dn3mc0bdhzzjngkvzahqloxph0e");
         Map<String, Double> results = evaluator.evaluateAll(new PalladianLocationExtractor(database), DATASET_LOCATION);
 
         CollectionHelper.print(results);

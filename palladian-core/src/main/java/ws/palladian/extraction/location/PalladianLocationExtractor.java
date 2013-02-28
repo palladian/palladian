@@ -161,6 +161,18 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 retrievedLocations.addAll(temp);
             }
 
+            // if we retrieved locations with AND without coordinates, only keep those WITH coordinates
+            Filter<Location> coordFilter = new Filter<Location>() {
+                @Override
+                public boolean accept(Location item) {
+                    return item.getLatitude() != null && item.getLongitude() != null;
+                }
+            };
+            HashSet<Location> temp = CollectionHelper.filter(retrievedLocations, coordFilter, new HashSet<Location>());
+            if (temp.size() > 0) {
+                retrievedLocations = temp;
+            }
+
             // XXX experimental
             // greatly improves pr, but drops recall/f1
             //            CollectionHelper.filter(retrievedLocations, new Filter<Location>() {
@@ -557,6 +569,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
         Collections.sort(temp, new Comparator<Location>() {
             @Override
             public int compare(Location l1, Location l2) {
+                if (l1.getType() != l2.getType()) {
+                    if (l1.getType() == LocationType.CONTINENT) {
+                        return -1;
+                    }
+                    if (l2.getType() == LocationType.CONTINENT) {
+                        return 1;
+                    }
+                }
                 // if (l2.getType() == LocationType.UNIT) {
                 // return -1;
                 // }
