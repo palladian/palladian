@@ -359,19 +359,19 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors);
 
-        printEvaluationDetails(evaluationResult, annotationsErrors, confusionMatrix,
+        getEvaluationDetails(evaluationResult, annotationsErrors, confusionMatrix,
                 FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() + "_results_" + inputFile
                         + "_" + getName().replace(" ", "") + ".csv");
 
         return evaluationResult;
     }
 
-    public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult) {
-        return printEvaluationDetails(evaluationResult, new HashMap<ResultType, Annotations>(), new ConfusionMatrix(),
+    public static String getEvaluationDetails(EvaluationResult evaluationResult) {
+        return getEvaluationDetails(evaluationResult, new HashMap<ResultType, Annotations>(), new ConfusionMatrix(),
                 null);
     }
 
-    public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult,
+    public static String getEvaluationDetails(EvaluationResult evaluationResult,
             Map<ResultType, Annotations> annotationsErrors, ConfusionMatrix confusionMatrix, String targetPath) {
 
         // write evaluation results to file
@@ -499,7 +499,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             FileHelper.writeToFile(targetPath, results);
         }
 
-        return results;
+        return results.toString();
     }
 
     private static CountMap<String> getAnnotationCountForTag(Annotations annotations) {

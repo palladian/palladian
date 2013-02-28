@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.math.MathHelper;
 
@@ -410,7 +411,7 @@ public class EvaluationResult {
         // builder.append(getF1(MUC));
         // builder.append("]");
         // return builder.toString();
-        return NamedEntityRecognizer.printEvaluationDetails(this).toString();
+        return NamedEntityRecognizer.getEvaluationDetails(this);
     }
 
     public String getExactMatchResultsReadable() {

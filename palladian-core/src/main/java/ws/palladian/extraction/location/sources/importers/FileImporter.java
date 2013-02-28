@@ -86,10 +86,11 @@ public final class FileImporter {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
 
-        // String locationFilePath = "/Users/pk/Desktop/universities.txt";
-        String locationFilePath = "/Users/pk/Dropbox/LocationLab/amusementParks.txt";
+        String universities = "/Users/pk/Desktop/universities.txt";
+        String amusementParks = "/Users/pk/Dropbox/LocationLab/amusementParks.txt";
         FileImporter importer = new FileImporter(locationStore);
-        importer.importLocations(locationFilePath);
+        importer.importLocations(universities);
+        importer.importLocations(amusementParks);
     }
 
 }
