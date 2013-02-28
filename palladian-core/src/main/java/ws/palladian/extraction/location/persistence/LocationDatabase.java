@@ -232,7 +232,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public Integer getHighestId() {
+    public int getHighestId() {
         // FIXME, untested
         return runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
     }

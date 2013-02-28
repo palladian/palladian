@@ -17,16 +17,14 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
- * This class reads simple CSV files with locations and imports them into a given {@link LocationStore}.
- * </p>
- * 
- * <p>
- * A CSV must obey to the following format:
- * </p>
+ * This class reads simple CSV files with locations and imports them into a given {@link LocationStore}. A CSV must obey
+ * to the following format:
  * 
  * <pre>
  * Location Name;Location Type;Latitude;Longitude;Population
  * </pre>
+ * 
+ * </p>
  * 
  * @author David Urbansky
  */
@@ -56,16 +54,27 @@ public final class FileImporter {
 
         // get the currently highest id
         int maxId = locationStore.getHighestId();
-        
+
         List<String> lines = FileHelper.readFileToArray(locationFilePath);
+
         int idOffset = 1;
         for (String line : lines) {
             String[] parts = line.split(";");
             String locationName = parts[0];
-            LocationType locationType = LocationType.valueOf(parts[1]);
-            Double latitude = Double.valueOf(parts[2]);
-            Double longitude = Double.valueOf(parts[3]);
-            Location location = new Location(maxId+idOffset, locationName, null, locationType, latitude, longitude, null);
+            LocationType locationType = LocationType.UNDETERMINED;
+            if (parts.length > 1) {
+                locationType = LocationType.valueOf(parts[1]);
+            }
+            Double latitude = null;
+            if (parts.length > 2) {
+                latitude = Double.valueOf(parts[2]);
+            }
+            Double longitude = null;
+            if (parts.length > 3) {
+                longitude = Double.valueOf(parts[3]);
+            }
+            int id = maxId + idOffset;
+            Location location = new Location(id, locationName, null, locationType, latitude, longitude, null);
             locationStore.save(location);
             idOffset++;
         }
@@ -76,9 +85,9 @@ public final class FileImporter {
     public static void main(String[] args) throws IOException {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        locationStore.truncate();
 
-        String locationFilePath = "";
+        // String locationFilePath = "/Users/pk/Desktop/universities.txt";
+        String locationFilePath = "/Users/pk/Dropbox/LocationLab/amusementParks.txt";
         FileImporter importer = new FileImporter(locationStore);
         importer.importLocations(locationFilePath);
     }

@@ -155,11 +155,12 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     @Override
-    public Integer getHighestId() {
-        // FIXME, untested
+    public int getHighestId() {
+        if (locationsIds.isEmpty()) {
+            return 0;
+        }
         List<Integer> locationIdList = new ArrayList<Integer>(locationsIds.keySet());
-        Collections.sort(locationIdList);
-        return CollectionHelper.getLast(locationIdList);
+        return Collections.max(locationIdList);
     }
 
 }
