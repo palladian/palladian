@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-02-18 15:41:37 +0000
+# Erstellungsdauer: 2013-02-28 14:05:32 +0000
 # ************************************************************
 
 
@@ -62,8 +62,8 @@ CREATE TABLE `locations` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'The id of the location.',
   `type` varchar(20) NOT NULL DEFAULT '' COMMENT 'The type of the location.',
   `name` varchar(255) NOT NULL COMMENT 'The primary name of the location.',
-  `longitude` double(8,5) NOT NULL COMMENT 'The longitude of the location.',
-  `latitude` double(8,5) NOT NULL COMMENT 'The latitude of the location.',
+  `longitude` double(8,5) DEFAULT NULL COMMENT 'The longitude of the location.',
+  `latitude` double(8,5) DEFAULT NULL COMMENT 'The latitude of the location.',
   `population` bigint(15) unsigned DEFAULT NULL COMMENT 'If applicable, the population of the location.',
   PRIMARY KEY (`id`),
   KEY `name` (`name`),

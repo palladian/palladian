@@ -24,6 +24,7 @@ import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.OneColumnRowConverter;
 import ws.palladian.persistence.RowConverter;
+import ws.palladian.persistence.helper.SqlHelper;
 
 /**
  * <p>
@@ -60,8 +61,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             LocationType locationType = LocationType.valueOf(resultSet.getString("type"));
             String primaryName = resultSet.getString("name");
             List<AlternativeName> alternativeNames = getAlternativeNames(id);
-            Double latitude = resultSet.getDouble("latitude");
-            Double longitude = resultSet.getDouble("longitude");
+            Double latitude = SqlHelper.getDouble(resultSet, "latitude");
+            Double longitude = SqlHelper.getDouble(resultSet, "longitude");
             Long population = resultSet.getLong("population");
             return new Location(id, primaryName, alternativeNames, locationType, latitude, longitude, population);
         }
@@ -233,8 +234,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public int getHighestId() {
-        // FIXME, untested
-        return runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
+        Integer id = runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
+        return id != null ? id : 0;
     }
 
     public static void main(String[] args) {

@@ -47,21 +47,21 @@ public final class ProtectedPlanetImporter {
 
     public void importLocations(String locationFilePath) {
 
-        StopWatch stopWatch = new StopWatch();
+        final StopWatch stopWatch = new StopWatch();
 
         // get the currently highest id
         final int maxId = locationStore.getHighestId();
         final int totalLocations = FileHelper.getNumberOfLines(locationFilePath) - 1;
 
-        LineAction la = new LineAction() {
+        LineAction action = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
-                if (lineNumber == 0) {
+                String[] parts = line.split(",");
+                if (lineNumber == 0 || parts.length < 25) {
                     return;
                 }
-                String[] parts = line.split(",");
-                String placeName = parts[5];
+                String placeName = new String(parts[5]); // new string, save memory.
                 Double latitude = null;
                 Double longitude = null;
                 try {
@@ -73,33 +73,31 @@ public final class ProtectedPlanetImporter {
                             break;
                         }
                     }
-
                     String longitudeString = StringHelper.getSubstringBetween(parts[coordinatesIndex], "<coordinates>",
                             null);
                     latitude = Double.valueOf(StringHelper.getSubstringBetween(parts[coordinatesIndex + 1], null, " "));
                     longitude = Double.valueOf(longitudeString);
                 } catch (Exception e) {
-                    LOGGER.error("no coordinates for " + placeName, e);
+                    LOGGER.error("No coordinates in {}", line);
                 }
-                Location location = new Location(maxId + lineNumber, placeName, null, LocationType.LANDMARK, latitude,
-                        longitude, null);
+                int id = maxId + lineNumber;
+                Location location = new Location(id, placeName, null, LocationType.LANDMARK, latitude, longitude, null);
                 locationStore.save(location);
 
-                ProgressHelper.printProgress(lineNumber, totalLocations, 1);
+                ProgressHelper.printProgress(lineNumber, totalLocations, 1, stopWatch);
             }
         };
 
-        FileHelper.performActionOnEveryLine(locationFilePath, la);
+        FileHelper.performActionOnEveryLine(locationFilePath, action);
 
-        LOGGER.info("imported " + totalLocations + " locations in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("imported {} locations in {}", totalLocations, stopWatch.getTotalElapsedTimeString());
     }
 
     public static void main(String[] args) throws IOException {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        locationStore.truncate();
 
-        String locationFilePath = "PATH";
+        String locationFilePath = "/Users/pk/Dropbox/LocationLab/protectedPlaces.csv";
         ProtectedPlanetImporter importer = new ProtectedPlanetImporter(locationStore);
         importer.importLocations(locationFilePath);
     }
