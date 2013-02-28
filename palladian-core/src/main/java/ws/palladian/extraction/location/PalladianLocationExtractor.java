@@ -31,6 +31,7 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -60,31 +61,20 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     static {
         skipWords = new HashSet<String>();
-        skipWords.add("Monday");
-        skipWords.add("Tuesday");
-        skipWords.add("Wednesday");
-        skipWords.add("Thursday");
-        skipWords.add("Friday");
-        skipWords.add("Saturday");
-        skipWords.add("Sunday");
-        skipWords.add("January");
-        skipWords.add("February");
-        skipWords.add("March");
-        skipWords.add("April");
-        skipWords.add("May");
-        skipWords.add("June");
-        skipWords.add("July");
-        skipWords.add("August");
-        skipWords.add("September");
-        skipWords.add("October");
-        skipWords.add("November");
-        skipWords.add("December");
-        skipWords.add("Parliament");
 
         try {
-            skipWords.addAll(FileHelper.readFileToArray(ResourceHelper.getResourceFile("/adjectivesBlacklist.txt")));
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1.getMessage());
+            FileHelper.performActionOnEveryLine(ResourceHelper.getResourcePath("/locationsBlacklist.txt"),
+                    new LineAction() {
+                        @Override
+                        public void performAction(String line, int lineNumber) {
+                            if (line.isEmpty() || line.startsWith("#")) {
+                                return;
+                            }
+                            skipWords.add(line);
+                        }
+                    });
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         CASE_DICTIONARY = CollectionHelper.newHashMap();
