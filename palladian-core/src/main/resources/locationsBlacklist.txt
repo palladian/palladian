@@ -1,3 +1,32 @@
+# adjectives and demonyms for continents
+African
+Africans
+Antarctic
+Antarctican
+Americana
+Americansa
+Asian
+Asians
+Middle Eastern
+Middle Easterners
+Australasian
+Australasians
+Australian
+Australians
+Eurasian
+Eurasians
+European
+Europeans
+North American
+North Americans
+Central American
+Central Americans
+Oceanian
+Oceanians
+South American
+South Americans
+
+# adjectives and demonyms for countries
 Abkhaz
 Abkhazian
 Abkhazians
@@ -514,3 +543,46 @@ Zambian
 Zambians
 Zimbabwean
 Zimbabweans
+
+# days, months
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Saturday
+Sunday
+January
+February
+March
+April
+May
+June
+July
+August
+September
+October
+November
+December
+
+# religions
+Christian
+Roman Catholic
+Greek Orthodox
+Armenian Apostolic
+Protestant
+Muslim
+Sunni
+Shiite
+Ibadhi
+Shi'a
+Hindu
+Buddhist
+Theravada
+Cao Dai
+Jewish
+Bahá'í
+Sikh
+Mormon
+Atheist
+Agnostic
