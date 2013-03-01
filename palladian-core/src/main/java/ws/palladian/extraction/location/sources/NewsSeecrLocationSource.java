@@ -40,9 +40,6 @@ public final class NewsSeecrLocationSource implements LocationSource {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsSeecrLocationSource.class);
 
-    /** Configuration key for the Mashape key. */
-    public static final String CONFIG_MASHAPE_KEY = "api.newsseecr.mashapeKey";
-
     private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/locations";
 
     private final String mashapeKey;
@@ -51,11 +48,25 @@ public final class NewsSeecrLocationSource implements LocationSource {
 
     /**
      * <p>
+     * Create a new {@link NewsSeecrLocationSource} with the provided credentials from Mashape and caching.
+     * </p>
+     * 
+     * @param mashapeKey The Mashape key, not empty or <code>null</code>.
+     * @return A new {@link NewsSeecrLocationSource} with caching.
+     */
+    public static LocationSource newCachedLocationSource(String mashapeKey) {
+        return new CachingLocationSource(new NewsSeecrLocationSource(mashapeKey));
+    }
+
+    /**
+     * <p>
      * Create a new {@link NewsSeecrLocationSource} with the provided credentials from Mashape.
      * </p>
      * 
      * @param mashapeKey The Mashape key, not empty or <code>null</code>.
+     * @deprecated Prefer using the cached variant, which can be obtained via {@link #newCachedLocationSource(String)}.
      */
+    @Deprecated
     public NewsSeecrLocationSource(String mashapeKey) {
         Validate.notEmpty(mashapeKey, "mashapeKey must not be empty");
         this.mashapeKey = mashapeKey;

@@ -130,6 +130,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
             String entityValue = locationCandidate.getEntity();
 
+            entityValue = cleanName(entityValue);
+
             if (!StringHelper.isCompletelyUppercase(entityValue) && stopTokenRemover.isStopword(entityValue)) {
                 continue;
             }
@@ -225,6 +227,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
         }
 
+
         // cluster(anchorLocations, locationMap);
         disambiguate(anchorLocations, locationMap);
 
@@ -238,6 +241,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
         while (iterator.hasNext()) {
             Annotation annotation = iterator.next();
             String entityValue = annotation.getEntity();
+
+            entityValue = cleanName(entityValue);
+
             if (!locationMap.containsKey(entityValue)) {
                 iterator.remove();
                 continue;
@@ -271,6 +277,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return locationEntities;
     }
 
+    public String cleanName(String entityValue) {
+        entityValue = entityValue.replace("®", "");
+        entityValue = entityValue.replace("™", "");
+        entityValue = entityValue.replace("\\s+", " ");
+        entityValue = entityValue.trim();
+        return entityValue;
+    }
+
     public static boolean isAcronymSeparated(String string) {
         return string.matches("([A-Z]\\.)+");
     }
@@ -284,16 +298,16 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return result.toString();
     }
 
-    private boolean checkProximity(Location loc, Set<Location> anchorLocations2, Set<Location> sureAnchors) {
+    private boolean checkProximity(Location loc, Set<Location> anchorLocations2) {
         double closesProximity = Double.MAX_VALUE;
         Location closestLoc = null;
-        if (sureAnchors.contains(loc)) {
-            return true; // trivial.
-        }
+//        if (sureAnchors.contains(loc)) {
+//            return true; // trivial.
+//        }
         for (Location location : anchorLocations2) {
-            if (location.getPopulation() == 0) {
-                continue; // ignore them of course.
-            }
+//            if (location.getPopulation() == 0) {
+//                continue; // ignore them of course.
+//            }
             double distance = getDistance(loc, location);
             if (distance < closesProximity) {
                 closesProximity = distance;
@@ -307,6 +321,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
         System.out.println("Closest prox. for " + loc.getPrimaryName() + " : " + closesProximity + "("
                 + closestLoc.getPrimaryName() + ")");
+        // return closesProximity < 500;
         return closesProximity < 100;
         //        return false;
     }
@@ -320,52 +335,52 @@ public class PalladianLocationExtractor extends LocationExtractor {
     //        }, new HashSet<Location>());
     //    }
 
-    private void cluster(Set<Location> anchorLocations, MultiMap<String, Location> ambiguousLocations) {
-
-        Set<Location> toAdd = CollectionHelper.newHashSet();
-        for (Location location : anchorLocations) {
-            List<Location> hierarchy = locationSource.getHierarchy(location.getId());
-            for (Location currentLocation : hierarchy) {
-                if (currentLocation.getPrimaryName().equalsIgnoreCase("earth")) {
-                    continue;
-                }
-                toAdd.add(currentLocation);
-            }
-        }
-        anchorLocations.addAll(toAdd);
-
-        // if we have countries as anchors, we remove the continents, to be more precise.
-        LocationTypeFilter countryFilter = new LocationTypeFilter(LocationType.COUNTRY);
-        if (CollectionHelper.filter(anchorLocations, countryFilter, new HashSet<Location>()).size() > 0) {
-            CollectionHelper.filter(anchorLocations, countryFilter);
-        }
-
-        // go through each group
-        for (String locationName : ambiguousLocations.keySet()) {
-            List<Location> locationsToCheck = ambiguousLocations.get(locationName);
-
-
-            for (Location location : anchorLocations) {
-
-                double closest = Double.MAX_VALUE;
-                Location closestLocation = null;
-
-                for (Location location2 : locationsToCheck) {
-                    double distance = getDistance(location, location2);
-                    if (distance < closest) {
-                        closest = distance;
-                        closestLocation = location2;
-                    }
-                    // System.out.println("Distance between " + location + " and " + location2 + " : " + distance);
-                }
-
-                if (closestLocation != null) {
-                    System.out.println("Distance between " + location + " and " + closestLocation + " : " + closest);
-                }
-            }
-        }
-
-    }
+//    private void cluster(Set<Location> anchorLocations, MultiMap<String, Location> ambiguousLocations) {
+//
+//        Set<Location> toAdd = CollectionHelper.newHashSet();
+//        for (Location location : anchorLocations) {
+//            List<Location> hierarchy = locationSource.getHierarchy(location.getId());
+//            for (Location currentLocation : hierarchy) {
+//                if (currentLocation.getPrimaryName().equalsIgnoreCase("earth")) {
+//                    continue;
+//                }
+//                toAdd.add(currentLocation);
+//            }
+//        }
+//        anchorLocations.addAll(toAdd);
+//
+//        // if we have countries as anchors, we remove the continents, to be more precise.
+//        LocationTypeFilter countryFilter = new LocationTypeFilter(LocationType.COUNTRY);
+//        if (CollectionHelper.filter(anchorLocations, countryFilter, new HashSet<Location>()).size() > 0) {
+//            CollectionHelper.filter(anchorLocations, countryFilter);
+//        }
+//
+//        // go through each group
+//        for (String locationName : ambiguousLocations.keySet()) {
+//            List<Location> locationsToCheck = ambiguousLocations.get(locationName);
+//
+//
+//            for (Location location : anchorLocations) {
+//
+//                double closest = Double.MAX_VALUE;
+//                Location closestLocation = null;
+//
+//                for (Location location2 : locationsToCheck) {
+//                    double distance = getDistance(location, location2);
+//                    if (distance < closest) {
+//                        closest = distance;
+//                        closestLocation = location2;
+//                    }
+//                    // System.out.println("Distance between " + location + " and " + location2 + " : " + distance);
+//                }
+//
+//                if (closestLocation != null) {
+//                    System.out.println("Distance between " + location + " and " + closestLocation + " : " + closest);
+//                }
+//            }
+//        }
+//
+//    }
 
     private void disambiguate(Set<Location> anchorLocations, MultiMap<String, Location> ambiguousLocations) {
 
@@ -380,6 +395,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
         }
         anchorLocations.addAll(toAdd);
+
+        // Set<Location> originalAnchors = new HashSet<Location>(toAdd);
 
         // if we have countries as anchors, we remove the continents, to be more precise.
         LocationTypeFilter countryFilter = new LocationTypeFilter(LocationType.COUNTRY);
@@ -419,6 +436,15 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
                 boolean anchored = false;
                 List<Location> hierarchy = locationSource.getHierarchy(location.getId());
+
+                // XXX experimental code; also keep locations without hierarchy
+                if (hierarchy.isEmpty()) {
+                    anchored = true;
+                    // anchored = checkProximity(location, originalAnchors);
+                    // anchored = checkProximity(location, anchorLocations);
+                }
+                // //
+
                 for (Location anchorLocation : anchorLocations) {
                     if (hierarchy.contains(anchorLocation)) {
                         anchored = true;
@@ -842,7 +868,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text13.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text14.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // String cleanText = "Light";
