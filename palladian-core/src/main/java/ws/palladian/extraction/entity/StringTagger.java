@@ -1,8 +1,5 @@
 package ws.palladian.extraction.entity;
 
-import java.io.File;
-
-import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -16,23 +13,23 @@ public class StringTagger {
 
     public static final String CANDIDATE_TAG = "<CANDIDATE>$0</CANDIDATE>";
 
-    public static void tagAndSaveString(File input) {
-        String text = FileHelper.readFileToString(input.getAbsolutePath());
-        String taggedText = tagString(text);
-        FileHelper.writeToFile(
-                FileHelper.getRenamedFilename(input, input.getName().replaceAll("\\..*", "") + "_tagged"), taggedText);
-    }
+//    public static void tagAndSaveString(File input) {
+//        String text = FileHelper.readFileToString(input.getAbsolutePath());
+//        String taggedText = tagString(text);
+//        FileHelper.writeToFile(
+//                FileHelper.getRenamedFilename(input, input.getName().replaceAll("\\..*", "") + "_tagged"), taggedText);
+//    }
+//
+//    public static String tagString(File f) {
+//        String text = FileHelper.readFileToString(f.getAbsolutePath());
+//        return tagString(text);
+//    }
 
-    public static String tagString(File f) {
-        String text = FileHelper.readFileToString(f.getAbsolutePath());
-        return tagString(text);
-    }
-
-    public static String tagString(String s, String regexp) {
+    private static String tagString(String s, String regexp) {
         return s.replaceAll(regexp, CANDIDATE_TAG);
     }
 
-    public static String tagString(String s) {
+    private static String tagString(String s) {
 
         String regexp = "";
 
