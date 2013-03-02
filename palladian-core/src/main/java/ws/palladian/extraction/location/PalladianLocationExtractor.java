@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
@@ -43,7 +45,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class PalladianLocationExtractor extends LocationExtractor {
 
@@ -229,13 +231,15 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
 
         // cluster(anchorLocations, locationMap);
-        disambiguate(anchorLocations, locationMap);
+        disambiguate(new HashSet<Location>(anchorLocations), locationMap);
 
         Set<Location> consolidatedLocations = CollectionHelper.newHashSet();
         consolidatedLocations.addAll(anchorLocations);
         for (List<Location> temp : locationMap.values()) {
             consolidatedLocations.addAll(temp);
         }
+
+        Map<String, Location> finalResultsForCheck = CollectionHelper.newHashMap();
 
         Iterator<Annotation> iterator = locationEntities.iterator();
         while (iterator.hasNext()) {
@@ -272,9 +276,58 @@ public class PalladianLocationExtractor extends LocationExtractor {
             CategoryEntries ces = new CategoryEntries();
             ces.add(new CategoryEntry(loc.getType().toString(), 1.));
             annotation.setTags(ces);
+
+            finalResultsForCheck.put(annotation.getEntity(), loc);
+        }
+
+        Map<String, Location> clearMap = checkFinalResults(finalResultsForCheck, anchorLocations);
+        iterator = locationEntities.iterator();
+        while (iterator.hasNext()) {
+            Annotation current = iterator.next();
+            if (clearMap.containsKey(current.getEntity())) {
+                System.out.println("- remove - " + current);
+                iterator.remove();
+            }
         }
 
         return locationEntities;
+    }
+
+    private Map<String, Location> checkFinalResults(Map<String, Location> finalResultsForCheck,
+            Set<Location> anchorLocations) {
+        List<Entry<String, Location>> locationList = new ArrayList<Entry<String, Location>>(
+                finalResultsForCheck.entrySet());
+        Map<String, Location> toClear = CollectionHelper.newHashMap();
+        for (int i = 0; i < locationList.size(); i++) {
+            Location l1 = locationList.get(i).getValue();
+            if (l1.getType() == LocationType.CONTINENT || l1.getType() == LocationType.COUNTRY
+                    || l1.getType() == LocationType.REGION) {
+                continue;
+            }
+            if (anchorLocations.contains(l1)) {
+                continue; // always accepted.
+            }
+            double smallestDistance = Double.MAX_VALUE;
+            Location smallestLoc = null;
+            for (int j = 0; j < locationList.size(); j++) {
+                Location l2 = locationList.get(j).getValue();
+                if (l1.equals(l2)) {
+                    continue;
+                }
+                double distance = getDistance(l1, l2);
+                if (smallestDistance > distance) {
+                    smallestDistance = distance;
+                    smallestLoc = l2;
+                }
+            }
+            if (l1.getPopulation() == null || l1.getPopulation() < 1000) {
+                // System.out.println(l1.getPrimaryName() + " : " + smallestDistance + " --- " + smallestLoc);
+                if (smallestDistance > 250) {
+                    toClear.put(locationList.get(i).getKey(), l1);
+                }
+            }
+        }
+        return toClear;
     }
 
     public String cleanName(String entityValue) {
@@ -319,10 +372,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
             //                return true;
             //            }
         }
-        System.out.println("Closest prox. for " + loc.getPrimaryName() + " : " + closesProximity + "("
-                + closestLoc.getPrimaryName() + ")");
+        if (closestLoc != null) {
+            System.out.println("Closest prox. for " + loc.getPrimaryName() + " : " + closesProximity + "("
+                    + closestLoc.getPrimaryName() + ")");
+        }
         // return closesProximity < 500;
-        return closesProximity < 100;
+        return closesProximity < 50;
         //        return false;
     }
 
@@ -396,7 +451,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
         anchorLocations.addAll(toAdd);
 
-        // Set<Location> originalAnchors = new HashSet<Location>(toAdd);
+        Set<Location> fineAnchors = new HashSet<Location>(toAdd);
 
         // if we have countries as anchors, we remove the continents, to be more precise.
         LocationTypeFilter countryFilter = new LocationTypeFilter(LocationType.COUNTRY);
@@ -418,8 +473,18 @@ public class PalladianLocationExtractor extends LocationExtractor {
             return;
         }
 
+        fineAnchors.removeAll(anchorLocations);
+        CollectionHelper.filter(fineAnchors, InverseFilter.create(new LocationTypeFilter(LocationType.COUNTRY)));
+        CollectionHelper.filter(fineAnchors, InverseFilter.create(new LocationTypeFilter(LocationType.CONTINENT)));
+
         System.out.println("Anchor locations: ");
         CollectionHelper.print(anchorLocations);
+
+        System.out.println("Fine anchors: ");
+        CollectionHelper.print(fineAnchors);
+
+        // Set<Location> positive = CollectionHelper.newHashSet();
+        // Set<Location> negative = CollectionHelper.newHashSet();
 
         // go through each group
         for (String locationName : ambiguousLocations.keySet()) {
@@ -427,6 +492,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             System.out.println(locationName);
 
             List<Location> list = ambiguousLocations.get(locationName);
+            Set<Location> temp = CollectionHelper.newHashSet();
 
             // check each location in group
             Iterator<Location> it = list.iterator();
@@ -441,7 +507,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 if (hierarchy.isEmpty()) {
                     anchored = true;
                     // anchored = checkProximity(location, originalAnchors);
-                    // anchored = checkProximity(location, anchorLocations);
+                    // anchored = checkProximity(location, fineAnchors);
                 }
                 // //
 
@@ -466,10 +532,32 @@ public class PalladianLocationExtractor extends LocationExtractor {
                     it.remove();
                 }
 
+//                if (anchored) {
+//                    positive.add(location);
+//                } else {
+//                    temp.add(location);
+//                }
+
             }
+
+            // did we remove all? give a second chance below
+//            if (list.isEmpty()) {
+//                negative.addAll(temp);
+//            }
 
             System.out.println("-----------");
         }
+
+        // go again through the negative locations and check,if we get them by proximity
+//        for (Location negativeLocation : negative) {
+//            for (Location positiveLocation : positive) {
+//                double distance = getDistance(negativeLocation, positiveLocation);
+//                if (distance < 100) {
+//                    System.err.println("*** Re-add negative location because of distance " + distance + " : "
+//                            + negativeLocation);
+//                }
+//            }
+//        }
 
     }
 
@@ -868,7 +956,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text14.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text3.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // String cleanText = "Light";
