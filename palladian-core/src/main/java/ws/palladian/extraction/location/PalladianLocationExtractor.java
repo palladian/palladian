@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +33,6 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -64,40 +62,32 @@ public class PalladianLocationExtractor extends LocationExtractor {
     static {
         skipWords = new HashSet<String>();
 
-        try {
-            FileHelper.performActionOnEveryLine(ResourceHelper.getResourcePath("/locationsBlacklist.txt"),
-                    new LineAction() {
-                        @Override
-                        public void performAction(String line, int lineNumber) {
-                            if (line.isEmpty() || line.startsWith("#")) {
-                                return;
-                            }
-                            skipWords.add(line);
+        FileHelper.performActionOnEveryLine(
+                PalladianLocationExtractor.class.getResourceAsStream("/locationsBlacklist.txt"), new LineAction() {
+                    @Override
+                    public void performAction(String line, int lineNumber) {
+                        if (line.isEmpty() || line.startsWith("#")) {
+                            return;
                         }
-                    });
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+                        skipWords.add(line);
+                    }
+                });
 
         CASE_DICTIONARY = CollectionHelper.newHashMap();
 
         List<String> array;
-        try {
-            array = FileHelper.readFileToArray(ResourceHelper.getResourceFile("/caseDictionary.csv"));
+        array = FileHelper.readFileToArray(PalladianLocationExtractor.class.getResourceAsStream("/caseDictionary.csv"));
 
-            for (String string : array) {
+        for (String string : array) {
 
-                String[] parts = string.split("\t");
-                String ratio = parts[3];
-                if (ratio.equalsIgnoreCase("infinity")) {
-                    CASE_DICTIONARY.put(parts[0], 99999.0);
-                } else {
-                    CASE_DICTIONARY.put(parts[0], Double.valueOf(ratio));
-                }
-
+            String[] parts = string.split("\t");
+            String ratio = parts[3];
+            if (ratio.equalsIgnoreCase("infinity")) {
+                CASE_DICTIONARY.put(parts[0], 99999.0);
+            } else {
+                CASE_DICTIONARY.put(parts[0], Double.valueOf(ratio));
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e.getMessage());
+
         }
 
     }
