@@ -325,8 +325,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
                     smallestLoc = l2;
                 }
             }
-            if (l1.getPopulation() == null || l1.getPopulation() < 1000) {
-                // System.out.println(l1.getPrimaryName() + " : " + smallestDistance + " --- " + smallestLoc);
+            if (l1.getPopulation() == null || l1.getPopulation() < 5000) {
+                System.out.println(l1.getPrimaryName() + " : " + smallestDistance + " --- " + smallestLoc);
                 if (smallestDistance > 250) {
                     toClear.put(locationList.get(i).getKey(), l1);
                 }
@@ -961,7 +961,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
 
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text2.txt");
+                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text46.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
 
         // String cleanText = "Light";
