@@ -217,11 +217,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
             Location location = selectLocation(retrievedLocations);
 
-            CategoryEntries categoryEntries = new CategoryEntries();
-            categoryEntries.add(new CategoryEntry(location.getType().toString(), 1));
-            locationCandidate.setTags(categoryEntries);
 
-            locationEntities.add(locationCandidate);
+            // CategoryEntries categoryEntries = new CategoryEntries();
+            // categoryEntries.add(new CategoryEntry(location.getType().toString(), 1));
+            // locationCandidate.setTags(categoryEntries);
+
+            // locationEntities.add(locationCandidate);
+            LocationAnnotation locationAnnotation = new LocationAnnotation(locationCandidate, location);
+            locationEntities.add(locationAnnotation);
 
             if (!ambiguous && entityValue.split("\\s").length >= 3) {
                 LOGGER.debug("Adding {} to anchor locations, because of long name", location.getPrimaryName());
