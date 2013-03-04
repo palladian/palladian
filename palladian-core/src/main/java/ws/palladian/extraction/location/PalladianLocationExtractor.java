@@ -142,7 +142,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             // XXX check total length, and avoid checking long capitalized words which are no acronyms (AMERICA)
             if (StringHelper.isCompletelyUppercase(entityValue) || isAcronymSeparated(entityValue)) {
 
-                System.out.println("**** Acronym treatment : " + entityValue);
+                LOGGER.debug("**** Acronym treatment : " + entityValue);
 
                 Set<Location> temp = CollectionHelper.newHashSet();
 
@@ -187,7 +187,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 // anchor locations. we should determine how to set a good threshold here.
                 // improves recall/f1, slightly drops precision
                 if (location.getPopulation() > 500000) {
-                    System.out.println("High prob location " + location);
+                    LOGGER.debug("High prob location " + location);
                     anchorLocations.add(location);
                 }
 
@@ -196,9 +196,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
             boolean ambiguous = checkAmbiguity(retrievedLocations);
             if (ambiguous) {
                 ambiguousLocations.add(retrievedLocations);
-                System.out.println("- " + entityValue + " is ambiguous!");
+                LOGGER.debug("- " + entityValue + " is ambiguous!");
             } else {
-                System.out.println("+ " + entityValue + " is not amiguous: " + retrievedLocations);
+                LOGGER.debug("+ " + entityValue + " is not amiguous: " + retrievedLocations);
             }
 
             if (!locationMap.containsKey(entityValue)) {
@@ -278,7 +278,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         while (iterator.hasNext()) {
             Annotation current = iterator.next();
             if (clearMap.containsKey(current.getEntity())) {
-                System.out.println("- remove - " + current);
+                LOGGER.debug("- remove - " + current);
                 iterator.remove();
             }
         }
@@ -319,7 +319,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 }
             }
             if (l1.getPopulation() == null || l1.getPopulation() < 5000) {
-                System.out.println(l1.getPrimaryName() + " : " + smallestDistance + " --- " + smallestLoc);
+                LOGGER.debug(l1.getPrimaryName() + " : " + smallestDistance + " --- " + smallestLoc);
                 if (smallestDistance > 250) {
                     toClear.put(locationList.get(i).getKey(), l1);
                 }
@@ -371,7 +371,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             //            }
         }
         if (closestLoc != null) {
-            System.out.println("Closest prox. for " + loc.getPrimaryName() + " : " + closesProximity + "("
+            LOGGER.debug("Closest prox. for " + loc.getPrimaryName() + " : " + closesProximity + "("
                     + closestLoc.getPrimaryName() + ")");
         }
         // return closesProximity < 500;
@@ -475,11 +475,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
         CollectionHelper.filter(fineAnchors, InverseFilter.create(new LocationTypeFilter(LocationType.COUNTRY)));
         CollectionHelper.filter(fineAnchors, InverseFilter.create(new LocationTypeFilter(LocationType.CONTINENT)));
 
-        System.out.println("Anchor locations: ");
-        CollectionHelper.print(anchorLocations);
+        LOGGER.debug("Anchor locations: {}", anchorLocations);
+        // CollectionHelper.print(anchorLocations);
 
-        System.out.println("Fine anchors: ");
-        CollectionHelper.print(fineAnchors);
+        LOGGER.debug("Fine anchors: {}", fineAnchors);
+        // CollectionHelper.print(fineAnchors);
 
         // Set<Location> positive = CollectionHelper.newHashSet();
         // Set<Location> negative = CollectionHelper.newHashSet();
@@ -487,7 +487,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // go through each group
         for (String locationName : ambiguousLocations.keySet()) {
 
-            System.out.println(locationName);
+            LOGGER.debug(locationName);
 
             List<Location> list = ambiguousLocations.get(locationName);
             Set<Location> temp = CollectionHelper.newHashSet();
@@ -524,7 +524,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
                     anchored = true;
                 }
 
-                System.out.println(anchored + " -> " + location);
+                LOGGER.debug(anchored + " -> " + location);
 
                 if (!anchored) {
                     it.remove();
@@ -543,7 +543,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 //                negative.addAll(temp);
 //            }
 
-            System.out.println("-----------");
+            LOGGER.debug("-----------");
         }
 
         // go again through the negative locations and check,if we get them by proximity
@@ -568,7 +568,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             Double ratio = CASE_DICTIONARY.get(value.toLowerCase());
             if (ratio != null && ratio > 1.0) {
                 iterator.remove();
-                System.out.println("remove " + value + " because of lc/uc ratio of " + ratio);
+                LOGGER.debug("remove " + value + " because of lc/uc ratio of " + ratio);
             }
         }
     }
@@ -914,7 +914,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 }
             }
             if (remove) {
-                System.out.println("Remove " + annotation);
+                LOGGER.debug("Remove " + annotation);
                 iterator.remove();
             }
         }
