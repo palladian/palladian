@@ -13,6 +13,12 @@ public class LocationAnnotation extends Annotation {
         this.location = location;
     }
 
+    public LocationAnnotation(int startPos, int endPos, String name, LocationType type, Double lat, Double lng) {
+        super(startPos, name, type.toString());
+        setLength(endPos - startPos);
+        this.location = new Location(0, name, null, type, lat, lng, null);
+    }
+
     public Location getLocation() {
         return location;
     }
