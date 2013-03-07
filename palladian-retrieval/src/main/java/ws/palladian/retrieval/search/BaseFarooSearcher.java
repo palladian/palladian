@@ -17,15 +17,11 @@ import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
- * {@link WebSearcher} implementation for faroo.
+ * {@link WebSearcher} implementation for faroo. Rate limit is 100,000 queries per month.
  * </p>
  * 
- * <p>
- * Rate limit is 100,000 queries per month.
- * </p>
- * 
- * @see http://www.faroo.com/
- * @see http://www.faroo.com/hp/api/api.html#jsonp
+ * @see <a href="http://www.faroo.com/">FAROO Peer-to-peer Web Search</a>
+ * @see <a href="http://www.faroo.com/hp/api/api.html#jsonp">API doc.</a>
  * @author David Urbansky
  */
 public abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
@@ -41,15 +37,22 @@ public abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
+        HttpResult httpResult;
 
         try {
             String requestUrl = getRequestUrl(query, resultCount, language);
-            HttpResult httpResult = retriever.httpGet(requestUrl);
+            httpResult = retriever.httpGet(requestUrl);
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
-            JSONObject jsonObject = new JSONObject(jsonString);
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
+        }
 
+        String jsonString = HttpHelper.getStringContent(httpResult);
+
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
             if (!jsonObject.has("results")) {
                 return webResults;
             }
@@ -71,12 +74,9 @@ public abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
                 }
             }
 
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
         } catch (JSONException e) {
             throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
-                    + getName() + ": " + e.getMessage(), e);
+                    + getName() + ": " + e.getMessage() + ", JSON \"" + jsonString + "\"", e);
         }
 
         return webResults;
