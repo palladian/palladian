@@ -63,8 +63,8 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP exception while accessing the web service: " + e.getMessage(), e);
         }
-
         String resultString = HttpHelper.getStringContent(result);
+        checkError(result);
         LOGGER.debug("Result JSON: {}", resultString);
         try {
             Annotations annotations = new Annotations();
@@ -83,7 +83,31 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
             }
             return annotations;
         } catch (JSONException e) {
-            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage(), e);
+            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON: "
+                    + resultString, e);
+        }
+    }
+
+    /**
+     * <p>
+     * Check for potential errors from the web service, throw Exception if error occurred.
+     * </p>
+     * 
+     * @param result
+     */
+    private void checkError(HttpResult result) {
+        if (result.getStatusCode() >= 300) {
+            // try to get the message
+            try {
+                JSONObject json = new JSONObject(HttpHelper.getStringContent(result));
+                String message = json.getString("message");
+                throw new IllegalStateException("Error while accessing the web service: " + message
+                        + ", response code: " + result.getStatusCode());
+            } catch (JSONException ignore) {
+                // no message could be extracted
+            }
+            throw new IllegalStateException("Error while accessing the web service, response code: "
+                    + result.getStatusCode());
         }
     }
 
