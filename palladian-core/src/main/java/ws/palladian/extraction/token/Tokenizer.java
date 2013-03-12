@@ -61,7 +61,6 @@ public final class Tokenizer {
             RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
             RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
 
-
     private static UrlTagger urlTagger = new UrlTagger();
     private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
     private static SmileyTagger smileyTagger = new SmileyTagger();
@@ -249,6 +248,7 @@ public final class Tokenizer {
         List<String> nGrams = new ArrayList<String>();
 
         String[] words = string.split("\\s");
+        words = filterEmptyWords(words);
 
         if (words.length < n) {
             return nGrams;
@@ -265,6 +265,24 @@ public final class Tokenizer {
         }
 
         return nGrams;
+    }
+
+    /**
+     * <p>
+     * Filters empty {@link String}s for N-Gram creation. Empty string may occur if the input {@link String} contains
+     * control characters.
+     * </p>
+     * 
+     * @param words The words to check.
+     */
+    private static String[] filterEmptyWords(String[] words) {
+        List<String> ret = new ArrayList<String>();
+        for (String word : words) {
+            if (!word.trim().isEmpty()) {
+                ret.add(word);
+            }
+        }
+        return ret.toArray(new String[ret.size()]);
     }
 
     /**
