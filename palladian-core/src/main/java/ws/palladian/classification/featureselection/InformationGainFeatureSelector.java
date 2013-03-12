@@ -5,23 +5,26 @@ package ws.palladian.classification.featureselection;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.discretization.Binner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
@@ -49,30 +52,30 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
      * @param dataset The collection of instances to select features for.
      * @return
      */
-    public <T extends Feature<?>> Map<T, Double> calculateInformationGain(String featurePath, Class<T> featureType,
-            Collection<Instance> dataset) {
-        Validate.notNull(featurePath);
-        Validate.notNull(featureType);
+    @SuppressWarnings("unchecked")
+    private Map<Feature<?>, Double> calculateInformationGain(FeatureDetails featureDetails, Collection<Instance> dataset) {
+        Validate.notNull(featureDetails);
         Validate.notNull(dataset);
         if (dataset.isEmpty()) {
             LOGGER.warn("Dataset for feature selection is empty. No feature selection is carried out.");
         }
 
-        Map<T, Double> ret = CollectionHelper.newHashMap();
+        Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
         Map<String, Integer> classCounts = CollectionHelper.newHashMap();
         Map<String, Integer> featuresInClass = CollectionHelper.newHashMap();
         Integer sumOfFeaturesInAllClasses = 0;
-        Map<T, Integer> absoluteOccurences = CollectionHelper.newHashMap();
-        Map<T, Map<String, Integer>> absoluteConditionalOccurences = CollectionHelper.newHashMap();
+        Map<Feature<?>, Integer> absoluteOccurences = CollectionHelper.newHashMap();
+        Map<Feature<?>, Map<String, Integer>> absoluteConditionalOccurences = CollectionHelper.newHashMap();
 
         // initialize binner if feature is numeric.
-        Binner binner = null;
-        if (featureType.equals(NumericFeature.class)) {
-            binner = discretize(featurePath, dataset);
+        Map<List<FeatureDescriptor>, Binner> binner = new HashMap<List<FeatureDescriptor>, Binner>();
+        if (featureDetails.getType().equals(NumericFeature.class)) {
+            binner.putAll(discretize(featureDetails, dataset));
         }
 
         // count occurences in dataset
         for (Instance instance : dataset) {
+
             Integer targetClassCount = classCounts.get(instance.getTargetClass());
             if (targetClassCount == null) {
                 classCounts.put(instance.getTargetClass(), 1);
@@ -81,16 +84,28 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
             }
 
             // get all features of the current feature type from the feature vector.
-            List<T> featuresList = FeatureUtils
-                    .getFeaturesAtPath(instance.getFeatureVector(), featureType, featurePath);
+            // List<? extends Feature<?>> featuresList = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(),
+            // featureDetails.getType(), featureDetails.getPath());
             // This is necessary to handle numeric features.
-            @SuppressWarnings("unchecked")
-            List<T> binnedFeatureList = binner == null ? featuresList : (List<T>)binner
-                    .bin((List<NumericFeature>)featuresList);
-            Set<T> features = new HashSet<T>(binnedFeatureList); // remove duplicates
+
+            List<Pair<List<FeatureDescriptor>, Feature<?>>> identifiedFeaturesAtPath = FeatureUtils
+                    .getIdentifiedFeaturesAtPath(instance.getFeatureVector(), featureDetails.getPath(),
+                            new ArrayList<FeatureDescriptor>());
+            Set<Pair<List<FeatureDescriptor>, Feature<?>>> deduplicatedFeatures = new HashSet<Pair<List<FeatureDescriptor>, Feature<?>>>(
+                    identifiedFeaturesAtPath);
+            // Set<T> features = new HashSet<T>(binnedFeatureList); // remove duplicates
 
             // count feature occurrences
-            for (T feature : features) {
+            for (Pair<List<FeatureDescriptor>, Feature<?>> identifiedFeature : deduplicatedFeatures) {
+                // for (T feature : features) {
+                Feature<?> feature = null;
+                Binner featureBinner = binner.get(identifiedFeature.getKey());
+                if (featureBinner != null) {
+                    feature = (Feature<?>)featureBinner.bin((NumericFeature)identifiedFeature.getValue());
+                } else {
+                    feature = identifiedFeature.getValue();
+                }
+
                 // refresh the counter how often the feature occurs together with the class of the current instance.
                 Integer countOfFeaturesInClass = featuresInClass.get(instance.getTargetClass());
                 if (countOfFeaturesInClass == null) {
@@ -129,7 +144,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         }
 
         // calculate information gain.
-        for (Entry<T, Integer> absoluteOccurence : absoluteOccurences.entrySet()) {
+        for (Entry<Feature<?>, Integer> absoluteOccurence : absoluteOccurences.entrySet()) {
             double G = 0.0d;
 
             double termClassCoocurrence = 0.0d;
@@ -172,43 +187,68 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
      * @return A {@link Binner} object capable of discretization of already encountered and unencountered values for the
      *         provided {@link NumericFeature}.
      */
-    private static Binner discretize(final String featurePath, Collection<Instance> dataset) {
-        List<Instance> sortedDataset = new LinkedList<Instance>(dataset);
-        Collections.sort(sortedDataset, new Comparator<Instance>() {
-
-            @Override
-            public int compare(Instance o1, Instance o2) {
-                List<NumericFeature> o1Features = FeatureUtils.getFeaturesAtPath(o1.getFeatureVector(),
-                        NumericFeature.class, featurePath);
-                List<NumericFeature> o2Features = FeatureUtils.getFeaturesAtPath(o2.getFeatureVector(),
-                        NumericFeature.class, featurePath);
-                try {
-                    Validate.isTrue(o1Features.size() == 1 && o2Features.size() == 1,
-                            "Feature %s is either sparse or not available", featurePath);
-                } catch (Exception e) {
-                    System.out.println("###############");
-                }
-                return o1Features.get(0).getValue().compareTo(o2Features.get(0).getValue());
-            }
-        });
-
-        List<Integer> boundaryPoints = findBoundaryPoints(sortedDataset, featurePath);
-        String name = featurePath.split("/")[0];
-        List<NumericFeature> features = new ArrayList<NumericFeature>();
-        for (Instance instance : sortedDataset) {
-            List<NumericFeature> feature = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(),
-                    NumericFeature.class, featurePath);
-            Validate.isTrue(feature.size() == 1);
-            features.addAll(feature);
+    public static Map<List<FeatureDescriptor>, Binner> discretize(final FeatureDetails featureDetails,
+            Collection<Instance> dataset) {
+        if (featureDetails.getPath().equals("ws.palladian.features.tokens/ws.palladian.features.tokens.count")) {
+            System.out.println("##############");
         }
-        return new Binner(name, boundaryPoints, features);
+
+        Map<List<FeatureDescriptor>, SortedSet<Instance>> sortedInstances = new HashMap<List<FeatureDescriptor>, SortedSet<Instance>>();
+        for (Instance instance : dataset) {
+            List<Pair<List<FeatureDescriptor>, Feature<?>>> features = FeatureUtils.getIdentifiedFeaturesAtPath(
+                    instance.getFeatureVector(), featureDetails.getPath(), new ArrayList<FeatureDescriptor>());
+            for (Pair<List<FeatureDescriptor>, Feature<?>> feature : features) {
+                final List<FeatureDescriptor> featureIdentifier = feature.getKey();
+
+                SortedSet<Instance> sorted = sortedInstances.get(featureIdentifier);
+                if (sorted == null) {
+                    sorted = new TreeSet<Instance>(new Comparator<Instance>() {
+
+                        @Override
+                        public int compare(Instance o1, Instance o2) {
+                            NumericFeature o1Feature = FeatureUtils.getFeatureForIdentifier(o1.getFeatureVector(),
+                                    NumericFeature.class, featureIdentifier);
+                            NumericFeature o2Feature = FeatureUtils.getFeatureForIdentifier(o2.getFeatureVector(),
+                                    NumericFeature.class, featureIdentifier);
+                            return o1Feature.getValue().compareTo(o2Feature.getValue());
+                        }
+                    });
+                }
+                sorted.add(instance);
+                sortedInstances.put(featureIdentifier, sorted);
+            }
+        }
+
+        Map<List<FeatureDescriptor>, Binner> ret = new HashMap<List<FeatureDescriptor>, Binner>();
+        for (Entry<List<FeatureDescriptor>, SortedSet<Instance>> entry : sortedInstances.entrySet()) {
+            List<Instance> sortedDataset = new ArrayList<Instance>(entry.getValue());
+            Binner binner = createBinner(sortedDataset, entry.getKey());
+            ret.put(entry.getKey(), binner);
+        }
+        return ret;
     }
 
-    private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset, String featurePath) {
+    private static Binner createBinner(List<Instance> sortedDataset, List<FeatureDescriptor> featureIdentifier) {
+        List<Integer> boundaryPoints = findBoundaryPoints(sortedDataset);
+
+        StringBuilder nameBuilder = new StringBuilder();
+        for (FeatureDescriptor descriptor : featureIdentifier) {
+            nameBuilder.append(descriptor.toString()).append("/");
+        }
+
+        List<NumericFeature> features = new ArrayList<NumericFeature>();
+        for (Instance instance : sortedDataset) {
+            NumericFeature feature = FeatureUtils.getFeatureForIdentifier(instance.getFeatureVector(),
+                    NumericFeature.class, featureIdentifier);
+            features.add(feature);
+        }
+        return new Binner(nameBuilder.toString(), boundaryPoints, features);
+    }
+
+    private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
         List<Integer> boundaryPoints = new ArrayList<Integer>();
         int N = sortedDataset.size();
         List<Instance> s = sortedDataset;
-        String a = featurePath;
         for (int t = 1; t < sortedDataset.size(); t++) {
             if (sortedDataset.get(t - 1).getTargetClass() != sortedDataset.get(t).getTargetClass()
                     && gain(t, s) > (Math.log(N - 1) / Math.log(2)) - N + delta(t, s) / N) {
@@ -234,14 +274,6 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                 - (k * entropy(s) - k1 * entropy(s1) - k2 * entropy(s2));
     }
 
-    private static double calculateNumberOfClasses(List<Instance> s) {
-        Set<String> possibleClasses = new HashSet<String>();
-        for (Instance instance : s) {
-            possibleClasses.add(instance.getTargetClass());
-        }
-        return possibleClasses.size();
-    }
-
     private static double entropy(List<Instance> dataset) {
         double entropy = 0.0d;
         Map<String, Integer> absoluteOccurrences = new HashMap<String, Integer>();
@@ -261,6 +293,14 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         return entropy;
     }
 
+    private static double calculateNumberOfClasses(List<Instance> s) {
+        Set<String> possibleClasses = new HashSet<String>();
+        for (Instance instance : s) {
+            possibleClasses.add(instance.getTargetClass());
+        }
+        return possibleClasses.size();
+    }
+
     private static double laplaceSmooth(int vocabularySize, int countOfFeature, int countOfCoocurence) {
         return (1.0d + countOfCoocurence) / (vocabularySize + countOfFeature);
     }
@@ -269,9 +309,27 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
     public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
 
+        // // get feature paths
+        // List<String> sparseFeaturePaths = new ArrayList<String>();
+        // List<String> normalFeaturePaths = new ArrayList<String>();
+        // for (FeatureDetails featureDetails : featuresToConsider) {
+        // if (featureDetails.isSparse()) {
+        // sparseFeaturePaths.add(featureDetails.getFeaturePath());
+        // } else {
+        // normalFeaturePaths.add(featureDetails.getFeaturePath());
+        // }
+        // }
+        //
+        // // make all feature vectors flat
+        // List<Instance> flatInstances = new ArrayList<Instance>(dataset.size());
+        // for (Instance instance : dataset) {
+        // FeatureVector flatVector = FeatureUtils.makeFlat(instance.getFeatureVector(), normalFeaturePaths,
+        // sparseFeaturePaths);
+        // flatInstances.add(new Instance(instance.getTargetClass(), flatVector));
+        // }
+
         for (FeatureDetails featureDetails : featuresToConsider) {
-            Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(
-                    featureDetails.getFeaturePath(), featureDetails.getFeatureType(), dataset);
+            Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(featureDetails, dataset);
 
             if (featureDetails.isSparse()) {
                 // add each entry
@@ -285,7 +343,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                     averageGain += value.getValue();
                 }
                 averageGain /= informationGainValues.size();
-                ranking.add(featureDetails.getFeaturePath(), averageGain);
+                ranking.add(featureDetails.getPath(), averageGain);
             }
         }
         return ranking;

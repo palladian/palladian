@@ -1,7 +1,7 @@
 /**
  * Created on: 05.02.2013 15:57:23
  */
-package ws.palladian.classification.featureselection;
+package ws.palladian.classification.discretization;
 
 import ws.palladian.processing.features.NumericFeature;
 

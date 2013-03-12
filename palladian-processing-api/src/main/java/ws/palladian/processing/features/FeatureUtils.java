@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import ws.palladian.processing.Classifiable;
 
 /**
@@ -137,6 +140,75 @@ public final class FeatureUtils {
             }
         }
         return ret;
+    }
+
+    /**
+     * <p>
+     * Creates a unique identifier for each feature extracted at the provided path. The identifier is uniqe across the
+     * entire hierarchy of features.
+     * </p>
+     * 
+     * @param featureVector
+     * @param class
+     * @param path
+     * @return
+     */
+    public static List<Pair<List<FeatureDescriptor>, Feature<?>>> getIdentifiedFeaturesAtPath(FeatureVector vector,
+            String path, List<FeatureDescriptor> prefix) {
+        int slashIndex = path.indexOf("/");
+        String leadingPathPart = slashIndex == -1 ? path : path.substring(0, slashIndex);
+        String trailingPathPart = slashIndex == -1 ? "" : path.substring(slashIndex + 1, path.length());
+        List<? extends Feature<?>> featureList = vector.getAll(leadingPathPart);
+
+        List<Pair<List<FeatureDescriptor>, Feature<?>>> ret = new ArrayList<Pair<List<FeatureDescriptor>, Feature<?>>>();
+        if (!trailingPathPart.isEmpty()) {
+            for (Feature<?> feature : featureList) {
+                if (feature instanceof Classifiable) {
+                    Classifiable classifiable = (Classifiable)feature;
+                    List<FeatureDescriptor> currentPrefix = new ArrayList<FeatureDescriptor>();
+                    currentPrefix.add(new FeatureDescriptor(leadingPathPart, feature.getValue().toString()));
+                    ret.addAll(getIdentifiedFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart,
+                            currentPrefix));
+                }
+            }
+        } else {
+            for (Feature<?> feature : featureList) {
+                List<FeatureDescriptor> identifier = new ArrayList<FeatureDescriptor>(prefix);
+                identifier.add(new FeatureDescriptor(leadingPathPart, leadingPathPart));
+                ret.add(new ImmutablePair<List<FeatureDescriptor>, Feature<?>>(identifier, feature));
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * <p>
+     * Retrieves the feature identified by an identifier as created by
+     * {@link #getIdentifiedFeaturesAtPath(FeatureVector, Class, String, String)}.
+     * </p>
+     * 
+     * @param featureVector
+     * @param type
+     * @param featureIdentifier
+     * @return
+     */
+    public static <T extends Feature<?>> T getFeatureForIdentifier(FeatureVector vector, Class<T> type,
+            List<FeatureDescriptor> identifier) {
+        List<T> featureList = vector.getAll(type, identifier.get(0).getQualifier());
+
+        for (T feature : featureList) {
+            if (feature.getName().equals(identifier.get(0).getQualifier())) {
+                if (feature instanceof Classifiable && identifier.size() > 1
+                        && feature.getValue().toString().equals(identifier.get(0).getIdentifier())) {
+                    List<FeatureDescriptor> shortenedIdentifier = identifier.subList(1, identifier.size() - 1);
+                    return getFeatureForIdentifier(vector, type, shortenedIdentifier);
+                } else if (identifier.size() == 1) {
+                    return feature;
+                }
+            }
+        }
+
+        return null;
     }
 }
 

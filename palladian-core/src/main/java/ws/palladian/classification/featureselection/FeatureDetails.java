@@ -21,11 +21,11 @@ public final class FeatureDetails {
         this.isSparse = isSparse;
     }
 
-    public String getFeaturePath() {
+    public String getPath() {
         return featurePath;
     }
 
-    public Class<? extends Feature<?>> getFeatureType() {
+    public Class<? extends Feature<?>> getType() {
         return featureType;
     }
 
