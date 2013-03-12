@@ -123,6 +123,9 @@ public class HttpRetriever {
     /** The default number of connections in the connection pool. */
     public static final int DEFAULT_NUM_CONNECTIONS = 100;
 
+    /** The default number of connections per route. */
+    public static final int DEFAULT_NUM_CONNECTIONS_PER_ROUTE = 10;
+
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
@@ -246,6 +249,7 @@ public class HttpRetriever {
         setSocketTimeout(socketTimeout);
         setNumRetries(numRetries);
         setNumConnections(numConnections);
+        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -979,6 +983,10 @@ public class HttpRetriever {
 
     public void setNumConnections(int numConnections) {
         connectionManager.setMaxTotal(numConnections);
+    }
+
+    public void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
+        connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
     }
 
     /**
