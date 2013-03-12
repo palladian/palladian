@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
@@ -22,6 +24,9 @@ import ws.palladian.helper.nlp.StringHelper;
 
 // FIXME this step must be done after person name detection!
 class EntityPreprocessor {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityPreprocessor.class);
 
     public static final Function<Annotation, String> ANNOTATION_TO_STRING = new Function<Annotation, String>() {
         @Override
@@ -166,9 +171,9 @@ class EntityPreprocessor {
     }
 
     public static Map<String, String> correctAnnotations(String text, Map<String, Double> caseDictionary) {
-        Annotations annotations = StringTagger.getTaggedEntities(text);
+        // Annotations annotations = StringTagger.getTaggedEntities(text);
 
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
         // System.out.println("------");
 
         List<String> paragraphs = tokenizeParagraphs(text);
@@ -199,9 +204,9 @@ class EntityPreprocessor {
                 }
 
                 // XXX experimental
-                if (StringHelper.containsWord("of", annotation.getEntity())) {
-                    System.out.println("**** 'of' anntation: " + annotation);
-                }
+                // if (StringHelper.containsWord("of", annotation.getEntity())) {
+                // System.out.println("**** 'of' anntation: " + annotation);
+                // }
             }
         }
 
@@ -230,7 +235,7 @@ class EntityPreprocessor {
             // System.out.println("processing " + annotation);
 
             if (inSentenceStrings.contains(annotation.getEntity())) {
-                System.out.println("Everything fine with " + annotation.getEntity());
+                LOGGER.debug("Everything fine with " + annotation.getEntity());
                 continue;
             }
             String value = annotation.getEntity();
@@ -259,7 +264,7 @@ class EntityPreprocessor {
                 String newValue = value;
                 for (int i = 0; i < tokenValues.length; i++) {
                     Double ratio = caseDictionary.get(tokenValues[i].toLowerCase());
-                    System.out.println("ratio for " + tokenValues[i] + " = " + ratio);
+                    LOGGER.debug("ratio for " + tokenValues[i] + " = " + ratio);
                     if (ratio != null && ratio > 1.0) {
                         newValue = newValue.substring(Math.min(newValue.length(), tokenValues[i].length() + 1));
                     } else {
@@ -267,7 +272,7 @@ class EntityPreprocessor {
                     }
                 }
                 if (!newValue.equals(value)) {
-                    System.out.println("change value by dictionary > " + newValue);
+                    LOGGER.debug("change value by dictionary > " + newValue);
                     toModify.put(annotation.getEntity(), newValue);
                 }
             }
@@ -292,7 +297,7 @@ class EntityPreprocessor {
             ret.put(toRemoveEntity, "");
         }
 
-        CollectionHelper.print(ret);
+        // CollectionHelper.print(ret);
 
         return ret;
     }

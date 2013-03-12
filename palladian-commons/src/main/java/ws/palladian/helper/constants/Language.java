@@ -17,6 +17,7 @@ public enum Language {
     BULGARIAN("bg"), //
     CATALAN("ca"), //
     CHINESE("zh"), //
+    DANISH("da"), //
     DUTCH("nl"), //
     ENGLISH("en"), //
     ESPERANTO("eo"), //
