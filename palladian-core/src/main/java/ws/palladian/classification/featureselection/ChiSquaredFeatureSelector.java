@@ -132,8 +132,8 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
     public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
         for (FeatureDetails featureDetails : featuresToConsider) {
-            Map<String, Map<String, Double>> scoredFeature = calculateChiSquareValues(featureDetails.getFeaturePath(),
-                    featureDetails.getFeatureType(), dataset);
+            Map<String, Map<String, Double>> scoredFeature = calculateChiSquareValues(featureDetails.getPath(),
+                    featureDetails.getType(), dataset);
             Validate.isTrue((!featureDetails.isSparse() && scoredFeature.size() == 1) || (featureDetails.isSparse()));
 
             // this should usually only run once for non sparse features.
@@ -146,7 +146,7 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
                 averageScore /= scoredValue.getValue().size();
 
                 if (featureDetails.isSparse()) {
-                    ranking.addSparse(featureDetails.getFeaturePath(), scoredValue.getKey(), averageScore);
+                    ranking.addSparse(featureDetails.getPath(), scoredValue.getKey(), averageScore);
                 } else {
                     ranking.add(scoredValue.getKey(), averageScore);
                 }

@@ -1,7 +1,7 @@
 /**
  * Created on: 05.02.2013 15:56:24
  */
-package ws.palladian.classification.featureselection;
+package ws.palladian.classification.discretization;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,5 +59,32 @@ public final class Binner {
             }
         }
         return ret;
+    }
+
+    public NumericBin bin(NumericFeature feature) {
+        int binPosition = Collections.binarySearch(bins, feature, new Comparator<NumericFeature>() {
+
+            @Override
+            public int compare(NumericFeature bin, NumericFeature feature) {
+                NumericBin numericBin = (NumericBin)bin;
+                if (numericBin.belongsToBin(feature)) {
+                    return 0;
+                } else if (numericBin.isSmaller(feature)) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
+
+        if (binPosition < 0) {
+            if (((NumericBin)bins.get(0)).isSmaller(feature)) {
+                return bins.get(0);
+            } else {
+                return bins.get(bins.size() - 1);
+            }
+        } else {
+            return bins.get(binPosition);
+        }
     }
 }
