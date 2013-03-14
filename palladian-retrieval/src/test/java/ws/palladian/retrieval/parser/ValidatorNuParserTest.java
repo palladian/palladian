@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -21,13 +22,13 @@ import ws.palladian.helper.io.ResourceHelper;
  * 
  * @author Philipp Katz
  */
-public class NekoHtmlParserTest {
+public class ValidatorNuParserTest {
 
     private DocumentParser htmlParser;
 
     @Before
     public void setUp() {
-        htmlParser = ParserFactory.createHtmlParser();
+        htmlParser = new ValidatorNuParser();
     }
 
     /**
@@ -78,6 +79,22 @@ public class NekoHtmlParserTest {
     public void testParseMixedNamespaces() throws FileNotFoundException, ParserException {
         Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/xhtml-mathml-svg.xhtml"));
         assertEquals(4, XPathHelper.getXhtmlNodes(document, "/html/body/ul[1]/li").size());
+    }
+
+    /**
+     * <p>
+     * Test, whether the URL is kept when parsing from an {@link InputSource}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testKeepDocumentUriFromInputSource() throws Exception {
+        InputSource inputSource = new InputSource(ResourceHelper.getResourceStream("/apiresponse/googleResult.html"));
+        String url = "http://www.google.com/search?hl=en&safe=off&output=search&q=cat";
+        inputSource.setSystemId(url);
+        Document document = htmlParser.parse(inputSource);
+        assertEquals(url, document.getDocumentURI());
     }
 
 }

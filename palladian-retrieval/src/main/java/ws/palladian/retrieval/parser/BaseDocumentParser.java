@@ -41,7 +41,6 @@ public abstract class BaseDocumentParser implements DocumentParser {
             inputSource.setEncoding(charset);
         }
 
-        // Document document = parse(new ByteArrayInputStream(content));
         Document document = parse(inputSource);
         document.setDocumentURI(httpResult.getUrl());
         return document;
