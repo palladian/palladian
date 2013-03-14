@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -31,7 +32,13 @@ public final class ValidatorNuParser extends BaseDocumentParser {
     public Document parse(InputSource inputSource) throws ParserException {
         try {
             HtmlDocumentBuilder builder = new HtmlDocumentBuilder();
-            return builder.parse(inputSource);
+            Document document = builder.parse(inputSource);
+            // keep the URL, if it was supplied via the input source
+            String systemId = inputSource.getSystemId();
+            if (StringUtils.isNotEmpty(systemId)) {
+                document.setDocumentURI(systemId);
+            }
+            return document;
         } catch (SAXException e) {
             throw new ParserException(e);
         } catch (IOException e) {
