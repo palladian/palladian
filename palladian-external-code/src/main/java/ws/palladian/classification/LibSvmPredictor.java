@@ -333,6 +333,14 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
         return ret;
     }
 
+    /**
+     * <p>
+     * Writes the {@link FeatureVector}s of the provided instances to disk using the LibSvm format.
+     * </p>
+     * 
+     * @param instances The instances to get the {@link FeatureVector}s to write from.
+     * @param targetFilePath The path to write the output to.
+     */
     public void writeToDisk(List<Instance> instances, String targetFilePath) {
         Map<String, Normalization> normalizations = normalizeNumericFeatures(instances);
         Map<String, Integer> indices = new HashMap<String, Integer>();
