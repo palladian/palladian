@@ -482,7 +482,7 @@ public final class StringHelper {
     }
 
     public static String removeWord(String word, String searchString) {
-        return removeDoubleWhitespaces(replaceWord(word, "", searchString));
+        return replaceWord(word, "", searchString).replaceAll("[ ]{2,10}", " ");
     }
 
     public static String replaceWord(String word, String replacement, String searchString) {
@@ -912,7 +912,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"};
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
@@ -1416,7 +1416,7 @@ public final class StringHelper {
      * @return The cleansed text.
      */
     public static String removeDoubleWhitespaces(String text) {
-        return text.replaceAll("[ ]{1,}", " ");
+        return text.replaceAll("[ ]{2,}", " ");
     }
 
     /**
