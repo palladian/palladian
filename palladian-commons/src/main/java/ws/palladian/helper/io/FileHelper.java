@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -1766,6 +1768,41 @@ public final class FileHelper {
         }
 
         return path;
+    }
+
+    public static String createRandomExcerpt(String filePath, int lines) throws IOException {
+
+        String indexFilename = FileHelper.appendToFileName(filePath, "_random" + lines);
+        final FileWriter indexFile = new FileWriter(indexFilename);
+
+        int numberOfLines = FileHelper.getNumberOfLines(filePath);
+
+        final Set<Integer> randomNumbers = MathHelper.createRandomNumbers(lines, 0, numberOfLines);
+
+        LineAction la = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                if (randomNumbers.size() > 0 && !randomNumbers.contains(lineNumber)) {
+                    return;
+                }
+
+                try {
+                    indexFile.write(line + "\n");
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage());
+                }
+
+            }
+
+        };
+
+        FileHelper.performActionOnEveryLine(filePath, la);
+
+        indexFile.close();
+
+        return indexFilename;
     }
 
     /**
