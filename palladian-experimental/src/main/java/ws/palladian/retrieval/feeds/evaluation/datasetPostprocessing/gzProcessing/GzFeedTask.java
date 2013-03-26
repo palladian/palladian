@@ -19,7 +19,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -94,7 +93,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
     }
 
     /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
-    private Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
+    private final Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
 
     @Override
     public FeedTaskResult call() throws Exception {
@@ -155,7 +154,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                 }
 
                 FeedParser feedParser = new RomeFeedParser();
-                HttpResult gzHttpResult = HttpRetriever.loadSerializedHttpResult(file);
+                HttpResult gzHttpResult = HttpHelper.loadSerializedHttpResult(file);
 
                 correctedFeed.setLastPollTime(getChecktimeFromFile(file));
 

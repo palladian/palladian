@@ -1,14 +1,8 @@
 package ws.palladian.retrieval;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +57,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -128,10 +121,7 @@ public class HttpRetriever {
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private static PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
-
-//    /** Implementation of the Apache HttpClient. */
-//    private final DefaultHttpClient backend;
+    private static final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
 
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
@@ -144,17 +134,8 @@ public class HttpRetriever {
     /** The maximum file size in bytes to download. -1 means no limit. */
     private long maxFileSize = -1;
 
-    /** Download size in bytes for this HttpRetriever instance. */
-    private long totalDownloadedBytes = 0;
-
     /** Total number of bytes downloaded by all HttpRetriever instances. */
     private static long sessionDownloadedBytes = 0;
-
-    /** Total number of downloaded pages. */
-    private static int numberOfDownloadedPages = 0;
-
-    /** For secure proxies, we save USERNAME:PASSWORD and send it with the requests. */
-//    private String proxyAuthentication = "";
 
     /** The timeout for connections when checking for redirects. */
     private long connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
@@ -171,75 +152,9 @@ public class HttpRetriever {
     /** Hook for http* methods. */
     private HttpHook httpHook = new HttpHook.DefaultHttpHook();
 
-    /** Separator between HTTP header and content payload when writing HTTP results to file. */
-    private static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
-
-    /** The secure proxy that has been set. */
-//    private SecureProxy secureProxy = null;
-
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
-    
-    private AbstractHttpClient getHttpClient() {
-        
-        // initialize the HttpClient
-        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
-        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
-
-        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-        backend.setHttpRequestRetryHandler(retryHandler);
-
-        HttpProtocolParams.setUserAgent(httpParams, userAgent);
-
-        /*
-         * fix #261 to get connection metrics for head requests, see also discussion at
-         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
-         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
-         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
-         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
-         */
-        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
-            @Override
-            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-                HttpConnectionMetrics metrics = conn.getMetrics();
-                context.setAttribute(CONTEXT_METRICS_ID, metrics);
-            }
-        };
-
-        backend.addResponseInterceptor(metricsSaver);
-        // end edit
-        
-        return backend;
-        
-    }
-
-//    {
-//        // initialize the HttpClient
-//        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
-//        HttpProtocolParams.setUserAgent(httpParams, USER_AGENT);
-//        backend = new DefaultHttpClient(connectionManager, httpParams);
-//
-//        /*
-//         * fix #261 to get connection metrics for head requests, see also discussion at
-//         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
-//         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
-//         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
-//         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
-//         */
-//        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
-//            @Override
-//            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-//                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-//                HttpConnectionMetrics metrics = conn.getMetrics();
-//                context.setAttribute(CONTEXT_METRICS_ID, metrics);
-//            }
-//        };
-//
-//        backend.addResponseInterceptor(metricsSaver);
-//        // end edit
-//    }
 
     /**
      * <p>
@@ -267,7 +182,6 @@ public class HttpRetriever {
      **/
     // TODO visibility should be set to protected, as instances are created by the factory
     protected HttpRetriever() {
-        // this(DEFAULT_CONNECTION_TIMEOUT, DEFAULT_SOCKET_TIMEOUT, DEFAULT_NUM_RETRIES, DEFAULT_NUM_CONNECTIONS);
         setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
@@ -275,24 +189,39 @@ public class HttpRetriever {
         setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
     }
 
-//    /**
-//     * <p>
-//     * Creates a new HTTP retriever with the supplied parameters.
-//     * </p>
-//     * 
-//     * @param connectionTimeout The connection timeout in milliseconds.
-//     * @param socketTimeout The socket timeout in milliseconds.
-//     * @param numRetries The number of retries, if a request fails.
-//     * @param numConnections The maximum number of simultaneous connections.
-//     */
-//    // TODO visibility should be set to protected, as instances are created by the factory
-//    public HttpRetriever(long connectionTimeout, long socketTimeout, int numRetries, int numConnections) {
-//        setConnectionTimeout(connectionTimeout);
-//        setSocketTimeout(socketTimeout);
-//        setNumRetries(numRetries);
-//        setNumConnections(numConnections);
-//        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
-//    }
+    private AbstractHttpClient getHttpClient() {
+
+        // initialize the HttpClient
+        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
+
+        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
+        backend.setHttpRequestRetryHandler(retryHandler);
+
+        HttpProtocolParams.setUserAgent(httpParams, userAgent);
+
+        /*
+         * fix #261 to get connection metrics for head requests, see also discussion at
+         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
+         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
+         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
+         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
+         */
+        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
+            @Override
+            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnectionMetrics metrics = conn.getMetrics();
+                context.setAttribute(CONTEXT_METRICS_ID, metrics);
+            }
+        };
+
+        backend.addResponseInterceptor(metricsSaver);
+        // end edit
+
+        return backend;
+
+    }
 
     // ////////////////////////////////////////////////////////////////
     // HTTP methods
@@ -452,7 +381,7 @@ public class HttpRetriever {
         return execute(request.getUrl(), httpRequest);
     }
 
-    public String createUrl(HttpRequest httpRequest) {
+    private String createUrl(HttpRequest httpRequest) {
         StringBuilder url = new StringBuilder();
         url.append(httpRequest.getUrl());
         boolean first = true;
@@ -506,32 +435,8 @@ public class HttpRetriever {
         HttpResult result;
         InputStream in = null;
 
-//        httpHook.beforeRequest(url, this);
-
         AbstractHttpClient backend = getHttpClient();
-
-        // set proxy authentication if available
-        Proxy proxy = httpHook.getProxy(url);
-        if (proxy != null) {
-            HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
-            backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
-
-            if (StringUtils.isNotEmpty(proxy.getUsername())) {
-                Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
-                AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
-                backend.getCredentialsProvider().setCredentials(scope, credentials);
-
-                String usernamePassword = proxy.getUsername() + ":" + proxy.getPassword();
-                String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
-                request.setHeader("Proxy-Authorization", "Basic " + encoded);
-            }
-        }
-
-//        String usernamePassword = getProxyAuthentication();
-//        if (!usernamePassword.isEmpty()) {
-//            String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
-//            request.setHeader("Proxy-Authorization", "Basic " + encoded);
-//        }
+        setProxy(url, request, backend);
 
         try {
 
@@ -570,7 +475,6 @@ public class HttpRetriever {
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
 
-//            httpHook.afterRequest(result, this);
             addDownload(receivedBytes);
 
         } catch (IllegalStateException e) {
@@ -585,75 +489,24 @@ public class HttpRetriever {
         return result;
     }
 
-    //    /**
-    //     * <p>
-    //     * Get the HTTP headers for a URL by sending a HEAD request.
-    //     * </p>
-    //     *
-    //     * @param url the URL of the page to get the headers from.
-    //     * @return map with the headers, or an empty map if an error occurred.
-    //     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getHeaders()} instead.
-    //     */
-    //    @Deprecated
-    //    public Map<String, List<String>> getHeaders(String url) {
-    //        Map<String, List<String>> result;
-    //        try {
-    //            HttpResult httpResult = httpHead(url);
-    //            result = httpResult.getHeaders();
-    //        } catch (HttpException e) {
-    //            LOGGER.debug(e);
-    //            result = Collections.emptyMap();
-    //        }
-    //        return result;
-    //    }
+    private void setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
+        // set proxy authentication if available
+        Proxy proxy = httpHook.getProxy(url);
+        if (proxy != null) {
+            HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
+            backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
 
-    //    /**
-    //     * <p>
-    //     * Get the HTTP response code of the given URL after sending a HEAD request.
-    //     * </p>
-    //     *
-    //     * @param url the URL of the page to check for response code.
-    //     * @return the HTTP response code, or -1 if an error occurred.
-    //     * @deprecated use {@link #httpHead(String)} and {@link HttpResult#getStatusCode()} instead.
-    //     */
-    //    @Deprecated
-    //    public int getResponseCode(String url) {
-    //        int result;
-    //        try {
-    //            HttpResult httpResult = httpHead(url);
-    //            result = httpResult.getStatusCode();
-    //        } catch (HttpException e) {
-    //            LOGGER.debug(e);
-    //            result = -1;
-    //        }
-    //        return result;
-    //    }
+            if (StringUtils.isNotEmpty(proxy.getUsername())) {
+                Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
+                AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
+                backend.getCredentialsProvider().setCredentials(scope, credentials);
 
-    //    /**
-    //     * <p>
-    //     * Gets the redirect URL from the HTTP "Location" header, if such exists.
-    //     * </p>
-    //     *
-    //     * @param url the URL to check for redirect.
-    //     * @return redirected URL as String, or <code>null</code>.
-    //     * @deprecated Use {@link #getRedirectUrls(String)} instead.
-    //     */
-    //    @Deprecated
-    //    public String getRedirectUrl(String url) {
-    //        // TODO should be changed to use HttpComponents
-    //        String location = null;
-    //        try {
-    //            URL urlObject = new URL(url);
-    //            URLConnection urlCon = urlObject.openConnection();
-    //            HttpURLConnection httpUrlCon = (HttpURLConnection)urlCon;
-    //            httpUrlCon.setInstanceFollowRedirects(false);
-    //            location = httpUrlCon.getHeaderField("Location");
-    //        } catch (IOException e) {
-    //            LOGGER.error(e);
-    //        }
-    //
-    //        return location;
-    //    }
+                String usernamePassword = proxy.getUsername() + ":" + proxy.getPassword();
+                String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
+                request.setHeader("Proxy-Authorization", "Basic " + encoded);
+            }
+        }
+    }
 
     /**
      * <p>
@@ -671,15 +524,9 @@ public class HttpRetriever {
      *             status is returned, but no <code>location</code> field is provided.
      */
     public List<String> getRedirectUrls(String url) throws HttpException {
-
-        // FIXME proxy settings also need to be considered here
-
         Validate.notEmpty(url, "url must not be empty");
 
         List<String> ret = new ArrayList<String>();
-
-        // DecompressingHttpClient client = new DecompressingHttpClient(backend);
-        // HttpParams params = client.getParams();
 
         // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
         // see: https://dev.twitter.com/docs/tco-redirection-behavior
@@ -690,12 +537,14 @@ public class HttpRetriever {
         HttpConnectionParams.setSoTimeout(params, (int)getSocketTimeoutRedirects());
         HttpConnectionParams.setConnectionTimeout(params, (int)getConnectionTimeoutRedirects());
 
-        DecompressingHttpClient client = new DecompressingHttpClient(new DefaultHttpClient(connectionManager, params));
+        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
+        DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
         for (;;) {
             HttpHead headRequest;
             try {
                 headRequest = new HttpHead(url);
+                setProxy(url, headRequest, backend);
             } catch (IllegalArgumentException e) {
                 throw new HttpException("Invalid URL: \"" + url + "\"");
             }
@@ -754,6 +603,7 @@ public class HttpRetriever {
      * @param filePath the path where the downloaded contents should be saved to.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
+    @Deprecated
     public boolean downloadAndSave(String url, String filePath) {
         return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), false);
     }
@@ -769,6 +619,7 @@ public class HttpRetriever {
      *            content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
+    @Deprecated
     public boolean downloadAndSave(String url, String filePath, boolean includeHttpResponseHeaders) {
         return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), includeHttpResponseHeaders);
     }
@@ -786,218 +637,20 @@ public class HttpRetriever {
      *            content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
+    @Deprecated
     public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders,
             boolean includeHttpResponseHeaders) {
 
         boolean result = false;
         try {
             HttpResult httpResult = httpGet(url, requestHeaders);
-            result = saveToFile(httpResult, filePath, includeHttpResponseHeaders);
+            result = HttpHelper.saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {
             LOGGER.error("Error while downloading {}", url, e);
         }
 
         return result;
     }
-
-    /**
-     * <p>
-     * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
-     * </p>
-     * 
-     * @param httpResult The httpResult to save.
-     * @param filePath the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
-     *            is compressed automatically.
-     * @param includeHttpResponseHeaders whether to prepend the received HTTP headers for the request to the saved
-     *            content.
-     * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
-     */
-    public static boolean saveToFile(HttpResult httpResult, String filePath, boolean includeHttpResponseHeaders) {
-
-        boolean result = false;
-        boolean compress = filePath.endsWith(".gz") || filePath.endsWith(".gzip");
-        OutputStream out = null;
-
-        try {
-            FileHelper.createDirectoriesAndFile(filePath);
-
-            out = new BufferedOutputStream(new FileOutputStream(filePath));
-
-            if (compress) {
-                out = new GZIPOutputStream(out);
-            }
-
-            if (includeHttpResponseHeaders) {
-
-                StringBuilder headerBuilder = new StringBuilder();
-                headerBuilder.append("Status Code").append(":");
-                headerBuilder.append(httpResult.getStatusCode()).append("\n");
-
-                Map<String, List<String>> headers = httpResult.getHeaders();
-
-                for (Entry<String, List<String>> headerField : headers.entrySet()) {
-                    headerBuilder.append(headerField.getKey()).append(":");
-                    headerBuilder.append(StringUtils.join(headerField.getValue(), ","));
-                    headerBuilder.append("\n");
-                }
-
-                headerBuilder.append(HTTP_RESULT_SEPARATOR);
-                out.write(headerBuilder.toString().getBytes("UTF-8"));
-            }
-
-            out.write(httpResult.getContent());
-            result = true;
-
-        } catch (IOException e) {
-            LOGGER.error("Error while saving to {}", filePath, e);
-        } finally {
-            FileHelper.close(out);
-        }
-
-        return result;
-
-    }
-
-    /**
-     * <p>
-     * Load a HttpResult from a dataset file and return a {@link HttpResult}. If the file is gzipped (ending with
-     * <code>.gz</code> or <code>.gzip</code>), it is decompressed automatically.
-     * </p>
-     * 
-     * @param file
-     * @return The {@link HttpResult} from file or <code>null</code> on in case an {@link IOException} was caught.
-     */
-    // TODO should this be extended to handle files without the written header?
-    public static HttpResult loadSerializedHttpResult(File file) {
-
-        HttpResult httpResult = null;
-        InputStream inputStream = null;
-
-        try {
-            // we don't know this anymore
-            String url = "from_file_system";
-            Map<String, List<String>> headers = new HashMap<String, List<String>>();
-
-            // we don't know this anymore
-            long transferedBytes = -1;
-
-            // Wrap this with a GZIPInputStream, if necessary.
-            // Do not use InputStreamReader, as this works encoding specific.
-            inputStream = new FileInputStream(file);
-            if (file.getName().endsWith(".gz") || file.getName().endsWith(".gzip")) {
-                inputStream = new GZIPInputStream(inputStream);
-            }
-            // inputStream = new GZIPInputStream(new FileInputStream(file));
-
-            // Read the header information, until the HTTP_RESULT_SEPARATOR is reached.
-            // We assume here, that one byte resembles one character, which is not true
-            // in general, but should suffice in our case. Hopefully.
-            StringBuilder headerText = new StringBuilder();
-            int b;
-            while ((b = inputStream.read()) != -1) {
-                headerText.append((char)b);
-                if (headerText.toString().endsWith(HTTP_RESULT_SEPARATOR)) {
-                    break;
-                }
-            }
-            int statusCode = parseHeaders(headerText.toString(), headers);
-
-            // Read the payload.
-            ByteArrayOutputStream payload = new ByteArrayOutputStream();
-            while ((b = inputStream.read()) != -1) {
-                payload.write(b);
-            }
-            byte[] content = payload.toByteArray();
-            httpResult = new HttpResult(url, content, headers, statusCode, transferedBytes);
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error("File not found: {}", file, e);
-        } catch (IOException e) {
-            LOGGER.error("IOException for: {}", file, e);
-        } finally {
-            FileHelper.close(inputStream);
-        }
-
-        return httpResult;
-    }
-
-    /**
-     * <p>
-     * Extract header information from the supplied string. The header data is put in the Map, the HTTP status code is
-     * returned.
-     * </p>
-     * 
-     * @param headerText newline separated HTTP header text.
-     * @param headers out-parameter for parsed HTTP headers.
-     * @return the HTTP status code.
-     */
-    private static int parseHeaders(String headerText, Map<String, List<String>> headers) {
-        String[] headerLines = headerText.split("\n");
-        int statusCode = -1;
-        for (String headerLine : headerLines) {
-            String[] parts = headerLine.split(":");
-            if (parts.length > 1) {
-                if (parts[0].equalsIgnoreCase("status code")) {
-                    try {
-                        String statusCodeString = parts[1];
-                        statusCodeString = statusCodeString.replace("HTTP/1.1", "");
-                        statusCodeString = statusCodeString.replace("OK", "");
-                        statusCodeString = statusCodeString.trim();
-                        statusCode = Integer.valueOf(statusCodeString);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception while parsing header", e);
-                    }
-                } else {
-
-                    StringBuilder valueString = new StringBuilder();
-                    for (int i = 1; i < parts.length; i++) {
-                        valueString.append(parts[i]).append(":");
-                    }
-                    String valueStringClean = valueString.toString();
-                    if (valueStringClean.endsWith(":")) {
-                        valueStringClean = valueStringClean.substring(0, valueStringClean.length() - 1);
-                    }
-
-                    List<String> values = new ArrayList<String>();
-
-                    // in cases we have a "=" we can split on comma
-                    if (valueStringClean.contains("=")) {
-                        String[] valueParts = valueStringClean.split(",");
-                        for (String valuePart : valueParts) {
-                            values.add(valuePart.trim());
-                        }
-                    } else {
-                        values.add(valueStringClean);
-                    }
-
-                    headers.put(parts[0], values);
-                }
-            }
-        }
-        return statusCode;
-    }
-
-    //    /**
-    //     * <p>
-    //     * Download a binary file from specified URL to a given path.
-    //     * </p>
-    //     *
-    //     * @param url the URL to download from.
-    //     * @param filePath the path where the downloaded contents should be saved to.
-    //     * @return the file were the downloaded contents were saved to.
-    //     * @author Martin Werner
-    //     * @deprecated use {@link #downloadAndSave(String, String)} instead.
-    //     */
-    //    @Deprecated
-    //    public static File downloadBinaryFile(String url, String filePath) {
-    //        File file = null;
-    //        HttpRetriever httpRetriever = new HttpRetriever();
-    //        boolean success = httpRetriever.downloadAndSave(url, filePath);
-    //        if (success) {
-    //            file = new File(filePath);
-    //        }
-    //        return file;
-    //    }
 
     // ////////////////////////////////////////////////////////////////
     // Configuration options
@@ -1040,8 +693,6 @@ public class HttpRetriever {
     }
 
     public void setNumRetries(int numRetries) {
-//        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-//        backend.setHttpRequestRetryHandler(retryHandler);
         this.numRetries = numRetries;
     }
 
@@ -1053,63 +704,11 @@ public class HttpRetriever {
         connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
     }
 
-//    /**
-//     * <p>
-//     * Sets the current Proxy.
-//     * </p>
-//     * 
-//     * @param proxy the proxy to use.
-//     */
-//    public void setProxy(Proxy proxy) {
-//        InetSocketAddress address = (InetSocketAddress)proxy.address();
-//        String hostname = address.getHostName();
-//        int port = address.getPort();
-//        setProxy(hostname, port);
-//    }
-//
-//    public void setSecureProxy(SecureProxy proxy) {
-//        setProxy(proxy.getIp(), proxy.getPort());
-//        setProxyAuthentication(proxy.getUsername() + ":" + proxy.getPassword());
-//        Credentials defaultcreds = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
-//        AuthScope scope = new AuthScope(proxy.getIp(), proxy.getPort(), AuthScope.ANY_REALM);
-//        setCredentials(scope, defaultcreds);
-//        this.secureProxy = proxy;
-//    }
-
-//    public void setProxy(String hostname, int port) {
-//        HttpHost proxy = new HttpHost(hostname, port);
-//        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-//        this.secureProxy = null;
-//        LOGGER.debug("set proxy to " + hostname + ":" + port);
-//    }
-
-//    /**
-//     * <p>
-//     * If a proxy is set, we can disable it to use the direct connection again.
-//     * </p>
-//     */
-//    public void useDirectConnection() {
-//        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, null);
-//        this.secureProxy = null;
-//    }
-
-//    public void setProxy(String proxy) {
-//        String[] split = proxy.split(":");
-//        if (split.length != 2) {
-//            throw new IllegalArgumentException("argument must be hostname:port");
-//        }
-//        String hostname = split[0];
-//        int port = Integer.valueOf(split[1]);
-//        setProxy(hostname, port);
-//    }
-
     public String getUserAgent() {
-        // return (String)backend.getParams().getParameter(HttpProtocolParams.USER_AGENT);
         return userAgent;
     }
 
     public void setUserAgent(String userAgent) {
-        // backend.getParams().setParameter(HttpProtocolParams.USER_AGENT, userAgent);
         this.userAgent = userAgent;
     }
 
@@ -1136,53 +735,20 @@ public class HttpRetriever {
      * @param size the size in bytes that should be added to the download counters.
      */
     private synchronized void addDownload(long size) {
-        totalDownloadedBytes += size;
         sessionDownloadedBytes += size;
-        numberOfDownloadedPages++;
-
-//        if (secureProxy != null) {
-//            secureProxy.increaseUseCount();
-//        }
     }
 
-    public long getTotalDownloadSize(SizeUnit unit) {
-        return unit.convert(totalDownloadedBytes, SizeUnit.BYTES);
-    }
-
-    public static long getSessionDownloadSize() {
-        return getSessionDownloadSize(SizeUnit.BYTES);
-    }
-
-    public static long getSessionDownloadSize(SizeUnit unit) {
+    public static long getTraffic(SizeUnit unit) {
         return unit.convert(sessionDownloadedBytes, SizeUnit.BYTES);
     }
 
-    public static int getNumberOfDownloadedPages() {
-        return numberOfDownloadedPages;
-    }
-
-    public void resetDownloadSizes() {
-        totalDownloadedBytes = 0;
+    public static void resetTraffic() {
         sessionDownloadedBytes = 0;
-        numberOfDownloadedPages = 0;
-    }
-
-    public static void resetSessionDownloadSizes() {
-        sessionDownloadedBytes = 0;
-        numberOfDownloadedPages = 0;
     }
 
     public void setHttpHook(HttpHook httpHook) {
         this.httpHook = httpHook;
     }
-
-//    public String getProxyAuthentication() {
-//        return proxyAuthentication;
-//    }
-//
-//    public void setProxyAuthentication(String proxyAuthentication) {
-//        this.proxyAuthentication = proxyAuthentication;
-//    }
 
     public long getConnectionTimeoutRedirects() {
         return connectionTimeoutRedirects;

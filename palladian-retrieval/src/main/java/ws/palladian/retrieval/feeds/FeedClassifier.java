@@ -20,7 +20,9 @@ import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * <p>The FeedClassifier classifies a feed in terms of their update intervals.</p>
+ * <p>
+ * The FeedClassifier classifies a feed in terms of their update intervals.
+ * </p>
  * 
  * @author David Urbansky
  * @author Sandro Reichert
@@ -50,8 +52,7 @@ public class FeedClassifier {
         }
 
         while (!threadPool.isTerminated()) {
-            LOGGER.info(sw.getElapsedTimeString() + ", traffic: "
-                    + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
+            LOGGER.info(sw.getElapsedTimeString() + ", traffic: " + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + "MB");
 
             try {
                 Thread.sleep(TimeUnit.MINUTES.toMillis(1));
@@ -63,7 +64,7 @@ public class FeedClassifier {
         }
 
         LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: "
-                + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
+                + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + "MB");
     }
 
     /**
@@ -108,7 +109,8 @@ public class FeedClassifier {
             // the same time
             if (fps.getMedianPostGap() < TimeUnit.SECONDS.toMillis(5)) {
                 if (fps.getTimeDifferenceNewestPostToLastPollTime() < TimeUnit.SECONDS.toMillis(5)) {
-                    // TODO Sandro: getTimeDifferenceNewestPostToLastPollTime() should be replaced by using the date element from
+                    // TODO Sandro: getTimeDifferenceNewestPostToLastPollTime() should be replaced by using the date
+                    // element from
                     // HTTP header, otherwise classification only works when done at same time the feed is fetched.
                     feedClass = FeedActivityPattern.CLASS_ON_THE_FLY;
                 } else {
@@ -129,7 +131,8 @@ public class FeedClassifier {
                     } else {
                         // long gaps between posts (at night) indicate sliced feeds
                         if (fps.getLongestPostGap() < 12 * fps.getMedianPostGap()
-                                && fps.getLongestPostGap() < TimeUnit.HOURS.toMillis(2) && fps.getAvgEntriesPerDay() >= 4) {
+                                && fps.getLongestPostGap() < TimeUnit.HOURS.toMillis(2)
+                                && fps.getAvgEntriesPerDay() >= 4) {
                             feedClass = FeedActivityPattern.CLASS_CONSTANT;
                         } else {
                             feedClass = FeedActivityPattern.CLASS_SLICED;
@@ -157,12 +160,11 @@ public class FeedClassifier {
         try {
             HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
             HttpResult httpResult = retriever.httpGet(feedUrl);
-            
+
             FeedParser feedParser = new RomeFeedParser();
             Feed feed = feedParser.getFeed(httpResult);
             ret = classify(feed);
-            
-            
+
         } catch (HttpException e) {
             LOGGER.error("Feed could not be downloaded: " + feedUrl + ", " + e.getMessage());
             ret = FeedActivityPattern.CLASS_DEAD;
@@ -172,7 +174,6 @@ public class FeedClassifier {
         }
         return ret;
     }
-
 
     /**
      * @param args
