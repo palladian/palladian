@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +21,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
@@ -45,7 +43,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.params.ConnRouteParams;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -100,13 +99,13 @@ public class HttpRetriever {
     private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
     /** The default timeout for a connection to be established, in milliseconds. */
-    public static final int DEFAULT_CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(10);
+    public static final long DEFAULT_CONNECTION_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout for a connection to be established when checking for redirects, in milliseconds. */
-    public static final int DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = (int)TimeUnit.SECONDS.toMillis(1);
+    public static final long DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = TimeUnit.SECONDS.toMillis(1);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
-    public static final int DEFAULT_SOCKET_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(180);
+    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(180);
 
     /** The maximum number of redirected URLs to check. */
     public static final int MAX_REDIRECTS = 10;
@@ -115,7 +114,7 @@ public class HttpRetriever {
      * The default timeout which specifies the maximum interval for new packets to wait when checking for redirects, in
      * milliseconds.
      */
-    public static final int DEFAULT_SOCKET_TIMEOUT_REDIRECTS = (int)TimeUnit.SECONDS.toMillis(1);
+    public static final long DEFAULT_SOCKET_TIMEOUT_REDIRECTS = TimeUnit.SECONDS.toMillis(1);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
@@ -131,8 +130,8 @@ public class HttpRetriever {
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
     private static PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
 
-    /** Implementation of the Apache HttpClient. */
-    private final DefaultHttpClient backend;
+//    /** Implementation of the Apache HttpClient. */
+//    private final DefaultHttpClient backend;
 
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
@@ -155,13 +154,17 @@ public class HttpRetriever {
     private static int numberOfDownloadedPages = 0;
 
     /** For secure proxies, we save USERNAME:PASSWORD and send it with the requests. */
-    private String proxyAuthentication = "";
+//    private String proxyAuthentication = "";
 
     /** The timeout for connections when checking for redirects. */
     private long connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
 
     /** The socket timeout when checking for redirects. */
     private long socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
+
+    private int numRetries = DEFAULT_NUM_RETRIES;
+
+    private String userAgent = USER_AGENT;
 
     // ///////////// Misc. ////////
 
@@ -172,17 +175,22 @@ public class HttpRetriever {
     private static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
 
     /** The secure proxy that has been set. */
-    private SecureProxy secureProxy = null;
+//    private SecureProxy secureProxy = null;
 
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
-
-    {
+    
+    private AbstractHttpClient getHttpClient() {
+        
         // initialize the HttpClient
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
-        HttpProtocolParams.setUserAgent(httpParams, USER_AGENT);
-        backend = new DefaultHttpClient(connectionManager, httpParams);
+        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
+
+        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
+        backend.setHttpRequestRetryHandler(retryHandler);
+
+        HttpProtocolParams.setUserAgent(httpParams, userAgent);
 
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
@@ -202,7 +210,36 @@ public class HttpRetriever {
 
         backend.addResponseInterceptor(metricsSaver);
         // end edit
+        
+        return backend;
+        
     }
+
+//    {
+//        // initialize the HttpClient
+//        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+//        HttpProtocolParams.setUserAgent(httpParams, USER_AGENT);
+//        backend = new DefaultHttpClient(connectionManager, httpParams);
+//
+//        /*
+//         * fix #261 to get connection metrics for head requests, see also discussion at
+//         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
+//         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
+//         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
+//         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
+//         */
+//        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
+//            @Override
+//            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+//                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+//                HttpConnectionMetrics metrics = conn.getMetrics();
+//                context.setAttribute(CONTEXT_METRICS_ID, metrics);
+//            }
+//        };
+//
+//        backend.addResponseInterceptor(metricsSaver);
+//        // end edit
+//    }
 
     /**
      * <p>
@@ -229,28 +266,33 @@ public class HttpRetriever {
      * </p>
      **/
     // TODO visibility should be set to protected, as instances are created by the factory
-    public HttpRetriever() {
-        this(DEFAULT_CONNECTION_TIMEOUT, DEFAULT_SOCKET_TIMEOUT, DEFAULT_NUM_RETRIES, DEFAULT_NUM_CONNECTIONS);
-    }
-
-    /**
-     * <p>
-     * Creates a new HTTP retriever with the supplied parameters.
-     * </p>
-     * 
-     * @param connectionTimeout The connection timeout in milliseconds.
-     * @param socketTimeout The socket timeout in milliseconds.
-     * @param numRetries The number of retries, if a request fails.
-     * @param numConnections The maximum number of simultaneous connections.
-     */
-    // TODO visibility should be set to protected, as instances are created by the factory
-    public HttpRetriever(int connectionTimeout, int socketTimeout, int numRetries, int numConnections) {
-        setConnectionTimeout(connectionTimeout);
-        setSocketTimeout(socketTimeout);
-        setNumRetries(numRetries);
-        setNumConnections(numConnections);
+    protected HttpRetriever() {
+        // this(DEFAULT_CONNECTION_TIMEOUT, DEFAULT_SOCKET_TIMEOUT, DEFAULT_NUM_RETRIES, DEFAULT_NUM_CONNECTIONS);
+        setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+        setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
+        setNumRetries(DEFAULT_NUM_RETRIES);
+        setNumConnections(DEFAULT_NUM_RETRIES);
         setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
     }
+
+//    /**
+//     * <p>
+//     * Creates a new HTTP retriever with the supplied parameters.
+//     * </p>
+//     * 
+//     * @param connectionTimeout The connection timeout in milliseconds.
+//     * @param socketTimeout The socket timeout in milliseconds.
+//     * @param numRetries The number of retries, if a request fails.
+//     * @param numConnections The maximum number of simultaneous connections.
+//     */
+//    // TODO visibility should be set to protected, as instances are created by the factory
+//    public HttpRetriever(long connectionTimeout, long socketTimeout, int numRetries, int numConnections) {
+//        setConnectionTimeout(connectionTimeout);
+//        setSocketTimeout(socketTimeout);
+//        setNumRetries(numRetries);
+//        setNumConnections(numConnections);
+//        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
+//    }
 
     // ////////////////////////////////////////////////////////////////
     // HTTP methods
@@ -464,14 +506,32 @@ public class HttpRetriever {
         HttpResult result;
         InputStream in = null;
 
-        httpHook.beforeRequest(url, this);
+//        httpHook.beforeRequest(url, this);
+
+        AbstractHttpClient backend = getHttpClient();
 
         // set proxy authentication if available
-        String usernamePassword = getProxyAuthentication();
-        if (!usernamePassword.isEmpty()) {
-            String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
-            request.setHeader("Proxy-Authorization", "Basic " + encoded);
+        Proxy proxy = httpHook.getProxy(url);
+        if (proxy != null) {
+            HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
+            backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
+
+            if (StringUtils.isNotEmpty(proxy.getUsername())) {
+                Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
+                AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
+                backend.getCredentialsProvider().setCredentials(scope, credentials);
+
+                String usernamePassword = proxy.getUsername() + ":" + proxy.getPassword();
+                String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
+                request.setHeader("Proxy-Authorization", "Basic " + encoded);
+            }
         }
+
+//        String usernamePassword = getProxyAuthentication();
+//        if (!usernamePassword.isEmpty()) {
+//            String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
+//            request.setHeader("Proxy-Authorization", "Basic " + encoded);
+//        }
 
         try {
 
@@ -510,7 +570,7 @@ public class HttpRetriever {
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
 
-            httpHook.afterRequest(result, this);
+//            httpHook.afterRequest(result, this);
             addDownload(receivedBytes);
 
         } catch (IllegalStateException e) {
@@ -611,6 +671,9 @@ public class HttpRetriever {
      *             status is returned, but no <code>location</code> field is provided.
      */
     public List<String> getRedirectUrls(String url) throws HttpException {
+
+        // FIXME proxy settings also need to be considered here
+
         Validate.notEmpty(url, "url must not be empty");
 
         List<String> ret = new ArrayList<String>();
@@ -895,7 +958,7 @@ public class HttpRetriever {
                         valueStringClean = valueStringClean.substring(0, valueStringClean.length() - 1);
                     }
 
-                    ArrayList<String> values = new ArrayList<String>();
+                    List<String> values = new ArrayList<String>();
 
                     // in cases we have a "=" we can split on comma
                     if (valueStringClean.contains("=")) {
@@ -944,9 +1007,9 @@ public class HttpRetriever {
         HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
     }
 
-    public void setCredentials(AuthScope scope, Credentials defaultcreds) {
-        backend.getCredentialsProvider().setCredentials(scope, defaultcreds);
-    }
+//    public void setCredentials(AuthScope scope, Credentials defaultcreds) {
+//        backend.getCredentialsProvider().setCredentials(scope, defaultcreds);
+//    }
 
     public long getConnectionTimeout() {
         return HttpConnectionParams.getConnectionTimeout(httpParams);
@@ -977,74 +1040,77 @@ public class HttpRetriever {
     }
 
     public void setNumRetries(int numRetries) {
-        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-        backend.setHttpRequestRetryHandler(retryHandler);
+//        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
+//        backend.setHttpRequestRetryHandler(retryHandler);
+        this.numRetries = numRetries;
     }
 
-    public void setNumConnections(int numConnections) {
+    public static void setNumConnections(int numConnections) {
         connectionManager.setMaxTotal(numConnections);
     }
 
-    public void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
+    public static void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
         connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
     }
 
-    /**
-     * <p>
-     * Sets the current Proxy.
-     * </p>
-     * 
-     * @param proxy the proxy to use.
-     */
-    public void setProxy(Proxy proxy) {
-        InetSocketAddress address = (InetSocketAddress)proxy.address();
-        String hostname = address.getHostName();
-        int port = address.getPort();
-        setProxy(hostname, port);
-    }
+//    /**
+//     * <p>
+//     * Sets the current Proxy.
+//     * </p>
+//     * 
+//     * @param proxy the proxy to use.
+//     */
+//    public void setProxy(Proxy proxy) {
+//        InetSocketAddress address = (InetSocketAddress)proxy.address();
+//        String hostname = address.getHostName();
+//        int port = address.getPort();
+//        setProxy(hostname, port);
+//    }
+//
+//    public void setSecureProxy(SecureProxy proxy) {
+//        setProxy(proxy.getIp(), proxy.getPort());
+//        setProxyAuthentication(proxy.getUsername() + ":" + proxy.getPassword());
+//        Credentials defaultcreds = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
+//        AuthScope scope = new AuthScope(proxy.getIp(), proxy.getPort(), AuthScope.ANY_REALM);
+//        setCredentials(scope, defaultcreds);
+//        this.secureProxy = proxy;
+//    }
 
-    public void setSecureProxy(SecureProxy proxy) {
-        setProxy(proxy.getIp(), proxy.getPort());
-        setProxyAuthentication(proxy.getUsername() + ":" + proxy.getPassword());
-        Credentials defaultcreds = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
-        AuthScope scope = new AuthScope(proxy.getIp(), proxy.getPort(), AuthScope.ANY_REALM);
-        setCredentials(scope, defaultcreds);
-        this.secureProxy = proxy;
-    }
+//    public void setProxy(String hostname, int port) {
+//        HttpHost proxy = new HttpHost(hostname, port);
+//        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+//        this.secureProxy = null;
+//        LOGGER.debug("set proxy to " + hostname + ":" + port);
+//    }
 
-    public void setProxy(String hostname, int port) {
-        HttpHost proxy = new HttpHost(hostname, port);
-        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-        this.secureProxy = null;
-        LOGGER.debug("set proxy to " + hostname + ":" + port);
-    }
+//    /**
+//     * <p>
+//     * If a proxy is set, we can disable it to use the direct connection again.
+//     * </p>
+//     */
+//    public void useDirectConnection() {
+//        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, null);
+//        this.secureProxy = null;
+//    }
 
-    /**
-     * <p>
-     * If a proxy is set, we can disable it to use the direct connection again.
-     * </p>
-     */
-    public void useDirectConnection() {
-        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, null);
-        this.secureProxy = null;
-    }
-
-    public void setProxy(String proxy) {
-        String[] split = proxy.split(":");
-        if (split.length != 2) {
-            throw new IllegalArgumentException("argument must be hostname:port");
-        }
-        String hostname = split[0];
-        int port = Integer.valueOf(split[1]);
-        setProxy(hostname, port);
-    }
+//    public void setProxy(String proxy) {
+//        String[] split = proxy.split(":");
+//        if (split.length != 2) {
+//            throw new IllegalArgumentException("argument must be hostname:port");
+//        }
+//        String hostname = split[0];
+//        int port = Integer.valueOf(split[1]);
+//        setProxy(hostname, port);
+//    }
 
     public String getUserAgent() {
-        return (String)backend.getParams().getParameter(HttpProtocolParams.USER_AGENT);
+        // return (String)backend.getParams().getParameter(HttpProtocolParams.USER_AGENT);
+        return userAgent;
     }
 
     public void setUserAgent(String userAgent) {
-        backend.getParams().setParameter(HttpProtocolParams.USER_AGENT, userAgent);
+        // backend.getParams().setParameter(HttpProtocolParams.USER_AGENT, userAgent);
+        this.userAgent = userAgent;
     }
 
     /**
@@ -1074,9 +1140,9 @@ public class HttpRetriever {
         sessionDownloadedBytes += size;
         numberOfDownloadedPages++;
 
-        if (secureProxy != null) {
-            secureProxy.increaseUseCount();
-        }
+//        if (secureProxy != null) {
+//            secureProxy.increaseUseCount();
+//        }
     }
 
     public long getTotalDownloadSize(SizeUnit unit) {
@@ -1110,13 +1176,13 @@ public class HttpRetriever {
         this.httpHook = httpHook;
     }
 
-    public String getProxyAuthentication() {
-        return proxyAuthentication;
-    }
-
-    public void setProxyAuthentication(String proxyAuthentication) {
-        this.proxyAuthentication = proxyAuthentication;
-    }
+//    public String getProxyAuthentication() {
+//        return proxyAuthentication;
+//    }
+//
+//    public void setProxyAuthentication(String proxyAuthentication) {
+//        this.proxyAuthentication = proxyAuthentication;
+//    }
 
     public long getConnectionTimeoutRedirects() {
         return connectionTimeoutRedirects;

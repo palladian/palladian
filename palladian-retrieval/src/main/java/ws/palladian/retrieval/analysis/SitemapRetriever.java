@@ -7,6 +7,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * <p>
@@ -20,7 +21,7 @@ public class SitemapRetriever {
     public List<String> getUrls(String sitemapIndexUrl) {
         List<String> pageUrls = CollectionHelper.newArrayList();
 
-        HttpRetriever httpRetriever = new HttpRetriever();
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
 
         // get sitemap index page

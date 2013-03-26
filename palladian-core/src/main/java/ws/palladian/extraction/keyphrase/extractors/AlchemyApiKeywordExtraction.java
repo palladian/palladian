@@ -18,6 +18,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * <p>
@@ -89,7 +90,7 @@ public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
         content.put("maxRetrieve", String.valueOf(getKeyphraseCount()));
         content.put("keywordExtractMode", strictExtractMode ? "strict" : "normal");
 
-        HttpRetriever retriever = new HttpRetriever();
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         String response = null;
         try {
             HttpResult postResult = retriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords",
