@@ -16,6 +16,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 public class FiveFiltersTermExtraction extends KeyphraseExtractor {
 
@@ -36,7 +37,7 @@ public class FiveFiltersTermExtraction extends KeyphraseExtractor {
         
         try {
             
-            HttpRetriever retriever = new HttpRetriever();
+            HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
             Map<String, String> params = new HashMap<String, String>();
             params.put("content", inputText);
             HttpResult postResult = retriever.httpPost("http://term-extraction.appspot.com/terms", params);

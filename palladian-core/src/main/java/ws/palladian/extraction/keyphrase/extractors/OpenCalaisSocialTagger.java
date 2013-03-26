@@ -18,6 +18,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * Keyword extraction based on OpenCalais' <a href=
@@ -78,7 +79,7 @@ public final class OpenCalaisSocialTagger extends KeyphraseExtractor {
         content.put("paramsXML", paramsXML);
 
         String response = null;
-        HttpRetriever retriever = new HttpRetriever();
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         try {
             HttpResult postResult = retriever.httpPost("http://api.opencalais.com/tag/rs/enrich", header, content);
             response = new String(postResult.getContent());

@@ -4,9 +4,9 @@ import java.util.Date;
 
 import ws.palladian.helper.nlp.StringHelper;
 
-public class SecureProxy {
+public class SecureProxy implements Proxy {
 
-    private String ip;
+    private String address;
     private int port;
     private String username = "";
     private String password = "";
@@ -40,26 +40,27 @@ public class SecureProxy {
         String host = StringHelper.clean(proxyString.substring(0, proxyString.indexOf(":")));
         String port = proxyString.substring(proxyString.indexOf(":") + 1);
         port = StringHelper.clean(port);
-        this.ip = host;
+        this.address = host;
         this.port = Integer.valueOf(port);
     }
 
-    public SecureProxy(String ip, int port, String username, String password) {
-        super();
-        this.ip = ip;
+    public SecureProxy(String address, int port, String username, String password) {
+        this.address = address;
         this.port = port;
         this.username = username;
         this.password = password;
     }
 
-    public String getIp() {
-        return ip;
+    @Override
+    public String getAddress() {
+        return address;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
+    @Override
     public int getPort() {
         return port;
     }
@@ -68,6 +69,7 @@ public class SecureProxy {
         this.port = port;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
@@ -76,6 +78,7 @@ public class SecureProxy {
         this.username = username;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
@@ -146,7 +149,8 @@ public class SecureProxy {
 
     @Override
     public String toString() {
-        return "SecureProxy [ip=" + ip + ", port=" + port + ", username=" + username + ", password=" + password
+        return "SecureProxy [address=" + address + ", port=" + port + ", username=" + username + ", password="
+                + password
                 + ", responseTime=" + responseTime + ", blockedTimestamp=" + lastBlocked + ", requestsSent="
                 + useCount + "]";
     }
