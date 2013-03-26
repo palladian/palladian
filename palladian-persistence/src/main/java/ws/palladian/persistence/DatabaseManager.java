@@ -621,7 +621,7 @@ public class DatabaseManager {
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }
-        LOGGER.error(errorLog.toString());
+        LOGGER.error(errorLog.toString(), exception);
     }
 
     /**

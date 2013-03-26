@@ -213,6 +213,10 @@ public final class FileHelper {
     public static String getFileType(String path) {
         String fileType = "";
 
+        if (path == null || path.isEmpty()) {
+            return fileType;
+        }
+
         int lastQM = path.indexOf("?");
 
         // find last dot before "?"

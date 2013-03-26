@@ -3,24 +3,20 @@ package ws.palladian.helper.html;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import ws.palladian.helper.ParseUtil;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
@@ -59,7 +55,7 @@ public class XPathHelperTest {
 
     @Test
     public void testGetElementById() throws ParserConfigurationException, SAXException, IOException {
-        Document doc = parse(ResourceHelper.getResourceFile("events.xml"));
+        Document doc = ParseUtil.parseXhtml(ResourceHelper.getResourceFile("events.xml"));
 
         assertEquals("event", XPathHelper.getNodeByID(doc, "e01").getNodeName());
         assertEquals("events", XPathHelper.getParentNodeByID(doc, "e01").getNodeName());
@@ -76,7 +72,7 @@ public class XPathHelperTest {
 
     @Test
     public void testNamespace() throws ParserConfigurationException, SAXException, IOException {
-        Document doc = parse(ResourceHelper.getResourceFile("/multipleNamespaces.xml"));
+        Document doc = ParseUtil.parseXhtml(ResourceHelper.getResourceFile("/multipleNamespaces.xml"));
         Map<String, String> mapping = new HashMap<String, String>();
         mapping.put("h", "http://www.w3.org/TR/html4/");
         mapping.put("f", "http://www.w3schools.com/furniture");
@@ -91,7 +87,7 @@ public class XPathHelperTest {
     
     @Test
     public void testGetNodes() throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
-        Document doc = parse(ResourceHelper.getResourceFile("/w3c_xhtml_strict.html"));
+        Document doc = ParseUtil.parseXhtml(ResourceHelper.getResourceFile("/w3c_xhtml_strict.html"));
         List<Node> tocNodes = XPathHelper.getXhtmlNodes(doc, "//div[@class='toc']");
         assertEquals(2, tocNodes.size());
         
@@ -103,23 +99,6 @@ public class XPathHelperTest {
         
         List<Node> tocItems2 = XPathHelper.getXhtmlNodes(firstTocNode, "ul/*");
         assertEquals(10, tocItems2.size());
-    }
-
-    private final Document parse(File file) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setNamespaceAware(true);
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        documentBuilder.setEntityResolver(new XhtmlEntityResolver());
-        return documentBuilder.parse(file);
-    }
-    
-    private static final class XhtmlEntityResolver implements EntityResolver {
-        @Override
-        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-            String fileName = systemId.substring(systemId.lastIndexOf("/"));
-            return new InputSource(ResourceHelper.getResourceStream(fileName));
-        }
-        
     }
 
 }
