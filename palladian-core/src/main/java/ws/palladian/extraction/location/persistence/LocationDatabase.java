@@ -57,7 +57,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
 
     // ////////////////// row converts ////////////////////////////////////
-    private final RowConverter<Location> locationRowConverter = new RowConverter<Location>() {
+    private static final RowConverter<Location> LOCATION_ROW_CONVERTER = new RowConverter<Location>() {
         @Override
         public Location convert(ResultSet resultSet) throws SQLException {
             int id = resultSet.getInt("id");
@@ -95,16 +95,6 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
     };
 
-    private static final RowConverter<AlternativeName> ALTERNATIVE_NAME_ROW_CONVERTER = new RowConverter<AlternativeName>() {
-        @Override
-        public AlternativeName convert(ResultSet resultSet) throws SQLException {
-            String name = resultSet.getString("alternativeName");
-            String languageString = resultSet.getString("language");
-            Language language = languageString != null ? Language.getByIso6391(languageString) : null;
-            return new AlternativeName(name, language);
-        }
-    };
-
     private static final RowConverter<LocationRelation> LOCATION_RELATION_ROW_CONVERTER = new RowConverter<LocationRelation>() {
         @Override
         public LocationRelation convert(ResultSet resultSet) throws SQLException {
@@ -122,7 +112,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> retrieveLocations(String locationName) {
-        return runQuery(locationRowConverter, GET_LOCATION, locationName, locationName);
+        return runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION, locationName, locationName);
     }
 
     @Override
@@ -148,12 +138,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         sqlBuilder.append(")");
         sqlBuilder.append(") as t GROUP BY id");
         // System.out.println(sqlBuilder.toString());
-        return runQuery(locationRowConverter, sqlBuilder.toString(), locationName, locationName);
+        return runQuery(LOCATION_ROW_CONVERTER, sqlBuilder.toString(), locationName, locationName);
     }
 
     @Override
     public Location retrieveLocation(int locationId) {
-        return runSingleQuery(locationRowConverter, GET_LOCATION_BY_ID, locationId);
+        return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
     }
 
     @Override
@@ -190,7 +180,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         Set<Integer> retrievedIds = CollectionHelper.newHashSet();
         int currentId = locationId;
         for (;;) {
-            List<Location> parents = runQuery(locationRowConverter, GET_LOCATION_PARENT, currentId);
+            List<Location> parents = runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, currentId);
             if (parents.isEmpty()) {
                 LOGGER.trace("No parent for {}", currentId);
                 break;
