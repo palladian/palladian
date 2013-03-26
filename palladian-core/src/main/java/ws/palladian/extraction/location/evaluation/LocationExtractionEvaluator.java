@@ -16,6 +16,7 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
@@ -124,10 +125,10 @@ public class LocationExtractionEvaluator {
      * @param args
      */
     public static void main(String[] args) {
-        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
         // String DATASET_LOCATION = "/Users/pk/Desktop/tmp";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
-        // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
+        String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
@@ -135,9 +136,12 @@ public class LocationExtractionEvaluator {
         // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
         // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
 
+        StopWatch stopWatch = new StopWatch();
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // LocationSource database = new NewsSeecrLocationSource("tr1dn3mc0bdhzzjngkvzahqloxph0e");
         evaluator.evaluateAll(new PalladianLocationExtractor(database), DATASET_LOCATION);
+
+        System.out.println(stopWatch.getElapsedTimeString());
     }
 
 }

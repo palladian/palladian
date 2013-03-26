@@ -165,6 +165,7 @@ public class UnitNormalizer {
         weightUnits.add("ounce");
         weightUnits.add("ounces");
         weightUnits.add("oz");
+        weightUnits.add("ozs");
         weightUnits.add("gram");
         weightUnits.add("grams");
         weightUnits.add("g");

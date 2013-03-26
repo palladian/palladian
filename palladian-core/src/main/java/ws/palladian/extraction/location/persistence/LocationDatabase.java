@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import ws.palladian.persistence.helper.SqlHelper;
  * </p>
  * 
  * @author Philipp Katz
+ * @author David Urbansky
  */
 public final class LocationDatabase extends DatabaseManager implements LocationStore {
 
@@ -44,8 +46,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
     // we can safely ignore potential constraint violations here:
     private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?, priority = ?";
-    private static final String GET_LOCATION = "SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? GROUP BY id";
-    private static final String GET_LOCATION_ALTERNATIVE_NAMES = "SELECT * FROM location_alternative_names WHERE locationId = ?";
+
+    private static final String GET_LOCATION = "SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ?) AS t GROUP BY id";
+
     // private static final String GET_LOCATION_PARENT =
     // "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? AND priority = (SELECT MIN(priority) FROM location_hierarchy WHERE childId = ?)";
     private static final String GET_LOCATION_PARENT = "SELECT DISTINCT l.* FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? GROUP BY priority HAVING COUNT(priority) = 1 ORDER BY priority;";
@@ -60,11 +63,35 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             int id = resultSet.getInt("id");
             LocationType locationType = LocationType.valueOf(resultSet.getString("type"));
             String primaryName = resultSet.getString("name");
-            List<AlternativeName> alternativeNames = getAlternativeNames(id);
+
+            List<AlternativeName> alternativeNameObjects = CollectionHelper.newArrayList();
+            if (resultSet.getMetaData().getColumnCount() == 10) {
+                String alternativesString = resultSet.getString("alternatives");
+                if (alternativesString != null) {
+                    List<String> alternativeNames = Arrays.asList(alternativesString.split(","));
+                    for (String string : alternativeNames) {
+                        String[] parts = string.split("#");
+                        if (parts[0].equalsIgnoreCase("alternativeName")) {
+                            continue;
+                        }
+                        String languageString = null;
+                        if (parts.length > 1) {
+                            languageString = parts[1];
+                        }
+                        Language language = languageString != null ? Language.getByIso6391(languageString) : null;
+                        AlternativeName alternativeName = new AlternativeName(parts[0], language);
+                        alternativeNameObjects.add(alternativeName);
+                    }
+                }
+            }
+
             Double latitude = SqlHelper.getDouble(resultSet, "latitude");
             Double longitude = SqlHelper.getDouble(resultSet, "longitude");
             Long population = resultSet.getLong("population");
-            return new Location(id, primaryName, alternativeNames, locationType, latitude, longitude, population);
+            Location location = new Location(id, primaryName, alternativeNameObjects, locationType, latitude,
+                    longitude, population);
+            // System.out.println(location);
+            return location;
         }
     };
 
@@ -102,7 +129,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder
-                .append("SELECT * FROM locations WHERE name = ? UNION SELECT l.* FROM locations l, location_alternative_names lan");
+                .append("SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan");
         sqlBuilder.append(" WHERE l.id = lan.locationId AND lan.alternativeName = ?");
         // alternative name with NULL language always matches
         sqlBuilder.append(" AND (lan.language IS NULL");
@@ -119,23 +146,14 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             sqlBuilder.append(')');
         }
         sqlBuilder.append(")");
-        sqlBuilder.append(" GROUP BY id");
+        sqlBuilder.append(") as t GROUP BY id");
+        // System.out.println(sqlBuilder.toString());
         return runQuery(locationRowConverter, sqlBuilder.toString(), locationName, locationName);
     }
 
     @Override
     public Location retrieveLocation(int locationId) {
         return runSingleQuery(locationRowConverter, GET_LOCATION_BY_ID, locationId);
-    }
-
-    /**
-     * Get alternative names for the location with the specified ID.
-     * 
-     * @param locationId The ID for the location for which to get alternative names.
-     * @return List with alternative names, or empty list.
-     */
-    private List<AlternativeName> getAlternativeNames(int locationId) {
-        return runQuery(ALTERNATIVE_NAME_ROW_CONVERTER, GET_LOCATION_ALTERNATIVE_NAMES, locationId);
     }
 
     @Override
@@ -244,43 +262,41 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
         CollectionHelper.print(locations);
 
-//        for (Location location : locations) {
-//            List<Location> hierarchy = database.getHierarchy(location.getId());
-//            System.out.println(location);
-//            int index = 0;
-//            for (Location hierarchyLocation : hierarchy) {
-//                System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
-//            }
-//        }
-        
+        // for (Location location : locations) {
+        // List<Location> hierarchy = database.getHierarchy(location.getId());
+        // System.out.println(location);
+        // int index = 0;
+        // for (Location hierarchyLocation : hierarchy) {
+        // System.out.println(StringUtils.repeat("   ", ++index) + hierarchyLocation);
+        // }
+        // }
+
         System.exit(0);
 
-//        StopWatch stopWatch = new StopWatch();
-//        for (int i = 0; i < 10; i++) {
-//            database.resetForPerformanceCheck();
-//            List<Location> hierarchy = database.getHierarchy(2926304);
-//            int index = 0;
-//            for (Location hierarchyLocation : hierarchy) {
-//                System.out.println(StringUtils.repeat("   ", index++) + hierarchyLocation);
-//            }
-//            System.out.println(stopWatch);
-//        }
-//        System.out.println(stopWatch);
-        
-        
-//        int totalCount = 10000;
-//        for (int i = 0; i < totalCount; i++) {
-//            ProgressHelper.printProgress(i, totalCount, 1);
-//            int randomInt = MathHelper.getRandomIntBetween(0, 8468576);
-//            Location location = database.retrieveLocation(randomInt);
-//            if (location != null) {
-//                List<Location> hierarchy = database.getHierarchy(randomInt);
-//                if (hierarchy == null || hierarchy.isEmpty()) {
-//                    System.out.println("*** " + randomInt);
-//                }
-//            }
-//        }
-    }
+        // StopWatch stopWatch = new StopWatch();
+        // for (int i = 0; i < 10; i++) {
+        // database.resetForPerformanceCheck();
+        // List<Location> hierarchy = database.getHierarchy(2926304);
+        // int index = 0;
+        // for (Location hierarchyLocation : hierarchy) {
+        // System.out.println(StringUtils.repeat("   ", index++) + hierarchyLocation);
+        // }
+        // System.out.println(stopWatch);
+        // }
+        // System.out.println(stopWatch);
 
+        // int totalCount = 10000;
+        // for (int i = 0; i < totalCount; i++) {
+        // ProgressHelper.printProgress(i, totalCount, 1);
+        // int randomInt = MathHelper.getRandomIntBetween(0, 8468576);
+        // Location location = database.retrieveLocation(randomInt);
+        // if (location != null) {
+        // List<Location> hierarchy = database.getHierarchy(randomInt);
+        // if (hierarchy == null || hierarchy.isEmpty()) {
+        // System.out.println("*** " + randomInt);
+        // }
+        // }
+        // }
+    }
 
 }
