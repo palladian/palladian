@@ -123,7 +123,7 @@ public class DatasetCreator {
         // postProcessDataset(seedFolderPath, getDataSetLocation() + getDatasetName() + "/");
 
         LOGGER.info("created " + seedFiles.length + " datasets in " + stopWatch.getElapsedTimeString()
-                + ", total traffic: " + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + "MB");
+                + ", total traffic: " + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + "MB");
     }
 
     /**
@@ -160,7 +160,7 @@ public class DatasetCreator {
         meta.append("Start Date of Creation: ")
         .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
-        meta.append("Total Generated Traffic: ").append(HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES))
+        meta.append("Total Generated Traffic: ").append(HttpRetriever.getTraffic(SizeUnit.MEGABYTES))
         .append("MB\n");
         meta.append("Search Engine used: ").append(searcher.getName()).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");

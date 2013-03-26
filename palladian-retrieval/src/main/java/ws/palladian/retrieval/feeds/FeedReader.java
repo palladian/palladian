@@ -80,7 +80,7 @@ public final class FeedReader {
      * its {@link Feed#getMaxCheckInterval()} or {@link Feed#getUpdateInterval()} returns. Which one to use depends on
      * the update strategy.
      */
-    private Timer checkScheduler;
+    private final Timer checkScheduler;
 
     /** The feedstore. */
     private FeedStore feedStore;
@@ -171,8 +171,7 @@ public final class FeedReader {
         while (!stopWatch.timeIsUp() && !isStopped()) {
 
                 LOGGER.trace("time is not up, keep reading feeds");
-                LOGGER.debug("current total traffic: " + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
-                        + " MB");
+            LOGGER.debug("current total traffic: " + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + " MB");
 
                 try {
                 Thread.sleep(TimeUnit.MINUTES.toMillis(1));
@@ -188,7 +187,7 @@ public final class FeedReader {
         stopContinuousReading();
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
-                + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES) + " MB");
+                + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + " MB");
     }
 
     /** Start continuous reading without a time limit. */

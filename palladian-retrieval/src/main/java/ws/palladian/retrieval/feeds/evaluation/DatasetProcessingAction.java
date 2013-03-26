@@ -12,7 +12,6 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
@@ -197,7 +196,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
     private boolean writeGZ(HttpResult httpResult, String folderPath, long pollTimestamp, String special) {
         String gzPath = folderPath + pollTimestamp + "_" + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp)
                 + special + ".gz";
-        boolean gzWritten = HttpRetriever.saveToFile(httpResult, gzPath, true);
+        boolean gzWritten = HttpHelper.saveToFile(httpResult, gzPath, true);
         if (gzWritten) {
             LOGGER.debug("Saved " + special + " feed to: " + gzPath);
         } else {

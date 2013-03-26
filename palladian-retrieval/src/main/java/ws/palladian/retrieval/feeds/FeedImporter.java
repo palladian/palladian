@@ -35,7 +35,9 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
- * <p>The FeedImporter allows to add new feeds to the database.</p>
+ * <p>
+ * The FeedImporter allows to add new feeds to the database.
+ * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -53,7 +55,7 @@ public class FeedImporter {
     private final FeedStore store;
 
     /** The downloader for getting the feeds. */
-    private FeedParser feedParser;
+    private final FeedParser feedParser;
 
     /** Whether to store the items of the added feed, or only the feed data. */
     private boolean storeItems = false;
@@ -76,7 +78,6 @@ public class FeedImporter {
     public boolean addFeed(String feedInformation) {
         LOGGER.trace(">addFeed " + feedInformation);
         boolean added = false;
-
 
         String cleanedURL = feedInformation;
         String siteURL = null;
@@ -221,8 +222,7 @@ public class FeedImporter {
         LOGGER.info("-------------------------------");
         LOGGER.info(" added " + addCounter.get() + " new feeds");
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
-        LOGGER.info(" traffic: " + HttpRetriever.getSessionDownloadSize(SizeUnit.MEGABYTES)
-                + " MB");
+        LOGGER.info(" traffic: " + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + " MB");
         LOGGER.info("-------------------------------");
 
         return addCounter.get();
@@ -283,12 +283,12 @@ public class FeedImporter {
         // CLI usage:
         // FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn] [-noDownload]
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName(
-                "feedUrl").create());
+        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg()
+                .withArgName("feedUrl").create());
         options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
                 .hasArg().withArgName("file").create());
-        options.addOption(OptionBuilder.withLongOpt("storeItems").withDescription(
-                "also store the items of each added feed to the database").create());
+        options.addOption(OptionBuilder.withLongOpt("storeItems")
+                .withDescription("also store the items of each added feed to the database").create());
         options.addOption(OptionBuilder.withLongOpt("threads").withDescription("number of threads").hasArg()
                 .withArgName("nn").withType(Number.class).create());
         options.addOption(OptionBuilder
@@ -299,7 +299,8 @@ public class FeedImporter {
 
         try {
 
-            FeedImporter importer = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
+            FeedImporter importer = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder
+                    .getInstance().getConfig()));
 
             CommandLine cmd = parser.parse(options, args);
 
@@ -314,7 +315,7 @@ public class FeedImporter {
                 importer.setStoreItems(true);
             }
             if (cmd.hasOption("threads")) {
-                importer.setNumThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
+                importer.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
             }
             if (cmd.hasOption("add")) {
                 importer.addFeed(cmd.getOptionValue("add"));
@@ -322,7 +323,6 @@ public class FeedImporter {
             if (cmd.hasOption("addFile")) {
                 importer.addFeedsFromFile(cmd.getOptionValue("addFile"));
             }
-
 
             return;
 

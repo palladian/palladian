@@ -10,13 +10,14 @@ import org.junit.Test;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 public class HttpDateGetterTest {
     
     @Test
     public void testGetHttpHeaderDate() throws FileNotFoundException {
-        HttpResult httpResult = HttpRetriever.loadSerializedHttpResult(ResourceHelper.getResourceFile("/httpResults/testPage01.httpResult"));
+        HttpResult httpResult = HttpHelper.loadSerializedHttpResult(ResourceHelper
+                .getResourceFile("/httpResults/testPage01.httpResult"));
         
         HttpDateGetter httpDateGetter = new HttpDateGetter();
         List<MetaDate> dates = httpDateGetter.getDates(httpResult);
