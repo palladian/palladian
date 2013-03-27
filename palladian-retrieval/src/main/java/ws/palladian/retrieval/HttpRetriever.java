@@ -65,7 +65,8 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * GET, POST, and HEAD. Results for these requests are supplied as instances of {@link HttpResult}. Further more, this
  * class provides the possibility to save the results from HTTP requests as files for archival purposes. This class is
  * heavily based upon Apache HttpComponents, which provide a much more reliable HTTP implementation than the original
- * <code>java.net.*</code> components.
+ * <code>java.net.*</code> components. Connections are pooled by a static, shared connection pool. The corresponding
+ * settings for the pooling are {@link #setNumConnections(int)} and {@link #setNumConnectionsPerRoute(int)}.
  * </p>
  * 
  * <p>
@@ -121,7 +122,7 @@ public class HttpRetriever {
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private static final PoolingClientConnectionManager connectionManager = new PoolingClientConnectionManager();
+    private static final PoolingClientConnectionManager CONNECTION_MANAGER = new PoolingClientConnectionManager();
 
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
@@ -145,8 +146,6 @@ public class HttpRetriever {
 
     private int numRetries = DEFAULT_NUM_RETRIES;
 
-    private String userAgent = USER_AGENT;
-
     // ///////////// Misc. ////////
 
     /** Hook for http* methods. */
@@ -155,6 +154,11 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
+
+    static {
+        setNumConnections(DEFAULT_NUM_RETRIES);
+        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
+    }
 
     /**
      * <p>
@@ -173,10 +177,6 @@ public class HttpRetriever {
      * <td>retries</td>
      * <td>0</td>
      * </tr>
-     * <tr>
-     * <td>maximum number of simultaneous connections</td>
-     * <td>100</td>
-     * </tr>
      * </table>
      * </p>
      **/
@@ -185,20 +185,17 @@ public class HttpRetriever {
         setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
-        setNumConnections(DEFAULT_NUM_RETRIES);
-        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
+        setUserAgent(USER_AGENT);
+        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
     }
 
-    private AbstractHttpClient getHttpClient() {
+    private AbstractHttpClient createHttpClient() {
 
         // initialize the HttpClient
-        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
-        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
+        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, httpParams);
 
         HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
         backend.setHttpRequestRetryHandler(retryHandler);
-
-        HttpProtocolParams.setUserAgent(httpParams, userAgent);
 
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
@@ -348,8 +345,9 @@ public class HttpRetriever {
     }
 
     public HttpResult execute(HttpRequest request) throws HttpException {
-        HttpUriRequest httpRequest;
+        Validate.notNull(request, "request must not be null");
 
+        HttpUriRequest httpRequest;
         switch (request.getMethod()) {
             case GET:
                 httpRequest = new HttpGet(createUrl(request));
@@ -435,7 +433,7 @@ public class HttpRetriever {
         HttpResult result;
         InputStream in = null;
 
-        AbstractHttpClient backend = getHttpClient();
+        AbstractHttpClient backend = createHttpClient();
         setProxy(url, request, backend);
 
         try {
@@ -459,6 +457,8 @@ public class HttpRetriever {
                 while ((length = in.read(buffer, 0, buffer.length)) != -1) {
                     out.write(buffer, 0, length);
                     if (maxFileSize != -1 && out.size() > maxFileSize) {
+                        LOGGER.debug("Cancel transfer of {}, as max. file size limit of {} bytes was reached", url,
+                                maxFileSize);
                         break;
                     }
                 }
@@ -490,12 +490,12 @@ public class HttpRetriever {
     }
 
     private void setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
-        // set proxy authentication if available
         Proxy proxy = httpHook.getProxy(url);
         if (proxy != null) {
             HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
             backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
 
+            // set proxy authentication if available
             if (StringUtils.isNotEmpty(proxy.getUsername())) {
                 Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
                 AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
@@ -534,10 +534,10 @@ public class HttpRetriever {
         params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
         HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
 
-        HttpConnectionParams.setSoTimeout(params, (int)getSocketTimeoutRedirects());
-        HttpConnectionParams.setConnectionTimeout(params, (int)getConnectionTimeoutRedirects());
+        HttpConnectionParams.setSoTimeout(params, (int)socketTimeoutRedirects);
+        HttpConnectionParams.setConnectionTimeout(params, (int)connectionTimeoutRedirects);
 
-        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
+        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, params);
         DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
         for (;;) {
@@ -664,13 +664,13 @@ public class HttpRetriever {
 //        backend.getCredentialsProvider().setCredentials(scope, defaultcreds);
 //    }
 
-    public long getConnectionTimeout() {
-        return HttpConnectionParams.getConnectionTimeout(httpParams);
-    }
+//    public long getConnectionTimeout() {
+//        return HttpConnectionParams.getConnectionTimeout(httpParams);
+//    }
 
     /**
      * <p>
-     * Resets this {@code HttpRetriever}s socket timeout time overwriting the old value. The default value for this
+     * Resets this {@link HttpRetriever}'s socket timeout time overwriting the old value. The default value for this
      * attribute after initialization is {@value #DEFAULT_SOCKET_TIMEOUT}.
      * </p>
      * 
@@ -680,36 +680,32 @@ public class HttpRetriever {
         HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
     }
 
-    /**
-     * <p>
-     * Provides this {@code HttpRetriever}s socket timeout time. The default value set upon initialization is
-     * {@value #DEFAULT_SOCKET_TIMEOUT}.
-     * </p>
-     * 
-     * @return The socket timeout time of this {@code HttpRetriever} in milliseconds.
-     */
-    public long getSocketTimeout() {
-        return HttpConnectionParams.getSoTimeout(httpParams);
-    }
+//    /**
+//     * <p>
+//     * Provides this {@code HttpRetriever}s socket timeout time. The default value set upon initialization is
+//     * {@value #DEFAULT_SOCKET_TIMEOUT}.
+//     * </p>
+//     * 
+//     * @return The socket timeout time of this {@code HttpRetriever} in milliseconds.
+//     */
+//    public long getSocketTimeout() {
+//        return HttpConnectionParams.getSoTimeout(httpParams);
+//    }
 
     public void setNumRetries(int numRetries) {
         this.numRetries = numRetries;
     }
 
     public static void setNumConnections(int numConnections) {
-        connectionManager.setMaxTotal(numConnections);
+        CONNECTION_MANAGER.setMaxTotal(numConnections);
     }
 
     public static void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
-        connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
-    }
-
-    public String getUserAgent() {
-        return userAgent;
+        CONNECTION_MANAGER.setDefaultMaxPerRoute(numConnectionsPerRoute);
     }
 
     public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
+        HttpProtocolParams.setUserAgent(httpParams, userAgent);
     }
 
     /**
@@ -750,17 +746,17 @@ public class HttpRetriever {
         this.httpHook = httpHook;
     }
 
-    public long getConnectionTimeoutRedirects() {
-        return connectionTimeoutRedirects;
-    }
+//    public long getConnectionTimeoutRedirects() {
+//        return connectionTimeoutRedirects;
+//    }
 
     public void setConnectionTimeoutRedirects(long connectionTimeoutRedirects) {
         this.connectionTimeoutRedirects = connectionTimeoutRedirects;
     }
 
-    public long getSocketTimeoutRedirects() {
-        return socketTimeoutRedirects;
-    }
+//    public long getSocketTimeoutRedirects() {
+//        return socketTimeoutRedirects;
+//    }
 
     public void setSocketTimeoutRedirects(long socketTimeoutRedirects) {
         this.socketTimeoutRedirects = socketTimeoutRedirects;
