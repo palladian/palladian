@@ -4,6 +4,7 @@ import java.util.Date;
 
 import ws.palladian.helper.nlp.StringHelper;
 
+// TODO move to WebKnox
 public class SecureProxy implements Proxy {
 
     private String address;
