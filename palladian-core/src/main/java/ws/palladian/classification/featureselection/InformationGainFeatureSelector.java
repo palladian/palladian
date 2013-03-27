@@ -5,6 +5,7 @@ package ws.palladian.classification.featureselection;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -189,40 +188,36 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
      */
     public static Map<List<FeatureDescriptor>, Binner> discretize(final FeatureDetails featureDetails,
             Collection<Instance> dataset) {
-        if (featureDetails.getPath().equals("ws.palladian.features.tokens/ws.palladian.features.tokens.count")) {
-            System.out.println("##############");
-        }
-
-        Map<List<FeatureDescriptor>, SortedSet<Instance>> sortedInstances = new HashMap<List<FeatureDescriptor>, SortedSet<Instance>>();
+        Map<List<FeatureDescriptor>, List<Instance>> sortedInstances = new HashMap<List<FeatureDescriptor>, List<Instance>>();
         for (Instance instance : dataset) {
             List<Pair<List<FeatureDescriptor>, Feature<?>>> features = FeatureUtils.getIdentifiedFeaturesAtPath(
                     instance.getFeatureVector(), featureDetails.getPath(), new ArrayList<FeatureDescriptor>());
             for (Pair<List<FeatureDescriptor>, Feature<?>> feature : features) {
                 final List<FeatureDescriptor> featureIdentifier = feature.getKey();
 
-                SortedSet<Instance> sorted = sortedInstances.get(featureIdentifier);
+                List<Instance> sorted = sortedInstances.get(featureIdentifier);
                 if (sorted == null) {
-                    sorted = new TreeSet<Instance>(new Comparator<Instance>() {
-
-                        @Override
-                        public int compare(Instance o1, Instance o2) {
-                            NumericFeature o1Feature = FeatureUtils.getFeatureForIdentifier(o1.getFeatureVector(),
-                                    NumericFeature.class, featureIdentifier);
-                            NumericFeature o2Feature = FeatureUtils.getFeatureForIdentifier(o2.getFeatureVector(),
-                                    NumericFeature.class, featureIdentifier);
-                            return o1Feature.getValue().compareTo(o2Feature.getValue());
-                        }
-                    });
+                    sorted = new ArrayList<Instance>();
                 }
                 sorted.add(instance);
+                Collections.sort(sorted, new Comparator<Instance>() {
+
+                    @Override
+                    public int compare(Instance o1, Instance o2) {
+                        NumericFeature o1Feature = FeatureUtils.getFeatureForIdentifier(o1.getFeatureVector(),
+                                NumericFeature.class, featureIdentifier);
+                        NumericFeature o2Feature = FeatureUtils.getFeatureForIdentifier(o2.getFeatureVector(),
+                                NumericFeature.class, featureIdentifier);
+                        return o1Feature.getValue().compareTo(o2Feature.getValue());
+                    }
+                });
                 sortedInstances.put(featureIdentifier, sorted);
             }
         }
 
         Map<List<FeatureDescriptor>, Binner> ret = new HashMap<List<FeatureDescriptor>, Binner>();
-        for (Entry<List<FeatureDescriptor>, SortedSet<Instance>> entry : sortedInstances.entrySet()) {
-            List<Instance> sortedDataset = new ArrayList<Instance>(entry.getValue());
-            Binner binner = createBinner(sortedDataset, entry.getKey());
+        for (Entry<List<FeatureDescriptor>, List<Instance>> entry : sortedInstances.entrySet()) {
+            Binner binner = createBinner(entry.getValue(), entry.getKey());
             ret.put(entry.getKey(), binner);
         }
         return ret;
@@ -308,25 +303,6 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
     @Override
     public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
-
-        // // get feature paths
-        // List<String> sparseFeaturePaths = new ArrayList<String>();
-        // List<String> normalFeaturePaths = new ArrayList<String>();
-        // for (FeatureDetails featureDetails : featuresToConsider) {
-        // if (featureDetails.isSparse()) {
-        // sparseFeaturePaths.add(featureDetails.getFeaturePath());
-        // } else {
-        // normalFeaturePaths.add(featureDetails.getFeaturePath());
-        // }
-        // }
-        //
-        // // make all feature vectors flat
-        // List<Instance> flatInstances = new ArrayList<Instance>(dataset.size());
-        // for (Instance instance : dataset) {
-        // FeatureVector flatVector = FeatureUtils.makeFlat(instance.getFeatureVector(), normalFeaturePaths,
-        // sparseFeaturePaths);
-        // flatInstances.add(new Instance(instance.getTargetClass(), flatVector));
-        // }
 
         for (FeatureDetails featureDetails : featuresToConsider) {
             Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(featureDetails, dataset);
