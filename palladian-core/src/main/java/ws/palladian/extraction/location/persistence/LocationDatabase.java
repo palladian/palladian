@@ -55,7 +55,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
 
     // ////////////////// row converts ////////////////////////////////////
-    private static final RowConverter<Location> LOCATION_ROW_CONVERTER = new RowConverter<Location>() {
+    private static final RowConverter<Location> LOCATION_CONVERTER = new RowConverter<Location>() {
         @Override
         public Location convert(ResultSet resultSet) throws SQLException {
             int id = resultSet.getInt("id");
@@ -85,7 +85,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
     };
 
-    private static final RowConverter<LocationHierarchy> HIERARCHY_ROW_CONVERTER = new RowConverter<LocationHierarchy>() {
+    private static final RowConverter<LocationHierarchy> HIERARCHY_CONVERTER = new RowConverter<LocationHierarchy>() {
         @Override
         public LocationHierarchy convert(ResultSet resultSet) throws SQLException {
             int childId = resultSet.getInt("childId");
@@ -103,7 +103,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> getLocations(String locationName) {
-        return runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION, locationName, locationName);
+        return runQuery(LOCATION_CONVERTER, GET_LOCATION, locationName, locationName);
     }
 
     @Override
@@ -130,7 +130,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
         sqlBuilder.append(")");
         sqlBuilder.append(") as t GROUP BY id");
-        return runQuery(LOCATION_ROW_CONVERTER, sqlBuilder.toString(), locationName, locationName);
+        return runQuery(LOCATION_CONVERTER, sqlBuilder.toString(), locationName, locationName);
     }
 
     @Override
@@ -156,7 +156,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         // all used combinations will get and stay cached eventually.
 
         String prepStmt = String.format(GET_LOCATIONS_BY_ID, StringUtils.repeat("?", ",", locationIds.size()));
-        List<Location> locations = runQuery(LOCATION_ROW_CONVERTER, prepStmt, new ArrayList<Object>(locationIds));
+        List<Location> locations = runQuery(LOCATION_CONVERTER, prepStmt, new ArrayList<Object>(locationIds));
 
         // sort the returned list, so that we have the order of the given locations IDs
         Collections.sort(locations, new Comparator<Location>() {
@@ -193,30 +193,28 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public void addHierarchy(int childId, int parentId) {
-        LocationHierarchy parent = runSingleQuery(HIERARCHY_ROW_CONVERTER, GET_HIERARCHY, parentId);
-        List<LocationHierarchy> children = runQuery(HIERARCHY_ROW_CONVERTER, GET_HIERARCHY_BY_ANCESTOR, "%/" + childId);
+        LocationHierarchy parent = runSingleQuery(HIERARCHY_CONVERTER, GET_HIERARCHY, parentId);
+        List<LocationHierarchy> children = runQuery(HIERARCHY_CONVERTER, GET_HIERARCHY_BY_ANCESTOR, "/" + childId + "%");
 
-        String ancestorPath = "/" + parentId;
-        if (parent != null) {
-            ancestorPath += parent.getAncestorPath();
-        }
+        String ancestorPath = (parent != null ? parent.getAncestorPath() : "") + "/" + parentId;
         runUpdate(ADD_HIERARCHY, childId, ancestorPath);
 
         for (LocationHierarchy child : children) {
-            runUpdate(ADD_HIERARCHY, child.getChildId(), child.getAncestorPath() + ancestorPath);
+            runUpdate(ADD_HIERARCHY, child.getChildId(), ancestorPath + child.getAncestorPath());
         }
     }
 
     @Override
     public List<Location> getHierarchy(int locationId) {
-        LocationHierarchy hierarchy = runSingleQuery(HIERARCHY_ROW_CONVERTER, GET_HIERARCHY, locationId);
+        LocationHierarchy hierarchy = runSingleQuery(HIERARCHY_CONVERTER, GET_HIERARCHY, locationId);
         if (hierarchy == null) {
             return Collections.emptyList();
         }
 
         List<Integer> ancestorIds = CollectionHelper.newArrayList();
         String[] splitPath = hierarchy.getAncestorPath().split("/");
-        for (String ancestorId : splitPath) {
+        for (int i = splitPath.length - 1; i >= 0; i--) {
+            String ancestorId = splitPath[i];
             if (!StringUtils.isBlank(ancestorId)) {
                 ancestorIds.add(Integer.valueOf(ancestorId));
             }

@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS `location_hierarchy`;
 
 CREATE TABLE `location_hierarchy` (
   `childId` bigint(20) unsigned NOT NULL COMMENT 'The child in the hierarchical relation.',
-  `ancestorIds` varchar(255) NOT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes.',
+  `ancestorIds` varchar(255) NOT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes, starting with the root ancestor.',
   UNIQUE KEY `childrenUnique` (`childId`),
   KEY `childId` (`childId`),
   KEY `ancestorIds` (`ancestorIds`)  
