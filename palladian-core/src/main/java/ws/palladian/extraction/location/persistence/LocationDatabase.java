@@ -2,15 +2,15 @@ package ws.palladian.extraction.location.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +43,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
-    // we can safely ignore potential constraint violations here:
-    private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?";
     private static final String GET_LOCATION = "SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ?) AS t GROUP BY id";
-    private static final String GET_LOCATION_PARENT = "SELECT DISTINCT l.* FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ?;";
-    private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
+    private static final String GET_LOCATION_BY_ID = "SELECT *, GROUP_CONCAT(alternativeName,'#',LANGUAGE) AS alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.id = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = ?) AS t GROUP BY id;";
+    // TODO integrate location_hierarchy into locations
+    private static final String ADD_HIERARCHY = "REPLACE INTO location_hierarchy SET childId = ?, ancestorIds = ?";
+    private static final String GET_HIERARCHY = "SELECT * FROM location_hierarchy WHERE childId = ?";
+    private static final String GET_HIERARCHY_BY_ANCESTOR = "SELECT * FROM location_hierarchy WHERE ancestorIds LIKE ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
 
     // ////////////////// row converts ////////////////////////////////////
@@ -58,36 +59,39 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             LocationType locationType = LocationType.valueOf(resultSet.getString("type"));
             String primaryName = resultSet.getString("name");
 
-            List<AlternativeName> alternativeNameObjects = CollectionHelper.newArrayList();
-            if (resultSet.getMetaData().getColumnCount() == 10) {
-                String alternativesString = resultSet.getString("alternatives");
-                if (alternativesString != null) {
-                    List<String> alternativeNames = Arrays.asList(alternativesString.split(","));
-                    for (String string : alternativeNames) {
-                        String[] parts = string.split("#");
-                        if (parts[0].equalsIgnoreCase("alternativeName")) {
-                            continue;
-                        }
-                        String languageString = null;
-                        if (parts.length > 1) {
-                            languageString = parts[1];
-                        }
-                        Language language = languageString != null ? Language.getByIso6391(languageString) : null;
-                        AlternativeName alternativeName = new AlternativeName(parts[0], language);
-                        alternativeNameObjects.add(alternativeName);
+            List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
+            String alternativesString = resultSet.getString("alternatives");
+            if (alternativesString != null) {
+                for (String nameLanguageString : alternativesString.split(",")) {
+                    String[] parts = nameLanguageString.split("#");
+                    if (parts[0].equalsIgnoreCase("alternativeName")) {
+                        continue;
                     }
+                    Language language = null;
+                    if (parts.length > 1) {
+                        language = Language.getByIso6391(parts[1]);
+                    }
+                    alternativeNames.add(new AlternativeName(parts[0], language));
                 }
             }
 
             Double latitude = SqlHelper.getDouble(resultSet, "latitude");
             Double longitude = SqlHelper.getDouble(resultSet, "longitude");
             Long population = resultSet.getLong("population");
-            Location location = new Location(id, primaryName, alternativeNameObjects, locationType, latitude,
-                    longitude, population);
-            // System.out.println(location);
-            return location;
+            return new Location(id, primaryName, alternativeNames, locationType, latitude, longitude, population);
         }
     };
+
+    private static final RowConverter<LocationHierarchy> HIERARCHY_ROW_CONVERTER = new RowConverter<LocationHierarchy>() {
+        @Override
+        public LocationHierarchy convert(ResultSet resultSet) throws SQLException {
+            int childId = resultSet.getInt("childId");
+            String ancestorIds = resultSet.getString("ancestorIds");
+            return new LocationHierarchy(childId, ancestorIds);
+        }
+    };
+
+    // //////////////////////////////////////////////////////////////////////
 
     /** Instances are created using the {@link DatabaseManagerFactory}. */
     protected LocationDatabase(DataSource dataSource) {
@@ -121,13 +125,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         }
         sqlBuilder.append(")");
         sqlBuilder.append(") as t GROUP BY id");
-        // System.out.println(sqlBuilder.toString());
         return runQuery(LOCATION_ROW_CONVERTER, sqlBuilder.toString(), locationName, locationName);
     }
 
     @Override
     public Location retrieveLocation(int locationId) {
-        return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId);
+        return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId, locationId);
     }
 
     @Override
@@ -154,29 +157,33 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public void addHierarchy(int childId, int parentId) {
-        runInsertReturnId(ADD_HIERARCHY, childId, parentId);
+        LocationHierarchy parent = runSingleQuery(HIERARCHY_ROW_CONVERTER, GET_HIERARCHY, parentId);
+        List<LocationHierarchy> children = runQuery(HIERARCHY_ROW_CONVERTER, GET_HIERARCHY_BY_ANCESTOR, "%/" + childId);
+
+        String ancestorPath = "/" + parentId;
+        if (parent != null) {
+            ancestorPath += parent.getAncestorPath();
+        }
+        runUpdate(ADD_HIERARCHY, childId, ancestorPath);
+
+        for (LocationHierarchy child : children) {
+            runUpdate(ADD_HIERARCHY, child.getChildId(), child.getAncestorPath() + ancestorPath);
+        }
     }
 
     @Override
     public List<Location> getHierarchy(int locationId) {
+        LocationHierarchy hierarchy = runSingleQuery(HIERARCHY_ROW_CONVERTER, GET_HIERARCHY, locationId);
+        if (hierarchy == null) {
+            return Collections.emptyList();
+        }
         List<Location> ret = CollectionHelper.newArrayList();
-        // prevent infinite loops
-        Set<Integer> retrievedIds = CollectionHelper.newHashSet();
-        int currentId = locationId;
-        for (;;) {
-            List<Location> parents = runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_PARENT, currentId);
-            if (parents.isEmpty()) {
-                LOGGER.trace("No parent for {}", currentId);
-                break;
-            }
-            if (parents.size() > 1) {
-                LOGGER.debug("Multiple parents for {}: {}", currentId, parents);
-            }
-            ret.add(parents.get(0));
-            currentId = parents.get(0).getId();
-            if (!retrievedIds.add(currentId)) {
-                LOGGER.error("Detected infinite loop for {}", locationId);
-                break;
+        String[] ancestorIds = hierarchy.getAncestorPath().split("/");
+        // FIXME get all ancestor locations in one go
+        for (String ancestorId : ancestorIds) {
+            if (!StringUtils.isBlank(ancestorId)) {
+                Location location = retrieveLocation(Integer.valueOf(ancestorId));
+                ret.add(location);
             }
         }
         return ret;
@@ -223,6 +230,51 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     public int getHighestId() {
         Integer id = runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
         return id != null ? id : 0;
+    }
+
+    /**
+     * <p>
+     * Internal helper class for keeping location hierarchies.
+     * </p>
+     * 
+     * @author Philipp Katz
+     */
+    static final class LocationHierarchy {
+
+        private final int childId;
+        private final String ancestorPath;
+
+        LocationHierarchy(int childId, String ancestorPath) {
+            this.childId = childId;
+            this.ancestorPath = ancestorPath;
+        }
+
+        public int getChildId() {
+            return childId;
+        }
+
+        /**
+         * <p>
+         * Get the ancestor path. The ancestor path is a slash-separated String with all ancestors.
+         * </p>
+         * 
+         * @return The ancestor path.
+         */
+        public String getAncestorPath() {
+            return ancestorPath;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("DbLocationRelation [childId=");
+            builder.append(childId);
+            builder.append(", ancestorPath=");
+            builder.append(ancestorPath);
+            builder.append("]");
+            return builder.toString();
+        }
+
     }
 
     public static void main(String[] args) {

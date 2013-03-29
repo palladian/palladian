@@ -1,7 +1,7 @@
 package ws.palladian.extraction.location;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
@@ -16,7 +16,7 @@ public class Location {
 
     private final int id;
     private final String primaryName;
-    private final List<AlternativeName> alternativeNames;
+    private final Collection<AlternativeName> alternativeNames;
     private final LocationType type;
     private final Double latitude;
     private final Double longitude;
@@ -36,7 +36,7 @@ public class Location {
      * @param longitude The longitude, or <code>null</code> if no coordinates exist.
      * @param population The population, or <code>null</code> if no populartion values exist.
      */
-    public Location(int id, String primaryName, List<AlternativeName> alternativeNames, LocationType type,
+    public Location(int id, String primaryName, Collection<AlternativeName> alternativeNames, LocationType type,
             Double latitude, Double longitude, Long population) {
         Validate.notNull(primaryName, "primaryName must not be null");
         Validate.notNull(type, "type must not be null");
@@ -57,8 +57,8 @@ public class Location {
         return primaryName;
     }
 
-    public List<AlternativeName> getAlternativeNames() {
-        return Collections.unmodifiableList(alternativeNames);
+    public Collection<AlternativeName> getAlternativeNames() {
+        return Collections.unmodifiableCollection(alternativeNames);
     }
 
     public LocationType getType() {

@@ -1,18 +1,22 @@
 package ws.palladian.extraction.location.sources;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.GeonamesImporter;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class GeonamesImporterTest {
@@ -30,7 +34,7 @@ public class GeonamesImporterTest {
     }
 
     @Test
-    public void testParsing() {
+    public void testGeneralData() {
         Location location = locationStore.retrieveLocation(2926304);
         assertEquals("Flein", location.getPrimaryName());
         assertEquals(49.10306, location.getLatitude(), 0);
@@ -426,6 +430,17 @@ public class GeonamesImporterTest {
         for (int i = 0; i < values.length; i++) {
             assertEquals(values[i], hierarchy.get(i).getId());
         }
+    }
+
+    @Test
+    public void testAlternativeNames() {
+        Location location = locationStore.retrieveLocation(2825297);
+        Collection<AlternativeName> alternativeNames = location.getAlternativeNames();
+        assertEquals(39, alternativeNames.size());
+        assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.GERMAN)));
+        assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.ENGLISH)));
+        assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.SPANISH)));
+        assertTrue(alternativeNames.contains(new AlternativeName("Shtutgarti", Language.ALBANIAN)));
     }
 
 }

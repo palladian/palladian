@@ -22,34 +22,42 @@ import ws.palladian.helper.constants.Language;
  */
 public class CollectionLocationStore implements LocationStore {
 
-    private final Map<Integer, Location> locationsIds;
-    private final MultiMap<String, Location> locationsNames;
+    private final Map<Integer, Location> idsLocations;
+    private final MultiMap<String, Integer> namesIds;
     private final Map<Integer, Integer> hierarchyIds;
+    private final MultiMap<Integer, AlternativeName> idsAlternativeNames;
 
     public CollectionLocationStore() {
-        locationsIds = CollectionHelper.newHashMap();
-        locationsNames = MultiMap.create();
+        idsLocations = CollectionHelper.newHashMap();
+        namesIds = MultiMap.create();
         hierarchyIds = CollectionHelper.newHashMap();
+        idsAlternativeNames = MultiMap.create();
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
-        return locationsNames.get(locationName.toLowerCase());
+    public Collection<Location> retrieveLocations(String locationName) {
+        Collection<Location> result = CollectionHelper.newHashSet();
+        List<Integer> ids = namesIds.get(locationName.toLowerCase());
+        for (Integer id : ids) {
+            Location location = retrieveLocation(id);
+            result.add(location);
+        }
+        return result;
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+    public Collection<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void save(Location location) {
-        locationsNames.add(location.getPrimaryName().toLowerCase(), location);
+        namesIds.add(location.getPrimaryName().toLowerCase(), location.getId());
         if (location.getAlternativeNames() != null) {
             addAlternativeNames(location.getId(), location.getAlternativeNames());
         }
-        locationsIds.put(location.getId(), location);
+        idsLocations.put(location.getId(), location);
     }
 
     @Override
@@ -62,7 +70,10 @@ public class CollectionLocationStore implements LocationStore {
 
     @Override
     public Location retrieveLocation(int locationId) {
-        return locationsIds.get(locationId);
+        Location temp = idsLocations.get(locationId);
+        List<AlternativeName> alternativeNames = idsAlternativeNames.get(locationId);
+        return new Location(temp.getId(), temp.getPrimaryName(), alternativeNames, temp.getType(), temp.getLatitude(),
+                temp.getLongitude(), temp.getPopulation());
     }
 
     @Override
@@ -74,7 +85,7 @@ public class CollectionLocationStore implements LocationStore {
             if (parentLocationId == null) {
                 break;
             }
-            Location parentLocation = locationsIds.get(parentLocationId);
+            Location parentLocation = idsLocations.get(parentLocationId);
             ret.add(parentLocation);
             currentLocationId = parentLocation.getId();
         }
@@ -85,29 +96,31 @@ public class CollectionLocationStore implements LocationStore {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("CollectionLocationStore [#locationsIds=");
-        builder.append(locationsIds.size());
-        builder.append(", #locationsNames=");
-        builder.append(locationsNames.size());
+        builder.append(idsLocations.size());
+        builder.append(", #namesIds=");
+        builder.append(namesIds.size());
         builder.append(", #hierarchy=");
         builder.append(hierarchyIds.size());
+        builder.append(", #idsAlternativeNames=");
+        builder.append(idsAlternativeNames.allValues().size());
         builder.append("]");
         return builder.toString();
     }
 
     @Override
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
-        Location location = retrieveLocation(locationId);
         for (AlternativeName alternativeName : alternativeNames) {
-            locationsNames.add(alternativeName.getName().toLowerCase(), location);
+            namesIds.add(alternativeName.getName().toLowerCase(), locationId);
+            idsAlternativeNames.add(locationId, alternativeName);
         }
     }
 
     @Override
     public int getHighestId() {
-        if (locationsIds.isEmpty()) {
+        if (idsLocations.isEmpty()) {
             return 0;
         }
-        List<Integer> locationIdList = new ArrayList<Integer>(locationsIds.keySet());
+        List<Integer> locationIdList = new ArrayList<Integer>(idsLocations.keySet());
         return Collections.max(locationIdList);
     }
 
