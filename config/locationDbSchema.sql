@@ -42,11 +42,11 @@ CREATE TABLE `location_alternative_names` (
 DROP TABLE IF EXISTS `location_hierarchy`;
 
 CREATE TABLE `location_hierarchy` (
-  `parentId` bigint(20) unsigned NOT NULL COMMENT 'The parent in the hierarchical relation.',
   `childId` bigint(20) unsigned NOT NULL COMMENT 'The child in the hierarchical relation.',
-  UNIQUE KEY `parentChildUnique` (`parentId`,`childId`),
-  KEY `parentId` (`parentId`),
-  KEY `childId` (`childId`)
+  `ancestorIds` varchar(255) NOT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes.',
+  UNIQUE KEY `childrenUnique` (`childId`),
+  KEY `childId` (`childId`),
+  KEY `ancestorIds` (`ancestorIds`)  
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
