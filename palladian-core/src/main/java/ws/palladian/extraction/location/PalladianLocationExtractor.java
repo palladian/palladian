@@ -134,7 +134,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
             // search entities by name
             // List<Location> retrievedLocations = locationSource.retrieveLocations(entityValue);
-            Collection<Location> retrievedLocations = locationSource.retrieveLocations(entityValue,
+            Collection<Location> retrievedLocations = locationSource.getLocations(entityValue,
                     EnumSet.of(Language.ENGLISH));
             
             
@@ -147,9 +147,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 Set<Location> temp = CollectionHelper.newHashSet();
 
                 String temp1 = entityValue.replace(".", "");
-                temp.addAll(locationSource.retrieveLocations(temp1, EnumSet.of(Language.ENGLISH)));
+                temp.addAll(locationSource.getLocations(temp1, EnumSet.of(Language.ENGLISH)));
                 String temp2 = makeAcronymSeparated(temp1);
-                temp.addAll(locationSource.retrieveLocations(temp2, EnumSet.of(Language.ENGLISH)));
+                temp.addAll(locationSource.getLocations(temp2, EnumSet.of(Language.ENGLISH)));
 
                 retrievedLocations.clear();
                 retrievedLocations.addAll(temp);

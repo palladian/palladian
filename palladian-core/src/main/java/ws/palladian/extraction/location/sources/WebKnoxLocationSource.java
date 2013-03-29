@@ -44,7 +44,7 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
+    public List<Location> getLocations(String locationName) {
         List<Location> locations = CollectionHelper.newArrayList();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
@@ -97,7 +97,7 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public Location retrieveLocation(int locationId) {
+    public Location getLocation(int locationId) {
         throw new UnsupportedOperationException();
     }
 
@@ -107,7 +107,7 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
         throw new UnsupportedOperationException();
     }
 

@@ -72,7 +72,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
+    public List<Location> getLocations(String locationName) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
         request.addParameter("name", locationName);
         String jsonString = retrieveResult(request);
@@ -80,7 +80,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
         request.addParameter("name", locationName);
         if (languages != null && !languages.isEmpty()) {
@@ -100,7 +100,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public Location retrieveLocation(int locationId) {
+    public Location getLocation(int locationId) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + locationId);
         String jsonString = retrieveResult(request);
         try {

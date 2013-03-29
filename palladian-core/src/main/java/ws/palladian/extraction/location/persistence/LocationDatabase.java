@@ -99,12 +99,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
+    public List<Location> getLocations(String locationName) {
         return runQuery(LOCATION_ROW_CONVERTER, GET_LOCATION, locationName, locationName);
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder
                 .append("SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan");
@@ -129,7 +129,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public Location retrieveLocation(int locationId) {
+    public Location getLocation(int locationId) {
         return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId, locationId);
     }
 
@@ -182,7 +182,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         // FIXME get all ancestor locations in one go
         for (String ancestorId : ancestorIds) {
             if (!StringUtils.isBlank(ancestorId)) {
-                Location location = retrieveLocation(Integer.valueOf(ancestorId));
+                Location location = getLocation(Integer.valueOf(ancestorId));
                 ret.add(location);
             }
         }
@@ -279,7 +279,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        List<Location> locations = database.retrieveLocations("Social");
+        List<Location> locations = database.getLocations("Social");
 
         CollectionHelper.print(locations);
 
