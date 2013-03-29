@@ -6,16 +6,10 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
@@ -28,12 +22,9 @@ import ws.palladian.helper.constants.Language;
  */
 public class CollectionLocationStore implements LocationStore {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(CollectionLocationStore.class);
-
     private final Map<Integer, Location> locationsIds;
     private final MultiMap<String, Location> locationsNames;
-    private final Map<Integer, Set<LocationRelation>> hierarchyIds;
+    private final Map<Integer, Integer> hierarchyIds;
 
     public CollectionLocationStore() {
         locationsIds = CollectionHelper.newHashMap();
@@ -62,17 +53,11 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     @Override
-    public void addHierarchy(LocationRelation hierarchy) {
-        if (hierarchy.getChildId() == hierarchy.getParentId()) {
-            throw new IllegalArgumentException("A child cannot be the parent of itself (id was "
-                    + hierarchy.getChildId() + ")");
+    public void addHierarchy(int childId, int parentId) {
+        if (childId == parentId) {
+            throw new IllegalArgumentException("A child cannot be the parent of itself (id was " + childId + ")");
         }
-        Set<LocationRelation> parentSet = hierarchyIds.get(hierarchy.getChildId());
-        if (parentSet == null) {
-            parentSet = CollectionHelper.newHashSet();
-            hierarchyIds.put(hierarchy.getChildId(), parentSet);
-        }
-        parentSet.add(hierarchy);
+        hierarchyIds.put(childId, parentId);
     }
 
     @Override
@@ -85,52 +70,15 @@ public class CollectionLocationStore implements LocationStore {
         List<Location> ret = CollectionHelper.newArrayList();
         int currentLocationId = locationId;
         for (;;) {
-            Location currentLocation = getParentLocation(currentLocationId);
-            if (currentLocation == null) {
+            Integer parentLocationId = hierarchyIds.get(currentLocationId);
+            if (parentLocationId == null) {
                 break;
             }
-            ret.add(currentLocation);
-            currentLocationId = currentLocation.getId();
+            Location parentLocation = locationsIds.get(parentLocationId);
+            ret.add(parentLocation);
+            currentLocationId = parentLocation.getId();
         }
         return ret;
-    }
-
-    @Override
-    public Collection<LocationRelation> getParents(int locationId) {
-        Set<LocationRelation> parents = hierarchyIds.get(locationId);
-        if (parents == null) {
-            return Collections.emptySet();
-        }
-        return parents;
-    }
-
-    private Location getParentLocation(int locationId) {
-        Collection<LocationRelation> parentRelations = getParents(locationId);
-        if (parentRelations.isEmpty()) {
-            LOGGER.trace("No parent for {}", locationId);
-            return null;
-        }
-        if (parentRelations.size() > 1) {
-            LOGGER.debug("Ambiguities for {}: {}", locationId, parentRelations);
-        }
-        MultiMap<Integer, LocationRelation> groupBy = CollectionHelper.groupBy(parentRelations,
-                new Function<LocationRelation, Integer>() {
-                    @Override
-                    public Integer compute(LocationRelation input) {
-                        return input.getPriority();
-                    }
-                });
-        for (int index : new TreeSet<Integer>(groupBy.keySet())) {
-            List<LocationRelation> values = groupBy.get(index);
-            if (values.size() == 1) {
-                Location location = locationsIds.get(values.get(0).getParentId());
-                if (location == null) {
-                    LOGGER.error("Location {} is null", values.get(0).getParentId());
-                }
-                return location;
-            }
-        }
-        return null;
     }
 
     @Override

@@ -86,7 +86,7 @@ public final class FileImporter {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
 
-        String universities = "/Users/pk/Desktop/universities.txt";
+        String universities = "/Users/pk/Dropbox/LocationLab/universities.txt";
         String amusementParks = "/Users/pk/Dropbox/LocationLab/amusementParks.txt";
         FileImporter importer = new FileImporter(locationStore);
         importer.importLocations(universities);

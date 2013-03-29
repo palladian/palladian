@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.extraction.location.sources.LocationRelation;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -45,15 +44,10 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
     // we can safely ignore potential constraint violations here:
-    private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?, priority = ?";
-
+    private static final String ADD_HIERARCHY = "INSERT IGNORE INTO location_hierarchy SET childId = ?, parentId = ?";
     private static final String GET_LOCATION = "SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ?) AS t GROUP BY id";
-
-    // private static final String GET_LOCATION_PARENT =
-    // "SELECT * FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? AND priority = (SELECT MIN(priority) FROM location_hierarchy WHERE childId = ?)";
-    private static final String GET_LOCATION_PARENT = "SELECT DISTINCT l.* FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ? GROUP BY priority HAVING COUNT(priority) = 1 ORDER BY priority;";
+    private static final String GET_LOCATION_PARENT = "SELECT DISTINCT l.* FROM locations l, location_hierarchy h WHERE l.id = h.parentId AND h.childId = ?;";
     private static final String GET_LOCATION_BY_ID = "SELECT * FROM locations WHERE id = ?";
-    private static final String GET_LOCATION_PARENTS = "SELECT * FROM location_hierarchy WHERE childId = ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
 
     // ////////////////// row converts ////////////////////////////////////
@@ -92,16 +86,6 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
                     longitude, population);
             // System.out.println(location);
             return location;
-        }
-    };
-
-    private static final RowConverter<LocationRelation> LOCATION_RELATION_ROW_CONVERTER = new RowConverter<LocationRelation>() {
-        @Override
-        public LocationRelation convert(ResultSet resultSet) throws SQLException {
-            int parentId = resultSet.getInt("parentId");
-            int childId = resultSet.getInt("childId");
-            int priority = resultSet.getInt("priority");
-            return new LocationRelation(parentId, childId, priority);
         }
     };
 
@@ -169,8 +153,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public void addHierarchy(LocationRelation hierarchy) {
-        runInsertReturnId(ADD_HIERARCHY, hierarchy.getChildId(), hierarchy.getParentId(), hierarchy.getPriority());
+    public void addHierarchy(int childId, int parentId) {
+        runInsertReturnId(ADD_HIERARCHY, childId, parentId);
     }
 
     @Override
@@ -233,11 +217,6 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             }
             runInsertReturnId(ADD_ALTERNATIVE_NAME, locationId, alternativeName.getName(), languageString);
         }
-    }
-
-    @Override
-    public Collection<LocationRelation> getParents(int locationId) {
-        return runQuery(LOCATION_RELATION_ROW_CONVERTER, GET_LOCATION_PARENTS, locationId);
     }
 
     @Override

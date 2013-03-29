@@ -44,11 +44,9 @@ DROP TABLE IF EXISTS `location_hierarchy`;
 CREATE TABLE `location_hierarchy` (
   `parentId` bigint(20) unsigned NOT NULL COMMENT 'The parent in the hierarchical relation.',
   `childId` bigint(20) unsigned NOT NULL COMMENT 'The child in the hierarchical relation.',
-  `priority` tinyint(4) unsigned NOT NULL COMMENT 'A priority for the parent relation, where smaller values denote a higher priority.',
-  UNIQUE KEY `parentChildPriorityUnique` (`parentId`,`childId`,`priority`),
+  UNIQUE KEY `parentChildUnique` (`parentId`,`childId`),
   KEY `parentId` (`parentId`),
-  KEY `childId` (`childId`),
-  KEY `priority` (`priority`)
+  KEY `childId` (`childId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
