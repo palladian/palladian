@@ -12,6 +12,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class DatabaseManager {
     /**
      * The {@link DataSource} providing Connection to the underlying database.
      */
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     /**
      * <p>
@@ -48,10 +49,10 @@ public class DatabaseManager {
      * {@link DatabaseManagerFactory}.
      * </p>
      * 
-     * @param dataSource
+     * @param dataSource The {@link DataSource}, which provides JDBC connections. Must not be <code>null</code>.
      */
     protected DatabaseManager(DataSource dataSource) {
-        super();
+        Validate.notNull(dataSource, "dataSource must not be null");
         this.dataSource = dataSource;
     }
 
