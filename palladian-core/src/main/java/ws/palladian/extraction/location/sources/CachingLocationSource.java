@@ -42,10 +42,10 @@ public final class CachingLocationSource implements LocationSource {
     }
 
     @Override
-    public Collection<Location> retrieveLocations(String locationName) {
+    public Collection<Location> getLocations(String locationName) {
         Collection<Location> locations = locationNameCache.get(locationName);
         if (locations == null) {
-            locations = locationSource.retrieveLocations(locationName);
+            locations = locationSource.getLocations(locationName);
             locationNameCache.put(locationName, locations);
             cacheMisses++;
         } else {
@@ -57,10 +57,10 @@ public final class CachingLocationSource implements LocationSource {
     // XXX if the same location is queried with different languages set, this will not yield currect results, because it
     // is already cached.
     @Override
-    public Collection<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
         Collection<Location> locations = locationNameCache.get(locationName);
         if (locations == null) {
-            locations = locationSource.retrieveLocations(locationName, languages);
+            locations = locationSource.getLocations(locationName, languages);
             locationNameCache.put(locationName, locations);
             cacheMisses++;
         } else {
@@ -70,10 +70,10 @@ public final class CachingLocationSource implements LocationSource {
     }
 
     @Override
-    public Location retrieveLocation(int locationId) {
+    public Location getLocation(int locationId) {
         Location location = locationIdCache.get(locationId);
         if (location == null) {
-            location = locationSource.retrieveLocation(locationId);
+            location = locationSource.getLocation(locationId);
             locationIdCache.put(locationId, location);
             cacheMisses++;
         } else {

@@ -60,7 +60,7 @@ public class GeonamesLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
+    public List<Location> getLocations(String locationName) {
         try {
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=LONG&username=%s",
                     UrlHelper.encodeParameter(locationName), username);
@@ -74,7 +74,7 @@ public class GeonamesLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
         throw new UnsupportedOperationException("Searching by languages is not supported by GeoNames.org");
     }
 
@@ -142,7 +142,7 @@ public class GeonamesLocationSource implements LocationSource {
                 if (geonameId == locationId) { // do not add the supplied Location itself.
                     continue;
                 }
-                Location retrievedLocation = retrieveLocation(geonameId);
+                Location retrievedLocation = getLocation(geonameId);
                 result.add(retrievedLocation);
             }
             return result;
@@ -152,7 +152,7 @@ public class GeonamesLocationSource implements LocationSource {
     }
 
     @Override
-    public Location retrieveLocation(int locationId) {
+    public Location getLocation(int locationId) {
         try {
             String getUrl = String.format("http://api.geonames.org/get?geonameId=%s&username=%s&style=LONG",
                     locationId, username);
@@ -168,7 +168,7 @@ public class GeonamesLocationSource implements LocationSource {
 
     public static void main(String[] args) {
         GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
-        List<Location> locations = locationSource.retrieveLocations("stuttgart");
+        List<Location> locations = locationSource.getLocations("stuttgart");
         CollectionHelper.print(locations);
 
         System.out.println("-------");

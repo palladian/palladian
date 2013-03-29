@@ -35,18 +35,18 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     @Override
-    public Collection<Location> retrieveLocations(String locationName) {
+    public Collection<Location> getLocations(String locationName) {
         Collection<Location> result = CollectionHelper.newHashSet();
         List<Integer> ids = namesIds.get(locationName.toLowerCase());
         for (Integer id : ids) {
-            Location location = retrieveLocation(id);
+            Location location = getLocation(id);
             result.add(location);
         }
         return result;
     }
 
     @Override
-    public Collection<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -69,7 +69,7 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     @Override
-    public Location retrieveLocation(int locationId) {
+    public Location getLocation(int locationId) {
         Location temp = idsLocations.get(locationId);
         List<AlternativeName> alternativeNames = idsAlternativeNames.get(locationId);
         return new Location(temp.getId(), temp.getPrimaryName(), alternativeNames, temp.getType(), temp.getLatitude(),

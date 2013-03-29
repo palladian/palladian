@@ -35,92 +35,92 @@ public class GeonamesImporterTest {
 
     @Test
     public void testGeneralData() {
-        Location location = locationStore.retrieveLocation(2926304);
+        Location location = locationStore.getLocation(2926304);
         assertEquals("Flein", location.getPrimaryName());
         assertEquals(49.10306, location.getLatitude(), 0);
         assertEquals(9.21083, location.getLongitude(), 0);
         assertEquals((Long)6558l, location.getPopulation());
         assertEquals(LocationType.CITY, location.getType());
 
-        location = locationStore.retrieveLocation(2825297);
+        location = locationStore.getLocation(2825297);
         assertEquals("Stuttgart", location.getPrimaryName());
         assertEquals(48.78232, location.getLatitude(), 0);
         assertEquals(9.17702, location.getLongitude(), 0);
         assertEquals(LocationType.CITY, location.getType());
         assertEquals((Long)589793l, location.getPopulation());
 
-        location = locationStore.retrieveLocation(2953481);
+        location = locationStore.getLocation(2953481);
         assertEquals("Baden-Württemberg", location.getPrimaryName());
         assertEquals(LocationType.UNIT, location.getType());
 
-        location = locationStore.retrieveLocation(2921044);
+        location = locationStore.getLocation(2921044);
         assertEquals("Federal Republic of Germany", location.getPrimaryName());
         assertEquals(LocationType.COUNTRY, location.getType());
 
-        location = locationStore.retrieveLocation(6255148);
+        location = locationStore.getLocation(6255148);
         assertEquals("Europe", location.getPrimaryName());
         assertEquals(LocationType.CONTINENT, location.getType());
 
-        location = locationStore.retrieveLocation(6295630);
+        location = locationStore.getLocation(6295630);
         assertEquals("Earth", location.getPrimaryName());
         assertEquals(LocationType.REGION, location.getType());
         assertEquals(0, location.getLongitude(), 0);
         assertEquals(0, location.getLatitude(), 0);
 
-        location = locationStore.retrieveLocation(7268814);
+        location = locationStore.getLocation(7268814);
         assertEquals("Pueblo Sud Subbarrio", location.getPrimaryName());
         assertEquals(LocationType.UNIT, location.getType());
 
-        location = locationStore.retrieveLocation(2766409);
+        location = locationStore.getLocation(2766409);
         assertEquals("Sankt Ruprecht ob Murau", location.getPrimaryName());
         assertEquals(LocationType.CITY, location.getType());
 
-        location = locationStore.retrieveLocation(2803474);
+        location = locationStore.getLocation(2803474);
         assertEquals("Zwota", location.getPrimaryName());
         assertEquals(LocationType.CITY, location.getType());
 
-        location = locationStore.retrieveLocation(2831574);
+        location = locationStore.getLocation(2831574);
         assertEquals("Solkau", location.getPrimaryName());
         assertEquals(LocationType.CITY, location.getType());
 
-        location = locationStore.retrieveLocation(2917786);
+        location = locationStore.getLocation(2917786);
         assertEquals("Kreisfreie Stadt Greifswald", location.getPrimaryName());
         assertEquals(LocationType.UNIT, location.getType());
 
-        location = locationStore.retrieveLocation(6547539);
+        location = locationStore.getLocation(6547539);
         assertEquals("Berlin, Stadt", location.getPrimaryName());
         assertEquals(LocationType.UNIT, location.getType());
 
-        location = locationStore.retrieveLocation(1529666);
+        location = locationStore.getLocation(1529666);
         assertEquals("Bahnhof Grenzau", location.getPrimaryName());
         assertEquals(LocationType.POI, location.getType());
 
-        location = locationStore.retrieveLocation(4953706);
+        location = locationStore.getLocation(4953706);
         assertEquals("University of Massachusetts", location.getPrimaryName());
         assertEquals(LocationType.POI, location.getType());
 
-        location = locationStore.retrieveLocation(5795921);
+        location = locationStore.getLocation(5795921);
         assertEquals("Grand Canyon", location.getPrimaryName());
         assertEquals(LocationType.LANDMARK, location.getType());
 
-        location = locationStore.retrieveLocation(5342044);
+        location = locationStore.getLocation(5342044);
         assertEquals("Death Valley Canyon", location.getPrimaryName());
         assertEquals(LocationType.LANDMARK, location.getType());
 
-        location = locationStore.retrieveLocation(6255147);
+        location = locationStore.getLocation(6255147);
         assertEquals("Asia", location.getPrimaryName());
         assertEquals((Long)3812366000l, location.getPopulation());
         assertEquals(LocationType.CONTINENT, location.getType());
 
-        location = locationStore.retrieveLocation(2622320);
+        location = locationStore.getLocation(2622320);
         assertEquals("Faroe Islands", location.getPrimaryName());
         assertEquals(LocationType.UNIT, location.getType());
 
-        location = locationStore.retrieveLocation(6518215);
+        location = locationStore.getLocation(6518215);
         assertEquals("Hotel Torshavn", location.getPrimaryName());
         assertEquals(LocationType.POI, location.getType());
 
-        location = locationStore.retrieveLocation(6632604);
+        location = locationStore.getLocation(6632604);
         assertEquals("Ehlers Knob", location.getPrimaryName());
         assertEquals(LocationType.LANDMARK, location.getType());
 
@@ -434,7 +434,7 @@ public class GeonamesImporterTest {
 
     @Test
     public void testAlternativeNames() {
-        Location location = locationStore.retrieveLocation(2825297);
+        Location location = locationStore.getLocation(2825297);
         Collection<AlternativeName> alternativeNames = location.getAlternativeNames();
         assertEquals(39, alternativeNames.size());
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.GERMAN)));

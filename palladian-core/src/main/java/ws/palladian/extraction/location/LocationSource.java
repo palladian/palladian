@@ -26,7 +26,7 @@ public interface LocationSource {
      * @return A list of locations matching the given name, or an empty list, if no matches were found, never
      *         <code>null</code>.
      */
-    Collection<Location> retrieveLocations(String locationName);
+    Collection<Location> getLocations(String locationName);
 
     /**
      * <p>
@@ -40,7 +40,7 @@ public interface LocationSource {
      * @return A list of locations matching the given name, or an empty list, if no matches were found, never
      *         <code>null</code>.
      */
-    Collection<Location> retrieveLocations(String locationName, EnumSet<Language> languages);
+    Collection<Location> getLocations(String locationName, EnumSet<Language> languages);
 
     /**
      * <p>
@@ -51,7 +51,7 @@ public interface LocationSource {
      * @param locationId The identifier of the location to retrieve.
      * @return The location for the given identifier, or <code>null</code> if no such location was found.
      */
-    Location retrieveLocation(int locationId);
+    Location getLocation(int locationId);
 
     /**
      * <p>
