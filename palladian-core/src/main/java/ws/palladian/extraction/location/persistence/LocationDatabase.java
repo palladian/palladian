@@ -2,8 +2,10 @@ package ws.palladian.extraction.location.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
@@ -11,6 +13,7 @@ import java.util.Scanner;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +47,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
     private static final String GET_LOCATION = "SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ?) AS t GROUP BY id";
-    private static final String GET_LOCATION_BY_ID = "SELECT *, GROUP_CONCAT(alternativeName,'#',LANGUAGE) AS alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.id = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = ?) AS t GROUP BY id;";
+    private static final String GET_LOCATIONS_BY_ID = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',LANGUAGE) AS alternatives FROM (SELECT * FROM locations l LEFT JOIN location_alternative_names lan ON (l.id = lan.locationId) WHERE l.id IN (%s)) AS t GROUP BY id;";
     // TODO integrate location_hierarchy into locations
     private static final String ADD_HIERARCHY = "REPLACE INTO location_hierarchy SET childId = ?, ancestorIds = ?";
     private static final String GET_HIERARCHY = "SELECT * FROM location_hierarchy WHERE childId = ?";
@@ -105,6 +108,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
+        // FIXME use PreparedStatement here!
+
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder
                 .append("SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan");
@@ -130,7 +135,38 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public Location getLocation(int locationId) {
-        return runSingleQuery(LOCATION_ROW_CONVERTER, GET_LOCATION_BY_ID, locationId, locationId);
+        return CollectionHelper.getFirst(getLocations(Collections.singletonList(locationId)));
+    }
+
+    /**
+     * <p>
+     * Get a list of {@link Location}s by their IDs. This performs better than multiple subsequent invocations of
+     * {@link #getLocation(int)}, as the Locations are fetched in one go, requiring only 1 database round trip.
+     * </p>
+     * 
+     * @param locationIds The IDs for the {@link Location}s to retrieve, not <code>null</code>.
+     * @return List of {@link Location}s in the same order as the provided IDs. If a location for a specific ID could
+     *         not be found, the returned list might be smaller than the list of supplied IDs.
+     */
+    public List<Location> getLocations(final List<Integer> locationIds) {
+        Validate.notNull(locationIds, "locationIds must not be null");
+
+        // the Prepared Statement needs to be re-compiled for every unique number of locationIds we have to search.
+        // This might be an issue, but usually there should not be too many different counts (1-10, I suspect), so that
+        // all used combinations will get and stay cached eventually.
+
+        String prepStmt = String.format(GET_LOCATIONS_BY_ID, StringUtils.repeat("?", ",", locationIds.size()));
+        List<Location> locations = runQuery(LOCATION_ROW_CONVERTER, prepStmt, new ArrayList<Object>(locationIds));
+
+        // sort the returned list, so that we have the order of the given locations IDs
+        Collections.sort(locations, new Comparator<Location>() {
+            @Override
+            public int compare(Location l0, Location l1) {
+                return locationIds.indexOf(l0.getId()) - locationIds.indexOf(l1.getId());
+            }
+        });
+
+        return locations;
     }
 
     @Override
@@ -177,16 +213,15 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         if (hierarchy == null) {
             return Collections.emptyList();
         }
-        List<Location> ret = CollectionHelper.newArrayList();
-        String[] ancestorIds = hierarchy.getAncestorPath().split("/");
-        // FIXME get all ancestor locations in one go
-        for (String ancestorId : ancestorIds) {
+
+        List<Integer> ancestorIds = CollectionHelper.newArrayList();
+        String[] splitPath = hierarchy.getAncestorPath().split("/");
+        for (String ancestorId : splitPath) {
             if (!StringUtils.isBlank(ancestorId)) {
-                Location location = getLocation(Integer.valueOf(ancestorId));
-                ret.add(location);
+                ancestorIds.add(Integer.valueOf(ancestorId));
             }
         }
-        return ret;
+        return getLocations(ancestorIds);
     }
 
     /**
