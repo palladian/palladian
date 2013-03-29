@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -175,35 +174,6 @@ public final class NewsSeecrLocationSource implements LocationSource {
         }
         LocationType type = LocationType.valueOf(typeString);
         return new Location(id, primaryName, alternativeNames, type, latitude, longitude, population);
-    }
-
-    @Override
-    public Collection<LocationRelation> getParents(int locationId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public static void main(String[] args) {
-////        NewsSeecrLocationSource newsSeecrLocationSource = new NewsSeecrLocationSource("52feznh45ezmjxgfzorrk6ooagyadg",
-////                "iwjiagid3rqhbyu5bwwevrbpyicrk2");
-//        EnumSet<Language> languages = EnumSet.of(Language.ENGLISH, Language.GERMAN, Language.FRENCH);
-//        // EnumSet<Language> languages = EnumSet.noneOf(Language.class);
-//        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin", languages);
-//        CollectionHelper.print(locations);
-//
-//        Location loc = locations.get(53);
-//        System.out.println(loc);
-//
-//        for (;;) {
-//
-//            List<Location> hierarchyLocations = newsSeecrLocationSource.getHierarchy(loc.getId());
-//            CollectionHelper.print(hierarchyLocations);
-//
-//        }
-
-        // Location loc2 = newsSeecrLocationSource.retrieveLocation(2921044);
-        // System.out.println(loc2);
-        // System.out.println(loc2.getAlternativeNames());
     }
 
 }

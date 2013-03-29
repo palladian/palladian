@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -109,11 +108,6 @@ public class WebKnoxLocationSource implements LocationSource {
 
     @Override
     public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<LocationRelation> getParents(int locationId) {
         throw new UnsupportedOperationException();
     }
 

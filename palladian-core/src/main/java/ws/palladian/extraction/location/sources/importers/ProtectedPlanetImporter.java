@@ -97,7 +97,7 @@ public final class ProtectedPlanetImporter {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
 
-        String locationFilePath = "/Users/pk/Dropbox/LocationLab/protectedPlaces.csv";
+        String locationFilePath = "/Users/pk/Dropbox/LocationLab/protectedPlanet.csv";
         ProtectedPlanetImporter importer = new ProtectedPlanetImporter(locationStore);
         importer.importLocations(locationFilePath);
     }

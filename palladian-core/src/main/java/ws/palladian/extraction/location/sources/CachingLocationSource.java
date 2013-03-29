@@ -24,8 +24,8 @@ public final class CachingLocationSource implements LocationSource {
     private final Map<Integer, Location> locationIdCache;
     private final Map<Integer, List<Location>> locationHierachyCache;
 
-    private static int cacheHits = 0;
-    private static int cacheMisses = 0;
+    private int cacheHits = 0;
+    private int cacheMisses = 0;
 
     /**
      * <p>
@@ -93,12 +93,6 @@ public final class CachingLocationSource implements LocationSource {
             cacheHits++;
         }
         return locations;
-    }
-
-    @Override
-    public Collection<LocationRelation> getParents(int locationId) {
-        // XXX not cached
-        return locationSource.getParents(locationId);
     }
 
     @Override

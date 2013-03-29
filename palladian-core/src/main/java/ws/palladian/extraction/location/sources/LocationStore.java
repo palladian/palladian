@@ -41,9 +41,8 @@ public interface LocationStore extends LocationSource {
      * 
      * @param childId The identifier of the child {@link Location}, not equals {@code parentId}.
      * @param parentId The identifier of the parent {@link Location}, not equal {@code childId}.
-     * @param priority The priority for the hierarchy relation, smaller values denote a higher priority.
      */
-    void addHierarchy(LocationRelation hierarchy);
+    void addHierarchy(int childId, int parentId);
 
     /**
      * <p>
