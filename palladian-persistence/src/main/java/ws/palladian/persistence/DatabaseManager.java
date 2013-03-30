@@ -64,7 +64,7 @@ public class DatabaseManager {
      * </p>
      * 
      * @return A connection to the database obtained from the {@link DataSource}.
-     * @throws SQLException
+     * @throws SQLException In case, obtaining the connection fails.
      */
     protected final Connection getConnection() throws SQLException {
         return dataSource.getConnection();
@@ -75,11 +75,13 @@ public class DatabaseManager {
      * Check, whether an item for the specified query exists.
      * </p>
      * 
-     * @param sql Query statement which may contain parameter markers.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
      */
-    public final boolean entryExists(String sql, List<Object> args) {
+    public final boolean entryExists(String sql, List<? extends Object> args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
         return entryExists(sql, args.toArray());
     }
 
@@ -88,11 +90,13 @@ public class DatabaseManager {
      * Check, whether an item for the specified query exists.
      * </p>
      * 
-     * @param sql Query statement which may contain parameter markers.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in query.
      * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
      */
     public final boolean entryExists(String sql, Object... args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
         return runSingleQuery(new NopRowConverter(), sql, args) != null;
     }
 
@@ -103,17 +107,19 @@ public class DatabaseManager {
      * the generated ID.
      * </p>
      * 
-     * @param sql Update statement which may contain parameter markers.
-     * @param provider A callback, which provides the necessary data for the insertion.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param provider A callback, which provides the necessary data for the insertion, not <code>null</code>.
      * @return The number of inserted rows.
      */
     public final int runBatchInsert(String sql, BatchDataProvider provider) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(provider, "provider must not be null");
 
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         int affectedRows = 0;
-        List<Object> data = null;
+        List<? extends Object> data = null;
 
         try {
 
@@ -154,13 +160,16 @@ public class DatabaseManager {
      * Run a batch insertion and return the generated insert IDs.
      * </p>
      * 
-     * @param sql Update statement which may contain parameter markers.
-     * @param batchArgs List of arguments for the batch insertion. Arguments are supplied parameter lists.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param batchArgs List of arguments for the batch insertion. Arguments are supplied parameter lists. Not
+     *            <code>null</code>.
      * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
      *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
      *         a 0 value.
      */
     public final int[] runBatchInsertReturnIds(String sql, final List<List<Object>> batchArgs) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(batchArgs, "batchArgs must not be null");
 
         final int[] result = new int[batchArgs.size()];
         Arrays.fill(result, 0);
@@ -173,7 +182,7 @@ public class DatabaseManager {
             }
 
             @Override
-            public List<Object> getData(int number) {
+            public List<? extends Object> getData(int number) {
                 return batchArgs.get(number);
             }
 
@@ -187,7 +196,18 @@ public class DatabaseManager {
         return result;
     }
 
+    /**
+     * <p>
+     * Run a batch update.
+     * </p>
+     * 
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param provider A callback, which provides the necessary data for the update, not <code>null</code>.
+     * @return An array of update counts for each statement in the batch.
+     */
     public final int[] runBatchUpdate(String sql, BatchDataProvider provider) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(provider, "provider must not be null");
 
         Connection connection = null;
         PreparedStatement ps = null;
@@ -200,7 +220,7 @@ public class DatabaseManager {
             ps = connection.prepareStatement(sql);
 
             for (int i = 0; i < provider.getCount(); i++) {
-                List<Object> args = provider.getData(i);
+                List<? extends Object> args = provider.getData(i);
                 fillPreparedStatement(ps, args);
                 ps.addBatch();
             }
@@ -218,7 +238,19 @@ public class DatabaseManager {
         return result;
     }
 
+    /**
+     * <p>
+     * Run a batch update.
+     * </p>
+     * 
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param batchArgs List of arguments for the batch update. Arguments are supplied parameter lists. Not
+     *            <code>null</code>.
+     * @return An array of update counts for each statement in the batch.
+     */
     public final int[] runBatchUpdate(String sql, final List<List<Object>> batchArgs) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(batchArgs, "batchArgs must not be null");
 
         BatchDataProvider provider = new BatchDataProvider() {
 
@@ -228,7 +260,7 @@ public class DatabaseManager {
             }
 
             @Override
-            public List<Object> getData(int number) {
+            public List<? extends Object> getData(int number) {
                 return batchArgs.get(number);
             }
 
@@ -248,17 +280,12 @@ public class DatabaseManager {
      * <code>MIN</code>. Example for such a query: <code>SELECT COUNT(*) FROM feeds WHERE id > 342</code>.
      * </p>
      * 
-     * @param aggregateQuery The query string for the aggregated integer result.
+     * @param sql The query string for the aggregated integer result, not <code>null</code> or empty.
      * @return The result of the query, or <code>null</code> if no result.
      */
-    public final Integer runAggregateQuery(String aggregateQuery) {
-        //        return runSingleQuery(new RowConverter<Integer>() {
-        //            @Override
-        //            public Integer convert(ResultSet resultSet) throws SQLException {
-        //                return resultSet.getInt(1);
-        //            }
-        //        }, aggregateQuery);
-        return runSingleQuery(OneColumnRowConverter.INTEGER, aggregateQuery);
+    public final Integer runAggregateQuery(String sql) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        return runSingleQuery(OneColumnRowConverter.INTEGER, sql);
     }
 
     /**
@@ -266,11 +293,13 @@ public class DatabaseManager {
      * Run an insert operation and return the generated insert ID.
      * </p>
      * 
-     * @param sql Update statement which may contain parameter markers.
-     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
-    public final int runInsertReturnId(String sql, List<Object> args) {
+    public final int runInsertReturnId(String sql, List<? extends Object> args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
         return runInsertReturnId(sql, args.toArray());
     }
 
@@ -279,11 +308,13 @@ public class DatabaseManager {
      * Run an insert operation and return the generated insert ID.
      * </p>
      * 
-     * @param sql Update statement which may contain parameter markers.
-     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in update statement.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
     public final int runInsertReturnId(String sql, Object... args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
 
         int generatedId;
         Connection connection = null;
@@ -315,11 +346,6 @@ public class DatabaseManager {
     }
 
     /**
-     * 
-     * @param query
-     * @param entries
-     * @param args
-     * @return
      * @deprecated This should be done using {@link #runSingleQuery(RowConverter, String, Object...)} supplying a
      *             {@link RowConverter} returning an Object[]. There is no need to explicitly specify the number of
      *             entries.
@@ -351,13 +377,17 @@ public class DatabaseManager {
      * </p>
      * 
      * @param <T> Type of the processed objects.
-     * @param callback The callback which is triggered for each result row of the query.
-     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
-     * @param sql Query statement which may contain parameter markers.
+     * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in query.
      * @return Number of processed results.
      */
     public final <T> int runQuery(ResultCallback<T> callback, RowConverter<T> converter, String sql, Object... args) {
+        Validate.notNull(callback, "callback must not be null");
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
 
         Connection connection = null;
         PreparedStatement ps = null;
@@ -390,12 +420,15 @@ public class DatabaseManager {
      * Run a query operation on the database, process the result using a callback.
      * </p>
      * 
-     * @param callback The callback which is triggered for each result row of the query.
-     * @param sql Query statement which may contain parameter markers.
+     * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, nut <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in query.
      * @return Number of processed results.
      */
     public final int runQuery(ResultSetCallback callback, String sql, Object... args) {
+        Validate.notNull(callback, "callback must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
         return runQuery(callback, new NopRowConverter(), sql, args);
     }
 
@@ -405,12 +438,15 @@ public class DatabaseManager {
      * </p>
      * 
      * @param <T> Type of the processed objects.
-     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
-     * @param sql Query statement which may contain parameter markers.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return List with results.
      */
-    public final <T> List<T> runQuery(RowConverter<T> converter, String sql, List<Object> args) {
+    public final <T> List<T> runQuery(RowConverter<T> converter, String sql, List<? extends Object> args) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
         return runQuery(converter, sql, args.toArray());
     }
 
@@ -420,12 +456,15 @@ public class DatabaseManager {
      * </p>
      * 
      * @param <T> Type of the processed objects.
-     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
-     * @param sql Query statement which may contain parameter markers.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in query.
      * @return List with results.
      */
     public final <T> List<T> runQuery(RowConverter<T> converter, String sql, Object... args) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
 
         final List<T> result = new ArrayList<T>();
 
@@ -454,12 +493,16 @@ public class DatabaseManager {
      * </p>
      * 
      * @param <T> Type of the processed objects.
-     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
-     * @param sql Query statement which may contain parameter markers.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return Iterator for iterating over results.
      */
-    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, List<Object> args) {
+    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql,
+            List<? extends Object> args) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
         return runQueryWithIterator(converter, sql, args.toArray());
     }
 
@@ -475,12 +518,15 @@ public class DatabaseManager {
      * </p>
      * 
      * @param <T> Type of the processed objects.
-     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
-     * @param sql Query statement which may contain parameter markers.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in query.
      * @return Iterator for iterating over results.
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, Object... args) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
 
         @SuppressWarnings("unchecked")
         ResultIterator<T> result = ResultIterator.NULL_ITERATOR;
@@ -518,12 +564,15 @@ public class DatabaseManager {
      * </p>
      * 
      * @param <T> Type of the processed object.
-     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
-     * @param sql Query statement which may contain parameter markers.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
-    public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<Object> args) {
+    public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<? extends Object> args) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notNull(sql, "sql must not be null");
+        Validate.notNull(args, "args must not be null");
         return runSingleQuery(converter, sql, args.toArray());
     }
 
@@ -533,13 +582,16 @@ public class DatabaseManager {
      * </p>
      * 
      * @param <T> Type of the processed object.
-     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
-     * @param sql Query statement which may contain parameter markers.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in query, not <code>null</code>.
      * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
     @SuppressWarnings("unchecked")
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
 
         final Object[] result = new Object[1];
 
@@ -561,11 +613,13 @@ public class DatabaseManager {
      * Run an update operation and return the number of affected rows.
      * </p>
      * 
-     * @param sql Update statement which may contain parameter markers.
-     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The number of affected rows, or -1 if an error occurred.
      */
-    public final int runUpdate(String sql, List<Object> args) {
+    public final int runUpdate(String sql, List<? extends Object> args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
         return runUpdate(sql, args.toArray());
     }
 
@@ -574,11 +628,13 @@ public class DatabaseManager {
      * Run an update operation and return the number of affected rows.
      * </p>
      * 
-     * @param sql Update statement which may contain parameter markers.
-     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in updateStatement.
      * @return The number of affected rows, or -1 if an error occurred.
      */
     public final int runUpdate(String sql, Object... args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
 
         int affectedRows;
         Connection connection = null;
@@ -612,9 +668,9 @@ public class DatabaseManager {
      * and the arguments, if any.
      * </p>
      * 
-     * @param exception
-     * @param sql
-     * @param args The arguments for the SQL query, may be <code>null</code>.
+     * @param exception The exception which occurred, not <code>null</code>.
+     * @param sql The executed SQL statement, not <code>null</code>.
+     * @param args The arguments for the SQL statement, may be <code>null</code>.
      */
     protected static final void logError(SQLException exception, String sql, Object... args) {
         StringBuilder errorLog = new StringBuilder();
@@ -631,7 +687,7 @@ public class DatabaseManager {
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
      * 
-     * @param connection
+     * @param connection The {@link Connection}, or <code>null</code>.
      */
     protected static final void close(Connection connection) {
         close(connection, null, null);
@@ -643,8 +699,8 @@ public class DatabaseManager {
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
      * 
-     * @param connection
-     * @param resultSet
+     * @param connection The {@link Connection}, or <code>null</code>.
+     * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
     protected static final void close(Connection connection, ResultSet resultSet) {
         close(connection, null, resultSet);
@@ -656,8 +712,8 @@ public class DatabaseManager {
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
      * 
-     * @param connection
-     * @param statement
+     * @param connection The {@link Connection}, or <code>null</code>.
+     * @param statement The {@link Statement}, or <code>null</code>.
      */
     protected static final void close(Connection connection, Statement statement) {
         close(connection, statement, null);
@@ -669,30 +725,30 @@ public class DatabaseManager {
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
      * 
-     * @param connection
-     * @param statement
-     * @param resultSet
+     * @param connection The {@link Connection}, or <code>null</code>.
+     * @param statement The {@link Statement}, or <code>null</code>.
+     * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
     protected static final void close(Connection connection, Statement statement, ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
             } catch (SQLException e) {
-                LOGGER.error("error closing ResultSet : {}", e.getMessage());
+                LOGGER.error("Error closing ResultSet : {}", e.getMessage());
             }
         }
         if (statement != null) {
             try {
                 statement.close();
             } catch (SQLException e) {
-                LOGGER.error("error closing Statement : {}", e.getMessage());
+                LOGGER.error("Error closing Statement : {}", e.getMessage());
             }
         }
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
-                LOGGER.error("error closing Connection : {}", e.getMessage());
+                LOGGER.error("Error closing Connection : {}", e.getMessage());
             }
         }
     }
@@ -702,11 +758,12 @@ public class DatabaseManager {
      * Sets {@link PreparedStatement} parameters based on the supplied arguments.
      * </p>
      * 
-     * @param ps
-     * @param args
-     * @throws SQLException
+     * @param ps The {@link PreparedStatement} for which to set parameters.
+     * @param args {@link List} of parameters to set.
+     * @throws SQLException In case setting the parameters failed.
      */
-    protected static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
+    protected static final void fillPreparedStatement(PreparedStatement ps, List<? extends Object> args)
+            throws SQLException {
         fillPreparedStatement(ps, args.toArray());
     }
 
@@ -715,9 +772,9 @@ public class DatabaseManager {
      * Sets {@link PreparedStatement} parameters based on the supplied arguments.
      * </p>
      * 
-     * @param ps
-     * @param args
-     * @throws SQLException
+     * @param ps The {@link PreparedStatement} for which to set parameters.
+     * @param args The parameters to set.
+     * @throws SQLException In case setting the parameters failed.
      */
     protected static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
 
