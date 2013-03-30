@@ -216,9 +216,16 @@ public final class GeonamesImporter {
     }
 
     private void saveHierarchy() {
+        int numItems = hierarchyMappings.keySet().size();
+        int itemNumber = 0;
+        StopWatch stopWatch = new StopWatch();
         for (Integer childId : hierarchyMappings.keySet()) {
             Integer parentId = hierarchyMappings.get(childId);
             locationStore.addHierarchy(childId, parentId);
+            String progress = ProgressHelper.getProgress(itemNumber++, numItems, 1, stopWatch);
+            if (!progress.isEmpty()) {
+                LOGGER.info(progress);
+            }
         }
     }
 

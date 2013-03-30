@@ -50,8 +50,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String GET_LOCATIONS_BY_ID = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',LANGUAGE) AS alternatives FROM (SELECT * FROM locations l LEFT JOIN location_alternative_names lan ON (l.id = lan.locationId) WHERE l.id IN (%s)) AS t GROUP BY id;";
     // TODO integrate location_hierarchy into locations
     private static final String ADD_HIERARCHY = "REPLACE INTO location_hierarchy SET childId = ?, ancestorIds = ?";
-    private static final String GET_HIERARCHY = "SELECT * FROM location_hierarchy WHERE childId = ?";
-    private static final String GET_HIERARCHY_BY_ANCESTOR = "SELECT * FROM location_hierarchy WHERE ancestorIds LIKE ?";
+    private static final String GET_ANCESTOR_IDS = "SELECT ancestorIds FROM location_hierarchy WHERE childId = ?";
+    private static final String UPDATE_HIERARCHY = "UPDATE location_hierarchy SET ancestorIds = CONCAT(?, ancestorIds) WHERE ancestorIds LIKE ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
 
     // ////////////////// row converts ////////////////////////////////////
@@ -82,15 +82,6 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             Double longitude = SqlHelper.getDouble(resultSet, "longitude");
             Long population = resultSet.getLong("population");
             return new Location(id, primaryName, alternativeNames, locationType, latitude, longitude, population);
-        }
-    };
-
-    private static final RowConverter<LocationHierarchy> HIERARCHY_CONVERTER = new RowConverter<LocationHierarchy>() {
-        @Override
-        public LocationHierarchy convert(ResultSet resultSet) throws SQLException {
-            int childId = resultSet.getInt("childId");
-            String ancestorIds = resultSet.getString("ancestorIds");
-            return new LocationHierarchy(childId, ancestorIds);
         }
     };
 
@@ -193,29 +184,24 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public void addHierarchy(int childId, int parentId) {
-        LocationHierarchy parent = runSingleQuery(HIERARCHY_CONVERTER, GET_HIERARCHY, parentId);
-        List<LocationHierarchy> children = runQuery(HIERARCHY_CONVERTER, GET_HIERARCHY_BY_ANCESTOR, "/" + childId + "%");
-
-        String ancestorPath = (parent != null ? parent.getAncestorPath() : "") + "/" + parentId;
-        runUpdate(ADD_HIERARCHY, childId, ancestorPath);
-
-        for (LocationHierarchy child : children) {
-            runUpdate(ADD_HIERARCHY, child.getChildId(), ancestorPath + child.getAncestorPath());
-        }
+        String parentPath = runSingleQuery(OneColumnRowConverter.STRING, GET_ANCESTOR_IDS, parentId);
+        String ancestorPath = (parentPath != null ? parentPath : "/") + parentId;
+        runUpdate(ADD_HIERARCHY, childId, ancestorPath + "/");
+        runUpdate(UPDATE_HIERARCHY, ancestorPath, "/" + childId + "/%");
     }
 
     @Override
     public List<Location> getHierarchy(int locationId) {
-        LocationHierarchy hierarchy = runSingleQuery(HIERARCHY_CONVERTER, GET_HIERARCHY, locationId);
-        if (hierarchy == null) {
+        String hierarchyPath = runSingleQuery(OneColumnRowConverter.STRING, GET_ANCESTOR_IDS, locationId);
+        if (hierarchyPath == null) {
             return Collections.emptyList();
         }
 
         List<Integer> ancestorIds = CollectionHelper.newArrayList();
-        String[] splitPath = hierarchy.getAncestorPath().split("/");
+        String[] splitPath = hierarchyPath.split("/");
         for (int i = splitPath.length - 1; i >= 0; i--) {
             String ancestorId = splitPath[i];
-            if (!StringUtils.isBlank(ancestorId)) {
+            if (StringUtils.isNotBlank(ancestorId)) {
                 ancestorIds.add(Integer.valueOf(ancestorId));
             }
         }
@@ -263,51 +249,6 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     public int getHighestId() {
         Integer id = runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
         return id != null ? id : 0;
-    }
-
-    /**
-     * <p>
-     * Internal helper class for keeping location hierarchies.
-     * </p>
-     * 
-     * @author Philipp Katz
-     */
-    static final class LocationHierarchy {
-
-        private final int childId;
-        private final String ancestorPath;
-
-        LocationHierarchy(int childId, String ancestorPath) {
-            this.childId = childId;
-            this.ancestorPath = ancestorPath;
-        }
-
-        public int getChildId() {
-            return childId;
-        }
-
-        /**
-         * <p>
-         * Get the ancestor path. The ancestor path is a slash-separated String with all ancestors.
-         * </p>
-         * 
-         * @return The ancestor path.
-         */
-        public String getAncestorPath() {
-            return ancestorPath;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("DbLocationRelation [childId=");
-            builder.append(childId);
-            builder.append(", ancestorPath=");
-            builder.append(ancestorPath);
-            builder.append("]");
-            return builder.toString();
-        }
-
     }
 
     public static void main(String[] args) {
