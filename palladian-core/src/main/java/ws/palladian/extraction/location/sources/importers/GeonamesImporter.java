@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -158,7 +156,6 @@ public final class GeonamesImporter {
                 return null;
             }
         });
-        saveHierarchy();
         LOGGER.info("Finished importing {} items", numLinesCountries);
     }
 
@@ -207,25 +204,9 @@ public final class GeonamesImporter {
             inputStream2 = new FileInputStream(locationFile);
             importLocations(inputStream2, totalLines);
 
-            saveHierarchy();
-
             LOGGER.info("Finished importing {} items", totalLines);
         } finally {
             FileHelper.close(inputStream1, inputStream2);
-        }
-    }
-
-    private void saveHierarchy() {
-        int numItems = hierarchyMappings.keySet().size();
-        int itemNumber = 0;
-        StopWatch stopWatch = new StopWatch();
-        for (Integer childId : hierarchyMappings.keySet()) {
-            Integer parentId = hierarchyMappings.get(childId);
-            locationStore.addHierarchy(childId, parentId);
-            String progress = ProgressHelper.getProgress(itemNumber++, numItems, 1, stopWatch);
-            if (!progress.isEmpty()) {
-                LOGGER.info(progress);
-            }
         }
     }
 
@@ -391,18 +372,10 @@ public final class GeonamesImporter {
      * @param geonamesId The geonames id which to remove.
      * @return The number of removed entries.
      */
-    private int removeChildFromHierarchy(final int geonamesid) {
-        int removeCount = 0;
-        Iterator<Entry<Integer, Integer>> iterator = hierarchyMappings.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Entry<Integer, Integer> entry = iterator.next();
-            Integer parentId = entry.getValue();
-            if (parentId == geonamesid) {
-                iterator.remove();
-                removeCount++;
-            }
-        }
-        return removeCount;
+    private int removeChildFromHierarchy(int geonamesid) {
+        int oldSize = hierarchyMappings.size();
+        hierarchyMappings.values().removeAll(Collections.singleton(geonamesid));
+        return oldSize - hierarchyMappings.size();
     }
 
     /**

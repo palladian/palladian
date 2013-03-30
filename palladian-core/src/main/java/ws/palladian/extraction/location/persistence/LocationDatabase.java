@@ -2,7 +2,6 @@ package ws.palladian.extraction.location.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,8 +45,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
-    private static final String GET_LOCATION = "SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ?) AS t GROUP BY id";
-    private static final String GET_LOCATIONS_BY_ID = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',LANGUAGE) AS alternatives FROM (SELECT * FROM locations l LEFT JOIN location_alternative_names lan ON (l.id = lan.locationId) WHERE l.id IN (%s)) AS t GROUP BY id;";
+    private static final String GET_LOCATION = "SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ?) AS t GROUP BY id;";
+    private static final String GET_LOCATION_LANGUAGE = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',language) AS alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? AND (lan.language IS NULL OR lan.language IN (%s))) as t GROUP BY id;";
+    private static final String GET_LOCATIONS_BY_ID = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',LANGUAGE) AS alternatives FROM (SELECT * FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN (%s)) AS t GROUP BY id;";
     // TODO integrate location_hierarchy into locations
     private static final String ADD_HIERARCHY = "REPLACE INTO location_hierarchy SET childId = ?, ancestorIds = ?";
     private static final String GET_ANCESTOR_IDS = "SELECT ancestorIds FROM location_hierarchy WHERE childId = ?";
@@ -99,29 +99,21 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
-        // FIXME use PreparedStatement here!
-
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder
-                .append("SELECT *, GROUP_CONCAT(alternativeName,'#',language) as alternatives FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan");
-        sqlBuilder.append(" WHERE l.id = lan.locationId AND lan.alternativeName = ?");
-        // alternative name with NULL language always matches
-        sqlBuilder.append(" AND (lan.language IS NULL");
-        if (languages.size() > 0) {
-            sqlBuilder.append(" OR lan.language IN (");
-            boolean first = true;
+        int numParams = languages.isEmpty() ? 1 : languages.size();
+        String prepStmt = String.format(GET_LOCATION_LANGUAGE, StringUtils.repeat("?", ",", numParams));
+        List<Object> args = CollectionHelper.newArrayList();
+        args.add(locationName);
+        args.add(locationName);
+        // when no language was specified, use place holder
+        if (languages.isEmpty()) {
+            args.add("''");
+        } else {
+            // else, add all languages to to arguments
             for (Language language : languages) {
-                if (!first) {
-                    sqlBuilder.append(',');
-                }
-                sqlBuilder.append('\'').append(language.getIso6391()).append('\'');
-                first = false;
+                args.add(language.getIso6391());
             }
-            sqlBuilder.append(')');
         }
-        sqlBuilder.append(")");
-        sqlBuilder.append(") as t GROUP BY id");
-        return runQuery(LOCATION_CONVERTER, sqlBuilder.toString(), locationName, locationName);
+        return runQuery(LOCATION_CONVERTER, prepStmt, args);
     }
 
     @Override
@@ -147,7 +139,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         // all used combinations will get and stay cached eventually.
 
         String prepStmt = String.format(GET_LOCATIONS_BY_ID, StringUtils.repeat("?", ",", locationIds.size()));
-        List<Location> locations = runQuery(LOCATION_CONVERTER, prepStmt, new ArrayList<Object>(locationIds));
+        List<Location> locations = runQuery(LOCATION_CONVERTER, prepStmt, locationIds);
 
         // sort the returned list, so that we have the order of the given locations IDs
         Collections.sort(locations, new Comparator<Location>() {
