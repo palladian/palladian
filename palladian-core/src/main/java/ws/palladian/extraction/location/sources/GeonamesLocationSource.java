@@ -178,4 +178,26 @@ public class GeonamesLocationSource implements LocationSource {
         CollectionHelper.print(hierarchy);
     }
 
+    @Override
+    public List<Location> getLocations(List<Integer> locationIds) {
+        List<Location> locations = CollectionHelper.newArrayList();
+        for (Integer locationId : locationIds) {
+            Location location = getLocation(locationId);
+            if (location != null) {
+                locations.add(location);
+            }
+        }
+        return locations;
+    }
+
+    @Override
+    public List<Integer> getHierarchyIds(int locationId) {
+        List<Integer> hierarchyIds = CollectionHelper.newArrayList();
+        List<Location> hierarchy = getHierarchy(locationId);
+        for (Location location : hierarchy) {
+            hierarchyIds.add(location.getId());
+        }
+        return hierarchyIds;
+    }
+
 }
