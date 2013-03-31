@@ -7,6 +7,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -74,8 +75,7 @@ public final class FileImporter {
                 longitude = Double.valueOf(parts[3]);
             }
             int id = maxId + idOffset;
-            Location location = new Location(id, locationName, null, locationType, latitude, longitude, null);
-            locationStore.save(location);
+            locationStore.save(new ImmutableLocation(id, locationName, locationType, latitude, longitude, null));
             idOffset++;
         }
 

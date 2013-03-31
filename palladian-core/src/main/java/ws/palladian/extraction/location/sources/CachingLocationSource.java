@@ -22,7 +22,6 @@ public final class CachingLocationSource implements LocationSource {
     private final LocationSource locationSource;
     private final Map<String, Collection<Location>> locationNameCache;
     private final Map<Integer, Location> locationIdCache;
-    private final Map<Integer, List<Integer>> locationHierachyCache;
 
     private int cacheHits = 0;
     private int cacheMisses = 0;
@@ -38,7 +37,6 @@ public final class CachingLocationSource implements LocationSource {
         this.locationSource = locationSource;
         locationNameCache = CollectionHelper.newHashMap();
         locationIdCache = CollectionHelper.newHashMap();
-        locationHierachyCache = CollectionHelper.newHashMap();
     }
 
     @Override
@@ -83,12 +81,6 @@ public final class CachingLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getHierarchy(int locationId) {
-        List<Integer> hierarchyIds = getHierarchyIds(locationId);
-        return getLocations(hierarchyIds);
-    }
-
-    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("CachingLocationSource (");
@@ -107,19 +99,6 @@ public final class CachingLocationSource implements LocationSource {
             }
         }
         return locations;
-    }
-
-    @Override
-    public List<Integer> getHierarchyIds(int locationId) {
-        List<Integer> hierarchyIds = locationHierachyCache.get(locationId);
-        if (hierarchyIds == null) {
-            hierarchyIds = locationSource.getHierarchyIds(locationId);
-            locationHierachyCache.put(locationId, hierarchyIds);
-            cacheMisses++;
-        } else {
-            cacheHits++;
-        }
-        return hierarchyIds;
     }
 
 }

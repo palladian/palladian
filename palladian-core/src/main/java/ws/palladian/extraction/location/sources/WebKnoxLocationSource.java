@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
@@ -86,7 +87,8 @@ public class WebKnoxLocationSource implements LocationSource {
                             population = Long.valueOf(value);
                         }
                     }
-                    locations.add(new Location(-1, primaryName, null, locationType, latitude, longitude, population));
+                    locations
+                            .add(new ImmutableLocation(-1, primaryName, locationType, latitude, longitude, population));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -102,22 +104,12 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getHierarchy(int locationId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<Integer> getHierarchyIds(int locationId) {
         throw new UnsupportedOperationException();
     }
 

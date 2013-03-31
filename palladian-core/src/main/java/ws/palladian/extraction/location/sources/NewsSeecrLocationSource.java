@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
@@ -111,13 +112,6 @@ public final class NewsSeecrLocationSource implements LocationSource {
         }
     }
 
-    @Override
-    public List<Location> getHierarchy(int locationId) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + locationId + "/hierarchy");
-        String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
-    }
-
     private String retrieveResult(HttpRequest request) {
         request.addHeader("X-Mashape-Authorization", mashapeKey);
         LOGGER.debug("Performing request: " + request);
@@ -173,7 +167,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
             alternativeNames.add(new AlternativeName(nameValue, language));
         }
         LocationType type = LocationType.valueOf(typeString);
-        return new Location(id, primaryName, alternativeNames, type, latitude, longitude, population);
+        return new ImmutableLocation(id, primaryName, alternativeNames, type, latitude, longitude, population, null);
     }
 
     @Override
@@ -187,17 +181,6 @@ public final class NewsSeecrLocationSource implements LocationSource {
             }
         }
         return locations;
-    }
-
-    @Override
-    public List<Integer> getHierarchyIds(int locationId) {
-        // FIXME provide optimized implementation in NewsSeecr
-        List<Integer> hierarchyIds = CollectionHelper.newArrayList();
-        List<Location> hierarchy = getHierarchy(locationId);
-        for (Location location : hierarchy) {
-            hierarchyIds.add(location.getId());
-        }
-        return hierarchyIds;
     }
 
 }

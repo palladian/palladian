@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -184,7 +185,7 @@ public final class GeonamesImporter {
         }
 
         try {
-            int numLines = FileHelper.getNumberOfLines(hierarchyFile);
+            int numLines = FileHelper.getNumberOfLines(alternateNamesFile);
             inputStream = new FileInputStream(alternateNamesFile);
             importAlternativeNames(inputStream, numLines);
         } finally {
@@ -231,7 +232,7 @@ public final class GeonamesImporter {
         readLocations(inputStream, totalLines, new LocationLineCallback() {
             @Override
             public void readLocation(GeonameLocation geonameLocation) {
-                locationStore.save(geonameLocation.buildLocation());
+                locationStore.save(geonameLocation);
                 Integer parentId = getParent(geonameLocation);
                 if (parentId != null) {
                     locationStore.addHierarchy(geonameLocation.geonamesId, parentId);
@@ -488,7 +489,7 @@ public final class GeonamesImporter {
      * </pre>
      * 
      * @param line The line to parse, not <code>null</code>.
-     * @return The parser {@link Location}.
+     * @return The parsed {@link GeonameLocation}.
      */
     protected static GeonameLocation parse(String line) {
         String[] parts = line.split("\\t");
@@ -552,7 +553,7 @@ public final class GeonamesImporter {
     /**
      * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
      */
-    static final class GeonameLocation {
+    static final class GeonameLocation implements Location {
         int geonamesId;
         double longitude;
         double latitude;
@@ -648,11 +649,6 @@ public final class GeonamesImporter {
             return "A".equals(featureClass);
         }
 
-        Location buildLocation() {
-            LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
-            return new Location(geonamesId, primaryName, null, locationType, latitude, longitude, population);
-        }
-
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
@@ -682,6 +678,46 @@ public final class GeonamesImporter {
             builder.append(admin4Code);
             builder.append("]");
             return builder.toString();
+        }
+
+        @Override
+        public int getId() {
+            return geonamesId;
+        }
+
+        @Override
+        public String getPrimaryName() {
+            return primaryName;
+        }
+
+        @Override
+        public Collection<AlternativeName> getAlternativeNames() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public LocationType getType() {
+            return GeonamesUtil.mapType(featureClass, featureCode);
+        }
+
+        @Override
+        public Double getLatitude() {
+            return latitude;
+        }
+
+        @Override
+        public Double getLongitude() {
+            return longitude;
+        }
+
+        @Override
+        public Long getPopulation() {
+            return population;
+        }
+
+        @Override
+        public List<Integer> getAncestorIds() {
+            return Collections.emptyList();
         }
 
     }
