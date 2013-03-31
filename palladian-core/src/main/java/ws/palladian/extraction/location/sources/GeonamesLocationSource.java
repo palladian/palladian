@@ -8,6 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
@@ -31,6 +32,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see <a href="http://www.geonames.org/login">Account registration</a>
  * @see <a href="http://www.geonames.org/manageaccount">Account activation</a> (enable access to web services after
  *      registration)
+ * @see <a href="http://www.geonames.org/export/web-services.html">Web Service documentation</a>
  * @author Philipp Katz
  */
 public class GeonamesLocationSource implements LocationSource {
@@ -43,9 +45,6 @@ public class GeonamesLocationSource implements LocationSource {
     private final DocumentParser xmlParser = ParserFactory.createXmlParser();
 
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-
-    /** Count the number of executed request since start. */
-    public static int requestCount = 0;
 
     /**
      * <p>
@@ -65,9 +64,14 @@ public class GeonamesLocationSource implements LocationSource {
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=LONG&username=%s",
                     UrlHelper.encodeParameter(locationName), username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
-            requestCount++;
             Document document = xmlParser.parse(httpResult);
-            return parseLocations(document);
+            List<Location> result = CollectionHelper.newArrayList();
+            List<Location> retrievedLocations = parseLocations(document);
+            for (Location retrievedLocation : retrievedLocations) {
+                List<Integer> hierarchy = getHierarchy(retrievedLocation.getId());
+                result.add(new ImmutableLocation(retrievedLocation, null, hierarchy));
+            }
+            return result;
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -124,26 +128,25 @@ public class GeonamesLocationSource implements LocationSource {
             population = Long.valueOf(populationString);
         }
         LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
-        return new Location(geonameId, primaryName, null, locationType, latitude, longitude, population);
+        return new ImmutableLocation(geonameId, primaryName, locationType, latitude, longitude, population);
     }
 
-    @Override
-    public List<Location> getHierarchy(int locationId) {
+    private List<Integer> getHierarchy(int locationId) {
         try {
-            String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&username=%s", locationId,
+            String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&style=SHORT&username=%s",
+                    locationId,
                     username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
-            requestCount++;
             Document document = xmlParser.parse(httpResult);
             List<Node> geonames = XPathHelper.getNodes(document, "//geoname/geonameId");
-            List<Location> result = CollectionHelper.newArrayList();
-            for (Node node : geonames) {
+            List<Integer> result = CollectionHelper.newArrayList();
+            for (int i = geonames.size() - 1; i >= 0; i--) {
+                Node node = geonames.get(i);
                 int geonameId = Integer.valueOf(node.getTextContent());
                 if (geonameId == locationId) { // do not add the supplied Location itself.
                     continue;
                 }
-                Location retrievedLocation = getLocation(geonameId);
-                result.add(retrievedLocation);
+                result.add(geonameId);
             }
             return result;
         } catch (Exception e) {
@@ -157,25 +160,14 @@ public class GeonamesLocationSource implements LocationSource {
             String getUrl = String.format("http://api.geonames.org/get?geonameId=%s&username=%s&style=LONG",
                     locationId, username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
-            requestCount++;
             Document document = xmlParser.parse(httpResult);
             List<Location> locations = parseLocations(document);
-            return CollectionHelper.getFirst(locations);
+            Location location = CollectionHelper.getFirst(locations);
+            List<Integer> hierarchy = getHierarchy(locationId);
+            return new ImmutableLocation(location, null, hierarchy);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public static void main(String[] args) {
-        GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
-        List<Location> locations = locationSource.getLocations("stuttgart");
-        CollectionHelper.print(locations);
-
-        System.out.println("-------");
-
-        Location firstLocation = CollectionHelper.getFirst(locations);
-        List<Location> hierarchy = locationSource.getHierarchy(firstLocation.getId());
-        CollectionHelper.print(hierarchy);
     }
 
     @Override
@@ -190,14 +182,10 @@ public class GeonamesLocationSource implements LocationSource {
         return locations;
     }
 
-    @Override
-    public List<Integer> getHierarchyIds(int locationId) {
-        List<Integer> hierarchyIds = CollectionHelper.newArrayList();
-        List<Location> hierarchy = getHierarchy(locationId);
-        for (Location location : hierarchy) {
-            hierarchyIds.add(location.getId());
-        }
-        return hierarchyIds;
+    public static void main(String[] args) {
+        GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
+        Location location = locationSource.getLocation(7268814);
+        System.out.println(location);
     }
 
 }

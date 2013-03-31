@@ -1,123 +1,75 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collection;
-import java.util.Collections;
-
-import org.apache.commons.lang3.Validate;
+import java.util.List;
 
 /**
  * <p>
- * A geographic location, like a city, country, continent, etc.
+ * This interface defines a geographic location, like a city, country, continent, etc.
  * </p>
  * 
  * @author Philipp Katz
  */
-public class Location {
+public interface Location {
 
-    private final int id;
-    private final String primaryName;
-    private final Collection<AlternativeName> alternativeNames;
-    private final LocationType type;
-    private final Double latitude;
-    private final Double longitude;
-    private final Long population;
+    /**
+     * @return The unique identifier of this location.
+     */
+    int getId();
 
     /**
      * <p>
-     * Create a new location with the specified attributes.
+     * Get the primary name of this location. This is usually the location name of the location (e.g. "München").
+     * Alternative spellings or variants in other languages can be retrieved via {@link #getAlternativeNames()}.
      * </p>
      * 
-     * @param id The unique identifier of the location.
-     * @param primaryName The primary name of the location, not <code>null</code>.
-     * @param alternativeNames A list of potential alternative names for the location, may be <code>null</code>, if no
-     *            alternative names exist.
-     * @param type The type of the location, not <code>null</code>.
-     * @param latitude The latitude, or <code>null</code> if no coordinates exist.
-     * @param longitude The longitude, or <code>null</code> if no coordinates exist.
-     * @param population The population, or <code>null</code> if no populartion values exist.
+     * @return The primary name of this location, never <code>null</code>.
      */
-    public Location(int id, String primaryName, Collection<AlternativeName> alternativeNames, LocationType type,
-            Double latitude, Double longitude, Long population) {
-        Validate.notNull(primaryName, "primaryName must not be null");
-        Validate.notNull(type, "type must not be null");
-        this.id = id;
-        this.primaryName = primaryName;
-        this.alternativeNames = alternativeNames != null ? alternativeNames : Collections.<AlternativeName> emptyList();
-        this.type = type;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.population = population;
-    }
+    String getPrimaryName();
 
-    public int getId() {
-        return id;
-    }
+    /**
+     * <p>
+     * Get alternative spellings or variants in different languages for this location. For example, for the city
+     * "München", there is the English variant "Munich", the Italian variant "Monaco", etc.
+     * </p>
+     * 
+     * @return Alternative names for this location, or an empty {@link Collection} if no such names exist. Never
+     *         <code>null</code>.
+     */
+    Collection<AlternativeName> getAlternativeNames();
 
-    public String getPrimaryName() {
-        return primaryName;
-    }
+    /**
+     * @return The type of this location. {@link LocationType#UNDETERMINED} if no type was specified, but never
+     *         <code>null</code>.
+     */
+    LocationType getType();
 
-    public Collection<AlternativeName> getAlternativeNames() {
-        return Collections.unmodifiableCollection(alternativeNames);
-    }
+    /**
+     * @return The geographical latitude of this location, or <code>null</code> if no coordinates exist.
+     */
+    Double getLatitude();
 
-    public LocationType getType() {
-        return type;
-    }
+    /**
+     * @return The geographical longitude of this location, or <code>null</code> if no coordinates exist.
+     */
+    Double getLongitude();
 
-    public Double getLatitude() {
-        return latitude;
-    }
+    /**
+     * @return The population of this location, or <code>null</code> if no population values exist.
+     */
+    Long getPopulation();
 
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public Long getPopulation() {
-        return population;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Location [id=");
-        builder.append(id);
-        builder.append(", primaryName=");
-        builder.append(primaryName);
-        // builder.append(", alternativeNames=");
-        // builder.append(alternativeNames);
-        builder.append(", type=");
-        builder.append(type);
-        builder.append(", latitude=");
-        builder.append(latitude);
-        builder.append(", longitude=");
-        builder.append(longitude);
-        builder.append(", population=");
-        builder.append(population);
-        builder.append("]");
-        return builder.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + id;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Location other = (Location)obj;
-        if (id != other.id)
-            return false;
-        return true;
-    }
+    /**
+     * <p>
+     * Get the logical hierarchy for a given {@link Location}. For example, "Baden-Württemberg" is contained in
+     * "Germany", which is contained in "Europe", which is contained in "Earth". The given location as point of origin
+     * is <b>not</b> included in the returned hierarchy. The order of the returned list is from specific to general
+     * (e.g. the last element in the list would be "Earth").
+     * </p>
+     * 
+     * @return The hierarchy as list of parent IDs, or an empty {@link List}, if no hierarchy was found, never
+     *         <code>null</code>.
+     */
+    List<Integer> getAncestorIds();
 
 }

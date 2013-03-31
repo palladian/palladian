@@ -159,7 +159,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
                     return item.getLatitude() != null && item.getLongitude() != null;
                 }
             };
-            HashSet<Location> temp = CollectionHelper.filter(retrievedLocations, coordFilter, new HashSet<Location>());
+            HashSet<Location> temp = CollectionHelper
+                    .filter(retrievedLocations, coordFilter, new HashSet<Location>());
             if (temp.size() > 0) {
                 retrievedLocations = temp;
             }
@@ -322,7 +323,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         Set<Location> toAdd = CollectionHelper.newHashSet();
         for (Location location : anchorLocations) {
-            List<Location> hierarchy = locationSource.getHierarchy(location.getId());
+            List<Location> hierarchy = locationSource.getLocations(location.getAncestorIds());
             for (Location currentLocation : hierarchy) {
                 if (currentLocation.getPrimaryName().equalsIgnoreCase("earth")) {
                     continue;
@@ -366,7 +367,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 Location location = it.next();
 
                 boolean anchored = false;
-                List<Integer> hierarchyIds = locationSource.getHierarchyIds(location.getId());
+                // List<Integer> hierarchyIds = locationSource.getHierarchyIds(location.getId());
+                List<Integer> hierarchyIds = location.getAncestorIds();
 
                 // XXX experimental code; also keep locations without hierarchy
                 if (hierarchyIds.isEmpty()) {
@@ -435,7 +437,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     /**
-     * Check, if a Collection of {@link Location}s are "ambiguous". The condition of ambiguity is fulfilled, if two
+     * Check, if a Collection of {@link ImmutableLocation}s are "ambiguous". The condition of ambiguity is fulfilled, if two
      * given Locations in the Collection have a greater distance then a specified threshold.
      * 
      * @param locations
