@@ -111,4 +111,14 @@ public class WebKnoxLocationSource implements LocationSource {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public List<Location> getLocations(List<Integer> locationIds) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Integer> getHierarchyIds(int locationId) {
+        throw new UnsupportedOperationException();
+    }
+
 }

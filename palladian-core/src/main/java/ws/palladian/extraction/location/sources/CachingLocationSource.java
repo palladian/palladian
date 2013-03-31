@@ -22,7 +22,7 @@ public final class CachingLocationSource implements LocationSource {
     private final LocationSource locationSource;
     private final Map<String, Collection<Location>> locationNameCache;
     private final Map<Integer, Location> locationIdCache;
-    private final Map<Integer, List<Location>> locationHierachyCache;
+    private final Map<Integer, List<Integer>> locationHierachyCache;
 
     private int cacheHits = 0;
     private int cacheMisses = 0;
@@ -84,15 +84,8 @@ public final class CachingLocationSource implements LocationSource {
 
     @Override
     public List<Location> getHierarchy(int locationId) {
-        List<Location> locations = locationHierachyCache.get(locationId);
-        if (locations == null) {
-            locations = locationSource.getHierarchy(locationId);
-            locationHierachyCache.put(locationId, locations);
-            cacheMisses++;
-        } else {
-            cacheHits++;
-        }
-        return locations;
+        List<Integer> hierarchyIds = getHierarchyIds(locationId);
+        return getLocations(hierarchyIds);
     }
 
     @Override
@@ -102,6 +95,31 @@ public final class CachingLocationSource implements LocationSource {
         stringBuilder.append("Hits=").append(cacheHits);
         stringBuilder.append(", Misses=").append(cacheMisses).append(")");
         return stringBuilder.toString();
+    }
+
+    @Override
+    public List<Location> getLocations(List<Integer> locationIds) {
+        List<Location> locations = CollectionHelper.newArrayList();
+        for (Integer locationId : locationIds) {
+            Location location = getLocation(locationId);
+            if (location != null) {
+                locations.add(location);
+            }
+        }
+        return locations;
+    }
+
+    @Override
+    public List<Integer> getHierarchyIds(int locationId) {
+        List<Integer> hierarchyIds = locationHierachyCache.get(locationId);
+        if (hierarchyIds == null) {
+            hierarchyIds = locationSource.getHierarchyIds(locationId);
+            locationHierachyCache.put(locationId, hierarchyIds);
+            cacheMisses++;
+        } else {
+            cacheHits++;
+        }
+        return hierarchyIds;
     }
 
 }

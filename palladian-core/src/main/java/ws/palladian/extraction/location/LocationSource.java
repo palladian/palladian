@@ -55,6 +55,19 @@ public interface LocationSource {
 
     /**
      * <p>
+     * Get a list of {@link Location}s by their IDs. When multiple {@link Location}s need to be fetched at one go, this
+     * allows implementations performance optimizations in contrast to {@link #getLocation(int)}. E.g. database
+     * implementations can do this with only one round trip.
+     * </p>
+     * 
+     * @param locationIds The IDs for the {@link Location}s to retrieve, not <code>null</code>.
+     * @return List of {@link Location}s in the same order as the provided IDs. If a location for a specific ID could
+     *         not be found, the returned list might be smaller than the list of supplied IDs.
+     */
+    List<Location> getLocations(List<Integer> locationIds);
+
+    /**
+     * <p>
      * Get the logical hierarchy for a given {@link Location}. For example, "Baden-Württemberg" is contained in
      * "Germany", which is contained in "Europe", which is contained in "Earth". The given location as point of origin
      * is <b>not</b> included in the returned hierarchy. The order of the returned list is from specific to general
@@ -66,5 +79,19 @@ public interface LocationSource {
      *         never <code>null</code>.
      */
     List<Location> getHierarchy(int locationId);
+
+    /**
+     * <p>
+     * Get the logical hierarchy for a given {@link Location}. For example, "Baden-Württemberg" is contained in
+     * "Germany", which is contained in "Europe", which is contained in "Earth". The given location as point of origin
+     * is <b>not</b> included in the returned hierarchy. The order of the returned list is from specific to general
+     * (e.g. the last element in the list would be "Earth").
+     * </p>
+     * 
+     * @param location The identifier of the location for which to retrieve the hierarchy.
+     * @return The hierarchy as list of parent IDs for the given location, or an empty list, if no hierarchy was found,
+     *         never <code>null</code>.
+     */
+    List<Integer> getHierarchyIds(int locationId);
 
 }

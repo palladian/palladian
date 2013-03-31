@@ -78,18 +78,8 @@ public class CollectionLocationStore implements LocationStore {
 
     @Override
     public List<Location> getHierarchy(int locationId) {
-        List<Location> ret = CollectionHelper.newArrayList();
-        int currentLocationId = locationId;
-        for (;;) {
-            Integer parentLocationId = hierarchyIds.get(currentLocationId);
-            if (parentLocationId == null) {
-                break;
-            }
-            Location parentLocation = idsLocations.get(parentLocationId);
-            ret.add(parentLocation);
-            currentLocationId = parentLocation.getId();
-        }
-        return ret;
+        List<Integer> hierarchyIds = getHierarchyIds(locationId);
+        return getLocations(hierarchyIds);
     }
 
     @Override
@@ -122,6 +112,33 @@ public class CollectionLocationStore implements LocationStore {
         }
         List<Integer> locationIdList = new ArrayList<Integer>(idsLocations.keySet());
         return Collections.max(locationIdList);
+    }
+
+    @Override
+    public List<Location> getLocations(List<Integer> locationIds) {
+        List<Location> locations = CollectionHelper.newArrayList();
+        for (Integer locationId : locationIds) {
+            Location location = getLocation(locationId);
+            if (location != null) {
+                locations.add(location);
+            }
+        }
+        return locations;
+    }
+
+    @Override
+    public List<Integer> getHierarchyIds(int locationId) {
+        List<Integer> locationIds = CollectionHelper.newArrayList();
+        int currentLocationId = locationId;
+        for (;;) {
+            Integer parentLocationId = hierarchyIds.get(currentLocationId);
+            if (parentLocationId == null) {
+                break;
+            }
+            locationIds.add(parentLocationId);
+            currentLocationId = parentLocationId;
+        }
+        return locationIds;
     }
 
 }

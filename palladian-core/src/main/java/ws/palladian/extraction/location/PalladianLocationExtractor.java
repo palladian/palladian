@@ -366,15 +366,15 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 Location location = it.next();
 
                 boolean anchored = false;
-                List<Location> hierarchy = locationSource.getHierarchy(location.getId());
+                List<Integer> hierarchyIds = locationSource.getHierarchyIds(location.getId());
 
                 // XXX experimental code; also keep locations without hierarchy
-                if (hierarchy.isEmpty()) {
+                if (hierarchyIds.isEmpty()) {
                     anchored = true;
                 }
 
                 for (Location anchorLocation : anchorLocations) {
-                    if (hierarchy.contains(anchorLocation)) {
+                    if (hierarchyIds.contains(anchorLocation.getId())) {
                         anchored = true;
                     }
                 }
