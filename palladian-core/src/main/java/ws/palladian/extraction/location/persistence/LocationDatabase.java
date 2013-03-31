@@ -46,9 +46,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
-    private static final String GET_LOCATION = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',language) as alternatives,ancestorIds FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ?) AS t GROUP BY id;";
-    private static final String GET_LOCATION_LANGUAGE = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',language) AS alternatives,ancestorIds FROM (SELECT *,'alternativeName','language' FROM locations l WHERE l.name = ? UNION SELECT l.*,lan.alternativeName,lan.language FROM locations l, location_alternative_names lan WHERE l.id = lan.locationId AND lan.alternativeName = ? AND (lan.language IS NULL OR lan.language IN (%s))) as t GROUP BY id;";
-    private static final String GET_LOCATIONS_BY_ID = "SELECT id,type,name,longitude,latitude,population, GROUP_CONCAT(alternativeName,'#',LANGUAGE) AS alternatives,ancestorIds FROM (SELECT * FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN (%s)) AS t GROUP BY id;";
+    private static final String GET_LOCATION = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l JOIN (SELECT id FROM locations WHERE name = ? UNION SELECT locationId AS id FROM location_alternative_names WHERE alternativeName = ?) AS ids ON l.id = ids.id LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
+    private static final String GET_LOCATIONS_LANGUAGE = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l JOIN (SELECT id FROM locations WHERE name IN (%s) UNION SELECT locationId AS id FROM location_alternative_names WHERE alternativeName IN (%s) AND (language IS NULL OR language IN (%s))) AS ids ON l.id = ids.id LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
+    private static final String GET_LOCATIONS_BY_ID = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN(%s) GROUP BY id;";
     private static final String ADD_HIERARCHY = "INSERT INTO locations SET id = ?, ancestorIds = ?, type = '', name = '' ON DUPLICATE KEY UPDATE ancestorIds = ?";
     private static final String GET_ANCESTOR_IDS = "SELECT ancestorIds FROM locations WHERE id = ?";
     private static final String UPDATE_HIERARCHY = "UPDATE locations SET ancestorIds = CONCAT(?, ancestorIds) WHERE ancestorIds LIKE ?";
@@ -94,17 +94,34 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public List<Location> getLocations(String locationName) {
+    public Collection<Location> getLocations(String locationName) {
         return runQuery(LOCATION_CONVERTER, GET_LOCATION, locationName, locationName);
     }
 
     @Override
-    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
-        int numParams = languages.isEmpty() ? 1 : languages.size();
-        String prepStmt = String.format(GET_LOCATION_LANGUAGE, StringUtils.repeat("?", ",", numParams));
+    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
+        return getLocations(Collections.singletonList(locationName), languages);
+    }
+
+    /**
+     * <p>
+     * Create a parameter mask for dynamically creating prepared statements. Example of a result looks like "?,?,?,?".
+     * </p>
+     * 
+     * @param numParams The number of parameters in the mask.
+     * @return
+     */
+    private static final String createMask(int numParams) {
+        return StringUtils.repeat("?", ",", numParams);
+    }
+
+    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+        String nameMask = createMask(locationNames.size());
+        String languageMask = createMask(languages.isEmpty() ? 1 : languages.size());
+        String prepStmt = String.format(GET_LOCATIONS_LANGUAGE, nameMask, nameMask, languageMask);
         List<Object> args = CollectionHelper.newArrayList();
-        args.add(locationName);
-        args.add(locationName);
+        args.addAll(locationNames);
+        args.addAll(locationNames);
         // when no language was specified, use place holder
         if (languages.isEmpty()) {
             args.add("''");
@@ -133,7 +150,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         // This might be an issue, but usually there should not be too many different counts (1-10, I suspect), so that
         // all used combinations will get and stay cached eventually.
 
-        String prepStmt = String.format(GET_LOCATIONS_BY_ID, StringUtils.repeat("?", ",", locationIds.size()));
+        String prepStmt = String.format(GET_LOCATIONS_BY_ID, createMask(locationIds.size()));
         List<Location> locations = runQuery(LOCATION_CONVERTER, prepStmt, locationIds);
 
         // sort the returned list, so that we have the order of the given locations IDs

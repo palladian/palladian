@@ -173,8 +173,8 @@ public final class ImmutableLocation implements Location {
         builder.append(longitude);
         builder.append(", population=");
         builder.append(population);
-        builder.append(", ancestorIds=");
-        builder.append(ancestorIds);
+        // builder.append(", ancestorIds=");
+        // builder.append(ancestorIds);
         builder.append("]");
         return builder.toString();
     }

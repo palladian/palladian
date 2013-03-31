@@ -553,7 +553,7 @@ public final class GeonamesImporter {
     /**
      * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
      */
-    static final class GeonameLocation implements Location {
+    private static final class GeonameLocation implements Location {
         int geonamesId;
         double longitude;
         double latitude;
