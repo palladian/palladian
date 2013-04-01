@@ -2,7 +2,6 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
     }
 
     @Override
-    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(String locationName, Set<Language> languages) {
         LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
         return Collections.<Location> unmodifiableCollection(namesLocations.get(locationName.toLowerCase()));
     }

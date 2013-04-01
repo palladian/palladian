@@ -1,8 +1,8 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -21,7 +21,7 @@ import ws.palladian.helper.constants.Language;
 abstract class SingleQueryLocationSource implements LocationSource {
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         Collection<Location> locations = CollectionHelper.newHashSet();
         for (String locationName : locationNames) {
             locations.addAll(getLocations(locationName, languages));

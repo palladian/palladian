@@ -1,8 +1,8 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -41,7 +41,7 @@ public final class CachingLocationSource extends SingleQueryLocationSource imple
     // XXX if the same location is queried with different languages set, this will not yield currect results, because it
     // is already cached.
     @Override
-    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(String locationName, Set<Language> languages) {
         Collection<Location> locations = locationNameCache.get(locationName);
         if (locations == null) {
             locations = locationSource.getLocations(locationName, languages);
