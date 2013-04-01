@@ -1,8 +1,8 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import ws.palladian.helper.constants.Language;
 
@@ -29,7 +29,7 @@ public interface LocationSource {
      * @return A collection of locations matching the given name, or an empty collection, if no matches were found,
      *         never <code>null</code>.
      */
-    Collection<Location> getLocations(String locationName, EnumSet<Language> languages);
+    Collection<Location> getLocations(String locationName, Set<Language> languages);
 
     /**
      * <p>
@@ -45,7 +45,7 @@ public interface LocationSource {
      * @return A collection of locations, each matching any of the given names, or an empty collection, if no matches
      *         were found, never <code>null</code>.
      */
-    Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages);
+    Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages);
 
     /**
      * <p>

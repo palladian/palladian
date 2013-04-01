@@ -1,7 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource implements
     }
 
     @Override
-    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
+    public List<Location> getLocations(String locationName, Set<Language> languages) {
         LOGGER.warn("Language queries are not supported; ignoring language parameter.");
         try {
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=LONG&username=%s",

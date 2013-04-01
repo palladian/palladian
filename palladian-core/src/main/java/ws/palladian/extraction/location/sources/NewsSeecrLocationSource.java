@@ -2,8 +2,8 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -76,7 +76,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(String locationName, Set<Language> languages) {
         return getLocations(Collections.singletonList(locationName), languages);
     }
 
@@ -162,7 +162,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
         request.addParameter("names", StringUtils.join(locationNames, ','));
         if (languages != null && !languages.isEmpty()) {

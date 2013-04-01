@@ -1,9 +1,9 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,7 +50,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource implements 
     }
 
     @Override
-    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
+    public List<Location> getLocations(String locationName, Set<Language> languages) {
         LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
         List<Location> locations = CollectionHelper.newArrayList();
         DocumentRetriever documentRetriever = new DocumentRetriever();

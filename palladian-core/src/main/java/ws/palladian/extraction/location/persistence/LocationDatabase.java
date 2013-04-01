@@ -5,9 +5,9 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -93,7 +93,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(String locationName, Set<Language> languages) {
         return getLocations(Collections.singletonList(locationName), languages);
     }
 
@@ -110,7 +110,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         if (locationNames.isEmpty()) {
             return Collections.emptyList();
         }
