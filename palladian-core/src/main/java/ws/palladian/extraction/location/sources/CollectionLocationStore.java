@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -113,7 +112,7 @@ public class CollectionLocationStore implements LocationStore {
         if (idLocation.isEmpty()) {
             return 0;
         }
-        return Collections.max(new ArrayList<Integer>(idLocation.keySet()));
+        return Collections.max(idLocation.keySet());
     }
 
     @Override
