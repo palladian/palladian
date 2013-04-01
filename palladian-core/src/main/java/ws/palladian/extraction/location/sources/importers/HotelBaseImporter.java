@@ -6,7 +6,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
@@ -64,8 +64,7 @@ public final class HotelBaseImporter {
                 Double latitude = Double.valueOf(parts[12]);
                 Double longitude = Double.valueOf(parts[13]);
                 int id = maxId + lineNumber;
-                Location location = new Location(id, hotelName, null, LocationType.POI, latitude, longitude, null);
-                locationStore.save(location);
+                locationStore.save(new ImmutableLocation(id, hotelName, LocationType.POI, latitude, longitude, null));
                 ProgressHelper.printProgress(lineNumber, totalLocations, 1, stopWatch);
             }
         };

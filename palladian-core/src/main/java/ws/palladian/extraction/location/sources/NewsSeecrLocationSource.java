@@ -1,9 +1,11 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
@@ -73,50 +76,13 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
-        request.addParameter("name", locationName);
-        String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
+    public Collection<Location> getLocations(String locationName, Set<Language> languages) {
+        return getLocations(Collections.singletonList(locationName), languages);
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
-        request.addParameter("name", locationName);
-        if (languages != null && !languages.isEmpty()) {
-            StringBuilder langParameter = new StringBuilder();
-            boolean first = true;
-            for (Language language : languages) {
-                if (!first) {
-                    langParameter.append(',');
-                }
-                langParameter.append(language.getIso6391());
-                first = false;
-            }
-            request.addParameter("languages", langParameter.toString());
-        }
-        String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
-    }
-
-    @Override
-    public Location retrieveLocation(int locationId) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + locationId);
-        String jsonString = retrieveResult(request);
-        try {
-            return parseSingleResult(new JSONObject(jsonString));
-        } catch (JSONException e) {
-            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
-                    + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public List<Location> getHierarchy(int locationId) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + locationId + "/hierarchy");
-        String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
+    public Location getLocation(int locationId) {
+        return CollectionHelper.getFirst(getLocations(Collections.singletonList(locationId)));
     }
 
     private String retrieveResult(HttpRequest request) {
@@ -161,7 +127,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
         String primaryName = JPathHelper.get(resultObject, "primaryName", String.class);
         String typeString = JPathHelper.get(resultObject, "locationType", String.class);
         Long population = JPathHelper.get(resultObject, "population", Long.class);
-        List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
+        List<AlternativeName> altNames = CollectionHelper.newArrayList();
         JSONArray jsonArray = JPathHelper.get(resultObject, "alternateNames", JSONArray.class);
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject altLanguageJson = jsonArray.getJSONObject(i);
@@ -171,39 +137,48 @@ public final class NewsSeecrLocationSource implements LocationSource {
             if (langValue != null) {
                 language = Language.getByIso6391(langValue);
             }
-            alternativeNames.add(new AlternativeName(nameValue, language));
+            altNames.add(new AlternativeName(nameValue, language));
         }
         LocationType type = LocationType.valueOf(typeString);
-        return new Location(id, primaryName, alternativeNames, type, latitude, longitude, population);
+        List<Integer> ancestors = CollectionHelper.newArrayList();
+        String ancestorPath = JPathHelper.get(resultObject, "ancestorPath", String.class);
+        if (ancestorPath != null) {
+            String[] split = ancestorPath.split("/");
+            for (int i = split.length - 1; i >= 0; i--) {
+                String ancestorId = split[i];
+                if (StringUtils.isNotBlank(ancestorId)) {
+                    ancestors.add(Integer.valueOf(ancestorId));
+                }
+            }
+        }
+        return new ImmutableLocation(id, primaryName, altNames, type, latitude, longitude, population, ancestors);
     }
 
     @Override
-    public Collection<LocationRelation> getParents(int locationId) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Location> getLocations(List<Integer> locationIds) {
+        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + StringUtils.join(locationIds, '+'));
+        String jsonString = retrieveResult(request);
+        return parseResultArray(jsonString);
     }
 
-    public static void main(String[] args) {
-////        NewsSeecrLocationSource newsSeecrLocationSource = new NewsSeecrLocationSource("52feznh45ezmjxgfzorrk6ooagyadg",
-////                "iwjiagid3rqhbyu5bwwevrbpyicrk2");
-//        EnumSet<Language> languages = EnumSet.of(Language.ENGLISH, Language.GERMAN, Language.FRENCH);
-//        // EnumSet<Language> languages = EnumSet.noneOf(Language.class);
-//        List<Location> locations = newsSeecrLocationSource.retrieveLocations("Berlin", languages);
-//        CollectionHelper.print(locations);
-//
-//        Location loc = locations.get(53);
-//        System.out.println(loc);
-//
-//        for (;;) {
-//
-//            List<Location> hierarchyLocations = newsSeecrLocationSource.getHierarchy(loc.getId());
-//            CollectionHelper.print(hierarchyLocations);
-//
-//        }
-
-        // Location loc2 = newsSeecrLocationSource.retrieveLocation(2921044);
-        // System.out.println(loc2);
-        // System.out.println(loc2.getAlternativeNames());
+    @Override
+    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
+        request.addParameter("names", StringUtils.join(locationNames, ','));
+        if (languages != null && !languages.isEmpty()) {
+            StringBuilder langParameter = new StringBuilder();
+            boolean first = true;
+            for (Language language : languages) {
+                if (!first) {
+                    langParameter.append(',');
+                }
+                langParameter.append(language.getIso6391());
+                first = false;
+            }
+            request.addParameter("languages", langParameter.toString());
+        }
+        String jsonString = retrieveResult(request);
+        return parseResultArray(jsonString);
     }
 
 }

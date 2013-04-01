@@ -6,7 +6,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
@@ -81,8 +81,7 @@ public final class ProtectedPlanetImporter {
                     LOGGER.error("No coordinates in {}", line);
                 }
                 int id = maxId + lineNumber;
-                Location location = new Location(id, placeName, null, LocationType.LANDMARK, latitude, longitude, null);
-                locationStore.save(location);
+                locationStore.save(new ImmutableLocation(id, placeName, LocationType.LANDMARK, latitude, longitude, null));
 
                 ProgressHelper.printProgress(lineNumber, totalLocations, 1, stopWatch);
             }
@@ -97,7 +96,7 @@ public final class ProtectedPlanetImporter {
         // LocationStore locationStore = new CollectionLocationStore();
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
 
-        String locationFilePath = "/Users/pk/Dropbox/LocationLab/protectedPlaces.csv";
+        String locationFilePath = "/Users/pk/Dropbox/LocationLab/protectedPlanet.csv";
         ProtectedPlanetImporter importer = new ProtectedPlanetImporter(locationStore);
         importer.importLocations(locationFilePath);
     }
