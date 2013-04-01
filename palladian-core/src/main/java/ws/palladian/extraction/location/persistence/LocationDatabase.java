@@ -116,6 +116,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+        if (locationNames.isEmpty()) {
+            return Collections.emptyList();
+        }
         String nameMask = createMask(locationNames.size());
         String languageMask = createMask(languages.isEmpty() ? 1 : languages.size());
         String prepStmt = String.format(GET_LOCATIONS_LANGUAGE, nameMask, nameMask, languageMask);
