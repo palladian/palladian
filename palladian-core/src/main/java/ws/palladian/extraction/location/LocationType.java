@@ -2,7 +2,7 @@ package ws.palladian.extraction.location;
 
 /**
  * <p>
- * This enumeration provides available types for different {@link Location}s.
+ * This enumeration provides available types for different {@link ImmutableLocation}s.
  * </p>
  * 
  * @author Philipp Katz
@@ -30,5 +30,22 @@ public enum LocationType {
     /** Geographic features like rivers, canyons, lakes, islands, waterfalls, etc. */
     LANDMARK,
     /** An undetermined or unknown type. */
-    UNDETERMINED
+    UNDETERMINED;
+
+    /**
+     * <p>
+     * Forgiving {@link #valueOf(String)} method. In case, the value cannot be mapped, return {@link #UNDETERMINED}.
+     * </p>
+     * 
+     * @param value The value to map.
+     * @return The mapped {@link LocationType}, {@link #UNDETERMINED} in case the value cannot be mapped or was
+     *         <code>null</code>.
+     */
+    public static LocationType map(String value) {
+        try {
+            return LocationType.valueOf(value.toUpperCase());
+        } catch (Exception e) {
+            return UNDETERMINED;
+        }
+    }
 }

@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -23,6 +25,13 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 public class LocationExtractionEvaluator {
 
     public void evaluateAll(LocationExtractor extractor, String goldStandardFileFolderPath) {
+        Validate.notNull(extractor, "extractor must not be null");
+        Validate.notEmpty(goldStandardFileFolderPath, "goldStandardFileFolderPath must not be empty");
+
+        if (!new File(goldStandardFileFolderPath).isDirectory()) {
+            throw new IllegalArgumentException("The provided path to the gold standard '" + goldStandardFileFolderPath
+                    + "' does not exist or is no directory.");
+        }
 
         Map<ResultType, Map<String, Annotations>> errors = new LinkedHashMap<ResultType, Map<String, Annotations>>();
         errors.put(ResultType.CORRECT, new HashMap<String, Annotations>());
@@ -125,10 +134,10 @@ public class LocationExtractionEvaluator {
      * @param args
      */
     public static void main(String[] args) {
-        // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
         // String DATASET_LOCATION = "/Users/pk/Desktop/tmp";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
-        String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
+        // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
         // Map<String, Double> results = evaluator.evaluateAll(
         // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
