@@ -24,7 +24,7 @@ import ws.palladian.helper.constants.Language;
  * 
  * @author Philipp Katz
  */
-public class CollectionLocationStore implements LocationStore {
+public class CollectionLocationStore extends SingleQueryLocationSource implements LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectionLocationStore.class);
@@ -108,27 +108,6 @@ public class CollectionLocationStore implements LocationStore {
             return 0;
         }
         return Collections.max(idLocation.keySet());
-    }
-
-    @Override
-    public List<Location> getLocations(List<Integer> locationIds) {
-        List<Location> locations = CollectionHelper.newArrayList();
-        for (Integer locationId : locationIds) {
-            Location location = getLocation(locationId);
-            if (location != null) {
-                locations.add(location);
-            }
-        }
-        return locations;
-    }
-
-    @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
-        Collection<Location> locations = CollectionHelper.newHashSet();
-        for (String locationName : locationNames) {
-            locations.addAll(getLocations(locationName, languages));
-        }
-        return locations;
     }
 
     /**

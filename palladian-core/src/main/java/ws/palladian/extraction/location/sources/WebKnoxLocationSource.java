@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -22,7 +21,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 
-public class WebKnoxLocationSource implements LocationSource {
+public class WebKnoxLocationSource extends SingleQueryLocationSource implements LocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxLocationSource.class);
@@ -102,20 +101,6 @@ public class WebKnoxLocationSource implements LocationSource {
             }
         }
 
-        return locations;
-    }
-
-    @Override
-    public List<Location> getLocations(List<Integer> locationIds) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
-        Collection<Location> locations = CollectionHelper.newHashSet();
-        for (String locationName : locationNames) {
-            locations.addAll(getLocations(locationName, languages));
-        }
         return locations;
     }
 

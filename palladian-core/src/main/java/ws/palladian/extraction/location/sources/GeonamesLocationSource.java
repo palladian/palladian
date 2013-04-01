@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -38,7 +37,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see <a href="http://www.geonames.org/export/web-services.html">Web Service documentation</a>
  * @author Philipp Katz
  */
-public class GeonamesLocationSource implements LocationSource {
+public class GeonamesLocationSource extends SingleQueryLocationSource implements LocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesLocationSource.class);
@@ -166,27 +165,6 @@ public class GeonamesLocationSource implements LocationSource {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Override
-    public List<Location> getLocations(List<Integer> locationIds) {
-        List<Location> locations = CollectionHelper.newArrayList();
-        for (Integer locationId : locationIds) {
-            Location location = getLocation(locationId);
-            if (location != null) {
-                locations.add(location);
-            }
-        }
-        return locations;
-    }
-
-    @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
-        Collection<Location> locations = CollectionHelper.newHashSet();
-        for (String locationName : locationNames) {
-            getLocations(locationName, languages);
-        }
-        return locations;
     }
 
     public static void main(String[] args) {

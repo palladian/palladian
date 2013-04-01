@@ -82,14 +82,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
 
     @Override
     public Location getLocation(int locationId) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + locationId);
-        String jsonString = retrieveResult(request);
-        try {
-            return parseSingleResult(new JSONObject(jsonString));
-        } catch (JSONException e) {
-            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
-                    + e.getMessage(), e);
-        }
+        return CollectionHelper.getFirst(getLocations(Collections.singletonList(locationId)));
     }
 
     private String retrieveResult(HttpRequest request) {
@@ -134,7 +127,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
         String primaryName = JPathHelper.get(resultObject, "primaryName", String.class);
         String typeString = JPathHelper.get(resultObject, "locationType", String.class);
         Long population = JPathHelper.get(resultObject, "population", Long.class);
-        List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
+        List<AlternativeName> altNames = CollectionHelper.newArrayList();
         JSONArray jsonArray = JPathHelper.get(resultObject, "alternateNames", JSONArray.class);
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject altLanguageJson = jsonArray.getJSONObject(i);
@@ -144,23 +137,25 @@ public final class NewsSeecrLocationSource implements LocationSource {
             if (langValue != null) {
                 language = Language.getByIso6391(langValue);
             }
-            alternativeNames.add(new AlternativeName(nameValue, language));
+            altNames.add(new AlternativeName(nameValue, language));
         }
         LocationType type = LocationType.valueOf(typeString);
-        return new ImmutableLocation(id, primaryName, alternativeNames, type, latitude, longitude, population, null);
+        List<Integer> ancestors = CollectionHelper.newArrayList();
+        String ancestorPath = JPathHelper.get(resultObject, "ancestorPath", String.class);
+        if (ancestorPath != null) {
+            String[] split = ancestorPath.split("/");
+            for (int i = split.length - 1; i >= 0; i--) {
+                String ancestorId = split[i];
+                if (StringUtils.isNotBlank(ancestorId)) {
+                    ancestors.add(Integer.valueOf(ancestorId));
+                }
+            }
+        }
+        return new ImmutableLocation(id, primaryName, altNames, type, latitude, longitude, population, ancestors);
     }
 
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
-        // FIXME provide optimized implementation in NewsSeecr
-//        List<Location> locations = CollectionHelper.newArrayList();
-//        for (Integer locationId : locationIds) {
-//            Location location = getLocation(locationId);
-//            if (location != null) {
-//                locations.add(location);
-//            }
-//        }
-//        return locations;
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + StringUtils.join(locationIds, '+'));
         String jsonString = retrieveResult(request);
         return parseResultArray(jsonString);
