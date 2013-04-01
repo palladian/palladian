@@ -38,14 +38,9 @@ public class CollectionLocationStore implements LocationStore {
     }
 
     @Override
-    public Collection<Location> getLocations(String locationName) {
-        return Collections.<Location> unmodifiableCollection(namesLocations.get(locationName.toLowerCase()));
-    }
-
-    @Override
     public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
         LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
-        return getLocations(locationName);
+        return Collections.<Location> unmodifiableCollection(namesLocations.get(locationName.toLowerCase()));
     }
 
     @Override
@@ -123,6 +118,15 @@ public class CollectionLocationStore implements LocationStore {
             if (location != null) {
                 locations.add(location);
             }
+        }
+        return locations;
+    }
+
+    @Override
+    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+        Collection<Location> locations = CollectionHelper.newHashSet();
+        for (String locationName : locationNames) {
+            locations.addAll(getLocations(locationName, languages));
         }
         return locations;
     }

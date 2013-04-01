@@ -19,17 +19,6 @@ public interface LocationSource {
 
     /**
      * <p>
-     * Search for {@link Location}s by a given name.
-     * </p>
-     * 
-     * @param locationName The name of the location to search, not <code>null</code>.
-     * @return A list of locations matching the given name, or an empty list, if no matches were found, never
-     *         <code>null</code>.
-     */
-    Collection<Location> getLocations(String locationName);
-
-    /**
-     * <p>
      * Search for {@link Location}s by a given name in a specified set of {@link Language}s.
      * </p>
      * 
@@ -37,10 +26,26 @@ public interface LocationSource {
      * @param languages A set of {@link Language}s in which the given name must be, not <code>null</code>. Names in
      *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
      *            language always match.
-     * @return A list of locations matching the given name, or an empty list, if no matches were found, never
-     *         <code>null</code>.
+     * @return A collection of locations matching the given name, or an empty collection, if no matches were found,
+     *         never <code>null</code>.
      */
     Collection<Location> getLocations(String locationName, EnumSet<Language> languages);
+
+    /**
+     * <p>
+     * Search for multiple {@link Location}s by given names in a specified set of {@link Language}s. When multiple
+     * {@link Location}s need to be searched at one go, this allows implementations performance optimizations in
+     * contrast to {@link #getLocation(int)}. E.g. database implementations can do this with only one round trip.
+     * </p>
+     * 
+     * @param locationName The names of the location to search, not <code>null</code>.
+     * @param languages A set of {@link Language}s in which the given name must be, not <code>null</code>. Names in
+     *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
+     *            language always match.
+     * @return A collection of locations, each matching any of the given names, or an empty collection, if no matches
+     *         were found, never <code>null</code>.
+     */
+    Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages);
 
     /**
      * <p>
@@ -56,7 +61,7 @@ public interface LocationSource {
     /**
      * <p>
      * Get a list of {@link Location}s by their IDs. When multiple {@link Location}s need to be fetched at one go, this
-     * allows implementations performance optimizations in contrast to {@link #getLocation(int)} . E.g. database
+     * allows implementations performance optimizations in contrast to {@link #getLocation(int)}. E.g. database
      * implementations can do this with only one round trip.
      * </p>
      * 

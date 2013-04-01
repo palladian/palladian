@@ -1,9 +1,12 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -38,7 +41,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
 public class GeonamesLocationSource implements LocationSource {
 
     /** The logger for this class. */
-    // private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesLocationSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesLocationSource.class);
 
     private final String username;
 
@@ -59,7 +62,8 @@ public class GeonamesLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getLocations(String locationName) {
+    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
+        LOGGER.warn("Language queries are not supported; ignoring language parameter.");
         try {
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=LONG&username=%s",
                     UrlHelper.encodeParameter(locationName), username);
@@ -75,11 +79,6 @@ public class GeonamesLocationSource implements LocationSource {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Override
-    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
-        throw new UnsupportedOperationException("Searching by languages is not supported by GeoNames.org");
     }
 
     static List<Location> parseLocations(Document document) {
@@ -134,8 +133,7 @@ public class GeonamesLocationSource implements LocationSource {
     private List<Integer> getHierarchy(int locationId) {
         try {
             String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&style=SHORT&username=%s",
-                    locationId,
-                    username);
+                    locationId, username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
             List<Node> geonames = XPathHelper.getNodes(document, "//geoname/geonameId");
@@ -178,6 +176,15 @@ public class GeonamesLocationSource implements LocationSource {
             if (location != null) {
                 locations.add(location);
             }
+        }
+        return locations;
+    }
+
+    @Override
+    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+        Collection<Location> locations = CollectionHelper.newHashSet();
+        for (String locationName : locationNames) {
+            getLocations(locationName, languages);
         }
         return locations;
     }
