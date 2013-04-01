@@ -2,7 +2,6 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 
 import ws.palladian.extraction.location.Location;
@@ -17,7 +16,7 @@ import ws.palladian.helper.constants.Language;
  * 
  * @author Philipp Katz
  */
-public final class CachingLocationSource implements LocationSource {
+public final class CachingLocationSource extends SingleQueryLocationSource implements LocationSource {
 
     private final LocationSource locationSource;
     private final Map<String, Collection<Location>> locationNameCache;
@@ -74,27 +73,6 @@ public final class CachingLocationSource implements LocationSource {
         stringBuilder.append("Hits=").append(cacheHits);
         stringBuilder.append(", Misses=").append(cacheMisses).append(")");
         return stringBuilder.toString();
-    }
-
-    @Override
-    public List<Location> getLocations(List<Integer> locationIds) {
-        List<Location> locations = CollectionHelper.newArrayList();
-        for (Integer locationId : locationIds) {
-            Location location = getLocation(locationId);
-            if (location != null) {
-                locations.add(location);
-            }
-        }
-        return locations;
-    }
-
-    @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
-        Collection<Location> locations = CollectionHelper.newHashSet();
-        for (String locationName : locationNames) {
-            locations.addAll(getLocations(locationName, languages));
-        }
-        return locations;
     }
 
 }
