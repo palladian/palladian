@@ -1,8 +1,11 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -73,31 +76,8 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getLocations(String locationName) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
-        request.addParameter("name", locationName);
-        String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
-    }
-
-    @Override
-    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
-        request.addParameter("name", locationName);
-        if (languages != null && !languages.isEmpty()) {
-            StringBuilder langParameter = new StringBuilder();
-            boolean first = true;
-            for (Language language : languages) {
-                if (!first) {
-                    langParameter.append(',');
-                }
-                langParameter.append(language.getIso6391());
-                first = false;
-            }
-            request.addParameter("languages", langParameter.toString());
-        }
-        String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
+    public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
+        return getLocations(Collections.singletonList(locationName), languages);
     }
 
     @Override
@@ -173,14 +153,37 @@ public final class NewsSeecrLocationSource implements LocationSource {
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
         // FIXME provide optimized implementation in NewsSeecr
-        List<Location> locations = CollectionHelper.newArrayList();
-        for (Integer locationId : locationIds) {
-            Location location = getLocation(locationId);
-            if (location != null) {
-                locations.add(location);
+//        List<Location> locations = CollectionHelper.newArrayList();
+//        for (Integer locationId : locationIds) {
+//            Location location = getLocation(locationId);
+//            if (location != null) {
+//                locations.add(location);
+//            }
+//        }
+//        return locations;
+        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + StringUtils.join(locationIds, '+'));
+        String jsonString = retrieveResult(request);
+        return parseResultArray(jsonString);
+    }
+
+    @Override
+    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+        HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
+        request.addParameter("names", StringUtils.join(locationNames, ','));
+        if (languages != null && !languages.isEmpty()) {
+            StringBuilder langParameter = new StringBuilder();
+            boolean first = true;
+            for (Language language : languages) {
+                if (!first) {
+                    langParameter.append(',');
+                }
+                langParameter.append(language.getIso6391());
+                first = false;
             }
+            request.addParameter("languages", langParameter.toString());
         }
-        return locations;
+        String jsonString = retrieveResult(request);
+        return parseResultArray(jsonString);
     }
 
 }

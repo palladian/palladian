@@ -39,19 +39,6 @@ public final class CachingLocationSource implements LocationSource {
         locationIdCache = CollectionHelper.newHashMap();
     }
 
-    @Override
-    public Collection<Location> getLocations(String locationName) {
-        Collection<Location> locations = locationNameCache.get(locationName);
-        if (locations == null) {
-            locations = locationSource.getLocations(locationName);
-            locationNameCache.put(locationName, locations);
-            cacheMisses++;
-        } else {
-            cacheHits++;
-        }
-        return locations;
-    }
-
     // XXX if the same location is queried with different languages set, this will not yield currect results, because it
     // is already cached.
     @Override
@@ -97,6 +84,15 @@ public final class CachingLocationSource implements LocationSource {
             if (location != null) {
                 locations.add(location);
             }
+        }
+        return locations;
+    }
+
+    @Override
+    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+        Collection<Location> locations = CollectionHelper.newHashSet();
+        for (String locationName : locationNames) {
+            locations.addAll(getLocations(locationName, languages));
         }
         return locations;
     }

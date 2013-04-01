@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -45,7 +46,13 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> getLocations(String locationName) {
+    public Location getLocation(int locationId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
+        LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
         List<Location> locations = CollectionHelper.newArrayList();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
@@ -99,18 +106,17 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public Location getLocation(int locationId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<Location> getLocations(String locationName, EnumSet<Language> languages) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public List<Location> getLocations(List<Integer> locationIds) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
+        Collection<Location> locations = CollectionHelper.newHashSet();
+        for (String locationName : locationNames) {
+            locations.addAll(getLocations(locationName, languages));
+        }
+        return locations;
     }
 
 }

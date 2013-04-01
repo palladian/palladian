@@ -46,7 +46,6 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
-    private static final String GET_LOCATION = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l JOIN (SELECT id FROM locations WHERE name = ? UNION SELECT locationId AS id FROM location_alternative_names WHERE alternativeName = ?) AS ids ON l.id = ids.id LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
     private static final String GET_LOCATIONS_LANGUAGE = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l JOIN (SELECT id FROM locations WHERE name IN (%s) UNION SELECT locationId AS id FROM location_alternative_names WHERE alternativeName IN (%s) AND (language IS NULL OR language IN (%s))) AS ids ON l.id = ids.id LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
     private static final String GET_LOCATIONS_BY_ID = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN(%s) GROUP BY id;";
     private static final String ADD_HIERARCHY = "INSERT INTO locations SET id = ?, ancestorIds = ?, type = '', name = '' ON DUPLICATE KEY UPDATE ancestorIds = ?";
@@ -94,11 +93,6 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public Collection<Location> getLocations(String locationName) {
-        return runQuery(LOCATION_CONVERTER, GET_LOCATION, locationName, locationName);
-    }
-
-    @Override
     public Collection<Location> getLocations(String locationName, EnumSet<Language> languages) {
         return getLocations(Collections.singletonList(locationName), languages);
     }
@@ -115,6 +109,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         return StringUtils.repeat("?", ",", numParams);
     }
 
+    @Override
     public Collection<Location> getLocations(Collection<String> locationNames, EnumSet<Language> languages) {
         if (locationNames.isEmpty()) {
             return Collections.emptyList();
