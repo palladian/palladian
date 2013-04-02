@@ -753,6 +753,28 @@ public final class FileHelper {
         return success;
     }
 
+    public static void writeToFile(InputStream inputStream, String fileTargetLocation) {
+
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(new File(fileTargetLocation));
+            int read = 0;
+            byte[] bytes = new byte[1024];
+
+            out = new FileOutputStream(new File(fileTargetLocation));
+            while ((read = inputStream.read(bytes)) != -1) {
+                out.write(bytes, 0, read);
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage() + " : " + fileTargetLocation, e);
+        } finally {
+            close(out, inputStream);
+        }
+
+    }
+
     /**
      * <p>
      * Appends (i. e. inserts a the end) a string to the specified file. Attention: A new line is <b>not</b> added
