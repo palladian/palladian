@@ -3,7 +3,6 @@ package ws.palladian.helper.conversion;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.normalization.UnitNormalizer;
 
 /**
@@ -58,9 +57,9 @@ public class UnitConverter {
         }
 
         double calculatedAmount = normalizedAmount / bestMatchDivisor;
-        if (!MathHelper.isWithinRange(calculatedAmount, 1, 0.1) && !bestMatchUnit.endsWith("s")) {
-            bestMatchUnit += "s";
-        }
+        // if (!MathHelper.isWithinRange(calculatedAmount, 1, 0.1) && !bestMatchUnit.endsWith("s")) {
+        // bestMatchUnit += "s";
+        // }
 
         AmountUnit amountUnit = new AmountUnit();
         amountUnit.setAmount(calculatedAmount);
