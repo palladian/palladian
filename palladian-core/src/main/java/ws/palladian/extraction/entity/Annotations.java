@@ -6,7 +6,6 @@ import java.util.Comparator;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
-import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -78,30 +77,6 @@ public class Annotations extends ArrayList<Annotation> {
         };
 
         Collections.sort(this, c);
-    }
-
-    public void sortByLength() {
-        Comparator<Annotation> c = new Comparator<Annotation>() {
-
-            @Override
-            public int compare(Annotation a1, Annotation a2) {
-                return a2.getLength() - a1.getLength();
-            }
-        };
-
-        Collections.sort(this, c);
-    }
-
-    public void transformToEvaluationAnnotations() {
-
-        Annotations evaluationAnnotations = new Annotations();
-
-        for (Annotation annotation : this) {
-            evaluationAnnotations.add(new EvaluationAnnotation(annotation));
-        }
-
-        clear();
-        this.addAll(evaluationAnnotations);
     }
 
     @Override

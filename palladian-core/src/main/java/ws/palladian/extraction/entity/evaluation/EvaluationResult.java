@@ -549,11 +549,7 @@ public class EvaluationResult {
     private static CountMap<String> getAnnotationCountForTag(Annotations annotations) {
         CountMap<String> cm = CountMap.create();
         for (Annotation annotation : annotations) {
-            if (annotation instanceof EvaluationAnnotation) {
-                cm.add(annotation.getTargetClass());
-            } else {
-                cm.add(annotation.getMostLikelyTagName());
-            }
+            cm.add(annotation.getMostLikelyTagName());
         }
         return cm;
     }
