@@ -1,14 +1,11 @@
 package ws.palladian.extraction.entity;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.Tokenizer;
@@ -25,7 +21,6 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
@@ -357,161 +352,15 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             }
         }
 
-        EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors);
+        EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors,
+                confusionMatrix);
 
-        getEvaluationDetails(evaluationResult, annotationsErrors, confusionMatrix,
-                FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() + "_results_" + inputFile
-                        + "_" + getName().replace(" ", "") + ".csv");
+        String evaluationDetails = evaluationResult.getEvaluationDetails();
+        String evaluationFile = FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() + "_results_"
+                + inputFile + "_" + getName().replace(" ", "") + ".csv";
 
+        FileHelper.writeToFile(evaluationFile, evaluationDetails);
         return evaluationResult;
-    }
-
-    public static String getEvaluationDetails(EvaluationResult evaluationResult) {
-        return getEvaluationDetails(evaluationResult, new HashMap<ResultType, Annotations>(), new ConfusionMatrix(),
-                null);
-    }
-
-    public static String getEvaluationDetails(EvaluationResult evaluationResult,
-            Map<ResultType, Annotations> annotationsErrors, ConfusionMatrix confusionMatrix, String targetPath) {
-
-        // write evaluation results to file
-        StringBuilder results = new StringBuilder();
-
-        results.append("Number of distinct tags:; ").append(evaluationResult.getAssignments().size()).append("\n");
-        results.append("Total annotations in test set:; ").append(evaluationResult.getGoldStandardAnnotations().size())
-                .append("\n");
-        results.append("Confusion Matrix:\n");
-
-        results.append("predicted\\real;");
-
-        // order of tag names for matrix
-        List<String> tagOrder = new ArrayList<String>();
-        for (String tagName : evaluationResult.getAssignments().keySet()) {
-            tagOrder.add(tagName);
-            results.append(tagName).append(";");
-        }
-        // add "OTHER" in case of ERROR1
-        tagOrder.add(EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
-        results.append(EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER).append(";");
-
-        results.append("#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
-
-        int totalTagAssignments = 0;
-        for (Entry<String, CountMap<ResultType>> tagEntry : evaluationResult.getAssignments().entrySet()) {
-
-            String predictedTageName = tagEntry.getKey();
-            int totalNumber = 0;
-
-            results.append(tagEntry.getKey()).append(";");
-
-            // write frequencies of confusion matrix
-            for (String tagName : tagOrder) {
-                int confusionCount = confusionMatrix.getConfusions(tagName, predictedTageName);
-                results.append(confusionCount).append(";");
-                totalNumber += confusionCount;
-            }
-
-            // total number of real tags in test set
-            results.append(totalNumber).append(";");
-            totalTagAssignments += totalNumber;
-
-            // precision, recall, and F1 for exact match
-            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
-            results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
-            results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
-
-            // precision, recall, and F1 for MUC score
-            results.append(evaluationResult.getPrecisionFor(tagEntry.getKey(), EvaluationMode.MUC)).append(";");
-            results.append(evaluationResult.getRecallFor(tagEntry.getKey(), EvaluationMode.MUC)).append(";");
-            results.append(evaluationResult.getF1For(tagEntry.getKey(), EvaluationMode.MUC)).append("\n");
-
-        }
-
-        // write last line with averages over all tags
-        results.append("ALL TAGS;");
-        for (String tagName : tagOrder) {
-            int totalAssignments = confusionMatrix.getRealDocuments(tagName);
-            results.append(totalAssignments).append(";");
-        }
-
-        // total assignments
-        results.append(totalTagAssignments).append(";");
-
-        // precision, recall, and F1 for exact match
-        results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4))
-                .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationMode.EXACT_MATCH), 4)).append(";");
-        results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4))
-                .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getRecall(EvaluationMode.EXACT_MATCH), 4)).append(";");
-        results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationMode.EXACT_MATCH), 4))
-                .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getF1(EvaluationMode.EXACT_MATCH), 4)).append(";");
-
-        // precision, recall, and F1 for MUC score
-        results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedPrecision(EvaluationMode.MUC), 4))
-                .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getPrecision(EvaluationMode.MUC), 4)).append(";");
-        results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedRecall(EvaluationMode.MUC), 4))
-                .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getRecall(EvaluationMode.MUC), 4)).append(";");
-        results.append("tag averaged:")
-                .append(MathHelper.round(evaluationResult.getTagAveragedF1(EvaluationMode.MUC), 4))
-                .append(", overall:");
-        results.append(MathHelper.round(evaluationResult.getF1(EvaluationMode.MUC), 4)).append("\n");
-
-        Map<ResultType, String> resultTypes = new TreeMap<ResultType, String>();
-        resultTypes.put(ResultType.ERROR1, "ERROR 1: Completely Incorrect Annotations");
-        resultTypes.put(ResultType.ERROR2, "ERROR 2: Missed Annotations");
-        resultTypes.put(ResultType.ERROR3, "ERROR 3: Correct Boundaries, Wrong Tag");
-        resultTypes.put(ResultType.ERROR4, "ERROR 4: Wrong Boundaries, Correct Tag");
-        resultTypes.put(ResultType.ERROR5, "ERROR 5: Wrong Boundaries, Wrong Tag");
-
-        results.append("\n\n");
-        results.append("CORRECT:");
-        results.append(" : ").append(annotationsErrors.get(ResultType.CORRECT).size()).append("\n");
-        for (Entry<ResultType, String> errorTypeEntry : resultTypes.entrySet()) {
-            results.append(errorTypeEntry.getValue());
-            results.append(" : ").append(annotationsErrors.get(errorTypeEntry.getKey()).size()).append("\n");
-        }
-
-        for (Entry<ResultType, String> errorTypeEntry : resultTypes.entrySet()) {
-            results.append("\n\n");
-            results.append(errorTypeEntry.getValue());
-            results.append(" (total: ").append(annotationsErrors.get(errorTypeEntry.getKey()).size()).append("):\n\n");
-
-            CountMap<String> cm = getAnnotationCountForTag(annotationsErrors.get(errorTypeEntry.getKey()));
-            for (String item : cm) {
-                results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
-            }
-            results.append("\n");
-            for (Annotation annotation : annotationsErrors.get(errorTypeEntry.getKey())) {
-                results.append("  ").append(annotation).append("\n");
-            }
-        }
-
-        if (targetPath != null) {
-            FileHelper.writeToFile(targetPath, results);
-        }
-
-        return results.toString();
-    }
-
-    private static CountMap<String> getAnnotationCountForTag(Annotations annotations) {
-        CountMap<String> cm = CountMap.create();
-        for (Annotation annotation : annotations) {
-            if (annotation instanceof EvaluationAnnotation) {
-                cm.add(annotation.getTargetClass());
-            } else {
-                cm.add(annotation.getMostLikelyTagName());
-            }
-        }
-        return cm;
     }
 
     /**
@@ -538,6 +387,10 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             Character alignedCharacter = alignedContent.charAt(alignIndex);
             Character nextAlignedCharacter = 0;
             if (i < correctContent.length() - 1) {
+                if (alignIndex + 1 >= alignedContent.length()) {
+                    LOGGER.warn("Length error when aligning; aligned content is shorter than expected.");
+                    break;
+                }
                 nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
             }
 
@@ -604,7 +457,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         + alignedContent.substring(alignIndex, alignedContent.length());
             }
 
-            FileHelper.writeToFile(alignFilePath, alignedContent);
+            // FileHelper.writeToFile(alignFilePath, alignedContent);
         }
 
         FileHelper.writeToFile(alignFilePath, alignedContent);

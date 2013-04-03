@@ -1,12 +1,15 @@
 package ws.palladian.extraction.entity.evaluation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -35,15 +38,16 @@ import ws.palladian.helper.math.MathHelper;
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class EvaluationResult {
 
     public EvaluationResult(Map<String, CountMap<ResultType>> assignments, Annotations goldStandardAnnotations,
-            Map<ResultType, Annotations> errorAnnotations) {
+            Map<ResultType, Annotations> errorAnnotations, ConfusionMatrix confusionMatrix) {
         this.assignments = assignments;
         this.goldStandardAnnotations = goldStandardAnnotations;
         this.errorAnnotations = errorAnnotations;
+        this.confusionMatrix = confusionMatrix;
     }
 
     /** The annotations from the gold standard. */
@@ -106,14 +110,16 @@ public class EvaluationResult {
      */
     private final Map<String, CountMap<ResultType>> assignments;
 
-    public enum EvaluationMode {
+    private final ConfusionMatrix confusionMatrix;
+
+    public  enum EvaluationMode {
         /** The exact match evaluation mode. */
         EXACT_MATCH,
         /** The MUC evaluation mode. */
         MUC
     }
 
-    public enum ResultType {
+    public  enum ResultType {
         /** Tagged something that should not have been tagged. */
         ERROR1("ERROR1: Tagged something that should not have been tagged, false positive - bad for precision"),
         /** Completely missed to tag an entity. */
@@ -390,28 +396,13 @@ public class EvaluationResult {
         return f1;
     }
 
-    public Map<String, CountMap<ResultType>> getAssignments() {
-        return assignments;
-    }
-
     @Override
     public String toString() {
-        // StringBuilder builder = new StringBuilder();
-        // builder.append("EvaluationResult [precision exact=");
-        // builder.append(getPrecision(EXACT_MATCH));
-        // builder.append(", precision MUC=");
-        // builder.append(getPrecision(MUC));
-        // builder.append(", recall exact=");
-        // builder.append(getRecall(EXACT_MATCH));
-        // builder.append(", recall MUC=");
-        // builder.append(getRecall(MUC));
-        // builder.append(", F1 exact=");
-        // builder.append(getF1(EXACT_MATCH));
-        // builder.append(", F1 MUC=");
-        // builder.append(getF1(MUC));
-        // builder.append("]");
-        // return builder.toString();
-        return NamedEntityRecognizer.getEvaluationDetails(this);
+        StringBuilder builder = new StringBuilder();
+        builder.append(getExactMatchResultsReadable());
+        builder.append(", ");
+        builder.append(getMUCResultsReadable());
+        return builder.toString();
     }
 
     public String getExactMatchResultsReadable() {
@@ -434,6 +425,137 @@ public class EvaluationResult {
         builder.append(", F1 MUC: ");
         builder.append(MathHelper.round(100 * getF1(EvaluationMode.MUC), 2)).append("%");
         return builder.toString();
+    }
+
+    public String getEvaluationDetails() {
+
+        // write evaluation results to file
+        StringBuilder results = new StringBuilder();
+
+        results.append("Number of distinct tags:; ").append(assignments.size()).append("\n");
+        results.append("Total annotations in test set:; ").append(getGoldStandardAnnotations().size()).append("\n");
+        results.append("Confusion Matrix:\n");
+
+        results.append("predicted\\real;");
+
+        // order of tag names for matrix
+        List<String> tagOrder = new ArrayList<String>();
+        for (String tagName : assignments.keySet()) {
+            tagOrder.add(tagName);
+            results.append(tagName).append(";");
+        }
+        // add "OTHER" in case of ERROR1
+        tagOrder.add(EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
+        results.append(EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER).append(";");
+
+        results.append("#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
+
+        int totalTagAssignments = 0;
+        for (Entry<String, CountMap<ResultType>> tagEntry : assignments.entrySet()) {
+
+            String predictedTageName = tagEntry.getKey();
+            int totalNumber = 0;
+
+            results.append(tagEntry.getKey()).append(";");
+
+            // write frequencies of confusion matrix
+            for (String tagName : tagOrder) {
+                int confusionCount = confusionMatrix.getConfusions(tagName, predictedTageName);
+                results.append(confusionCount).append(";");
+                totalNumber += confusionCount;
+            }
+
+            // total number of real tags in test set
+            results.append(totalNumber).append(";");
+            totalTagAssignments += totalNumber;
+
+            // precision, recall, and F1 for exact match
+            results.append(getPrecisionFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
+            results.append(getRecallFor(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
+            results.append(getF1For(tagEntry.getKey(), EvaluationMode.EXACT_MATCH)).append(";");
+
+            // precision, recall, and F1 for MUC score
+            results.append(getPrecisionFor(tagEntry.getKey(), EvaluationMode.MUC)).append(";");
+            results.append(getRecallFor(tagEntry.getKey(), EvaluationMode.MUC)).append(";");
+            results.append(getF1For(tagEntry.getKey(), EvaluationMode.MUC)).append("\n");
+
+        }
+
+        // write last line with averages over all tags
+        results.append("ALL TAGS;");
+        for (String tagName : tagOrder) {
+            int totalAssignments = confusionMatrix.getRealDocuments(tagName);
+            results.append(totalAssignments).append(";");
+        }
+
+        // total assignments
+        results.append(totalTagAssignments).append(";");
+
+        // precision, recall, and F1 for exact match
+        results.append("tag averaged:")
+                .append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4)).append(", overall:");
+        results.append(MathHelper.round(getPrecision(EvaluationMode.EXACT_MATCH), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getRecall(EvaluationMode.EXACT_MATCH), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.EXACT_MATCH), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getF1(EvaluationMode.EXACT_MATCH), 4)).append(";");
+
+        // precision, recall, and F1 for MUC score
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.MUC), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getPrecision(EvaluationMode.MUC), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.MUC), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getRecall(EvaluationMode.MUC), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.MUC), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getF1(EvaluationMode.MUC), 4)).append("\n");
+
+        Map<ResultType, String> resultTypes = new TreeMap<ResultType, String>();
+        resultTypes.put(ResultType.ERROR1, "ERROR 1: Completely Incorrect Annotations");
+        resultTypes.put(ResultType.ERROR2, "ERROR 2: Missed Annotations");
+        resultTypes.put(ResultType.ERROR3, "ERROR 3: Correct Boundaries, Wrong Tag");
+        resultTypes.put(ResultType.ERROR4, "ERROR 4: Wrong Boundaries, Correct Tag");
+        resultTypes.put(ResultType.ERROR5, "ERROR 5: Wrong Boundaries, Wrong Tag");
+
+        results.append("\n\n");
+        results.append("CORRECT:");
+        results.append(" : ").append(errorAnnotations.get(ResultType.CORRECT).size()).append("\n");
+        for (Entry<ResultType, String> errorTypeEntry : resultTypes.entrySet()) {
+            results.append(errorTypeEntry.getValue());
+            results.append(" : ").append(errorAnnotations.get(errorTypeEntry.getKey()).size()).append("\n");
+        }
+
+        for (Entry<ResultType, String> errorTypeEntry : resultTypes.entrySet()) {
+            results.append("\n\n");
+            results.append(errorTypeEntry.getValue());
+            results.append(" (total: ").append(errorAnnotations.get(errorTypeEntry.getKey()).size()).append("):\n\n");
+
+            CountMap<String> cm = getAnnotationCountForTag(errorAnnotations.get(errorTypeEntry.getKey()));
+            for (String item : cm) {
+                results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
+            }
+            results.append("\n");
+            for (Annotation annotation : errorAnnotations.get(errorTypeEntry.getKey())) {
+                results.append("  ").append(annotation).append("\n");
+            }
+        }
+
+        return results.toString();
+    }
+
+    private static CountMap<String> getAnnotationCountForTag(Annotations annotations) {
+        CountMap<String> cm = CountMap.create();
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof EvaluationAnnotation) {
+                cm.add(annotation.getTargetClass());
+            } else {
+                cm.add(annotation.getMostLikelyTagName());
+            }
+        }
+        return cm;
     }
 
     public Annotations getGoldStandardAnnotations() {
