@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
-import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -162,7 +162,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // get the correct annotations from the testing file
         Annotations goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
-        goldStandard.transformToEvaluationAnnotations();
         goldStandard.sort();
         goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 
@@ -214,6 +213,8 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             ignoreAnnotationSet.add(annotation.getEntity().hashCode());
         }
 
+        Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
+
         // check each NER annotation against the gold standard and add it to the assignment map depending on its error
         // type, we allow only one overlap for each gold standard annotation => real(<Person>Homer J. Simpson</Person>),
         // tagged(<Person>Homer</Person> J. <Person>Simpson</Person>) => tagged(<Person>Homer</Person> J. Simpson)
@@ -245,12 +246,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 // }
 
                 String realClass = goldStandardAnnotation.getTargetClass();
-                EvaluationAnnotation evaluationAnnotation = (EvaluationAnnotation)goldStandardAnnotation;
 
                 if (nerAnnotation.matches(goldStandardAnnotation)) {
 
                     // exact match
-                    if (nerAnnotation.sameTag(evaluationAnnotation)) {
+                    if (nerAnnotation.sameTag(goldStandardAnnotation)) {
 
                         // correct tag (no error)
                         assignments.get(assignedClass).add(ResultType.CORRECT);
@@ -259,7 +259,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         // in confusion matrix real = tagged
                         confusionMatrix.add(realClass, assignedClass);
 
-                        evaluationAnnotation.setTagged(true);
+                        taggedAnnotations.add(goldStandardAnnotation);
 
                         break;
 
@@ -272,7 +272,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         // in confusion matrix real != tagged
                         confusionMatrix.add(realClass, assignedClass);
 
-                        evaluationAnnotation.setTagged(true);
+                        taggedAnnotations.add(goldStandardAnnotation);
 
                         break;
 
@@ -281,7 +281,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 } else if (nerAnnotation.overlaps(goldStandardAnnotation)) {
 
                     // overlaps
-                    if (nerAnnotation.sameTag(evaluationAnnotation)) {
+                    if (nerAnnotation.sameTag(goldStandardAnnotation)) {
 
                         // correct tag (error4)
                         assignments.get(assignedClass).add(ResultType.ERROR4);
@@ -290,7 +290,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         // in confusion matrix real = tagged
                         confusionMatrix.add(realClass, assignedClass);
 
-                        evaluationAnnotation.setTagged(true);
+                        taggedAnnotations.add(goldStandardAnnotation);
 
                         // break;
 
@@ -303,7 +303,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         // in confusion matrix real != tagged
                         confusionMatrix.add(realClass, assignedClass);
 
-                        evaluationAnnotation.setTagged(true);
+                        taggedAnnotations.add(goldStandardAnnotation);
 
                         // break;
 
@@ -346,7 +346,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // check which gold standard annotations have not been found by the NER (error2)
         for (Annotation goldStandardAnnotation : goldStandard) {
-            if (!((EvaluationAnnotation)goldStandardAnnotation).isTagged()) {
+            if (!taggedAnnotations.contains(goldStandardAnnotation)) {
                 assignments.get(goldStandardAnnotation.getTargetClass()).add(ResultType.ERROR2);
                 annotationsErrors.get(ResultType.ERROR2).add(goldStandardAnnotation);
             }
@@ -479,10 +479,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         }
     }
-
-    // public void setName(String name) {
-    // this.name = name;
-    // }
 
     public abstract String getName();
 
