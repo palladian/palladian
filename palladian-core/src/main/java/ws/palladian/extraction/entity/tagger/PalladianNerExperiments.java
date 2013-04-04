@@ -22,10 +22,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 
 public class PalladianNerExperiments {
 
-    // FIXME remove hard coded api keys
-    public static final String WX_API_KEY = "ubve84tz3498zncq84z59238bzv5389";
-    public static final String GEONAMES_USERNAME = "qqilihq";
-
     public void trainTest() {
         PalladianNer tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
 

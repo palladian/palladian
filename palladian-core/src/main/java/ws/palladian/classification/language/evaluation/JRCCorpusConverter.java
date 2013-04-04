@@ -173,23 +173,15 @@ public class JRCCorpusConverter {
      * @param instancesPerClass The number of instances per class.
      * @throws IOException
      */
-    public void createIndexExcerpt(String indexFilePath, int instancesPerClass) throws IOException {
+    public void createIndexExcerpt(String indexFilePath, final int instancesPerClass) throws IOException {
 
-        StopWatch sw = new StopWatch();
+        StopWatch stopWatch = new StopWatch();
 
-        FileWriter indexFile = new FileWriter(FileHelper.appendToFileName(indexFilePath, "_ipc" + instancesPerClass));
+        String indexFileName = FileHelper.appendToFileName(indexFilePath, "_ipc" + instancesPerClass);
+        final FileWriter indexFile = new FileWriter(indexFileName);
+        final CountMap<String> countMap = CountMap.create();
 
-        final Object[] obj = new Object[3];
-        obj[0] = indexFile;
-
-        // number of instances for each class
-        obj[1] = CountMap.<String>create();
-
-        obj[2] = instancesPerClass;
-
-        LineAction la = new LineAction(obj) {
-
-            @SuppressWarnings("unchecked")
+        LineAction la = new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split(" ");
@@ -197,17 +189,17 @@ public class JRCCorpusConverter {
                     return;
                 }
 
-                if (((CountMap<String>) obj[1]).getCount(parts[1]) >= (Integer) obj[2]) {
+                if (countMap.getCount(parts[1]) >= instancesPerClass) {
                     return;
                 }
 
                 try {
-                    ((FileWriter) obj[0]).write(line + "\n");
+                    indexFile.write(line + "\n");
                 } catch (IOException e) {
                     LOGGER.error(e.getMessage());
                 }
 
-                ((CountMap<String>) obj[1]).add(parts[1]);
+                countMap.add(parts[1]);
             }
 
         };
@@ -216,7 +208,7 @@ public class JRCCorpusConverter {
 
         indexFile.close();
 
-        LOGGER.info("index excerpt file created in " + sw.getElapsedTimeString());
+        LOGGER.info("index excerpt file created in " + stopWatch.getElapsedTimeString());
 
     }
 

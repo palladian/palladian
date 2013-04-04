@@ -127,10 +127,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
      * @return The evaluation results.
      */
     public EvaluationResult evaluate(Dataset dataset) {
-        return evaluate(dataset, "");
-    }
-
-    public EvaluationResult evaluate(Dataset dataset, String configModelFilePath) {
 
         String tempFilePath = "data/temp/nerConcatenatedEvaluation.xml";
 
@@ -146,19 +142,14 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath() + parts[0]));
         }
 
-        return evaluate(tempFilePath, configModelFilePath, TaggingFormat.XML);
-    }
-
-    public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format) {
-        return evaluate(testingFilePath, configModelFilePath, format, new Annotations());
+        return evaluate(tempFilePath, TaggingFormat.XML);
     }
 
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format) {
-        return evaluate(testingFilePath, "", format, new Annotations());
+        return evaluate(testingFilePath, format, new Annotations());
     }
 
-    public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format,
-            Annotations ignoreAnnotations) {
+    public EvaluationResult evaluate(String testingFilePath, TaggingFormat format, Annotations ignoreAnnotations) {
 
         // get the correct annotations from the testing file
         Annotations goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
@@ -167,9 +158,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // get the annotations of the NER
         Annotations nerAnnotations = null;
-        if (configModelFilePath.length() > 0 && this instanceof TrainableNamedEntityRecognizer) {
-            ((TrainableNamedEntityRecognizer)this).loadModel(configModelFilePath);
-        }
         nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
 
         nerAnnotations.removeNestedAnnotations();
@@ -361,106 +349,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         FileHelper.writeToFile(evaluationFile, evaluationDetails);
         return evaluationResult;
-    }
-
-    /**
-     * The output of the named entity recognition is not well formatted and we need to align it with the input data.
-     * 
-     * @param file The file where the prediction output is written in BIO format. This file will be overwritten.
-     */
-    protected void alignContent(File alignFile, String correctContent) {
-        alignContent(alignFile.getPath(), correctContent);
-    }
-
-    protected void alignContent(String alignFilePath, String correctContent) {
-        // transform to XML
-        FileFormatParser.columnToXml(alignFilePath, alignFilePath, "\t");
-
-        String alignedContent = FileHelper.readFileToString(alignFilePath);
-
-        // compare contents, ignore tags and align content with inputText (correctContent)
-        // the index for the aligned context is different because of the tags
-        int alignIndex = 0;
-        boolean jumpOne = false;
-        for (int i = 0; i < correctContent.length(); i++, alignIndex++) {
-            Character correctCharacter = correctContent.charAt(i);
-            Character alignedCharacter = alignedContent.charAt(alignIndex);
-            Character nextAlignedCharacter = 0;
-            if (i < correctContent.length() - 1) {
-                if (alignIndex + 1 >= alignedContent.length()) {
-                    LOGGER.warn("Length error when aligning; aligned content is shorter than expected.");
-                    break;
-                }
-                nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
-            }
-
-            // if same, continue
-            if (correctCharacter.equals(alignedCharacter)) {
-                continue;
-            }
-
-            // don't distinguish between " and '
-            if ((correctCharacter.charValue() == 34 || correctCharacter.charValue() == 39)
-                    && (alignedCharacter.charValue() == 34 || alignedCharacter.charValue() == 39)) {
-                continue;
-            }
-
-            // characters are different
-
-            // if tag "<" skip it
-            if (alignedCharacter.charValue() == 60
-                    && (!Character.isWhitespace(correctCharacter) || nextAlignedCharacter.charValue() == 47 || jumpOne)) {
-                do {
-                    alignIndex++;
-                    alignedCharacter = alignedContent.charAt(alignIndex);
-                } while (alignedCharacter.charValue() != 62);
-
-                if (jumpOne) {
-                    alignIndex++;
-                    jumpOne = false;
-                }
-                alignedCharacter = alignedContent.charAt(++alignIndex);
-
-                if (alignedCharacter.charValue() == 60) {
-                    do {
-                        alignIndex++;
-                        alignedCharacter = alignedContent.charAt(alignIndex);
-                    } while (alignedCharacter.charValue() != 62);
-                    alignedCharacter = alignedContent.charAt(++alignIndex);
-                }
-
-                nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
-
-                // check again if the characters are the same
-                if (correctCharacter.equals(alignedCharacter)) {
-                    continue;
-                }
-            }
-
-            if (correctCharacter.charValue() == 10) {
-                alignedContent = alignedContent.substring(0, alignIndex) + "\n"
-                        + alignedContent.substring(alignIndex, alignedContent.length());
-                // alignIndex--;
-            } else if (Character.isWhitespace(alignedCharacter)) {
-
-                alignedContent = alignedContent.substring(0, alignIndex)
-                        + alignedContent.substring(alignIndex + 1, alignedContent.length());
-                if (nextAlignedCharacter.charValue() == 60) {
-                    alignIndex--;
-                    jumpOne = true;
-                } else {
-                    jumpOne = false;
-                }
-
-            } else {
-                alignedContent = alignedContent.substring(0, alignIndex) + " "
-                        + alignedContent.substring(alignIndex, alignedContent.length());
-            }
-
-            // FileHelper.writeToFile(alignFilePath, alignedContent);
-        }
-
-        FileHelper.writeToFile(alignFilePath, alignedContent);
     }
 
     @Override

@@ -3,27 +3,6 @@ package ws.palladian.helper.io;
 public abstract class LineAction {
 
     protected boolean looping = true;
-    public final Object[] arguments;
-
-    /**
-     * <p>
-     * Create a new {@link LineAction}.
-     * </p>
-     */
-    public LineAction() {
-        arguments = null;
-    };
-
-    /**
-     * <p>
-     * Create a new {@link LineAction} and pass parameters to be used inside the loop.
-     * </p>
-     * 
-     * @param parameters
-     */
-    public LineAction(Object[] parameters) {
-        arguments = parameters;
-    };
 
     /**
      * <p>
