@@ -343,11 +343,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard, annotationsErrors,
                 confusionMatrix);
 
-        String evaluationDetails = evaluationResult.getEvaluationDetails();
-        String evaluationFile = FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() + "_results_"
-                + inputFile + "_" + getName().replace(" ", "") + ".csv";
+        // String evaluationDetails = evaluationResult.getEvaluationDetails();
+        // String evaluationFile = FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() +
+        // "_results_"
+        // + inputFile + "_" + getName().replace(" ", "") + ".csv";
 
-        FileHelper.writeToFile(evaluationFile, evaluationDetails);
+        // FileHelper.writeToFile(evaluationFile, evaluationDetails);
         return evaluationResult;
     }
 

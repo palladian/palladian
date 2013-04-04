@@ -54,9 +54,9 @@ public class LocationExtractionEvaluator {
             ProgressHelper.printProgress(i, files.length, 1);
 
             File file = files[i];
-            String path = "data/temp/" + file.getName();
-            File file1 = new File(path);
-            FileHelper.writeToFile(path, FileHelper.readFileToString(file).replace(" role=\"main\"", ""));
+            // String path = "data/temp/" + file.getName();
+            File file1 = new File(FileHelper.getTempDir(), file.getName());
+            FileHelper.writeToFile(file1.getPath(), FileHelper.readFileToString(file).replace(" role=\"main\"", ""));
             EvaluationResult result = extractor.evaluate(file1.getAbsolutePath(), TaggingFormat.XML);
 
             // write major error log
