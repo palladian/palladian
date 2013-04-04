@@ -101,7 +101,7 @@ public class Evaluator {
 
                 // train the tagger using seed annotations only
                 String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + mode + "."
-                + tagger.getModelFileEndingIfNotSetAutomatically();
+                        + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
 
                 // evaluate over complete test set (k=0) and on unseen entities only (k=1)
@@ -109,12 +109,13 @@ public class Evaluator {
 
                     // load the trained model
                     tagger = new PalladianNer(mode);
-                    EvaluationResult er = null;
+                    tagger.loadModel(modelPath);
+                    EvaluationResult er;
 
                     if (k == 0) {
-                        er = tagger.evaluate(testFilePath, modelPath, TaggingFormat.COLUMN);
+                        er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
                     } else {
-                        er = tagger.evaluate(testFilePath, modelPath, TaggingFormat.COLUMN, annotations);
+                        er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, annotations);
                     }
 
                     // write the result line
@@ -199,20 +200,19 @@ public class Evaluator {
             Annotations annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
-            + tagger.getModelFileEndingIfNotSetAutomatically();
+                    + tagger.getModelFileEndingIfNotSetAutomatically();
             tagger.train(filePath, modelFilePath);
 
             // evaluate over complete test set (k=0) and on unseen entities only (k=1)
-            EvaluationResult er = null;
 
             for (int k = 0; k < 2; k++) {
 
-                er = null;
+                EvaluationResult er;
 
                 if (k == 0) {
-                    er = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
+                    er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
                 } else {
-                    er = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
+                    er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, annotations);
                 }
 
                 // write the result line
@@ -294,11 +294,12 @@ public class Evaluator {
 
         // evaluate once with complete test set and once only over unseen entities
         stopWatch.start();
-        EvaluationResult er1 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
+        tagger.loadModel(modelFilePath);
+        EvaluationResult er1 = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
         LOGGER.info("evaluating " + tagger.getName() + " on the complete data took " + stopWatch.getElapsedTimeString());
 
         stopWatch.start();
-        EvaluationResult er2 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
+        EvaluationResult er2 = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, annotations);
         LOGGER.info("evaluating " + tagger.getName() + " on the unseen data took " + stopWatch.getElapsedTimeString());
 
         Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");

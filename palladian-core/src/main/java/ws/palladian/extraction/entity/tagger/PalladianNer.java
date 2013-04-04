@@ -606,7 +606,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             saveModel(modelFilePath);
 
             removeAnnotations.clear();
-            EvaluationResult evaluationResult = evaluate(trainingFilePath, modelFilePath, TaggingFormat.COLUMN);
+            EvaluationResult evaluationResult = evaluate(trainingFilePath, TaggingFormat.COLUMN);
 
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
@@ -1671,8 +1671,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
-                            TaggingFormat.XML);
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
 
                 }
 
@@ -1863,7 +1863,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             // tagger.train(annotations, "data/temp/tudner2.model");
             tagger.loadModel("data/temp/tudner");
 
-            EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN, ignoreAnnotations);
+            EvaluationResult er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, ignoreAnnotations);
 
             evaluationResults.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
             evaluationResults.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
@@ -1907,7 +1907,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         // "data/temp/tudner.model",
         // TaggingFormat.COLUMN);
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "", TaggingFormat.COLUMN);
-        EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

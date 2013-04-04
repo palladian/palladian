@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,10 +25,14 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  * 
  */
-public class FileFormatParser {
+public final class FileFormatParser {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
+
+    private FileFormatParser() {
+        // no instances.
+    }
 
     /**
      * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the ConLL 2003 file.
@@ -90,24 +95,22 @@ public class FileFormatParser {
      * @param outputFilePath The location where the transformed file should be written to.
      * @param columnSeparator The separator for the columns.
      */
-    public static void columnToXml(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnToXml(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[4];
         final StringBuilder xml = new StringBuilder();
 
         // the currently open tag
-        obj[1] = "o";
-        obj[2] = columnSeparator;
+        final String[] currentTag = {"o"};
 
         // whether the last line was a break
-        obj[3] = true;
+        final boolean[] previousLineBreak = new boolean[] {true};
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[2]);
+                String[] parts = line.split(columnSeparator);
 
                 // skip empty lines at the beginning of the file
                 if (parts.length < 2 && xml.length() == 0) {
@@ -118,13 +121,12 @@ public class FileFormatParser {
 
                     // add breaks for empty lines
                     if (line.length() == 0) {
-                        // ((StringBuilder) obj[0]).deleteCharAt(((StringBuilder) obj[0]).length() - 1);
-                        if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                            xml.append("</").append((String) obj[1]).append(">");
-                            obj[1] = "o";
+                        if (!currentTag[0].equalsIgnoreCase("o") && lineNumber > 1) {
+                            xml.append("</").append(currentTag[0]).append(">");
+                            currentTag[0] = "o";
                         }
                         xml.append("\n");
-                        obj[3] = true;
+                        previousLineBreak[0] = true;
                     }
 
                     return;
@@ -132,32 +134,34 @@ public class FileFormatParser {
 
                 boolean openTag = false;
 
-                if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+                String tag = parts[1];
+                String value = parts[0];
 
-                    if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                        xml.append("</").append((String) obj[1]).append(">");
+                if (!currentTag[0].equalsIgnoreCase(tag)) {
+
+                    if (!currentTag[0].equalsIgnoreCase("o") && lineNumber > 1) {
+                        xml.append("</").append(currentTag[0]).append(">");
                     }
 
-                    if (!parts[1].equalsIgnoreCase("o")) {
-                        if (lineNumber > 1 && (Boolean) obj[3] == false) {
+                    if (!tag.equalsIgnoreCase("o")) {
+                        if (lineNumber > 1 && !previousLineBreak[0]) {
                             xml.append(" ");
                         }
-                        xml.append("<").append(parts[1]).append(">");
+                        xml.append("<").append(tag).append(">");
                         openTag = true;
                     }
 
                 }
 
-                obj[1] = parts[1];
+                currentTag[0] = tag;
 
-                if (parts.length > 0
-                        && parts[0].length() > 0
-                        && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
-                        && !openTag && lineNumber > 1 && (Boolean) obj[3] == false) {
+                if (parts.length > 0 && value.length() > 0
+                        && (Character.isLetterOrDigit(value.charAt(0)) || StringHelper.isBracket(value.charAt(0)))
+                        && !openTag && lineNumber > 1 && !previousLineBreak[0]) {
                     xml.append(" ");
                 }
-                xml.append(parts[0]);
-                obj[3] = false;
+                xml.append(value);
+                previousLineBreak[0] = false;
 
             }
         };
@@ -185,10 +189,9 @@ public class FileFormatParser {
         final StringBuilder transformedText = new StringBuilder();
 
         // whether the last line was a break
-        final Object[] obj = new Object[1];
-        obj[0] = true;
+        final boolean[] previousLineBreak = new boolean[] {true};
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -200,7 +203,7 @@ public class FileFormatParser {
                     // add breaks for empty lines
                     if (line.length() == 0) {
                         transformedText.append("\n");
-                        obj[0] = true;
+                        previousLineBreak[0] = true;
                     }
 
                     return;
@@ -209,7 +212,7 @@ public class FileFormatParser {
                 if (parts.length > 0
                         && parts[0].length() > 0
                         && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
-                        && lineNumber > 1 && (Boolean) obj[0] == false) {
+                        && lineNumber > 1 && !previousLineBreak[0]) {
                     transformedText.append(" ");
                 }
 
@@ -217,7 +220,7 @@ public class FileFormatParser {
                 transformedText.append(parts[0]);
                 transformedText.append("</").append(parts[1]).append(">");
 
-                obj[0] = false;
+                previousLineBreak[0] = false;
             }
         };
 
@@ -226,19 +229,19 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, transformedText);
     }
 
-    public static void columnToBracket(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnToBracket(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[3];
-        obj[0] = new StringBuilder();
-        obj[1] = "";
-        obj[2] = columnSeparator;
+        final StringBuilder transformedText = new StringBuilder();
 
-        LineAction la = new LineAction(obj) {
+        // the currently open tag
+        final String[] currentTag = {""};
+
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[2]);
+                String[] parts = line.split(columnSeparator);
 
                 if (parts.length < 2) {
                     return;
@@ -246,47 +249,46 @@ public class FileFormatParser {
 
                 boolean openTag = false;
 
-                if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+                if (!currentTag[0].equalsIgnoreCase(parts[1])) {
 
-                    if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                        ((StringBuilder) obj[0]).append(" ]");
+                    if (!currentTag[0].equalsIgnoreCase("o") && lineNumber > 1) {
+                        transformedText.append(" ]");
                     }
 
                     if (!parts[1].equalsIgnoreCase("o")) {
                         if (lineNumber > 1) {
-                            ((StringBuilder) obj[0]).append(" ");
+                            transformedText.append(" ");
                         }
-                        ((StringBuilder) obj[0]).append("[").append(parts[1]).append(" ");
+                        transformedText.append("[").append(parts[1]).append(" ");
                         openTag = true;
                     }
 
                 }
 
-                obj[1] = parts[1];
+                currentTag[0] = parts[1];
 
                 if (Character.isLetterOrDigit(parts[0].charAt(0)) && !openTag) {
-                    ((StringBuilder) obj[0]).append(" ");
+                    transformedText.append(" ");
                 }
-                ((StringBuilder) obj[0]).append(parts[0]);
+                transformedText.append(parts[0]);
 
             }
         };
 
         FileHelper.performActionOnEveryLine(inputFilePath, la);
 
-        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+        FileHelper.writeToFile(outputFilePath, transformedText.toString());
     }
 
     public static void columnToColumnBio(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[1];
         // the bio format string
         final StringBuilder sb = new StringBuilder();
 
         // the last tag
-        obj[0] = "";
+        final String[] lastTag = {""};
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -314,11 +316,11 @@ public class FileFormatParser {
 
                 if (!parts[lastIndex].equalsIgnoreCase("o")) {
 
-                    if (!((String) obj[0]).equalsIgnoreCase(parts[lastIndex])) {
+                    if (!lastTag[0].equalsIgnoreCase(parts[lastIndex])) {
 
                         bioTag = "B-" + parts[lastIndex];
 
-                    } else if (((String) obj[0]).equalsIgnoreCase(parts[lastIndex])) {
+                    } else if (lastTag[0].equalsIgnoreCase(parts[lastIndex])) {
 
                         bioTag = "I-" + parts[lastIndex];
 
@@ -327,7 +329,7 @@ public class FileFormatParser {
                 }
 
                 // assign last tag
-                obj[0] = parts[lastIndex];
+                lastTag[0] = parts[lastIndex];
 
                 // create transformed line
                 sb.append(tokenContent).append(columnSeparator).append(bioTag).append("\n");
@@ -340,18 +342,16 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, sb);
     }
 
-    public static void columnBioToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnBioToColumn(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[2];
-        obj[0] = new StringBuilder();
-        obj[1] = columnSeparator;
+        final StringBuilder sb = new StringBuilder();
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[1]);
+                String[] parts = line.split(columnSeparator);
 
                 if (parts.length < 2) {
                     return;
@@ -362,14 +362,14 @@ public class FileFormatParser {
                 // remove BIO tag parts (B- or I-)
                 tag = tag.replaceFirst("B-", "").replaceFirst("I-", "");
 
-                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[1]).append(tag).append("\n");
+                sb.append(parts[0]).append(columnSeparator).append(tag).append("\n");
 
             }
         };
 
         FileHelper.performActionOnEveryLine(inputFilePath, la);
 
-        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+        FileHelper.writeToFile(outputFilePath, sb.toString());
     }
 
     public static void xmlToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
@@ -452,28 +452,23 @@ public class FileFormatParser {
         columnToSlash(columnFilePath, slashFilePath, columnSeparator, "|");
     }
 
-    public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator,
-            String slashSign) {
-        StringBuilder slashFile = new StringBuilder();
+    public static void columnToSlash(String columnFilePath, String slashFilePath, final String columnSeparator,
+            final String slashSign) {
+        final StringBuilder slashFile = new StringBuilder();
 
-        final Object[] obj = new Object[3];
-        obj[0] = slashFile;
-        obj[1] = columnSeparator;
-        obj[2] = slashSign;
-
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[1]);
+                String[] parts = line.split(columnSeparator);
 
                 if (parts.length < 2) {
                     return;
                 }
 
                 String tag = parts[1];
-                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[2]).append(tag).append(" ");
+                slashFile.append(parts[0]).append(slashSign).append(tag).append(" ");
             }
         };
 
@@ -483,8 +478,13 @@ public class FileFormatParser {
     }
 
     public static void bracketToXml(String inputFilePath, String outputFilePath) {
-
         String inputText = FileHelper.readFileToString(inputFilePath);
+        String outputText = bracketToXmlText(inputText);
+        FileHelper.writeToFile(outputFilePath, outputText);
+    }
+
+    public static String bracketToXmlText(String inputText) {
+
         String outputText = inputText;
 
         Pattern pattern = Pattern.compile("\\[(\\w+)\\s(.+?)(\\s(.+?))*?\\s{1,2}\\]", Pattern.DOTALL
@@ -499,7 +499,8 @@ public class FileFormatParser {
             outputText = outputText.replace(matcher.group(0), xmlTag);
         }
 
-        FileHelper.writeToFile(outputFilePath, outputText);
+        return outputText;
+
     }
 
     public static void bracketToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
@@ -631,7 +632,7 @@ public class FileFormatParser {
             Annotation annotation = new Annotation(offset, entityName, conceptName, annotations);
             annotation.setLeftContext(leftContext.trim());
             annotation.setRightContext(rightContext.trim());
-            //            annotation.createFeatures();
+            // annotation.createFeatures();
             annotations.add(annotation);
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
@@ -689,6 +690,114 @@ public class FileFormatParser {
         }
 
         return annotations;
+    }
+
+    /**
+     * The output of the named entity recognition is not well formatted and we need to align it with the input data.
+     * 
+     * @param file The file where the prediction output is written in BIO format. This file will be overwritten.
+     */
+    public static void alignContent(File alignFile, String correctContent) {
+        // transform to XML
+        String alignFilePath = alignFile.getPath();
+        FileFormatParser.columnToXml(alignFilePath, alignFilePath, "\t");
+        String alignedContent = FileHelper.readFileToString(alignFilePath);
+
+        alignContentText(alignedContent, correctContent);
+        FileHelper.writeToFile(alignFilePath, alignedContent);
+    }
+
+    /**
+     * 
+     * @param inputContent
+     * @param correctContent
+     * @return
+     */
+    public static String alignContentText(String inputContent, String correctContent) {
+
+        String alignedContent = inputContent;
+
+        // compare contents, ignore tags and align content with inputText (correctContent)
+        // the index for the aligned context is different because of the tags
+        int alignIndex = 0;
+        boolean jumpOne = false;
+        for (int i = 0; i < correctContent.length(); i++, alignIndex++) {
+            Character correctCharacter = correctContent.charAt(i);
+            Character alignedCharacter = alignedContent.charAt(alignIndex);
+            Character nextAlignedCharacter = 0;
+            if (i < correctContent.length() - 1) {
+                if (alignIndex + 1 >= alignedContent.length()) {
+                    LOGGER.warn("Length error when aligning; aligned content is shorter than expected.");
+                    break;
+                }
+                nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
+            }
+
+            // if same, continue
+            if (correctCharacter.equals(alignedCharacter)) {
+                continue;
+            }
+
+            // don't distinguish between " and '
+            if ((correctCharacter.charValue() == 34 || correctCharacter.charValue() == 39)
+                    && (alignedCharacter.charValue() == 34 || alignedCharacter.charValue() == 39)) {
+                continue;
+            }
+
+            // characters are different
+
+            // if tag "<" skip it
+            if (alignedCharacter.charValue() == 60
+                    && (!Character.isWhitespace(correctCharacter) || nextAlignedCharacter.charValue() == 47 || jumpOne)) {
+                do {
+                    alignIndex++;
+                    alignedCharacter = alignedContent.charAt(alignIndex);
+                } while (alignedCharacter.charValue() != 62);
+
+                if (jumpOne) {
+                    alignIndex++;
+                    jumpOne = false;
+                }
+                alignedCharacter = alignedContent.charAt(++alignIndex);
+
+                if (alignedCharacter.charValue() == 60) {
+                    do {
+                        alignIndex++;
+                        alignedCharacter = alignedContent.charAt(alignIndex);
+                    } while (alignedCharacter.charValue() != 62);
+                    alignedCharacter = alignedContent.charAt(++alignIndex);
+                }
+
+                nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
+
+                // check again if the characters are the same
+                if (correctCharacter.equals(alignedCharacter)) {
+                    continue;
+                }
+            }
+
+            if (correctCharacter.charValue() == 10) {
+                alignedContent = alignedContent.substring(0, alignIndex) + "\n"
+                        + alignedContent.substring(alignIndex, alignedContent.length());
+                // alignIndex--;
+            } else if (Character.isWhitespace(alignedCharacter)) {
+
+                alignedContent = alignedContent.substring(0, alignIndex)
+                        + alignedContent.substring(alignIndex + 1, alignedContent.length());
+                if (nextAlignedCharacter.charValue() == 60) {
+                    alignIndex--;
+                    jumpOne = true;
+                } else {
+                    jumpOne = false;
+                }
+
+            } else {
+                alignedContent = alignedContent.substring(0, alignIndex) + " "
+                        + alignedContent.substring(alignIndex, alignedContent.length());
+            }
+        }
+
+        return alignedContent;
     }
 
     /**
