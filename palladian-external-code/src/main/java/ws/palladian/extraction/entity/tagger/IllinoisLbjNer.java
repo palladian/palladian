@@ -221,7 +221,7 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
         }
 
         String xmlOutput = FileFormatParser.bracketToXmlText(bracketOutput);
-        String xmlOutputAligned = FileFormatParser.alignContentText(xmlOutput, inputText);
+        String xmlOutputAligned = NerHelper.alignContentText(xmlOutput, inputText);
         Annotations annotations = FileFormatParser.getAnnotationsFromXmlText(xmlOutputAligned);
 
         annotations.instanceCategoryToClassified();

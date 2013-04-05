@@ -232,11 +232,11 @@ public class NerTest {
 
     @Test
     public void testOpenNlpNer() {
-        String openNlpModelFile = new File(FileHelper.getTempDir(), "openNLP.bin").getPath();
+        String openNlpModelFile = new File(FileHelper.getTempDir(), "openNLP.model").getPath();
         OpenNlpNer tagger = new OpenNlpNer();
 
         tagger.train(trainingFile, openNlpModelFile);
-        tagger.loadModel(FileHelper.getTempDir().getPath());
+        tagger.loadModel(openNlpModelFile);
 
         // precision MUC: 60.72%, recall MUC: 54.67%, F1 MUC: 57.54%
         // precision exact: 52.15%, recall exact: 46.96%, F1 exact: 49.42%
