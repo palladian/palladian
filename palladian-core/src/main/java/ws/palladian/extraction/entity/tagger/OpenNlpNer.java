@@ -181,10 +181,15 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
 
         StopWatch stopWatch = new StopWatch();
 
+        File modelDirectory = new File(configModelFilePath);
+        if (!modelDirectory.isDirectory()) {
+            throw new IllegalArgumentException("Model file path must be an existing directory.");
+        }
+
         // get all models in the given folder that have the schema of "openNLP_" + conceptName + ".bin"
-        File[] modelFiles = FileHelper.getFiles(FileHelper.getFilePath(configModelFilePath), "openNLP_");
+        File[] modelFiles = FileHelper.getFiles(modelDirectory.getPath(), "openNLP_");
         if (modelFiles.length == 0) {
-            throw new IllegalStateException("No model files found at path " + configModelFilePath);
+            throw new IllegalArgumentException("No model files found at path " + modelDirectory.getPath());
         }
 
         this.finders = new NameFinderME[modelFiles.length];
@@ -240,8 +245,6 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
 
         FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
 
-        // CollectionHelper.print(annotations);
-
         return annotations;
     }
 
@@ -274,12 +277,22 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
+        // Open NLP creates several model files for each trained tag, so for the supplied model file path, a directory
+        // will be created, which contains all those files.
+        File modelDirectory = new File(modelFilePath);
+        if (modelDirectory.isFile()) {
+            throw new IllegalArgumentException("File " + modelFilePath + " already exists.");
+        }
+        modelDirectory.mkdirs();
+
         // open nlp needs xml format
-        FileFormatParser.columnToXml(trainingFilePath, "data/temp/openNLPNERTraining.xml", "\t");
+        File tempDir = FileHelper.getTempDir();
+        String tempTrainingFile = new File(tempDir, "openNLPNERTraining.xml").getPath();
+        String tempTrainingFile2 = new File(tempDir, "openNLPNERTraining2.xml").getPath();
+        FileFormatParser.columnToXml(trainingFilePath, tempTrainingFile, "\t");
 
         // let us get all tags that are used
-        String[] tags = getUsedTags("data/temp/openNLPNERTraining.xml");
-        NameFinderME[] finders = new NameFinderME[tags.length];
+        String[] tags = getUsedTags(tempTrainingFile);
         LOGGER.info("Found {} tags in the training file, computing the models now", tags.length);
 
         // create one model for each used tag, that is delete all the other tags from the file and learn
@@ -288,8 +301,6 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
             String tag = tags[i].toUpperCase();
             LOGGER.info("Start learning for tag {}", tag);
 
-            modelFilePath = FileHelper.getFilePath(modelFilePath) + "openNLP_" + tag + ".bin";
-
             // XXX this is for the TUD dataset, for some reason opennlp does not find some concepts when they're only in
             // few places, so we delete all lines with no tags for the concepts with few mentions
             if (!isConllEvaluation()/*
@@ -297,7 +308,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
                                      * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
                                      */) {
 
-                List<String> array = FileHelper.readFileToArray("data/temp/openNLPNERTraining.xml");
+                List<String> array = FileHelper.readFileToArray(tempTrainingFile);
 
                 StringBuilder sb = new StringBuilder();
                 for (String string : array) {
@@ -306,12 +317,12 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
                     }
                 }
 
-                FileHelper.writeToFile("data/temp/openNLPNERTraining2.xml", sb);
+                FileHelper.writeToFile(tempTrainingFile2, sb);
             } else {
-                FileHelper.copyFile("data/temp/openNLPNERTraining.xml", "data/temp/openNLPNERTraining2.xml");
+                FileHelper.copyFile(tempTrainingFile, tempTrainingFile2);
             }
 
-            String content = FileHelper.readFileToString("data/temp/openNLPNERTraining2.xml");
+            String content = FileHelper.readFileToString(tempTrainingFile2);
 
             // we need to use the tag style <START:tagname> blabla <END>
             content = content.replaceAll("<" + tag + ">", "<START:" + tag.toLowerCase() + "> ");
@@ -326,19 +337,18 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
                 content = content.replace("</" + otherTag.toUpperCase() + ">", "");
             }
 
-            FileHelper.writeToFile("data/temp/openNLPNERTraining" + tag + ".xml", content);
+            String tempFileTag = new File(tempDir, "openNLPNERTraining" + tag + ".xml").getPath();
+            FileHelper.writeToFile(tempFileTag, content);
 
             ObjectStream<String> lineStream = null;
             TokenNameFinderModel model;
             try {
-                lineStream = new PlainTextByLineStream(new FileInputStream("data/temp/openNLPNERTraining" + tag
-                        + ".xml"), "UTF-8");
+                lineStream = new PlainTextByLineStream(new FileInputStream(tempFileTag), "UTF-8");
 
                 ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
 
                 model = NameFinderME.train("en", tag, sampleStream, (AdaptiveFeatureGenerator)null,
                         Collections.<String, Object> emptyMap(), 100, 5);
-                finders[i] = new NameFinderME(model);
 
             } catch (UnsupportedEncodingException e) {
                 throw new IllegalStateException(e);
@@ -358,7 +368,8 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
             BufferedOutputStream modelOut = null;
 
             try {
-                modelOut = new BufferedOutputStream(new FileOutputStream(modelFilePath));
+                File modelFile = new File(modelDirectory, "openNLP_" + tag + ".bin");
+                modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
                 model.serialize(modelOut);
             } catch (IOException e) {
                 throw new IllegalStateException(e);

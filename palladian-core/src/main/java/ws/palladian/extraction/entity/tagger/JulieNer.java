@@ -172,7 +172,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
             Utils.writeFile(new File("data/temp/juliePredictionOutput_original.txt"), predictIOB);
 
             // reformatOutput(outFile);
-            FileFormatParser.alignContent(outFile, inputText);
+            NerHelper.alignContent(outFile, inputText);
 
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
