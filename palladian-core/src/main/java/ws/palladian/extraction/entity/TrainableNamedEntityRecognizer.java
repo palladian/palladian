@@ -156,47 +156,4 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
         }
     }
 
-    // /**
-    // * Get the tags that were trained for this model.
-    // *
-    // * @param modelPath The path to the model
-    // * @return A list of tags that the model can apply to text.
-    // */
-    // public List<String> getModelTags(String modelPath) {
-    // String filename = FileHelper.getFileName(modelPath);
-    // String path = FileHelper.getFilePath(modelPath);
-    // filename += "_meta.txt";
-    // return FileHelper.readFileToArray(path + filename);
-    // }
-
-    // /**
-    // * Tag the input text using the given model or model configuration.
-    // *
-    // * @param inputText The text to be tagged.
-    // * @param configModelFilePath The file to the model or the configuration depending on the NER. Every NER has it's
-    // * own model or configuration file.
-    // * @return The tagged string in the specified {@link TaggingFormat}.
-    // */
-    // public String tag(String inputText, String configModelFilePath) {
-    // if (configModelFilePath.length() > 0) {
-    // loadModel(configModelFilePath);
-    // }
-    // return tag(inputText);
-    // }
-
-    // public String tag(File inputFile, File configModelFile) {
-    // String inputText = FileHelper.readFileToString(inputFile.getPath());
-    // return tag(inputText, configModelFile.getPath());
-    // }
-
-    // public void tag(String inputText, String outputFilePath, String configModelFilePath) {
-    // String taggedText = tag(inputText, configModelFilePath);
-    // FileHelper.writeToFile(outputFilePath, taggedText);
-    // }
-
-    // public void tag(File inputFile, File outputFile, File configModelFile) {
-    // String inputText = FileHelper.readFileToString(inputFile.getPath());
-    // tag(inputText, outputFile.getPath(), configModelFile.getPath());
-    // }
-
 }

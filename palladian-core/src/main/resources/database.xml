@@ -3,8 +3,8 @@
 	<database>
 		<name>locations</name>
 		<driver>com.mysql.jdbc.Driver</driver>
-		<url>jdbc:mysql://localhost:8889/locations?useServerPrepStmts=false&amp;cachePrepStmts=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</url>
+		<url>jdbc:mysql://localhost:3306/webknox_core?useServerPrepStmts=false&amp;cachePrepStmts=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</url>
 		<username>root</username>
-		<password>root</password>
+		<password></password>
 	</database>
 </databases>
