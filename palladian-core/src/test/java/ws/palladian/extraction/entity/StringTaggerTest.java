@@ -31,9 +31,8 @@ public class StringTaggerTest {
         text = "The outfit that stages the festival, Black Rock City LLC, is now a $23 million-per-year concern with 40 full-time employees, hundreds of volunteers, and a non-profit arts foundation that doles out grants.";
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
-        // FIXME
-        // assertEquals(2, annotations.size());
-        // assertEquals("Black Rock City LLC", annotations.get(1).getEntity());
+        assertEquals(2, annotations.size());
+        assertEquals("Black Rock City LLC", annotations.get(1).getEntity());
 
         // names
         text = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
