@@ -172,7 +172,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
             Utils.writeFile(new File("data/temp/juliePredictionOutput_original.txt"), predictIOB);
 
             // reformatOutput(outFile);
-            alignContent(outFile, inputText);
+            NerHelper.alignContent(outFile, inputText);
 
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
@@ -349,8 +349,8 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"),
-                            cmd.getOptionValue("configFile"), TaggingFormat.XML);
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
                     System.out.println(evResult);
 
                 } else if (cmd.hasOption("demo")) {
@@ -432,8 +432,8 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
 
         //tagger.train("data/datasets/ner/tud/tud2011_train.txt", "data/temp/julieNER2.model");
         tagger.train("data/datasets/ner/conll/training_verysmall.txt", "data/temp/julieNER.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt",
-                "data/temp/julieNER.model", TaggingFormat.COLUMN);
+        tagger.loadModel("data/temp/julieNER.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt", TaggingFormat.COLUMN);
 
         // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener_small.mod");
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",

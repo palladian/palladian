@@ -213,22 +213,18 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
     public boolean loadModel(String configModelFilePath) {
         StopWatch stopWatch = new StopWatch();
 
-        AbstractSequenceClassifier<CoreLabel> classifier;
-
         try {
             classifier = CRFClassifier.getClassifierNoExceptions(configModelFilePath);
         } catch (Exception e) {
-            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+            LOGGER.error("{} error in loading model from {}: {}",
+                    new Object[] {getName(), configModelFilePath, e.getMessage()});
             return false;
         }
 
-        this.classifier = classifier;
-        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
-
+        LOGGER.info("Model {} successfully loaded in {}", configModelFilePath, stopWatch.getElapsedTimeString());
         return true;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
@@ -394,8 +390,8 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
-                            TaggingFormat.XML);
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
 
                 } else if (cmd.hasOption("demo")) {
 
@@ -446,8 +442,8 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         // "data/temp/stanfordNER.model", TaggingFormat.COLUMN);
 
         tagger.train("data/datasets/ner/tud/tud2011_train.txt", "data/temp/stanfordNER2.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt", "data/temp/stanfordNER2.model",
-                TaggingFormat.COLUMN);
+        tagger.loadModel("data/temp/stanfordNER2.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt", TaggingFormat.COLUMN);
 
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
