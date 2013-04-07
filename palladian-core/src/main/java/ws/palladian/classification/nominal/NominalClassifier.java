@@ -7,6 +7,7 @@ import java.util.Set;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.LazyMap;
@@ -18,7 +19,7 @@ import ws.palladian.processing.features.NominalFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NominalClassifier implements Classifier<NominalClassifierModel> {
+public final class NominalClassifier implements Learner, Classifier<NominalClassifierModel> {
 
     @Override
     public NominalClassifierModel train(Iterable<? extends Trainable> trainables) {

@@ -11,6 +11,7 @@ import org.javatuples.Triplet;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.Factory;
@@ -31,7 +32,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
+public final class NaiveBayesClassifier implements Learner, Classifier<NaiveBayesModel> {
 
     /** The default value for the Laplace smoothing. */
     private static final double DEFAULT_LAPLACE_CORRECTOR = 0.00001;

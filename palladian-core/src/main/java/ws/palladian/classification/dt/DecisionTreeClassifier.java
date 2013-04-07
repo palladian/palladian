@@ -12,6 +12,7 @@ import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
@@ -24,7 +25,7 @@ import ws.palladian.processing.features.Feature;
  * 
  * @author Philipp Katz
  */
-public final class DecisionTreeClassifier implements Classifier<DecisionTreeModel> {
+public final class DecisionTreeClassifier implements Learner, Classifier<DecisionTreeModel> {
 
     private final int maxDepth;
 
