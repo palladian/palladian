@@ -1,9 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,19 +14,17 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.Entity;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
@@ -38,6 +33,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * 
@@ -372,129 +368,71 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
  * <li>AdministrativeDivision</li>
  * <li>GovernmentalJurisdiction</li>
  * </ul>
- * 
- * <p>
- * See also <a href="http://www.alchemyapi.com/api/entity/types.html"
- * >http://www.alchemyapi.com/api/entity/types.html</a>
  * </p>
  * 
- * 
+ * @see <a href="http://www.alchemyapi.com/api/entity/types.html">http://www.alchemyapi.com/api/entity/types.html</a>
  * @author David Urbansky
- * 
  */
 public class AlchemyNer extends NamedEntityRecognizer {
+
+    /** Identifier for the API key when supplied via {@link Configuration}. */
+    public static final String CONFIG_API_KEY = "api.alchemy.key";
 
     /** The API key for the Alchemy API service. */
     private final String apiKey;
 
-    /**
-     * The maximum number of characters allowed to send per request.
-     */
+    /** The maximum number of characters allowed to send per request. */
     private final int MAXIMUM_TEXT_LENGTH = 15000;
-	
-	/**
-	 * Turns coreference resolution on/off.
-	 */
-	private boolean coreferenceResolution = false;
+
+    /** Turns coreference resolution on/off. */
+    private boolean coreferenceResolution = false;
 
     /** The {@link HttpRetriever} is used for performing the POST requests to the API. */
     private final HttpRetriever httpRetriever;
 
     /**
      * <p>
-     * Constructor. Uses the API key from the configuration, at place "api.alchemy.key"
+     * Create a new {@link AlchemyNer} with an API key provided by the supplied {@link Configuration} instance.
      * </p>
+     * 
+     * @param configuration The configuration providing the API key via {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
-    public AlchemyNer() {
-        this("");
+    public AlchemyNer(Configuration configuration) {
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     /**
      * <p>
-     * This constructor should be used to specify an explicit API key.
+     * Create a new {@link AlchemyNer} with the specified API key.
      * </p>
      * 
-     * @param apiKey
-     *            API key to use for connecting with Alchemy API
+     * @param apiKey The API key to use for connecting with Alchemy API, not <code>null</code> or empty.
      */
     public AlchemyNer(String apiKey) {
-        setName("Alchemy API NER");
-
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-
-        if (!apiKey.equals("")) {
-            this.apiKey = apiKey;
-        } else if (config != null) {
-            this.apiKey = config.getString("api.alchemy.key");
-        } else {
-            this.apiKey = "";
-        }
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
+        this.apiKey = apiKey;
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
-    @Override
-    public String getModelFileEnding() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return "";
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return false;
-    }
-	
-	public void setCoreferenceResolution(boolean value) {
-		coreferenceResolution = value;
-	}
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        LOGGER.warn(getName() + " does not support training");
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        LOGGER.warn(getName() + " does not support loading models");
-        return false;
+    public void setCoreferenceResolution(boolean value) {
+        coreferenceResolution = value;
     }
 
     @Override
     public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText, "");
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
 
         Annotations annotations = new Annotations();
-
-        // we need to build chunks of texts because we can not send very long
-        // texts at once to open calais
-        List<String> sentences = Tokenizer.getSentences(inputText);
-        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
-        StringBuilder currentTextChunk = new StringBuilder();
-        for (String sentence : sentences) {
-
-            if (currentTextChunk.length() + sentence.length() + 1 > MAXIMUM_TEXT_LENGTH) {
-                textChunks.add(currentTextChunk);
-                currentTextChunk = new StringBuilder();
-            }
-
-            currentTextChunk.append(" " + sentence);
-        }
-        textChunks.add(currentTextChunk);
+        List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
         Set<String> checkedEntities = new HashSet<String>();
-        for (StringBuilder textChunk : textChunks) {
+        for (String textChunk : textChunks) {
 
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = new String(httpResult.getContent(), Charset.forName("UTF-8"));
+                String response = HttpHelper.getStringContent(httpResult);
 
                 if (response.contains("daily-transaction-limit-exceeded")) {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");
@@ -508,15 +446,16 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     JSONObject entity = entities.getJSONObject(i);
 
                     String entityName = entity.getString("text");
-                    Entity namedEntity = new Entity(entityName, entity.getString("type"));
+                    String entityType = entity.getString("type");
 
-                    List<String> subTypeList = new LinkedList<String>();
+                    List<String> subTypeList = CollectionHelper.newArrayList();
                     if (entity.has("disambiguated")) {
                         JSONObject disambiguated = entity.getJSONObject("disambiguated");
-                        JSONArray subTypes = disambiguated.getJSONArray("subType");
-
-                        for (int j = 0; j < subTypes.length(); j++) {
-                            subTypeList.add(subTypes.getString(j));
+                        if (disambiguated.has("subType")) {
+                            JSONArray subTypes = disambiguated.getJSONArray("subType");
+                            for (int j = 0; j < subTypes.length(); j++) {
+                                subTypeList.add(subTypes.getString(j));
+                            }
                         }
                     }
 
@@ -525,8 +464,6 @@ public class AlchemyNer extends NamedEntityRecognizer {
                         continue;
                     }
 
-                    // recognizedEntities.add(namedEntity);
-
                     // get locations of named entity
                     String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
                     Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
@@ -534,10 +471,8 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
                     Matcher matcher = pattern.matcher(inputText);
                     while (matcher.find()) {
-
                         int offset = matcher.start();
-
-                        Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getTagName());
+                        Annotation annotation = new Annotation(offset, entityName, entityType);
                         annotation.addSubTypes(subTypeList);
                         annotations.add(annotation);
                     }
@@ -551,9 +486,14 @@ public class AlchemyNer extends NamedEntityRecognizer {
         }
 
         annotations.sort();
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    @Override
+    public String getName() {
+        return "Alchemy API NER";
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
@@ -563,33 +503,17 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
         Map<String, String> content = new MapBuilder<String, String>().add("text", inputText).add("apikey", apiKey)
                 .add("outputMode", "json").add("disambiguate", "1").add("maxRetrieve", "500");
-				
-		if(coreferenceResolution){
-			content.put("coreference", "1");
-		}else{
-			content.put("coreference", "0");
-		}
+
+        content.put("coreference", coreferenceResolution ? "1" : "0");
 
         return httpRetriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities", headers,
                 content);
     }
 
-    /**
-     * Tag the input text. Alchemy API does not require to specify a model.
-     * 
-     * @param inputText
-     *            The text to be tagged.
-     * @return The tagged text.
-     */
-    @Override
-    public String tag(String inputText) {
-        return super.tag(inputText);
-    }
-
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        AlchemyNer tagger = new AlchemyNer();
+        AlchemyNer tagger = new AlchemyNer("");
 
         if (args.length > 0) {
 
@@ -631,8 +555,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////
-        EvaluationResult er = tagger
-                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

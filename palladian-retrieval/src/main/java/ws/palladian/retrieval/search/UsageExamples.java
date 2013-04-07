@@ -7,9 +7,9 @@ import org.apache.commons.configuration.Configuration;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.search.images.GoogleImageSearcher;
+import ws.palladian.retrieval.search.images.WebImageResult;
 import ws.palladian.retrieval.search.web.BingSearcher;
-import ws.palladian.retrieval.search.web.GoogleImageSearcher;
-import ws.palladian.retrieval.search.web.WebImageResult;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 

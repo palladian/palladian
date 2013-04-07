@@ -27,10 +27,14 @@ public class DateAndTimeTagger {
 	private static final DateFormat[] ALL_DATES_WITH_YEARS = ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS, RegExp.DATE_CONTEXT_YYYY);
 	
 	public List<Annotation> tagDateAndTime(String inputText) {
+        return tagDateAndTime(inputText, ALL_DATES_WITH_YEARS);
+    }
+
+    public List<Annotation> tagDateAndTime(String inputText, DateFormat[] dateFormats) {
 
 		List<Annotation> annotations = CollectionHelper.newArrayList();
 
-        List<ExtractedDate> allDates = DateParser.findDates(inputText, ALL_DATES_WITH_YEARS);
+        List<ExtractedDate> allDates = DateParser.findDates(inputText, dateFormats);
 		
 		for (ExtractedDate dateTime : allDates) {
 			

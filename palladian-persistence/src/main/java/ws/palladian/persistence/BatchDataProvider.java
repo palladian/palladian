@@ -17,9 +17,9 @@ public interface BatchDataProvider {
      * </p>
      * 
      * @param number Number in the data, starting with 0.
-     * @return List with parameters for the SQL statement.
+     * @return List with parameters for the SQL statement, not <code>null</code>.
      */
-    List<Object> getData(int number);
+    List<? extends Object> getData(int number);
 
     /**
      * <p>
@@ -27,8 +27,8 @@ public interface BatchDataProvider {
      * {@link #getData(int)} and has been inserted successfully.
      * </p>
      * 
-     * @param number
-     * @param generatedId
+     * @param number Number in the data, starting with 0.
+     * @param generatedId The generated ID for the inserted item.
      */
     void insertedItem(int number, int generatedId);
 

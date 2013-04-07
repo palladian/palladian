@@ -1,5 +1,8 @@
 package ws.palladian.helper.math;
 
+import java.nio.CharBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import ws.palladian.helper.collection.CountMatrix;
@@ -134,7 +137,7 @@ public class ConfusionMatrix {
      * @return The categories in the data set.
      */
     public Set<String> getCategories() {
-        return confusionMatrix.getKeysX();
+        return confusionMatrix.getKeysY();
     }
 
     /**
@@ -146,7 +149,7 @@ public class ConfusionMatrix {
      */
     public int getTotalDocuments() {
         int total = 0;
-        for (String value : confusionMatrix.getKeysX()) {
+        for (String value : confusionMatrix.getKeysY()) {
             total += confusionMatrix.getRowSum(value);
         }
         return total;
@@ -505,67 +508,90 @@ public class ConfusionMatrix {
 
     @Override
     public String toString() {
+        StringBuilder out = new StringBuilder("Confusion Matrix:\n");
+        List<String> possibleClasses = new ArrayList<String>(getCategories());
+        StringBuilder headerBuilder = new StringBuilder();
+        Integer maxClassNameLength = 0;
+        for (String clazz : possibleClasses) {
+            headerBuilder.append(clazz).append(" ");
+            maxClassNameLength = clazz.length() > maxClassNameLength ? clazz.length() : maxClassNameLength;
+        }
+        String classNameLengthSpace = CharBuffer.allocate(maxClassNameLength).toString().replace('\0', ' ');
+        out.append(classNameLengthSpace).append("\t").append("classified as:\n");
+        out.append(classNameLengthSpace).append("\t").append(headerBuilder);
+        out.append("\n");
 
-        StringBuilder builder = new StringBuilder();
-
-        boolean headWritten = false;
-
-        // iterate through all rows (y)
-        for (String realCategory : getCategories()) {
-
-            // write table head
-            if (!headWritten) {
-                builder.append("Real\\Predicted\t");
-
-                for (String key : getCategories()) {
-                    builder.append(key).append('\t');
-                }
-                builder.append('\n');
-                // builder.append("<Precision>\n");
-
-                headWritten = true;
+        for (String clazz : possibleClasses) {
+            out.append(clazz);
+            out.append(CharBuffer.allocate(maxClassNameLength - clazz.length()).toString().replace('\0', ' '));
+            out.append("\t");
+            for (String predictedClazz : possibleClasses) {
+                Integer value = confusionMatrix.get(predictedClazz, clazz);
+                value = value == null ? 0 : value;
+                Integer valueSize = value.toString().length();
+                int remainingLength = predictedClazz.length() - valueSize + 1;
+                int spacesInFrontOfValue = Math.max((int)Math.ceil((double)remainingLength / 2), 0);
+                out.append(CharBuffer.allocate(spacesInFrontOfValue).toString().replace('\0', ' '));
+                out.append(value);
+                int spacesAfterValue = Math.max(predictedClazz.length() - valueSize - spacesInFrontOfValue, 1);
+                out.append(CharBuffer.allocate(spacesAfterValue).toString().replace('\0', ' '));
             }
-
-            builder.append(realCategory).append('\t');
-
-            // iterate through all columns (x)
-            for (String predictedCategory : getCategories()) {
-                builder.append(getConfusions(realCategory, predictedCategory)).append('\t');
-            }
-//            builder.append(MathHelper.round(getPrecision(realCategory), 4)).append("\t");
-            builder.append('\n');
+            out.append("\n");
         }
 
-//        builder.append("<Recall>\t");
-//        for (String predictedCategory : getCategories()) {
-//            builder.append(MathHelper.round(getRecall(predictedCategory), 4)).append("\t");
-//        }
+        out.append("\n\n\n");
 
-        builder.append("\n\n\n");
-        
-        builder.append("Category\tPrior\tPrecision\tRecall\tF1\n");
-        for (String category : getCategories()) {
-            builder.append(category).append('\t');
-            builder.append(MathHelper.round(getPrior(category), 4)).append('\t');
-            builder.append(MathHelper.round(getPrecision(category), 4)).append('\t');
-            builder.append(MathHelper.round(getRecall(category), 4)).append('\t');
-            builder.append(MathHelper.round(getF(category, 0.5), 4)).append('\n');
+        out.append("\n");
+        out.append(classNameLengthSpace).append("  ").append("prior  precision recall f1-measure accuracy\n");
+
+        for (String clazz : possibleClasses) {
+            out.append(clazz).append(": ");
+            Integer missingSpaces = maxClassNameLength - clazz.length();
+            if (missingSpaces > 0) {
+                out.append(CharBuffer.allocate(missingSpaces).toString().replace('\0', ' '));
+            }
+
+            double prior = MathHelper.round(getPrior(clazz), 4);
+            double precision = MathHelper.round(getPrecision(clazz), 4);
+            double recall = MathHelper.round(getRecall(clazz), 4);
+            double accuracy = MathHelper.round(getAccuracy(clazz), 4);
+            double f1measure = MathHelper.round(getF(clazz, 0.5), 4);
+            out.append(prior);
+            int precisionSpaces = "prior  ".length() - String.valueOf(prior).length();
+            out.append(CharBuffer.allocate(Math.max(precisionSpaces, 0)).toString().replace('\0', ' ')).append(
+                    precision);
+            int recallSpaces = "precision ".length() - String.valueOf(precision).length();
+            out.append(CharBuffer.allocate(Math.max(recallSpaces, 0)).toString().replace('\0', ' ')).append(recall);
+            int f1MeasureSpaces = "recall ".length() - String.valueOf(recall).length();
+            out.append(CharBuffer.allocate(Math.max(f1MeasureSpaces, 0)).toString().replace('\0', ' ')).append(
+                    f1measure);
+            int accuracySpaces = "f1-measure ".length() - String.valueOf(f1measure).length();
+            out.append(CharBuffer.allocate(Math.max(accuracySpaces, 0)).toString().replace('\0', ' ')).append(accuracy);
+            out.append("\n");
         }
 
-        builder.append("\n\n\n");
-        builder.append("Accuracy:\t").append(MathHelper.round(getAccuracy(), 4)).append('\n');
-        builder.append("Weighted Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
-        builder.append("Weighted Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
-        builder.append("Weighted F1:\t").append(MathHelper.round(getAverageF(0.5, true), 4)).append('\n');
-        builder.append("Weighted Sensitivity:\t").append(MathHelper.round(getAverageSensitivity(true), 4)).append('\n');
-        builder.append("Weighted Specificity:\t").append(MathHelper.round(getAverageSpecificity(true), 4)).append('\n');
-        builder.append("Weighted Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append('\n');
-        builder.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append('\n');
-        builder.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
-        builder.append("# Documents:\t").append(getTotalDocuments()).append('\n');
-        builder.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
+        // out.append("Category\tPrior\tPrecision\tRecall\tF1\n");
+        // for (String category : getCategories()) {
+        // out.append(category).append('\t');
+        // out.append(MathHelper.round(getPrior(category), 4)).append('\t');
+        // out.append(MathHelper.round(getPrecision(category), 4)).append('\t');
+        // out.append(MathHelper.round(getRecall(category), 4)).append('\t');
+        // out.append(MathHelper.round(getF(category, 0.5), 4)).append('\n');
+        // }
 
-        return builder.toString();
+        out.append("\n\n\n");
+        out.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
+        out.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
+        out.append("Average F1:\t").append(MathHelper.round(getAverageF(0.5, true), 4)).append('\n');
+        out.append("Average Sensitivity:\t").append(MathHelper.round(getAverageSensitivity(true), 4)).append('\n');
+        out.append("Average Specificity:\t").append(MathHelper.round(getAverageSpecificity(true), 4)).append('\n');
+        out.append("Average Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append('\n');
+        out.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append('\n');
+        out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
+        out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
+        out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
+
+        return out.toString();
 
     }
 

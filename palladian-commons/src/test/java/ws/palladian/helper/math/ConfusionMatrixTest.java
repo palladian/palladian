@@ -78,4 +78,16 @@ public class ConfusionMatrixTest {
 
     }
 
+    @Test
+    public void testConfusionMatrix_issue161() {
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("c1", "c1", 12);
+        confusionMatrix.add("c2", "c1", 3);
+
+        assertEquals(0.8, confusionMatrix.getPrior("c1"), DELTA);
+        assertEquals(0.2, confusionMatrix.getPrior("c2"), DELTA);
+
+        // System.out.println(confusionMatrix);
+    }
+
 }

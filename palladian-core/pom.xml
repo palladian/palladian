@@ -16,12 +16,23 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
-					<configLocation>${project.parent.basedir}/dev/checkstyle_config.xml</configLocation>
+					<configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- FIXME remove the two following dependencies later -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<!-- // end remove -->
 		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-commons</artifactId>
@@ -103,10 +114,10 @@
 			<groupId>com.lingway.ld</groupId>
 			<artifactId>JLangDetect</artifactId>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>de.l3s.boilerpipe</groupId>
 			<artifactId>boilerpipe</artifactId>
-		</dependency>
+		</dependency -->
 		<!-- dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

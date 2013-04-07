@@ -1189,9 +1189,8 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
 
     /**
      * <p>
-     * Saves a non existing {@link Labeler} to the database.
+     * Saves a non existing {@link Labeler} to the database or updates an existing one..
      * </p>
-     * arg0
      * 
      * @param labeler The {@code Labeler} to save.
      */
@@ -1371,33 +1370,19 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         }
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param query
-     * @param parameterFiller
-     */
+    @SuppressWarnings("unchecked")
     public List<Object[]> runNativeQuery(String query, ParameterFiller parameterFiller) {
         Query queryObj = getManager().createNativeQuery(query);
         parameterFiller.fillParameter(queryObj);
 
         Boolean openedTransaction = openTransaction();
         try {
-            return queryObj.getResultList();
+            return (List<Object[]>)queryObj.getResultList();
         } finally {
             commitTransaction(openedTransaction);
         }
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param query
-     */
     public void runNativeUpdate(final String query) {
         Query queryObj = getManager().createNativeQuery(query);
         Boolean openedTransaction = openTransaction();
@@ -1417,10 +1402,24 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @return The {@link List} of all {@link Item}s authored by the provided {@link Author}.
      */
     public List<Item> loadItemsByAuthor(Author author) {
-        TypedQuery<Item> query = getManager().createQuery("SELECT i FROM Item i JOIN i.author a", Item.class);
+        TypedQuery<Item> query = getManager().createQuery("SELECT i FROM Item i JOIN i.author a WHERE a=:author",
+                Item.class);
+        query.setParameter("author", author);
         Boolean openedTransaction = openTransaction();
         try {
             return query.getResultList();
+        } finally {
+            commitTransaction(openedTransaction);
+        }
+    }
+
+    public Labeler loadLabelerForLabel(final Label label) {
+        TypedQuery<Labeler> query = getManager().createQuery(
+                "SELECT l FROM Labeler l JOIN l.labels la WHERE la=:label", Labeler.class);
+        query.setParameter("label", label);
+        Boolean openedTransaction = openTransaction();
+        try {
+            return query.getSingleResult();
         } finally {
             commitTransaction(openedTransaction);
         }

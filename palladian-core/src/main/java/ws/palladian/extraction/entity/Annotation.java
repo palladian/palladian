@@ -4,7 +4,6 @@ import java.util.List;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
-import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Classified;
 import ws.palladian.processing.features.Annotated;
@@ -39,7 +38,7 @@ public class Annotation implements Annotated, Classified {
 
     private List<String> subTypes = null;
 
-    private String targetClass;
+    private final String targetClass;
 
     public Annotation(Annotation annotation) {
         // super(annotation.getTargetClass());
@@ -456,18 +455,6 @@ public class Annotation implements Annotated, Classified {
         return length;
     }
 
-//    public CategoryEntry getMostLikelyTag() {
-//        return getTags().getMostLikelyCategoryEntry();
-//    }
-
-//    public String getMostLikelyTagName() {
-//        return getTags().getMostLikelyCategory();
-//    }
-
-//    public int getOffset() {
-//        return offset;
-//    }
-
     public String getRightContext() {
         return rightContext;
     }
@@ -506,21 +493,6 @@ public class Annotation implements Annotated, Classified {
     public boolean sameTag(Annotation annotation) {
         if (getTag()
                 .equalsIgnoreCase(annotation.getTag())) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Compare this annotation with an annotation where the correct tag is known (gold standard / evaluation
-     * annotation).
-     * 
-     * @param goldStandardAnnotation The gold standard annotation.
-     * @return
-     */
-    public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
-        if (getTag()
-                .equalsIgnoreCase(goldStandardAnnotation.getTargetClass())) {
             return true;
         }
         return false;

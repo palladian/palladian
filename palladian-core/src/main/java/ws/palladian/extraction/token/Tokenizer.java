@@ -23,7 +23,9 @@ import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
@@ -44,8 +46,8 @@ public final class Tokenizer {
     public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
     /** The RegExp used for sentence splitting. */
-    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc| sq| ft)((\\.|\\?|\\!)(”|\")(?=\\s[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
-    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|etc|z\\.B|u\\.s\\.w|u\\.a)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs|ca|etc| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|engl|etc|bzw|ggf|z\\.\\s?B|u\\.s\\.w|u\\.a)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
     private static final Pattern SENTENCE_SPLIT_PATTERN_EN = Pattern.compile(SENTENCE_SPLIT_REGEX_EN);
     private static final Pattern SENTENCE_SPLIT_PATTERN_DE = Pattern.compile(SENTENCE_SPLIT_REGEX_DE);
@@ -54,9 +56,14 @@ public final class Tokenizer {
     public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
             | Pattern.CASE_INSENSITIVE);
 
-    private static UrlTagger urlTagger = new UrlTagger();
-    private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
-    private static SmileyTagger smileyTagger = new SmileyTagger();
+    private static final DateFormat[] ALL_DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM,
+            RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
+            RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
+            RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
+
+    private static final UrlTagger URL_TAGGER = new UrlTagger();
+    private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger();
+    private static final SmileyTagger SMILEY_TAGGER = new SmileyTagger();
 
     /**
      * <p>
@@ -241,6 +248,7 @@ public final class Tokenizer {
         List<String> nGrams = new ArrayList<String>();
 
         String[] words = string.split("\\s");
+        words = filterEmptyWords(words);
 
         if (words.length < n) {
             return nGrams;
@@ -257,6 +265,24 @@ public final class Tokenizer {
         }
 
         return nGrams;
+    }
+
+    /**
+     * <p>
+     * Filters empty {@link String}s for N-Gram creation. Empty string may occur if the input {@link String} contains
+     * control characters.
+     * </p>
+     * 
+     * @param words The words to check.
+     */
+    private static String[] filterEmptyWords(String[] words) {
+        List<String> ret = new ArrayList<String>();
+        for (String word : words) {
+            if (!word.trim().isEmpty()) {
+                ret.add(word);
+            }
+        }
+        return ret.toArray(new String[ret.size()]);
     }
 
     /**
@@ -420,7 +446,7 @@ public final class Tokenizer {
     public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
 
         // recognize URLs so we don't break them
-        List<Annotation> taggedUrls = urlTagger.tagUrls(inputText);
+        List<Annotation> taggedUrls = URL_TAGGER.tagUrls(inputText);
         int uCount = 1;
         Map<String, String> urlMapping = new HashMap<String, String>();
         for (Annotation annotation : taggedUrls) {
@@ -431,7 +457,7 @@ public final class Tokenizer {
         }
 
         // recognize dates so we don't break them
-        List<Annotation> taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        List<Annotation> taggedDates = DATE_TIME_TAGGER.tagDateAndTime(inputText, ALL_DATES_WITH_DOTS);
         int dCount = 1;
         Map<String, String> dateMapping = new HashMap<String, String>();
         for (Annotation annotation : taggedDates) {
@@ -442,7 +468,7 @@ public final class Tokenizer {
         }
 
         // recognize smileys so we don't break them
-        List<Annotation> taggedSmileys = smileyTagger.tagSmileys(inputText);
+        List<Annotation> taggedSmileys = SMILEY_TAGGER.tagSmileys(inputText);
         int sCount = 1;
         Map<String, String> smileyMapping = new HashMap<String, String>();
         for (Annotation annotation : taggedSmileys) {
@@ -608,15 +634,15 @@ public final class Tokenizer {
         String maskedText = inputDocument.getContent();
 
         // recognize URLs so we don't break them
-        List<Annotation> taggedUrlsAnnotations = urlTagger.tagUrls(inputText);
+        List<Annotation> taggedUrlsAnnotations = URL_TAGGER.tagUrls(inputText);
         maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
 
         // recognize dates so we don't break them
-        List<Annotation> taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        List<Annotation> taggedDates = DATE_TIME_TAGGER.tagDateAndTime(inputText);
         maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
 
         // recognize smileys so we don't break them
-        List<Annotation> taggedSmileys = smileyTagger.tagSmileys(inputText);
+        List<Annotation> taggedSmileys = SMILEY_TAGGER.tagSmileys(inputText);
         maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
 
         List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();

@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -37,8 +38,8 @@ import org.apache.commons.cli.PosixParser;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -80,26 +81,12 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * 
  */
-public class OpenNlpNer extends NamedEntityRecognizer {
+public class OpenNlpNer extends TrainableNamedEntityRecognizer {
 
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
-
-    public OpenNlpNer() {
-        setName("OpenNLP NER");
-    }
-
-    public void demo() {
-        String inputText = "Microsoft Inc. is a company which was founded by Bill Gates many years ago. The company's headquarters are close to Seattle in the USA.";
-        demo(inputText);
-    }
-
-    public void demo(String inputText) {
-        System.out
-                .println(tag(
-                        inputText,
-                        "data/models/opennlp/openNLP_organization.bin.gz,data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz"));
-    }
+    private NameFinderME[] finders;
+    private String[] tags;
 
     /**
      * Adds tags to the given text using the name entity models.
@@ -110,7 +97,10 @@ public class OpenNlpNer extends NamedEntityRecognizer {
      * @return A tagged string.
      * @throws IOException
      */
-    private StringBuilder processText(NameFinderME[] finders, String[] tags, String text) throws IOException {
+    private String processText(NameFinderME[] finders, String[] tags, String text) throws IOException {
+        if (text.isEmpty()) {
+            return "";
+        }
 
         // the names of the tags
         Span[][] nameSpans = new Span[finders.length][];
@@ -119,25 +109,16 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
         StringBuilder output = new StringBuilder();
 
-        if (text.equals("")) {
-            return new StringBuilder();
-        }
-
-        output.setLength(0);
         Span[] spans = tokenizer.tokenizePos(text);
         String[] tokens = Span.spansToStrings(spans, text);
 
-        // tokens = (String[]) tud.iir.helper.Tokenizer.tokenize(text).toArray();
-
         // let each model (one for each concept) tag the text
         for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-            nameSpans[fi] = finders[fi].find(tokens);
+            NameFinderME finder = finders[fi];
+            finder.clearAdaptiveData(); // necessary to make results deterministic.
+            nameSpans[fi] = finder.find(tokens);
             nameOutcomes[fi] = NameFinderEventStream.generateOutcomes(nameSpans[fi], null, tokens.length);
         }
-        // finders[fi].clearAdaptiveData();
-
-        // CollectionHelper.print(nameSpans);
-        // CollectionHelper.print(nameOutcomes);
 
         // if this is true, we have tagged a token already and should not tag it again with another name finder
         boolean tagOpen = false;
@@ -188,7 +169,7 @@ public class OpenNlpNer extends NamedEntityRecognizer {
             }
         }
 
-        return output;
+        return output.toString();
     }
 
     /**
@@ -200,64 +181,60 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
         StopWatch stopWatch = new StopWatch();
 
-        // get all models in the given folder that have the schema of "openNLP_" + conceptName + ".bin"
-        File[] modelFiles = FileHelper.getFiles(FileHelper.getFilePath(configModelFilePath), "openNLP_");
-
-        String modelFileString = "";
-        String[] modelFilePaths = new String[modelFiles.length];
-        int i = 0;
-        for (File modelFile : modelFiles) {
-            modelFilePaths[i++] = modelFile.getPath();
-            modelFileString += modelFile.getPath() + ",";
+        File modelDirectory = new File(configModelFilePath);
+        if (!modelDirectory.isDirectory()) {
+            throw new IllegalArgumentException("Model file path must be an existing directory.");
         }
 
-        NameFinderME[] finders = new NameFinderME[modelFilePaths.length];
-        String[] tags = new String[finders.length];
+        // get all models in the given folder that have the schema of "openNLP_" + conceptName + ".bin"
+        File[] modelFiles = FileHelper.getFiles(modelDirectory.getPath(), "openNLP_");
+        if (modelFiles.length == 0) {
+            throw new IllegalArgumentException("No model files found at path " + modelDirectory.getPath());
+        }
 
-        for (int finderIndex = 0; finderIndex < modelFilePaths.length; finderIndex++) {
+        this.finders = new NameFinderME[modelFiles.length];
+        this.tags = new String[finders.length];
 
-            String modelName = modelFilePaths[finderIndex];
+        for (int finderIndex = 0; finderIndex < modelFiles.length; finderIndex++) {
+
+            String modelName = modelFiles[finderIndex].getPath();
             String tagName = modelName;
             int tagStartIndex = modelName.lastIndexOf("_");
             if (tagStartIndex > -1) {
                 tagName = modelName.substring(tagStartIndex + 1, modelName.indexOf(".", tagStartIndex));
             } else {
-                LOGGER.warn("model name does not comply \"openNLP_TAG.bin\" format: " + modelName);
+                LOGGER.warn("Model name does not comply \"openNLP_TAG.bin\" format: {}", modelName);
             }
 
             try {
                 finders[finderIndex] = new NameFinderME(new TokenNameFinderModel(new FileInputStream(
                         new File(modelName))));
             } catch (IOException e) {
-                LOGGER.error(getName() + " error in loading model: " + modelName + " , " + e.getMessage());
+                LOGGER.error("{} error in loading model: {}, {}", new Object[] {getName(), modelName, e.getMessage()});
                 return false;
             }
             tags[finderIndex] = tagName.toUpperCase();
         }
 
-        Object[] objs = new Object[2];
-        objs[0] = finders;
-        objs[1] = tags;
-
-        setModel(objs);
-        LOGGER.info("model " + modelFileString + " successfully loaded in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("Models {} successfully loaded in {}", Arrays.toString(modelFiles),
+                stopWatch.getElapsedTimeString());
 
         return true;
     }
 
     @Override
     public Annotations getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
+        if (finders == null || tags == null) {
+            throw new IllegalStateException("No model available; make sure to load an existing model.");
+        }
 
-        Object[] objs = (Object[]) getModel();
-        NameFinderME[] finders = (NameFinderME[]) objs[0];
-        String[] tags = (String[]) objs[1];
+        Annotations annotations = new Annotations();
 
         String taggedText = "";
         try {
             taggedText = processText(finders, tags, inputText).toString();
         } catch (IOException e) {
-            LOGGER.error("could not tag text with " + getName() + ", " + e.getMessage());
+            LOGGER.error("could not tag text with {}, {}", getName(), e.getMessage());
         }
 
         String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
@@ -268,16 +245,7 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
         FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
 
-        // CollectionHelper.print(annotations);
-
         return annotations;
-    }
-
-    @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-
-        loadModel(configModelFilePath);
-        return getAnnotations(inputText);
     }
 
     @Override
@@ -295,46 +263,43 @@ public class OpenNlpNer extends NamedEntityRecognizer {
         return true;
     }
 
-    private Set<String> getUsedTags(String filePath) {
-
+    private String[] getUsedTags(String filePath) {
         Set<String> tags = new HashSet<String>();
-
         String inputString = FileHelper.readFileToString(filePath);
-
         Pattern pattern = Pattern.compile("</?(.*?)>");
-
         Matcher matcher = pattern.matcher(inputString);
         while (matcher.find()) {
             tags.add(matcher.group(1));
         }
-
-        return tags;
+        return tags.toArray(new String[tags.size()]);
     }
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        // if (modelFilePath.lastIndexOf("_") == -1) {
-        // LOGGER.fatal("model name does not comply \"openNLP_TAG.bin\" format: " + modelFilePath);
-        // System.exit(1);
-        // }
+        // Open NLP creates several model files for each trained tag, so for the supplied model file path, a directory
+        // will be created, which contains all those files.
+        File modelDirectory = new File(modelFilePath);
+        if (modelDirectory.isFile()) {
+            throw new IllegalArgumentException("File " + modelFilePath + " already exists.");
+        }
+        modelDirectory.mkdirs();
 
         // open nlp needs xml format
-        FileFormatParser.columnToXml(trainingFilePath, "data/temp/openNLPNERTraining.xml", "\t");
+        File tempDir = FileHelper.getTempDir();
+        String tempTrainingFile = new File(tempDir, "openNLPNERTraining.xml").getPath();
+        String tempTrainingFile2 = new File(tempDir, "openNLPNERTraining2.xml").getPath();
+        FileFormatParser.columnToXml(trainingFilePath, tempTrainingFile, "\t");
 
         // let us get all tags that are used
-        Set<String> usedTags = getUsedTags("data/temp/openNLPNERTraining.xml");
-        LOGGER.info("found " + usedTags.size() + " tags in the training file, computing " + usedTags.size()
-                + " models now");
+        String[] tags = getUsedTags(tempTrainingFile);
+        LOGGER.info("Found {} tags in the training file, computing the models now", tags.length);
 
         // create one model for each used tag, that is delete all the other tags from the file and learn
-        for (String tag : usedTags) {
+        for (int i = 0; i < tags.length; i++) {
 
-            LOGGER.info("start learning for " + tag);
-
-            String conceptName = tag.toUpperCase();
-
-            modelFilePath = FileHelper.getFilePath(modelFilePath) + "openNLP_" + conceptName + ".bin";
+            String tag = tags[i].toUpperCase();
+            LOGGER.info("Start learning for tag {}", tag);
 
             // XXX this is for the TUD dataset, for some reason opennlp does not find some concepts when they're only in
             // few places, so we delete all lines with no tags for the concepts with few mentions
@@ -343,28 +308,28 @@ public class OpenNlpNer extends NamedEntityRecognizer {
                                      * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
                                      */) {
 
-                List<String> array = FileHelper.readFileToArray("data/temp/openNLPNERTraining.xml");
+                List<String> array = FileHelper.readFileToArray(tempTrainingFile);
 
                 StringBuilder sb = new StringBuilder();
                 for (String string : array) {
-                    if (string.indexOf("<" + conceptName + ">") > -1) {
+                    if (string.indexOf("<" + tag + ">") > -1) {
                         sb.append(string).append("\n");
                     }
                 }
 
-                FileHelper.writeToFile("data/temp/openNLPNERTraining2.xml", sb);
+                FileHelper.writeToFile(tempTrainingFile2, sb);
             } else {
-                FileHelper.copyFile("data/temp/openNLPNERTraining.xml", "data/temp/openNLPNERTraining2.xml");
+                FileHelper.copyFile(tempTrainingFile, tempTrainingFile2);
             }
 
-            String content = FileHelper.readFileToString("data/temp/openNLPNERTraining2.xml");
+            String content = FileHelper.readFileToString(tempTrainingFile2);
 
             // we need to use the tag style <START:tagname> blabla <END>
-            content = content.replaceAll("<" + conceptName + ">", "<START:" + conceptName.toLowerCase() + "> ");
-            content = content.replaceAll("</" + conceptName + ">", " <END> ");
+            content = content.replaceAll("<" + tag + ">", "<START:" + tag.toLowerCase() + "> ");
+            content = content.replaceAll("</" + tag + ">", " <END> ");
 
             // we need to remove all other tags for training the current tag
-            for (String otherTag : usedTags) {
+            for (String otherTag : tags) {
                 if (otherTag.equalsIgnoreCase(tag)) {
                     continue;
                 }
@@ -372,46 +337,46 @@ public class OpenNlpNer extends NamedEntityRecognizer {
                 content = content.replace("</" + otherTag.toUpperCase() + ">", "");
             }
 
-            FileHelper.writeToFile("data/temp/openNLPNERTraining" + conceptName + ".xml", content);
+            String tempFileTag = new File(tempDir, "openNLPNERTraining" + tag + ".xml").getPath();
+            FileHelper.writeToFile(tempFileTag, content);
 
-            ObjectStream<String> lineStream;
-            TokenNameFinderModel model = null;
+            ObjectStream<String> lineStream = null;
+            TokenNameFinderModel model;
             try {
-                lineStream = new PlainTextByLineStream(new FileInputStream("data/temp/openNLPNERTraining" + conceptName
-                        + ".xml"), "UTF-8");
+                lineStream = new PlainTextByLineStream(new FileInputStream(tempFileTag), "UTF-8");
 
                 ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
 
-                model = NameFinderME.train("en", conceptName, sampleStream, (AdaptiveFeatureGenerator)null,
+                model = NameFinderME.train("en", tag, sampleStream, (AdaptiveFeatureGenerator)null,
                         Collections.<String, Object> emptyMap(), 100, 5);
 
             } catch (UnsupportedEncodingException e) {
-                LOGGER.error(e.getMessage());
+                throw new IllegalStateException(e);
             } catch (FileNotFoundException e) {
-                LOGGER.error(e.getMessage());
+                throw new IllegalStateException(e);
             } catch (IOException e) {
-                LOGGER.error(e.getMessage());
+                throw new IllegalStateException(e);
+            } finally {
+                if (lineStream != null) {
+                    try {
+                        lineStream.close();
+                    } catch (IOException ignore) {
+                    }
+                }
             }
 
             BufferedOutputStream modelOut = null;
 
             try {
-                modelOut = new BufferedOutputStream(new FileOutputStream(modelFilePath));
+                File modelFile = new File(modelDirectory, "openNLP_" + tag + ".bin");
+                modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
                 model.serialize(modelOut);
             } catch (IOException e) {
-                LOGGER.error(e.getMessage());
+                throw new IllegalStateException(e);
             } finally {
-                if (modelOut != null) {
-                    try {
-                        modelOut.close();
-                    } catch (IOException e) {
-                        LOGGER.error("could not close model file, " + e.getMessage());
-                    }
-                }
+                FileHelper.close(modelOut);
             }
-
         }
-
         return true;
     }
 
@@ -421,6 +386,11 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
     public boolean isConllEvaluation() {
         return conllEvaluation;
+    }
+
+    @Override
+    public String getName() {
+        return "OpenNLP NER";
     }
 
     /**
@@ -445,8 +415,6 @@ public class OpenNlpNer extends NamedEntityRecognizer {
                     .withDescription("train a model").create());
             modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
                     .withDescription("evaluate a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("dm").withLongOpt("demo")
-                    .withDescription("demo mode of the tagger").create());
             modeOptionGroup.setRequired(true);
             options.addOptionGroup(modeOptionGroup);
 
@@ -481,7 +449,8 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
 
                     if (cmd.hasOption("outputFile")) {
                         FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
@@ -496,13 +465,9 @@ public class OpenNlpNer extends NamedEntityRecognizer {
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"),
-                            cmd.getOptionValue("configFile"), TaggingFormat.XML);
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
                     System.out.println(evResult);
-
-                } else if (cmd.hasOption("demo")) {
-
-                    tagger.demo(cmd.getOptionValue("inputText"));
 
                 }
 
@@ -540,13 +505,13 @@ public class OpenNlpNer extends NamedEntityRecognizer {
         // TaggingFormat.XML));
 
         // /////////////////////////// train and test /////////////////////////////
-        tagger.setConllEvaluation(true);
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
+        // tagger.setConllEvaluation(true);
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
         // tagger.train("data/temp/seedsTest1.txt", "data/temp/openNLP.bin");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/openNLP.bin",
-                TaggingFormat.COLUMN);
-        System.out.println(er.getMUCResultsReadable());
-        System.out.println(er.getExactMatchResultsReadable());
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/openNLP.bin",
+        // TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
 
         // TODO one model per concept
         // Dataset trainingDataset = new Dataset();

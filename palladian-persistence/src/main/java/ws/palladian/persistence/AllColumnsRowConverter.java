@@ -32,11 +32,13 @@ public final class AllColumnsRowConverter {
 
             int numColumns = resultSet.getMetaData().getColumnCount();
             for (int i = 1; i <= numColumns; i++) {
-                String columnName = resultSet.getMetaData().getColumnName(i);
+                String columnName = resultSet.getMetaData().getColumnLabel(i);
                 int columnType = resultSet.getMetaData().getColumnType(i);
 
                 if (columnType == Types.INTEGER) {
                     map.put(columnName, resultSet.getInt(i));
+                } else if (columnType == Types.BIGINT) {
+                    map.put(columnName, resultSet.getLong(i));
                 } else if (columnType == Types.DOUBLE) {
                     map.put(columnName, resultSet.getDouble(i));
                 } else if (columnType == Types.BOOLEAN) {

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -58,7 +59,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * default encoding is ignored.
  * </p>
  * 
- * @see http://www.javapractices.com/topic/TopicAction.do?Id=42
+ * @see <a href="http://www.javapractices.com/topic/TopicAction.do?Id=42">Reading and writing text files</a>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -104,7 +105,14 @@ public final class FileHelper {
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
         BINARY_FILE_EXTENSIONS = Collections.unmodifiableList(binaryFileExtensions);
     }
-    
+
+    /** A no-operation {@link LineAction}. Used for getting the number of lines. */
+    private static final LineAction NOP_LINE_ACTION = new LineAction() {
+        @Override
+        public void performAction(String line, int lineNumber) {
+        }
+    };
+
     private FileHelper() {
         // prevent instantiation.
     }
@@ -206,6 +214,10 @@ public final class FileHelper {
     public static String getFileType(String path) {
         String fileType = "";
 
+        if (path == null || path.isEmpty()) {
+            return fileType;
+        }
+
         int lastQM = path.indexOf("?");
 
         // find last dot before "?"
@@ -227,27 +239,6 @@ public final class FileHelper {
 
         return fileType;
     }
-
-//    /**
-//     * Read HTML file to string.
-//     * 
-//     * @param path The path to the HTML file.
-//     * @param stripTags Whether tags should be stripped.
-//     * @return The HTML string from the file.
-//     */
-//    public static String readHtmlFileToString(String path, boolean stripTags) {
-//
-//        String contents = readFileToString(path);
-//
-//        if (stripTags) {
-//            contents = StringEscapeUtils.unescapeHtml(contents);
-//            contents = HtmlHelper.stripHtmlTags(contents, true, false, false, false); // TODO remove JS, CSS,
-//            // comments and merge?
-//            return contents;
-//        }
-//
-//        return contents;
-//    }
 
     /**
      * Read file to string.
@@ -353,24 +344,6 @@ public final class FileHelper {
         return readFileToArray(new File(path), startLine, numberOfLines);
     }
 
-//    /**
-//     * Create a list with each line of the given file as an element.
-//     * 
-//     * @param fileURL The file URL which should be read into a string.
-//     * @return The list with one line per entry.
-//     */
-//    public static List<String> readFileToArray(URL fileURL) {
-//        File contentFile = null;
-//
-//        try {
-//            contentFile = new File(fileURL.toURI());
-//        } catch (URISyntaxException e) {
-//            throw new RuntimeException("File: " + fileURL + " was not accessable!");
-//        }
-//
-//        return readFileToArray(contentFile);
-//    }
-
     /**
      * Create a list with each line of the given file as an element.
      * 
@@ -412,13 +385,13 @@ public final class FileHelper {
 
     public static List<String> readFileToArray(InputStream inputStream, long startLine, int numberOfLines) {
         List<String> list = new ArrayList<String>();
-        
+
         BufferedReader reader = null;
 
         try {
-            
+
             reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
-            
+
             long lineNumber = 1;
             String line = null;
             while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
@@ -437,33 +410,10 @@ public final class FileHelper {
         return list;
     }
 
-//    /**
-//     * Split the contents of a file into lines.
-//     * For example: a, b, c becomes<br>
-//     * a<br>
-//     * b<br>
-//     * c<br>
-//     * <br>
-//     * when the separator is ",".
-//     * 
-//     * @param inputFilePath The input file.
-//     * @param outputFilePath Where the transformed file should be saved.
-//     * @param separator The separator that is used to split.
-//     */
-//    public static void fileContentToLines(String inputFilePath, String outputFilePath, String separator) {
-//        String content = readFileToString(inputFilePath);
-//        String[] lines = content.split(separator);
-//
-//        StringBuilder sb = new StringBuilder();
-//        for (String line : lines) {
-//            sb.append(line).append(NEWLINE_CHARACTER);
-//        }
-//
-//        writeToFile(outputFilePath, sb);
-//    }
-
     /**
-     * <p>Remove identical lines for the given input file and save it to the output file.</p>
+     * <p>
+     * Remove identical lines for the given input file and save it to the output file.
+     * </p>
      * 
      * @param inputFilePath The input file.
      * @param outputFilePath Where the transformed file should be saved.
@@ -474,15 +424,14 @@ public final class FileHelper {
             removeDuplicateLines(inputFilePath);
             return;
         }
-        
+
         // remember all seen hashes
         final Set<Integer> seenHashes = new HashSet<Integer>();
 
         final Writer writer;
 
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath),
-                    DEFAULT_ENCODING));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath), DEFAULT_ENCODING));
 
             LineAction la = new LineAction() {
                 @Override
@@ -499,9 +448,9 @@ public final class FileHelper {
             };
 
             FileHelper.performActionOnEveryLine(inputFilePath, la);
-            
+
             close(writer);
-            
+
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (UnsupportedEncodingException e) {
@@ -509,9 +458,11 @@ public final class FileHelper {
         }
 
     }
-    
+
     /**
-     * <p>Remove identical lines for the given input file and save it to the same file.</p>
+     * <p>
+     * Remove identical lines for the given input file and save it to the same file.
+     * </p>
      * 
      * @param inputFilePath The input file which is overwritten.
      */
@@ -584,80 +535,12 @@ public final class FileHelper {
         return lineNumber;
     }
 
-//    /**
-//     * Perform action on every line of the input file.
-//     *
-//     * @param reader The reader with the file which should be processed line by line.
-//     * @param la The line action that should be triggered on each line.
-//     * @return The number of lines processed.
-//     */
-//    public static int performActionOnEveryLine(Reader reader, LineAction la) {
-//
-//        int lineNumber = 1;
-//        BufferedReader bufferedReader = null;
-//
-//        try {
-//            bufferedReader = new BufferedReader(reader);
-//
-//            String line = null;
-//            while ((line = bufferedReader.readLine()) != null && la.looping) {
-//                la.performAction(line, lineNumber++);
-//            }
-//
-//        } catch (FileNotFoundException e) {
-//            LOGGER.error(reader + ", " + e.getMessage());
-//        } catch (IOException e) {
-//            LOGGER.error(reader + ", " + e.getMessage());
-//        } catch (OutOfMemoryError e) {
-//            LOGGER.error(reader + ", " + e.getMessage());
-//        } finally {
-//            close(bufferedReader);
-//        }
-//
-//        return lineNumber - 1;
-//    }
-
-//    /**
-//     * Perform action on every line on the input text.
-//     *
-//     * @param text The text which should be processed line by line.
-//     * @param la The line action that should be triggered on each line.
-//     * @return The number of lines processed.
-//     */
-//    public static int performActionOnEveryLineText(String text, LineAction la) {
-//        return performActionOnEveryLine(new StringReader(text), la);
-//    }
-
-//    public static File writeToFile(String filePath, InputStream stream) {
-//
-//        File file = new File(filePath);
-//        
-//        OutputStream out = null;
-//        
-//        try {
-//            out = new FileOutputStream(file);
-//            
-//            byte buf[] = new byte[1024];
-//            int len;
-//            while ((len = stream.read(buf)) > 0) {
-//                out.write(buf, 0, len);
-//            }
-//
-//            out.close();
-//            stream.close();
-//
-//        } catch (Exception e) {
-//            LOGGER.error(e.getMessage());
-//        } finally {
-//            close(out, stream);
-//        }
-//
-//        return file;
-//    }
-
     /**
      * <p>
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
+     * </p>
+     * <p>
+     * If the file does not exist, it is created. If the path to the file does not exist, it is created as well.
      * </p>
      * 
      * @param filePath The file path.
@@ -665,7 +548,7 @@ public final class FileHelper {
      * @return <code>false</code> if any error occurred. It is likely that line has not been written, or only parts have
      *         been written. See error log for details (Exceptions).
      */
-    public static boolean writeToFile(String filePath, Collection<?> lines) {
+    public static boolean writeToFile(String filePath, Iterable<?> lines) {
 
         boolean success = false;
 
@@ -685,7 +568,7 @@ public final class FileHelper {
             success = true;
 
         } catch (IOException e) {
-            LOGGER.error(e.getMessage() + " : " + filePath);
+            LOGGER.error(e.getMessage() + " : " + filePath, e);
         } finally {
             close(writer);
         }
@@ -694,7 +577,12 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Write text to a file. If the file path ends with "gz" or "gzip" the contents will be gzipped automatically.
+     * </p>
+     * <p>
+     * If the file does not exist, it is created. If the path to the file does not exist, it is created as well.
+     * </p>
      * 
      * @param filePath The file path where the contents should be saved to.
      * @param string The string to save.
@@ -721,12 +609,34 @@ public final class FileHelper {
             writer.write(string.toString());
             success = true;
         } catch (IOException e) {
-            LOGGER.error(e.getMessage() + " : " + filePath);
+            LOGGER.error(e.getMessage() + " : " + filePath, e);
         } finally {
             close(writer);
         }
 
         return success;
+    }
+
+    public static void writeToFile(InputStream inputStream, String fileTargetLocation) {
+
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(new File(fileTargetLocation));
+            int read = 0;
+            byte[] bytes = new byte[1024];
+
+            out = new FileOutputStream(new File(fileTargetLocation));
+            while ((read = inputStream.read(bytes)) != -1) {
+                out.write(bytes, 0, read);
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage() + " : " + fileTargetLocation, e);
+        } finally {
+            close(out, inputStream);
+        }
+
     }
 
     /**
@@ -755,7 +665,9 @@ public final class FileHelper {
     }
 
     /**
-     * <p>Appends a line to the specified text file if it does not already exist within the file.</p>
+     * <p>
+     * Appends a line to the specified text file if it does not already exist within the file.
+     * </p>
      * 
      * @param filePath the file path; file will be created if it does not exist
      * @param stringToAppend the string to append
@@ -763,7 +675,7 @@ public final class FileHelper {
      */
     public static boolean appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
         boolean added = false;
-        final boolean[] add = new boolean[] { true };
+        final boolean[] add = new boolean[] {true};
 
         // if file exists already, check if it contains specified line
         if (fileExists(filePath)) {
@@ -871,7 +783,7 @@ public final class FileHelper {
     public static <T extends Serializable> T deserialize(String filePath) {
 
         if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            return (T) deserializeCompressed(filePath);
+            return (T)deserializeCompressed(filePath);
         }
 
         ObjectInputStream in = null;
@@ -879,7 +791,7 @@ public final class FileHelper {
 
         try {
             in = new ObjectInputStream(new FileInputStream(filePath));
-            obj = (T) in.readObject();
+            obj = (T)in.readObject();
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
@@ -908,7 +820,7 @@ public final class FileHelper {
 
         try {
             ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filePath)));
-            obj = (T) ois.readObject();
+            obj = (T)ois.readObject();
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage() + ", file path:" + filePath);
         } catch (IOException e) {
@@ -1198,19 +1110,6 @@ public final class FileHelper {
         return file.renameTo(new File(newFile, file.getName()));
     }
 
-//    /**
-//     * Add a header to all files from a certain folder.
-//     * 
-//     * @param folderPath The path to the folder.
-//     * @param header The header text to append.
-//     */
-//    public static void addFileHeader(String folderPath, StringBuilder header) {
-//        File[] files = getFiles(folderPath);
-//        for (File file : files) {
-//            appendFile(file.getAbsolutePath(), header + NEWLINE_CHARACTER);
-//        }
-//    }
-
     /**
      * Get all files from a certain folder.
      * 
@@ -1281,6 +1180,10 @@ public final class FileHelper {
         return new File[0];
     }
 
+    public static int getNumberOfLines(InputStream inputStream) {
+        return performActionOnEveryLine(inputStream, NOP_LINE_ACTION);
+    }
+
     /**
      * <p>
      * Get the number of lines in an ASCII document.
@@ -1290,12 +1193,7 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(String fileName) {
-        LineAction la = new LineAction() {
-            @Override
-            public void performAction(String line, int lineNumber) {
-            }
-        };
-        return FileHelper.performActionOnEveryLine(fileName, la);
+        return performActionOnEveryLine(fileName, NOP_LINE_ACTION);
     }
 
     /**
@@ -1307,7 +1205,7 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(File file) {
-        return FileHelper.getNumberOfLines(file.getPath());
+        return getNumberOfLines(file.getPath());
     }
 
     /**
@@ -1369,7 +1267,7 @@ public final class FileHelper {
             StringReader in = new StringReader(text.toString());
             int c = 0;
             while ((c = in.read()) != -1) {
-                zipout.write((byte) c);
+                zipout.write((byte)c);
             }
 
         } catch (IOException e) {
@@ -1400,7 +1298,7 @@ public final class FileHelper {
 
             int c = 0;
             while ((c = in.read()) != -1) {
-                zipout.write((byte) c);
+                zipout.write((byte)c);
             }
 
         } catch (IOException e) {
@@ -1412,28 +1310,6 @@ public final class FileHelper {
 
         return out.toString();
     }
-
-    /**
-     * Unzip a file.
-     * 
-     * @param filenameInput The name of the zipped file.
-     * @param filenameOutput The target name of the unzipped file.
-     */
-    // public static void ungzipFile(String filenameInput, String filenameOutput) {
-    // String unzippedContent = ungzipFileToString(filenameInput);
-    // writeToFile(filenameOutput, unzippedContent);
-    // }
-
-    /**
-     * Unzip a file.
-     * 
-     * @param filenameInput The name of the file to unzip.
-     */
-    // public static void ungzipFile(String filenameInput) {
-    // String unzippedContent = ungzipFileToString(filenameInput);
-    // String filenameOutput = getFilePath(filenameInput) + getFileName(filenameInput);
-    // writeToFile(filenameOutput, unzippedContent);
-    // }
 
     /**
      * Unzip file using the command line cmd.
@@ -1719,7 +1595,7 @@ public final class FileHelper {
                 try {
                     closeable.close();
                 } catch (IOException e) {
-                    LOGGER.error("Error closing " + closeable + ": " + e);
+                    LOGGER.error("Error closing {}: {}", closeable, e);
                 }
             }
         }
@@ -1740,13 +1616,45 @@ public final class FileHelper {
         return path;
     }
 
+    public static String createRandomExcerpt(String filePath, int lines) throws IOException {
+
+        String indexFilename = FileHelper.appendToFileName(filePath, "_random" + lines);
+        final FileWriter indexFile = new FileWriter(indexFilename);
+
+        int numberOfLines = FileHelper.getNumberOfLines(filePath);
+
+        final Set<Integer> randomNumbers = MathHelper.createRandomNumbers(lines, 0, numberOfLines);
+
+        LineAction la = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                if (randomNumbers.size() > 0 && !randomNumbers.contains(lineNumber)) {
+                    return;
+                }
+
+                try {
+                    indexFile.write(line + "\n");
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage());
+                }
+
+            }
+
+        };
+
+        FileHelper.performActionOnEveryLine(filePath, la);
+
+        indexFile.close();
+
+        return indexFilename;
+    }
+
     /**
      * The main method.
      * 
      * @param a The arguments.
-     */
-    /**
-     * @param a
      */
     public static void main(String[] a) {
 
@@ -1833,7 +1741,7 @@ public final class FileHelper {
         // FileHelper.addFileHeader("data/temp/src/tud/iir/web/test", sb);
         // System.exit(0);
         // ////////////////////////add license to every file //////////////////////////
-        writeToFile("temp/test.txt", Arrays.asList(new String[] { "one", "two", "three", "four" }));
+        writeToFile("temp/test.txt", Arrays.asList(new String[] {"one", "two", "three", "four"}));
         System.exit(0);
 
         FileHelper.move(new File("abc.txt"), "data");
@@ -1930,6 +1838,51 @@ public final class FileHelper {
         List<String> lines = FileHelper.readFileToArray(filePath);
         Collections.shuffle(lines);
         FileHelper.writeToFile(filePath, lines);
+    }
+
+    /** The Palladian-specific temp. directory. */
+    private static volatile File tempDirectory = null;
+
+    /**
+     * <p>
+     * Get the Palladian-specific temporary directory. The temp directory is created in the VM's temp directory as
+     * specified in <code>java.io.tmpdir</code> as subdirectory with the name <code>palladian-[timestamp]</code>. This
+     * directory and all its contents are deleted upon VM termination. The temp directory should be used for storing all
+     * intermediate data.
+     * </p>
+     * 
+     * @return The {@link File} representing the temp directory.
+     */
+    public static File getTempDir() {
+        // Thread-safe
+        if (tempDirectory == null) {
+            synchronized (FileHelper.class) {
+                if (tempDirectory == null) {
+                    File baseDirectory = new File(System.getProperty("java.io.tmpdir"));
+                    String directoryName = "palladian-" + System.currentTimeMillis();
+                    File newTempDirectory = new File(baseDirectory, directoryName);
+                    if (!newTempDirectory.mkdir()) {
+                        throw new IllegalStateException("Could not create the temporary directory " + directoryName
+                                + " in " + baseDirectory.getPath());
+                    }
+                    tempDirectory = newTempDirectory;
+
+                    // clean up, when VM shuts down
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+                        @Override
+                        public void run() {
+                            boolean success = delete(tempDirectory.getPath(), true);
+                            if (!success) {
+                                LOGGER.error("Error while deleting temporary directory {}", tempDirectory);
+                            }
+                        }
+                    });
+
+                    // LOGGER.debug("Temp directory is {}", tempDirectory);
+                }
+            }
+        }
+        return tempDirectory;
     }
 
 }

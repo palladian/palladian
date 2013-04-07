@@ -356,26 +356,20 @@ public final class MathHelper {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
-    public static double computeRootMeanSquareError(String inputFile, String columnSeparator) {
+    public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
         // array with correct and predicted values
-        List<double[]> values = new ArrayList<double[]>();
+        final List<double[]> values = new ArrayList<double[]>();
 
-        final Object[] obj = new Object[2];
-        obj[0] = values;
-        obj[1] = columnSeparator;
-
-        LineAction la = new LineAction(obj) {
-
-            @SuppressWarnings("unchecked")
+        LineAction la = new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split((String)obj[1]);
+                String[] parts = line.split(columnSeparator);
 
                 double[] pair = new double[2];
                 pair[0] = Double.valueOf(parts[0]);
                 pair[1] = Double.valueOf(parts[1]);
 
-                ((List<double[]>)obj[0]).add(pair);
+                values.add(pair);
             }
         };
 
@@ -445,27 +439,18 @@ public final class MathHelper {
         return new ListSimilarity(similarity, squaredShiftSimilarity, rootMeanSquareError);
     }
 
-    public static ListSimilarity computeListSimilarity(String listFile, String separator) {
+    public static ListSimilarity computeListSimilarity(String listFile, final String separator) {
 
         // two list
-        List<String> list1 = new ArrayList<String>();
-        List<String> list2 = new ArrayList<String>();
+        final List<String> list1 = new ArrayList<String>();
+        final List<String> list2 = new ArrayList<String>();
 
-        final Object[] obj = new Object[3];
-        obj[0] = list1;
-        obj[1] = list2;
-        obj[2] = separator;
-
-        LineAction la = new LineAction(obj) {
-
-            @SuppressWarnings({"rawtypes", "unchecked"})
+        LineAction la = new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split((String)obj[2]);
-
-                ((List)obj[0]).add(parts[0]);
-                ((List)obj[1]).add(parts[1]);
-
+                String[] parts = line.split(separator);
+                list1.add(parts[0]);
+                list2.add(parts[1]);
             }
         };
 

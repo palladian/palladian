@@ -1,8 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.Map;
-
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -34,89 +33,95 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxNer.class);
 
+    private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+
     private final String apiKey;
 
     public WebKnoxNer(String apiKey) {
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
     }
 
     public WebKnoxNer(Configuration configuration) {
-        this.apiKey = configuration.getString("api.webknox.apiKey");
+        this(configuration.getString("api.webknox.apiKey"));
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+    public Annotations getAnnotations(String inputText) {
 
-        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        String url = "http://46.4.89.232:8080/text/entities?";
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
+        request.addParameter("text", inputText);
 
-        url += "&apiKey=" + apiKey;
-
-        Map<String, String> postContent = CollectionHelper.newHashMap();
-        postContent.put("text", inputText);
-        HttpResult httpPost;
         Annotations annotations = new Annotations();
+        String content;
         try {
+            HttpResult httpResult = httpRetriever.execute(request);
+            content = HttpHelper.getStringContent(httpResult);
+        } catch (HttpException e) {
+            throw new IllegalStateException("HTTP error while accessing the service: " + e.getMessage(), e);
+        }
 
-            httpPost = httpRetriever.httpPost(url, postContent);
-            String content = HttpHelper.getStringContent(httpPost);
-            JSONArray result = null;
-
-            if (!content.isEmpty()) {
-                try {
-                    result = new JSONArray(content);
-                } catch (JSONException e) {
-                    LOGGER.error("JSONException: " + e.getMessage());
+        try {
+            JSONArray result = new JSONArray(content);
+            for (int i = 0; i < result.length(); i++) {
+                JSONObject currentItem = result.getJSONObject(i);
+                if (currentItem.has("entity")) {
+                    int offset = currentItem.getInt("offset");
+                    String entity = currentItem.getString("entity");
+                    String type = currentItem.getString("type");
+                    annotations.add(new Annotation(offset, entity, type));
+                } else {
+                    LOGGER.debug("Ignore malformed entry in JSON response.");
+                    /**
+                     * FIXME There is a bug in the REST service, which might return things like the following, where one
+                     * entry in the array is just empty. This should be fixed in WebKnox. 2013-02-12, Philipp.
+                     * 
+                     * <pre>
+                     *        […]
+                     *        {
+                     *            "entity":"Jazz Club",
+                     *            "length":9,
+                     *            "type":"PER",
+                     *            "normalizedEntity":"Jazz Club",
+                     *            "offset":3267
+                     *         },
+                     *         {
+                     * 
+                     *         },
+                     *         {
+                     *            "entity":"Ronnie Scott",
+                     *            "length":12,
+                     *            "type":"PER",
+                     *            "normalizedEntity":"Ronnie Scott",
+                     *            "offset":3344
+                     *         },
+                     *         […]
+                     * </pre>
+                     */
                 }
             }
-
-            for (int i = 0; i < result.length(); i++) {
-                JSONObject a = result.getJSONObject(i);
-                Annotation annotation = new Annotation(a.getInt("offset"), a.getString("entity"), a.getString("type"));
-                annotations.add(annotation);
-            }
-
         } catch (JSONException e) {
-            LOGGER.error(e.getMessage());
-        } catch (HttpException e) {
-            LOGGER.error(e.getMessage());
+            throw new IllegalStateException("JSON parse error while processing response '" + content + "': "
+                    + e.getMessage(), e);
         }
 
         return annotations;
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText, "");
-    }
-
-    @Override
-    public String getModelFileEnding() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return "";
-    }
-
-    @Override
-    public boolean setsModelFileEndingAutomatically() {
-        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
-        return false;
-    }
-
-    @Override
-    public boolean train(String trainingFilePath, String modelFilePath) {
-        LOGGER.warn(getName() + " does not support training");
-        return false;
-    }
-
-    @Override
-    public boolean loadModel(String configModelFilePath) {
-        LOGGER.warn(getName() + " does not support loading models");
-        return false;
+    public String getName() {
+        return "WebKnoxNer";
     }
 
     public static void main(String[] args) {
-        WebKnoxNer webKnoxNer = new WebKnoxNer(ConfigHolder.getInstance().getConfig());
-        System.out.println(webKnoxNer.tag("Bill Gates founded Microsoft in April 1975"));
+        // WebKnoxNer webKnoxNer = new WebKnoxNer(ConfigHolder.getInstance().getConfig());
+        WebKnoxNer webKnoxNer = new WebKnoxNer("v30170b8523o23il4bz3v04");
+        String text = "";
+        text = "Bill Gates founded Microsoft in April 1975";
+        text = "On November 27, the third committee of the UN General Assembly, the Social, Humanitarian and Cultural Affairs Committee, passed a resolution condemning the human rights situation in North Korea.";
+        text = "Shining a Light on North Korea’s Human Rights Crisis";
+
+        System.out.println(webKnoxNer.tag(text));
 
         // System.out
         // .println(webKnoxNer
