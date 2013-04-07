@@ -253,8 +253,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////
-        EvaluationResult er = tagger
-                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
     }

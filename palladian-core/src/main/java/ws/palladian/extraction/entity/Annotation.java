@@ -5,7 +5,6 @@ import java.util.List;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.UniversalInstance;
-import ws.palladian.extraction.entity.evaluation.EvaluationAnnotation;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -451,10 +450,6 @@ public class Annotation extends UniversalInstance {
         return length;
     }
 
-//    public CategoryEntry getMostLikelyTag() {
-//        return getTags().getMostLikelyCategoryEntry();
-//    }
-
     public String getMostLikelyTagName() {
         return getTags().getMostLikelyCategoryEntry().getName();
     }
@@ -501,21 +496,6 @@ public class Annotation extends UniversalInstance {
     public boolean sameTag(Annotation annotation) {
         if (getMostLikelyTagName()
                 .equalsIgnoreCase(annotation.getMostLikelyTagName())) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Compare this annotation with an annotation where the correct tag is known (gold standard / evaluation
-     * annotation).
-     * 
-     * @param goldStandardAnnotation The gold standard annotation.
-     * @return
-     */
-    public boolean sameTag(EvaluationAnnotation goldStandardAnnotation) {
-        if (getMostLikelyTagName()
-                .equalsIgnoreCase(goldStandardAnnotation.getTargetClass())) {
             return true;
         }
         return false;

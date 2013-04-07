@@ -1,56 +1,103 @@
 package ws.palladian.extraction.entity.evaluation;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
+import org.apache.commons.lang3.Validate;
+
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>
- * In NER there are 5 possible errors that can influence evaluation:<br>
- * <ol>
+ * In NER there are five possible errors that can influence evaluation:
+ * <ul>
  * <li>ERROR 1: tagged something that should not have been tagged</li>
  * <li>ERROR 2: missed an entity</li>
  * <li>ERROR 3: correct boundaries but wrong tag</li>
  * <li>ERROR 4: correctly tagged an entity but either too much or too little (wrong boundaries)</li>
  * <li>ERROR 5: wrong boundaries and wrong tag</li>
- * </ol>
+ * </ul>
  * For more information see <a
  * href="http://nlp.cs.nyu.edu/sekine/papers/li07.pdf">http://nlp.cs.nyu.edu/sekine/papers/li07.pdf</a> page 14.
  * </p>
  * 
  * <p>
- * We can evaluate using two approaches:<br>
+ * We can evaluate using two approaches:
  * <ol>
- * <li>Exact match ({@link EvaluationMode.EXACT_MATCH}), that is, only if boundary and tag are assigned correctly, the
+ * <li>Exact match ({@link EvaluationMode#EXACT_MATCH}), that is, only if boundary and tag are assigned correctly, the
  * assignment is true positive. Error types are not taken into account, all errors are equally wrong.</li>
- * <li>MUC ({@link EvaluationMode.MUC}), takes error types into account. 1 point for correct tag (regardless of
+ * <li>MUC ({@link EvaluationMode#MUC}), takes error types into account. 1 point for correct tag (regardless of
  * boundaries), 1 point for correct text (regardless of tag). Totally correct (correct boundaries and correct tag) = 2
  * points</li>
  * </ol>
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class EvaluationResult {
 
-    public EvaluationResult(Map<String, CountMap<ResultType>> assignments, Annotations goldStandardAnnotations,
-            Map<ResultType, Annotations> errorAnnotations) {
-        this.assignments = assignments;
-        this.goldStandardAnnotations = goldStandardAnnotations;
-        this.errorAnnotations = errorAnnotations;
+    public enum EvaluationMode {
+        /** The exact match evaluation mode. */
+        EXACT_MATCH,
+        /** The MUC evaluation mode. */
+        MUC
     }
 
-    /** The annotations from the gold standard. */
-    private final Annotations goldStandardAnnotations;
+    public enum ResultType {
+        /** Tagged something that should not have been tagged. */
+        ERROR1("ERROR1: Tagged something that should not have been tagged, false positive - bad for precision"),
+        /** Completely missed to tag an entity. */
+        ERROR2("ERROR2: Completely missed an annotation, false negative - bad for recall"),
+        /** Exact same content but wrong tag. */
+        ERROR3("ERROR3: Incorrect annotation type but correct boundaries - bad for precision and recall"),
+        /** Overlapping content and correct tag. */
+        ERROR4("ERROR4: Correct annotation type but incorrect boundaries - bad for precision and recall"),
+        /** Overlapping content but wrong tag. */
+        ERROR5("ERROR5: Incorrect annotation type and incorrect boundaries - bad for precision and recall"),
+        /** Exact same content and correct tag. */
+        CORRECT("CORRECT: Tag and boundaries correct");
 
-    /** All error annotations by error class. */
-    private final Map<ResultType, Annotations> errorAnnotations;
+        private final String description;
+
+        ResultType(String description) {
+            this.description = description;
+        }
+
+        /**
+         * <p>
+         * Get an explanation about the result type.
+         * </p>
+         * 
+         * @return Explanation for result type.
+         */
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    /** A marker that marks special fields. */
+    private static final String SPECIAL_MARKER = "#";
+
+    /** Marker which is used in case of {@link ResultType#ERROR1}. */
+    private static final String OTHER_MARKER = SPECIAL_MARKER + "OTHER" + SPECIAL_MARKER;
+
+    /** Keep {@link Annotation}s indexed by {@link ResultType}. */
+    private final MultiMap<ResultType, Annotation> resultAnnotations;
+
+    /** Keep counts of actual tag assignments. */
+    private final CountMap<String> actualAssignments;
+
+    /** Keep counts of tag assignments from gold standard. */
+    private final CountMap<String> possibleAssignments;
 
     /**
      * <p>
@@ -106,312 +153,175 @@ public class EvaluationResult {
      */
     private final Map<String, CountMap<ResultType>> assignments;
 
-    public enum EvaluationMode {
-        /** The exact match evaluation mode. */
-        EXACT_MATCH,
-        /** The MUC evaluation mode. */
-        MUC
-    }
+    private final ConfusionMatrix confusionMatrix;
 
-    public enum ResultType {
-        /** Tagged something that should not have been tagged. */
-        ERROR1("ERROR1: Tagged something that should not have been tagged, false positive - bad for precision"),
-        /** Completely missed to tag an entity. */
-        ERROR2("ERROR2: Completely missed an annotation, false negative - bad for recall"),
-        /** Exact same content but wrong tag. */
-        ERROR3("ERROR3: Incorrect annotation type but correct boundaries - bad for precision and recall"),
-        /** Overlapping content and correct tag. */
-        ERROR4("ERROR4: Correct annotation type but incorrect boundaries - bad for precision and recall"),
-        /** Overlapping content but wrong tag. */
-        ERROR5("ERROR5: Incorrect annotation type and incorrect boundaries - bad for precision and recall"),
-        /** Exact same content and correct tag. */
-        CORRECT("CORRECT: Tag and boundaries correct"),
-        /** Number of possible annotations. */
-        POSSIBLE(null);
-
-        private final String description;
-
-        ResultType(String description) {
-            this.description = description;
-        }
-
-        /**
-         * <p>
-         * Get an explanation about the result type.
-         * </p>
-         * 
-         * @return
-         */
-        public String getDescription() {
-            return description;
+    /**
+     * <p>
+     * Create a new {@link EvaluationResult} based on the given gold standard.
+     * </p>
+     * 
+     * @param goldStandard The gold standard, not <code>null</code>.
+     */
+    public EvaluationResult(List<Annotation> goldStandard) {
+        Validate.notNull(goldStandard, "goldStandard must not be null");
+        this.assignments = LazyMap.create(new Factory<CountMap<ResultType>>() {
+            @Override
+            public CountMap<ResultType> create() {
+                return CountMap.create();
+            }
+        });
+        this.resultAnnotations = MultiMap.create();
+        this.confusionMatrix = new ConfusionMatrix();
+        this.actualAssignments = CountMap.create();
+        this.possibleAssignments = CountMap.create();
+        for (Annotation annotation : goldStandard) {
+            possibleAssignments.add(annotation.getTargetClass());
         }
     }
-
-    /** A marker that marks special fields. */
-    public static final String SPECIAL_MARKER = "#";
 
     public double getPrecisionFor(String tagName, EvaluationMode type) {
-        double precision = -1;
-
-        CountMap<ResultType> cm = assignments.get(tagName);
-
-        if (cm == null) {
-            return precision;
+        int actualAssignments = getActualAssignments(tagName);
+        if (actualAssignments == 0) {
+            return -1;
         }
-
         int correctAssignments = 0;
-        int totalAssignments = 0;
-
         if (type == EvaluationMode.EXACT_MATCH) {
-
-            correctAssignments = cm.getCount(ResultType.CORRECT);
-            totalAssignments = cm.getCount(ResultType.ERROR1) + cm.getCount(ResultType.ERROR3)
-                    + cm.getCount(ResultType.ERROR4) + cm.getCount(ResultType.ERROR5) + correctAssignments;
-
+            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT);
         } else if (type == EvaluationMode.MUC) {
-
-            correctAssignments = cm.getCount(ResultType.ERROR3) + cm.getCount(ResultType.ERROR4) + 2
-                    * cm.getCount(ResultType.CORRECT);
-            totalAssignments = 2 * (cm.getCount(ResultType.ERROR1) + cm.getCount(ResultType.ERROR3)
-                    + cm.getCount(ResultType.ERROR4) + cm.getCount(ResultType.ERROR5) + cm.getCount(ResultType.CORRECT));
-
+            correctAssignments = getWeightedMuc(tagName);
+            actualAssignments *= 2;
         }
-
-        if (totalAssignments == 0) {
-            return precision;
-        }
-
-        precision = (double)correctAssignments / (double)totalAssignments;
-
-        return precision;
+        return (double)correctAssignments / actualAssignments;
     }
 
     public double getRecallFor(String tagName, EvaluationMode type) {
-        double recall = -1;
-
-        CountMap<ResultType> cm = assignments.get(tagName);
-
-        if (cm == null) {
-            return recall;
-        }
-
-        int correctAssignments = 0;
-        int possibleAssignments = 0;
-
-        if (type == EvaluationMode.EXACT_MATCH) {
-
-            correctAssignments = cm.getCount(ResultType.CORRECT);
-            possibleAssignments = cm.getCount(ResultType.POSSIBLE);
-
-        } else if (type == EvaluationMode.MUC) {
-
-            correctAssignments = cm.getCount(ResultType.ERROR3) + cm.getCount(ResultType.ERROR4) + 2
-                    * cm.getCount(ResultType.CORRECT);
-            possibleAssignments = 2 * cm.getCount(ResultType.POSSIBLE);
-
-        }
-
+        int possibleAssignments = getPossibleAssignments(tagName);
         if (possibleAssignments == 0) {
-            return recall;
+            return -1;
         }
+        int correctAssignments = 0;
+        if (type == EvaluationMode.EXACT_MATCH) {
+            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT);
+        } else if (type == EvaluationMode.MUC) {
+            correctAssignments = getWeightedMuc(tagName);
+            possibleAssignments *= 2;
+        }
+        return (double)correctAssignments / possibleAssignments;
+    }
 
-        recall = (double)correctAssignments / (double)possibleAssignments;
-
-        return recall;
+    /** Get correct assignments weighted by MUC scheme. */
+    private int getWeightedMuc(String tagName) {
+        return getResultTypeCount(tagName, ResultType.ERROR3) + getResultTypeCount(tagName, ResultType.ERROR4) + 2
+                * getResultTypeCount(tagName, ResultType.CORRECT);
     }
 
     public double getF1For(String tagName, EvaluationMode type) {
-        double f1 = -1;
-
-        double precision = 0;
-        double recall = 0;
-
-        precision = getPrecisionFor(tagName, type);
-        recall = getRecallFor(tagName, type);
-
+        double precision = getPrecisionFor(tagName, type);
+        double recall = getRecallFor(tagName, type);
         if (precision == 0 || recall == 0) {
             return 0.0;
         }
-
         if (precision == -1 || recall == -1) {
-            return f1;
+            return -1;
         }
-
-        f1 = 2 * precision * recall / (precision + recall);
-
-        return f1;
+        return 2 * precision * recall / (precision + recall);
     }
 
     public double getTagAveragedPrecision(EvaluationMode type) {
-
         double totalPrecision = 0;
 
         // count number of tags with not undefined precisions (precision > -1)
         double totalPrecisionsSet = 0;
 
-        for (Entry<String, CountMap<ResultType>> tagEntry : assignments.entrySet()) {
-            double tagPrecision = getPrecisionFor(tagEntry.getKey(), type);
+        for (String tagName : assignments.keySet()) {
+            double tagPrecision = getPrecisionFor(tagName, type);
             if (tagPrecision > -1) {
                 totalPrecision += tagPrecision;
                 totalPrecisionsSet++;
             }
         }
-
-        double tagAveragedPrecision = totalPrecision / totalPrecisionsSet;
-        return tagAveragedPrecision;
+        return totalPrecision / totalPrecisionsSet;
     }
 
     public double getTagAveragedRecall(EvaluationMode type) {
-
         double totalRecall = 0;
 
         // count number of tags with not undefined recall (recall > -1)
         double totalRecallsSet = 0;
 
-        for (Entry<String, CountMap<ResultType>> tagEntry : assignments.entrySet()) {
-            double tagRecall = getRecallFor(tagEntry.getKey(), type);
+        for (String tagName : assignments.keySet()) {
+            double tagRecall = getRecallFor(tagName, type);
             if (tagRecall > -1) {
                 totalRecall += tagRecall;
                 totalRecallsSet++;
             }
         }
-
-        double tagAveragedRecall = totalRecall / totalRecallsSet;
-        return tagAveragedRecall;
+        return totalRecall / totalRecallsSet;
     }
 
     public double getTagAveragedF1(EvaluationMode type) {
-
-        double f1 = -1;
-
         double precision = getTagAveragedPrecision(type);
         double recall = getTagAveragedRecall(type);
-
         if (precision == 0 || recall == 0) {
             return 0.0;
-        } else if (precision < 0 || recall < 0) {
-            return f1;
         }
-
-        f1 = 2 * precision * recall / (precision + recall);
-
-        return f1;
+        if (precision < 0 || recall < 0) {
+            return -1;
+        }
+        return 2 * precision * recall / (precision + recall);
     }
 
     public double getPrecision(EvaluationMode type) {
-        double precision = 0;
-
-        int correctAssignments = 0;
-        int totalAssignments = 0;
-
-        for (Entry<String, CountMap<ResultType>> tagEntry : assignments.entrySet()) {
-
-            CountMap<ResultType> cm = tagEntry.getValue();
-
-            if (cm == null) {
-                continue;
-            }
-
-            if (type == EvaluationMode.EXACT_MATCH) {
-
-                correctAssignments += cm.getCount(ResultType.CORRECT);
-                totalAssignments += cm.getCount(ResultType.ERROR1) + cm.getCount(ResultType.ERROR3)
-                        + cm.getCount(ResultType.ERROR4) + cm.getCount(ResultType.ERROR5)
-                        + cm.getCount(ResultType.CORRECT);
-
-            } else if (type == EvaluationMode.MUC) {
-
-                correctAssignments += cm.getCount(ResultType.ERROR3) + cm.getCount(ResultType.ERROR4) + 2
-                        * cm.getCount(ResultType.CORRECT);
-                totalAssignments += 2 * (cm.getCount(ResultType.ERROR1) + cm.getCount(ResultType.ERROR3)
-                        + cm.getCount(ResultType.ERROR4) + cm.getCount(ResultType.ERROR5) + cm
-                        .getCount(ResultType.CORRECT));
-
-            }
-
+        int sumCorrect = 0;
+        int sumTotal = getActualAssignments();
+        if (type == EvaluationMode.MUC) {
+            sumTotal *= 2;
         }
-
-        precision = (double)correctAssignments / (double)totalAssignments;
-
-        return precision;
+        for (String tagName : assignments.keySet()) {
+            if (type == EvaluationMode.EXACT_MATCH) {
+                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT);
+            } else if (type == EvaluationMode.MUC) {
+                sumCorrect += getWeightedMuc(tagName);
+            }
+        }
+        return (double)sumCorrect / sumTotal;
     }
 
     public double getRecall(EvaluationMode type) {
-        double recall = 0;
-
-        int correctAssignments = 0;
-        int possibleAssignments = 0;
-
-        for (Entry<String, CountMap<ResultType>> tagEntry : assignments.entrySet()) {
-
-            CountMap<ResultType> cm = tagEntry.getValue();
-
-            if (cm == null) {
-                continue;
-            }
-
-            if (type == EvaluationMode.EXACT_MATCH) {
-
-                correctAssignments += cm.getCount(ResultType.CORRECT);
-                possibleAssignments += cm.getCount(ResultType.POSSIBLE);
-
-            } else if (type == EvaluationMode.MUC) {
-
-                correctAssignments += cm.getCount(ResultType.ERROR3) + cm.getCount(ResultType.ERROR4) + 2
-                        * cm.getCount(ResultType.CORRECT);
-                possibleAssignments += 2 * cm.getCount(ResultType.POSSIBLE);
-
-            }
-
+        int sumCorrect = 0;
+        int sumPossible = getPossibleAssignments();
+        if (type == EvaluationMode.MUC) {
+            sumPossible *= 2;
         }
-
-        recall = (double)correctAssignments / (double)possibleAssignments;
-
-        return recall;
+        for (String tagName : assignments.keySet()) {
+            if (type == EvaluationMode.EXACT_MATCH) {
+                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT);
+            } else if (type == EvaluationMode.MUC) {
+                sumCorrect += getWeightedMuc(tagName);
+            }
+        }
+        return (double)sumCorrect / sumPossible;
     }
 
     public double getF1(EvaluationMode type) {
-        double f1 = -1;
-
-        double precision = 0;
-        double recall = 0;
-
-        precision = getPrecision(type);
-        recall = getRecall(type);
-
+        double precision = getPrecision(type);
+        double recall = getRecall(type);
         if (precision == 0 || recall == 0) {
             return 0.0;
-        } else if (precision < 0 || recall < 0) {
-            return f1;
         }
-
-        f1 = 2 * precision * recall / (precision + recall);
-
-        return f1;
-    }
-
-    public Map<String, CountMap<ResultType>> getAssignments() {
-        return assignments;
+        if (precision < 0 || recall < 0) {
+            return -1;
+        }
+        return 2 * precision * recall / (precision + recall);
     }
 
     @Override
     public String toString() {
-        // StringBuilder builder = new StringBuilder();
-        // builder.append("EvaluationResult [precision exact=");
-        // builder.append(getPrecision(EXACT_MATCH));
-        // builder.append(", precision MUC=");
-        // builder.append(getPrecision(MUC));
-        // builder.append(", recall exact=");
-        // builder.append(getRecall(EXACT_MATCH));
-        // builder.append(", recall MUC=");
-        // builder.append(getRecall(MUC));
-        // builder.append(", F1 exact=");
-        // builder.append(getF1(EXACT_MATCH));
-        // builder.append(", F1 MUC=");
-        // builder.append(getF1(MUC));
-        // builder.append("]");
-        // return builder.toString();
-        return NamedEntityRecognizer.getEvaluationDetails(this);
+        StringBuilder builder = new StringBuilder();
+        builder.append(getExactMatchResultsReadable());
+        builder.append(", ");
+        builder.append(getMUCResultsReadable());
+        return builder.toString();
     }
 
     public String getExactMatchResultsReadable() {
@@ -436,12 +346,198 @@ public class EvaluationResult {
         return builder.toString();
     }
 
-    public Annotations getGoldStandardAnnotations() {
-        return goldStandardAnnotations;
+    public String getEvaluationDetails() {
+
+        // write evaluation results to file
+        StringBuilder results = new StringBuilder();
+
+        results.append("Number of distinct tags:; ").append(assignments.size()).append("\n");
+        results.append("Total annotations in test set:; ").append(getPossibleAssignments()).append("\n");
+        results.append("Confusion Matrix:\n");
+
+        results.append("predicted\\real;");
+
+        // order of tag names for matrix
+        List<String> tagOrder = new ArrayList<String>();
+        for (String tagName : assignments.keySet()) {
+            tagOrder.add(tagName);
+            results.append(tagName).append(";");
+        }
+        // add "OTHER" in case of ERROR1
+        tagOrder.add(OTHER_MARKER);
+        results.append(OTHER_MARKER).append(";");
+
+        results.append("#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
+
+        int totalTagAssignments = 0;
+        for (String predictedTag : assignments.keySet()) {
+
+            int totalNumber = 0;
+
+            results.append(predictedTag).append(";");
+
+            // write frequencies of confusion matrix
+            for (String tagName : tagOrder) {
+                int confusionCount = confusionMatrix.getConfusions(tagName, predictedTag);
+                results.append(confusionCount).append(";");
+                totalNumber += confusionCount;
+            }
+
+            // total number of real tags in test set
+            results.append(totalNumber).append(";");
+            totalTagAssignments += totalNumber;
+
+            // precision, recall, and F1 for exact match
+            results.append(getPrecisionFor(predictedTag, EvaluationMode.EXACT_MATCH)).append(";");
+            results.append(getRecallFor(predictedTag, EvaluationMode.EXACT_MATCH)).append(";");
+            results.append(getF1For(predictedTag, EvaluationMode.EXACT_MATCH)).append(";");
+
+            // precision, recall, and F1 for MUC score
+            results.append(getPrecisionFor(predictedTag, EvaluationMode.MUC)).append(";");
+            results.append(getRecallFor(predictedTag, EvaluationMode.MUC)).append(";");
+            results.append(getF1For(predictedTag, EvaluationMode.MUC)).append("\n");
+
+        }
+
+        // write last line with averages over all tags
+        results.append("ALL TAGS;");
+        for (String tagName : tagOrder) {
+            int totalAssignments = confusionMatrix.getRealDocuments(tagName);
+            results.append(totalAssignments).append(";");
+        }
+
+        // total assignments
+        results.append(totalTagAssignments).append(";");
+
+        // precision, recall, and F1 for exact match
+        results.append("tag averaged:")
+                .append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4)).append(", overall:");
+        results.append(MathHelper.round(getPrecision(EvaluationMode.EXACT_MATCH), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getRecall(EvaluationMode.EXACT_MATCH), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.EXACT_MATCH), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getF1(EvaluationMode.EXACT_MATCH), 4)).append(";");
+
+        // precision, recall, and F1 for MUC score
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.MUC), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getPrecision(EvaluationMode.MUC), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.MUC), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getRecall(EvaluationMode.MUC), 4)).append(";");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.MUC), 4))
+                .append(", overall:");
+        results.append(MathHelper.round(getF1(EvaluationMode.MUC), 4)).append("\n");
+
+        results.append("\n\n");
+        results.append(ResultType.CORRECT.getDescription()).append(" : ");
+        results.append(getResultTypeCount(ResultType.CORRECT)).append('\n');
+        for (ResultType resultType : ResultType.values()) {
+            if (resultType == ResultType.CORRECT) {
+                continue;
+            }
+            results.append(resultType.getDescription()).append(" : ");
+            results.append(getResultTypeCount(resultType)).append('\n');
+        }
+
+        for (ResultType resultType : ResultType.values()) {
+            if (resultType == ResultType.CORRECT) {
+                continue; // skip correct annotations
+            }
+            results.append("\n\n");
+            results.append(resultType.getDescription());
+            results.append(" (total: ").append(getResultTypeCount(resultType)).append("):\n\n");
+
+            CountMap<String> cm = getAnnotationCount(resultType);
+            for (String item : cm) {
+                results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
+            }
+            results.append("\n");
+            for (Annotation annotation : resultAnnotations.get(resultType)) {
+                results.append("  ").append(annotation).append("\n");
+            }
+        }
+
+        return results.toString();
     }
 
-    public Map<ResultType, Annotations> getErrorAnnotations() {
-        return errorAnnotations;
+    private CountMap<String> getAnnotationCount(ResultType resultType) {
+        CountMap<String> counts = CountMap.create();
+        for (Annotation annotation : getAnnotations(resultType)) {
+            counts.add(annotation.getMostLikelyTagName());
+        }
+        return counts;
+    }
+
+    int getResultTypeCount(ResultType resultType) {
+        return resultAnnotations.get(resultType).size();
+    }
+
+    int getActualAssignments() {
+        return actualAssignments.totalSize();
+    }
+
+    int getActualAssignments(String tagName) {
+        return actualAssignments.getCount(tagName);
+    }
+
+    int getPossibleAssignments() {
+        return possibleAssignments.totalSize();
+    }
+
+    int getPossibleAssignments(String tagName) {
+        return possibleAssignments.getCount(tagName);
+    }
+
+    int getResultTypeCount(String tagName, ResultType resultType) {
+        return assignments.get(tagName).getCount(resultType);
+    }
+
+    public List<Annotation> getAnnotations(ResultType resultType) {
+        List<Annotation> annotations = resultAnnotations.get(resultType);
+        return annotations != null ? Collections.unmodifiableList(annotations) : Collections.<Annotation> emptyList();
+    }
+
+    /**
+     * <p>
+     * Add data to this evaluation result, consisting of a {@link ResultType}, the real annotation from the gold
+     * standard, and the assigned {@link Annotation} from an NER.
+     * </p>
+     * 
+     * @param resultType The type of the result, not <code>null</code>.
+     * @param realAnnotation The real annotation from the gold standard, or <code>null</code> in case of
+     *            {@link ResultType#ERROR1} (something was tagged, which is not in the gold standard).
+     * @param nerAnnotation The annotation assigned by the NER, or <code>null</code> in case of
+     *            {@link ResultType#ERROR2} (something from the gold standard was not tagged at all).
+     */
+    public void add(ResultType resultType, Annotation realAnnotation, Annotation nerAnnotation) {
+        Validate.notNull(resultType, "resultType must not be null");
+
+        switch (resultType) {
+            case CORRECT:
+            case ERROR3:
+            case ERROR4:
+            case ERROR5:
+                actualAssignments.add(nerAnnotation.getMostLikelyTagName());
+                resultAnnotations.add(resultType, nerAnnotation);
+                assignments.get(realAnnotation.getTargetClass()).add(resultType);
+                confusionMatrix.add(realAnnotation.getTargetClass(), nerAnnotation.getMostLikelyTagName());
+                break;
+            case ERROR1:
+                actualAssignments.add(nerAnnotation.getMostLikelyTagName());
+                resultAnnotations.add(resultType, nerAnnotation);
+                assignments.get(nerAnnotation.getMostLikelyTagName()).add(resultType);
+                confusionMatrix.add(OTHER_MARKER, nerAnnotation.getMostLikelyTagName());
+                break;
+            case ERROR2:
+                resultAnnotations.add(resultType, realAnnotation);
+                assignments.get(realAnnotation.getTargetClass()).add(resultType);
+                break;
+            default:
+                throw new IllegalStateException();
+        }
     }
 
 }

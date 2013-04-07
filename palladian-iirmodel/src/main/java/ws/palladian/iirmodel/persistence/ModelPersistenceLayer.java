@@ -1370,13 +1370,14 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<Object[]> runNativeQuery(String query, ParameterFiller parameterFiller) {
         Query queryObj = getManager().createNativeQuery(query);
         parameterFiller.fillParameter(queryObj);
 
         Boolean openedTransaction = openTransaction();
         try {
-            return queryObj.getResultList();
+            return (List<Object[]>)queryObj.getResultList();
         } finally {
             commitTransaction(openedTransaction);
         }
