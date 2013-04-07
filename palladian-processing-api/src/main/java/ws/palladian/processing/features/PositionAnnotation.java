@@ -17,8 +17,7 @@ import ws.palladian.processing.Classifiable;
  * @since 0.1.7
  */
 // TODO rename to TextAnnotation
-public class PositionAnnotation extends NominalFeature implements Classifiable, Comparable<PositionAnnotation>,
-        Annotated {
+public class PositionAnnotation extends NominalFeature implements Classifiable, Annotated {
 
     /**
      * <p>
@@ -180,8 +179,8 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
     }
 
     @Override
-    public int compareTo(PositionAnnotation o) {
-        return Integer.valueOf(this.startPosition).compareTo(o.startPosition);
+    public int compareTo(Annotated o) {
+        return Integer.valueOf(this.startPosition).compareTo(o.getStartPosition());
     }
 
 }

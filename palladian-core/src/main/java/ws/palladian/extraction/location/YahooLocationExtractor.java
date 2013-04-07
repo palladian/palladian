@@ -3,6 +3,7 @@ package ws.palladian.extraction.location;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -12,8 +13,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
@@ -70,7 +69,7 @@ public class YahooLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<LocationAnnotation> getAnnotations(String inputText) {
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://query.yahooapis.com/v1/public/yql");
         request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -91,22 +90,20 @@ public class YahooLocationExtractor extends LocationExtractor {
         try {
             postResult = retriever.execute(request);
         } catch (HttpException e) {
-            LOGGER.error("HTTP error when accessing the service", e);
-            return new Annotations();
+            throw new IllegalStateException("HTTP error when accessing the service", e);
         }
         String response = HttpHelper.getStringContent(postResult);
 
-        Annotations result;
+        List<LocationAnnotation> result;
         try {
             result = parseJson(inputText, response);
         } catch (JSONException e) {
-            LOGGER.error("Error parsing the JSON: '" + response + "'.", e);
-            return new Annotations();
+            throw new IllegalStateException("Error parsing the JSON: '" + response + "'.", e);
         }
         return result;
     }
 
-    static Annotations parseJson(String text, String response) throws JSONException {
+    static List<LocationAnnotation> parseJson(String text, String response) throws JSONException {
 
         JSONObject jsonResult = new JSONObject(response);
         JSONObject jsonObject = jsonResult.getJSONObject("query").getJSONObject("results").getJSONObject("matches");
@@ -144,8 +141,7 @@ public class YahooLocationExtractor extends LocationExtractor {
             }
         }
 
-        Annotations result = new Annotations();
-        // PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory("location", text);
+        List<LocationAnnotation> result = CollectionHelper.newArrayList();
         for (JSONObject referenceJson : tempReferences.values()) {
 
             int woeId = referenceJson.getInt("woeIds"); // XXX there might acutally be multiple IDs
@@ -155,28 +151,25 @@ public class YahooLocationExtractor extends LocationExtractor {
             int startOffset = referenceJson.getInt("start");
             int endOffset = referenceJson.getInt("end");
 
-            // String name = placeJson.getString("name");
             String type = placeJson.getString("type");
-            // JSONObject jsonCentroid = placeJson.getJSONObject("centroid");
-            // double longitude = jsonCentroid.getDouble("longitude");
-            // double latitude = jsonCentroid.getDouble("latitude");
+            JSONObject jsonCentroid = placeJson.getJSONObject("centroid");
+            double lng = jsonCentroid.getDouble("longitude");
+            double lat = jsonCentroid.getDouble("latitude");
 
-            // PositionAnnotation annotation = annotationFactory.create(startOffset, endOffset);
-            // FeatureVector featureVector = annotation.getFeatureVector();
-            // featureVector.add(new NominalFeature("woeId", String.valueOf(woeId)));
-            // featureVector.add(new NominalFeature("name", name));
-            // featureVector.add(new NominalFeature("type", type));
-            // featureVector.add(new NumericFeature("longitude", longitude));
-            // featureVector.add(new NumericFeature("latitude", latitude));
-
+            String name = placeJson.getString("name");
             String actualName = text.substring(startOffset, endOffset);
+            Set<AlternativeName> alternatives = null;
+            if (!name.equals(actualName)) {
+                alternatives = Collections.singleton(new AlternativeName(name, null));
+            }
+
             LocationType mappedType = TYPE_MAPPING.get(type);
             if (mappedType == null) {
                 LOGGER.error("Unmapped type {}", type);
                 continue;
             }
-            Annotation location = new Annotation(startOffset, actualName, mappedType.toString());
-            result.add(location);
+            Location location = new ImmutableLocation(woeId, actualName, alternatives, mappedType, lat, lng, null, null);
+            result.add(new LocationAnnotation(startOffset, endOffset, actualName, location));
         }
         return result;
     }
@@ -189,7 +182,7 @@ public class YahooLocationExtractor extends LocationExtractor {
     public static void main(String[] args) throws Exception {
         LocationExtractor extractor = new YahooLocationExtractor();
         String text = "They followed him to deepest Africa and found him there, in Timbuktu";
-        List<Annotation> list = extractor.getAnnotations(text);
+        List<LocationAnnotation> list = extractor.getAnnotations(text);
         CollectionHelper.print(list);
     }
 

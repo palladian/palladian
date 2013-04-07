@@ -17,10 +17,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -96,9 +94,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public Annotations getAnnotations(String text) {
+    public List<LocationAnnotation> getAnnotations(String text) {
 
-        Annotations locationEntities = new Annotations();
+        List<LocationAnnotation> locationEntities = CollectionHelper.newArrayList();
 
         List<Annotation> taggedEntities = StringTagger.getTaggedEntities(text);
 
@@ -223,9 +221,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         Map<String, Location> finalResultsForCheck = CollectionHelper.newHashMap();
 
-        Iterator<Annotation> iterator = locationEntities.iterator();
+        Iterator<LocationAnnotation> iterator = locationEntities.iterator();
+        Set<LocationAnnotation> toRemove = CollectionHelper.newHashSet();
+        List<LocationAnnotation> toAdd = CollectionHelper.newArrayList();
         while (iterator.hasNext()) {
-            Annotation annotation = iterator.next();
+            LocationAnnotation annotation = iterator.next();
             String entityValue = annotation.getValue();
 
             entityValue = cleanName(entityValue);
@@ -242,18 +242,24 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 LOGGER.debug("Ambiguity for {}", entityValue);
             }
             Location loc = selectLocation(locationMap.get(entityValue));
+            toRemove.add(annotation);
 
-            CategoryEntriesMap ces = new CategoryEntriesMap();
-            ces.set(loc.getType().toString(), 1.);
-            annotation.setTags(ces);
+            // FIXME!?!?!?
+            // CategoryEntriesMap ces = new CategoryEntriesMap();
+            // ces.set(loc.getType().toString(), 1.);
+            // annotation.setTags(ces);
+            toAdd.add(new LocationAnnotation(annotation, loc));
 
             finalResultsForCheck.put(annotation.getValue(), loc);
         }
 
+        locationEntities.removeAll(toRemove);
+        locationEntities.addAll(toAdd);
+
         Map<String, Location> clearMap = checkFinalResults(finalResultsForCheck, anchorLocations);
         iterator = locationEntities.iterator();
         while (iterator.hasNext()) {
-            Annotation current = iterator.next();
+            LocationAnnotation current = iterator.next();
             if (clearMap.containsKey(current.getValue())) {
                 LOGGER.debug("- remove - " + current);
                 iterator.remove();
@@ -262,7 +268,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         // last step, recognize streets. For also extracting ZIP codes, this needs to be better integrated into above's
         // workflow. We should use the CITY annotations, to search for neighboring ZIP codes.
-        List<Annotation> annotatedStreets = AddressTagger.tag(text);
+        List<LocationAnnotation> annotatedStreets = AddressTagger.tag(text);
         locationEntities.addAll(annotatedStreets);
 
         return locationEntities;
@@ -625,7 +631,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         String rawText = FileHelper
                 .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text40.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
-        List<Annotation> locations = extractor.getAnnotations(cleanText);
+        List<LocationAnnotation> locations = extractor.getAnnotations(cleanText);
         CollectionHelper.print(locations);
     }
 

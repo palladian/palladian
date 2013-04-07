@@ -63,4 +63,9 @@ public class TagAnnotation implements Annotated {
         return chunk;
     }
 
+    @Override
+    public int compareTo(Annotated o) {
+        return getStartPosition() - o.getStartPosition();
+    }
+
 }

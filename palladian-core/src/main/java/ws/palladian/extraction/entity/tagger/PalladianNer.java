@@ -56,6 +56,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.ClassifiedTextDocument;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -601,12 +602,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             removeAnnotations.clear();
             EvaluationResult evaluationResult = evaluate(trainingFilePath, TaggingFormat.COLUMN);
             List<Annotation> goldStandard = FileFormatParser.getAnnotations(trainingFilePath, TaggingFormat.COLUMN);
-            // goldStandard.sort();
-            Collections.sort(goldStandard, Annotations.ANNOTATION_COMPARATOR);
+            Collections.sort(goldStandard);
 
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
-            for (Annotation wrongAnnotation : evaluationResult.getAnnotations(ResultType.ERROR1)) {
+            for (Annotated wrongAnnotation : evaluationResult.getAnnotations(ResultType.ERROR1)) {
 
                 // for the numeric classifier it is better if only annotations are removed that never appeared in the
                 // gold standard for the text classifier it is better to remove annotations that are just wrong even

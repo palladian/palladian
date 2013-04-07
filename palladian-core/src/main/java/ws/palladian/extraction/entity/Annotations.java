@@ -2,10 +2,11 @@ package ws.palladian.extraction.entity;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * A list of {@link Annotation}s.
@@ -15,19 +16,12 @@ import ws.palladian.helper.io.FileHelper;
  */
 public class Annotations extends ArrayList<Annotation> {
 
-    public static final Comparator<Annotation> ANNOTATION_COMPARATOR = new Comparator<Annotation>() {
-        @Override
-        public int compare(Annotation a1, Annotation a2) {
-            return a1.getStartPosition() - a2.getStartPosition();
-        }
-    };
-
-    public static void removeNestedAnnotations(List<Annotation> annotations) {
-        Annotations removedNested = new Annotations();
-        Collections.sort(annotations, ANNOTATION_COMPARATOR);
+    public static void removeNestedAnnotations(List<? extends Annotated> annotations) {
+        List<Annotated> removedNested = CollectionHelper.newArrayList();
+        Collections.sort(annotations);
 
         int lastEndIndex = 0;
-        for (Annotation annotation : annotations) {
+        for (Annotated annotation : annotations) {
 
             // ignore nested annotations
             if (annotation.getStartPosition() < lastEndIndex) {
@@ -38,8 +32,7 @@ public class Annotations extends ArrayList<Annotation> {
             lastEndIndex = annotation.getEndPosition();
         }
 
-        annotations.clear();
-        annotations.addAll(removedNested);
+        annotations.retainAll(removedNested);
     }
 
     private static final long serialVersionUID = -628839540653937643L;
@@ -96,7 +89,7 @@ public class Annotations extends ArrayList<Annotation> {
      * The order of annotations is important. Annotations are sorted by their offsets in ascending order.
      */
     public void sort() {
-        Collections.sort(this, ANNOTATION_COMPARATOR);
+        Collections.sort(this);
     }
 
     @Override

@@ -17,6 +17,7 @@ import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -174,7 +175,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
 
     /** Overridden, intended for unit-testing only. */
     @Override
-    protected String tagText(String inputText, List<Annotation> annotations) {
+    protected String tagText(String inputText, List<? extends Annotated> annotations) {
         return super.tagText(inputText, annotations);
     }
 

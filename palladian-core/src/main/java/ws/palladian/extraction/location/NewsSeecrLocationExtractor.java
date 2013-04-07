@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import java.util.List;
+
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -7,7 +9,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -53,7 +55,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<LocationAnnotation> getAnnotations(String inputText) {
         HttpRequest request = new HttpRequest(HttpMethod.POST, BASE_URL);
         request.addParameter("text", inputText);
         request.addHeader("X-Mashape-Authorization", mashapeKey);
@@ -67,7 +69,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         checkError(result);
         LOGGER.debug("Result JSON: {}", resultString);
         try {
-            Annotations annotations = new Annotations();
+            List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
             JSONObject jsonResult = new JSONObject(resultString);
             JSONArray resultArray = jsonResult.getJSONArray("results");
             for (int i = 0; i < resultArray.length(); i++) {
@@ -78,7 +80,10 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
                 LocationType type = LocationType.valueOf(currentResult.getString("type"));
                 Double lat = currentResult.optDouble("latitude");
                 Double lng = currentResult.optDouble("longitude");
-                annotations.add(new LocationAnnotation(startPos, endPos, name, type, lat, lng));
+                int id = 0;
+                Long population = null;
+                Location location = new ImmutableLocation(id, name, type, lat, lng, population);
+                annotations.add(new LocationAnnotation(startPos, endPos, name, location));
 
             }
             return annotations;

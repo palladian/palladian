@@ -8,16 +8,16 @@ package ws.palladian.processing.features;
  * 
  * @author Philipp Katz
  */
-public interface Annotated {
+public interface Annotated extends Comparable<Annotated> {
 
-    public abstract int getStartPosition();
+    int getStartPosition();
 
-    public abstract int getEndPosition();
+    int getEndPosition();
 
-    public abstract int getIndex();
+    int getIndex();
 
-    public abstract String getTag();
+    String getTag();
 
-    public abstract String getValue();
+    String getValue();
 
 }
