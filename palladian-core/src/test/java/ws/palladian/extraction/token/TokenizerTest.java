@@ -3,12 +3,12 @@ package ws.palladian.extraction.token;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -135,7 +135,7 @@ public class TokenizerTest {
 
         inputText = "\"Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.\"";
         sentences = Tokenizer.getSentences(inputText);
-        CollectionHelper.print(sentences);
+        // CollectionHelper.print(sentences);
         assertEquals(2, sentences.size());
 
         inputText = "The induction of immediate-early (IE) response genes, such as egr-1, c-fos, and c-jun, occurs rapidly after the activation of T lymphocytes. The process of activation involves calcium mobilization, activation of protein kinase C (PKC), and phosphorylation of tyrosine kinases. p21(ras), a guanine nucleotide binding factor, mediates T-cell signal transduction through PKC-dependent and PKC-independent pathways. The involvement of p21(ras) in the regulation of calcium-dependent signals has been suggested through analysis of its role in the activation of NF-AT. We have investigated the inductions of the IE genes in response to calcium signals in Jurkat cells (in the presence of activated p21(ras)) and their correlated consequences!";
@@ -233,7 +233,7 @@ public class TokenizerTest {
                 "Ok I donated man million dollars in cash http://images.icanhascheezburger.com/completestore/2008/12/22/128744482782438694.jpg",
                 sentences.get(0));
 
-        inputText = "MAIDUGURI, Nigeria, Apr. 30, 2012 (Reuters) -- Nigerian Islamist sect Boko Haram killed four people.";
+        inputText = "MAIDUGURI, Nigeria, Apr. 30, 2012 (Reuters) -- Nigerian Islamist 2. January 2009, sect 15.06.2004 Boko Haram killed four people.";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
         assertEquals(inputText, sentences.get(0));
@@ -276,8 +276,7 @@ public class TokenizerTest {
 
         inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
         sentences = Tokenizer.getSentences(inputText);
-        // XXX uncomment as soon as regex is fixed.
-        // assertEquals(2, sentences.size());
+        assertEquals(2, sentences.size());
 
         inputText = "IT IS three years since Senator Barack Obama pronounced that America “is no longer a Christian nation—at least, not just.” The words sounded harsher than he intended: bla.";
         sentences = Tokenizer.getSentences(inputText);
@@ -289,6 +288,20 @@ public class TokenizerTest {
 
         inputText = "Das ist z.B. sooo groß.";
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
+        assertEquals(1, sentences.size());
+
+        inputText = "It added: \"Its government was consequently responsible for those acts performed by foreign officials. It had failed to submit any arguments explaining or justifying the degree of force used or the necessity of the invasive and potentially debasing measures. Those measures had been used with premeditation, the aim being to cause Mr Masri severe pain or suffering in order to obtain information. In the court's view, such treatment had amounted to torture, in violation of Article 3 [of the European human rights convention].\"\n\n In Afghanistan, Masri was incarcerated for more than four months in a small, dirty, dark concrete cell in a brick factory near the capital, Kabul, where he was repeatedly interrogated and was beaten, kicked and threatened. His repeated requests to meet with a representative of the German government were ignored, said the court.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(6, sentences.size());
+
+        inputText = "This isn’t the first time Texas has debated the perceived presence of too much Islam in its school books. In 2010, the Texas Board of Education banned any books that “paint Islam in too favorable of a light.” The reasoning was head-scratching: “the resolution adopted Friday cites ‘politically-correct whitewashes of Islamic culture and stigmas on Christian civilization’ in current textbooks and warns that ‘more such discriminatory treatment of religion may occur as Middle Easterners buy into the US public school textbook oligopoly.’” A Texas based civil liberties advocate said at the time that “the members who voted for this resolution were solely interested in playing on fear and bigotry in order to pit Christians against Muslims.”";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(4, sentences.size());
+        assertTrue(sentences.get(3).startsWith("A Texas based"));
+
+        inputText = "RSS (engl. ursprünglich Rich Site Summary, später Really Simple Syndication) ist eine seit dem Anfang des Jahres 2000 kontinuierlich weiterentwickelte Familie von Formaten für die einfache und strukturierte Veröffentlichung von Änderungen auf Websites (z. B. News-Seiten, Blogs, Audio-/Video-Logs etc.) in einem standardisierten Format (XML).";
+        sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
+        // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
     }
 

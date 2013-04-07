@@ -2,6 +2,8 @@ package ws.palladian.helper.date;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.ConstantFactory;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
@@ -31,6 +36,9 @@ public final class DateParser {
     
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DateParser.class);
+
+    // XXX for performance optimizations to check speed of each regex, remove later. See issue #162
+    private static final Map<DateFormat, Long> HALL_OF_SHAME = LazyMap.create(ConstantFactory.create(0l));
 
     private DateParser() {
         // utility class, no instances.
@@ -192,6 +200,7 @@ public final class DateParser {
     /**
      * <p>
      * Find all dates in a text matching the given {@link DateFormat}.
+     * </p>
      * 
      * @param text The text to check for dates, not <code>null</code>.
      * @param format The format to try for parsing, not <code>null</code>.
@@ -199,6 +208,7 @@ public final class DateParser {
      *         never <code>null</code>.
      */
     public static List<ExtractedDate> findDates(String text, DateFormat format) {
+        StopWatch stopWatch = new StopWatch();
         text = StringHelper.removeDoubleWhitespaces(text);
         List<ExtractedDate> result = new ArrayList<ExtractedDate>();
         Matcher matcher = format.getPattern().matcher(text);
@@ -222,7 +232,13 @@ public final class DateParser {
                 }
             }
         }
+        addToHallOfShame(format, stopWatch);
         return result;
+    }
+
+    private static void addToHallOfShame(DateFormat format, StopWatch stopWatch) {
+        long newValue = HALL_OF_SHAME.get(format) + stopWatch.getElapsedTime();
+        HALL_OF_SHAME.put(format, newValue);
     }
 
     /** package private -- for unit testing only; allows to supply a hypothetical time stamp for the "current" time. */
@@ -268,6 +284,13 @@ public final class DateParser {
      */
     public static ExtractedDate findRelativeDate(String text) {
         return findRelativeDate(text, System.currentTimeMillis());
+    }
+
+    static void printHallOfShame() {
+        Set<DateFormat> formats = HALL_OF_SHAME.keySet();
+        for (DateFormat dateFormat : formats) {
+            System.out.println(dateFormat.getFormat() + "\t" + HALL_OF_SHAME.get(dateFormat));
+        }
     }
 
 }

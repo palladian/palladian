@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<geonames>
+<geoname>
+<toponymName>Earth</toponymName>
+<name>Earth</name>
+<lat>0</lat>
+<lng>0</lng>
+<geonameId>6295630</geonameId>
+<countryCode/>
+<countryName/>
+<fcl>L</fcl>
+<fcode>AREA</fcode>
+<fclName>parks,area, ...</fclName>
+<fcodeName>area</fcodeName>
+<population>6814400000</population>
+</geoname>
+<geoname>
+<toponymName>Europe</toponymName>
+<name>Europe</name>
+<lat>48.69096</lat>
+<lng>9.14062</lng>
+<geonameId>6255148</geonameId>
+<countryCode/>
+<countryName/>
+<fcl>L</fcl>
+<fcode>CONT</fcode>
+<fclName>parks,area, ...</fclName>
+<fcodeName>continent</fcodeName>
+<population/>
+</geoname>
+<geoname>
+<toponymName>Federal Republic of Germany</toponymName>
+<name>Germany</name>
+<lat>51.5</lat>
+<lng>10.5</lng>
+<geonameId>2921044</geonameId>
+<countryCode>DE</countryCode>
+<countryName>Germany</countryName>
+<fcl>A</fcl>
+<fcode>PCLI</fcode>
+<fclName>country, state, region,...</fclName>
+<fcodeName>independent political entity</fcodeName>
+<population>81802257</population>
+</geoname>
+<geoname>
+<toponymName>Baden-Württemberg</toponymName>
+<name>Baden-Württemberg</name>
+<lat>48.5</lat>
+<lng>9</lng>
+<geonameId>2953481</geonameId>
+<countryCode>DE</countryCode>
+<countryName>Germany</countryName>
+<fcl>A</fcl>
+<fcode>ADM1</fcode>
+<fclName>country, state, region,...</fclName>
+<fcodeName>first-order administrative division</fcodeName>
+<population>10744921</population>
+</geoname>
+<geoname>
+<toponymName>Regierungsbezirk Stuttgart</toponymName>
+<name>Regierungsbezirk Stuttgart</name>
+<lat>49.08333</lat>
+<lng>9.66667</lng>
+<geonameId>3214105</geonameId>
+<countryCode>DE</countryCode>
+<countryName>Germany</countryName>
+<fcl>A</fcl>
+<fcode>ADM2</fcode>
+<fclName>country, state, region,...</fclName>
+<fcodeName>second-order administrative division</fcodeName>
+<population>4000848</population>
+</geoname>
+<geoname>
+<toponymName>Stadtkreis Stuttgart</toponymName>
+<name>Stadtkreis Stuttgart</name>
+<lat>48.7825</lat>
+<lng>9.17694</lng>
+<geonameId>3220785</geonameId>
+<countryCode>DE</countryCode>
+<countryName>Germany</countryName>
+<fcl>A</fcl>
+<fcode>ADM3</fcode>
+<fclName>country, state, region,...</fclName>
+<fcodeName>third-order administrative division</fcodeName>
+<population>601646</population>
+</geoname>
+<geoname>
+<toponymName>Stuttgart</toponymName>
+<name>Stuttgart</name>
+<lat>48.78232</lat>
+<lng>9.17702</lng>
+<geonameId>2825297</geonameId>
+<countryCode>DE</countryCode>
+<countryName>Germany</countryName>
+<fcl>P</fcl>
+<fcode>PPLA</fcode>
+<fclName>city, village,...</fclName>
+<fcodeName>seat of a first-order administrative division</fcodeName>
+<population>589793</population>
+</geoname>
+</geonames>

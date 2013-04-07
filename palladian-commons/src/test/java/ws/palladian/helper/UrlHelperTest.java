@@ -9,6 +9,11 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import ws.palladian.helper.io.ResourceHelper;
 
 /** @formatter:off */
 public class UrlHelperTest {
@@ -171,6 +176,18 @@ public class UrlHelperTest {
                 "http://sourceforge.net/tracker/?aid=3492945&atid=377408&func=detail&group_id=23067",
                 UrlHelper
                         .getCanonicalUrl("http://sourceforge.net/tracker/?func=detail&aid=3492945&group_id=23067&atid=377408#artifact_comment_6199621"));
+    }
+    
+    @Test
+    public void testMakeAbsoluteUrls() throws Exception {
+        Document document = ParseUtil.parseXhtml(ResourceHelper.getResourceFile("/w3c_xhtml_strict.html"));
+        document.setDocumentURI("http://www.w3.org/TR/xhtml1/");
+        
+        UrlHelper.makeAbsoluteUrls(document);
+        
+        NodeList aNodes = document.getElementsByTagName("a");
+        Node aNode = aNodes.item(8);
+        assertEquals("http://www.w3.org/TR/xhtml1/xhtml1-diff.html", aNode.getAttributes().getNamedItem("href").getTextContent());
     }
 
 }

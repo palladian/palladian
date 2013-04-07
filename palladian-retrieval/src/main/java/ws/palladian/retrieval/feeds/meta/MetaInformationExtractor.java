@@ -22,8 +22,9 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.parser.XmlParser;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -196,7 +197,7 @@ public class MetaInformationExtractor {
         input.setPreserveWireFeed(true);
         SyndFeed feed = null;
         try {
-            XmlParser parser = new XmlParser();
+            DocumentParser parser = ParserFactory.createXmlParser();
             InputStream inputStream = new ByteArrayInputStream(httpResult.getContent());
             Document document = parser.parse(inputStream);
             feed = input.build(document);

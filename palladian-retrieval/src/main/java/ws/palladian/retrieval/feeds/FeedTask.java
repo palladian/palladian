@@ -18,6 +18,7 @@ import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
@@ -121,7 +122,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             buildConditionalGetHeader();
             HttpResult httpResult = null;
             try {
-                HttpRetriever httpRetriever = new HttpRetriever();
+                HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
                 httpRetriever.setMaxFileSize(MAXIMUM_FEED_SIZE);
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());

@@ -8,7 +8,7 @@ package ws.palladian.retrieval.parser;
  * @author Philipp Katz
  * 
  */
-public class ParserFactory {
+public final class ParserFactory {
 
     private ParserFactory() {
         // prevent instantiation.
@@ -23,7 +23,7 @@ public class ParserFactory {
      * @return
      */
     public static DocumentParser createHtmlParser() {
-        return new NekoHtmlParser();
+        return new ValidatorNuParser();
     }
 
     /**

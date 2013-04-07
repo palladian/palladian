@@ -7,16 +7,20 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.dataset.DatasetProcessor;
+import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNer.TrainingMode;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -91,9 +95,7 @@ public class Evaluator {
 
                 LOGGER.info("evaluating with " + j + " seed entities");
 
-                PalladianNer tagger = new PalladianNer();
-                tagger.setLanguageMode(mode);
-                tagger.setTrainingMode(TrainingMode.Sparse);
+                PalladianNer tagger = new PalladianNer(mode, TrainingMode.Sparse);
 
                 Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, j);
 
@@ -101,21 +103,21 @@ public class Evaluator {
 
                 // train the tagger using seed annotations only
                 String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + mode + "."
-                + tagger.getModelFileEndingIfNotSetAutomatically();
+                        + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
 
                 // evaluate over complete test set (k=0) and on unseen entities only (k=1)
                 for (int k = 0; k < 2; k++) {
 
                     // load the trained model
-                    tagger = new PalladianNer();
-                    tagger.setLanguageMode(mode);
-                    EvaluationResult er = null;
+                    tagger = new PalladianNer(mode);
+                    tagger.loadModel(modelPath);
+                    EvaluationResult er;
 
                     if (k == 0) {
-                        er = tagger.evaluate(testFilePath, modelPath, TaggingFormat.COLUMN);
+                        er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
                     } else {
-                        er = tagger.evaluate(testFilePath, modelPath, TaggingFormat.COLUMN, annotations);
+                        er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, getValues(annotations));
                     }
 
                     // write the result line
@@ -123,12 +125,12 @@ public class Evaluator {
                         results.append(j).append(";");
                     }
 
-                    results.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-                    results.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-                    results.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-                    results.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-                    results.append(er.getRecall(EvaluationResult.MUC)).append(";");
-                    results.append(er.getF1(EvaluationResult.MUC)).append(";");
+                    results.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
+                    results.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
+                    results.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
+                    results.append(er.getPrecision(EvaluationMode.MUC)).append(";");
+                    results.append(er.getRecall(EvaluationMode.MUC)).append(";");
+                    results.append(er.getF1(EvaluationMode.MUC)).append(";");
 
                     if (k > 0) {
                         results.append("\n");
@@ -143,6 +145,14 @@ public class Evaluator {
             LOGGER.info("evaluated TUDNER in " + mode + " mode in " + stopWatch.getElapsedTimeString());
         }
 
+    }
+
+    private Set<String> getValues(Annotations annotations) {
+        Set<String> values = CollectionHelper.newHashSet();
+        for (Annotation annotation : annotations) {
+            values.add(annotation.getValue());
+        }
+        return values;
     }
 
     /**
@@ -173,7 +183,7 @@ public class Evaluator {
      * @param maxDocuments The maximal number of documents to consider.
      * @param stepSize The size of the steps between minDocuments and maxDocuments.
      */
-    public void evaluateDependencyOnTrainingSetSize(NamedEntityRecognizer tagger, String trainingFilePath,
+    public void evaluateDependencyOnTrainingSetSize(TrainableNamedEntityRecognizer tagger, String trainingFilePath,
             String testFilePath, String documentSeparator, int minDocuments, int maxDocuments, int stepSize) {
 
         StopWatch stopWatch = new StopWatch();
@@ -200,20 +210,19 @@ public class Evaluator {
             Annotations annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
-            + tagger.getModelFileEndingIfNotSetAutomatically();
+                    + tagger.getModelFileEndingIfNotSetAutomatically();
             tagger.train(filePath, modelFilePath);
 
             // evaluate over complete test set (k=0) and on unseen entities only (k=1)
-            EvaluationResult er = null;
 
             for (int k = 0; k < 2; k++) {
 
-                er = null;
+                EvaluationResult er;
 
                 if (k == 0) {
-                    er = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
+                    er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
                 } else {
-                    er = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
+                    er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, getValues(annotations));
                 }
 
                 // write the result line
@@ -221,12 +230,12 @@ public class Evaluator {
                     results.append(numberOfDocuments).append(";");
                 }
 
-                results.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-                results.append(er.getRecall(EvaluationResult.MUC)).append(";");
-                results.append(er.getF1(EvaluationResult.MUC)).append(";");
+                results.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getPrecision(EvaluationMode.MUC)).append(";");
+                results.append(er.getRecall(EvaluationMode.MUC)).append(";");
+                results.append(er.getF1(EvaluationMode.MUC)).append(";");
 
                 if (k > 0) {
                     results.append("\n");
@@ -272,7 +281,7 @@ public class Evaluator {
      * @param testFilePath The path to the test file on which the NER should be tested on.
      * @return Return the average performance for the given tagger on the given dataset.
      */
-    public String evaluatePerConceptPerformance(NamedEntityRecognizer tagger, String trainingFilePath,
+    public String evaluatePerConceptPerformance(TrainableNamedEntityRecognizer tagger, String trainingFilePath,
             String testFilePath, int numberOfSeeds) {
 
         StopWatch stopWatch = new StopWatch();
@@ -295,11 +304,12 @@ public class Evaluator {
 
         // evaluate once with complete test set and once only over unseen entities
         stopWatch.start();
-        EvaluationResult er1 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
+        tagger.loadModel(modelFilePath);
+        EvaluationResult er1 = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
         LOGGER.info("evaluating " + tagger.getName() + " on the complete data took " + stopWatch.getElapsedTimeString());
 
         stopWatch.start();
-        EvaluationResult er2 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
+        EvaluationResult er2 = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, getValues(annotations));
         LOGGER.info("evaluating " + tagger.getName() + " on the unseen data took " + stopWatch.getElapsedTimeString());
 
         Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
@@ -327,12 +337,12 @@ public class Evaluator {
                     results.append(concept).append(";");
                 }
 
-                results.append(er.getPrecisionFor(concept, EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getRecallFor(concept, EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getF1For(concept, EvaluationResult.EXACT_MATCH)).append(";");
-                results.append(er.getPrecisionFor(concept, EvaluationResult.MUC)).append(";");
-                results.append(er.getRecallFor(concept, EvaluationResult.MUC)).append(";");
-                results.append(er.getF1For(concept, EvaluationResult.MUC)).append(";");
+                results.append(er.getPrecisionFor(concept, EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getRecallFor(concept, EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getF1For(concept, EvaluationMode.EXACT_MATCH)).append(";");
+                results.append(er.getPrecisionFor(concept, EvaluationMode.MUC)).append(";");
+                results.append(er.getRecallFor(concept, EvaluationMode.MUC)).append(";");
+                results.append(er.getF1For(concept, EvaluationMode.MUC)).append(";");
 
                 if (k > 0) {
                     results.append("\n");
@@ -357,12 +367,12 @@ public class Evaluator {
                 results.append("Averaged").append(";");
             }
 
-            averagedLine.append(er.getPrecision(EvaluationResult.EXACT_MATCH)).append(";");
-            averagedLine.append(er.getRecall(EvaluationResult.EXACT_MATCH)).append(";");
-            averagedLine.append(er.getF1(EvaluationResult.EXACT_MATCH)).append(";");
-            averagedLine.append(er.getPrecision(EvaluationResult.MUC)).append(";");
-            averagedLine.append(er.getRecall(EvaluationResult.MUC)).append(";");
-            averagedLine.append(er.getF1(EvaluationResult.MUC)).append(";");
+            averagedLine.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
+            averagedLine.append(er.getPrecision(EvaluationMode.MUC)).append(";");
+            averagedLine.append(er.getRecall(EvaluationMode.MUC)).append(";");
+            averagedLine.append(er.getF1(EvaluationMode.MUC)).append(";");
 
 
         }
@@ -378,7 +388,7 @@ public class Evaluator {
         return averagedLine.toString();
     }
 
-    public void evaluateOnGeneratedTrainingset(List<NamedEntityRecognizer> taggers, String targetFolder,
+    public void evaluateOnGeneratedTrainingset(List<TrainableNamedEntityRecognizer> taggers, String targetFolder,
             String testFilePath) {
 
         StopWatch stopWatch = new StopWatch();
@@ -404,7 +414,7 @@ public class Evaluator {
 
             String generatedTrainingFilePath = targetFolder + "seedsTest" + i + ".txt";
 
-            for (NamedEntityRecognizer tagger : taggers) {
+            for (TrainableNamedEntityRecognizer tagger : taggers) {
                 results.append(evaluatePerConceptPerformance(tagger, generatedTrainingFilePath, testFilePath, i));
             }
 
@@ -433,7 +443,7 @@ public class Evaluator {
         // "data/datasets/ner/tud/manuallyPickedSeeds/seedListC.txt", 100, 100, 10);
         // System.exit(0);
 
-        List<NamedEntityRecognizer> taggerList = new ArrayList<NamedEntityRecognizer>();
+        List<TrainableNamedEntityRecognizer> taggerList = new ArrayList<TrainableNamedEntityRecognizer>();
         // taggerList.add(new StanfordNER());
         // IllinoisLbjNer lbjNer = new IllinoisLbjNer();
         taggerList.add(new PalladianNer(LanguageMode.English));
@@ -462,7 +472,7 @@ public class Evaluator {
         // evaluator.evaluateSeedInputOnly(conll2003TrainingPath, conll2003TestPath, 1, 50);
 
         // evaluate all tagger how they depend on the number of documents in the training set
-        for (NamedEntityRecognizer tagger : taggerList) {
+        for (TrainableNamedEntityRecognizer tagger : taggerList) {
             evaluator.evaluatePerConceptPerformance(tagger, conll2003TrainingPath, conll2003TestPath, 0);
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             // evaluator.evaluateDependencyOnTrainingSetSize(tagger, conll2003TrainingPath, conll2003TestPath,
@@ -487,7 +497,7 @@ public class Evaluator {
         taggerList.clear();
         taggerList.add(new PalladianNer(LanguageMode.English));
         taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
-        for (NamedEntityRecognizer tagger : taggerList) {
+        for (TrainableNamedEntityRecognizer tagger : taggerList) {
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,
                     "=-DOCSTART-\tO", 1, 61, 5);

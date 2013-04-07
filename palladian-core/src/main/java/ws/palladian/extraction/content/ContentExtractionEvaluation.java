@@ -264,7 +264,7 @@ public final class ContentExtractionEvaluation {
 
         List<WebPageContentExtractor> extractors = CollectionHelper.newArrayList();
         // extractors to evaluate
-        extractors.add(new BoilerpipeContentExtractor());
+        // extractors.add(new BoilerpipeContentExtractor());
         extractors.add(new ReadabilityContentExtractor());
         extractors.add(new PalladianContentExtractor());
         // extractors.add(new NewsseecrContentExtractor());

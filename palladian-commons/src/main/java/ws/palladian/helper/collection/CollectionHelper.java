@@ -29,8 +29,8 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class CollectionHelper {
 
-    public static boolean ASCENDING = true;
-    public static boolean DESCENDING = false;
+    public static final boolean ASCENDING = true;
+    public static final boolean DESCENDING = false;
 
     private CollectionHelper() {
         // prevent instantiation.
@@ -402,6 +402,52 @@ public final class CollectionHelper {
             return null;
         }
         return list.get(list.size() - 1);
+    }
+
+    /**
+     * <p>
+     * SQL like group by functionality. The returned {@link MultiMap} contains the groups, a specified {@link Function}
+     * supplies the values for grouping.
+     * </p>
+     * 
+     * @param iterable The Iterable to group, not <code>null</code>.
+     * @param function The Function which returns the value which is used for grouping, not <code>null</code>.
+     * @return A MultiMap representing the groups.
+     */
+    public static <I, V> MultiMap<V, I> groupBy(Iterable<I> iterable, Function<I, V> function) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+
+        MultiMap<V, I> result = MultiMap.create();
+        for (I item : iterable) {
+            result.add(function.compute(item), item);
+        }
+        return result;
+    }
+
+    /**
+     * <p>
+     * Convert contents of {@link Iterable}s to a different type. For example if, you have a {@link List} of Numbers and
+     * want to convert them to Strings, supply a {@link Function} which applies the <code>toString()</code> method to
+     * the Numbers (a predefined Function for this specific use case is available as {@link Function#TO_STRING_FUNCTION}
+     * ).
+     * </p>
+     * 
+     * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
+     * @param function The Function which converts the values in the iterable, not <code>null</code>.
+     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *            {@link HashSet}, not <code>null</code>.
+     * @return The supplied output Collection with the converted items.
+     */
+    public static <I, O, C extends Collection<O>> C convert(Iterable<I> iterable, Function<I, O> function, C output) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+        Validate.notNull(output, "output must not be null");
+
+        for (I item : iterable) {
+            output.add(function.compute(item));
+        }
+        return output;
     }
 
 }

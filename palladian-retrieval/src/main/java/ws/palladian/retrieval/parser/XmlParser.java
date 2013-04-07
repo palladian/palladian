@@ -22,6 +22,10 @@ import com.sun.syndication.io.XmlReader;
  */
 public class XmlParser extends BaseDocumentParser implements DocumentParser {
 
+    protected XmlParser() {
+        // instances should be created by the factory.
+    }
+
     @Override
     public Document parse(InputSource inputSource) throws ParserException {
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();

@@ -2,6 +2,8 @@ package ws.palladian.retrieval.search.web;
 
 import org.apache.commons.configuration.Configuration;
 
+import ws.palladian.retrieval.search.BaseHakiaSearcher;
+
 /**
  * <p>
  * Search for Hakia.

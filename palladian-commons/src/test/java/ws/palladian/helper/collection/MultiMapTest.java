@@ -2,6 +2,8 @@ package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class MultiMapTest {
@@ -18,6 +20,9 @@ public class MultiMapTest {
         
         assertEquals(3, multiMap.size());
         assertEquals(6, multiMap.allValues().size());
+
+        multiMap.addAll("key3", Arrays.asList("value7", "value8", "value9"));
+        assertEquals(5, multiMap.get("key3").size());
     }
 
 }

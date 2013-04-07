@@ -19,8 +19,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.parser.NekoHtmlParser;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
 
@@ -70,7 +71,7 @@ public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
     public PageType classify(String htmlContent) {
         StringInputStream sis = new StringInputStream(htmlContent);
 
-        NekoHtmlParser parser = new NekoHtmlParser();
+        DocumentParser parser = ParserFactory.createHtmlParser();
         Document document = null;
         try {
             document = parser.parse(sis);
@@ -110,7 +111,7 @@ public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
 
         StringInputStream sis = new StringInputStream(htmlContent);
 
-        NekoHtmlParser parser = new NekoHtmlParser();
+        DocumentParser parser = ParserFactory.createHtmlParser();
         Document document = null;
         try {
             document = parser.parse(sis);

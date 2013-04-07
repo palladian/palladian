@@ -40,7 +40,7 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
      */
     private final int index;
 
-    private final FeatureVector featureVector = new FeatureVector();
+    private final FeatureVector featureVector;
 
     /**
      * <p>
@@ -62,6 +62,26 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.index = index;
+        this.featureVector = new FeatureVector();
+    }
+    
+    /**
+     * <p>
+     * Create a new {@link PositionAnnotation} by copying an existing one.
+     * </p>
+     * 
+     * @param annotation
+     */
+    public PositionAnnotation(PositionAnnotation annotation) {
+        super(annotation.getName(), annotation.getValue());
+        Validate.isTrue(annotation.getStartPosition() >= 0, "startPosition cannot be negative.");
+        Validate.isTrue(annotation.getEndPosition() > annotation.getStartPosition(),
+                "endPosition must be greater than startPosition.");
+
+        this.startPosition = annotation.getStartPosition();
+        this.endPosition = annotation.getEndPosition();
+        this.index = annotation.getIndex();
+        this.featureVector = new FeatureVector(annotation.getFeatureVector());
     }
 
     /*

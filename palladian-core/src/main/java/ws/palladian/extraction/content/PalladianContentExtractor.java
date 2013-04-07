@@ -362,7 +362,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<Node> divs = XPathHelper.getXhtmlNodes(document,
                 "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]");
         for (Node node : divs) {
-            node.getParentNode().removeChild(node);
+            if (node == null) {
+                continue;
+            }
+            Node parentNode = node.getParentNode();
+            if (parentNode == null) {
+                continue;
+            }
+            parentNode.removeChild(node);
         }
 
     }
@@ -387,8 +394,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (String hint : MAIN_NODE_HINTS) {
             List<Node> mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
                     "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
-                    + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint
-                    + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
+                            + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint
+                            + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
 
             if (!mainNodes.isEmpty()) {
                 mainNode = mainNodes.get(0);
@@ -465,7 +472,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
-        String imgXPath = ".//img";
+        String imgXPath = ".//xhtml:img";
 
         List<Node> imageNodes = CollectionHelper.newArrayList();
 
