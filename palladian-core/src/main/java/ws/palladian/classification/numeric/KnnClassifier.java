@@ -12,6 +12,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.processing.Classifiable;
@@ -30,7 +31,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class KnnClassifier implements Classifier<KnnModel> {
+public final class KnnClassifier implements Learner, Classifier<KnnModel> {
 
     /**
      * <p>

@@ -6,6 +6,7 @@ import java.util.Map;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Learner;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
@@ -24,7 +25,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class PalladianTextClassifier implements Classifier<DictionaryModel> {
+public class PalladianTextClassifier implements Learner, Classifier<DictionaryModel> {
 
     private final ProcessingPipeline pipeline;
 

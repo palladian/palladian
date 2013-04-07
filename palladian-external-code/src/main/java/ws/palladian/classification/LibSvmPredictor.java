@@ -36,7 +36,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 2.0
  */
-public final class LibSvmPredictor implements Classifier<LibSvmModel> {
+public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
     private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(LibSvmPredictor.class);
 
     private final List<String> normalFeaturePaths;

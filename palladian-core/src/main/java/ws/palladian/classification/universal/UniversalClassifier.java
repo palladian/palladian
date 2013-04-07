@@ -13,6 +13,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.Learner;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnClassifier;
@@ -28,7 +29,7 @@ import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
-public class UniversalClassifier implements Classifier<UniversalClassifierModel> {
+public class UniversalClassifier implements Learner, Classifier<UniversalClassifierModel> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
