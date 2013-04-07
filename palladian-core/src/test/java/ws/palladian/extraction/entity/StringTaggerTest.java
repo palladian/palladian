@@ -28,6 +28,12 @@ public class StringTaggerTest {
         assertEquals("U.S.", annotations.get(4).getEntity());
         assertEquals("U.S.S. Enterprise", annotations.get(5).getEntity());
 
+        text = "The outfit that stages the festival, Black Rock City LLC, is now a $23 million-per-year concern with 40 full-time employees, hundreds of volunteers, and a non-profit arts foundation that doles out grants.";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+        assertEquals(2, annotations.size());
+        assertEquals("Black Rock City LLC", annotations.get(1).getEntity());
+
         // names
         text = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
 
@@ -147,7 +153,7 @@ public class StringTaggerTest {
         text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD which was found at Universal Orlando® Resort";
 
         annotations = StringTagger.getTaggedEntities(text);
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         assertEquals(10, annotations.size());
         assertEquals("ex-England", annotations.get(0).getEntity());

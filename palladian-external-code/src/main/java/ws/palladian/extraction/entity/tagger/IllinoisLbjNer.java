@@ -1,6 +1,5 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.io.FileWriter;
 import java.io.IOException;
 
 import lbj.NETaggerLevel1;
@@ -37,8 +36,7 @@ import com.ibm.icu.util.StringTokenizer;
  * <p>
  * This class wraps the Learning Java Based Illinois Named Entity Tagger. It uses conditional random fields for tagging.
  * The implementation is in an external library and the approach is explained in the following paper by L. Ratinov and
- * D. Roth:<br>
- * "Design Challenges and Misconceptions in Named Entity Recognition", CoNLL 2009
+ * D. Roth: "Design Challenges and Misconceptions in Named Entity Recognition", CoNLL 2009.
  * </p>
  * 
  * <p>
@@ -61,54 +59,51 @@ import com.ibm.icu.util.StringTokenizer;
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
-    /** Hold the configuration settings here instead of a file. */
-    private String configFileContent = "";
+    /** The default number of training rounds. */
+    public static final int DEFAULT_TRAINING_ROUNDS = 20;
 
     /** Number of rounds for training. */
-    private int trainingRounds = 20;
+    private final int trainingRounds;
 
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
-    private boolean conllEvaluation = false;
+    private final boolean conllEvaluation;
+
+    public IllinoisLbjNer(int trainingRounds, boolean conllEvaluation) {
+        this.trainingRounds = trainingRounds;
+        this.conllEvaluation = conllEvaluation;
+    }
 
     public IllinoisLbjNer() {
-        buildConfigFile();
+        this(DEFAULT_TRAINING_ROUNDS, false);
     }
 
-    private void buildConfigFile() {
-        configFileContent = "";
-        configFileContent += "BIO" + "\n";
-        configFileContent += "###MODEL_FILE###" + "\n";
-        configFileContent += "DualTokenizationScheme" + "\n";
-        configFileContent += "rounds\t" + getTrainingRounds() + "\n";
-        configFileContent += "GazetteersFeatures\t0" + "\n";
-        configFileContent += "Forms\t1" + "\n";
-        configFileContent += "Capitalization\t1" + "\n";
-        configFileContent += "WordTypeInformation\t1" + "\n";
-        configFileContent += "Affixes\t1" + "\n";
-        configFileContent += "PreviousTag1\t1" + "\n";
-        configFileContent += "PreviousTag2\t1" + "\n";
+    private String buildConfigFile(int trainingRounds, String modelFile) {
+        StringBuilder configFileContent = new StringBuilder();
+        configFileContent.append("BIO").append("\n");
+        configFileContent.append(modelFile).append("\n");
+        configFileContent.append("DualTokenizationScheme").append("\n");
+        configFileContent.append("rounds\t").append(trainingRounds).append("\n");
+        configFileContent.append("GazetteersFeatures\t0").append("\n");
+        configFileContent.append("Forms\t1").append("\n");
+        configFileContent.append("Capitalization\t1").append("\n");
+        configFileContent.append("WordTypeInformation\t1").append("\n");
+        configFileContent.append("Affixes\t1").append("\n");
+        configFileContent.append("PreviousTag1\t1").append("\n");
+        configFileContent.append("PreviousTag2\t1").append("\n");
         // if BrownClusterPaths = 1, the brown models must be at
         // data/models/illinoisner/data/BrownHierarchicalWordClusters/brownBllipClusters
-        configFileContent += "BrownClusterPaths\t1" + "\n";
-        configFileContent += "NEShapeTaggerFeatures\t0" + "\n";
-        configFileContent += "aggregateContext\t1" + "\n";
-        configFileContent += "aggregateGazetteerMatches\t1" + "\n";
-        configFileContent += "prevTagsForContext\t1" + "\n";
-        configFileContent += "PatternFeatures\t1" + "\n";
-        configFileContent += "PredictionsLevel1\t1" + "\n";
-    }
-
-    public int getTrainingRounds() {
-        return trainingRounds;
-    }
-
-    public void setTrainingRounds(int trainingRounds) {
-        this.trainingRounds = trainingRounds;
-        buildConfigFile();
+        configFileContent.append("BrownClusterPaths\t1").append("\n");
+        configFileContent.append("NEShapeTaggerFeatures\t0").append("\n");
+        configFileContent.append("aggregateContext\t1").append("\n");
+        configFileContent.append("aggregateGazetteerMatches\t1").append("\n");
+        configFileContent.append("prevTagsForContext\t1").append("\n");
+        configFileContent.append("PatternFeatures\t1").append("\n");
+        configFileContent.append("PredictionsLevel1\t1").append("\n");
+        return configFileContent.toString();
     }
 
     public void demo(boolean forceSentenceSplitsOnNewLines, String configFilePath) throws IOException {
@@ -118,9 +113,9 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
         System.out.println("loading the tagger");
         NETaggerLevel1 tagger1 = new NETaggerLevel1();
-        tagger1 = (NETaggerLevel1) Classifier.binaryRead(Parameters.pathToModelFile + ".level1");
+        tagger1 = (NETaggerLevel1)Classifier.binaryRead(Parameters.pathToModelFile + ".level1");
         NETaggerLevel2 tagger2 = new NETaggerLevel2();
-        tagger2 = (NETaggerLevel2) Classifier.binaryRead(Parameters.pathToModelFile + ".level2");
+        tagger2 = (NETaggerLevel2)Classifier.binaryRead(Parameters.pathToModelFile + ".level2");
         System.out.println("Done- loading the tagger");
         String input = "";
         while (true) {
@@ -159,8 +154,7 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         // set the location to the training and the model file in the configs and save the file
-        buildConfigFile();
-        configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
+        String configFileContent = buildConfigFile(trainingRounds, modelFilePath);
         FileHelper.writeToFile("data/temp/illinoislbjNerConfig.config", configFileContent);
 
         // count the number of models
@@ -185,17 +179,14 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
         LearningCurve.getLearningCurve(trainingFilePath2, testingFilePath2);
 
         // check if a new model has been added, if not return false
-        if (FileHelper.getFiles(FileHelper.getFilePath(modelFilePath)).length == l1) {
-            return false;
-        }
-
-        return true;
+        boolean modelAdded = FileHelper.getFiles(FileHelper.getFilePath(modelFilePath)).length > l1;
+        return modelAdded;
     }
 
     @Override
     public boolean loadModel(String configModelFilePath) {
         // set the location to the training and the model file in the configs and save the file
-        configFileContent = configFileContent.replaceAll("###MODEL_FILE###", configModelFilePath);
+        String configFileContent = buildConfigFile(trainingRounds, configModelFilePath);
         FileHelper.writeToFile("data/temp/illinoislbjNerConfig.config", configFileContent);
 
         Parameters.readConfigAndLoadExternalData("data/temp/illinoislbjNerConfig.config");
@@ -215,43 +206,23 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
         // last parameter is debug mode
         NETagPlain.tagFile(inputTextPath, taggedFilePath, false);
 
-        // transform text back to online line since the tagger puts one sentence on each line
-        String taggedFilePathTransformed = inputTextPath.replaceAll("\\.txt", "_tagged_transformed.txt");
+        final StringBuilder outputBuffer = new StringBuilder();
+        FileHelper.performActionOnEveryLine(taggedFilePath, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                outputBuffer.append(line.substring(0, line.length() - 3) + ". ");
+            }
+        });
 
-        try {
-            final FileWriter fileWriter = new FileWriter(taggedFilePathTransformed);
+        String bracketOutput = outputBuffer.toString();
 
-            LineAction la = new LineAction() {
-
-                @Override
-                public void performAction(String line, int lineNumber) {
-                    try {
-                        line = line.substring(0, line.length() - 3) + ". ";
-                        fileWriter.write(line);
-                        fileWriter.flush();
-                    } catch (IOException e) {
-                        LOGGER.error("could not write line, " + e.getMessage());
-                    }
-                }
-            };
-
-            FileHelper.performActionOnEveryLine(taggedFilePath, la);
-            fileWriter.close();
-
-        } catch (IOException e) {
-            LOGGER.error("could not transform tagged text, " + e.getMessage());
+        if (conllEvaluation) {
+            bracketOutput = clean(bracketOutput);
         }
 
-        if (isConllEvaluation()) {
-            cleanFile(taggedFilePathTransformed);
-        }
-
-        // FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
-        FileFormatParser.bracketToColumn(taggedFilePathTransformed, taggedFilePathTransformed, "\t");
-
-        alignContent(taggedFilePathTransformed, inputText);
-
-        Annotations annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedFilePathTransformed);
+        String xmlOutput = FileFormatParser.bracketToXmlText(bracketOutput);
+        String xmlOutputAligned = NerHelper.alignContentText(xmlOutput, inputText);
+        Annotations annotations = FileFormatParser.getAnnotationsFromXmlText(xmlOutputAligned);
 
         annotations.instanceCategoryToClassified();
 
@@ -261,34 +232,27 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
     }
 
     /**
-     * Retransform something the tokenizer might have destroyed. XXX this is only for the conll corpus so far and does
-     * not even cover everything needed
+     * <p>
+     * Re-transform something the tokenizer might have destroyed. XXX this is only for the CoNLL corpus so far and does
+     * not even cover everything needed.
+     * </p>
      * 
-     * @param taggedFilePath The path of the tagged file.
+     * @param content The content to re-transform.
+     * @return The re-transformed content.
      */
-    private void cleanFile(String taggedFilePath) {
-        String content = FileHelper.readFileToString(taggedFilePath);
+    private String clean(String content) {
         content = content.replace(".\"", ".''");
         content = content.replace(":\"", ":''");
         content = content.replace(",\"", ",''");
-        FileHelper.writeToFile(taggedFilePath, content);
+        return content;
     }
 
-    public void testNER(String testingFilePath, boolean forceSentenceSplitsOnNewLines,
-            String configFilePath) {
+    public void testNER(String testingFilePath, boolean forceSentenceSplitsOnNewLines, String configFilePath) {
 
         Parameters.readConfigAndLoadExternalData(configFilePath);
         Parameters.forceNewSentenceOnLineBreaks = forceSentenceSplitsOnNewLines;
 
         NETester.test(testingFilePath, "-c");
-    }
-
-    public void setConllEvaluation(boolean conllEvaluation) {
-        this.conllEvaluation = conllEvaluation;
-    }
-
-    public boolean isConllEvaluation() {
-        return conllEvaluation;
     }
 
     @Override
@@ -336,7 +300,7 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -344,8 +308,8 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
                     .withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("inputText")
-                    .withDescription("the text that should be tagged (only if mode = tag)")
-                    .hasArg().withArgName("text").withType(String.class).create());
+                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
+                    .withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("outputFile")
                     .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
@@ -376,8 +340,8 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
-                            TaggingFormat.XML);
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
 
                 } else if (cmd.hasOption("demo")) {
 
@@ -388,7 +352,6 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
                     }
 
                 }
-
 
             } catch (ParseException e) {
                 LOGGER.debug("Command line arguments could not be parsed!");
@@ -421,9 +384,9 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
         // using a column trainig and testing file
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
-        tagger.setConllEvaluation(true);
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lbj.model",
-                TaggingFormat.COLUMN);
+        tagger = new IllinoisLbjNer(DEFAULT_TRAINING_ROUNDS, true);
+        tagger.loadModel("data/temp/lbj.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", TaggingFormat.COLUMN);
 
         // tagger.train("C:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/lbj2.model");
         // EvaluationResult er = tagger.evaluate("C:\\My Dropbox\\taggedHierarchicalPrepared_test.txt",

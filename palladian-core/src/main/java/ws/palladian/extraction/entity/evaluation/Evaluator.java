@@ -7,6 +7,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
@@ -19,6 +20,7 @@ import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNer.TrainingMode;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -101,7 +103,7 @@ public class Evaluator {
 
                 // train the tagger using seed annotations only
                 String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + mode + "."
-                + tagger.getModelFileEndingIfNotSetAutomatically();
+                        + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
 
                 // evaluate over complete test set (k=0) and on unseen entities only (k=1)
@@ -109,12 +111,13 @@ public class Evaluator {
 
                     // load the trained model
                     tagger = new PalladianNer(mode);
-                    EvaluationResult er = null;
+                    tagger.loadModel(modelPath);
+                    EvaluationResult er;
 
                     if (k == 0) {
-                        er = tagger.evaluate(testFilePath, modelPath, TaggingFormat.COLUMN);
+                        er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
                     } else {
-                        er = tagger.evaluate(testFilePath, modelPath, TaggingFormat.COLUMN, annotations);
+                        er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, getValues(annotations));
                     }
 
                     // write the result line
@@ -142,6 +145,14 @@ public class Evaluator {
             LOGGER.info("evaluated TUDNER in " + mode + " mode in " + stopWatch.getElapsedTimeString());
         }
 
+    }
+
+    private Set<String> getValues(Annotations annotations) {
+        Set<String> values = CollectionHelper.newHashSet();
+        for (Annotation annotation : annotations) {
+            values.add(annotation.getEntity());
+        }
+        return values;
     }
 
     /**
@@ -199,20 +210,19 @@ public class Evaluator {
             Annotations annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
-            + tagger.getModelFileEndingIfNotSetAutomatically();
+                    + tagger.getModelFileEndingIfNotSetAutomatically();
             tagger.train(filePath, modelFilePath);
 
             // evaluate over complete test set (k=0) and on unseen entities only (k=1)
-            EvaluationResult er = null;
 
             for (int k = 0; k < 2; k++) {
 
-                er = null;
+                EvaluationResult er;
 
                 if (k == 0) {
-                    er = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
+                    er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
                 } else {
-                    er = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
+                    er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, getValues(annotations));
                 }
 
                 // write the result line
@@ -294,11 +304,12 @@ public class Evaluator {
 
         // evaluate once with complete test set and once only over unseen entities
         stopWatch.start();
-        EvaluationResult er1 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN);
+        tagger.loadModel(modelFilePath);
+        EvaluationResult er1 = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
         LOGGER.info("evaluating " + tagger.getName() + " on the complete data took " + stopWatch.getElapsedTimeString());
 
         stopWatch.start();
-        EvaluationResult er2 = tagger.evaluate(testFilePath, modelFilePath, TaggingFormat.COLUMN, annotations);
+        EvaluationResult er2 = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, getValues(annotations));
         LOGGER.info("evaluating " + tagger.getName() + " on the unseen data took " + stopWatch.getElapsedTimeString());
 
         Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
