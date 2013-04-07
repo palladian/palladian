@@ -1,6 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -13,6 +14,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -226,8 +228,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
+    public List<Annotation> getAnnotations(String inputText) {
 
         String inputTextPath = "data/temp/inputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);
@@ -238,13 +239,13 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         String taggedTextFilePath = "data/temp/stanfordNERTaggedText.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
-        annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
-
-        annotations.instanceCategoryToClassified();
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
 
         FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
 
-        FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
+        Annotations.removeNestedAnnotations(annotations);
+        Collections.sort(annotations, Annotations.ANNOTATION_COMPARATOR);
+
         // CollectionHelper.print(annotations);
 
         return annotations;

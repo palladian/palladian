@@ -3,6 +3,7 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -361,7 +362,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param annotation The complete annotation from the training data.
      */
     private void addToEntityDictionary(Annotation annotation) {
-        addToEntityDictionary(annotation.getValue(), annotation.getTargetClass());
+        addToEntityDictionary(annotation.getValue(), annotation.getTag());
     }
 
     private void addToEntityDictionary(String entity, String concept) {
@@ -398,7 +399,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param modelFilePath The path where the model should be saved to.
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    public boolean train(String trainingFilePath, Annotations annotations, String modelFilePath) {
+    public boolean train(String trainingFilePath, List<Annotation> annotations, String modelFilePath) {
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
 
@@ -481,11 +482,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param modelFilePath The path where the model should be saved to.
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    public boolean train(Annotations annotations, String modelFilePath) {
+    public boolean train(List<Annotation> annotations, String modelFilePath) {
         return trainLanguageIndependent(annotations, annotations, modelFilePath);
     }
 
-    public boolean trainLanguageIndependent(Annotations annotations, Annotations combinedAnnotations,
+    public boolean trainLanguageIndependent(List<Annotation> annotations, List<Annotation> combinedAnnotations,
             String modelFilePath) {
 
         // create instances, instances are annotations
@@ -493,7 +494,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
         LOGGER.info("start creating " + annotations.size() + " annotations for training");
         for (Annotation annotation : annotations) {
-            ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getValue());
+            ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
             textInstances.add(document);
         }
 
@@ -529,10 +530,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             Annotations additionalTrainingAnnotations) {
 
         // get all training annotations including their features
-        Annotations annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
 
         // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
-        Annotations combinedAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+        List<Annotation> combinedAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
         // add the additional training annotations, they will be used for the context analysis too
         annotations.addAll(additionalTrainingAnnotations);
@@ -558,11 +559,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
     private boolean trainEnglish(String trainingFilePath, String modelFilePath,
-            Annotations additionalTrainingAnnotations) {
+            List<Annotation> additionalTrainingAnnotations) {
 
         // get all training annotations including their features
         LOGGER.info("get annotations from column-formatted training file");
-        Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
         // add the additional training annotations, they will be used for the context analysis too
         annotations.addAll(additionalTrainingAnnotations);
@@ -573,7 +574,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         LOGGER.info("add additional training annotations");
         int c = 1;
         for (Annotation annotation : annotations) {
-            ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTargetClass(), annotation.getValue());
+            ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
             textInstances.add(textInstance);
             addToEntityDictionary(annotation);
             ProgressHelper.printProgress(c++, annotations.size(), 1);
@@ -599,8 +600,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
             removeAnnotations.clear();
             EvaluationResult evaluationResult = evaluate(trainingFilePath, TaggingFormat.COLUMN);
-            Annotations goldStandard = FileFormatParser.getAnnotations(trainingFilePath, TaggingFormat.COLUMN);
-            goldStandard.sort();
+            List<Annotation> goldStandard = FileFormatParser.getAnnotations(trainingFilePath, TaggingFormat.COLUMN);
+            // goldStandard.sort();
+            Collections.sort(goldStandard, Annotations.ANNOTATION_COMPARATOR);
 
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
@@ -654,7 +656,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param entityCandidates The annotations to be classified.
      * @return Classified annotations.
      */
-    private Annotations classifyCandidatesEnglish(Annotations entityCandidates) {
+    private Annotations classifyCandidatesEnglish(List<Annotation> entityCandidates) {
         Annotations annotations = new Annotations();
         int i = 1;
         for (Annotation annotation : entityCandidates) {
@@ -691,7 +693,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param entityCandidates The annotations to be classified.
      * @return Classified annotations.
      */
-    private Annotations classifyCandidatesLanguageIndependent(Annotations entityCandidates) {
+    private Annotations classifyCandidatesLanguageIndependent(List<Annotation> entityCandidates) {
         Annotations annotations = new Annotations();
 
         int i = 1;
@@ -710,7 +712,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
         StopWatch stopWatch = new StopWatch();
 
         Annotations annotations = new Annotations();
@@ -736,6 +738,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         }
 
         //        FileHelper.writeToFile("data/temp/ner/palladianNerOutput.txt", tagText(inputText, annotations));
+
+        annotations.removeNestedAnnotations();
+        annotations.sort();
 
         LOGGER.info("got " + annotations.size() + " annotations in " + stopWatch.getElapsedTimeString());
 
@@ -1044,7 +1049,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Annotations annotations = new Annotations();
 
         // use the the string tagger to tag entities in English mode
-        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
+        List<Annotation> entityCandidates = StringTagger.getTaggedEntities(inputText);
 
         // classify annotations with the UniversalClassifier
         annotations.addAll(classifyCandidatesEnglish(entityCandidates));
@@ -1067,7 +1072,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Annotations annotations = new Annotations();
 
         // get the candates, every token is potentially a (part of) an entity
-        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
+        List<Annotation> entityCandidates = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
 
         // classify annotations with the UniversalClassifier
         annotations.addAll(classifyCandidatesLanguageIndependent(entityCandidates));
@@ -1289,7 +1294,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param trainingFilePath The path to the training data.
      * @param trainingAnnotations The training annotations.
      */
-    private void analyzeContexts(String trainingFilePath, Annotations trainingAnnotations) {
+    private void analyzeContexts(String trainingFilePath, List<Annotation> trainingAnnotations) {
 
         LOGGER.debug("start analyzing contexts");
 
@@ -1300,7 +1305,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         CountMap<String> tagCounts = CountMap.create();
 
         // get all training annotations including their features
-        Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
         List<ClassifiedTextDocument> trainingInstances = CollectionHelper.newArrayList();
 
@@ -1308,7 +1313,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         int c = 1;
         for (Annotation annotation : annotations) {
 
-            String tag = annotation.getTargetClass();
+            String tag = annotation.getTag();
 
             // the left patterns containing 1-3 words
             String[] leftContexts = annotation.getLeftContexts();
@@ -1686,7 +1691,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
         // we can add annotations without any context to the tagger to improve internal evidence features
         String trainingSeedFilePath = PalladianNer.class.getResource("/nerSeeds.txt").getFile();
-        Annotations trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
+        List<Annotation> trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
 
         // train the tagger on the training file (with or without additional training annotations)
         // tagger.train(trainingPath, trainingAnnotations, modelPath);
@@ -1863,7 +1868,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
         tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
 
-        Annotations annotations = FileFormatParser.getSeedAnnotations(
+        List<Annotation> annotations = FileFormatParser.getSeedAnnotations(
                 "data/datasets/ner/tud/manuallyPickedSeeds/seedListC.txt", 50);
         // tagger.train(annotations, "data/temp/tudner");
         tagger.train(trainingFilePath, "data/temp/tudner");

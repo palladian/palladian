@@ -15,7 +15,6 @@ import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
@@ -40,12 +39,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
 
-    public abstract Annotations getAnnotations(String inputText);
+    public abstract List<Annotation> getAnnotations(String inputText);
 
     public String tag(String inputText) {
         StopWatch stopWatch = new StopWatch();
 
-        Annotations annotations = getAnnotations(inputText);
+        List<Annotation> annotations = getAnnotations(inputText);
         String taggedText = tagText(inputText, annotations);
 
         LOGGER.debug("tagged text in {}", stopWatch.getElapsedTimeString(false));
@@ -53,14 +52,20 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         return taggedText;
     }
 
-    protected String tagText(String inputText, Annotations annotations) {
+    protected String tagText(String inputText, List<Annotation> annotations) {
 
+        return tag(inputText, annotations, taggingFormat);
+
+    }
+
+    public static String tag(String inputText, List<Annotation> annotations, TaggingFormat taggingFormat) {
         StringBuilder taggedText = new StringBuilder();
 
         int lastEndIndex = 0;
 
         // we need to sort in ascending order first
-        annotations.sort();
+        // annotations.sort();
+        Collections.sort(annotations, Annotations.ANNOTATION_COMPARATOR);
 
         Annotation lastAnnotation = null;
         for (Annotation annotation : annotations) {
@@ -113,7 +118,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         taggedText.append(inputText.substring(lastEndIndex));
 
         return taggedText.toString();
-
     }
 
     /**
@@ -148,22 +152,26 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format, Set<String> ignore) {
 
         // get the correct annotations from the testing file
-        Annotations goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
-        goldStandard.sort();
-        goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
+        List<Annotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
+        Collections.sort(goldStandard, Annotations.ANNOTATION_COMPARATOR);
+        // goldStandard.sort();
+        // goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 
         // get the annotations of the NER
-        Annotations nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
-        nerAnnotations.removeNestedAnnotations();
-        nerAnnotations.sort();
-        String inputFile = FileHelper.getFileName(testingFilePath);
-        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + inputFile + "_"
-                + getName().replace(" ", "") + DateHelper.getCurrentDatetime() + ".txt");
+        List<Annotation> nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
+        // nerAnnotations.removeNestedAnnotations();
+        Annotations.removeNestedAnnotations(nerAnnotations);
+        // nerAnnotations.sort();
+        Collections.sort(nerAnnotations, Annotations.ANNOTATION_COMPARATOR);
+        // String inputFile = FileHelper.getFileName(testingFilePath);
+        // nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + inputFile + "_"
+        // + getName().replace(" ", "") + DateHelper.getCurrentDatetime() + ".txt");
 
         return evaluate(goldStandard, nerAnnotations, ignore);
     }
 
-    public static EvaluationResult evaluate(Annotations goldStandard, Annotations nerResult, Set<String> ignore) {
+    public static EvaluationResult evaluate(List<Annotation> goldStandard, List<Annotation> nerResult,
+            Set<String> ignore) {
 
         EvaluationResult evaluationResult = new EvaluationResult(goldStandard);
         Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
@@ -253,7 +261,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         String content = document.getContent();
         // TODO merge annotation classes
-        Annotations annotations = getAnnotations(content);
+        List<Annotation> annotations = getAnnotations(content);
 
         FeatureVector featureVector = document.getFeatureVector();
 

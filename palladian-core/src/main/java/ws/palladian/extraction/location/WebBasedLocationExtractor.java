@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -30,8 +29,8 @@ public abstract class WebBasedLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = entityRecognizer.getAnnotations(inputText);
+    public List<Annotation> getAnnotations(String inputText) {
+        List<Annotation> annotations = entityRecognizer.getAnnotations(inputText);
         List<Annotation> unmappedAnnotations = CollectionHelper.newArrayList();
         for (Annotation annotation : annotations) {
             LocationType mappedType = map(annotation.getTag());

@@ -543,7 +543,7 @@ public final class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, columnFile);
     }
 
-    public static Annotations getAnnotations(String taggedTextFilePath, TaggingFormat format) {
+    public static List<Annotation> getAnnotations(String taggedTextFilePath, TaggingFormat format) {
 
         if (format.equals(TaggingFormat.XML)) {
             return getAnnotationsFromXmlFile(taggedTextFilePath);
@@ -556,12 +556,12 @@ public final class FileFormatParser {
         return null;
     }
 
-    public static Annotations getAnnotationsFromColumn(String taggedTextFilePath) {
+    public static List<Annotation> getAnnotationsFromColumn(String taggedTextFilePath) {
         columnToXml(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
         return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
 
-    public static Annotations getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
+    public static List<Annotation> getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
         columnToXmlTokenBased(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
         return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
@@ -572,7 +572,7 @@ public final class FileFormatParser {
      * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
      * @return A list of annotations that were found in the text.
      */
-    public static Annotations getAnnotationsFromXmlText(String taggedText) {
+    public static List<Annotation> getAnnotationsFromXmlText(String taggedText) {
         Annotations annotations = new Annotations();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
@@ -645,7 +645,7 @@ public final class FileFormatParser {
         return annotations;
     }
 
-    public static Annotations getAnnotationsFromXmlFile(String taggedTextFilePath) {
+    public static List<Annotation> getAnnotationsFromXmlFile(String taggedTextFilePath) {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);
 
         // throw out special characters that might disturb tokenization such as "'" or "=".
@@ -664,7 +664,7 @@ public final class FileFormatParser {
      *            annotations of the file are taken.
      * @return Annotations with numberOfSeedsPerConcept entries per concept.
      */
-    public static Annotations getSeedAnnotations(String annotatedFilePath, int numberOfSeedsPerConcept) {
+    public static List<Annotation> getSeedAnnotations(String annotatedFilePath, int numberOfSeedsPerConcept) {
         Annotations annotations = new Annotations();
 
         // count the number of collected seeds per concept
@@ -673,12 +673,12 @@ public final class FileFormatParser {
         // store entities in a set to avoid duplicates
         Set<String> entitySet = new HashSet<String>();
 
-        Annotations allAnnotations = getAnnotationsFromColumn(annotatedFilePath);
+        List<Annotation> allAnnotations = getAnnotationsFromColumn(annotatedFilePath);
 
         // iterate through the annotations and collect numberOfSeedsPerConcept
         for (Annotation annotation : allAnnotations) {
 
-            String conceptName = annotation.getTargetClass();
+            String conceptName = annotation.getTag();
             int numberOfSeeds = conceptSeedCount.getCount(conceptName);
 
             if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)
@@ -731,7 +731,7 @@ public final class FileFormatParser {
         FileFormatParser.slashToXml("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
         FileFormatParser.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
 
-        Annotations annotations = FileFormatParser.getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
         CollectionHelper.print(annotations);
     }
 

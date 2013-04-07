@@ -100,7 +100,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         Annotations locationEntities = new Annotations();
 
-        Annotations taggedEntities = StringTagger.getTaggedEntities(text);
+        List<Annotation> taggedEntities = StringTagger.getTaggedEntities(text);
 
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
@@ -268,7 +268,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return locationEntities;
     }
 
-    private MultiMap<String, Location> fetchLocations(Annotations annotations) {
+    private MultiMap<String, Location> fetchLocations(List<Annotation> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotation annotation : annotations) {
             String entityValue = annotation.getValue();
@@ -444,7 +444,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     }
 
-    private void filterNonEntitiesWithCaseDictionary(Annotations taggedEntities, String text) {
+    private void filterNonEntitiesWithCaseDictionary(List<Annotation> taggedEntities, String text) {
         Iterator<Annotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
             Annotation current = iterator.next();
@@ -458,7 +458,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
     }
 
-    private void filterNonEntities(Annotations taggedEntities, String text) {
+    private void filterNonEntities(List<Annotation> taggedEntities, String text) {
         Map<String, String> result = EntityPreprocessor.correctAnnotations(text, CASE_DICTIONARY);
         Iterator<Annotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
@@ -564,7 +564,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             "Executive", "Justice", "Secretary", "Prince", "Congressman", "Skipper", "Liberal", "Analyst", "Major",
             "Writer", "Ombudsman", "Examiner");
 
-    private void filterPersonEntities(Annotations annotations) {
+    private void filterPersonEntities(List<Annotation> annotations) {
         Set<String> blacklist = CollectionHelper.newHashSet();
         for (Annotation annotation : annotations) {
             String value = annotation.getValue().toLowerCase();

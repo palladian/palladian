@@ -36,7 +36,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
@@ -223,12 +223,11 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
         if (finders == null || tags == null) {
             throw new IllegalStateException("No model available; make sure to load an existing model.");
         }
 
-        Annotations annotations = new Annotations();
 
         String taggedText = "";
         try {
@@ -237,13 +236,11 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
             LOGGER.error("could not tag text with {}, {}", getName(), e.getMessage());
         }
 
-        String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
-        FileHelper.writeToFile(taggedTextFilePath, taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
-
-        annotations.instanceCategoryToClassified();
-
-        FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
+        // String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
+        // FileHelper.writeToFile(taggedTextFilePath, taggedText);
+        // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
+        // FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
 
         return annotations;
     }

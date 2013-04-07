@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -195,7 +194,7 @@ class EntityPreprocessor {
             // System.out.println(sentence);
             // System.out.println("/////");
 
-            Annotations sentenceAnnotations = StringTagger.getTaggedEntities(sentence);
+            List<Annotation> sentenceAnnotations = StringTagger.getTaggedEntities(sentence);
             for (Annotation annotation : sentenceAnnotations) {
                 if (annotation.getStartPosition() == 0) {
                     sentenceBeginAnnotations.add(annotation);
