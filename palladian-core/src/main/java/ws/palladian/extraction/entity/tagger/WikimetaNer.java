@@ -174,7 +174,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
 
     /** Overridden, intended for unit-testing only. */
     @Override
-    protected String tagText(String inputText, Annotations annotations) {
+    protected String tagText(String inputText, List<Annotation> annotations) {
         return super.tagText(inputText, annotations);
     }
 

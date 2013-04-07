@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
@@ -38,7 +37,7 @@ public final class AddressTagger {
 
         // TODO StringTagger is too strict here, e.g. the following candidate is not recognized:
         // Viale di Porta Ardeatine -- use dedicted regex here?
-        Annotations annotations = StringTagger.getTaggedEntities(text);
+        List<Annotation> annotations = StringTagger.getTaggedEntities(text);
 
         // step one: match tagged annotations using street pattern
         for (Annotation annotation : annotations) {

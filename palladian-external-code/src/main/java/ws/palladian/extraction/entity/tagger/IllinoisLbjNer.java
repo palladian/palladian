@@ -1,6 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
 import java.io.IOException;
+import java.util.List;
 
 import lbj.NETaggerLevel1;
 import lbj.NETaggerLevel2;
@@ -21,7 +22,7 @@ import ws.palladian.external.lbj.Tagger.LearningCurve;
 import ws.palladian.external.lbj.Tagger.NETagPlain;
 import ws.palladian.external.lbj.Tagger.NETester;
 import ws.palladian.external.lbj.Tagger.Parameters;
-import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
@@ -196,7 +197,7 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
         String inputTextPath = "data/temp/illinoisInputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);
@@ -222,9 +223,7 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
         String xmlOutput = FileFormatParser.bracketToXmlText(bracketOutput);
         String xmlOutputAligned = NerHelper.alignContentText(xmlOutput, inputText);
-        Annotations annotations = FileFormatParser.getAnnotationsFromXmlText(xmlOutputAligned);
-
-        annotations.instanceCategoryToClassified();
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(xmlOutputAligned);
 
         FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
 

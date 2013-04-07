@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -15,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -140,8 +143,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
+    public List<Annotation> getAnnotations(String inputText) {
 
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
         FileFormatParser.textToColumn("data/temp/julieInputText.txt", "data/temp/julieInputTextColumn.txt", " ");
@@ -177,9 +179,11 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
-        annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
-
-        annotations.instanceCategoryToClassified();
+        // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
+        String alignedContent = NerHelper.alignContentText(FileHelper.readFileToString(outFile.getPath()), inputText);
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
+        Annotations.removeNestedAnnotations(annotations);
+        Collections.sort(annotations, Annotations.ANNOTATION_COMPARATOR);
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
 

@@ -3,6 +3,7 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -133,7 +134,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
 
         String[] args = {inputText};
@@ -154,6 +155,8 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
         // FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
 
+        annotations.removeNestedAnnotations();
+        annotations.sort();
         return annotations;
     }
 

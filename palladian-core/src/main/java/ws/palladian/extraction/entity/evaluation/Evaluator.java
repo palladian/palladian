@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -97,7 +96,7 @@ public class Evaluator {
 
                 PalladianNer tagger = new PalladianNer(mode, TrainingMode.Sparse);
 
-                Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, j);
+                List<Annotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, j);
 
                 LOGGER.info("train on these annotations: " + annotations);
 
@@ -147,7 +146,7 @@ public class Evaluator {
 
     }
 
-    private Set<String> getValues(Annotations annotations) {
+    private Set<String> getValues(List<Annotation> annotations) {
         Set<String> values = CollectionHelper.newHashSet();
         for (Annotation annotation : annotations) {
             values.add(annotation.getValue());
@@ -207,7 +206,7 @@ public class Evaluator {
             String numberOfDocuments = StringHelper.getSubstringBetween(filePath, "_sep_", ".");
 
             // get the annotations
-            Annotations annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
+            List<Annotation> annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
                     + tagger.getModelFileEndingIfNotSetAutomatically();
@@ -300,7 +299,7 @@ public class Evaluator {
         StringBuilder averagedLine = new StringBuilder();
 
         // get the annotations
-        Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
+        List<Annotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
 
         // evaluate once with complete test set and once only over unseen entities
         stopWatch.start();

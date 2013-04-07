@@ -175,7 +175,7 @@ public class EvaluationResult {
         this.actualAssignments = CountMap.create();
         this.possibleAssignments = CountMap.create();
         for (Annotation annotation : goldStandard) {
-            possibleAssignments.add(annotation.getTargetClass());
+            possibleAssignments.add(annotation.getTag());
         }
     }
 
@@ -522,8 +522,8 @@ public class EvaluationResult {
             case ERROR5:
                 actualAssignments.add(nerAnnotation.getTag());
                 resultAnnotations.add(resultType, nerAnnotation);
-                assignments.get(realAnnotation.getTargetClass()).add(resultType);
-                confusionMatrix.add(realAnnotation.getTargetClass(), nerAnnotation.getTag());
+                assignments.get(realAnnotation.getTag()).add(resultType);
+                confusionMatrix.add(realAnnotation.getTag(), nerAnnotation.getTag());
                 break;
             case ERROR1:
                 actualAssignments.add(nerAnnotation.getTag());
@@ -533,7 +533,7 @@ public class EvaluationResult {
                 break;
             case ERROR2:
                 resultAnnotations.add(resultType, realAnnotation);
-                assignments.get(realAnnotation.getTargetClass()).add(resultType);
+                assignments.get(realAnnotation.getTag()).add(resultType);
                 break;
             default:
                 throw new IllegalStateException();

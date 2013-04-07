@@ -189,7 +189,7 @@ public class YahooLocationExtractor extends LocationExtractor {
     public static void main(String[] args) throws Exception {
         LocationExtractor extractor = new YahooLocationExtractor();
         String text = "They followed him to deepest Africa and found him there, in Timbuktu";
-        Annotations list = extractor.getAnnotations(text);
+        List<Annotation> list = extractor.getAnnotations(text);
         CollectionHelper.print(list);
     }
 
