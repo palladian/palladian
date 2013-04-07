@@ -37,13 +37,6 @@ public class Annotation implements Annotated {
 
     private List<String> subTypes = null;
 
-    public Annotation(Annotation annotation) {
-        offset = annotation.getStartPosition();
-        length = annotation.getLength();
-        entity = annotation.getValue();
-        tags = new CategoryEntriesMap(annotation.getTags());
-    }
-
     public Annotation(int offset, String entityName, String tagName) {
         this.offset = offset;
         this.length = entityName.length();
@@ -179,19 +172,19 @@ public class Annotation implements Annotated {
         return subTypes;
     }
 
-    public boolean matches(Annotation annotation) {
-        return getStartPosition() == annotation.getStartPosition() && getLength() == annotation.getLength();
-    }
+//    public boolean matches(Annotation annotation) {
+//        return getStartPosition() == annotation.getStartPosition() && getLength() == annotation.getLength();
+//    }
 
-    public boolean overlaps(Annotation annotation) {
-        return getStartPosition() <= annotation.getStartPosition() && getEndPosition() >= annotation.getStartPosition()
-                || getStartPosition() <= annotation.getEndPosition()
-                && getEndPosition() >= annotation.getStartPosition();
-    }
+//    public boolean overlaps(Annotation annotation) {
+//        return getStartPosition() <= annotation.getStartPosition() && getEndPosition() >= annotation.getStartPosition()
+//                || getStartPosition() <= annotation.getEndPosition()
+//                && getEndPosition() >= annotation.getStartPosition();
+//    }
 
-    public boolean sameTag(Annotation annotation) {
-        return getTag().equalsIgnoreCase(annotation.getTag());
-    }
+//    public boolean sameTag(Annotation annotation) {
+//        return getTag().equalsIgnoreCase(annotation.getTag());
+//    }
 
     public void setEntity(String entity) {
         this.entity = entity;
@@ -256,6 +249,11 @@ public class Annotation implements Annotated {
     @Override
     public String getTag() {
         return getTags().getMostLikelyCategory();
+    }
+
+    @Override
+    public int compareTo(Annotated other) {
+        return this.getStartPosition() - other.getStartPosition();
     }
 
 }

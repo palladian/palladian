@@ -2,7 +2,6 @@ package ws.palladian.extraction.pos;
 
 import java.util.List;
 
-import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -10,10 +9,10 @@ import ws.palladian.processing.features.Annotated;
  * Interface defining a POS (Part-of-Speech) Tagger.
  * </p>
  * 
- * TODO think about deprecating this in the future and only provide {@link PipelineProcessor}s.
- * 
  * @author Philipp Katz
+ * @deprecated Use classes from processing API instead.
  */
+@Deprecated
 public interface PosTagger {
 
     /**

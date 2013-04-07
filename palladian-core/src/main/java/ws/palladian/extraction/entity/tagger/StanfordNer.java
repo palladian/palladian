@@ -244,7 +244,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
 
         Annotations.removeNestedAnnotations(annotations);
-        Collections.sort(annotations, Annotations.ANNOTATION_COMPARATOR);
+        Collections.sort(annotations);
 
         // CollectionHelper.print(annotations);
 

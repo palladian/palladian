@@ -183,7 +183,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         String alignedContent = NerHelper.alignContentText(FileHelper.readFileToString(outFile.getPath()), inputText);
         List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
         Annotations.removeNestedAnnotations(annotations);
-        Collections.sort(annotations, Annotations.ANNOTATION_COMPARATOR);
+        Collections.sort(annotations);
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
 

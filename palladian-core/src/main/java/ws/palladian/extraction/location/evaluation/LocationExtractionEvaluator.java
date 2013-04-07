@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -21,6 +20,7 @@ import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.processing.features.Annotated;
 
 public class LocationExtractionEvaluator {
 
@@ -33,13 +33,13 @@ public class LocationExtractionEvaluator {
                     + "' does not exist or is no directory.");
         }
 
-        Map<ResultType, Map<String, List<Annotation>>> errors = new LinkedHashMap<ResultType, Map<String, List<Annotation>>>();
-        errors.put(ResultType.CORRECT, new HashMap<String, List<Annotation>>());
-        errors.put(ResultType.ERROR1, new HashMap<String, List<Annotation>>());
-        errors.put(ResultType.ERROR2, new HashMap<String, List<Annotation>>());
-        errors.put(ResultType.ERROR3, new HashMap<String, List<Annotation>>());
-        errors.put(ResultType.ERROR4, new HashMap<String, List<Annotation>>());
-        errors.put(ResultType.ERROR5, new HashMap<String, List<Annotation>>());
+        Map<ResultType, Map<String, List<Annotated>>> errors = new LinkedHashMap<ResultType, Map<String, List<Annotated>>>();
+        errors.put(ResultType.CORRECT, new HashMap<String, List<Annotated>>());
+        errors.put(ResultType.ERROR1, new HashMap<String, List<Annotated>>());
+        errors.put(ResultType.ERROR2, new HashMap<String, List<Annotated>>());
+        errors.put(ResultType.ERROR3, new HashMap<String, List<Annotated>>());
+        errors.put(ResultType.ERROR4, new HashMap<String, List<Annotated>>());
+        errors.put(ResultType.ERROR5, new HashMap<String, List<Annotated>>());
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
 
@@ -110,15 +110,15 @@ public class LocationExtractionEvaluator {
         detailedOutput.append("\n\n\n");
 
         // detailed error stats
-        for (Entry<ResultType, Map<String, List<Annotation>>> entry : errors.entrySet()) {
+        for (Entry<ResultType, Map<String, List<Annotated>>> entry : errors.entrySet()) {
             ResultType resultType = entry.getKey();
             int errorTypeCount = 0;
-            for (List<Annotation> errorEntry : entry.getValue().values()) {
+            for (List<Annotated> errorEntry : entry.getValue().values()) {
                 errorTypeCount += errorEntry.size();
             }
             detailedOutput.append(resultType.getDescription()).append(";").append(errorTypeCount).append("\n");
-            for (Entry<String, List<Annotation>> errorEntry : entry.getValue().entrySet()) {
-                for (Annotation annotation : errorEntry.getValue()) {
+            for (Entry<String, List<Annotated>> errorEntry : entry.getValue().entrySet()) {
+                for (Annotated annotation : errorEntry.getValue()) {
                     String fileName = errorEntry.getKey();
                     detailedOutput.append("\t").append(annotation).append(";").append(fileName).append("\n");
                 }

@@ -12,6 +12,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -22,18 +23,12 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public final class AddressTagger {
 
-    /** The assigned entity type for street names. */
-    public static final String STREET_ANNOTATION_NAME = "STREET";
-
-    /** The assigned entity type for house numbers. */
-    public static final String STREET_NR_ANNOTATION_NAME = "STREETNR";
-
     public static final Pattern STREET_PATTERN = Pattern.compile(
             ".*street$|.*road$|.*avenue$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
             Pattern.CASE_INSENSITIVE);
 
-    public static List<Annotation> tag(String text) {
-        List<Annotation> ret = CollectionHelper.newArrayList();
+    public static List<LocationAnnotation> tag(String text) {
+        List<LocationAnnotation> ret = CollectionHelper.newArrayList();
 
         // TODO StringTagger is too strict here, e.g. the following candidate is not recognized:
         // Viale di Porta Ardeatine -- use dedicted regex here?
@@ -44,13 +39,16 @@ public final class AddressTagger {
             Matcher matcher = STREET_PATTERN.matcher(annotation.getValue());
             if (matcher.matches()) {
                 // System.out.println("street : " + annotation.getEntity());
-                ret.add(new Annotation(annotation.getStartPosition(), annotation.getValue(), STREET_ANNOTATION_NAME));
+                Annotated annotated = new Annotation(annotation.getStartPosition(), annotation.getValue(),
+                        LocationType.STREET.toString());
+                ret.add(new LocationAnnotation(annotated, new ImmutableLocation(0, annotated.getValue(),
+                        LocationType.STREET, null, null, null)));
             }
         }
 
         // step two: look for street numbers before or after
-        List<Annotation> streetNumbers = CollectionHelper.newArrayList();
-        for (Annotation annotation : ret) {
+        List<LocationAnnotation> streetNumbers = CollectionHelper.newArrayList();
+        for (Annotated annotation : ret) {
             String regEx = StringHelper.escapeForRegularExpression(annotation.getValue());
 
             // try number as suffix
@@ -58,7 +56,10 @@ public final class AddressTagger {
             Matcher matcher = suffixRegEx.matcher(text);
             while (matcher.find()) {
                 // System.out.println("suffix: " + matcher.group(1));
-                streetNumbers.add(new Annotation(matcher.start(), matcher.group(1), STREET_NR_ANNOTATION_NAME));
+                Annotated annotated = new Annotation(matcher.start(1), matcher.group(1),
+                        LocationType.STREETNR.toString());
+                streetNumbers.add(new LocationAnnotation(annotated, new ImmutableLocation(0, matcher.group(1),
+                        LocationType.STREETNR, null, null, null)));
             }
 
             // try number as prefix
@@ -66,7 +67,10 @@ public final class AddressTagger {
             matcher = prefixRegEx.matcher(text);
             while (matcher.find()) {
                 // System.out.println("prefix: " + matcher.group(1));
-                streetNumbers.add(new Annotation(matcher.start(), matcher.group(1), STREET_NR_ANNOTATION_NAME));
+                Annotated annotated = new Annotation(matcher.start(1), matcher.group(1),
+                        LocationType.STREETNR.toString());
+                streetNumbers.add(new LocationAnnotation(annotated, new ImmutableLocation(0, matcher.group(1),
+                        LocationType.STREETNR, null, null, null)));
             }
         }
 
@@ -75,9 +79,9 @@ public final class AddressTagger {
         ret.addAll(streetNumbers);
 
         // sort by offset
-        Collections.sort(ret, new Comparator<Annotation>() {
+        Collections.sort(ret, new Comparator<Annotated>() {
             @Override
-            public int compare(Annotation a0, Annotation a1) {
+            public int compare(Annotated a0, Annotated a1) {
                 return Integer.valueOf(a0.getStartPosition()).compareTo(a1.getStartPosition());
             }
         });
@@ -92,7 +96,7 @@ public final class AddressTagger {
     public static void main(String[] args) {
         String text = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text2.txt");
         text = HtmlHelper.stripHtmlTags(text);
-        List<Annotation> result = tag(text);
+        List<LocationAnnotation> result = tag(text);
         CollectionHelper.print(result);
     }
 
