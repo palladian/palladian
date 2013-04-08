@@ -17,14 +17,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import de.julielab.jnet.tagger.JNETException;
 import de.julielab.jnet.tagger.NETagger;
 import de.julielab.jnet.tagger.Sentence;
@@ -143,7 +144,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
+    public List<Annotated> getAnnotations(String inputText) {
 
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
         FileFormatParser.textToColumn("data/temp/julieInputText.txt", "data/temp/julieInputTextColumn.txt", " ");
@@ -181,13 +182,13 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         }
         // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
         String alignedContent = NerHelper.alignContentText(FileHelper.readFileToString(outFile.getPath()), inputText);
-        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
-        Annotations.removeNestedAnnotations(annotations);
-        Collections.sort(annotations);
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
+        annotations.removeNested();
+        annotations.sort();
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
 
-        return annotations;
+        return Collections.<Annotated> unmodifiableList(annotations);
     }
 
     /**

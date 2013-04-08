@@ -1,8 +1,5 @@
 package ws.palladian.extraction.entity;
 
-import java.util.List;
-
-
 /**
  * <p>
  * Tag possible named entities in an English text.
@@ -11,7 +8,7 @@ import java.util.List;
  * @author David Urbansky
  * 
  */
-public class StringTagger {
+public final class StringTagger {
 
     public static final String CANDIDATE_TAG = "<CANDIDATE>$0</CANDIDATE>";
 
@@ -80,13 +77,18 @@ public class StringTagger {
         return s;
     }
 
-    public static List<Annotation> getTaggedEntities(String text, String regexp) {
+    public static Annotations<ContextAnnotation> getTaggedEntities(String text, String regexp) {
         String taggedText = tagString(text, regexp);
         return FileFormatParser.getAnnotationsFromXmlText(taggedText);
     }
 
-    public static List<Annotation> getTaggedEntities(String text) {
+    public static Annotations<ContextAnnotation> getTaggedEntities(String text) {
         String taggedText = tagString(text);
         return FileFormatParser.getAnnotationsFromXmlText(taggedText);
     }
+
+    private StringTagger() {
+        // helper class, no instances.
+    }
+
 }

@@ -163,7 +163,7 @@ public class EvaluationResult {
      * 
      * @param goldStandard The gold standard, not <code>null</code>.
      */
-    public EvaluationResult(List<Annotation> goldStandard) {
+    public EvaluationResult(List<? extends Annotated> goldStandard) {
         Validate.notNull(goldStandard, "goldStandard must not be null");
         this.assignments = LazyMap.create(new Factory<CountMap<ResultType>>() {
             @Override
@@ -175,7 +175,7 @@ public class EvaluationResult {
         this.confusionMatrix = new ConfusionMatrix();
         this.actualAssignments = CountMap.create();
         this.possibleAssignments = CountMap.create();
-        for (Annotation annotation : goldStandard) {
+        for (Annotated annotation : goldStandard) {
             possibleAssignments.add(annotation.getTag());
         }
     }

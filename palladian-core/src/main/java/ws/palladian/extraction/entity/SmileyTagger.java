@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -45,9 +46,9 @@ public class SmileyTagger {
         smileyPattern = Pattern.compile(smileyPatterhRegEx.toString());
     }
 
-    public List<Annotation> tagSmileys(String inputText) {
+    public List<Annotated> tagSmileys(String inputText) {
 
-        List<Annotation> annotations = CollectionHelper.newArrayList();
+        List<Annotated> annotations = CollectionHelper.newArrayList();
 
         Matcher matcher = smileyPattern.matcher(inputText);
 
@@ -62,7 +63,7 @@ public class SmileyTagger {
     public static void main(String[] args) {
         String text = "This is a nice day :) and the sun shines ;)";
         SmileyTagger smileyTagger = new SmileyTagger();
-        List<Annotation> annotations = smileyTagger.tagSmileys(text);
+        List<Annotated> annotations = smileyTagger.tagSmileys(text);
         CollectionHelper.print(annotations);
     }
 }

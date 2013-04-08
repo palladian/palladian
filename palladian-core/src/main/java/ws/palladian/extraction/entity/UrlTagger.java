@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -19,9 +20,9 @@ public class UrlTagger {
 	/** The tag name for URLs. */
 	public static final String URI_TAG_NAME = "URI";
 
-	public List<Annotation> tagUrls(String inputText) {
+    public List<Annotated> tagUrls(String inputText) {
 
-		List<Annotation> annotations = CollectionHelper.newArrayList();
+        List<Annotated> annotations = CollectionHelper.newArrayList();
 		
 		Matcher matcher = UrlHelper.URL_PATTERN.matcher(inputText);
 

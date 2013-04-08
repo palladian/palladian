@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotation;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -33,6 +34,7 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -98,12 +100,13 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         List<LocationAnnotation> locationEntities = CollectionHelper.newArrayList();
 
-        List<Annotation> taggedEntities = StringTagger.getTaggedEntities(text);
+        List<ContextAnnotation> taggedEntities = StringTagger.getTaggedEntities(text);
 
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
         filterPersonEntities(taggedEntities);
-        filterNonEntities(taggedEntities, text);
+        // filterNonEntities(taggedEntities, text);
+        taggedEntities = filterNonEntities(taggedEntities, text);
         filterNonEntitiesWithCaseDictionary(taggedEntities, text);
 
         // CollectionHelper.print(taggedEntities);
@@ -115,7 +118,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         MultiMap<String, Location> cache = fetchLocations(taggedEntities);
 
         // try to find them in the database
-        for (Annotation locationCandidate : taggedEntities) {
+        for (Annotated locationCandidate : taggedEntities) {
 
             String entityValue = locationCandidate.getValue();
 
@@ -244,10 +247,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
             Location loc = selectLocation(locationMap.get(entityValue));
             toRemove.add(annotation);
 
-            // FIXME!?!?!?
-            // CategoryEntriesMap ces = new CategoryEntriesMap();
-            // ces.set(loc.getType().toString(), 1.);
-            // annotation.setTags(ces);
             toAdd.add(new LocationAnnotation(annotation, loc));
 
             finalResultsForCheck.put(annotation.getValue(), loc);
@@ -274,9 +273,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return locationEntities;
     }
 
-    private MultiMap<String, Location> fetchLocations(List<Annotation> annotations) {
+    private MultiMap<String, Location> fetchLocations(List<? extends Annotated> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
-        for (Annotation annotation : annotations) {
+        for (Annotated annotation : annotations) {
             String entityValue = annotation.getValue();
             entityValue = cleanName(entityValue);
 
@@ -450,10 +449,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     }
 
-    private void filterNonEntitiesWithCaseDictionary(List<Annotation> taggedEntities, String text) {
-        Iterator<Annotation> iterator = taggedEntities.iterator();
+    private void filterNonEntitiesWithCaseDictionary(List<? extends Annotated> taggedEntities, String text) {
+        Iterator<? extends Annotated> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
-            Annotation current = iterator.next();
+            Annotated current = iterator.next();
             String value = current.getValue();
 
             Double ratio = CASE_DICTIONARY.get(value.toLowerCase());
@@ -464,24 +463,27 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
     }
 
-    private void filterNonEntities(List<Annotation> taggedEntities, String text) {
+    private List<ContextAnnotation> filterNonEntities(List<ContextAnnotation> taggedEntities, String text) {
         Map<String, String> result = EntityPreprocessor.correctAnnotations(text, CASE_DICTIONARY);
-        Iterator<Annotation> iterator = taggedEntities.iterator();
+        List<ContextAnnotation> filtered = CollectionHelper.newArrayList();
+
+        Iterator<ContextAnnotation> iterator = taggedEntities.iterator();
         while (iterator.hasNext()) {
-            Annotation current = iterator.next();
+            ContextAnnotation current = iterator.next();
             String value = current.getValue();
             String mapping = result.get(value);
             if (mapping == null) {
+                filtered.add(current);
                 continue;
             }
             if (mapping.isEmpty()) {
-                iterator.remove();
+                continue;
             }
             int indexCorrector = value.indexOf(mapping);
-            current.setOffset(current.getStartPosition() + indexCorrector);
-            current.setEntity(mapping);
-            current.setLength(mapping.length());
+            int offset = current.getStartPosition() + indexCorrector;
+            filtered.add(new ContextAnnotation(offset, mapping, current.getTag()));
         }
+        return filtered;
     }
 
     /**
@@ -570,9 +572,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
             "Executive", "Justice", "Secretary", "Prince", "Congressman", "Skipper", "Liberal", "Analyst", "Major",
             "Writer", "Ombudsman", "Examiner");
 
-    private void filterPersonEntities(List<Annotation> annotations) {
+    private void filterPersonEntities(List<? extends Annotated> annotations) {
         Set<String> blacklist = CollectionHelper.newHashSet();
-        for (Annotation annotation : annotations) {
+        for (Annotated annotation : annotations) {
             String value = annotation.getValue().toLowerCase();
             for (String prefix : PREFIXES) {
                 if (value.contains(prefix.toLowerCase() + " ")) {
@@ -584,9 +586,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 }
             }
         }
-        Iterator<Annotation> iterator = annotations.iterator();
+        Iterator<? extends Annotated> iterator = annotations.iterator();
         while (iterator.hasNext()) {
-            Annotation annotation = iterator.next();
+            Annotation annotation = (Annotation)iterator.next();
             String value = annotation.getValue().toLowerCase();
             boolean remove = blacklist.contains(value);
             for (String blacklistedItem : blacklist) {

@@ -14,13 +14,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.processing.features.Annotated;
 
 public class IllinoisLbjNerTest {
 
@@ -77,7 +77,7 @@ public class IllinoisLbjNerTest {
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.68);
 
         tagger.loadModel(modelFile);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
         // annotations.removeNestedAnnotations();
         // annotations.sort();
 
@@ -88,13 +88,13 @@ public class IllinoisLbjNerTest {
 
         assertTrue(annotations.size() > 2100);
         assertEquals(21, annotations.get(0).getStartPosition());
-        assertEquals(14, annotations.get(0).getLength());
+        assertEquals(14, annotations.get(0).getValue().length());
 
         // assertEquals(annotations.get(500).getOffset(), 14506);
         // assertEquals(annotations.get(500).getLength(), 10);
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
+        assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
     }
 
 }

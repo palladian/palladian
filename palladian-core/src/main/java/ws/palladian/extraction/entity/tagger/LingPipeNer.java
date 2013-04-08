@@ -24,6 +24,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.helper.Conll2002ChunkTagParser;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 
 import com.aliasi.chunk.CharLmRescoringChunker;
 import com.aliasi.chunk.Chunk;
@@ -134,8 +135,8 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
+    public List<Annotated> getAnnotations(String inputText) {
+        Annotations<Annotated> annotations = new Annotations<Annotated>();
 
         String[] args = {inputText};
         Set<Chunk> chunkSet = new HashSet<Chunk>();
@@ -155,7 +156,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
         // FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
 
-        annotations.removeNestedAnnotations();
+        annotations.removeNested();
         annotations.sort();
         return annotations;
     }

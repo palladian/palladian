@@ -14,14 +14,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.io.IOUtils;
@@ -228,7 +229,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
+    public List<Annotated> getAnnotations(String inputText) {
 
         String inputTextPath = "data/temp/inputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);
@@ -239,16 +240,16 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         String taggedTextFilePath = "data/temp/stanfordNERTaggedText.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
-        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
 
         FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
 
-        Annotations.removeNestedAnnotations(annotations);
-        Collections.sort(annotations);
+        annotations.removeNested();
+        annotations.sort();
 
         // CollectionHelper.print(annotations);
 
-        return annotations;
+        return Collections.<Annotated> unmodifiableList(annotations);
     }
 
     @Override

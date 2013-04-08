@@ -2,8 +2,6 @@ package ws.palladian.extraction.entity;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
-
 import org.junit.Test;
 
 public class StringTaggerTest {
@@ -11,7 +9,7 @@ public class StringTaggerTest {
     @Test
     public void testTagString() {
 
-        List<Annotation> annotations = null;
+        Annotations<ContextAnnotation> annotations = null;
         String text = "";
 
         // abbreviations
