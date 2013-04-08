@@ -70,8 +70,8 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations;
+    public List<Annotated> getAnnotations(String inputText) {
+        List<Annotated> annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
             String resultString = HttpHelper.getStringContent(httpResult);
@@ -95,9 +95,9 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     /** Package-private for unit-testing. */
-    Annotations parseXml(InputSource inputSource, String inputText) throws ParserException {
+    List<Annotated> parseXml(InputSource inputSource, String inputText) throws ParserException {
 
-        Annotations annotations = new Annotations();
+        Annotations<Annotated> annotations = new Annotations<Annotated>();
         Document doc = xmlParser.parse(inputSource);
 
         List<String> tokens = getCdataContent(doc);

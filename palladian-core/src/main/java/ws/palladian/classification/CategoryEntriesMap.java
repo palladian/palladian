@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.ConstantFactory;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -28,6 +30,30 @@ public final class CategoryEntriesMap implements CategoryEntries {
      */
     public CategoryEntriesMap() {
         entryMap = CollectionHelper.newHashMap();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link CategoryEntriesMap} by merging multiple {@link CategoryEntries} instances.
+     * </p>
+     * 
+     * @param categoryEntries The category entries, not <code>null</code>.
+     * @return The merged {@link CategoryEntriesMap}.
+     */
+    public static CategoryEntriesMap merge(CategoryEntries... categoryEntries) {
+        Validate.notNull(categoryEntries, "categoryEntries must not be null");
+        Map<String, Double> valueMap = LazyMap.create(ConstantFactory.create(0.));
+        for (CategoryEntries entries : categoryEntries) {
+            for (String category : entries) {
+                Double value = valueMap.get(category);
+                valueMap.put(category, value + entries.getProbability(category));
+            }
+        }
+        CategoryEntriesMap result = new CategoryEntriesMap();
+        for (String category : valueMap.keySet()) {
+            result.set(category, valueMap.get(category));
+        }
+        return result;
     }
 
     /**
@@ -61,7 +87,7 @@ public final class CategoryEntriesMap implements CategoryEntries {
             sum += probability;
         }
         for (String categoryName : map.keySet()) {
-            entryMap.put(categoryName, (double)map.get(categoryName) / sum);
+            entryMap.put(categoryName, map.get(categoryName) / sum);
         }
     }
 

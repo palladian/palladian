@@ -1,5 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.List;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
@@ -9,8 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -47,12 +50,12 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotated> getAnnotations(String inputText) {
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
         request.addParameter("text", inputText);
 
-        Annotations annotations = new Annotations();
+        List<Annotated> annotations = CollectionHelper.newArrayList();
         String content;
         try {
             HttpResult httpResult = httpRetriever.execute(request);

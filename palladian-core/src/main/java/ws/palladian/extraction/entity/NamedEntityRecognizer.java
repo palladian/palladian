@@ -152,27 +152,28 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format, Set<String> ignore) {
 
         // get the correct annotations from the testing file
-        List<Annotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
-        Collections.sort(goldStandard);
+        Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
+        goldStandard.sort();
         // goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 
         // get the annotations of the NER
         List<? extends Annotated> nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
-        // nerAnnotations.removeNestedAnnotations();
-        Annotations.removeNestedAnnotations(nerAnnotations);
-        Collections.sort(nerAnnotations);
+        Annotations<Annotated> annotations = new Annotations<Annotated>(nerAnnotations);
+        annotations.removeNested();
+        annotations.sort();
         // String inputFile = FileHelper.getFileName(testingFilePath);
         // nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + inputFile + "_"
         // + getName().replace(" ", "") + DateHelper.getCurrentDatetime() + ".txt");
 
-        return evaluate(goldStandard, nerAnnotations, ignore);
+        return evaluate(goldStandard, annotations, ignore);
     }
 
-    public static EvaluationResult evaluate(List<Annotation> goldStandard, List<? extends Annotated> nerResult,
+    public static EvaluationResult evaluate(List<? extends Annotated> goldStandard,
+            List<? extends Annotated> nerResult,
             Set<String> ignore) {
 
         EvaluationResult evaluationResult = new EvaluationResult(goldStandard);
-        Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
+        Set<Annotated> taggedAnnotations = CollectionHelper.newHashSet();
 
         // check each NER annotation against the gold standard and add it to the assignment map depending on its error
         // type, we allow only one overlap for each gold standard annotation => real(<Person>Homer J. Simpson</Person>),
@@ -188,7 +189,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             boolean taggedOverlap = false;
             int counter = 0;
 
-            for (Annotation goldStandardAnnotation : goldStandard) {
+            for (Annotated goldStandardAnnotation : goldStandard) {
 
                 counter++;
 
@@ -249,7 +250,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         }
 
         // check which gold standard annotations have not been found by the NER (error2)
-        for (Annotation goldStandardAnnotation : goldStandard) {
+        for (Annotated goldStandardAnnotation : goldStandard) {
             if (!taggedAnnotations.contains(goldStandardAnnotation)) {
                 evaluationResult.add(ResultType.ERROR2, goldStandardAnnotation, null);
             }

@@ -12,7 +12,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
@@ -20,6 +19,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -79,7 +79,7 @@ public class NerTest {
         tagger.loadModel(tudnerLiModel);
         tagger.setTagUrls(false);
         tagger.setTagDates(false);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
         // annotations.removeNestedAnnotations();
         // annotations.sort();
 
@@ -90,13 +90,13 @@ public class NerTest {
 
         assertEquals(1516, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
-        assertEquals(14, annotations.get(0).getLength());
+        assertEquals(14, annotations.get(0).getValue().length());
 
         assertEquals(25542, annotations.get(500).getStartPosition());
-        assertEquals(7, annotations.get(500).getLength());
+        assertEquals(7, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
+        assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
 
     }
 
@@ -136,24 +136,22 @@ public class NerTest {
         tagger.loadModel(tudnerEnModel);
         tagger.setTagUrls(false);
         tagger.setTagDates(false);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        // CollectionHelper.print(annotations);
-
         assertEquals(2218, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
-        assertEquals(14, annotations.get(0).getLength());
+        assertEquals(14, annotations.get(0).getValue().length());
 
         assertEquals(15264, annotations.get(500).getStartPosition());
-        assertEquals(7, annotations.get(500).getLength());
+        assertEquals(7, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
+        assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
 
     }
 
@@ -173,7 +171,7 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.84);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.75);
 
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -182,13 +180,13 @@ public class NerTest {
 
         assertEquals(2044, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
-        assertEquals(14, annotations.get(0).getLength());
+        assertEquals(14, annotations.get(0).getValue().length());
 
         assertEquals(17692, annotations.get(500).getStartPosition());
-        assertEquals(4, annotations.get(500).getLength());
+        assertEquals(4, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
+        assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
     }
 
     @Test
@@ -207,7 +205,7 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.69);
 
         tagger.loadModel(lingpipeNerModelFile);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -216,13 +214,13 @@ public class NerTest {
 
         assertEquals(1906, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
-        assertEquals(14, annotations.get(0).getLength());
+        assertEquals(14, annotations.get(0).getValue().length());
 
         assertEquals(17108, annotations.get(500).getStartPosition());
-        assertEquals(5, annotations.get(500).getLength());
+        assertEquals(5, annotations.get(500).getValue().length());
 
         assertEquals(105048, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(6, annotations.get(annotations.size() - 1).getLength());
+        assertEquals(6, annotations.get(annotations.size() - 1).getValue().length());
     }
 
     @Test
@@ -241,7 +239,7 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.57);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.49);
 
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -250,13 +248,13 @@ public class NerTest {
 
         assertEquals(1924, annotations.size());
         assertEquals(2, annotations.get(0).getStartPosition());
-        assertEquals(8, annotations.get(0).getLength());
+        assertEquals(8, annotations.get(0).getValue().length());
 
         assertEquals(16348, annotations.get(500).getStartPosition());
-        assertEquals(1, annotations.get(500).getLength());
+        assertEquals(1, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
+        assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
     }
 
     @Test
@@ -273,7 +271,7 @@ public class NerTest {
         // System.out.println(er.getExactMatchResultsReadable());
 
         tagger.loadModel(julieNerModelFile);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -282,13 +280,14 @@ public class NerTest {
 
         assertEquals(2035, annotations.size());
         assertEquals(76, annotations.get(0).getStartPosition());
-        assertEquals(6, annotations.get(0).getLength());
+        assertEquals(6, annotations.get(0).getValue().length());
+        ;
 
         assertEquals(17768, annotations.get(500).getStartPosition());
-        assertEquals(7, annotations.get(500).getLength());
+        assertEquals(7, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(5, annotations.get(annotations.size() - 1).getLength());
+        assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
     }
 
 }

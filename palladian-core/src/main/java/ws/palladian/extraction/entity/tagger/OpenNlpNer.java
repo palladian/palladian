@@ -36,13 +36,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import ws.palladian.extraction.entity.Annotation;
+import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -223,7 +225,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
+    public List<Annotated> getAnnotations(String inputText) {
         if (finders == null || tags == null) {
             throw new IllegalStateException("No model available; make sure to load an existing model.");
         }
@@ -240,9 +242,8 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
         // FileHelper.writeToFile(taggedTextFilePath, taggedText);
         // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
         // FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
-        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-
-        return annotations;
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
+        return Collections.<Annotated> unmodifiableList(annotations);
     }
 
     @Override

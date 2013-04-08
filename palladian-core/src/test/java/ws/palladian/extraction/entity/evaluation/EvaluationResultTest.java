@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.entity.Annotation;
+import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -21,8 +21,8 @@ public class EvaluationResultTest {
     public void testEvaluationResult() throws FileNotFoundException {
         String goldFile = ResourceHelper.getResourcePath("/ner/evaluation/goldStandardXml.txt");
         String resultFile = ResourceHelper.getResourcePath("/ner/evaluation/nerResultXml.txt");
-        List<Annotation> goldStandard = FileFormatParser.getAnnotationsFromXmlFile(goldFile);
-        List<Annotation> nerResult = FileFormatParser.getAnnotationsFromXmlFile(resultFile);
+        Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotationsFromXmlFile(goldFile);
+        Annotations<ContextAnnotation> nerResult = FileFormatParser.getAnnotationsFromXmlFile(resultFile);
 
         EvaluationResult result = NamedEntityRecognizer.evaluate(goldStandard, nerResult,
                 Collections.<String> emptySet());

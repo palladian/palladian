@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.DatasetManager;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -27,7 +26,9 @@ import ws.palladian.helper.nlp.StringHelper;
 public final class FileFormatParser {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileFormatParser.class);
+
+    private static final int WINDOW_SIZE = 40;
 
     private FileFormatParser() {
         // no instances.
@@ -372,28 +373,28 @@ public final class FileFormatParser {
     }
 
     public static void xmlToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
-//        StringBuilder columnFile = new StringBuilder();
-//
-//        List<String> lines = FileHelper.readFileToArray(inputFilePath);
-//
-//        for (String line : lines) {
-//
-//            List<String> tokens = Tokenizer.tokenize(line);
-//
-//            String openTag = "O";
-//            for (String token : tokens) {
-//                if (token.startsWith("</")) {
-//                    openTag = "O";
-//                } else if (token.startsWith("<")) {
-//                    openTag = StringHelper.getSubstringBetween(token, "<", ">");
-//                } else {
-//                    columnFile.append(token).append(columnSeparator).append(openTag).append("\n");
-//                }
-//            }
-//
-//            columnFile.append("\n");
-//        }
-        
+        // StringBuilder columnFile = new StringBuilder();
+        //
+        // List<String> lines = FileHelper.readFileToArray(inputFilePath);
+        //
+        // for (String line : lines) {
+        //
+        // List<String> tokens = Tokenizer.tokenize(line);
+        //
+        // String openTag = "O";
+        // for (String token : tokens) {
+        // if (token.startsWith("</")) {
+        // openTag = "O";
+        // } else if (token.startsWith("<")) {
+        // openTag = StringHelper.getSubstringBetween(token, "<", ">");
+        // } else {
+        // columnFile.append(token).append(columnSeparator).append(openTag).append("\n");
+        // }
+        // }
+        //
+        // columnFile.append("\n");
+        // }
+
         String xmlText = FileHelper.readFileToString(inputFilePath);
         String columnFile = xmlToColumnText(xmlText, columnSeparator);
 
@@ -543,7 +544,7 @@ public final class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, columnFile);
     }
 
-    public static List<Annotation> getAnnotations(String taggedTextFilePath, TaggingFormat format) {
+    public static Annotations<ContextAnnotation> getAnnotations(String taggedTextFilePath, TaggingFormat format) {
 
         if (format.equals(TaggingFormat.XML)) {
             return getAnnotationsFromXmlFile(taggedTextFilePath);
@@ -556,12 +557,12 @@ public final class FileFormatParser {
         return null;
     }
 
-    public static List<Annotation> getAnnotationsFromColumn(String taggedTextFilePath) {
+    public static Annotations<ContextAnnotation> getAnnotationsFromColumn(String taggedTextFilePath) {
         columnToXml(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
         return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
 
-    public static List<Annotation> getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
+    public static Annotations<ContextAnnotation> getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
         columnToXmlTokenBased(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
         return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
@@ -572,8 +573,8 @@ public final class FileFormatParser {
      * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
      * @return A list of annotations that were found in the text.
      */
-    public static List<Annotation> getAnnotationsFromXmlText(String taggedText) {
-        Annotations annotations = new Annotations();
+    public static Annotations<ContextAnnotation> getAnnotationsFromXmlText(String taggedText) {
+        Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
         // entities in the plain text
@@ -606,13 +607,12 @@ public final class FileFormatParser {
              * }
              */
 
-            int windowSize = Annotation.WINDOW_SIZE;
-
             // get the left and right context of the annotation
-            String leftContext = HtmlHelper.stripHtmlTags(taggedText.substring(
-                    Math.max(0, matcher.start() - windowSize), matcher.start()));
-            String rightContext = HtmlHelper.stripHtmlTags(taggedText.substring(matcher.end(),
-                    Math.min(taggedText.length(), matcher.end() + windowSize)));
+            String leftContext = HtmlHelper.stripHtmlTags(
+                    taggedText.substring(Math.max(0, matcher.start() - WINDOW_SIZE), matcher.start())).trim();
+            String rightContext = HtmlHelper.stripHtmlTags(
+                    taggedText.substring(matcher.end(), Math.min(taggedText.length(), matcher.end() + WINDOW_SIZE)))
+                    .trim();
 
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);
@@ -630,11 +630,7 @@ public final class FileFormatParser {
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
 
-            Annotation annotation = new Annotation(offset, entityName, conceptName);
-            annotation.setLeftContext(leftContext.trim());
-            annotation.setRightContext(rightContext.trim());
-            // annotation.createFeatures();
-            annotations.add(annotation);
+            annotations.add(new ContextAnnotation(offset, entityName, conceptName, leftContext, rightContext));
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
             cumulatedTagOffset += nestedTagLength + conceptName.length() + 3;
@@ -645,7 +641,7 @@ public final class FileFormatParser {
         return annotations;
     }
 
-    public static List<Annotation> getAnnotationsFromXmlFile(String taggedTextFilePath) {
+    public static Annotations<ContextAnnotation> getAnnotationsFromXmlFile(String taggedTextFilePath) {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);
 
         // throw out special characters that might disturb tokenization such as "'" or "=".
@@ -664,8 +660,9 @@ public final class FileFormatParser {
      *            annotations of the file are taken.
      * @return Annotations with numberOfSeedsPerConcept entries per concept.
      */
-    public static List<Annotation> getSeedAnnotations(String annotatedFilePath, int numberOfSeedsPerConcept) {
-        Annotations annotations = new Annotations();
+    public static Annotations<ContextAnnotation> getSeedAnnotations(String annotatedFilePath,
+            int numberOfSeedsPerConcept) {
+        Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
 
         // count the number of collected seeds per concept
         CountMap<String> conceptSeedCount = CountMap.create();
@@ -673,10 +670,10 @@ public final class FileFormatParser {
         // store entities in a set to avoid duplicates
         Set<String> entitySet = new HashSet<String>();
 
-        List<Annotation> allAnnotations = getAnnotationsFromColumn(annotatedFilePath);
+        Annotations<ContextAnnotation> allAnnotations = getAnnotationsFromColumn(annotatedFilePath);
 
         // iterate through the annotations and collect numberOfSeedsPerConcept
-        for (Annotation annotation : allAnnotations) {
+        for (ContextAnnotation annotation : allAnnotations) {
 
             String conceptName = annotation.getTag();
             int numberOfSeeds = conceptSeedCount.getCount(conceptName);
@@ -731,7 +728,8 @@ public final class FileFormatParser {
         FileFormatParser.slashToXml("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
         FileFormatParser.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
 
-        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
+        List<ContextAnnotation> annotations = FileFormatParser
+                .getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
         CollectionHelper.print(annotations);
     }
 
