@@ -26,6 +26,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.OneColumnRowConverter;
+import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
 
@@ -33,6 +34,10 @@ import ws.palladian.persistence.helper.SqlHelper;
  * <p>
  * A {@link LocationStore} which is realized by a SQL database. Use the {@link DatabaseManagerFactory} to create
  * instances of this class. The database schema can be found in <code>/config/locationDbSchema.sql</code>.
+ * <b>Important:</b> To work correctly, the SQL database's group_concat_length must be set to a value of at least
+ * {@value #EXPECTED_GROUP_CONCAT_LENGTH}; therefore the parameter
+ * <code>sessionVariables=group_concat_max_len=1048576</code> has to be appended to the JDBC URL which is supplied to
+ * the {@link DatabaseManagerFactory}.
  * </p>
  * 
  * @author Philipp Katz
@@ -42,6 +47,9 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
+
+    /** The minimum 'group_concat_length' expected from the database. */
+    private static final int EXPECTED_GROUP_CONCAT_LENGTH = 1024 * 1024;
 
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
@@ -90,6 +98,28 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     /** Instances are created using the {@link DatabaseManagerFactory}. */
     protected LocationDatabase(DataSource dataSource) {
         super(dataSource);
+        checkGroupConcatLength();
+    }
+
+    /**
+     * Check the configured value for the 'group_concat_max_len', and throw an {@link IllegalStateException} if value is
+     * too small.
+     */
+    private final void checkGroupConcatLength() {
+        runQuery(new ResultSetCallback() {
+            @Override
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                int groupConcatLength = resultSet.getInt(2);
+                if (groupConcatLength < EXPECTED_GROUP_CONCAT_LENGTH) {
+                    throw new IllegalStateException(
+                            "Please increase 'group_concat_max_len'; it is currently set to "
+                                    + groupConcatLength
+                                    + ", but should be at least "
+                                    + EXPECTED_GROUP_CONCAT_LENGTH
+                                    + " for the LocationDatabase to work correctly. See the class documentation for more information.");
+                }
+            }
+        }, "SHOW SESSION VARIABLES LIKE 'group_concat_max_len'");
     }
 
     @Override
