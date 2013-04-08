@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>0.2.0</version>
 	</parent>
 	<artifactId>palladian-processing-api</artifactId>
 	<name>Palladian: Processing API</name>
