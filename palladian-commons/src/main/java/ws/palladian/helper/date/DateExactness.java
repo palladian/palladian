@@ -47,9 +47,7 @@ public enum DateExactness {
      * 
      * @param value The int value denoting the {@link DateExactness}.
      * @return The {@link DateExactness} for the specified int value.
-     * @deprecated Reference by explicit type if possible.
      */
-    @Deprecated
     public static DateExactness byValue(int value) {
         for (DateExactness compareDepth : values()) {
             if (compareDepth.value == value) {

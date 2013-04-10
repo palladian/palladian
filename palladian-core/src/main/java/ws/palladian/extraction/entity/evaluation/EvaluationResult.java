@@ -14,6 +14,7 @@ import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -91,7 +92,7 @@ public class EvaluationResult {
     private static final String OTHER_MARKER = SPECIAL_MARKER + "OTHER" + SPECIAL_MARKER;
 
     /** Keep {@link Annotation}s indexed by {@link ResultType}. */
-    private final MultiMap<ResultType, Annotation> resultAnnotations;
+    private final MultiMap<ResultType, Annotated> resultAnnotations;
 
     /** Keep counts of actual tag assignments. */
     private final CountMap<String> actualAssignments;
@@ -162,7 +163,7 @@ public class EvaluationResult {
      * 
      * @param goldStandard The gold standard, not <code>null</code>.
      */
-    public EvaluationResult(List<Annotation> goldStandard) {
+    public EvaluationResult(List<? extends Annotated> goldStandard) {
         Validate.notNull(goldStandard, "goldStandard must not be null");
         this.assignments = LazyMap.create(new Factory<CountMap<ResultType>>() {
             @Override
@@ -174,8 +175,8 @@ public class EvaluationResult {
         this.confusionMatrix = new ConfusionMatrix();
         this.actualAssignments = CountMap.create();
         this.possibleAssignments = CountMap.create();
-        for (Annotation annotation : goldStandard) {
-            possibleAssignments.add(annotation.getTargetClass());
+        for (Annotated annotation : goldStandard) {
+            possibleAssignments.add(annotation.getTag());
         }
     }
 
@@ -455,7 +456,7 @@ public class EvaluationResult {
                 results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
             }
             results.append("\n");
-            for (Annotation annotation : resultAnnotations.get(resultType)) {
+            for (Annotated annotation : resultAnnotations.get(resultType)) {
                 results.append("  ").append(annotation).append("\n");
             }
         }
@@ -465,8 +466,8 @@ public class EvaluationResult {
 
     private CountMap<String> getAnnotationCount(ResultType resultType) {
         CountMap<String> counts = CountMap.create();
-        for (Annotation annotation : getAnnotations(resultType)) {
-            counts.add(annotation.getMostLikelyTagName());
+        for (Annotated annotation : getAnnotations(resultType)) {
+            counts.add(annotation.getTag());
         }
         return counts;
     }
@@ -495,9 +496,9 @@ public class EvaluationResult {
         return assignments.get(tagName).getCount(resultType);
     }
 
-    public List<Annotation> getAnnotations(ResultType resultType) {
-        List<Annotation> annotations = resultAnnotations.get(resultType);
-        return annotations != null ? Collections.unmodifiableList(annotations) : Collections.<Annotation> emptyList();
+    public List<Annotated> getAnnotations(ResultType resultType) {
+        List<Annotated> annotations = resultAnnotations.get(resultType);
+        return annotations != null ? Collections.unmodifiableList(annotations) : Collections.<Annotated> emptyList();
     }
 
     /**
@@ -512,7 +513,7 @@ public class EvaluationResult {
      * @param nerAnnotation The annotation assigned by the NER, or <code>null</code> in case of
      *            {@link ResultType#ERROR2} (something from the gold standard was not tagged at all).
      */
-    public void add(ResultType resultType, Annotation realAnnotation, Annotation nerAnnotation) {
+    public void add(ResultType resultType, Annotated realAnnotation, Annotated nerAnnotation) {
         Validate.notNull(resultType, "resultType must not be null");
 
         switch (resultType) {
@@ -520,20 +521,20 @@ public class EvaluationResult {
             case ERROR3:
             case ERROR4:
             case ERROR5:
-                actualAssignments.add(nerAnnotation.getMostLikelyTagName());
+                actualAssignments.add(nerAnnotation.getTag());
                 resultAnnotations.add(resultType, nerAnnotation);
-                assignments.get(realAnnotation.getTargetClass()).add(resultType);
-                confusionMatrix.add(realAnnotation.getTargetClass(), nerAnnotation.getMostLikelyTagName());
+                assignments.get(realAnnotation.getTag()).add(resultType);
+                confusionMatrix.add(realAnnotation.getTag(), nerAnnotation.getTag());
                 break;
             case ERROR1:
-                actualAssignments.add(nerAnnotation.getMostLikelyTagName());
+                actualAssignments.add(nerAnnotation.getTag());
                 resultAnnotations.add(resultType, nerAnnotation);
-                assignments.get(nerAnnotation.getMostLikelyTagName()).add(resultType);
-                confusionMatrix.add(OTHER_MARKER, nerAnnotation.getMostLikelyTagName());
+                assignments.get(nerAnnotation.getTag()).add(resultType);
+                confusionMatrix.add(OTHER_MARKER, nerAnnotation.getTag());
                 break;
             case ERROR2:
                 resultAnnotations.add(resultType, realAnnotation);
-                assignments.get(realAnnotation.getTargetClass()).add(resultType);
+                assignments.get(realAnnotation.getTag()).add(resultType);
                 break;
             default:
                 throw new IllegalStateException();

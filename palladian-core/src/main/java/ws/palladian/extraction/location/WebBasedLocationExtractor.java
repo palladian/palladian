@@ -6,12 +6,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
-import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotated;
 
 public abstract class WebBasedLocationExtractor extends LocationExtractor {
 
@@ -31,22 +28,19 @@ public abstract class WebBasedLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = entityRecognizer.getAnnotations(inputText);
-        List<Annotation> unmappedAnnotations = CollectionHelper.newArrayList();
-        for (Annotation annotation : annotations) {
-            LocationType mappedType = map(annotation.getMostLikelyTagName());
+    public List<LocationAnnotation> getAnnotations(String inputText) {
+        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<? extends Annotated> annotations = entityRecognizer.getAnnotations(inputText);
+        for (Annotated annotation : annotations) {
+            LocationType mappedType = map(annotation.getTag());
             if (mappedType == null) {
-                LOGGER.debug("No mapping for tag {}, will be dropped", annotation.getMostLikelyTagName());
-                unmappedAnnotations.add(annotation);
+                LOGGER.debug("No mapping for tag {}, will be dropped", annotation.getTag());
             } else {
-                CategoryEntries categoryEntries = new CategoryEntries();
-                categoryEntries.add(new CategoryEntry(mappedType.toString(), 1));
-                annotation.setTags(categoryEntries);
+                Location location = new ImmutableLocation(0, annotation.getValue(), mappedType, null, null, null);
+                result.add(new LocationAnnotation(annotation, location));
             }
         }
-        annotations.removeAll(unmappedAnnotations);
-        return annotations;
+        return result;
     }
 
     @Override

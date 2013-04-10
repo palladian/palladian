@@ -53,7 +53,7 @@ public class SynonymDictionaryCreator {
                 }
             }
 
-            ProgressHelper.showProgress(c++, lines.size(), 1);
+            ProgressHelper.printProgress(c++, lines.size(), 1);
         }
 
         LOGGER.info("saving dictionary to " + dictionaryFile.getName());

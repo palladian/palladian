@@ -551,30 +551,6 @@ public final class StringHelper {
     }
 
     /**
-     * Clean the given string from stop words, i.e. words that appear often but have no meaning itself.
-     * 
-     * @deprecated use StopWordRemover instead.
-     * @param string The string.
-     * @return The string without the stop words.
-     */
-    @Deprecated
-    public static String removeStopWords(String string) {
-        String[] stopWords = {"the", "and", "of", "by", "as", "but", "not", "is", "it", "to", "in", "or", "for", "on",
-                "at", "up", "what", "how", "why", "when", "where"};
-        int stopWordsSize = stopWords.length;
-
-        String modString = " " + string + " ";
-        for (int i = 0; i < stopWordsSize; ++i) {
-            // remove stop words followed by a space
-            modString = modString.replaceAll("(?<![\\w])(?i)" + stopWords[i] + "\\s", "");
-            // remove stop words followed by punctuation
-            modString = modString.replaceAll("\\s" + stopWords[i] + "(?=(\\!|\\?|\\.|,|;))", "");
-        }
-
-        return modString.trim();
-    }
-
-    /**
      * Replace "non-breaking" aka. protected whitespace (unicode 0x00A0) with normal whitespace.
      * 
      * @param string the string
@@ -1665,36 +1641,6 @@ public final class StringHelper {
         caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
 
         return caseSignature;
-    }
-
-    /**
-     * Remove all evil characters from the string that prevent the string from being written into a single line of a csv
-     * file. Removes all control characters, replaces double quotes " by {@link #DOUBLE_QUOTES_REPLACEMENT} and replaces
-     * semicolons by {@link #SEMICOLON_REPLACEMENT}
-     * 
-     * @param text The string to be cleaned.
-     * @return The cleaned string.
-     * @see #recoverStringFromCsv(String)
-     * @deprecated Use a dedicated CSV parser/writer for such tasks.
-     */
-    @Deprecated
-    public static String cleanStringToCsv(String text) {
-        return StringHelper.removeControlCharacters(text).replaceAll("\"", DOUBLE_QUOTES_REPLACEMENT)
-                .replaceAll(";", SEMICOLON_REPLACEMENT);
-    }
-
-    /**
-     * Restore double quotes " and semicolon in a string that is read from a csv file and has initially been processed
-     * by {@link #cleanStringToCsv(String)}.
-     * 
-     * @param csvText The text to recover.
-     * @return The partly reconstructed string. Removed control characters are not recovered.
-     * @see #cleanStringToCsv(String)
-     * @deprecated Use a dedicated CSV parser/writer for such tasks.
-     */
-    @Deprecated
-    public static String recoverStringFromCsv(String csvText) {
-        return csvText.replaceAll(DOUBLE_QUOTES_REPLACEMENT, "\"").replaceAll(SEMICOLON_REPLACEMENT, ";");
     }
 
     /**

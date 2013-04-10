@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ws.palladian.extraction.TagAnnotations;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -77,7 +78,7 @@ public class TweetNlpPosTaggerTest {
     @Test
     public void testTweetNlpPosTagger() {
         TweetNlpPosTagger posTagger = new TweetNlpPosTagger();
-        TagAnnotations tags = posTagger.tag(tweetText);
+        List<Annotated> tags = posTagger.tag(tweetText);
         assertEquals(expectedTags.length, tags.size());
         for (int i = 0; i < expectedTags.length; i++) {
             assertEquals(expectedTags[i], tags.get(i).getTag());

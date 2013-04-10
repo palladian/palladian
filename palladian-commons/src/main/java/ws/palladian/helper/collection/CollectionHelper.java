@@ -250,6 +250,23 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Create a new {@link ArrayList} and fill it with the contents of the given {@link Iterable}.
+     * </p>
+     * 
+     * @param iterable The {@link Iterable} providing the content for the {@link List}.
+     * @return The {@link List} with items from the {@link Iterable}.
+     */
+    public static <E> List<E> newArrayList(Iterable<E> iterable) {
+        Validate.notNull(iterable, "iterable must not be null");
+        List<E> list = new ArrayList<E>();
+        for (E item : iterable) {
+            list.add(item);
+        }
+        return list;
+    }
+
+    /**
+     * <p>
      * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
      * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
      * </p>

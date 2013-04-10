@@ -6,12 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.EvaluationDatabase;
@@ -57,9 +57,9 @@ public class ChartCreator {
      * The names of all tables to get transfer volume data for.
      */
     private static final String[] tableNames = { "z_eval_fix1440_min_time_100_2011-11-07_20-51-27",
-            "z_eval_AdaptiveTTL_0.7_min_time_100_2011-11-10_10-53-49",
-            "z_eval_fixLearnedP_min_time_100_2011-11-07_22-18-21", 
-            "z_eval_LRU2_min_time_100_2011-11-13_00-07-21" };
+        "z_eval_AdaptiveTTL_0.7_min_time_100_2011-11-10_10-53-49",
+        "z_eval_fixLearnedP_min_time_100_2011-11-07_22-18-21",
+    "z_eval_LRU2_min_time_100_2011-11-13_00-07-21" };
 
 
     private final int maxNumberOfPollsScoreMax;
@@ -90,7 +90,8 @@ public class ChartCreator {
         this.database = DatabaseManagerFactory.create(EvaluationDatabase.class, ConfigHolder.getInstance().getConfig());
         this.maxNumberOfPollsScoreMax = maxNumberOfPollsScoreMin;
         this.maxNumberOfPollsScoreMin = maxNumberOfPollsScoreMax;
-        this.totalExperimentHours = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.HOUR_MS);
+        this.totalExperimentHours = (int)((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / TimeUnit.HOURS
+                .toMillis(1));
     }
 
     /**
@@ -150,7 +151,7 @@ public class ChartCreator {
         feedSizeDistributionSB.append("min size: ").append(";").append(minSize / 1024).append(";\n");
         feedSizeDistributionSB.append("max size: ").append(";").append(maxSize / 1024).append(";\n");
         feedSizeDistributionSB.append("average size: ").append(";").append(totalSize / (totalNumberOfFeeds * 1024))
-                .append(";\n");
+        .append(";\n");
 
         boolean outputWritten = FileHelper.writeToFile(FEED_SIZE_HISTOGRAM_FILE_PATH, feedSizeDistributionSB);
         if (outputWritten) {
@@ -172,7 +173,7 @@ public class ChartCreator {
 
         for (EvaluationItemIntervalItem intervalItem : polls) {
             int averageUpdateIntervalHours = new Double(Math.floor(intervalItem.getAverageUpdateInterval() / 3600000))
-                    .intValue();
+            .intValue();
             int i = -1;
             if (averageUpdateIntervalHours <= 24) {
                 i = averageUpdateIntervalHours;
@@ -328,7 +329,7 @@ public class ChartCreator {
             Double[] scoresAtCurrentPoll = outputMap.get(currentPoll);
             outputSB.append(currentPoll).append(";").append(scoresAtCurrentPoll[0]).append(";").append(
                     scoresAtCurrentPoll[1]).append(";").append(scoresAtCurrentPoll[2]).append(";").append(
-                    scoresAtCurrentPoll[3]).append(";").append(scoresAtCurrentPoll[4]).append(";\n");
+                            scoresAtCurrentPoll[3]).append(";").append(scoresAtCurrentPoll[4]).append(";\n");
         }
 
         boolean outputWritten = FileHelper.writeToFile(filePath, outputSB);
@@ -373,23 +374,23 @@ public class ChartCreator {
                 int sizeToAdd = simulateEtagUsage && poll.getSupportsConditionalGet() ? poll
                         .getConditionalGetResponseSize() : sizeOfPollLast;
 
-                while (minuteLastStep + checkIntervalLast < totalExperimentHours * 60) {
+                        while (minuteLastStep + checkIntervalLast < totalExperimentHours * 60) {
 
-                    final int minuteToProcess = minuteLastStep + checkIntervalLast;
-                    // x/60 + 1: add 1 hour to result to start with hour 1 instead of 0 (minute 1 means hour 1)
-                    final int hourToProcess = minuteToProcess / 60 + 1;
+                            final int minuteToProcess = minuteLastStep + checkIntervalLast;
+                            // x/60 + 1: add 1 hour to result to start with hour 1 instead of 0 (minute 1 means hour 1)
+                            final int hourToProcess = minuteToProcess / 60 + 1;
 
-                    addSizeOfPollToMap(totalResultMapMax, numberOfColumns, columnToWrite, hourToProcess, sizeToAdd);
-                    minuteLastStep = minuteToProcess;
+                            addSizeOfPollToMap(totalResultMapMax, numberOfColumns, columnToWrite, hourToProcess, sizeToAdd);
+                            minuteLastStep = minuteToProcess;
 
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("simmuliere für FeedID " + feedIDLastStep + ", aktuelle Stunde: " + hourToProcess
-                                + " aktuelle Minute " + minuteToProcess + " checkInterval " + checkIntervalLast
-                                + " addiere " + sizeToAdd + "bytes" + " totalResultMapMax Feld: "
-                                + totalResultMapMax.get(hourToProcess)[columnToWrite]);
-                    }
-                }
-                minuteLastStep = 0;
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("simmuliere für FeedID " + feedIDLastStep + ", aktuelle Stunde: " + hourToProcess
+                                        + " aktuelle Minute " + minuteToProcess + " checkInterval " + checkIntervalLast
+                                        + " addiere " + sizeToAdd + "bytes" + " totalResultMapMax Feld: "
+                                        + totalResultMapMax.get(hourToProcess)[columnToWrite]);
+                            }
+                        }
+                        minuteLastStep = 0;
             }
 
             // aktuellen Poll behandeln
@@ -446,7 +447,7 @@ public class ChartCreator {
         transferredDataArray[columnToWrite] += sizeToAdd;
         totalResultMapMax.put(hourToProcess, transferredDataArray);
     }
-    
+
     /**
      * Rewrites file FEEDS_NEW_ITEMS_PATH_INPUT to FEEDS_NEW_ITEMS_PATH_OUTPUT. Input is a two column table with "new
      * Items"; "Number of Feeds", where (12, 2217) means that exactly 300 feeds had exactly 12 new items. Output file
@@ -539,16 +540,16 @@ public class ChartCreator {
         StringBuilder csvSB = null;
 
         // loop over all strategies to generate vsc files for
-        for (int strategyRow = 0; strategyRow < dbTables.length; strategyRow++) {
+        for (String dbTable : dbTables) {
 
             // create header of table representing the csv
             csvSB = new StringBuilder();
-            csvSB.append("hourOfExperiment;").append(dbTables[strategyRow]).append(";\n");
+            csvSB.append("hourOfExperiment;").append(dbTable).append(";\n");
 
             // get data per strategy
-            singleHourVolumes = feedStore.getTransferVolumePerHour(dbTables[strategyRow], totalExperimentHours + 1);
+            singleHourVolumes = feedStore.getTransferVolumePerHour(dbTable, totalExperimentHours + 1);
             int cumulatedVolumeLastHour = 0;
-            
+
             // calculate cumulated values, fill hours that are skipped by algorithm
             for (int hourOfExperiment = 0; hourOfExperiment < singleHourVolumes.length; hourOfExperiment++) {
                 cumulatedVolumeLastHour += singleHourVolumes[hourOfExperiment];
@@ -556,7 +557,7 @@ public class ChartCreator {
             }
 
             // write csvSB to csv file
-            String fileName = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + dbTables[strategyRow] + ".csv";
+            String fileName = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + dbTable + ".csv";
             boolean outputWritten = FileHelper.writeToFile(fileName, csvSB);
             if (outputWritten) {
                 LOGGER.info(fileName + " has been written");

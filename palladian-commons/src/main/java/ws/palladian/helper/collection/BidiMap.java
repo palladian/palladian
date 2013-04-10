@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,8 +10,10 @@ import java.util.Set;
  * @author Klemens Muthmann
  * 
  */
-public final class BidiMap<K, V> implements Map<K, V> {
+public final class BidiMap<K, V> implements Map<K, V>, Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
     private final Map<K, V> map;
     private final Map<V, K> reverseMap;
 

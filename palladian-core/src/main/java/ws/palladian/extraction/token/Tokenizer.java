@@ -17,8 +17,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
@@ -29,6 +27,7 @@ import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -61,9 +60,9 @@ public final class Tokenizer {
             RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
             RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
 
-    private static UrlTagger urlTagger = new UrlTagger();
-    private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
-    private static SmileyTagger smileyTagger = new SmileyTagger();
+    private static final UrlTagger URL_TAGGER = new UrlTagger();
+    private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger();
+    private static final SmileyTagger SMILEY_TAGGER = new SmileyTagger();
 
     /**
      * <p>
@@ -446,35 +445,35 @@ public final class Tokenizer {
     public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
 
         // recognize URLs so we don't break them
-        Annotations taggedUrls = urlTagger.tagUrls(inputText);
+        List<Annotated> taggedUrls = URL_TAGGER.tagUrls(inputText);
         int uCount = 1;
         Map<String, String> urlMapping = new HashMap<String, String>();
-        for (Annotation annotation : taggedUrls) {
+        for (Annotated annotation : taggedUrls) {
             String replacement = "URL" + uCount;
-            inputText = inputText.replace(annotation.getEntity(), replacement);
-            urlMapping.put(replacement, annotation.getEntity());
+            inputText = inputText.replace(annotation.getValue(), replacement);
+            urlMapping.put(replacement, annotation.getValue());
             uCount++;
         }
 
         // recognize dates so we don't break them
-        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText, ALL_DATES_WITH_DOTS);
+        List<Annotated> taggedDates = DATE_TIME_TAGGER.tagDateAndTime(inputText, ALL_DATES_WITH_DOTS);
         int dCount = 1;
         Map<String, String> dateMapping = new HashMap<String, String>();
-        for (Annotation annotation : taggedDates) {
+        for (Annotated annotation : taggedDates) {
             String replacement = "DATE" + dCount;
-            inputText = inputText.replace(annotation.getEntity(), replacement);
-            dateMapping.put(replacement, annotation.getEntity());
+            inputText = inputText.replace(annotation.getValue(), replacement);
+            dateMapping.put(replacement, annotation.getValue());
             dCount++;
         }
 
         // recognize smileys so we don't break them
-        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        List<Annotated> taggedSmileys = SMILEY_TAGGER.tagSmileys(inputText);
         int sCount = 1;
         Map<String, String> smileyMapping = new HashMap<String, String>();
-        for (Annotation annotation : taggedSmileys) {
+        for (Annotated annotation : taggedSmileys) {
             String replacement = "SMILEY" + sCount;
-            inputText = inputText.replace(annotation.getEntity(), replacement);
-            smileyMapping.put(replacement, annotation.getEntity());
+            inputText = inputText.replace(annotation.getValue(), replacement);
+            smileyMapping.put(replacement, annotation.getValue());
             sCount++;
         }
 
@@ -567,7 +566,7 @@ public final class Tokenizer {
      * @param mask The mask to add. This should be something that will never occur within the text itself.
      * @return The {@code maskedText} with the additional masks added during this run of the method.
      */
-    private static String maskAnnotations(TextDocument document, Annotations annotations, String mask,
+    private static String maskAnnotations(TextDocument document, List<Annotated> annotations, String mask,
             List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
         List<PositionAnnotation> tags = convert(document, annotations);
         for (PositionAnnotation annotation : tags) {
@@ -634,15 +633,15 @@ public final class Tokenizer {
         String maskedText = inputDocument.getContent();
 
         // recognize URLs so we don't break them
-        Annotations taggedUrlsAnnotations = urlTagger.tagUrls(inputText);
+        List<Annotated> taggedUrlsAnnotations = URL_TAGGER.tagUrls(inputText);
         maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
 
         // recognize dates so we don't break them
-        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        List<Annotated> taggedDates = DATE_TIME_TAGGER.tagDateAndTime(inputText);
         maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
 
         // recognize smileys so we don't break them
-        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        List<Annotated> taggedSmileys = SMILEY_TAGGER.tagSmileys(inputText);
         maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
 
         List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();
@@ -772,14 +771,14 @@ public final class Tokenizer {
      * @return A list of {@link PositionAnnotation}s representing the provided {@link Annotations} on the provided
      *         {@link TextDocument}.
      */
-    private static List<PositionAnnotation> convert(TextDocument document, Annotations annotations) {
+    private static List<PositionAnnotation> convert(TextDocument document, List<Annotated> annotations) {
         List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
 
-        for (Annotation annotation : annotations) {
+        for (Annotated annotation : annotations) {
             int index = annotations.indexOf(annotation);
-            String value = annotation.getEntity();
-            int startPosition = annotation.getOffset();
-            int endPosition = annotation.getOffset() + annotation.getLength();
+            String value = annotation.getValue();
+            int startPosition = annotation.getStartPosition();
+            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
             PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
                     index, value);
 

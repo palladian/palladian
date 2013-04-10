@@ -17,6 +17,7 @@ import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -69,8 +70,8 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations;
+    public List<Annotated> getAnnotations(String inputText) {
+        List<Annotated> annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
             String resultString = HttpHelper.getStringContent(httpResult);
@@ -94,9 +95,9 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     /** Package-private for unit-testing. */
-    Annotations parseXml(InputSource inputSource, String inputText) throws ParserException {
+    List<Annotated> parseXml(InputSource inputSource, String inputText) throws ParserException {
 
-        Annotations annotations = new Annotations();
+        Annotations<Annotated> annotations = new Annotations<Annotated>();
         Document doc = xmlParser.parse(inputSource);
 
         List<String> tokens = getCdataContent(doc);
@@ -135,7 +136,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             Integer tokenCharIndex = tokenPositions.get(tokenIndex);
             // the actual character index might be later
             tokenCharIndex = inputText.indexOf(value, tokenCharIndex);
-            annotations.add(new Annotation(tokenCharIndex, value, type, annotations));
+            annotations.add(new Annotation(tokenCharIndex, value, type));
         }
 
         return annotations;
@@ -174,7 +175,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
 
     /** Overridden, intended for unit-testing only. */
     @Override
-    protected String tagText(String inputText, Annotations annotations) {
+    protected String tagText(String inputText, List<? extends Annotated> annotations) {
         return super.tagText(inputText, annotations);
     }
 

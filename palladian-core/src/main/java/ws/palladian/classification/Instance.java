@@ -2,8 +2,7 @@ package ws.palladian.classification;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Classified;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -16,7 +15,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @version 2.0.0
  * @since 0.1.8
  */
-public class Instance implements Classifiable, Classified {
+public class Instance implements Trainable {
 
     /**
      * <p>

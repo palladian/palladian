@@ -1,8 +1,11 @@
 package ws.palladian.extraction.entity;
 
+import java.util.List;
 import java.util.regex.Matcher;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -16,18 +19,15 @@ public class UrlTagger {
 
 	/** The tag name for URLs. */
 	public static final String URI_TAG_NAME = "URI";
-	
-	public UrlTagger() {
-	}
 
-	public Annotations tagUrls(String inputText) {
+    public List<Annotated> tagUrls(String inputText) {
 
-		Annotations annotations = new Annotations();
+        List<Annotated> annotations = CollectionHelper.newArrayList();
 		
 		Matcher matcher = UrlHelper.URL_PATTERN.matcher(inputText);
 
 		while (matcher.find()) {
-			Annotation annotation = new Annotation(matcher.start(),matcher.group(0),URI_TAG_NAME,annotations);
+			Annotation annotation = new Annotation(matcher.start(),matcher.group(0),URI_TAG_NAME);
 			annotations.add(annotation);
 		}
 

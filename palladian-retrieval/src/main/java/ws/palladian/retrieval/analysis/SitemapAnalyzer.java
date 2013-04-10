@@ -155,7 +155,7 @@ public class SitemapAnalyzer {
 
                 resultTable.put(document.getDocumentURI(), map);
 
-                ProgressHelper.showProgress(count.intValue(), totalCount, .2, stopWatch);
+                ProgressHelper.printProgress(count.intValue(), totalCount, .2, stopWatch);
                 count.incrementAndGet();
             }
         };

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,7 +192,7 @@ public class DeliciousCrawler {
         LOGGER.info("serializing results...");
         FileHelper.appendFile("data/benchmarkSelection/page/deliciouspages.txt", content);
         FileHelper.serialize(urlStack, "data/benchmarkSelection/page/urlStack.ser");
-        LOGGER.info("runtime: " + DateHelper.getRuntime(t1));
+        LOGGER.info("runtime: " + DateHelper.formatDuration(t1));
     }
 
     /**
@@ -296,7 +297,7 @@ public class DeliciousCrawler {
         StringBuilder cleansedDataSet = (StringBuilder)obj[0];
         FileHelper.writeToFile("data/benchmarkSelection/page/deliciouspages_cleansed_" + minAppearance + ".txt", cleansedDataSet);
 
-        System.out.println("data set cleansed and saved in " + DateHelper.getRuntime(t1));
+        System.out.println("data set cleansed and saved in " + DateHelper.formatDuration(t1));
     }
 
     @SuppressWarnings("unchecked")
@@ -395,7 +396,7 @@ public class DeliciousCrawler {
         }
 
         System.out.println(s);
-        System.out.println("data set analyzed in " + DateHelper.getRuntime(t1));
+        System.out.println("data set analyzed in " + DateHelper.formatDuration(t1));
     }
 
     /**
@@ -761,7 +762,7 @@ public class DeliciousCrawler {
             c.crawl();
             // DeliciousCrawler.analyzeDataSet("");
             try {
-                Thread.sleep(2 * DateHelper.MINUTE_MS);
+                Thread.sleep(2 * TimeUnit.MINUTES.toMillis(1));
             } catch (InterruptedException e) {
                 LOGGER.warn(e.getMessage());
                 break;
