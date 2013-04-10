@@ -456,8 +456,10 @@ public class EvaluationResult {
                 results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
             }
             results.append("\n");
-            for (Annotated annotation : resultAnnotations.get(resultType)) {
-                results.append("  ").append(annotation).append("\n");
+            if (getResultTypeCount(resultType) > 0) {
+                for (Annotated annotation : resultAnnotations.get(resultType)) {
+                    results.append("  ").append(annotation).append("\n");
+                }
             }
         }
 
@@ -473,7 +475,8 @@ public class EvaluationResult {
     }
 
     int getResultTypeCount(ResultType resultType) {
-        return resultAnnotations.get(resultType).size();
+        List<Annotated> annotations = resultAnnotations.get(resultType);
+        return annotations != null ? annotations.size() : 0;
     }
 
     int getActualAssignments() {
