@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -116,7 +116,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     }
  
     @Override
-    public CategoryEntry getPolarity(String text, String query) {
+    public String getPolarity(String text, String query) {
         
         String positiveCategory = "positive";
         String negativeCategory = "negative";
@@ -179,16 +179,14 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                 lastToken = token;
             }
             
-            CategoryEntries categoryEntries = new CategoryEntries();
-            CategoryEntry positiveCategoryEntry = new CategoryEntry(positiveCategory, positiveSentimentSumSentence);
-            CategoryEntry negativeCategoryEntry = new CategoryEntry(negativeCategory, negativeSentimentSumSentence);
-            categoryEntries.add(positiveCategoryEntry);
-            categoryEntries.add(negativeCategoryEntry);
+            CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
+            categoryEntries.set(positiveCategory, positiveSentimentSumSentence);
+            categoryEntries.set(negativeCategory, negativeSentimentSumSentence);
 
-            if (categoryEntries.getMostLikelyCategoryEntry().getProbability() > confidenceThreshold
+            if (categoryEntries.getProbability(categoryEntries.getMostLikelyCategory()) > confidenceThreshold
                     && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
                     && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
-                addOpinionatedSentence(categoryEntries.getMostLikelyCategoryEntry().getName(), sentence);
+                addOpinionatedSentence(categoryEntries.getMostLikelyCategory(), sentence);
             }
 
         }
@@ -199,7 +197,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 //        categoryEntries.add(positiveCategoryEntry);
 //        categoryEntries.add(negativeCategoryEntry);
         
-        CategoryEntries categoryEntries = new CategoryEntries();
+        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
         int positiveSentences = 0;
         if (getOpinionatedSentences().get("positive") != null) {
             positiveSentences = getOpinionatedSentences().get("positive").size();
@@ -208,12 +206,10 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         if (getOpinionatedSentences().get("negative") != null) {
             negativeSentences = getOpinionatedSentences().get("negative").size();
         }
-        CategoryEntry positiveCategoryEntry = new CategoryEntry(positiveCategory, positiveSentences);
-        CategoryEntry negativeCategoryEntry = new CategoryEntry(negativeCategory, negativeSentences);
-        categoryEntries.add(positiveCategoryEntry);
-        categoryEntries.add(negativeCategoryEntry);
+        categoryEntries.set(positiveCategory, positiveSentences);
+        categoryEntries.set(negativeCategory, negativeSentences);
         
-        return categoryEntries.getMostLikelyCategoryEntry();
+        return categoryEntries.getMostLikelyCategory();
     }
 
     public static void main(String[] args) {
@@ -225,7 +221,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 
         gsc = new GermanSentimentClassifier("gsc.gz");
         gsc.setConfidenceThreshold(0.6);
-        CategoryEntry result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
+        String result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
         result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");
         result = gsc.getPolarity("Die Deutsche-Bahn ist scheisse!!!");
         // result =

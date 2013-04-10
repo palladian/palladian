@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.tagger.AlchemyNer;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -30,7 +29,7 @@ public class AlchemyLocationExtractor extends WebBasedLocationExtractor {
     public static void main(String[] args) {
         AlchemyLocationExtractor extractor = new AlchemyLocationExtractor("get your own key");
         String text = "Dresden and Berlin are cities in Germany which lies in Europe on planet Earth";
-        List<Annotation> detectedLocations = extractor.getAnnotations(text);
+        List<LocationAnnotation> detectedLocations = extractor.getAnnotations(text);
         CollectionHelper.print(detectedLocations);
     }
 

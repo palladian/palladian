@@ -17,7 +17,9 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instances;
 import weka.core.SparseInstance;
-import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureUtils;
@@ -40,12 +42,13 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 3.0
  * @since 0.1.7
  */
-public final class WekaPredictor implements ws.palladian.classification.Classifier<WekaModel> {
+public final class WekaPredictor implements Learner, Classifier<WekaModel> {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(WekaPredictor.class);
 
     private final weka.classifiers.Classifier classifier;
     private final List<String> normalFeaturePaths;
     private final List<String> sparseFeaturePaths;
-    private final static Logger LOGGER = LoggerFactory.getLogger(WekaPredictor.class);
 
     /**
      * <p>
@@ -56,7 +59,6 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
      */
     public WekaPredictor(weka.classifiers.Classifier classifier, List<String> normalFeaturePaths,
             List<String> sparseFeaturePaths) {
-        super();
         Validate.notNull(classifier, "classifier must not be null.");
         Validate.notNull(normalFeaturePaths);
 
@@ -66,32 +68,34 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
     }
 
     @Override
-    public WekaModel train(List<Instance> instances) {
-        Validate.notEmpty(instances);
+    public WekaModel train(Iterable<? extends Trainable> trainables) {
+        Validate.notNull(trainables);
+        List<? extends Trainable> trainList = CollectionHelper.newArrayList(trainables);
         FastVector schema = new FastVector(normalFeaturePaths.size() + sparseFeaturePaths.size());
-        Instances data = new Instances("dataset", schema, instances.size());
+        Instances data = new Instances("dataset", schema, trainList.size());
 
         // Create schema for weka dataset.
-        List<Map<Integer, Double>> wekaFeatureSets = new ArrayList<Map<Integer, Double>>(instances.size());
+        List<Map<Integer, Double>> wekaFeatureSets = new ArrayList<Map<Integer, Double>>(trainList.size());
         Set<String> classes = new HashSet<String>();
-        List<String> instanceClasses = new ArrayList<String>(instances.size());
-        for (Instance instance : instances) {
+        List<String> instanceClasses = new ArrayList<String>(trainList.size());
+        for (Trainable trainable : trainables) {
             Map<Integer, Double> wekaFeatureSet = new HashMap<Integer, Double>();
             for (String featurePath : normalFeaturePaths) {
-                List<Feature<?>> featureList = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(), featurePath);
+                List<Feature<?>> featureList = FeatureUtils
+                        .getFeaturesAtPath(trainable.getFeatureVector(), featurePath);
                 Validate.isTrue(featureList.size() == 1);
-                wekaFeatureSet.putAll(handleFeature(featureList.get(0), data, instances));
+                wekaFeatureSet.putAll(handleFeature(featureList.get(0), data, trainables));
             }
 
             for (String sparseFeaturePath : sparseFeaturePaths) {
-                List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(),
+                List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(trainable.getFeatureVector(),
                         sparseFeaturePath);
 
                 wekaFeatureSet.putAll(handleFeature(sparseFeatures, data));
             }
             wekaFeatureSets.add(wekaFeatureSet);
-            classes.add(instance.getTargetClass());
-            instanceClasses.add(instance.getTargetClass());
+            classes.add(trainable.getTargetClass());
+            instanceClasses.add(trainable.getTargetClass());
         }
 
         // add attribute for the classification target
@@ -168,12 +172,13 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
      * @param feature
      * @param data
      */
-    private Map<Integer, Double> handleFeature(Feature<?> feature, Instances data, List<Instance> instances) {
+    private Map<Integer, Double> handleFeature(Feature<?> feature, Instances data,
+            Iterable<? extends Trainable> trainables) {
         Attribute featureAttribute = data.attribute(feature.getName());
         Double featureValue = null;
         if (feature instanceof NominalFeature) {
             if (featureAttribute == null) {
-                FastVector possibleValues = getValues(feature.getName(), instances);
+                FastVector possibleValues = getValues(feature.getName(), trainables);
                 featureAttribute = new Attribute(feature.getName(), possibleValues);
                 data.insertAttributeAt(featureAttribute, data.numAttributes());
                 featureAttribute = data.attribute(feature.getName());
@@ -215,12 +220,12 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
      * </p>
      * 
      * @param name The name of the {@link NominalFeature} to create the domain for.
-     * @param instances The instances to use to create the domain.
+     * @param trainables The instances to use to create the domain.
      * @return A {@link FastVector} containing all values.
      */
-    private FastVector getValues(String name, List<Instance> instances) {
+    private FastVector getValues(String name, Iterable<? extends Trainable> trainables) {
         Set<String> nominalValues = new HashSet<String>();
-        for (Instance instance : instances) {
+        for (Trainable instance : trainables) {
             NominalFeature feature = instance.getFeatureVector().getFeature(NominalFeature.class, name);
             if (feature == null) {
                 continue;
@@ -235,13 +240,14 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector vector, WekaModel model) {
-        CategoryEntries ret = new CategoryEntries();
+    public CategoryEntries classify(Classifiable classifiable, WekaModel model) {
+        CategoryEntriesMap ret = new CategoryEntriesMap();
 
         SortedMap<Integer, Double> indices = new TreeMap<Integer, Double>();
         Map<String, Attribute> schema = model.getSchema();
         for (String sparseFeaturePath : sparseFeaturePaths) {
-            List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(vector, sparseFeaturePath);
+            List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(),
+                    sparseFeaturePath);
             for (Feature<?> sparseFeature : sparseFeatures) {
                 String featureName = sparseFeature.getValue().toString();
                 Attribute featureAttribute = schema.get(featureName);
@@ -255,7 +261,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
         }
 
         for (String featurePath : normalFeaturePaths) {
-            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(vector, featurePath);
+            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(), featurePath);
             Validate.isTrue(features.size() == 1);
             // int indexOfFeature = model.getSchema().get(features.get(0).getName());
             Feature<?> feature = features.get(0);
@@ -287,7 +293,7 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
             double[] distribution = model.getClassifier().distributionForInstance(instance);
             for (int i = 0; i < distribution.length; i++) {
                 String className = model.getDataset().classAttribute().value(i);
-                ret.add(new CategoryEntry(className, distribution[i]));
+                ret.set(className, distribution[i]);
             }
         } catch (Exception e) {
             throw new IllegalStateException("An exception occurred while predicting: " + e.getMessage(), e);
@@ -298,12 +304,6 @@ public final class WekaPredictor implements ws.palladian.classification.Classifi
     @Override
     public String toString() {
         return classifier.toString();
-    }
-
-    @Override
-    public WekaModel train(Dataset dataset) {
-        // FIXME
-        return null;
     }
 
 }

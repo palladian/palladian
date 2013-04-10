@@ -202,7 +202,6 @@ public class MathHelperTest {
         y.add(122.);
         y.add(66.);
         y.add(58.);
-        // System.out.println(MathHelper.computePearsonCorrelationCoefficient(x, y));
         assertEquals(0.9661943464912911, MathHelper.computePearsonCorrelationCoefficient(x, y), 0.01);
     }
 

@@ -114,7 +114,7 @@ public final class FeatureUtils {
         } else {
             for (Feature<?> feature : featureList) {
                 if (feature.getValue().equals(value)) {
-                    featureVector.remove(feature);
+                    featureVector.removeAll(feature.getName());
                 }
             }
         }

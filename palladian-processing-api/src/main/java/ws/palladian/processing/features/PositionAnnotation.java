@@ -17,7 +17,7 @@ import ws.palladian.processing.Classifiable;
  * @since 0.1.7
  */
 // TODO rename to TextAnnotation
-public class PositionAnnotation extends NominalFeature implements Classifiable, Comparable<PositionAnnotation> {
+public class PositionAnnotation extends NominalFeature implements Classifiable, Annotated {
 
     /**
      * <p>
@@ -83,17 +83,42 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.featureVector = new FeatureVector(annotation.getFeatureVector());
     }
 
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getStartPosition()
+     */
+    @Override
     public int getStartPosition() {
         return startPosition;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getEndPosition()
+     */
+    @Override
     public int getEndPosition() {
         return endPosition;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getIndex()
+     */
+    @Override
     public int getIndex() {
         return index;
     }
+    
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.processing.features.Annotated#getTag()
+     */
+    @Override
+    public String getTag() {
+        return getName();
+    }
+
 
     @Override
     public FeatureVector getFeatureVector() {
@@ -154,9 +179,8 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
     }
 
     @Override
-    public int compareTo(PositionAnnotation o) {
-        int comparisonValue = Integer.valueOf(this.startPosition).compareTo(o.startPosition);
-        return comparisonValue;
+    public int compareTo(Annotated o) {
+        return Integer.valueOf(this.startPosition).compareTo(o.getStartPosition());
     }
 
 }

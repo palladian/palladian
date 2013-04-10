@@ -40,7 +40,6 @@ public abstract class Feature<T> {
      *            from a document.
      */
     protected Feature(String name, T value) {
-        super();
         this.name = name;
         this.value = value;
     }

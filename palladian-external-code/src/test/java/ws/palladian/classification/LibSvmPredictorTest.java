@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
@@ -24,7 +23,6 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
-
 /**
  * <p>
  * Tests whether the Palladian wrapper for the Libsvm classifier works correctly or not.
@@ -57,13 +55,13 @@ public class LibSvmPredictorTest {
 
         LibSvmPredictor predictor = new LibSvmPredictor(new LinearKernel(1.0d), normalFeaturePaths, sparseFeaturePaths);
         LibSvmModel model = predictor.train(instances);
-        Assert.assertThat(model, Matchers.is(Matchers.notNullValue()));
+        assertThat(model, Matchers.is(Matchers.notNullValue()));
 
         FeatureVector classificationVector = new FeatureVector();
         classificationVector.add(new NominalFeature("a", "a"));
         classificationVector.add(new NumericFeature("b", 0.8));
         CategoryEntries result = predictor.classify(classificationVector, model);
-        Assert.assertThat(result.getMostLikelyCategoryEntry().getName(), Matchers.is("A"));
+        assertThat(result.getMostLikelyCategory(), Matchers.is("A"));
     }
 
     /**
@@ -90,7 +88,7 @@ public class LibSvmPredictorTest {
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
         for (Instance instance : test) {
             CategoryEntries result = predictor.classify(instance.getFeatureVector(), model);
-            confusionMatrix.add(instance.getTargetClass(), result.getMostLikelyCategoryEntry().getName());
+            confusionMatrix.add(instance.getTargetClass(), result.getMostLikelyCategory());
         }
 
         assertThat(confusionMatrix.getAverageAccuracy(false), is(closeTo(0.954, 0.0001)));
@@ -131,7 +129,7 @@ public class LibSvmPredictorTest {
         normalization.add(new NumericFeature("test", 2));
 
         double result = normalization.apply(5.0d);
-        Assert.assertThat(result, Matchers.is(0.75));
+        assertThat(result, is(0.75));
     }
 
     @Test
@@ -141,7 +139,7 @@ public class LibSvmPredictorTest {
         normalization.add(new NumericFeature("test", 0.9d));
 
         double result = normalization.apply(5.0d);
-        Assert.assertThat(result, Matchers.is(4.1));
+        assertThat(result, is(4.1));
     }
 
 }

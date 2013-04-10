@@ -5,10 +5,11 @@ import java.io.Serializable;
 import ws.palladian.helper.io.FileHelper;
 
 /**
+ * <p>
  * A simple representation of a dataset.
+ * </p>
  * 
  * @author David Urbansky
- * 
  */
 public class Dataset implements Serializable {
 
@@ -51,17 +52,6 @@ public class Dataset implements Serializable {
      * @param dataset The dataset which should be copied.
      */
     public Dataset(Dataset dataset) {
-        super();
-        //        try {
-        //            PropertyUtils.copyProperties(this, dataset);
-        //        } catch (IllegalAccessException e) {
-        //            Logger.getRootLogger().error(e);
-        //        } catch (InvocationTargetException e) {
-        //            Logger.getRootLogger().error(e);
-        //        } catch (NoSuchMethodException e) {
-        //            Logger.getRootLogger().error(e);
-        //        }
-
         this.name = dataset.name;
         this.path = dataset.path;
         this.rootPath = dataset.rootPath;

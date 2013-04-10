@@ -7,8 +7,8 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -33,8 +33,8 @@ public class DecisionTreeClassifierTest {
         FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
         CategoryEntries prediction = classifier.classify(featureVector, model);
 
-        assertEquals(1., prediction.getMostLikelyCategoryEntry().getProbability(), 0);
-        assertEquals("underweight", prediction.getMostLikelyCategoryEntry().getName());
+        assertEquals(1., prediction.getProbability(prediction.getMostLikelyCategory()), 0);
+        assertEquals("underweight", prediction.getMostLikelyCategory());
     }
 
 }

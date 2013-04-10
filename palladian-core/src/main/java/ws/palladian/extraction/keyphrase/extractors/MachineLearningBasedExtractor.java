@@ -15,9 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.Predictor;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
@@ -30,8 +28,8 @@ import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
 import ws.palladian.extraction.feature.StopTokenRemover;
-import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.TermCorpus;
+import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
@@ -346,9 +344,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             FeatureVector featureVector = annotation.getFeatureVector();
             FeatureVector cleanFv = cleanFeatureVector(featureVector);
             CategoryEntries predictionResult = classifier.classify(cleanFv, model);
-            CategoryEntry trueCategory = predictionResult.getCategoryEntry("true");
-            if (trueCategory != null) {
-                keywords.add(new Keyphrase(annotation.getValue(), trueCategory.getProbability()));
+            double trueCategory = predictionResult.getProbability("true");
+            if (trueCategory != 0) {
+                keywords.add(new Keyphrase(annotation.getValue(), trueCategory));
             }
         }
         reRankCooccurrences(keywords);

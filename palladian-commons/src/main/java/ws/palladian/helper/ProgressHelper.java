@@ -1,7 +1,6 @@
 package ws.palladian.helper;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -29,49 +28,6 @@ public final class ProgressHelper {
 
     private ProgressHelper() {
         // no instances.
-    }
-
-    /**
-     * @deprecated Use {@link #getProgress(long, long, double)} or {@link #printProgress(long, long, double)} instead.
-     */
-    @Deprecated
-    public static String showProgress(long counter, long totalCount, double showEveryPercent) {
-        return showProgress(counter, totalCount, showEveryPercent, null, null);
-    }
-
-    /**
-     * @deprecated Use {@link #getProgress(long, long, double)} or {@link #printProgress(long, long, double)} instead.
-     */
-    @Deprecated
-    public static String showProgress(long counter, long totalCount, double showEveryPercent, Logger logger) {
-        return showProgress(counter, totalCount, showEveryPercent, logger, null);
-    }
-
-    /**
-     * @deprecated Use {@link #getProgress(long, long, double, StopWatch)} or
-     *             {@link #printProgress(long, long, double, StopWatch)} instead.
-     */
-    @Deprecated
-    public static String showProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
-        return showProgress(counter, totalCount, showEveryPercent, null, stopWatch);
-    }
-
-    /**
-     * @deprecated Use {@link #getProgress(long, long, double, StopWatch)} or
-     *             {@link #printProgress(long, long, double, StopWatch)} instead.
-     */
-    @Deprecated
-    public static String showProgress(long counter, long totalCount, double showEveryPercent, Logger logger,
-            StopWatch stopWatch) {
-        String progress = getProgress(counter, totalCount, showEveryPercent, stopWatch);
-        if (!progress.isEmpty()) {
-            if (logger != null) {
-                logger.info(progress);
-            } else {
-                System.out.println(progress);
-            }
-        }
-        return progress;
     }
 
     private static String createProgressBar(double percent) {
@@ -142,7 +98,6 @@ public final class ProgressHelper {
      * @param stopWatch A {@link StopWatch} which allows an approximation of the estimated time until completion.
      * @return The current progress, or an empty string if no progress is to be generated.
      */
-    @SuppressWarnings("deprecation")
     public static String getProgress(long counter, long totalCount, double showEveryPercent, StopWatch stopWatch) {
         StringBuilder processString = new StringBuilder();
         try {
@@ -157,7 +112,7 @@ public final class ProgressHelper {
                     // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
                     processString.append(", elapsed time: ").append(stopWatch.getTotalElapsedTimeString());
                     processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
-                    processString.append(", ~remaining: ").append(DateHelper.getRuntime(0, msRemaining));
+                    processString.append(", ~remaining: ").append(DateHelper.formatDuration(0, msRemaining));
                     stopWatch.start();
                 }
                 processString.append(")");

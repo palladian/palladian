@@ -123,9 +123,9 @@ public class StopWatch {
     public String getElapsedTimeString(boolean output) {
         String elapsed;
         if (running) {
-            elapsed = DateHelper.getRuntime(lastBreakpointTime);
+            elapsed = DateHelper.formatDuration(lastBreakpointTime);
         } else {
-            elapsed = DateHelper.getRuntime(lastBreakpointTime, stopTime);
+            elapsed = DateHelper.formatDuration(lastBreakpointTime, stopTime);
         }
         if (output) {
             System.out.println(elapsed);
@@ -151,9 +151,9 @@ public class StopWatch {
     public String getTotalElapsedTimeString(boolean output) {
         String elapsed;
         if (running) {
-            elapsed = DateHelper.getRuntime(startTime);
+            elapsed = DateHelper.formatDuration(startTime);
         } else {
-            elapsed = DateHelper.getRuntime(startTime, stopTime);
+            elapsed = DateHelper.formatDuration(startTime, stopTime);
         }
         if (output) {
             System.out.println(elapsed);

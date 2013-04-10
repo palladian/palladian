@@ -1,10 +1,12 @@
 package ws.palladian.extraction.entity;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -44,14 +46,14 @@ public class SmileyTagger {
         smileyPattern = Pattern.compile(smileyPatterhRegEx.toString());
     }
 
-    public Annotations tagSmileys(String inputText) {
+    public List<Annotated> tagSmileys(String inputText) {
 
-        Annotations annotations = new Annotations();
+        List<Annotated> annotations = CollectionHelper.newArrayList();
 
         Matcher matcher = smileyPattern.matcher(inputText);
 
         while (matcher.find()) {
-            Annotation annotation = new Annotation(matcher.start(), matcher.group(0), SMILEY_TAG_NAME, annotations);
+            Annotation annotation = new Annotation(matcher.start(), matcher.group(0), SMILEY_TAG_NAME);
             annotations.add(annotation);
         }
 
@@ -61,7 +63,7 @@ public class SmileyTagger {
     public static void main(String[] args) {
         String text = "This is a nice day :) and the sun shines ;)";
         SmileyTagger smileyTagger = new SmileyTagger();
-        Annotations annotations = smileyTagger.tagSmileys(text);
+        List<Annotated> annotations = smileyTagger.tagSmileys(text);
         CollectionHelper.print(annotations);
     }
 }

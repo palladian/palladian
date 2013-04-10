@@ -9,8 +9,8 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.ClassifierEvaluation;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 

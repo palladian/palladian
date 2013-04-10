@@ -1,4 +1,4 @@
-package ws.palladian.classification.text.evaluation;
+package ws.palladian.classification.text;
 
 import java.io.Serializable;
 
@@ -11,15 +11,24 @@ import java.io.Serializable;
 public class FeatureSetting implements Serializable {
 
     private static final long serialVersionUID = 8129286644101075891L;
+    
+    public enum TextFeatureType {
+        /** Use n-Grams on a character level. */
+        CHAR_NGRAMS,
+        /** Use n-Grams on a word level. */
+        WORD_NGRAMS;
+    }
 
-    /** Use n-Grams on a character level. */
+    /** @deprecated Use {@link TextFeatureType#CHAR_NGRAMS} instead. */
+    @Deprecated
     public static final int CHAR_NGRAMS = 1;
 
-    /** Use n-Grams on a word level. */
+    /** @deprecated Use {@link TextFeatureType#WORD_NGRAMS} instead. */
+    @Deprecated
     public static final int WORD_NGRAMS = 2;
 
     /** Set which n-Gram type should be used. */
-    private int textFeatureType = CHAR_NGRAMS;
+    private TextFeatureType textFeatureType = TextFeatureType.CHAR_NGRAMS;
 
     /** The maximum number of terms that should be used per document. */
     private int maxTerms = 800;
@@ -42,12 +51,42 @@ public class FeatureSetting implements Serializable {
      */
     private int maximumTermLength = 20;
     
-    public int getTextFeatureType() {
+    @Deprecated
+    public FeatureSetting() {}
+    
+    public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength) {
+        this.textFeatureType = textFeatureType;
+        this.minNGramLength = minNGramLength;
+        this.maxNGramLength = maxNGramLength;
+    }
+    
+    public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength, int maxTerms) {
+        this.textFeatureType = textFeatureType;
+        this.minNGramLength = minNGramLength;
+        this.maxNGramLength = maxNGramLength;
+        this.maxTerms = maxTerms;
+    }
+    
+    public TextFeatureType getTextFeatureType() {
         return textFeatureType;
     }
-
-    public void setTextFeatureType(int textFeatureType) {
+    
+    public void setTextFeatureType(TextFeatureType textFeatureType) {
         this.textFeatureType = textFeatureType;
+    }
+
+    /** @deprecated Use {@link #setTextFeatureType(TextFeatureType)} instead. */
+    @Deprecated
+    public void setTextFeatureType(int textFeatureType) {
+        switch (textFeatureType) {
+            case CHAR_NGRAMS:
+                this.textFeatureType = TextFeatureType.CHAR_NGRAMS;
+                return;
+            case WORD_NGRAMS:
+                this.textFeatureType = TextFeatureType.WORD_NGRAMS;
+                return;
+        }
+        throw new IllegalArgumentException("Unknown type: " + textFeatureType);
     }
 
     public void setMaxTerms(int maxTerms) {

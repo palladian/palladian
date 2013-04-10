@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import ws.palladian.processing.Classifiable;
 
 /**
  * <p>
@@ -18,7 +19,7 @@ import java.util.TreeMap;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class FeatureVector implements Iterable<Feature<?>> {
+public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
 
     /**
      * <p>
@@ -199,17 +200,17 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return features.values().toString();
     }
 
-    /**
-     * <p>
-     * Converts this {@code FeatureVector} into an array of {@code Feature}s.
-     * </p>
-     * 
-     * @return The vector as array.
-     */
-    public Feature<?>[] toArray() {
-        // return features.values().toArray(new Feature[features.size()]);
-        return getFlat().toArray(new Feature[0]);
-    }
+//    /**
+//     * <p>
+//     * Converts this {@code FeatureVector} into an array of {@code Feature}s.
+//     * </p>
+//     * 
+//     * @return The vector as array.
+//     */
+//    public Feature<?>[] toArray() {
+//        // return features.values().toArray(new Feature[features.size()]);
+//        return getFlat().toArray(new Feature[0]);
+//    }
 
     /**
      * <p>
@@ -251,13 +252,13 @@ public final class FeatureVector implements Iterable<Feature<?>> {
     // return features.remove(featureDescriptor.getIdentifier()) != null;
     // }
 
-    private List<Feature<?>> getFlat() {
-        List<Feature<?>> result = new ArrayList<Feature<?>>();
-        for (Entry<String, List<Feature<?>>> entry : features.entrySet()) {
-            result.addAll(entry.getValue());
-        }
-        return result;
-    }
+//    private List<Feature<?>> getFlat() {
+//        List<Feature<?>> result = new ArrayList<Feature<?>>();
+//        for (Entry<String, List<Feature<?>>> entry : features.entrySet()) {
+//            result.addAll(entry.getValue());
+//        }
+//        return result;
+//    }
 
     // public <T extends Feature<?>> List<T> getFeatures(Class<T> type, String path) {
     // if (path.startsWith("/")) {
@@ -319,7 +320,8 @@ public final class FeatureVector implements Iterable<Feature<?>> {
 
     @Override
     public Iterator<Feature<?>> iterator() {
-        return getFlat().iterator();
+//        return getFlat().iterator();
+        return getAll().iterator();
     }
 
     /**
@@ -356,18 +358,23 @@ public final class FeatureVector implements Iterable<Feature<?>> {
         return true;
     }
 
-    /**
-     * <p>
-     * Removes a {@link Feature} from this {@link FeatureVector}.
-     * </p>
-     * 
-     * @param feature The {@link Feature} to remove.
-     */
-    public void remove(Feature<?> feature) {
-        List<Feature<?>> existingFeatures = new ArrayList<Feature<?>>(features.get(feature.getName()));
-        for (Feature<?> existingFeature : existingFeatures) {
-            features.get(feature.getName()).remove(existingFeature);
-        }
+//    /**
+//     * <p>
+//     * Removes a {@link Feature} from this {@link FeatureVector}.
+//     * </p>
+//     * 
+//     * @param feature The {@link Feature} to remove.
+//     */
+//    public void remove(Feature<?> feature) {
+//        List<Feature<?>> existingFeatures = new ArrayList<Feature<?>>(features.get(feature.getName()));
+//        for (Feature<?> existingFeature : existingFeatures) {
+//            features.get(feature.getName()).remove(existingFeature);
+//        }
+//    }
+
+    @Override
+    public FeatureVector getFeatureVector() {
+        return this;
     }
 
 }
