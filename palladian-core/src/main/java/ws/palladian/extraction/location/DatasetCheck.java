@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -19,8 +20,7 @@ import ws.palladian.helper.io.FileHelper;
  */
 final class DatasetCheck {
 
-    private static final String DATASET_PATH = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
-    private static final Pattern TAG_REGEX = Pattern.compile("<([^>]*)>([^<]*)</([^>]*)>");
+    private static final Pattern TAG_REGEX = Pattern.compile("<([^>]*)>([^<]*)<(/[^>]*)>");
 
     private static final Set<String> allowedTags;
 
@@ -31,8 +31,16 @@ final class DatasetCheck {
         }
     }
 
-    public static void main(String[] args) {
-        File[] datasetFiles = FileHelper.getFiles(DATASET_PATH, "text");
+    private static void performCheck(File datasetDirectory) {
+        if (!datasetDirectory.isDirectory()) {
+            throw new IllegalStateException("Specified path '" + datasetDirectory
+                    + "' does not exist or is no directory.");
+        }
+
+        File[] datasetFiles = FileHelper.getFiles(datasetDirectory.getPath(), "text");
+        if (datasetFiles.length == 0) {
+            throw new IllegalStateException("No text files found in '" + datasetDirectory + "'");
+        }
         CountMap<String> assignedTags = CountMap.create();
         
         for (File file : datasetFiles) {
@@ -49,6 +57,13 @@ final class DatasetCheck {
                 String content = matcher.group(2);
                 String closingTag = matcher.group(3);
 
+                // closing tag does not start with slash
+                if (!closingTag.startsWith("/")) {
+                    System.out.println(closingTag + " does not start with '/' in " + filePath);
+                }
+
+                closingTag = closingTag.substring(1);
+
                 // opening does not match closing tag
                 if (!openingTag.equals(closingTag)) {
                     System.out.println(openingTag + " does not match " + closingTag + " in " + filePath);
@@ -61,9 +76,25 @@ final class DatasetCheck {
                 
                 // check if text in between is rather long
                 if (content.length() > 50) {
-                    System.out.println(content + " seems rather long for an annotation");
+                    System.out.println(content + " seems rather long for an annotation in " + filePath);
                 }
                 
+                // annotation value should not start/end with punctuation
+                if (StringHelper.isPunctuation(content.charAt(0))) {
+                    System.out.println("[warn] '" + content + "' starts with punctuation in " + filePath);
+                }
+                if (StringHelper.isPunctuation(content.charAt(content.length() - 1))) {
+                    System.out.println("[warn] '" + content + "' ends with punctuation in " + filePath);
+                }
+                
+                // annotation value should not start/end with white space
+                if (Character.isWhitespace(content.charAt(0))) {
+                    System.out.println("[warn] '" + content + "' starts with white space in " + filePath);
+                }
+                if (Character.isWhitespace(content.charAt(content.length() - 1))) {
+                    System.out.println("[warn] '" + content + "' ends with white space in " + filePath);
+                }
+
                 assignedTags.add(openingTag);
             }
 
@@ -73,7 +104,11 @@ final class DatasetCheck {
         for (String tag : assignedTags) {
             System.out.println(tag + " " + assignedTags.getCount(tag));
         }
+    }
 
+    public static void main(String[] args) {
+        // performCheck(new File("/Users/pk/Desktop/LocationLab/LocationExtractionDataset"));
+        performCheck(new File("/Users/pk/Desktop/LocationLab/LocationDatasetUliana"));
     }
 
 }
