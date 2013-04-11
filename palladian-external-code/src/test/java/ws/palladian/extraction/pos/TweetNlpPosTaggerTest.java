@@ -78,7 +78,7 @@ public class TweetNlpPosTaggerTest {
     @Test
     public void testTweetNlpPosTagger() {
         TweetNlpPosTagger posTagger = new TweetNlpPosTagger();
-        List<Annotated> tags = posTagger.tag(tweetText);
+        List<Annotated> tags = posTagger.getAnnotations(tweetText);
         assertEquals(expectedTags.length, tags.size());
         for (int i = 0; i < expectedTags.length; i++) {
             assertEquals(expectedTags[i], tags.get(i).getTag());

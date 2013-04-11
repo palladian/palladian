@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -17,7 +18,7 @@ import ws.palladian.processing.features.Annotated;
  * @see http://factoryjoe.com/projects/emoticons/
  * @see http://bscw.rediris.es/pub/bscw.cgi/d3323568/impactoemoticones.pdf
  */
-public class SmileyTagger {
+public class SmileyTagger implements Tagger {
 
     /** The tag name for smileys. */
     public static final String SMILEY_TAG_NAME = "SMILEY";
@@ -46,11 +47,11 @@ public class SmileyTagger {
         smileyPattern = Pattern.compile(smileyPatterhRegEx.toString());
     }
 
-    public List<Annotated> tagSmileys(String inputText) {
-
+    @Override
+    public List<Annotated> getAnnotations(String text) {
         List<Annotated> annotations = CollectionHelper.newArrayList();
 
-        Matcher matcher = smileyPattern.matcher(inputText);
+        Matcher matcher = smileyPattern.matcher(text);
 
         while (matcher.find()) {
             Annotation annotation = new Annotation(matcher.start(), matcher.group(0), SMILEY_TAG_NAME);
@@ -63,7 +64,7 @@ public class SmileyTagger {
     public static void main(String[] args) {
         String text = "This is a nice day :) and the sun shines ;)";
         SmileyTagger smileyTagger = new SmileyTagger();
-        List<Annotated> annotations = smileyTagger.tagSmileys(text);
+        List<Annotated> annotations = smileyTagger.getAnnotations(text);
         CollectionHelper.print(annotations);
     }
 }

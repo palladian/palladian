@@ -97,7 +97,7 @@ public class LingPipePosTaggerTest {
     public void testSimple() throws FileNotFoundException {
         File modelFile = ResourceHelper.getResourceFile(MODEL);
         BasePosTagger tagger = new LingPipePosTagger(modelFile);
-        List<Annotated> tagResult = tagger.tag(document.getContent());
+        List<Annotated> tagResult = tagger.getAnnotations(document.getContent());
         Assert.assertEquals(expectedTags.length, tagResult.size());
     }
 }

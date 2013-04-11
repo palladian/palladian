@@ -3,13 +3,14 @@ package ws.palladian.extraction.pos;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.extraction.TagAnnotation;
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.FeatureVector;
@@ -37,7 +38,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public abstract class BasePosTagger extends TextDocumentPipelineProcessor implements PosTagger {
+public abstract class BasePosTagger extends TextDocumentPipelineProcessor implements Tagger {
 
     /**
      * <p>
@@ -57,10 +58,8 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
     // PosTagger API
     // ////////////////////////////////////////////
 
-    /** @deprecated Use the {@link TextDocumentPipelineProcessor} API instead. */
     @Override
-    @Deprecated
-    public List<Annotated> tag(String text) {
+    public List<Annotated> getAnnotations(String text) {
         TextDocument document = new TextDocument(text);
         try {
             BaseTokenizer tokenizer = getTokenizer();
@@ -77,7 +76,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
             NominalFeature tagFeature = annotation.getFeatureVector()
                     .getFeature(NominalFeature.class, PROVIDED_FEATURE);
             String tag = tagFeature.getValue();
-            TagAnnotation tagAnnotation = new TagAnnotation(offset++, tag, annotation.getValue());
+            Annotation tagAnnotation = new Annotation(offset++, annotation.getValue(), tag);
             ret.add(tagAnnotation);
         }
         return ret;
@@ -159,5 +158,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
             annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, tag.toUpperCase()));
         }
     }
+
+    public abstract String getName();
 
 }

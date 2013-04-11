@@ -10,6 +10,7 @@ import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -19,7 +20,7 @@ import ws.palladian.processing.features.Annotated;
  * 
  * @author David Urbansky
  */
-public class DateAndTimeTagger {
+public class DateAndTimeTagger implements Tagger {
 
     /** The tag name for URLs. */
     public static final String DATETIME_TAG_NAME = "DATETIME";
@@ -28,8 +29,9 @@ public class DateAndTimeTagger {
     private static final DateFormat[] ALL_DATES_WITH_YEARS = ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS,
             RegExp.DATE_CONTEXT_YYYY);
 
-    public List<Annotated> tagDateAndTime(String inputText) {
-        return tagDateAndTime(inputText, ALL_DATES_WITH_YEARS);
+    @Override
+    public List<Annotated> getAnnotations(String text) {
+        return tagDateAndTime(text, ALL_DATES_WITH_YEARS);
     }
 
     public List<Annotated> tagDateAndTime(String inputText, DateFormat[] dateFormats) {

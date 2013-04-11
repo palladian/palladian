@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -15,23 +16,22 @@ import ws.palladian.processing.features.Annotated;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class UrlTagger {
+public class UrlTagger implements Tagger {
 
-	/** The tag name for URLs. */
-	public static final String URI_TAG_NAME = "URI";
+    /** The tag name for URLs. */
+    public static final String URI_TAG_NAME = "URI";
 
-    public List<Annotated> tagUrls(String inputText) {
-
+    @Override
+    public List<Annotated> getAnnotations(String text) {
         List<Annotated> annotations = CollectionHelper.newArrayList();
-		
-		Matcher matcher = UrlHelper.URL_PATTERN.matcher(inputText);
 
-		while (matcher.find()) {
-			Annotation annotation = new Annotation(matcher.start(),matcher.group(0),URI_TAG_NAME);
-			annotations.add(annotation);
-		}
+        Matcher matcher = UrlHelper.URL_PATTERN.matcher(text);
 
-		return annotations;
-	}
+        while (matcher.find()) {
+            annotations.add(new Annotation(matcher.start(), matcher.group(0), URI_TAG_NAME));
+        }
+
+        return annotations;
+    }
 
 }

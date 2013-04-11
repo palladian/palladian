@@ -7,7 +7,7 @@ import java.util.List;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
-import ws.palladian.extraction.TagAnnotation;
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -45,7 +45,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
     
     @Override
     public List<Annotated> chunk(String sentence) {
-        List<Annotated> tagAnnotations = tagger.tag(sentence);
+        List<Annotated> tagAnnotations = tagger.getAnnotations(sentence);
         return chunk(sentence, tagAnnotations);
     }
 
@@ -95,7 +95,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
             }
             if (i + 1 < chunks.length && chunks[i + 1].contains("B-") || i == chunks.length - 1) {
 
-                tagAnnotations.add(new TagAnnotation(sentence.indexOf(token.toString()), tag, token.toString()));
+                tagAnnotations.add(new Annotation(sentence.indexOf(token.toString()), token.toString(), tag));
             }
         }
         return tagAnnotations;
