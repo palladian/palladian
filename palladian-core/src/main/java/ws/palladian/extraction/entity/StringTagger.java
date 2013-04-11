@@ -1,23 +1,22 @@
 package ws.palladian.extraction.entity;
 
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * Tag possible named entities in an English text.
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public final class StringTagger {
 
-    public static final String CANDIDATE_TAG = "<CANDIDATE>$0</CANDIDATE>";
+    private static final String CANDIDATE_TAG = "<CANDIDATE>$0</CANDIDATE>";
 
-    private static String tagString(String s, String regexp) {
-        return s.replaceAll(regexp, CANDIDATE_TAG);
-    }
+    private static final Pattern PATTERN = compilePattern();
 
-    private static String tagString(String s) {
-
+    private static final Pattern compilePattern() {
         String regexp = "";
 
         String camelCaseWords = "(GmbH|LLC)";
@@ -72,9 +71,15 @@ public final class StringTagger {
         regexp += "|";
         regexp += "([a-z][A-Z][A-Za-z0-9]+( [A-Z0-9][A-Za-z0-9]{0,20}){0,20})";
 
-        s = s.replaceAll(regexp, CANDIDATE_TAG);
+        return Pattern.compile(regexp);
+    }
 
-        return s;
+    private static String tagString(String s, String regexp) {
+        return s.replaceAll(regexp, CANDIDATE_TAG);
+    }
+
+    private static String tagString(String s) {
+        return PATTERN.matcher(s).replaceAll(CANDIDATE_TAG);
     }
 
     public static Annotations<ContextAnnotation> getTaggedEntities(String text, String regexp) {
