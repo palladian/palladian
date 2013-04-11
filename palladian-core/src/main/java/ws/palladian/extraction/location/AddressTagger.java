@@ -25,7 +25,7 @@ import ws.palladian.processing.features.Annotated;
 public final class AddressTagger {
 
     public static final Pattern STREET_PATTERN = Pattern.compile(
-            ".*street$|.*road$|.*avenue$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
+                    ".*street$|.*road$|.*avenue$|.*ave\\.|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
             Pattern.CASE_INSENSITIVE);
 
     public static List<LocationAnnotation> tag(String text) {

@@ -165,6 +165,11 @@ public class StringTaggerTest {
         assertEquals("HERALD", annotations.get(8).getValue());
         assertEquals("Universal Orlando® Resort", annotations.get(9).getValue());
 
+        text = "Sterling Cooper is located on Madison Ave. in New York City.";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals(3, annotations.size());
+        assertEquals("Madison Ave.", annotations.get(1).getValue());
+
     }
 
 }
