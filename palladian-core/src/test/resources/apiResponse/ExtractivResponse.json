@@ -1,0 +1,2630 @@
+{
+  "Document": {
+    "categories": {
+      "people_&_society": 0.9796860879186683,
+      "travel": 0.9550757417317358
+    },
+    "dochash": "9eb70992fa5b5732e1b7fa38a17a7cf1",
+    "metadata": {
+      "DOCTYPE": ["HTML"],
+      "LANGUAGE": ["ENGLISH"],
+      "RAW_SIZE": ["4947"],
+      "URL": ["null"]
+    },
+    "text": "Eastern U.S. battles heat wave amid power outages (Reuters) - Blistering heat blanketed much of the eastern United States for the third straight day on Sunday, after violent storms that took at least a dozen lives and knocked out power to more than 3 million customers. Emergencies were declared in Maryland, Ohio, Virginia, West Virginia and Washington, D.C., on Saturday because of damage from storms that unleashed hurricane-force winds across and a 500-mile (800-km) stretch of the mid-Atlantic region. The storms' rampage came as sweltering temperatures topped 100 Fahrenheit (38 Celsius) in several southern cities, including Atlanta, where the mercury hit an all-time record of 106 degrees (41 Celsius), according to Accuweather.com. Over two dozen cities across 10 states set or tied all-time record high temperatures on Friday and Saturday, including Columbia, South Carolina; Knoxville, Tennessee; and Raleigh, North Carolina. The heat wave continued Sunday for millions of people from the Plains to the mid-Atlantic. One of the hardest hit cities was Charlotte, North Carolina, where the mercury hovered at about 101 degrees (38.3 C) Sunday afternoon and was expected to at least tie its all-time record of 104 (40 C) later in the day. From St. Louis, Missouri, to Washington, D.C., the forecasts were for temperatures that could climb to more all-time records. \"It is very unsafe outdoors for those susceptible to these extreme conditions,\" the National Weather Service said in a statement. 'CATASTROPHIC DAMAGE\" TO POWER GRIDS Power crews worked to restore service to homes and businesses, and officials in some areas said the job could take up to a week. Utilities in Ohio, Virginia and Maryland described damage to their power grids as catastrophic. Six people were killed in Virginia in storm-related incidents, and more than 1 million customers were left without power in the worst outage not linked to a hurricane in the state's history, said Bob Spieldenner, a spokesman for the Virginia Department of Emergency Management. Two Maryland residents died in the storm - one struck by a falling tree in Anne Arundel County, the other electrocuted after a tree crashed into a house in Montgomery County - said state emergency management agency spokesman Edward Hopkins. In a late Sunday morning update, Maryland Emergency Management Agency spokesman Ed McDonough said a Chesapeake Bay boater was still missing after the storm and 639,000 customers remained without power. That was down from more than 1 million Maryland customers without lights and crucial air conditioning earlier on Sunday morning. In New Jersey, two cousins aged 2 and 7 were killed by a falling tree in a state park. And in eastern Tennessee, heat was blamed for the deaths of two brothers, ages 3 and 5, in Bradley County. They had been playing outside in 105-degree (41-degree C) heat. HEATED LABOR DISPUTE Ohio, where one storm-related death was reported, faced similar difficulties. Outages hit two-thirds of the state with about 1 million homes and businesses left without electricity. Governor John Kasich said it could take a week to fully restore power. President Barack Obama authorized the Federal Emergency Management Agency (FEMA) to coordinate all disaster relief efforts in the storm-ravaged state. West Virginia was also hard-hit by storm-related outages, with about 614,000 customers without power, said Terrance Lively, spokesman for the state emergency management agency. Further north, the storm caused outages from Indiana, where 135,000 customers lost power, to New Jersey, where Atlantic County declared a state of emergency and at least 206,000 customers were without power. In New York, a heated labor dispute threatened to compound problems posed by the summer heat wave, which has already put an added strain on the electrical grid for New York City and suburban Westchester county. Power utility Consolidated Edison Inc locked out its unionized workers early on Sunday after contract talks broke down, both sides said, raising the possibility of power cuts. The company said it had asked to extend negotiations for two more weeks but the union, which had threatened a strike by its 8,500 workers over a new contract, refused. In response, the firm told union members not to report for work on Sunday. That left managers and any crews the company can hire to fix whatever problems arise as 8.2 million New Yorkers crank up their air conditioners to beat the heat. Records for June were broken on Friday in Nashville, Tennessee; Louisville, Kentucky; Washington, D.C., and Atlanta. The temperature hit at least 104 F (40 C) in all four cities, according to the National Weather Service. (Additional reporting by Alex Dobuzinskis in Los Angeles, Paul Thomasch in New York, Susan Guyett in Indianapolis, Tim Ghianni in Nashville and Alistair Bull in Washington; Editing by Tom Brown, Sandra Maler and Vicki Allen) \n",
+    "url": "null",
+    "version": "1.0"
+  },
+  "entities": [
+    {
+      "confidence": 1.7601151315789474,
+      "id": 0,
+      "len": 4,
+      "links": ["http://dbpedia.org/resource/United_States"],
+      "offset": 8,
+      "text": "U.S.",
+      "type": "COUNTRY"
+    },
+    {
+      "confidence": 0.8902439024390244,
+      "id": 1,
+      "len": 9,
+      "links": ["http://dbpedia.org/resource/Heat_wave"],
+      "offset": 21,
+      "text": "heat wave",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "confidence": 0.9739452004432678,
+      "id": 2,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Reuters"],
+      "offset": 51,
+      "text": "Reuters",
+      "type": "COMMERCIAL_ORG"
+    },
+    {
+      "confidence": 0.9166666666666666,
+      "id": 3,
+      "len": 10,
+      "links": ["http://dbpedia.org/resource/Blistering"],
+      "offset": 62,
+      "text": "Blistering",
+      "type": "DOMAIN_NAME"
+    },
+    {
+      "confidence": 0.9532959681255947,
+      "id": 4,
+      "len": 13,
+      "links": ["http://dbpedia.org/resource/United_States"],
+      "offset": 108,
+      "text": "United States",
+      "type": "COUNTRY"
+    },
+    {
+      "id": 5,
+      "len": 5,
+      "offset": 130,
+      "text": "third",
+      "type": "ORDINAL"
+    },
+    {
+      "id": 6,
+      "len": 6,
+      "offset": 152,
+      "text": "Sunday",
+      "type": "DAY_NAME"
+    },
+    {
+      "id": 7,
+      "len": 13,
+      "offset": 194,
+      "text": "least a dozen",
+      "type": "NUMBER"
+    },
+    {
+      "id": 8,
+      "len": 19,
+      "offset": 239,
+      "text": "more than 3 million",
+      "type": "NUMBER"
+    },
+    {
+      "id": 9,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Maryland"],
+      "offset": 299,
+      "text": "Maryland",
+      "type": "US_STATE"
+    },
+    {
+      "id": 10,
+      "len": 4,
+      "links": ["http://dbpedia.org/resource/Ohio"],
+      "offset": 309,
+      "text": "Ohio",
+      "type": "US_STATE"
+    },
+    {
+      "id": 11,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Virginia"],
+      "offset": 315,
+      "text": "Virginia",
+      "type": "US_STATE"
+    },
+    {
+      "id": 11,
+      "len": 13,
+      "links": ["http://dbpedia.org/resource/Virginia"],
+      "offset": 325,
+      "text": "West Virginia",
+      "type": "US_STATE"
+    },
+    {
+      "id": 12,
+      "len": 16,
+      "links": ["http://dbpedia.org/resource/Washington%2C_D.C."],
+      "offset": 343,
+      "text": "Washington, D.C.",
+      "type": "US_STATE"
+    },
+    {
+      "id": 13,
+      "len": 8,
+      "offset": 364,
+      "text": "Saturday",
+      "type": "DAY_NAME"
+    },
+    {
+      "id": 14,
+      "len": 9,
+      "offset": 418,
+      "text": "hurricane",
+      "type": "NATURAL_DISASTER"
+    },
+    {
+      "id": 15,
+      "len": 8,
+      "offset": 453,
+      "text": "500-mile",
+      "type": "LENGTH"
+    },
+    {
+      "id": 16,
+      "len": 6,
+      "offset": 463,
+      "text": "800-km",
+      "type": "LENGTH"
+    },
+    {
+      "confidence": 0.8999999761581421,
+      "id": 17,
+      "latitude": "41.40361",
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Atlantic_County%2C_New_Jersey"],
+      "longitude": "-95.01361",
+      "offset": 490,
+      "text": "Atlantic",
+      "type": "OCEAN"
+    },
+    {
+      "id": 18,
+      "len": 14,
+      "offset": 566,
+      "text": "100 Fahrenheit",
+      "type": "TEMPERATURE"
+    },
+    {
+      "id": 19,
+      "len": 2,
+      "offset": 582,
+      "text": "38",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 0.9447761194029851,
+      "id": 20,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Celsius"],
+      "offset": 585,
+      "text": "Celsius",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "confidence": 0.8220570245600828,
+      "id": 21,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Atlanta"],
+      "offset": 632,
+      "text": "Atlanta",
+      "type": "CITY"
+    },
+    {
+      "confidence": 0.9750462107208873,
+      "id": 22,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Mercury_%28element%29"],
+      "offset": 651,
+      "text": "mercury",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 23,
+      "len": 2,
+      "offset": 698,
+      "text": "41",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 0.9447761194029851,
+      "id": 24,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Celsius"],
+      "offset": 701,
+      "text": "Celsius",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "confidence": 0.8147240281105042,
+      "id": 25,
+      "len": 15,
+      "links": ["http://dbpedia.org/resource/AccuWeather"],
+      "offset": 724,
+      "text": "Accuweather.com",
+      "type": "COMMERCIAL_ORG"
+    },
+    {
+      "id": 26,
+      "len": 14,
+      "offset": 741,
+      "text": "Over two dozen",
+      "type": "NUMBER"
+    },
+    {
+      "id": 27,
+      "len": 2,
+      "offset": 770,
+      "text": "10",
+      "type": "NUMBER"
+    },
+    {
+      "id": 28,
+      "len": 6,
+      "offset": 829,
+      "text": "Friday",
+      "type": "DAY_NAME"
+    },
+    {
+      "id": 29,
+      "len": 8,
+      "offset": 840,
+      "text": "Saturday",
+      "type": "DAY_NAME"
+    },
+    {
+      "confidence": 0.5814355611801147,
+      "id": 30,
+      "latitude": "34.00056",
+      "len": 8,
+      "longitude": "-81.035",
+      "offset": 860,
+      "text": "Columbia",
+      "type": "CITY"
+    },
+    {
+      "id": 31,
+      "len": 14,
+      "offset": 870,
+      "text": "South Carolina",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.9987586140632629,
+      "id": 32,
+      "latitude": "35.96056",
+      "len": 9,
+      "longitude": "-83.92083",
+      "offset": 886,
+      "text": "Knoxville",
+      "type": "CITY"
+    },
+    {
+      "id": 33,
+      "len": 9,
+      "offset": 897,
+      "text": "Tennessee",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.8672338128089905,
+      "id": 34,
+      "latitude": "35.77194",
+      "len": 7,
+      "longitude": "-78.63889",
+      "offset": 912,
+      "text": "Raleigh",
+      "type": "CITY"
+    },
+    {
+      "id": 35,
+      "len": 14,
+      "offset": 921,
+      "text": "North Carolina",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.8902439024390244,
+      "id": 36,
+      "len": 9,
+      "links": ["http://dbpedia.org/resource/Heat_wave"],
+      "offset": 941,
+      "text": "heat wave",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 37,
+      "len": 6,
+      "offset": 961,
+      "text": "Sunday",
+      "type": "DAY_NAME"
+    },
+    {
+      "id": 38,
+      "len": 8,
+      "offset": 972,
+      "text": "millions",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 0.8999999761581421,
+      "id": 17,
+      "latitude": "37.90056",
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Atlantic_County%2C_New_Jersey"],
+      "longitude": "-75.50806",
+      "offset": 1018,
+      "text": "Atlantic",
+      "type": "OCEAN"
+    },
+    {
+      "confidence": 0.6298239231109619,
+      "id": 39,
+      "latitude": "35.22694",
+      "len": 9,
+      "longitude": "-80.84333",
+      "offset": 1062,
+      "text": "Charlotte",
+      "type": "CITY"
+    },
+    {
+      "id": 35,
+      "len": 14,
+      "offset": 1073,
+      "text": "North Carolina",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.9750462107208873,
+      "id": 40,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Mercury_%28element%29"],
+      "offset": 1099,
+      "text": "mercury",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 41,
+      "len": 4,
+      "offset": 1137,
+      "text": "38.3",
+      "type": "NUMBER"
+    },
+    {
+      "id": 42,
+      "len": 16,
+      "offset": 1145,
+      "text": "Sunday afternoon",
+      "type": "RELATIVE_DATE"
+    },
+    {
+      "id": 43,
+      "len": 3,
+      "offset": 1218,
+      "text": "104",
+      "type": "NUMBER"
+    },
+    {
+      "id": 44,
+      "len": 2,
+      "offset": 1223,
+      "text": "40",
+      "type": "NUMBER"
+    },
+    {
+      "id": 45,
+      "len": 16,
+      "offset": 1229,
+      "text": "later in the day",
+      "type": "RELATIVE_DATE"
+    },
+    {
+      "confidence": 0.7198393940925598,
+      "id": 46,
+      "latitude": "38.62722",
+      "len": 9,
+      "longitude": "-90.19778",
+      "offset": 1252,
+      "text": "St. Louis",
+      "type": "CITY"
+    },
+    {
+      "id": 47,
+      "len": 8,
+      "offset": 1263,
+      "text": "Missouri",
+      "type": "US_STATE"
+    },
+    {
+      "id": 48,
+      "len": 16,
+      "links": ["http://dbpedia.org/resource/Washington%2C_D.C."],
+      "offset": 1276,
+      "text": "Washington, D.C.",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.9559935927391052,
+      "id": 49,
+      "len": 24,
+      "links": ["http://dbpedia.org/resource/National_Weather_Service"],
+      "offset": 1457,
+      "text": "National Weather Service",
+      "type": "GOVERNMENT_ORG"
+    },
+    {
+      "id": 50,
+      "len": 6,
+      "offset": 1661,
+      "text": "a week",
+      "type": "DURATION"
+    },
+    {
+      "id": 10,
+      "len": 4,
+      "links": ["http://dbpedia.org/resource/Ohio"],
+      "offset": 1682,
+      "text": "Ohio",
+      "type": "US_STATE"
+    },
+    {
+      "id": 11,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Virginia"],
+      "offset": 1688,
+      "text": "Virginia",
+      "type": "US_STATE"
+    },
+    {
+      "id": 9,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Maryland"],
+      "offset": 1701,
+      "text": "Maryland",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.7,
+      "id": 51,
+      "len": 11,
+      "links": ["http://dbpedia.org/resource/Electrical_grid"],
+      "offset": 1736,
+      "text": "power grids",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 52,
+      "len": 3,
+      "offset": 1765,
+      "text": "Six",
+      "type": "NUMBER"
+    },
+    {
+      "id": 11,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Virginia"],
+      "offset": 1791,
+      "text": "Virginia",
+      "type": "US_STATE"
+    },
+    {
+      "id": 53,
+      "len": 19,
+      "offset": 1832,
+      "text": "more than 1 million",
+      "type": "NUMBER"
+    },
+    {
+      "id": 54,
+      "len": 9,
+      "offset": 1922,
+      "text": "hurricane",
+      "type": "NATURAL_DISASTER"
+    },
+    {
+      "confidence": 0.9981388449668884,
+      "id": 55,
+      "len": 15,
+      "offset": 1961,
+      "text": "Bob Spieldenner",
+      "type": "PERSON"
+    },
+    {
+      "id": 11,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Virginia"],
+      "offset": 1998,
+      "text": "Virginia",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.5485395193099976,
+      "id": 56,
+      "len": 34,
+      "links": ["http://dbpedia.org/resource/Oklahoma_Department_of_Emergency_Management"],
+      "offset": 2007,
+      "text": "Department of Emergency Management",
+      "type": "GOVERNMENT_ORG"
+    },
+    {
+      "id": 57,
+      "len": 3,
+      "offset": 2043,
+      "text": "Two",
+      "type": "NUMBER"
+    },
+    {
+      "id": 9,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Maryland"],
+      "offset": 2047,
+      "text": "Maryland",
+      "type": "US_STATE"
+    },
+    {
+      "id": 58,
+      "len": 3,
+      "offset": 2086,
+      "text": "one",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 0.8999999761581421,
+      "id": 59,
+      "latitude": "39.0",
+      "len": 19,
+      "links": ["http://dbpedia.org/resource/Anne_Arundel_County%2C_Maryland"],
+      "longitude": "-76.61667",
+      "offset": 2118,
+      "text": "Anne Arundel County",
+      "type": "COUNTY"
+    },
+    {
+      "confidence": 0.8999999761581421,
+      "id": 60,
+      "latitude": "39.15",
+      "len": 17,
+      "longitude": "-77.2",
+      "offset": 2199,
+      "text": "Montgomery County",
+      "type": "COUNTY"
+    },
+    {
+      "confidence": 1.8,
+      "id": 61,
+      "len": 20,
+      "links": ["http://dbpedia.org/resource/Emergency_management"],
+      "offset": 2230,
+      "text": "emergency management",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 62,
+      "len": 14,
+      "links": ["http://dbpedia.org/resource/Edward_Hopkins"],
+      "offset": 2268,
+      "text": "Edward Hopkins",
+      "type": "US_GOVERNOR"
+    },
+    {
+      "id": 63,
+      "len": 19,
+      "offset": 2289,
+      "text": "late Sunday morning",
+      "type": "RELATIVE_DATE"
+    },
+    {
+      "confidence": 0.9919673204421997,
+      "id": 64,
+      "len": 36,
+      "links": ["http://dbpedia.org/resource/Maryland_Emergency_Management_Agency"],
+      "offset": 2317,
+      "text": "Maryland Emergency Management Agency",
+      "type": "GOVERNMENT_ORG"
+    },
+    {
+      "confidence": 0.9993383884429932,
+      "id": 65,
+      "len": 12,
+      "offset": 2364,
+      "text": "Ed McDonough",
+      "type": "PERSON"
+    },
+    {
+      "confidence": 0.9940476190476191,
+      "id": 66,
+      "len": 14,
+      "links": ["http://dbpedia.org/resource/Chesapeake_Bay"],
+      "offset": 2384,
+      "text": "Chesapeake Bay",
+      "type": "STREAM"
+    },
+    {
+      "id": 67,
+      "len": 7,
+      "offset": 2444,
+      "text": "639,000",
+      "type": "NUMBER"
+    },
+    {
+      "id": 68,
+      "len": 19,
+      "offset": 2505,
+      "text": "more than 1 million",
+      "type": "NUMBER"
+    },
+    {
+      "id": 9,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/Maryland"],
+      "offset": 2525,
+      "text": "Maryland",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.9627228525121556,
+      "id": 69,
+      "len": 16,
+      "links": ["http://dbpedia.org/resource/Air_conditioning"],
+      "offset": 2571,
+      "text": "air conditioning",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 70,
+      "len": 14,
+      "offset": 2599,
+      "text": "Sunday morning",
+      "type": "RELATIVE_DATE"
+    },
+    {
+      "id": 71,
+      "len": 10,
+      "links": ["http://dbpedia.org/resource/New_Jersey"],
+      "offset": 2618,
+      "text": "New Jersey",
+      "type": "US_STATE"
+    },
+    {
+      "id": 72,
+      "len": 3,
+      "offset": 2630,
+      "text": "two",
+      "type": "NUMBER"
+    },
+    {
+      "id": 73,
+      "len": 7,
+      "offset": 2647,
+      "text": "2 and 7",
+      "type": "NUMBER_RANGE"
+    },
+    {
+      "confidence": 0.8632034632034632,
+      "id": 74,
+      "len": 10,
+      "links": ["http://dbpedia.org/resource/State_park"],
+      "offset": 2690,
+      "text": "state park",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 33,
+      "len": 9,
+      "links": ["http://dbpedia.org/resource/Tennessee"],
+      "offset": 2717,
+      "text": "Tennessee",
+      "type": "US_STATE"
+    },
+    {
+      "id": 75,
+      "len": 3,
+      "offset": 2762,
+      "text": "two",
+      "type": "NUMBER"
+    },
+    {
+      "id": 76,
+      "len": 7,
+      "offset": 2781,
+      "text": "3 and 5",
+      "type": "NUMBER_RANGE"
+    },
+    {
+      "confidence": 0.8999999761581421,
+      "id": 77,
+      "latitude": "35.15",
+      "len": 14,
+      "longitude": "-84.86667",
+      "offset": 2793,
+      "text": "Bradley County",
+      "type": "COUNTY"
+    },
+    {
+      "id": 10,
+      "len": 4,
+      "links": ["http://dbpedia.org/resource/Ohio"],
+      "offset": 2894,
+      "text": "Ohio",
+      "type": "US_STATE"
+    },
+    {
+      "id": 78,
+      "len": 3,
+      "offset": 2906,
+      "text": "one",
+      "type": "NUMBER"
+    },
+    {
+      "id": 79,
+      "len": 3,
+      "offset": 2984,
+      "text": "two",
+      "type": "NUMBER"
+    },
+    {
+      "id": 80,
+      "len": 15,
+      "offset": 3013,
+      "text": "about 1 million",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 1,
+      "id": 81,
+      "len": 11,
+      "links": ["http://dbpedia.org/resource/John_Kasich"],
+      "offset": 3085,
+      "text": "John Kasich",
+      "type": "CONGRESSMAN"
+    },
+    {
+      "id": 82,
+      "len": 6,
+      "offset": 3116,
+      "text": "a week",
+      "type": "DURATION"
+    },
+    {
+      "id": 83,
+      "len": 12,
+      "links": ["http://dbpedia.org/resource/Barack_Obama"],
+      "offset": 3157,
+      "text": "Barack Obama",
+      "type": "US_PRESIDENT"
+    },
+    {
+      "confidence": 0.9404868483543396,
+      "id": 84,
+      "len": 35,
+      "links": ["http://dbpedia.org/resource/Federal_Emergency_Management_Agency"],
+      "offset": 3185,
+      "text": "Federal Emergency Management Agency",
+      "type": "GOVERNMENT_ORG"
+    },
+    {
+      "confidence": 0.9973567128181458,
+      "id": 84,
+      "len": 4,
+      "links": ["http://dbpedia.org/resource/Federal_Emergency_Management_Agency"],
+      "offset": 3222,
+      "text": "FEMA",
+      "type": "GOVERNMENT_ORG"
+    },
+    {
+      "id": 11,
+      "len": 13,
+      "links": ["http://dbpedia.org/resource/Virginia"],
+      "offset": 3298,
+      "text": "West Virginia",
+      "type": "US_STATE"
+    },
+    {
+      "id": 85,
+      "len": 7,
+      "offset": 3367,
+      "text": "614,000",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 0.7281243205070496,
+      "id": 86,
+      "len": 15,
+      "offset": 3405,
+      "text": "Terrance Lively",
+      "type": "PERSON"
+    },
+    {
+      "confidence": 1.8,
+      "id": 87,
+      "len": 20,
+      "links": ["http://dbpedia.org/resource/Emergency_management"],
+      "offset": 3446,
+      "text": "emergency management",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 88,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Indiana"],
+      "offset": 3520,
+      "text": "Indiana",
+      "type": "US_STATE"
+    },
+    {
+      "id": 89,
+      "len": 7,
+      "offset": 3535,
+      "text": "135,000",
+      "type": "NUMBER"
+    },
+    {
+      "id": 71,
+      "len": 10,
+      "links": ["http://dbpedia.org/resource/New_Jersey"],
+      "offset": 3568,
+      "text": "New Jersey",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.8999999761581421,
+      "id": 90,
+      "latitude": "39.46667",
+      "len": 15,
+      "links": ["http://dbpedia.org/resource/Atlantic_County%2C_New_Jersey"],
+      "longitude": "-74.66667",
+      "offset": 3586,
+      "text": "Atlantic County",
+      "type": "COUNTY"
+    },
+    {
+      "confidence": 0.9194756554307116,
+      "id": 91,
+      "len": 18,
+      "links": ["http://dbpedia.org/resource/State_of_emergency"],
+      "offset": 3613,
+      "text": "state of emergency",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 92,
+      "len": 7,
+      "offset": 3645,
+      "text": "206,000",
+      "type": "NUMBER"
+    },
+    {
+      "id": 93,
+      "len": 8,
+      "links": ["http://dbpedia.org/resource/New_York_City"],
+      "offset": 3686,
+      "text": "New York",
+      "type": "US_STATE"
+    },
+    {
+      "id": 94,
+      "len": 10,
+      "offset": 3760,
+      "text": "the summer",
+      "type": "RELATIVE_DATE"
+    },
+    {
+      "confidence": 0.8902439024390244,
+      "id": 95,
+      "len": 9,
+      "links": ["http://dbpedia.org/resource/Heat_wave"],
+      "offset": 3771,
+      "text": "heat wave",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 93,
+      "len": 13,
+      "links": ["http://dbpedia.org/resource/New_York_City"],
+      "offset": 3847,
+      "text": "New York City",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 1,
+      "id": 96,
+      "len": 18,
+      "links": ["http://dbpedia.org/resource/Westchester_County%2C_New_York"],
+      "offset": 3874,
+      "text": "Westchester county",
+      "type": "GPE"
+    },
+    {
+      "confidence": 0.9970672726631165,
+      "id": 97,
+      "len": 23,
+      "offset": 3908,
+      "text": "Consolidated Edison Inc",
+      "type": "COMMERCIAL_ORG"
+    },
+    {
+      "id": 98,
+      "len": 6,
+      "offset": 3974,
+      "text": "Sunday",
+      "type": "DAY_NAME"
+    },
+    {
+      "id": 99,
+      "len": 8,
+      "offset": 4127,
+      "text": "two more",
+      "type": "NUMBER"
+    },
+    {
+      "id": 100,
+      "len": 5,
+      "offset": 4136,
+      "text": "weeks",
+      "type": "DURATION"
+    },
+    {
+      "id": 101,
+      "len": 5,
+      "offset": 4194,
+      "text": "8,500",
+      "type": "NUMBER"
+    },
+    {
+      "id": 102,
+      "len": 6,
+      "offset": 4305,
+      "text": "Sunday",
+      "type": "DAY_NAME"
+    },
+    {
+      "id": 103,
+      "len": 11,
+      "offset": 4401,
+      "text": "8.2 million",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 0.9818181818181819,
+      "id": 104,
+      "len": 16,
+      "links": ["http://dbpedia.org/resource/Air_conditioning"],
+      "offset": 4440,
+      "text": "air conditioners",
+      "type": "LINKED_OTHER"
+    },
+    {
+      "id": 105,
+      "len": 4,
+      "offset": 4487,
+      "text": "June",
+      "type": "MONTH_NAME"
+    },
+    {
+      "id": 106,
+      "len": 6,
+      "offset": 4507,
+      "text": "Friday",
+      "type": "DAY_NAME"
+    },
+    {
+      "confidence": 0.9977777600288391,
+      "id": 107,
+      "latitude": "36.16583",
+      "len": 9,
+      "longitude": "-86.78444",
+      "offset": 4517,
+      "text": "Nashville",
+      "type": "CITY"
+    },
+    {
+      "id": 33,
+      "len": 9,
+      "offset": 4528,
+      "text": "Tennessee",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.9987677335739136,
+      "id": 108,
+      "latitude": "35.82167",
+      "len": 10,
+      "longitude": "-84.04806",
+      "offset": 4539,
+      "text": "Louisville",
+      "type": "CITY"
+    },
+    {
+      "id": 109,
+      "len": 8,
+      "offset": 4551,
+      "text": "Kentucky",
+      "type": "US_STATE"
+    },
+    {
+      "id": 12,
+      "len": 16,
+      "links": ["http://dbpedia.org/resource/Washington%2C_D.C."],
+      "offset": 4561,
+      "text": "Washington, D.C.",
+      "type": "US_STATE"
+    },
+    {
+      "confidence": 0.8220570245600828,
+      "id": 110,
+      "len": 7,
+      "links": ["http://dbpedia.org/resource/Atlanta"],
+      "offset": 4583,
+      "text": "Atlanta",
+      "type": "CITY"
+    },
+    {
+      "id": 111,
+      "len": 3,
+      "offset": 4621,
+      "text": "104",
+      "type": "NUMBER"
+    },
+    {
+      "id": 112,
+      "len": 2,
+      "offset": 4628,
+      "text": "40",
+      "type": "NUMBER"
+    },
+    {
+      "id": 113,
+      "len": 4,
+      "offset": 4641,
+      "text": "four",
+      "type": "NUMBER"
+    },
+    {
+      "confidence": 0.9989503026008606,
+      "id": 49,
+      "len": 24,
+      "links": ["http://dbpedia.org/resource/National_Weather_Service"],
+      "offset": 4671,
+      "text": "National Weather Service",
+      "type": "GOVERNMENT_ORG"
+    }
+  ],
+  "relations": [
+    {
+      "args": [
+        {
+          "len": 9,
+          "offset": 149,
+          "role": "date",
+          "value": "on Sunday"
+        },
+        {
+          "len": 22,
+          "offset": 126,
+          "role": "pp-FOR",
+          "value": "the third straight day"
+        },
+        {
+          "len": 9,
+          "offset": 78,
+          "role": "pred",
+          "value": "blanketed"
+        },
+        {
+          "len": 77,
+          "offset": 0,
+          "role": "role1",
+          "value": "Eastern U.S. battles heat wave amid power outages (Reuters)-Blistering heat"
+        },
+        {
+          "len": 33,
+          "offset": 88,
+          "role": "role2",
+          "value": "much of the eastern United States"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 29,
+          "offset": 239,
+          "role": "pp-TO",
+          "value": "more than 3 million customers"
+        },
+        {
+          "len": 11,
+          "offset": 218,
+          "role": "pred",
+          "value": "knocked out"
+        },
+        {
+          "len": 5,
+          "offset": 230,
+          "role": "role2",
+          "value": "power"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 60,
+          "offset": 299,
+          "role": "loc-IN",
+          "value": "Maryland, Ohio, Virginia, West Virginia and Washington, D.C."
+        },
+        {
+          "len": 8,
+          "offset": 287,
+          "role": "pred",
+          "value": "declared"
+        },
+        {
+          "len": 11,
+          "offset": 270,
+          "role": "role2",
+          "value": "Emergencies"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 85,
+          "offset": 535,
+          "role": "pp-AS",
+          "value": "sweltering temperatures topped 100 Fahrenheit (38 Celsius) in several southern cities"
+        },
+        {
+          "len": 4,
+          "offset": 527,
+          "role": "pred",
+          "value": "came"
+        },
+        {
+          "len": 19,
+          "offset": 507,
+          "role": "role1",
+          "value": "The storms' rampage"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 23,
+          "offset": 597,
+          "role": "pp-IN",
+          "value": "several southern cities"
+        },
+        {
+          "len": 6,
+          "offset": 559,
+          "role": "pred",
+          "value": "topped"
+        },
+        {
+          "len": 23,
+          "offset": 535,
+          "role": "role1",
+          "value": "sweltering temperatures"
+        },
+        {
+          "corefID": 18,
+          "len": 14,
+          "offset": 566,
+          "role": "role2",
+          "value": "100 Fahrenheit"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 3,
+          "offset": 659,
+          "role": "pred",
+          "value": "hit"
+        },
+        {
+          "len": 11,
+          "offset": 647,
+          "role": "role1",
+          "value": "the mercury"
+        },
+        {
+          "len": 33,
+          "offset": 663,
+          "role": "role2",
+          "value": "an all-time record of 106 degrees"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 22,
+          "offset": 826,
+          "role": "date",
+          "value": "on Friday and Saturday"
+        },
+        {
+          "len": 4,
+          "offset": 787,
+          "role": "pred",
+          "value": "tied"
+        },
+        {
+          "len": 38,
+          "offset": 741,
+          "role": "role2",
+          "value": "Over two dozen cities across 10 states"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 22,
+          "offset": 826,
+          "role": "date",
+          "value": "on Friday and Saturday"
+        },
+        {
+          "len": 3,
+          "offset": 780,
+          "role": "pred",
+          "value": "set"
+        },
+        {
+          "len": 38,
+          "offset": 741,
+          "role": "role2",
+          "value": "Over two dozen cities across 10 states"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 16,
+          "offset": 1010,
+          "role": "loc-TO",
+          "value": "the mid-Atlantic"
+        },
+        {
+          "len": 18,
+          "offset": 972,
+          "role": "pp-FOR",
+          "value": "millions of people"
+        },
+        {
+          "len": 10,
+          "offset": 996,
+          "role": "pp-FROM",
+          "value": "the Plains"
+        },
+        {
+          "len": 9,
+          "offset": 951,
+          "role": "pred",
+          "value": "continued"
+        },
+        {
+          "len": 13,
+          "offset": 937,
+          "role": "role1",
+          "value": "The heat wave"
+        },
+        {
+          "corefID": 37,
+          "len": 6,
+          "offset": 961,
+          "role": "role2",
+          "value": "Sunday"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 3,
+          "offset": 1058,
+          "role": "pred",
+          "value": "was"
+        },
+        {
+          "len": 29,
+          "offset": 1028,
+          "role": "role1",
+          "value": "One of the hardest hit cities"
+        },
+        {
+          "len": 25,
+          "offset": 1062,
+          "role": "role2",
+          "value": "Charlotte, North Carolina"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "corefID": 42,
+          "len": 16,
+          "offset": 1145,
+          "role": "date",
+          "value": "Sunday afternoon"
+        },
+        {
+          "len": 17,
+          "offset": 1118,
+          "role": "pp-AT",
+          "value": "about 101 degrees"
+        },
+        {
+          "len": 7,
+          "offset": 1107,
+          "role": "pred",
+          "value": "hovered"
+        },
+        {
+          "len": 11,
+          "offset": 1095,
+          "role": "role1",
+          "value": "the mercury"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 8,
+          "offset": 1182,
+          "role": "pp-TO",
+          "value": "at least"
+        },
+        {
+          "len": 8,
+          "offset": 1170,
+          "role": "pred",
+          "value": "expected"
+        },
+        {
+          "len": 11,
+          "offset": 1095,
+          "role": "role2",
+          "value": "the mercury"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 10,
+          "offset": 1235,
+          "role": "date",
+          "value": "in the day"
+        },
+        {
+          "len": 3,
+          "offset": 1191,
+          "role": "pred",
+          "value": "tie"
+        },
+        {
+          "len": 26,
+          "offset": 1195,
+          "role": "role2",
+          "value": "its all-time record of 104"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 19,
+          "offset": 1252,
+          "role": "loc-FROM",
+          "value": "St. Louis, Missouri"
+        },
+        {
+          "corefID": 48,
+          "len": 16,
+          "offset": 1276,
+          "role": "loc-TO",
+          "value": "Washington, D.C."
+        },
+        {
+          "len": 54,
+          "offset": 1317,
+          "role": "pp-FOR",
+          "value": "temperatures that could climb to more all-time records"
+        },
+        {
+          "len": 4,
+          "offset": 1308,
+          "role": "pred",
+          "value": "were"
+        },
+        {
+          "len": 13,
+          "offset": 1294,
+          "role": "role1",
+          "value": "the forecasts"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 24,
+          "offset": 1426,
+          "role": "pp-TO",
+          "value": "these extreme conditions"
+        },
+        {
+          "len": 2,
+          "offset": 1377,
+          "role": "pred",
+          "value": "is"
+        },
+        {
+          "len": 2,
+          "offset": 1374,
+          "role": "role1",
+          "value": "It"
+        },
+        {
+          "len": 30,
+          "offset": 1380,
+          "role": "role2",
+          "value": "very unsafe outdoors for those"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 76,
+          "offset": 1374,
+          "role": "quote",
+          "value": "It is very unsafe outdoors for those susceptible to these extreme conditions"
+        },
+        {
+          "corefID": 49,
+          "len": 24,
+          "offset": 1457,
+          "role": "speaker",
+          "value": "National Weather Service"
+        }
+      ],
+      "type": "quotation"
+    },
+    {
+      "args": [
+        {
+          "len": 20,
+          "offset": 1581,
+          "role": "pp-TO",
+          "value": "homes and businesses"
+        },
+        {
+          "len": 17,
+          "offset": 1552,
+          "role": "pred",
+          "value": "worked to restore"
+        },
+        {
+          "len": 7,
+          "offset": 1570,
+          "role": "role2",
+          "value": "service"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "corefID": 50,
+          "len": 6,
+          "offset": 1661,
+          "role": "pp-TO",
+          "value": "a week"
+        },
+        {
+          "len": 7,
+          "offset": 1650,
+          "role": "pred",
+          "value": "take up"
+        },
+        {
+          "len": 7,
+          "offset": 1636,
+          "role": "role1",
+          "value": "the job"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 12,
+          "offset": 1751,
+          "role": "pp-AS",
+          "value": "catastrophic"
+        },
+        {
+          "len": 17,
+          "offset": 1730,
+          "role": "pp-TO",
+          "value": "their power grids"
+        },
+        {
+          "len": 9,
+          "offset": 1710,
+          "role": "pred",
+          "value": "described"
+        },
+        {
+          "len": 40,
+          "offset": 1669,
+          "role": "role1",
+          "value": "Utilities in Ohio, Virginia and Maryland"
+        },
+        {
+          "len": 6,
+          "offset": 1720,
+          "role": "role2",
+          "value": "damage"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 11,
+          "offset": 1788,
+          "role": "location",
+          "value": "in Virginia"
+        },
+        {
+          "len": 10,
+          "offset": 1765,
+          "role": "person",
+          "value": "Six people"
+        }
+      ],
+      "type": "died"
+    },
+    {
+      "args": [
+        {
+          "corefID": 11,
+          "len": 8,
+          "offset": 1791,
+          "role": "loc-IN",
+          "value": "Virginia"
+        },
+        {
+          "len": 23,
+          "offset": 1803,
+          "role": "pp-IN",
+          "value": "storm-related incidents"
+        },
+        {
+          "len": 6,
+          "offset": 1781,
+          "role": "pred",
+          "value": "killed"
+        },
+        {
+          "len": 10,
+          "offset": 1765,
+          "role": "role2",
+          "value": "Six people"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 16,
+          "offset": 1889,
+          "role": "pp-IN",
+          "value": "the worst outage"
+        },
+        {
+          "len": 5,
+          "offset": 1880,
+          "role": "pp-WITHOUT",
+          "value": "power"
+        },
+        {
+          "len": 4,
+          "offset": 1867,
+          "role": "pred",
+          "value": "left"
+        },
+        {
+          "len": 29,
+          "offset": 1832,
+          "role": "role2",
+          "value": "more than 1 million customers"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 15,
+          "offset": 2074,
+          "role": "pp-IN",
+          "value": "the storm-one"
+        },
+        {
+          "len": 4,
+          "offset": 2066,
+          "role": "pred",
+          "value": "died"
+        },
+        {
+          "len": 22,
+          "offset": 2043,
+          "role": "role1",
+          "value": "Two Maryland residents"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "corefID": 59,
+          "len": 19,
+          "offset": 2118,
+          "role": "loc-IN",
+          "value": "Anne Arundel County"
+        },
+        {
+          "len": 6,
+          "offset": 2090,
+          "role": "pred",
+          "value": "struck"
+        },
+        {
+          "len": 14,
+          "offset": 2100,
+          "role": "role1",
+          "value": "a falling tree"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 6,
+          "offset": 2168,
+          "role": "pp-AFTER",
+          "value": "a tree"
+        },
+        {
+          "len": 12,
+          "offset": 2149,
+          "role": "pred",
+          "value": "electrocuted"
+        },
+        {
+          "len": 9,
+          "offset": 2139,
+          "role": "role2",
+          "value": "the other"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 9,
+          "offset": 2430,
+          "role": "pp-AFTER",
+          "value": "the storm"
+        },
+        {
+          "len": 7,
+          "offset": 2416,
+          "role": "pred",
+          "value": "missing"
+        },
+        {
+          "len": 23,
+          "offset": 2382,
+          "role": "role1",
+          "value": "a Chesapeake Bay boater"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 5,
+          "offset": 2479,
+          "role": "pp-WITHOUT",
+          "value": "power"
+        },
+        {
+          "len": 8,
+          "offset": 2462,
+          "role": "pred",
+          "value": "remained"
+        },
+        {
+          "len": 17,
+          "offset": 2444,
+          "role": "role1",
+          "value": "639,000 customers"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "corefID": 64,
+          "len": 36,
+          "offset": 2317,
+          "role": "organization",
+          "value": "Maryland Emergency Management Agency"
+        },
+        {
+          "corefID": 65,
+          "len": 12,
+          "offset": 2364,
+          "role": "person",
+          "value": "Ed McDonough"
+        },
+        {
+          "len": 9,
+          "offset": 2354,
+          "role": "role",
+          "value": "spokesman"
+        }
+      ],
+      "type": "role_in_org"
+    },
+    {
+      "args": [
+        {
+          "len": 14,
+          "offset": 2670,
+          "role": "cause",
+          "value": "a falling tree"
+        },
+        {
+          "len": 13,
+          "offset": 2615,
+          "role": "location",
+          "value": "In New Jersey"
+        },
+        {
+          "len": 24,
+          "offset": 2630,
+          "role": "person",
+          "value": "two cousins aged 2 and 7"
+        }
+      ],
+      "type": "died"
+    },
+    {
+      "args": [
+        {
+          "corefID": 71,
+          "len": 10,
+          "offset": 2618,
+          "role": "loc-IN",
+          "value": "New Jersey"
+        },
+        {
+          "len": 12,
+          "offset": 2688,
+          "role": "pp-IN",
+          "value": "a state park"
+        },
+        {
+          "len": 6,
+          "offset": 2660,
+          "role": "pred",
+          "value": "killed"
+        },
+        {
+          "len": 14,
+          "offset": 2670,
+          "role": "role1",
+          "value": "a falling tree"
+        },
+        {
+          "len": 24,
+          "offset": 2630,
+          "role": "role2",
+          "value": "two cousins aged 2 and 7"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 26,
+          "offset": 2748,
+          "role": "pp-FOR",
+          "value": "the deaths of two brothers"
+        },
+        {
+          "len": 6,
+          "offset": 2737,
+          "role": "pred",
+          "value": "blamed"
+        },
+        {
+          "len": 4,
+          "offset": 2728,
+          "role": "role2",
+          "value": "heat"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 29,
+          "offset": 2842,
+          "role": "pp-IN",
+          "value": "105-degree (41-degree C) heat"
+        },
+        {
+          "len": 15,
+          "offset": 2823,
+          "role": "pred",
+          "value": "playing outside"
+        },
+        {
+          "len": 4,
+          "offset": 2809,
+          "role": "role1",
+          "value": "They"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 36,
+          "offset": 3013,
+          "role": "pp-WITH",
+          "value": "about 1 million homes and businesses"
+        },
+        {
+          "len": 3,
+          "offset": 2980,
+          "role": "pred",
+          "value": "hit"
+        },
+        {
+          "len": 7,
+          "offset": 2972,
+          "role": "role1",
+          "value": "Outages"
+        },
+        {
+          "len": 23,
+          "offset": 2984,
+          "role": "role2",
+          "value": "two-thirds of the state"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 4,
+          "offset": 3111,
+          "role": "pred",
+          "value": "take"
+        },
+        {
+          "len": 2,
+          "offset": 3102,
+          "role": "role1",
+          "value": "it"
+        },
+        {
+          "len": 29,
+          "offset": 3116,
+          "role": "role2",
+          "value": "a week to fully restore power"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 9,
+          "offset": 3147,
+          "role": "occupation",
+          "value": "President"
+        },
+        {
+          "corefID": 83,
+          "len": 12,
+          "offset": 3157,
+          "role": "person",
+          "value": "Barack Obama"
+        }
+      ],
+      "type": "occupation"
+    },
+    {
+      "args": [
+        {
+          "len": 23,
+          "offset": 3273,
+          "role": "pp-IN",
+          "value": "the storm-ravaged state"
+        },
+        {
+          "len": 10,
+          "offset": 3170,
+          "role": "pred",
+          "value": "authorized"
+        },
+        {
+          "len": 22,
+          "offset": 3147,
+          "role": "role1",
+          "value": "President Barack Obama"
+        },
+        {
+          "len": 88,
+          "offset": 3181,
+          "role": "role2",
+          "value": "the Federal Emergency Management Agency (FEMA) to coordinate all disaster relief efforts"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "corefID": 84,
+          "len": 4,
+          "offset": 3222,
+          "role": "abbreviation",
+          "value": "FEMA"
+        },
+        {
+          "corefID": 84,
+          "len": 35,
+          "offset": 3185,
+          "role": "expansion",
+          "value": "Federal Emergency Management Agency"
+        }
+      ],
+      "type": "abbreviation"
+    },
+    {
+      "args": [
+        {
+          "len": 8,
+          "offset": 3321,
+          "role": "pred",
+          "value": "hard-hit"
+        },
+        {
+          "len": 21,
+          "offset": 3333,
+          "role": "role1",
+          "value": "storm-related outages"
+        },
+        {
+          "corefID": 11,
+          "len": 13,
+          "offset": 3298,
+          "role": "role2",
+          "value": "West Virginia"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "corefID": 88,
+          "len": 7,
+          "offset": 3520,
+          "role": "loc-FROM",
+          "value": "Indiana"
+        },
+        {
+          "len": 6,
+          "offset": 3500,
+          "role": "pred",
+          "value": "caused"
+        },
+        {
+          "len": 9,
+          "offset": 3490,
+          "role": "role1",
+          "value": "the storm"
+        },
+        {
+          "len": 7,
+          "offset": 3507,
+          "role": "role2",
+          "value": "outages"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 4,
+          "offset": 3553,
+          "role": "pred",
+          "value": "lost"
+        },
+        {
+          "len": 17,
+          "offset": 3535,
+          "role": "role1",
+          "value": "135,000 customers"
+        },
+        {
+          "len": 5,
+          "offset": 3558,
+          "role": "role2",
+          "value": "power"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 8,
+          "offset": 3602,
+          "role": "pred",
+          "value": "declared"
+        },
+        {
+          "corefID": 90,
+          "len": 15,
+          "offset": 3586,
+          "role": "role1",
+          "value": "Atlantic County"
+        },
+        {
+          "len": 20,
+          "offset": 3611,
+          "role": "role2",
+          "value": "a state of emergency"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 5,
+          "offset": 3676,
+          "role": "pp-WITHOUT",
+          "value": "power"
+        },
+        {
+          "len": 4,
+          "offset": 3663,
+          "role": "pred",
+          "value": "were"
+        },
+        {
+          "len": 26,
+          "offset": 3636,
+          "role": "role1",
+          "value": "at least 206,000 customers"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "corefID": 93,
+          "len": 8,
+          "offset": 3686,
+          "role": "loc-IN",
+          "value": "New York"
+        },
+        {
+          "len": 22,
+          "offset": 3719,
+          "role": "pred",
+          "value": "threatened to compound"
+        },
+        {
+          "len": 22,
+          "offset": 3696,
+          "role": "role1",
+          "value": "a heated labor dispute"
+        },
+        {
+          "len": 8,
+          "offset": 3742,
+          "role": "role2",
+          "value": "problems"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 5,
+          "offset": 3751,
+          "role": "pred",
+          "value": "posed"
+        },
+        {
+          "len": 20,
+          "offset": 3760,
+          "role": "role1",
+          "value": "the summer heat wave"
+        },
+        {
+          "len": 8,
+          "offset": 3742,
+          "role": "role2",
+          "value": "problems"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 45,
+          "offset": 3847,
+          "role": "pp-FOR",
+          "value": "New York City and suburban Westchester county"
+        },
+        {
+          "len": 19,
+          "offset": 3823,
+          "role": "pp-ON",
+          "value": "the electrical grid"
+        },
+        {
+          "len": 3,
+          "offset": 3800,
+          "role": "pred",
+          "value": "put"
+        },
+        {
+          "len": 15,
+          "offset": 3804,
+          "role": "role2",
+          "value": "an added strain"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 9,
+          "offset": 3971,
+          "role": "date",
+          "value": "on Sunday"
+        },
+        {
+          "len": 14,
+          "offset": 3987,
+          "role": "pp-AFTER",
+          "value": "contract talks"
+        },
+        {
+          "len": 10,
+          "offset": 3932,
+          "role": "pred",
+          "value": "locked out"
+        },
+        {
+          "len": 37,
+          "offset": 3894,
+          "role": "role1",
+          "value": "Power utility Consolidated Edison Inc"
+        },
+        {
+          "len": 21,
+          "offset": 3943,
+          "role": "role2",
+          "value": "its unionized workers"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 14,
+          "offset": 4127,
+          "role": "pp-FOR",
+          "value": "two more weeks"
+        },
+        {
+          "len": 15,
+          "offset": 4094,
+          "role": "pred",
+          "value": "asked to extend"
+        },
+        {
+          "len": 2,
+          "offset": 4087,
+          "role": "role1",
+          "value": "it"
+        },
+        {
+          "len": 12,
+          "offset": 4110,
+          "role": "role2",
+          "value": "negotiations"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 17,
+          "offset": 4190,
+          "role": "pp-BY",
+          "value": "its 8,500 workers"
+        },
+        {
+          "len": 14,
+          "offset": 4213,
+          "role": "pp-OVER",
+          "value": "a new contract"
+        },
+        {
+          "len": 10,
+          "offset": 4167,
+          "role": "pred",
+          "value": "threatened"
+        },
+        {
+          "len": 9,
+          "offset": 4146,
+          "role": "role1",
+          "value": "the union"
+        },
+        {
+          "len": 8,
+          "offset": 4178,
+          "role": "role2",
+          "value": "a strike"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 8,
+          "offset": 4241,
+          "role": "pp-IN",
+          "value": "response"
+        },
+        {
+          "len": 4,
+          "offset": 4260,
+          "role": "pred",
+          "value": "told"
+        },
+        {
+          "len": 8,
+          "offset": 4251,
+          "role": "role1",
+          "value": "the firm"
+        },
+        {
+          "len": 13,
+          "offset": 4265,
+          "role": "role2",
+          "value": "union members"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 11,
+          "offset": 4362,
+          "role": "pred",
+          "value": "hire to fix"
+        },
+        {
+          "len": 11,
+          "offset": 4346,
+          "role": "role1",
+          "value": "the company"
+        },
+        {
+          "len": 17,
+          "offset": 4374,
+          "role": "role2",
+          "value": "whatever problems"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 8,
+          "offset": 4425,
+          "role": "pred",
+          "value": "crank up"
+        },
+        {
+          "len": 26,
+          "offset": 4398,
+          "role": "role1",
+          "value": "as 8.2 million New Yorkers"
+        },
+        {
+          "len": 22,
+          "offset": 4434,
+          "role": "role2",
+          "value": "their air conditioners"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 9,
+          "offset": 4504,
+          "role": "date",
+          "value": "on Friday"
+        },
+        {
+          "len": 20,
+          "offset": 4517,
+          "role": "loc-IN",
+          "value": "Nashville, Tennessee"
+        },
+        {
+          "len": 6,
+          "offset": 4497,
+          "role": "pred",
+          "value": "broken"
+        },
+        {
+          "len": 16,
+          "offset": 4475,
+          "role": "role2",
+          "value": "Records for June"
+        }
+      ],
+      "type": "generic"
+    },
+    {
+      "args": [
+        {
+          "len": 15,
+          "offset": 4637,
+          "role": "pp-IN",
+          "value": "all four cities"
+        },
+        {
+          "len": 3,
+          "offset": 4608,
+          "role": "pred",
+          "value": "hit"
+        },
+        {
+          "len": 15,
+          "offset": 4592,
+          "role": "role1",
+          "value": "The temperature"
+        },
+        {
+          "len": 14,
+          "offset": 4612,
+          "role": "role2",
+          "value": "at least 104 F"
+        }
+      ],
+      "type": "generic"
+    }
+  ],
+  "sentences": [
+    {
+      "len": 269,
+      "offset": 0,
+      "sentence": 0
+    },
+    {
+      "len": 236,
+      "offset": 270,
+      "sentence": 1
+    },
+    {
+      "len": 233,
+      "offset": 507,
+      "sentence": 2
+    },
+    {
+      "len": 195,
+      "offset": 741,
+      "sentence": 3
+    },
+    {
+      "len": 90,
+      "offset": 937,
+      "sentence": 4
+    },
+    {
+      "len": 218,
+      "offset": 1028,
+      "sentence": 5
+    },
+    {
+      "len": 125,
+      "offset": 1247,
+      "sentence": 6
+    },
+    {
+      "len": 129,
+      "offset": 1373,
+      "sentence": 7
+    },
+    {
+      "len": 165,
+      "offset": 1503,
+      "sentence": 8
+    },
+    {
+      "len": 95,
+      "offset": 1669,
+      "sentence": 9
+    },
+    {
+      "len": 277,
+      "offset": 1765,
+      "sentence": 10
+    },
+    {
+      "len": 240,
+      "offset": 2043,
+      "sentence": 11
+    },
+    {
+      "len": 201,
+      "offset": 2284,
+      "sentence": 12
+    },
+    {
+      "len": 128,
+      "offset": 2486,
+      "sentence": 13
+    },
+    {
+      "len": 86,
+      "offset": 2615,
+      "sentence": 14
+    },
+    {
+      "len": 106,
+      "offset": 2702,
+      "sentence": 15
+    },
+    {
+      "len": 63,
+      "offset": 2809,
+      "sentence": 16
+    },
+    {
+      "len": 98,
+      "offset": 2873,
+      "sentence": 17
+    },
+    {
+      "len": 103,
+      "offset": 2972,
+      "sentence": 18
+    },
+    {
+      "len": 70,
+      "offset": 3076,
+      "sentence": 19
+    },
+    {
+      "len": 150,
+      "offset": 3147,
+      "sentence": 20
+    },
+    {
+      "len": 176,
+      "offset": 3298,
+      "sentence": 21
+    },
+    {
+      "len": 207,
+      "offset": 3475,
+      "sentence": 22
+    },
+    {
+      "len": 210,
+      "offset": 3683,
+      "sentence": 23
+    },
+    {
+      "len": 175,
+      "offset": 3894,
+      "sentence": 24
+    },
+    {
+      "len": 167,
+      "offset": 4070,
+      "sentence": 25
+    },
+    {
+      "len": 74,
+      "offset": 4238,
+      "sentence": 26
+    },
+    {
+      "len": 161,
+      "offset": 4313,
+      "sentence": 27
+    },
+    {
+      "len": 116,
+      "offset": 4475,
+      "sentence": 28
+    },
+    {
+      "len": 104,
+      "offset": 4592,
+      "sentence": 29
+    },
+    {
+      "len": 224,
+      "offset": 4697,
+      "sentence": 30,
+      "zone": "irregular"
+    }
+  ]
+}
+
