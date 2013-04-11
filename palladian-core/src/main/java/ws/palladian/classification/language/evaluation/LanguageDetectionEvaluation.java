@@ -7,7 +7,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.language.JLangDetect;
 import ws.palladian.classification.language.LanguageClassifier;
 import ws.palladian.classification.language.PalladianLangDetect;
 import ws.palladian.classification.language.TagTheNetLangDetect;
@@ -35,7 +34,7 @@ public class LanguageDetectionEvaluation {
         LOGGER.info("evaluate JLangDetect vs. Google vs. Alchemy vs. Palladian");
         StopWatch sw = new StopWatch();
 
-        LanguageClassifier jLangDetectClassifier = new JLangDetect();
+        // LanguageClassifier jLangDetectClassifier = new JLangDetect();
         // LanguageClassifier googleLanguageClassifier = new GoogleLangDetect();
         // LanguageClassifier alchemyLanguageClassifier = new AlchemyLangDetect();
         LanguageClassifier palladianClassifier = new PalladianLangDetect(PALLADIAN_MODEL_PATH);
@@ -81,14 +80,14 @@ public class LanguageDetectionEvaluation {
             boolean ttn = false;
 
             // jlang
-            String jLangClass = jLangDetectClassifier.classify(document);
-            if (correctLanguage.equals(jLangClass)) {
-                jLangCorrect++;
-                jlang = true;
-            }
-            if (jLangClass.length() > 0) {
-                jLangClassified++;
-            }
+            // String jLangClass = jLangDetectClassifier.classify(document);
+            // if (correctLanguage.equals(jLangClass)) {
+            // jLangCorrect++;
+            // jlang = true;
+            // }
+            // if (jLangClass.length() > 0) {
+            // jLangClassified++;
+            // }
 
             // google
             // String googleClass = googleLanguageClassifier.classify(document.substring(0,
@@ -134,7 +133,7 @@ public class LanguageDetectionEvaluation {
 
             double percent = 100.0 * MathHelper.round(lineCount / (double) totalLines, 2);
             LOGGER.info("line " + lineCount + ", " + percent + "% ("
-                    + jLangDetectClassifier.mapLanguageCode(correctLanguage) + ") -> jlang: " + jlang + " | google: "
+                    + palladianClassifier.mapLanguageCode(correctLanguage) + ") -> jlang: " + jlang + " | google: "
                     + google + " | alchemy: " + alchemy + " | palladian: " + palladian + " | tagthenet: " + ttn);
 
             lineCount++;

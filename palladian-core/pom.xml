@@ -110,10 +110,6 @@
 			<groupId>uk.ac.shef.wit.simmetrics</groupId>
 			<artifactId>similaritymetrics</artifactId>
 		</dependency -->
-		<dependency>
-			<groupId>com.lingway.ld</groupId>
-			<artifactId>JLangDetect</artifactId>
-		</dependency>
 		<!-- dependency>
 			<groupId>de.l3s.boilerpipe</groupId>
 			<artifactId>boilerpipe</artifactId>

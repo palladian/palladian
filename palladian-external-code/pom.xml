@@ -236,6 +236,11 @@
 			<artifactId>palladian-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+  			<groupId>me.champeau.jlangdetect</groupId>
+  			<artifactId>jlangdetect-extra</artifactId>
+  			<version>0.3</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -248,6 +253,11 @@
 		<repository>
 			<id>snapshots</id>
 			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
+		</repository>
+		<repository>
+  			<id>jlangdetect-googlecode</id>
+  			<name>JLangDetect Maven repository</name>
+  			<url>https://jlangdetect.googlecode.com/svn/repo</url>
 		</repository>
 	</repositories>
 </project>
