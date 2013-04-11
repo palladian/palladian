@@ -97,6 +97,10 @@ public class LocationExtractionEvaluator {
 
         // summary
         StringBuilder summary = new StringBuilder();
+
+        summary.append("Result for:").append(extractor.getName()).append("\n\n");
+        summary.append("Using dataset:").append(goldStandardFileFolderPath).append("\n\n");
+
         summary.append("Precision-Exact:").append(precisionExact / files.length).append('\n');
         summary.append("Recall-Exact:").append(recallExact / files.length).append('\n');
         summary.append("F1-Exact:").append(f1Exact / files.length).append('\n');

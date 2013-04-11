@@ -20,7 +20,7 @@ public final class StringTagger {
         String regexp = "";
 
         String camelCaseWords = "(GmbH|LLC)";
-        String companySuffixes = "((?<=(Inc)|(Corp)|(Co))\\.)?";
+        String suffixes = "((?<=(Inc|Corp|Co|Ave))\\.)?";
 
         // dashes (such as "Ontario-based" "Victor" or St. Louis-based)
         regexp += "([A-Z][a-z]\\. )?([A-Z]{1}[A-Za-z]+(-[a-z]+)(-[A-Za-z]+)*)";
@@ -56,12 +56,12 @@ public final class StringTagger {
         // prevent mixtures of mix camel cases => "Veronica Swenston VENICE" should be two matches
         regexp += "|";
         regexp += "([A-Z]{1}([a-z-0-9®]+)(( " + camelCaseWords + ")?(([ &])*([A-Z]['’])?[A-Z]{1}([a-z-0-9®]+))?)*)"
-                + companySuffixes;
+                + suffixes;
 
         // names (such as "O'Sullivan"), compounds such as "D&G"
         regexp += "|";
         regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+|['’][A-Z][A-Za-z]{2,20}))+(([ &])*[A-Z]+(['’][A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9®]*)){0,10})(?!(\\.[A-Z])+))"
-                + companySuffixes;
+                + suffixes;
 
         // regexp += "|";
         // regexp +=
