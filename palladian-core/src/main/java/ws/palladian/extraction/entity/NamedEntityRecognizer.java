@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
+import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -54,70 +54,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     }
 
     protected String tagText(String inputText, List<? extends Annotated> annotations) {
-
-        return tag(inputText, annotations, taggingFormat);
-
-    }
-
-    public static String tag(String inputText, List<? extends Annotated> annotations, TaggingFormat taggingFormat) {
-        StringBuilder taggedText = new StringBuilder();
-
-        int lastEndIndex = 0;
-
-        // we need to sort in ascending order first
-        Collections.sort(annotations);
-
-        Annotated lastAnnotation = null;
-        for (Annotated annotation : annotations) {
-
-            // ignore nested annotations
-            if (annotation.getStartPosition() < lastEndIndex) {
-                continue;
-            }
-
-            String tagName = annotation.getTag();
-
-            taggedText.append(inputText.substring(lastEndIndex, annotation.getStartPosition()));
-
-            String correctText = inputText.substring(annotation.getStartPosition(), annotation.getEndPosition());
-
-            if (!correctText.equalsIgnoreCase(annotation.getValue()) && correctText.indexOf("\n") == -1) {
-                StringBuilder errorString = new StringBuilder();
-                errorString.append("alignment error, the annotation candidates don't match the text:\n");
-                errorString.append("found: " + correctText + "\n");
-                errorString.append("instead of: " + annotation.getValue() + "(" + annotation + ")\n");
-                errorString.append("last annotation: " + lastAnnotation);
-                throw new IllegalStateException(errorString.toString());
-            }
-
-            if (taggingFormat == TaggingFormat.XML) {
-
-                taggedText.append("<").append(tagName).append(">");
-                taggedText.append(annotation.getValue());
-                taggedText.append("</").append(tagName).append(">");
-
-            } else if (taggingFormat == TaggingFormat.BRACKETS) {
-
-                taggedText.append("[").append(tagName).append(" ");
-                taggedText.append(annotation.getValue());
-                taggedText.append(" ]");
-
-            } else if (taggingFormat == TaggingFormat.SLASHES) {
-
-                List<String> tokens = Tokenizer.tokenize(annotation.getValue());
-                for (String token : tokens) {
-                    taggedText.append(token).append("/").append(tagName).append(" ");
-                }
-
-            }
-
-            lastEndIndex = annotation.getEndPosition();
-            lastAnnotation = annotation;
-        }
-
-        taggedText.append(inputText.substring(lastEndIndex));
-
-        return taggedText.toString();
+        return NerHelper.tag(inputText, annotations, taggingFormat);
     }
 
     /**
