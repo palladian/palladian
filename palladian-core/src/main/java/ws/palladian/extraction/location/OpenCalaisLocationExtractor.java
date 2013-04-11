@@ -7,7 +7,7 @@ import java.util.Map;
 import ws.palladian.extraction.entity.tagger.OpenCalaisNer;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public class OpenCalaisLocationExtractor extends WebBasedLocationExtractor {
+public class OpenCalaisLocationExtractor extends MappingLocationExtractor {
 
     private static final Map<String, LocationType> LOCATION_MAPPING;
 
