@@ -17,6 +17,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.FeatureVector;
@@ -30,7 +31,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * 
  * @author David Urbansky
  */
-public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor {
+public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor implements Tagger {
 
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
@@ -40,6 +41,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
 
+    @Override
     public abstract List<? extends Annotated> getAnnotations(String inputText);
 
     public String tag(String inputText) {

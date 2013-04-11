@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.extraction.TagAnnotation;
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -304,8 +304,8 @@ public final class LingPipePhraseChunker implements PhraseChunker {
       Chunking chunking = this.chunk(characters, 0, characters.length);
       List<Annotated> tagAnnotations = CollectionHelper.newArrayList();
       for (Chunk chunk : chunking.chunkSet()) {
-          TagAnnotation tagAnnotation = new TagAnnotation(chunk.start(), chunk.type(), sentence.substring(chunk
-                  .start(), chunk.end()));
+            Annotation tagAnnotation = new Annotation(chunk.start(), sentence.substring(chunk.start(), chunk.end()),
+                    chunk.type());
           tagAnnotations.add(tagAnnotation);
       }
       return tagAnnotations;

@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
@@ -445,7 +446,7 @@ public final class Tokenizer {
     public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
 
         // recognize URLs so we don't break them
-        List<Annotated> taggedUrls = URL_TAGGER.tagUrls(inputText);
+        List<Annotated> taggedUrls = URL_TAGGER.getAnnotations(inputText);
         int uCount = 1;
         Map<String, String> urlMapping = new HashMap<String, String>();
         for (Annotated annotation : taggedUrls) {
@@ -467,7 +468,7 @@ public final class Tokenizer {
         }
 
         // recognize smileys so we don't break them
-        List<Annotated> taggedSmileys = SMILEY_TAGGER.tagSmileys(inputText);
+        List<Annotated> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
         int sCount = 1;
         Map<String, String> smileyMapping = new HashMap<String, String>();
         for (Annotated annotation : taggedSmileys) {
@@ -633,15 +634,15 @@ public final class Tokenizer {
         String maskedText = inputDocument.getContent();
 
         // recognize URLs so we don't break them
-        List<Annotated> taggedUrlsAnnotations = URL_TAGGER.tagUrls(inputText);
+        List<Annotated> taggedUrlsAnnotations = URL_TAGGER.getAnnotations(inputText);
         maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
 
         // recognize dates so we don't break them
-        List<Annotated> taggedDates = DATE_TIME_TAGGER.tagDateAndTime(inputText);
+        List<Annotated> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
         maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
 
         // recognize smileys so we don't break them
-        List<Annotated> taggedSmileys = SMILEY_TAGGER.tagSmileys(inputText);
+        List<Annotated> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
         maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
 
         List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();

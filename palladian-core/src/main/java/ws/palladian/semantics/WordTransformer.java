@@ -11,7 +11,7 @@ import java.util.Set;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import ws.palladian.extraction.pos.PosTagger;
+import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -567,8 +567,8 @@ public class WordTransformer {
      * @param string The English sentence.
      * @return The detected English tense.
      */
-    public static EnglishTense getTense(String string, PosTagger posTagger) {
-        return getTense(string, posTagger.tag(string));
+    public static EnglishTense getTense(String string, BasePosTagger posTagger) {
+        return getTense(string, posTagger.getAnnotations(string));
     }
 
     public static EnglishTense getTense(String string, List<Annotated> annotations) {

@@ -52,7 +52,7 @@ public class TweetNlpPosTagger extends BasePosTagger {
     public static void main(String[] args) {
         TweetNlpPosTagger posTagger = new TweetNlpPosTagger();
         List<Annotated> tags = posTagger
-                .tag("I predict I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh");
+                .getAnnotations("I predict I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh");
         for (Annotated tagAnnotation : tags) {
             System.out.println(tagAnnotation);
         }

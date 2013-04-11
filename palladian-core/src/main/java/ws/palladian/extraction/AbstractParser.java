@@ -7,6 +7,7 @@ import opennlp.tools.parser.Parse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -95,8 +96,8 @@ public abstract class AbstractParser {
             for (int i = 0; i < parse.getChildCount(); i++) {
                 final Parse child = parse.getChildren()[i];
                 if (!child.getType().equals("TK")) {
-                    tagAnnotations.add(new TagAnnotation(0, child.getType(), child.getText().substring(
-                            child.getSpan().getStart(), child.getSpan().getEnd())));
+                    tagAnnotations.add(new Annotation(0, child.getText().substring(child.getSpan().getStart(),
+                            child.getSpan().getEnd()), child.getType()));
                     parse2Annotations(child, tagAnnotations);
                 }
             }

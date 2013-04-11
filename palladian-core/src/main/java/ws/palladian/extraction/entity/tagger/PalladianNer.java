@@ -729,14 +729,14 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         // recognize and add URLs, remove annotations that were part of a URL
         if (isTagUrls()) {
             UrlTagger urlTagger = new UrlTagger();
-            annotations.addAll(urlTagger.tagUrls(inputText));
+            annotations.addAll(urlTagger.getAnnotations(inputText));
             annotations.removeNested();
         }
 
         // recognize and add dates, remove annotations that were part of a date
         if (isTagDates()) {
             DateAndTimeTagger datTagger = new DateAndTimeTagger();
-            annotations.addAll(datTagger.tagDateAndTime(inputText));
+            annotations.addAll(datTagger.getAnnotations(inputText));
             annotations.removeNested();
         }
 
