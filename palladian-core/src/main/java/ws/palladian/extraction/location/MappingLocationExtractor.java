@@ -7,24 +7,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
+import ws.palladian.helper.collection.CaseInsensitiveMap;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotated;
 
-public abstract class WebBasedLocationExtractor extends LocationExtractor {
+public class MappingLocationExtractor extends LocationExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebBasedLocationExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MappingLocationExtractor.class);
 
     private final NamedEntityRecognizer entityRecognizer;
-    private final Map<String, LocationType> mapping;
+    private final CaseInsensitiveMap<LocationType> mapping;
 
-    public WebBasedLocationExtractor(NamedEntityRecognizer entityRecognizer, Map<String, LocationType> mapping) {
+    public MappingLocationExtractor(NamedEntityRecognizer entityRecognizer, Map<String, LocationType> mapping) {
         this.entityRecognizer = entityRecognizer;
-        this.mapping = mapping;
+        this.mapping = CaseInsensitiveMap.from(mapping);
     }
 
     protected LocationType map(String value) {
-        return mapping.get(value.toLowerCase());
+        return mapping.get(value);
     }
 
     @Override

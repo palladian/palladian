@@ -7,7 +7,7 @@ import java.util.Map;
 import ws.palladian.extraction.entity.tagger.AlchemyNer;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public class AlchemyLocationExtractor extends WebBasedLocationExtractor {
+public class AlchemyLocationExtractor extends MappingLocationExtractor {
 
     private static final Map<String, LocationType> LOCATION_MAPPING;
 

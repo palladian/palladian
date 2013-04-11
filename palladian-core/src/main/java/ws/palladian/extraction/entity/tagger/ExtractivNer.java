@@ -22,7 +22,8 @@ import ws.palladian.retrieval.helper.HttpHelper;
 /**
  * <p>
  * Named Entity Recognizer from <a href="http://extractiv.com">Extractiv</a>. The web page says, the service is no
- * longer offered, but the NER service still works.
+ * longer offered, but the NER service still works. Supported entity types can be found <a
+ * href="http://wiki.extractiv.com/w/page/29179775/Entity%20Extraction">here</a>.
  * </p>
  * 
  * @author Katja Pfeifer
