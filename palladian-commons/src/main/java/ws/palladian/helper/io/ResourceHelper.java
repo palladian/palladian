@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * <p>
  * Helper class to handle resources. <b>Attention:</b> This class is only intended to load resources in JUnit tests, it
@@ -31,12 +33,14 @@ public final class ResourceHelper {
      * </p>
      * 
      * @param resourceLocation
-     *            Relative path to the desired resource in the class path.
+     *            Relative path to the desired resource in the class path, not <code>null</code> or empty.
      * @return Absolute, operating system specific path.
      * @throws FileNotFoundException
      *             If the file cannot be found at the specified location.
      */
     public static String getResourcePath(String resourceLocation) throws FileNotFoundException {
+        checkJUnit();
+        Validate.notEmpty(resourceLocation, "resourceLocation must not be empty");
 
         resourceLocation = stripPath(resourceLocation);
 
@@ -76,11 +80,13 @@ public final class ResourceHelper {
      * Get a File with full path relative to the class path.
      * </p>
      * 
-     * @param resourceLocation Relative path to the desired resource in the class path.
+     * @param resourceLocation Relative path to the desired resource in the class path, not <code>null</code> or empty.
      * @return File with absolute, operating system specific path.
      * @throws FileNotFoundException If the file cannot be found at the specified location.
      */
     public static File getResourceFile(String resourceLocation) throws FileNotFoundException {
+        checkJUnit();
+        Validate.notEmpty(resourceLocation, "resourceLocation must not be empty");
         String resourcePath = getResourcePath(resourceLocation);
         return new File(resourcePath);
     }
@@ -90,11 +96,13 @@ public final class ResourceHelper {
      * Get an InputStream from a file with a path relative to the class path.
      * </p>
      * 
-     * @param resourceLocation Relative path to the desired resource in the class path.
+     * @param resourceLocation Relative path to the desired resource in the class path, not <code>null</code> or empty.
      * @return The InputStream for the specified file path.
      * @throws FileNotFoundException If the file cannot be found at the specified location.
      */
     public static InputStream getResourceStream(String resourceLocation) throws FileNotFoundException {
+        checkJUnit();
+        Validate.notEmpty(resourceLocation, "resourceLocation must not be empty");
 
         resourceLocation = stripPath(resourceLocation);
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceLocation);
@@ -104,6 +112,20 @@ public final class ResourceHelper {
         }
 
         return inputStream;
+    }
+
+    /**
+     * Verify, that this method was called from JUnit, else wise throw an {@link IllegalStateException}.
+     */
+    private static void checkJUnit() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement element : stackTrace) {
+            if (element.getClassName().startsWith("org.junit.runners")) {
+                return;
+            }
+        }
+        throw new IllegalStateException(ResourceHelper.class.getName()
+                + " must only be used for JUnit testing. See class documentation for an explanation why.");
     }
 
 }
