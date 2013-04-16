@@ -1,5 +1,6 @@
 package ws.palladian.processing.features;
 
+
 /**
  * <p>
  * Interface defining some annotated entity in a text. The annotation is characterized by its start and end position,
@@ -14,10 +15,13 @@ public interface Annotated extends Comparable<Annotated> {
 
     int getEndPosition();
 
+    int getLength();
+    
     int getIndex();
 
     String getTag();
 
     String getValue();
+
 
 }
