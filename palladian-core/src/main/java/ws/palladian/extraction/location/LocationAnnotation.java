@@ -32,10 +32,14 @@ public class LocationAnnotation implements Annotated {
     public int getEndPosition() {
         return endPosition;
     }
+    
+    @Override
+    public int getLength() {
+    	return endPosition-startPosition;
+    }
 
     @Override
     public int getIndex() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
