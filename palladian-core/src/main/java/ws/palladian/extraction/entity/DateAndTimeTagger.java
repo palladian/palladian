@@ -29,27 +29,30 @@ public class DateAndTimeTagger implements Tagger {
     private static final DateFormat[] ALL_DATES_WITH_YEARS = ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS,
             RegExp.DATE_CONTEXT_YYYY);
 
-    @Override
-    public List<Annotated> getAnnotations(String text) {
-        return tagDateAndTime(text, ALL_DATES_WITH_YEARS);
+    private final DateFormat[] dateFormats;
+
+    public DateAndTimeTagger(DateFormat... dateFormats) {
+        this.dateFormats = dateFormats;
     }
 
-    public List<Annotated> tagDateAndTime(String inputText, DateFormat[] dateFormats) {
+    public DateAndTimeTagger() {
+        this(ALL_DATES_WITH_YEARS);
+    }
 
+    @Override
+    public List<Annotated> getAnnotations(String text) {
         List<Annotated> annotations = CollectionHelper.newArrayList();
 
-        List<ExtractedDate> allDates = DateParser.findDates(inputText, dateFormats);
+        List<ExtractedDate> allDates = DateParser.findDates(text, dateFormats);
 
         for (ExtractedDate dateTime : allDates) {
 
             // get the offset
-            List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(inputText, dateTime.getDateString());
+            List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(text, dateTime.getDateString());
 
-            for (Integer integer : occurrenceIndices) {
-                Annotation annotation = new Annotation(integer, dateTime.getDateString(), DATETIME_TAG_NAME);
-                annotations.add(annotation);
+            for (Integer index : occurrenceIndices) {
+                annotations.add(new Annotation(index, dateTime.getDateString(), DATETIME_TAG_NAME));
             }
-
         }
 
         return annotations;

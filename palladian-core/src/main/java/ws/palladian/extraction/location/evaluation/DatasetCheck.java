@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
 import java.util.Map;
@@ -6,6 +6,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.extraction.entity.FileFormatParser;
+import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.Factory;
@@ -44,19 +48,33 @@ final class DatasetCheck {
         if (datasetFiles.length == 0) {
             throw new IllegalStateException("No text files found in '" + datasetDirectory + "'");
         }
-        CountMap<String> assignedTags = CountMap.create();
         
+        // keep tag -> values
+        Map<String, CountMap<String>> assignedTagCounts = LazyMap.create(new Factory<CountMap<String>>() {
+            @Override
+            public CountMap<String> create() {
+                return CountMap.create();
+            }
+        });
+
+        int tokenCount = 0;
+
         for (File file : datasetFiles) {
             String filePath = file.getAbsolutePath();
             String fileName = file.getName();
             String stringContent = FileHelper.readFileToString(filePath);
             Matcher matcher = TAG_REGEX.matcher(stringContent);
+
+            // keep value -> assigned tags
             Map<String, Set<String>> valueTags = LazyMap.create(new Factory<Set<String>>() {
                 @Override
                 public Set<String> create() {
                     return CollectionHelper.newHashSet();
                 }
             });
+
+            // get token count
+            tokenCount += Tokenizer.tokenize(FileFormatParser.getText(filePath, TaggingFormat.XML)).size();
 
             while (matcher.find()) {
 
@@ -105,8 +123,8 @@ final class DatasetCheck {
                     System.out.println("[warn] '" + content + "' ends with white space in " + fileName);
                 }
 
-                assignedTags.add(openingTag);
-                valueTags.get(content).add(openingTag);
+                valueTags.get(content.toLowerCase()).add(openingTag);
+                assignedTagCounts.get(openingTag).add(content.toLowerCase());
             }
 
             // check, whether all annotations with a specific value in the text have the same tag; if not, this is not
@@ -124,15 +142,26 @@ final class DatasetCheck {
 
         }
         
-        System.out.println("\n\n\n");
+        System.out.println('\n');
         System.out.println("Assigned tags:");
-        for (String tag : assignedTags) {
-            System.out.println(tag + " " + assignedTags.getCount(tag));
+        int totalTags = 0;
+        int totalUniqueTags = 0;
+        for (String tag : assignedTagCounts.keySet()) {
+            int count = assignedTagCounts.get(tag).totalSize();
+            int uniqueCount = assignedTagCounts.get(tag).uniqueSize();
+            System.out.println(tag + " total: " + count + ", unique: " + uniqueCount);
+            totalTags += count;
+            totalUniqueTags += uniqueCount;
         }
+        System.out.println();
+        System.out.println("# total: " + totalTags);
+        System.out.println("# unique: " + totalUniqueTags);
+        System.out.println("# tokens: " + tokenCount);
+        System.out.println();
+        System.out.println("# texts: " + datasetFiles.length);
     }
 
     public static void main(String[] args) {
-        // performCheck(new File("/Users/pk/Desktop/LocationLab/LocationExtractionDataset"));
         performCheck(new File("/Users/pk/Desktop/LocationLab/LocationDatasetUliana"));
     }
 
