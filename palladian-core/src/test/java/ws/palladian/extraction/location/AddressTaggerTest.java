@@ -15,9 +15,10 @@ public class AddressTaggerTest {
 
     @Test
     public void testAddressTagger() throws FileNotFoundException {
+        AddressTagger addressTagger = new AddressTagger();
         String textFile = ResourceHelper.getResourcePath("/testTextAddresses.txt");
         String text = FileFormatParser.getText(textFile, TaggingFormat.XML);
-        List<LocationAnnotation> locationAnnotations = AddressTagger.tag(text);
+        List<LocationAnnotation> locationAnnotations = addressTagger.getAnnotations(text);
 
         assertEquals(10, locationAnnotations.size());
         LocationAnnotation annotation = locationAnnotations.get(0);
@@ -40,8 +41,8 @@ public class AddressTaggerTest {
         assertEquals(5858, annotation.getStartPosition());
         assertEquals(LocationType.STREET, annotation.getLocation().getType());
 
-        locationAnnotations = AddressTagger
-                .tag("P. SEGAL (writer whose apartment at 1907 Golden Gate Ave. served as Cacophony headquarters)");
+        locationAnnotations = addressTagger
+                .getAnnotations("P. SEGAL (writer whose apartment at 1907 Golden Gate Ave. served as Cacophony headquarters)");
         assertEquals(2, locationAnnotations.size());
         assertEquals("1907", locationAnnotations.get(0).getValue());
         assertEquals(LocationType.STREETNR, locationAnnotations.get(0).getLocation().getType());

@@ -267,7 +267,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         // last step, recognize streets. For also extracting ZIP codes, this needs to be better integrated into above's
         // workflow. We should use the CITY annotations, to search for neighboring ZIP codes.
-        List<LocationAnnotation> annotatedStreets = AddressTagger.tag(text);
+        AddressTagger addressTagger = new AddressTagger();
+        List<LocationAnnotation> annotatedStreets = addressTagger.getAnnotations(text);
         locationEntities.addAll(annotatedStreets);
 
         return locationEntities;

@@ -10,9 +10,8 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -22,13 +21,14 @@ import ws.palladian.processing.features.Annotated;
  * 
  * @author Philipp Katz
  */
-public final class AddressTagger {
+public final class AddressTagger implements Tagger {
 
     public static final Pattern STREET_PATTERN = Pattern.compile(
                     ".*street$|.*road$|.*avenue$|.*ave\\.|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
             Pattern.CASE_INSENSITIVE);
 
-    public static List<LocationAnnotation> tag(String text) {
+    @Override
+    public List<LocationAnnotation> getAnnotations(String text) {
         List<LocationAnnotation> ret = CollectionHelper.newArrayList();
 
         // TODO StringTagger is too strict here, e.g. the following candidate is not recognized:
@@ -83,17 +83,6 @@ public final class AddressTagger {
         Collections.sort(ret);
 
         return ret;
-    }
-
-    private AddressTagger() {
-        // no instance.
-    }
-
-    public static void main(String[] args) {
-        String text = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text2.txt");
-        text = HtmlHelper.stripHtmlTags(text);
-        List<LocationAnnotation> result = tag(text);
-        CollectionHelper.print(result);
     }
 
 }

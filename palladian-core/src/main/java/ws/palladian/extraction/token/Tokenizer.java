@@ -62,7 +62,7 @@ public final class Tokenizer {
             RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
 
     private static final UrlTagger URL_TAGGER = new UrlTagger();
-    private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger();
+    private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger(ALL_DATES_WITH_DOTS);
     private static final SmileyTagger SMILEY_TAGGER = new SmileyTagger();
 
     /**
@@ -457,7 +457,7 @@ public final class Tokenizer {
         }
 
         // recognize dates so we don't break them
-        List<Annotated> taggedDates = DATE_TIME_TAGGER.tagDateAndTime(inputText, ALL_DATES_WITH_DOTS);
+        List<Annotated> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
         int dCount = 1;
         Map<String, String> dateMapping = new HashMap<String, String>();
         for (Annotated annotation : taggedDates) {
