@@ -81,6 +81,9 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
             String requestUrl = buildRequest(query, page, Math.min(100, resultCount - results.size()), language);
             JsonObjectWrapper json = new JsonObjectWrapper(documentRetriever.getText(requestUrl));
             JSONArray jsonArray = json.getJSONArray("hits");
+            if (jsonArray == null) {
+                throw new SearcherException("failed to get json array from: " + requestUrl);
+            }
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
                     JsonObjectWrapper resultHit = new JsonObjectWrapper(jsonArray.getJSONObject(i));
