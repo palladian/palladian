@@ -65,6 +65,10 @@ public class YahooLocationExtractor extends LocationExtractor {
         temp.put("Sea", LocationType.LANDMARK);
         temp.put("Zip", LocationType.ZIP);
         temp.put("Ocean", LocationType.LANDMARK);
+        temp.put("Estate", LocationType.POI);
+        temp.put("LocalAdmin", LocationType.UNIT);
+        temp.put("HistoricalTown", LocationType.CITY);
+        temp.put("HistoricalCounty", LocationType.COUNTRY);
         TYPE_MAPPING = Collections.unmodifiableMap(temp);
     }
 
