@@ -43,6 +43,12 @@ public class YahooLocationExtractorTest {
         assertEquals(1, alternativeNames.size());
         assertEquals("Mali", alternativeNames.iterator().next().getName());
         assertEquals(153, annotations.get(1).getStartPosition());
+
+        // no annotations
+        annotations = YahooLocationExtractor
+                .parseJson("No locations in here",
+                        "{\"query\":{\"count\":1,\"created\":\"2013-04-18T15:04:16Z\",\"lang\":\"en-US\",\"results\":{\"matches\":null}}}");
+        assertEquals(0, annotations.size());
     }
 
 }
