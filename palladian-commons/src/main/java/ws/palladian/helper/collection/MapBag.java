@@ -26,6 +26,10 @@ public class MapBag {
         map = CollectionHelper.newHashMap();
     }
 
+    public Set<String> getAllBagEntries() {
+        return map.keySet();
+    }
+
     public void newBag(String bagKey) {
         map.put(bagKey, map.values().size());
     }
