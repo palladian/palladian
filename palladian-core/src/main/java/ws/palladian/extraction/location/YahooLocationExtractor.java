@@ -105,8 +105,11 @@ public class YahooLocationExtractor extends LocationExtractor {
 
     static List<LocationAnnotation> parseJson(String text, String response) throws JSONException {
 
-        JSONObject jsonResult = new JSONObject(response);
-        JSONObject jsonObject = jsonResult.getJSONObject("query").getJSONObject("results").getJSONObject("matches");
+        JSONObject jsonResults = new JSONObject(response).getJSONObject("query").getJSONObject("results");
+        if (jsonResults.isNull("matches")) {
+            return Collections.emptyList();
+        }
+        JSONObject jsonObject = jsonResults.getJSONObject("matches");
 
         // for sorting the annotations, as the web service does not return them in order
         SortedMap<Integer, JSONObject> tempReferences = new TreeMap<Integer, JSONObject>();
