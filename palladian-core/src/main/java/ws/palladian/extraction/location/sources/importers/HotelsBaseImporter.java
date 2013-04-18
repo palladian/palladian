@@ -24,22 +24,22 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  * @see <a href="http://api.hotelsbase.org/apiAccess.php">HotelBase</a>
  * @author David Urbansky
  */
-public final class HotelBaseImporter {
+public final class HotelsBaseImporter {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(HotelBaseImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HotelsBaseImporter.class);
 
     /** The store where the imported locations are saved. */
     private final LocationStore locationStore;
 
     /**
      * <p>
-     * Create a new {@link HotelBaseImporter}.
+     * Create a new {@link HotelsBaseImporter}.
      * </p>
      * 
      * @param locationStore The {@link LocationStore} where to store the data, not <code>null</code>.
      */
-    public HotelBaseImporter(LocationStore locationStore) {
+    public HotelsBaseImporter(LocationStore locationStore) {
         Validate.notNull(locationStore, "locationStore must not be null");
         this.locationStore = locationStore;
     }
@@ -78,7 +78,7 @@ public final class HotelBaseImporter {
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
 
         String locationFilePath = "/Users/pk/Dropbox/LocationLab/hotelsbase.csv";
-        HotelBaseImporter importer = new HotelBaseImporter(locationStore);
+        HotelsBaseImporter importer = new HotelsBaseImporter(locationStore);
         importer.importLocations(locationFilePath);
     }
 
