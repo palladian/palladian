@@ -22,9 +22,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.features.Annotated;
 
-public class LocationExtractionEvaluator {
+public final class LocationExtractionEvaluator {
 
-    public void evaluateAll(LocationExtractor extractor, String goldStandardFileFolderPath) {
+    public static void evaluate(LocationExtractor extractor, String goldStandardFileFolderPath) {
         Validate.notNull(extractor, "extractor must not be null");
         Validate.notEmpty(goldStandardFileFolderPath, "goldStandardFileFolderPath must not be empty");
 
@@ -50,17 +50,16 @@ public class LocationExtractionEvaluator {
         double f1Muc = 0;
         double f1Exact = 0;
 
+        StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < files.length; i++) {
-            ProgressHelper.printProgress(i, files.length, 1);
+            ProgressHelper.printProgress(i, files.length, 1, stopWatch);
 
             File file = files[i];
-            // String path = "data/temp/" + file.getName();
             File file1 = new File(FileHelper.getTempDir(), file.getName());
             FileHelper.writeToFile(file1.getPath(), FileHelper.readFileToString(file).replace(" role=\"main\"", ""));
             EvaluationResult result = extractor.evaluate(file1.getAbsolutePath(), TaggingFormat.XML);
 
             // write major error log
-            // Map<ResultType, Annotations> fileErrors = result.getErrorAnnotations();
             errors.get(ResultType.CORRECT).put(file.getName(), result.getAnnotations(ResultType.CORRECT));
             errors.get(ResultType.ERROR1).put(file.getName(), result.getAnnotations(ResultType.ERROR1));
             errors.get(ResultType.ERROR2).put(file.getName(), result.getAnnotations(ResultType.ERROR2));
@@ -107,7 +106,9 @@ public class LocationExtractionEvaluator {
         summary.append('\n');
         summary.append("Precision-MUC:").append(precisionMuc / files.length).append('\n');
         summary.append("Recall-MUC:").append(recallMuc / files.length).append('\n');
-        summary.append("F1-MUC:").append(f1Muc / files.length).append('\n');
+        summary.append("F1-MUC:").append(f1Muc / files.length).append("\n\n");
+
+        summary.append("Elapsed time:").append(stopWatch.getTotalElapsedTimeString()).append('\n');
 
         StringBuilder detailedOutput = new StringBuilder();
         detailedOutput.append(summary.toString().replace(':', ';'));
@@ -134,24 +135,20 @@ public class LocationExtractionEvaluator {
         System.out.println(summary);
     }
 
+    private LocationExtractionEvaluator() {
+        // utility class.
+    }
+
     public static void main(String[] args) {
         String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
-        // String DATASET_LOCATION = "/Users/pk/Desktop/tmp";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
-        LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        // Map<String, Double> results = evaluator.evaluateAll(
-        // new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
-        // Map<String, Double> results = evaluator.evaluateAll(new AlchemyLocationExtractor(
-        // "b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
-        // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
+        // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
+        // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
+        // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
 
-        StopWatch stopWatch = new StopWatch();
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        // LocationSource database = new NewsSeecrLocationSource("tr1dn3mc0bdhzzjngkvzahqloxph0e");
-        evaluator.evaluateAll(new PalladianLocationExtractor(database), DATASET_LOCATION);
-
-        System.out.println(stopWatch.getElapsedTimeString());
+        evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
     }
 
 }
