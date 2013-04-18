@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.ImmutableLocation;
-import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
