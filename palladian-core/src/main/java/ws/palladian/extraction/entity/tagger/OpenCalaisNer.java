@@ -140,10 +140,12 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         int cumulatedOffset = 0;
         for (String textChunk : textChunks) {
 
+            String response = null;
+
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
+                response = HttpHelper.getStringContent(httpResult);
 
                 JSONObject json = new JSONObject(response);
 
@@ -176,10 +178,10 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                     }
                 }
 
-            } catch (JSONException e) {
-                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             } catch (HttpException e) {
-                LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+                LOGGER.error("Error performing HTTP POST: {}", e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.error("Could not parse the JSON response: {}, exception: {}", response, e.getMessage());
             }
 
             cumulatedOffset += textChunk.length();
