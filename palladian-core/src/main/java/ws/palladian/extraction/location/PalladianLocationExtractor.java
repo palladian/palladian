@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.ContextAnnotation;
-import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -56,7 +54,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
 
-    public static final Map<String, Double> CASE_DICTIONARY;
+    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
 
     static {
         skipWords = new HashSet<String>();
@@ -72,23 +70,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
                     }
                 });
 
-        CASE_DICTIONARY = CollectionHelper.newHashMap();
-
-        List<String> array;
-        array = FileHelper.readFileToArray(PalladianLocationExtractor.class.getResourceAsStream("/caseDictionary.csv"));
-
-        for (String string : array) {
-
-            String[] parts = string.split("\t");
-            String ratio = parts[3];
-            if (ratio.equalsIgnoreCase("infinity")) {
-                CASE_DICTIONARY.put(parts[0], 99999.0);
-            } else {
-                CASE_DICTIONARY.put(parts[0], Double.valueOf(ratio));
-            }
-
-        }
-
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
@@ -100,16 +81,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         List<LocationAnnotation> locationEntities = CollectionHelper.newArrayList();
 
-        List<ContextAnnotation> taggedEntities = StringTagger.getTaggedEntities(text);
-
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
+        List<Annotated> taggedEntities = tagger.getAnnotations(text);
         filterPersonEntities(taggedEntities);
-        // filterNonEntities(taggedEntities, text);
-        taggedEntities = filterNonEntities(taggedEntities, text);
-        filterNonEntitiesWithCaseDictionary(taggedEntities, text);
-
-        // CollectionHelper.print(taggedEntities);
 
         Set<Collection<Location>> ambiguousLocations = CollectionHelper.newHashSet();
 
@@ -448,43 +423,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
             LOGGER.debug("-----------");
         }
 
-    }
-
-    private void filterNonEntitiesWithCaseDictionary(List<? extends Annotated> taggedEntities, String text) {
-        Iterator<? extends Annotated> iterator = taggedEntities.iterator();
-        while (iterator.hasNext()) {
-            Annotated current = iterator.next();
-            String value = current.getValue();
-
-            Double ratio = CASE_DICTIONARY.get(value.toLowerCase());
-            if (ratio != null && ratio > 1.0) {
-                iterator.remove();
-                LOGGER.debug("remove " + value + " because of lc/uc ratio of " + ratio);
-            }
-        }
-    }
-
-    private List<ContextAnnotation> filterNonEntities(List<ContextAnnotation> taggedEntities, String text) {
-        Map<String, String> result = EntityPreprocessor.correctAnnotations(text, CASE_DICTIONARY);
-        List<ContextAnnotation> filtered = CollectionHelper.newArrayList();
-
-        Iterator<ContextAnnotation> iterator = taggedEntities.iterator();
-        while (iterator.hasNext()) {
-            ContextAnnotation current = iterator.next();
-            String value = current.getValue();
-            String mapping = result.get(value);
-            if (mapping == null) {
-                filtered.add(current);
-                continue;
-            }
-            if (mapping.isEmpty()) {
-                continue;
-            }
-            int indexCorrector = value.indexOf(mapping);
-            int offset = current.getStartPosition() + indexCorrector;
-            filtered.add(new ContextAnnotation(offset, mapping, current.getTag()));
-        }
-        return filtered;
     }
 
     /**
