@@ -137,7 +137,7 @@ public class ProcessingPipeline {
                 executePostProcessingHook(processor);
             }
         }
-        LOGGER.debug("Finished pipeline.");
+        LOGGER.trace("Finished pipeline.");
         notifyProcessorsOfProcessFinished();
 
         // Collection<PipelineProcessor> executableProcessors = new ArrayList<PipelineProcessor>(pipelineProcessors);
@@ -250,7 +250,7 @@ public class ProcessingPipeline {
      */
     protected void executePostProcessingHook(PipelineProcessor processor) {
         // Subclasses should add code they want to run after the execution of every processor here.
-        LOGGER.debug("Start processing on {}", processor.getClass().getName());
+        LOGGER.trace("Start processing on {}", processor.getClass().getName());
     }
 
     /**
@@ -263,7 +263,7 @@ public class ProcessingPipeline {
      */
     protected void executePreProcessingHook(PipelineProcessor processor) {
         // Subclasses should add code they want to run before the execution of every processor here.
-        LOGGER.debug("Finished processing on {}", processor.getClass().getName());
+        LOGGER.trace("Finished processing on {}", processor.getClass().getName());
     }
 
     @Override

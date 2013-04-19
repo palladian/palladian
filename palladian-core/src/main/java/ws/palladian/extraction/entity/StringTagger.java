@@ -10,11 +10,13 @@ import java.util.regex.Pattern;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class StringTagger {
+public final class StringTagger extends RegExTagger {
 
-    private static final String CANDIDATE_TAG = "<CANDIDATE>$0</CANDIDATE>";
+    public static final String CANDIDATE_TAG = "CANDIDATE";
 
-    private static final Pattern PATTERN = compilePattern();
+    private static final String CANDIDATE_TAG_WRAP = "<" + CANDIDATE_TAG + ">$0</" + CANDIDATE_TAG + ">";
+
+    public static final Pattern PATTERN = compilePattern();
 
     private static final Pattern compilePattern() {
         String regexp = "";
@@ -75,11 +77,11 @@ public final class StringTagger {
     }
 
     private static String tagString(String s, String regexp) {
-        return s.replaceAll(regexp, CANDIDATE_TAG);
+        return s.replaceAll(regexp, CANDIDATE_TAG_WRAP);
     }
 
     private static String tagString(String s) {
-        return PATTERN.matcher(s).replaceAll(CANDIDATE_TAG);
+        return PATTERN.matcher(s).replaceAll(CANDIDATE_TAG_WRAP);
     }
 
     public static Annotations<ContextAnnotation> getTaggedEntities(String text, String regexp) {
@@ -92,8 +94,8 @@ public final class StringTagger {
         return FileFormatParser.getAnnotationsFromXmlText(taggedText);
     }
 
-    private StringTagger() {
-        // helper class, no instances.
+    public StringTagger() {
+        super(StringTagger.PATTERN, CANDIDATE_TAG);
     }
 
 }
