@@ -23,7 +23,6 @@ import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
-import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
@@ -356,8 +355,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
         }
         anchorLocations.addAll(toAdd);
 
-        Set<Location> fineAnchors = new HashSet<Location>(toAdd);
-
         // if we have countries as anchors, we remove the continents, to be more precise.
         LocationTypeFilter countryFilter = new LocationTypeFilter(LocationType.COUNTRY);
         if (CollectionHelper.filter(anchorLocations, countryFilter, new HashSet<Location>()).size() > 0) {
@@ -369,12 +366,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             return;
         }
 
-        fineAnchors.removeAll(anchorLocations);
-        CollectionHelper.filter(fineAnchors, InverseFilter.create(new LocationTypeFilter(LocationType.COUNTRY)));
-        CollectionHelper.filter(fineAnchors, InverseFilter.create(new LocationTypeFilter(LocationType.CONTINENT)));
-
         LOGGER.debug("Anchor locations: {}", anchorLocations);
-        LOGGER.debug("Fine anchors: {}", fineAnchors);
 
         // go through each group
         for (String locationName : ambiguousLocations.keySet()) {
@@ -390,7 +382,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 Location location = it.next();
 
                 boolean anchored = false;
-                // List<Integer> hierarchyIds = locationSource.getHierarchyIds(location.getId());
                 List<Integer> hierarchyIds = location.getAncestorIds();
 
                 // XXX experimental code; also keep locations without hierarchy
@@ -552,9 +543,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         private final LocationType type;
 
-        /**
-         * @param type
-         */
         public LocationTypeFilter(LocationType type) {
             this.type = type;
         }
