@@ -33,7 +33,7 @@ public class StringTaggerTest {
         assertEquals("Black Rock City LLC", annotations.get(1).getValue());
 
         // names
-        text = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Sheff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
+        text = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Shéff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
 
         annotations = StringTagger.getTaggedEntities(text);
         // CollectionHelper.print(annotations);
@@ -42,7 +42,7 @@ public class StringTaggerTest {
         assertEquals("Mr. Yakomoto", annotations.get(0).getValue());
         assertEquals("John J. Smith", annotations.get(1).getValue());
         assertEquals("Bill Drody", annotations.get(2).getValue());
-        assertEquals("T. Sheff", annotations.get(3).getValue());
+        assertEquals("T. Shéff", annotations.get(3).getValue());
         assertEquals("L.Carding", annotations.get(4).getValue());
         assertEquals("T.O'Brian", annotations.get(5).getValue());
         assertEquals("Harry O'Sullivan", annotations.get(6).getValue());
@@ -169,6 +169,12 @@ public class StringTaggerTest {
         annotations = StringTagger.getTaggedEntities(text);
         assertEquals(3, annotations.size());
         assertEquals("Madison Ave.", annotations.get(1).getValue());
+
+        // accents
+        text = "the city is called Yaoundé and that's a fact";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals(1, annotations.size());
+        assertEquals("Yaoundé", annotations.get(0).getValue());
 
     }
 
