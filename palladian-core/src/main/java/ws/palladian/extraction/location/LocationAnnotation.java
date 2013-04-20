@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.processing.features.Annotated;
 
 public class LocationAnnotation implements Annotated {
@@ -60,6 +61,12 @@ public class LocationAnnotation implements Annotated {
 
     public Location getLocation() {
         return location;
+    }
+
+    @Override
+    public boolean overlaps(Annotated annotated) {
+        // FIXME this needs to go in parent -> duplicate of NerHelper
+        return NerHelper.overlaps(this, annotated);
     }
 
     @Override

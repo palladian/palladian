@@ -114,6 +114,16 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
     }
 
     @Override
+    // FIXME this needs to go in parent -> duplicate of NerHelper
+    public boolean overlaps(Annotated annotated) {
+        if (getStartPosition() <= annotated.getStartPosition() && getEndPosition() >= annotated.getStartPosition()
+                || getStartPosition() <= annotated.getEndPosition() && getEndPosition() >= annotated.getStartPosition()) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("Annotation [name=");

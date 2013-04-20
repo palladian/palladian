@@ -19,6 +19,18 @@ public final class NerHelper {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NerHelper.class);
 
+    private NerHelper() {
+        // no instances.
+    }
+
+    public static boolean overlaps(Annotated a1, Annotated a2) {
+        if (a1.getStartPosition() <= a2.getStartPosition() && a1.getEndPosition() >= a2.getStartPosition()
+                || a1.getStartPosition() <= a2.getEndPosition() && a1.getEndPosition() >= a2.getStartPosition()) {
+            return true;
+        }
+        return false;
+    }
+
     public static List<String> createSentenceChunks(String text, int maxChunkLength) {
         // we need to build chunks of texts because we can not send very long texts at once to open calais
         if (text.length() < maxChunkLength) {
@@ -206,10 +218,6 @@ public final class NerHelper {
         taggedText.append(inputText.substring(lastEndIndex));
 
         return taggedText.toString();
-    }
-
-    private NerHelper() {
-        // no instances.
     }
 
 }
