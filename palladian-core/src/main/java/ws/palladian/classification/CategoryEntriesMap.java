@@ -152,4 +152,9 @@ public final class CategoryEntriesMap implements CategoryEntries {
         return entryMap.keySet().iterator();
     }
 
+	@Override
+	public boolean contains(String category) {
+		return entryMap.keySet().contains(category);
+	}
+
 }
