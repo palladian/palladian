@@ -4,6 +4,7 @@ import java.util.List;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -35,6 +36,7 @@ public class Annotation implements Annotated {
         tags.set(tagName, 1);
     }
 
+    @Override
     public int getLength() {
         return length;
     }
@@ -115,6 +117,12 @@ public class Annotation implements Annotated {
     @Override
     public int compareTo(Annotated other) {
         return this.getStartPosition() - other.getStartPosition();
+    }
+
+    @Override
+    // FIXME this needs to go in parent
+    public boolean overlaps(Annotated annotated) {
+        return NerHelper.overlaps(this, annotated);
     }
 
 }

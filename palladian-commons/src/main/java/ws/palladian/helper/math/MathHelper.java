@@ -577,11 +577,12 @@ public final class MathHelper {
 
     /**
      * <p>
+     * Returns a random number in the interval [low,high].
      * </p>
      * 
-     * @param low The minimum number that the random number
-     * @param high
-     * @return
+     * @param low The minimum number.
+     * @param high The maximum number.
+     * @return The random number within the interval.
      */
     public static int getRandomIntBetween(int low, int high) {
         int hl = high - low;

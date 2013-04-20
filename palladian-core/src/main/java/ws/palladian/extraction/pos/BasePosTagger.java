@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.entity.Annotation;
+import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -78,6 +80,12 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
             ret.add(new Annotation(annotation.getStartPosition(), annotation.getValue(), tag));
         }
         return ret;
+    }
+
+    public String getTaggedString(String text) {
+        List<Annotated> annotations = getAnnotations(text);
+        String taggedText = NerHelper.tag(text, annotations, TaggingFormat.SLASHES);
+        return taggedText;
     }
 
     /**
