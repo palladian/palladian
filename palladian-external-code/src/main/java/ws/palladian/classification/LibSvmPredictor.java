@@ -89,6 +89,10 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
 
         Map<String, Integer> indices = new HashMap<String, Integer>();
         List<String> classes = calculatePossibleClasses(trainables);
+        if (classes.size() < 2) {
+            throw new IllegalStateException(
+                    "The training data contains less than two different classes. Training not possible on such a dataset.");
+        }
         Map<String, Normalization> normalizations = normalizeNumericFeatures(trainables);
         svm_problem problem = createProblem(trainables, params, indices, classes, normalizations);
         String errorMessage = svm.svm_check_parameter(problem, params);
@@ -96,11 +100,6 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
             throw new IllegalStateException(errorMessage);
         }
 
-        String error_msg = svm.svm_check_parameter(problem, params);
-
-        if (error_msg != null) {
-            throw new IllegalStateException(error_msg);
-        }
         svm_model model = svm.svm_train(problem, params);
 
         return new LibSvmModel(model, normalFeaturePaths, sparseFeaturePaths, indices, classes, normalizations);
@@ -146,8 +145,7 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
      * @return A new {@link svm_problem} ready to train a libsvm classifier.
      */
     private svm_problem createProblem(Iterable<? extends Trainable> trainables, svm_parameter params,
-            Map<String, Integer> indices,
-            List<String> classes, Map<String, Normalization> normalizations) {
+            Map<String, Integer> indices, List<String> classes, Map<String, Normalization> normalizations) {
 
         svm_problem ret = new svm_problem();
         this.trainables = trainables;
@@ -165,8 +163,7 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
             ret.y[i] = classes.indexOf(trainable.getTargetClass());
 
             ret.x[i] = transformPalladianFeatureVectorToLibsvmFeatureVector(trainable.getFeatureVector(), indices,
-                    true,
-                    normalizations);
+                    true, normalizations);
             i++;
         }
         return ret;
