@@ -37,6 +37,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,6 +251,9 @@ public final class FileHelper {
         return readFileToString(new File(path));
     }
 
+    public static String readFileToString(InputStream is) {
+        return StringUtils.join(readFileToArray(is), "\n");
+    }
     /**
      * Read file to string.
      * 
