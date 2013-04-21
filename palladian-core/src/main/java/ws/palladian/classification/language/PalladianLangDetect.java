@@ -10,6 +10,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
@@ -75,16 +76,10 @@ public class PalladianLangDetect extends LanguageClassifier {
         FeatureSetting featureSetting = fs;
 
         if (featureSetting == null) {
-            featureSetting = new FeatureSetting();
-
             // we want to create character-level n-grams
-            featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-
             // the minimum length of our n-grams should be 4
-            featureSetting.setMinNGramLength(4);
-
             // the maximum length of our n-grams should be 7
-            featureSetting.setMaxNGramLength(7);
+            featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 4, 7);
         }
         
         // create a text classifier by giving a name and a path where it should be saved to
