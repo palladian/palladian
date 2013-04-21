@@ -19,14 +19,6 @@ public class FeatureSetting implements Serializable {
         WORD_NGRAMS;
     }
 
-    /** @deprecated Use {@link TextFeatureType#CHAR_NGRAMS} instead. */
-    @Deprecated
-    public static final int CHAR_NGRAMS = 1;
-
-    /** @deprecated Use {@link TextFeatureType#WORD_NGRAMS} instead. */
-    @Deprecated
-    public static final int WORD_NGRAMS = 2;
-
     /** Set which n-Gram type should be used. */
     private TextFeatureType textFeatureType = TextFeatureType.CHAR_NGRAMS;
 
@@ -51,9 +43,6 @@ public class FeatureSetting implements Serializable {
      */
     private int maximumTermLength = 20;
     
-    @Deprecated
-    public FeatureSetting() {}
-    
     public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength) {
         this.textFeatureType = textFeatureType;
         this.minNGramLength = minNGramLength;
@@ -73,20 +62,6 @@ public class FeatureSetting implements Serializable {
     
     public void setTextFeatureType(TextFeatureType textFeatureType) {
         this.textFeatureType = textFeatureType;
-    }
-
-    /** @deprecated Use {@link #setTextFeatureType(TextFeatureType)} instead. */
-    @Deprecated
-    public void setTextFeatureType(int textFeatureType) {
-        switch (textFeatureType) {
-            case CHAR_NGRAMS:
-                this.textFeatureType = TextFeatureType.CHAR_NGRAMS;
-                return;
-            case WORD_NGRAMS:
-                this.textFeatureType = TextFeatureType.WORD_NGRAMS;
-                return;
-        }
-        throw new IllegalArgumentException("Unknown type: " + textFeatureType);
     }
 
     public void setMaxTerms(int maxTerms) {
