@@ -205,8 +205,13 @@ public final class NerHelper {
             } else if (taggingFormat == TaggingFormat.SLASHES) {
 
                 List<String> tokens = Tokenizer.tokenize(annotation.getValue());
+                int i = 1;
                 for (String token : tokens) {
-                    taggedText.append(token).append("/").append(tagName).append(" ");
+                    taggedText.append(token).append("/").append(tagName);
+                    if (i < tokens.size()) {
+                        taggedText.append(" ");
+                    }
+                    i++;
                 }
 
             }
