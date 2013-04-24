@@ -177,7 +177,8 @@ public final class NerHelper {
 
             String tagName = annotation.getTag();
 
-            taggedText.append(inputText.substring(lastEndIndex, annotation.getStartPosition()));
+            String previousAppend = inputText.substring(lastEndIndex, annotation.getStartPosition());
+            taggedText.append(previousAppend);
 
             String correctText = inputText.substring(annotation.getStartPosition(), annotation.getEndPosition());
 
@@ -206,6 +207,9 @@ public final class NerHelper {
 
                 List<String> tokens = Tokenizer.tokenize(annotation.getValue());
                 int i = 1;
+                if (!previousAppend.equals(" ") && lastAnnotation != null) {
+                    taggedText.append(" ");
+                }
                 for (String token : tokens) {
                     taggedText.append(token).append("/").append(tagName);
                     if (i < tokens.size()) {
