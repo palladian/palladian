@@ -19,6 +19,18 @@ public final class NerHelper {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NerHelper.class);
 
+    private NerHelper() {
+        // no instances.
+    }
+
+    public static boolean overlaps(Annotated a1, Annotated a2) {
+        if (a1.getStartPosition() <= a2.getStartPosition() && a1.getEndPosition() >= a2.getStartPosition()
+                || a1.getStartPosition() <= a2.getEndPosition() && a1.getEndPosition() >= a2.getStartPosition()) {
+            return true;
+        }
+        return false;
+    }
+
     public static List<String> createSentenceChunks(String text, int maxChunkLength) {
         // we need to build chunks of texts because we can not send very long texts at once to open calais
         if (text.length() < maxChunkLength) {
@@ -165,7 +177,8 @@ public final class NerHelper {
 
             String tagName = annotation.getTag();
 
-            taggedText.append(inputText.substring(lastEndIndex, annotation.getStartPosition()));
+            String previousAppend = inputText.substring(lastEndIndex, annotation.getStartPosition());
+            taggedText.append(previousAppend);
 
             String correctText = inputText.substring(annotation.getStartPosition(), annotation.getEndPosition());
 
@@ -193,8 +206,16 @@ public final class NerHelper {
             } else if (taggingFormat == TaggingFormat.SLASHES) {
 
                 List<String> tokens = Tokenizer.tokenize(annotation.getValue());
+                int i = 1;
+                if (!previousAppend.equals(" ") && lastAnnotation != null) {
+                    taggedText.append(" ");
+                }
                 for (String token : tokens) {
-                    taggedText.append(token).append("/").append(tagName).append(" ");
+                    taggedText.append(token).append("/").append(tagName);
+                    if (i < tokens.size()) {
+                        taggedText.append(" ");
+                    }
+                    i++;
                 }
 
             }
@@ -206,10 +227,6 @@ public final class NerHelper {
         taggedText.append(inputText.substring(lastEndIndex));
 
         return taggedText.toString();
-    }
-
-    private NerHelper() {
-        // no instances.
     }
 
 }

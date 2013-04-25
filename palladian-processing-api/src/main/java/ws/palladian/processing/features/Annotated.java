@@ -23,5 +23,6 @@ public interface Annotated extends Comparable<Annotated> {
 
     String getValue();
 
+    boolean overlaps(Annotated annotated);
 
 }

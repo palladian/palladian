@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class AbstractSentimentClassifier {
     
@@ -29,12 +30,12 @@ public abstract class AbstractSentimentClassifier {
      * @param text The text to be classified.
      * @return A CategoryEntry with the likelihood.
      */
-    public String getPolarity(String text) {
+    public Entry<String, Double> getPolarity(String text) {
         opinionatedSentences = new HashMap<String, List<String>>();
         return getPolarity(text, null);
     }
     
-    public abstract String getPolarity(String text, String query);
+    public abstract Entry<String, Double> getPolarity(String text, String query);
     
     public void setConfidenceThreshold(double confidenceThreshold) {
         this.confidenceThreshold = confidenceThreshold;

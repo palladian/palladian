@@ -1,5 +1,6 @@
 package ws.palladian.classification;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,7 +22,7 @@ import ws.palladian.helper.math.MathHelper;
  */
 public final class CategoryEntriesMap implements CategoryEntries {
 
-    private final Map<String, Double> entryMap;
+    private Map<String, Double> entryMap;
 
     /**
      * <p>
@@ -30,30 +31,6 @@ public final class CategoryEntriesMap implements CategoryEntries {
      */
     public CategoryEntriesMap() {
         entryMap = CollectionHelper.newHashMap();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link CategoryEntriesMap} by merging multiple {@link CategoryEntries} instances.
-     * </p>
-     * 
-     * @param categoryEntries The category entries, not <code>null</code>.
-     * @return The merged {@link CategoryEntriesMap}.
-     */
-    public static CategoryEntriesMap merge(CategoryEntries... categoryEntries) {
-        Validate.notNull(categoryEntries, "categoryEntries must not be null");
-        Map<String, Double> valueMap = LazyMap.create(ConstantFactory.create(0.));
-        for (CategoryEntries entries : categoryEntries) {
-            for (String category : entries) {
-                Double value = valueMap.get(category);
-                valueMap.put(category, value + entries.getProbability(category));
-            }
-        }
-        CategoryEntriesMap result = new CategoryEntriesMap();
-        for (String category : valueMap.keySet()) {
-            result.set(category, valueMap.get(category));
-        }
-        return result;
     }
 
     /**
@@ -91,6 +68,30 @@ public final class CategoryEntriesMap implements CategoryEntries {
         }
     }
 
+    /**
+     * <p>
+     * Create a new {@link CategoryEntriesMap} by merging multiple {@link CategoryEntries} instances.
+     * </p>
+     * 
+     * @param categoryEntries The category entries, not <code>null</code>.
+     * @return The merged {@link CategoryEntriesMap}.
+     */
+    public static CategoryEntriesMap merge(CategoryEntries... categoryEntries) {
+        Validate.notNull(categoryEntries, "categoryEntries must not be null");
+        Map<String, Double> valueMap = LazyMap.create(ConstantFactory.create(0.));
+        for (CategoryEntries entries : categoryEntries) {
+            for (String category : entries) {
+                Double value = valueMap.get(category);
+                valueMap.put(category, value + entries.getProbability(category));
+            }
+        }
+        CategoryEntriesMap result = new CategoryEntriesMap();
+        for (String category : valueMap.keySet()) {
+            result.set(category, valueMap.get(category));
+        }
+        return result;
+    }
+
     @Override
     public double getProbability(String categoryName) {
         Validate.notNull(categoryName, "categoryName must not be null");
@@ -115,6 +116,46 @@ public final class CategoryEntriesMap implements CategoryEntries {
         entryMap.put(categoryName, probability);
     }
 
+    /**
+     * <p>
+     * Add a score to an existing or new category. All other category probabilities will be recalculated.
+     * </p>
+     * 
+     * @param categoryName The name of the category, not <code>null</code>.
+     * @param score The score to add, higher or equal zero.
+     */
+    public void add(String categoryName, double score) {
+        Validate.notNull(categoryName, "categoryName must not be null");
+        Validate.isTrue(score >= 0, "probability must be higher/equal zero");
+
+        Double existingScore = entryMap.get(categoryName);
+        if (existingScore == null) {
+            entryMap.put(categoryName, score);
+        } else {
+            entryMap.put(categoryName, existingScore + score);
+        }
+
+        computeProbabilities();
+    }
+
+    public void addAll(CategoryEntriesMap categories) {
+        for (String categoryName : categories) {
+            add(categoryName, categories.getProbability(categoryName));
+        }
+    }
+
+    private void computeProbabilities() {
+        double total = 0;
+        for (Entry<String, Double> entry : entryMap.entrySet()) {
+            total += entry.getValue();
+        }
+        Map<String, Double> newEntryMap = new HashMap<String, Double>();
+        for (Entry<String, Double> entry : entryMap.entrySet()) {
+            newEntryMap.put(entry.getKey(), entry.getValue() / total);
+        }
+        entryMap = newEntryMap;
+    }
+
     @Override
     public String getMostLikelyCategory() {
         double maxProbability = -1;
@@ -126,6 +167,18 @@ public final class CategoryEntriesMap implements CategoryEntries {
             }
         }
         return maxName;
+    }
+
+    public Entry<String, Double> getMostLikelyCategoryEntry() {
+        double maxProbability = -1;
+        Entry<String, Double> maxEntry = null;
+        for (Entry<String, Double> entry : entryMap.entrySet()) {
+            if (entry.getValue() > maxProbability) {
+                maxProbability = entry.getValue();
+                maxEntry = entry;
+            }
+        }
+        return maxEntry;
     }
 
     @Override
@@ -156,5 +209,9 @@ public final class CategoryEntriesMap implements CategoryEntries {
 	public boolean contains(String category) {
 		return entryMap.keySet().contains(category);
 	}
+
+    public boolean isEmpty() {
+        return entryMap.isEmpty();
+    }
 
 }
