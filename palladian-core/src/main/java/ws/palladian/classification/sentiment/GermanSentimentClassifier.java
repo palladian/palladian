@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -116,7 +115,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     }
  
     @Override
-    public String getPolarity(String text, String query) {
+    public Entry<String, Double> getPolarity(String text, String query) {
         
         String positiveCategory = "positive";
         String negativeCategory = "negative";
@@ -206,10 +205,11 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         if (getOpinionatedSentences().get("negative") != null) {
             negativeSentences = getOpinionatedSentences().get("negative").size();
         }
+        // FIXME, does this make any kinda sense?
         categoryEntries.set(positiveCategory, positiveSentences);
         categoryEntries.set(negativeCategory, negativeSentences);
         
-        return categoryEntries.getMostLikelyCategory();
+        return categoryEntries.getMostLikelyCategoryEntry();
     }
 
     public static void main(String[] args) {
@@ -221,7 +221,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 
         gsc = new GermanSentimentClassifier("gsc.gz");
         gsc.setConfidenceThreshold(0.6);
-        String result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
+        Entry<String, Double> result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
         result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");
         result = gsc.getPolarity("Die Deutsche-Bahn ist scheisse!!!");
         // result =
@@ -233,7 +233,6 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             System.out.println(entry.getKey());
             CollectionHelper.print(entry.getValue());
         }
-        
         
         System.out.println(result);
     }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.entity.Annotation;
+import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -55,7 +57,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
     private static final BaseTokenizer DEFAULT_TOKENIZER = new RegExTokenizer();
 
     // ////////////////////////////////////////////
-    // PosTagger API
+    // Tagger API
     // ////////////////////////////////////////////
 
     @Override
@@ -71,15 +73,19 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
         List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().getAll(PositionAnnotation.class,
                 BaseTokenizer.PROVIDED_FEATURE);
         List<Annotated> ret = CollectionHelper.newArrayList();
-        int offset = 0;
         for (PositionAnnotation annotation : annotationFeatureList) {
             NominalFeature tagFeature = annotation.getFeatureVector()
                     .getFeature(NominalFeature.class, PROVIDED_FEATURE);
             String tag = tagFeature.getValue();
-            Annotation tagAnnotation = new Annotation(offset++, annotation.getValue(), tag);
-            ret.add(tagAnnotation);
+            ret.add(new Annotation(annotation.getStartPosition(), annotation.getValue(), tag));
         }
         return ret;
+    }
+
+    public String getTaggedString(String text) {
+        List<Annotated> annotations = getAnnotations(text);
+        String taggedText = NerHelper.tag(text, annotations, TaggingFormat.SLASHES);
+        return taggedText;
     }
 
     /**
@@ -117,9 +123,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
      * using the provided convenience method {@link #assignTag(PositionAnnotation, String)}.
      * </p>
      * 
-     * @param annotations
-     *            The list of annotations to process, this is the tokenized
-     *            text.
+     * @param annotations The list of annotations to process, this is the tokenized text.
      */
     protected abstract void tag(List<PositionAnnotation> annotations);
 
