@@ -80,7 +80,7 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
         // If we have a category weight by matching terms from the document, use them to create the probability
         // distribution. Else wise return the prior probability distribution of the categories.
         CategoryEntriesMap categories;
-        if (probabilities.size() > 0) {
+        if (!probabilities.isEmpty()) {
             categories = new CategoryEntriesMap(probabilities);
         } else {
             categories = new CategoryEntriesMap(model.getPriors());
@@ -89,12 +89,13 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
     }
 
     // XXX ugly -- in case we have text documents and feature settings have been defined, do the preprocessing here
+    // FIXME!!!
     private void process(Classifiable classifiable) {
         if (pipeline != null && classifiable instanceof TextDocument) {
             try {
                 pipeline.process((TextDocument)classifiable);
             } catch (DocumentUnprocessableException e) {
-                throw new IllegalStateException("Error processing the document: " + e);
+                throw new IllegalStateException("error processing the document: " + e);
             }
         }
     }

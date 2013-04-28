@@ -300,29 +300,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         return true;
     }
 
-    /**
-     * Load a complete tagger from disk.
-     * 
-     * @param modelPath The path of the tagger.
-     * @return The tagger instance.
-     */
-    public static PalladianNer load(String modelPath) {
-        StopWatch stopWatch = new StopWatch();
-
-        LOGGER.info("deserialzing model from " + modelPath);
-
-        if (!modelPath.endsWith(getModelFileEndingStatic())) {
-            modelPath += "." + getModelFileEndingStatic();
-        }
-
-        PalladianNer tagger = (PalladianNer)FileHelper.deserialize(modelPath);
-        LOGGER.info("loaded tagger successfully in " + stopWatch.getElapsedTimeString());
-
-        return tagger;
-    }
 
     /**
+     * <p>
      * Save the tagger to the specified file.
+     * </p>
      * 
      * @param modelFilePath The file where the tagger should be saved to. You do not need to add the file ending but if
      *            you do, it should be "model.gz".
@@ -369,7 +351,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
     }
 
     /**
+     * <p>
      * Add a token to the case dictionary.
+     * </p>
      * 
      * @param token The token to add.
      */
