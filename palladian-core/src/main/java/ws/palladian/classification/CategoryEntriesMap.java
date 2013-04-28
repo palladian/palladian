@@ -135,7 +135,6 @@ public final class CategoryEntriesMap implements CategoryEntries {
             entryMap.put(categoryName, existingScore + score);
         }
 
-        computeProbabilities();
     }
 
     public void addAll(CategoryEntriesMap categories) {
@@ -144,14 +143,24 @@ public final class CategoryEntriesMap implements CategoryEntries {
         }
     }
 
-    private void computeProbabilities() {
+    /**
+     * FIXME this overrides the scores and must only be called after all scores were added. Better keep the original
+     * scores like in the previous implementation of this class
+     * <p>
+     * </p>
+     */
+    public void computeProbabilities() {
         double total = 0;
         for (Entry<String, Double> entry : entryMap.entrySet()) {
             total += entry.getValue();
         }
         Map<String, Double> newEntryMap = new HashMap<String, Double>();
         for (Entry<String, Double> entry : entryMap.entrySet()) {
-            newEntryMap.put(entry.getKey(), entry.getValue() / total);
+            if (total == 0) {
+                newEntryMap.put(entry.getKey(), 0.);
+            } else {
+                newEntryMap.put(entry.getKey(), entry.getValue() / total);
+            }
         }
         entryMap = newEntryMap;
     }
@@ -212,6 +221,11 @@ public final class CategoryEntriesMap implements CategoryEntries {
 
     public boolean isEmpty() {
         return entryMap.isEmpty();
+    }
+
+    @Override
+    public void sort() {
+        entryMap = CollectionHelper.sortByValue(entryMap, false);
     }
 
 }

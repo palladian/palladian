@@ -179,10 +179,12 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             }
             
             CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
-            categoryEntries.set(positiveCategory, positiveSentimentSumSentence);
-            categoryEntries.set(negativeCategory, negativeSentimentSumSentence);
+            categoryEntries.add(positiveCategory, positiveSentimentSumSentence);
+            categoryEntries.add(negativeCategory, negativeSentimentSumSentence);
+            categoryEntries.computeProbabilities();
 
-            if (categoryEntries.getProbability(categoryEntries.getMostLikelyCategory()) > confidenceThreshold
+            double probabilityMostLikelySentiment = categoryEntries.getProbability(categoryEntries.getMostLikelyCategory());
+            if (probabilityMostLikelySentiment > confidenceThreshold
                     && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
                     && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
                 addOpinionatedSentence(categoryEntries.getMostLikelyCategory(), sentence);
@@ -205,9 +207,10 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         if (getOpinionatedSentences().get("negative") != null) {
             negativeSentences = getOpinionatedSentences().get("negative").size();
         }
-        // FIXME, does this make any kinda sense?
-        categoryEntries.set(positiveCategory, positiveSentences);
-        categoryEntries.set(negativeCategory, negativeSentences);
+
+        categoryEntries.add(positiveCategory, positiveSentences);
+        categoryEntries.add(negativeCategory, negativeSentences);
+        categoryEntries.computeProbabilities();
         
         return categoryEntries.getMostLikelyCategoryEntry();
     }

@@ -46,10 +46,9 @@ public final class CollectionHelper {
      * @param map The {@link Map} to sort.
      * @param ascending {@link CollectionHelper#ASCENDING} or {@link CollectionHelper#DESCENDING}.
      * @return A sorted map.
-     * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
-     *             {@link Pair}s, sorted as required.
+     *         XXX {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
+     *         {@link Pair}s, sorted as required.
      */
-    @Deprecated
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());

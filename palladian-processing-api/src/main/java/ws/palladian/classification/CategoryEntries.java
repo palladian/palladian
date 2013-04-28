@@ -36,4 +36,11 @@ public interface CategoryEntries extends Iterable<String> {
      * @return True if the category is present, false otherwise.
      */
     boolean contains(String category);
+
+    /**
+     * <p>
+     * Sorts the category entries descending by their probability.
+     * </p>
+     */
+    void sort();
 }
