@@ -49,7 +49,7 @@ public final class DictionaryModel implements Model {
     }
 
     public void updateTerm(String term, String category) {
-        termCategories.add(category, term);
+        termCategories.add(category, new String(term));
     }
 
     public CategoryEntries getCategoryEntries(String term) {
