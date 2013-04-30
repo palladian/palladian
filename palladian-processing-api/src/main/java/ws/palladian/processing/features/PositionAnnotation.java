@@ -38,7 +38,8 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
      */
     private final int index;
 
-    private final FeatureVector featureVector;
+    // lazy-initialized field
+    private FeatureVector featureVector;
 
     /**
      * <p>
@@ -60,7 +61,7 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.index = index;
-        this.featureVector = new FeatureVector();
+        this.featureVector = null;
     }
     
     /**
@@ -79,7 +80,7 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.startPosition = annotation.getStartPosition();
         this.endPosition = annotation.getEndPosition();
         this.index = annotation.getIndex();
-        this.featureVector = new FeatureVector(annotation.getFeatureVector());
+        this.featureVector = null;
     }
 
     @Override
@@ -110,6 +111,9 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
 
     @Override
     public FeatureVector getFeatureVector() {
+        if (featureVector == null) {
+            featureVector = new FeatureVector();
+        }
         return featureVector;
     }
 

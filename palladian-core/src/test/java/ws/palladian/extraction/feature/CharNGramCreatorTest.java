@@ -33,6 +33,18 @@ public class CharNGramCreatorTest {
 
         assertEquals(90, annotations.size());
 
+        charNGramCreator = new CharNGramCreator(1, 5, true, Integer.MAX_VALUE);
+        document = new TextDocument(text);
+        charNGramCreator.processDocument(document);
+        annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        assertEquals(87, annotations.size());
+
+        charNGramCreator = new CharNGramCreator(1, 5, false, 10);
+        document = new TextDocument(text);
+        charNGramCreator.processDocument(document);
+        annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        assertEquals(10, annotations.size());
+
     }
 
 }

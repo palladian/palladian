@@ -72,9 +72,9 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
                 if (isFirstFieldLink) {
                     learningText = FileHelper.readFileToString(datasetRootPath + parts[0]);
                 } else {
-                    learningText = parts[0];
+                    learningText = new String(parts[0]);
                 }
-                String instanceCategory = parts[1];
+                String instanceCategory = new String(parts[1]);
                 ProgressHelper.printProgress(counter, totalLines, 1., stopWatch);
                 return new ClassifiedTextDocument(instanceCategory, learningText);
             }
