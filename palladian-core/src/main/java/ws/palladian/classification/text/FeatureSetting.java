@@ -2,16 +2,20 @@ package ws.palladian.classification.text;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.Validate;
+
 /**
- * <p>Save the settings which text features should be used for a classifier.</p>
+ * <p>
+ * Save the settings which text features should be used for a classifier.
+ * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
 public class FeatureSetting implements Serializable {
 
     private static final long serialVersionUID = 8129286644101075891L;
-    
+
     public enum TextFeatureType {
         /** Use n-Grams on a character level. */
         CHAR_NGRAMS,
@@ -20,52 +24,51 @@ public class FeatureSetting implements Serializable {
     }
 
     /** Set which n-Gram type should be used. */
-    private TextFeatureType textFeatureType = TextFeatureType.CHAR_NGRAMS;
+    private final TextFeatureType textFeatureType;
 
     /** The maximum number of terms that should be used per document. */
-    private int maxTerms = 800;
+    private final int maxTerms;
 
     /** Minimum n-gram length. */
-    private int minNGramLength = 4;
+    private final int minNGramLength;
 
     /** Maximum n-gram length. */
-    private int maxNGramLength = 7;
+    private final int maxNGramLength;
 
     /**
-     * The minimum length of a single term, this only applies if {@link textFeatureType} is set to {@link WORD_NGRAMS}
-     * and {@link maxNGramLength} is 1, that is, only unigrams will be used.
+     * The minimum length of a single term, this only applies if {@link textFeatureType} is set to
+     * {@link TextFeatureType#WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
      */
-    private int minimumTermLength = 3;
+    private final int minimumTermLength = 3;
 
     /**
-     * The maximum length of a single term, this only applies if {@link textFeatureType} is set to {@link WORD_NGRAMS}
-     * and {@link maxNGramLength} is 1, that is, only unigrams will be used.
+     * The maximum length of a single term, this only applies if {@link textFeatureType} is set to
+     * {@link TextFeatureType#WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
      */
-    private int maximumTermLength = 20;
-    
-    public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength) {
-        this.textFeatureType = textFeatureType;
-        this.minNGramLength = minNGramLength;
-        this.maxNGramLength = maxNGramLength;
+    private final int maximumTermLength = 20;
+
+    public FeatureSetting() {
+        this(TextFeatureType.CHAR_NGRAMS, 4, 7, 800);
     }
-    
+
+    public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength) {
+        this(textFeatureType, minNGramLength, maxNGramLength, 800);
+    }
+
     public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength, int maxTerms) {
+        Validate.notNull(textFeatureType, "textFeatureType must not be null");
+        Validate.isTrue(minNGramLength > 0);
+        Validate.isTrue(maxNGramLength >= minNGramLength);
+        Validate.isTrue(maxTerms > 0);
+
         this.textFeatureType = textFeatureType;
         this.minNGramLength = minNGramLength;
         this.maxNGramLength = maxNGramLength;
         this.maxTerms = maxTerms;
     }
-    
+
     public TextFeatureType getTextFeatureType() {
         return textFeatureType;
-    }
-    
-    public void setTextFeatureType(TextFeatureType textFeatureType) {
-        this.textFeatureType = textFeatureType;
-    }
-
-    public void setMaxTerms(int maxTerms) {
-        this.maxTerms = maxTerms;
     }
 
     public int getMaxTerms() {
@@ -76,36 +79,12 @@ public class FeatureSetting implements Serializable {
         return minNGramLength;
     }
 
-    public void setMinNGramLength(int minNGramLength) {
-        this.minNGramLength = minNGramLength;
-    }
-
     public int getMaxNGramLength() {
         return maxNGramLength;
     }
 
-    public void setMaxNGramLength(int maxNGramLength) {
-        this.maxNGramLength = maxNGramLength;
-    }
-
-    /**
-     * Set the maximum length of a single term, this only applies if {@link textFeatureType} is set to
-     * {@link WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
-     */
-    public void setMaximumTermLength(int maximumTermLength) {
-        this.maximumTermLength = maximumTermLength;
-    }
-
     public int getMaximumTermLength() {
         return maximumTermLength;
-    }
-
-    /**
-     * Set the minimum length of a single term, this only applies if {@link textFeatureType} is set to
-     * {@link WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
-     */
-    public void setMinimumTermLength(int minimumTermLength) {
-        this.minimumTermLength = minimumTermLength;
     }
 
     public int getMinimumTermLength() {

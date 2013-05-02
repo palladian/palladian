@@ -3,21 +3,23 @@ package ws.palladian.semantics;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
- * <p>This class represents a single word which is held in the {@link WordDB}.</p>
+ * <p>
+ * This class represents a single word which is held in the {@link WordDB}.
+ * </p>
  * 
  * @author David Urbansky
- * 
  */
 public class Word {
 
     /** The database id. */
-    private int id = -1;
+    private final int id;
 
     /** The actual word. */
-    private String word = "";
+    private final String word;
 
     /** The word's plural if it's a noun. */
     private String plural = "";
@@ -38,7 +40,6 @@ public class Word {
     private Set<Word> hyponyms = new LinkedHashSet<Word>();
 
     public Word(int id, String word, String plural, String type, String language) {
-        super();
         this.id = id;
         this.word = word;
         this.plural = plural;
@@ -50,16 +51,8 @@ public class Word {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getWord() {
         return word;
-    }
-
-    public void setWord(String word) {
-        this.word = word;
     }
 
     public void setPlural(String plural) {
@@ -120,11 +113,11 @@ public class Word {
      * 
      * @return A sorted list of words where each entry is the hypernym of the preceding entry.
      */
-    public LinkedList<String> getPath(WordDB wordDb) {
+    public List<String> getPath(WordDB wordDb) {
         return getPath(wordDb, 0, new HashSet<String>());
     }
 
-    public LinkedList<String> getPath(WordDB wordDb, int depth, Set<String> seenWords) {
+    private LinkedList<String> getPath(WordDB wordDb, int depth, Set<String> seenWords) {
 
         LinkedList<String> path = new LinkedList<String>();
 
