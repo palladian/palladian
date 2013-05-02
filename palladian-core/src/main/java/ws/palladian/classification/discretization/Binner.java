@@ -62,7 +62,7 @@ public final class Binner {
             });
 
             if (binPosition < 0) {
-                if (((NumericBin)bins.get(0)).isSmaller(feature)) {
+                if (bins.get(0).isSmaller(feature)) {
                     ret.add(bins.get(0));
                 } else {
                     ret.add(bins.get(bins.size() - 1));
@@ -91,7 +91,7 @@ public final class Binner {
         });
 
         if (binPosition < 0) {
-            if (((NumericBin)bins.get(0)).isSmaller(feature)) {
+            if (bins.get(0).isSmaller(feature)) {
                 return bins.get(0);
             } else {
                 return bins.get(bins.size() - 1);
