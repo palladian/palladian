@@ -82,6 +82,10 @@ public class EventbriteSearcher extends EventSearcher {
                 event.setTitle(eventEntry.getString("title"));
                 event.setDescription(HtmlHelper.stripHtmlTags(eventEntry.getString("description")));
                 event.setStartDate(DateParser.parseDate(eventEntry.getString("start_date")).getNormalizedDate());
+                try {
+                    event.setEndDate(DateParser.parseDate(eventEntry.getString("end_date")).getNormalizedDate());
+                } catch (Exception e) {
+                }
                 event.setRecurringString(eventEntry.getString("repeats"));
                 event.setUrl(eventEntry.getString("url"));
 
@@ -96,7 +100,11 @@ public class EventbriteSearcher extends EventSearcher {
                 event.setVenueLatitude(venueEntry.getDouble("latitude"));
                 event.setVenueLongitude(venueEntry.getDouble("longitude"));
 
-                events.add(event);
+                boolean addEvent = isWithinTimeFrame(startDate, endDate, event);
+
+                if (addEvent) {
+                    events.add(event);
+                }
 
             } catch (JSONException e) {
                 throw new SearcherException(e.getMessage());
@@ -113,7 +121,7 @@ public class EventbriteSearcher extends EventSearcher {
         if (keywords != null && !keywords.isEmpty()) {
             url += "&keywords=" + UrlHelper.encodeParameter(keywords);
         }
-        if (eventType != null) {
+        if (eventType != null && eventType != EventType.EVENT) {
             url += "&category=" + UrlHelper.encodeParameter(StringUtils.join(eventType.getEventTypeNames(), ","));
         }
 

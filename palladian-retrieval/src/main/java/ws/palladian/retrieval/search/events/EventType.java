@@ -5,8 +5,9 @@ import ws.palladian.helper.nlp.StringHelper;
 public enum EventType {
 
     THEATRE("theatre show", "theater show", "theatre shows", "theater shows"), COMEDY("comedy"), EXHIBITION(
-            "exhibition", "exhibitions"), CONCERT("concert", "concerts", "live music", "tour dates"), FESTIVAL(
-            "festival", "festivals"), CONFERENCE("conferences", "conference"), EVENT("event", "events");
+            "exhibition", "exhibitions"), MOVIE("movies", "films"), CONCERT("concert", "concerts", "live music",
+            "tour dates"), FESTIVAL("festival", "festivals"), CONFERENCE("conferences", "conference"), SPORT("games",
+            "sport events", "sporting events"), EVENT("event", "events");
 
     private String[] eventTypeNames;
 
