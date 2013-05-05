@@ -1,9 +1,14 @@
 package ws.palladian.retrieval.search.events;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +20,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -38,6 +44,8 @@ public class EventfulSearcher extends EventSearcher {
 
     private final String apiKey;
 
+    private Map<EventType, Set<String>> eventTypeMapping;
+
     /**
      * <p>
      * Creates a new eventful searcher.
@@ -48,6 +56,7 @@ public class EventfulSearcher extends EventSearcher {
     public EventfulSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        setup();
     }
 
     /**
@@ -63,38 +72,81 @@ public class EventfulSearcher extends EventSearcher {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
+    private void setup() {
+        eventTypeMapping = CollectionHelper.newHashMap();
+        eventTypeMapping.put(EventType.CONCERT, new HashSet<String>(Arrays.asList("music")));
+        eventTypeMapping.put(EventType.COMEDY, new HashSet<String>(Arrays.asList("movies_film", "performing_arts")));
+        eventTypeMapping.put(EventType.SPORT, new HashSet<String>(Arrays.asList("sports")));
+        eventTypeMapping.put(EventType.THEATRE, new HashSet<String>(Arrays.asList("performing_arts")));
+        eventTypeMapping.put(EventType.MOVIE, new HashSet<String>(Arrays.asList("movies_film")));
+        eventTypeMapping.put(EventType.EXHIBITION, new HashSet<String>(Arrays.asList("art")));
+        eventTypeMapping.put(EventType.FESTIVAL, new HashSet<String>(Arrays.asList("festivals_parades", "food")));
+        eventTypeMapping.put(EventType.CONFERENCE, new HashSet<String>(Arrays.asList("conference")));
+    }
+
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType) throws SearcherException {
+
         List<Event> events = CollectionHelper.newArrayList();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
+        requestUrl += "&page_number=PAGE_NUMBER";
 
-        Document resultDocument = new DocumentRetriever().getWebDocument(requestUrl);
+        DocumentRetriever ret = new DocumentRetriever();
 
-        List<Node> eventNodes = XPathHelper.getXhtmlNodes(resultDocument, "//event");
-        for (Node eventNode : eventNodes) {
+        int currentPageNumber = 1;
+        boolean nextPageAvailable = true;
+        while (nextPageAvailable) {
 
-            try {
-                Event event = new Event();
-                event.setTitle(getField(eventNode, "title"));
-                event.setDescription(getField(eventNode, "description"));
-                event.setStartDate(DateParser.parseDate(getField(eventNode, "start_time")).getNormalizedDate());
-                event.setRecurringString(getField(eventNode, "recur_string"));
-                event.setUrl(getField(eventNode, "url"));
-                event.setVenueName(getField(eventNode, "venue_name"));
-                event.setVenueAddress(getField(eventNode, "venue_address"));
-                event.setVenueZipCode(getField(eventNode, "postal_code"));
-                event.setVenueCity(getField(eventNode, "city_name"));
-                event.setVenueRegion(getField(eventNode, "region_name"));
-                event.setVenueCountry(getField(eventNode, "country_name"));
-                event.setVenueLatitude(Double.valueOf(getField(eventNode, "latitude")));
-                event.setVenueLongitude(Double.valueOf(getField(eventNode, "longitude")));
+            nextPageAvailable = false;
 
-                events.add(event);
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage());
+            Document resultDocument = ret.getWebDocument(requestUrl.replace("PAGE_NUMBER",
+                    String.valueOf(currentPageNumber)));
+
+            List<Node> eventNodes = XPathHelper.getXhtmlNodes(resultDocument, "//event");
+            for (Node eventNode : eventNodes) {
+
+                try {
+                    Event event = new Event();
+                    event.setTitle(getField(eventNode, "title"));
+                    event.setDescription(getField(eventNode, "description"));
+                    event.setStartDate(DateParser.parseDate(getField(eventNode, "start_time")).getNormalizedDate());
+                    try {
+                        event.setEndDate(DateParser.parseDate(getField(eventNode, "stop_time")).getNormalizedDate());
+                    } catch (Exception e) {
+                    }
+                    event.setRecurringString(getField(eventNode, "recur_string"));
+                    event.setUrl(getField(eventNode, "url"));
+                    event.setVenueName(getField(eventNode, "venue_name"));
+                    event.setVenueAddress(getField(eventNode, "venue_address"));
+                    event.setVenueZipCode(getField(eventNode, "postal_code"));
+                    event.setVenueCity(getField(eventNode, "city_name"));
+                    event.setVenueRegion(getField(eventNode, "region_name"));
+                    event.setVenueCountry(getField(eventNode, "country_name"));
+                    event.setVenueLatitude(Double.valueOf(getField(eventNode, "latitude")));
+                    event.setVenueLongitude(Double.valueOf(getField(eventNode, "longitude")));
+
+                    boolean addEvent = isWithinTimeFrame(startDate, endDate, event);
+
+                    if (addEvent) {
+                        events.add(event);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage());
+                }
             }
+        
+            // see if there are more pages
+            Node pageCountNode = XPathHelper.getXhtmlNode(resultDocument, "//page_count");
+            if (pageCountNode != null) {
+                int totalPages = Integer.parseInt(pageCountNode.getTextContent());
+                if (currentPageNumber < totalPages) {
+                    currentPageNumber++;
+                    nextPageAvailable = true;
+                }
+            }
+
         }
 
         return events;
@@ -104,6 +156,19 @@ public class EventfulSearcher extends EventSearcher {
         String field = "";
         try {
             field = XPathHelper.getXhtmlNode(node, ".//" + name).getTextContent();
+
+            // XXX for some reason UTF-8 answer is interpreted as ISO-8859-1, making some characters go insane, see here
+            // for more: http://ask-leo.com/why_do_i_get_odd_characters_instead_of_quotes_in_my_documents.html
+            field = field.replace("â€™", "'");
+            field = field.replace("Â ", "");
+            field = field.replace("Ã©", "é");
+            field = field.replace("â€¦", "...");
+            field = field.replace("â€“", "-");
+            field = field.replace("â€œ", "“");
+
+            // get rid of the rest non-ascii
+            field = StringHelper.removeNonAsciiCharacters(field);
+
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -125,6 +190,12 @@ public class EventfulSearcher extends EventSearcher {
                 url += "&units=km";
             }
         }
+        if (eventType != null) {
+            Set<String> categoryIds = eventTypeMapping.get(eventType);
+            if (categoryIds != null) {
+                url += "&category=" + StringUtils.join(categoryIds, ",");
+            }
+        }
         if (startDate != null) {
             url += "&date=" + DateHelper.getDatetime("yyyyMMdd00", startDate.getTime());
             if (endDate != null) {
@@ -132,7 +203,7 @@ public class EventfulSearcher extends EventSearcher {
             }
         }
         url += "&sort_order=date";
-        url += "&page_size=30";
+        url += "&page_size=100";
         url += "&sort_direction=ascending";
 
         System.out.println(url);
