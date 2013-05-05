@@ -59,6 +59,20 @@ public class Event {
         this.endDate = endDate;
     }
 
+    /**
+     * <p>
+     * Get the duration of the event in milliseconds.
+     * </p>
+     * 
+     * @return The duration of the event in milliseconds or null if unknown.
+     */
+    public Long getDuration() {
+        if (getEndDate() == null) {
+            return null;
+        }
+        return getEndDate().getTime() - getStartDate().getTime();
+    }
+
     public String getRecurringString() {
         return recurringString;
     }
