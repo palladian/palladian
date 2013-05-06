@@ -24,6 +24,10 @@ public class JsonObjectWrapper {
         this.jsonObject = jsonObject;
     }
 
+    public JsonObjectWrapper() {
+        this.jsonObject = new JSONObject();
+    }
+
     public JsonObjectWrapper(String jsonString) {
         super();
         try {
