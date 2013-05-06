@@ -27,19 +27,23 @@ public abstract class EventSearcher {
     protected boolean isWithinTimeFrame(Date startDate, Date endDate, Event event) {
         boolean withinTimeFrame = true;
 
+        // filter events that ended BEFORE the specified start time
         if (startDate != null && event.getEndDate() != null) {
-
-            // filter events that ended BEFORE the specified start time
             if (event.getEndDate().getTime() < startDate.getTime()) {
                 withinTimeFrame = false;
+            }
+        }
 
-                // filter events that start AFTER the specified end time
-            } else if (endDate != null && event.getStartDate().getTime() > endDate.getTime()) {
+        // filter events that start AFTER the specified end time
+        if (endDate != null && event.getStartDate().getTime() > endDate.getTime()) {
+            withinTimeFrame = false;
+        }
+
+        // filter events that started BEFORE the specified start time AND are shorter than 24 hours
+        if (startDate != null && event.getStartDate().getTime() < startDate.getTime()) {
+            if (event.getEndDate() != null && event.getDuration() < TimeUnit.HOURS.toMillis(24)) {
                 withinTimeFrame = false;
-
-                // filter events that started BEFORE the specified start time AND are shorter than 24 hours
-            } else if (event.getStartDate().getTime() < startDate.getTime()
-                    && event.getDuration() < TimeUnit.HOURS.toMillis(24)) {
+            } else if (event.getEndDate() == null) {
                 withinTimeFrame = false;
             }
         }
