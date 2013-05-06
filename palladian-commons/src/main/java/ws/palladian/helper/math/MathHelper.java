@@ -344,7 +344,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Check whether two numeric intervals overlap.
+     * </p>
      * 
      * @param start1 The start1.
      * @param end1 The end1.
@@ -460,7 +462,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Transform an IP address to a number.
+     * </p>
      * 
      * @param ipAddress The IP address given in w.x.y.z notation.
      * @return The integer of the IP address.
@@ -477,7 +481,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Transform a number into an IP address.
+     * </p>
      * 
      * @param number The integer to be transformed.
      * @return The IP address.
@@ -487,7 +493,26 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
+     * Return a random entry from a given collection.
+     * </p>
+     * 
+     * @param collection The collection from we want to sample from.
+     * @return A random entry from the collection.
+     */
+    public static <T> T randomEntry(Collection<T> collection) {
+        Collection<T> randomSample = randomSample(collection, 1);
+        if (!randomSample.isEmpty()) {
+            return randomSample.iterator().next();
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>
      * Create a random sample from a given collection.
+     * </p>
      * 
      * @param collection The collection from we want to sample from.
      * @param sampleSize The size of the sample.

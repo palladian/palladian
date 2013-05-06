@@ -1,7 +1,11 @@
 package ws.palladian.retrieval.search.events;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.Configuration;
@@ -36,6 +40,8 @@ public class EventbriteSearcher extends EventSearcher {
 
     private final String apiKey;
 
+    private Map<EventType, Set<String>> eventTypeMapping;
+
     /**
      * <p>
      * Creates a new Eventbrite searcher.
@@ -46,6 +52,7 @@ public class EventbriteSearcher extends EventSearcher {
     public EventbriteSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        setup();
     }
 
     /**
@@ -60,6 +67,18 @@ public class EventbriteSearcher extends EventSearcher {
     public EventbriteSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
     }
+
+    private void setup() {
+        eventTypeMapping = CollectionHelper.newHashMap();
+        eventTypeMapping.put(EventType.CONCERT, new HashSet<String>(Arrays.asList("music")));
+        eventTypeMapping.put(EventType.SPORT, new HashSet<String>(Arrays.asList("sports")));
+        eventTypeMapping.put(EventType.THEATRE, new HashSet<String>(Arrays.asList("performances")));
+        eventTypeMapping.put(EventType.EXHIBITION, new HashSet<String>(Arrays.asList("conventions", "tradeshows")));
+        eventTypeMapping.put(EventType.FESTIVAL, new HashSet<String>(Arrays.asList("food")));
+        eventTypeMapping.put(EventType.CONFERENCE,
+                new HashSet<String>(Arrays.asList("conferences", "seminars", "fairs")));
+    }
+
 
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
@@ -121,8 +140,12 @@ public class EventbriteSearcher extends EventSearcher {
         if (keywords != null && !keywords.isEmpty()) {
             url += "&keywords=" + UrlHelper.encodeParameter(keywords);
         }
-        if (eventType != null && eventType != EventType.EVENT) {
-            url += "&category=" + UrlHelper.encodeParameter(StringUtils.join(eventType.getEventTypeNames(), ","));
+
+        if (eventType != null) {
+            Set<String> categoryIds = eventTypeMapping.get(eventType);
+            if (categoryIds != null) {
+                url += "&category=" + StringUtils.join(categoryIds, ",");
+            }
         }
 
         if (location != null) {

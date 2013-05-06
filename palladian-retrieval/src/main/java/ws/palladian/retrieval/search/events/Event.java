@@ -172,6 +172,11 @@ public class Event {
             builder.append(startDate);
             builder.append(", ");
         }
+        if (endDate != null) {
+            builder.append("endDate=");
+            builder.append(endDate);
+            builder.append(", ");
+        }
         if (recurringString != null) {
             builder.append("recurringString=");
             builder.append(recurringString);

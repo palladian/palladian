@@ -27,7 +27,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author David Urbansky
  * @see <a href="http://beta.upcoming.yahoo.com/services/api/explore/?method=event.search">Upcoming event search API</a>
+ * @deprecated Upcoming has shut down
  */
+@Deprecated
 public class UpcomingSearcher extends EventSearcher {
 
     /**
