@@ -8501,4 +8501,24 @@ A shrine to Saman, a Buddhist &quot;deity&quot; (People who have spent spiritual
       <format>text/x-wiki</format>
     </revision>
   </page>
+  <page>
+    <title>Sherkin</title>
+    <ns>0</ns>
+    <id>564269</id>
+    <redirect title="Sherkin Island" />
+    <revision>
+      <id>16398364</id>
+      <timestamp>2004-03-30T12:04:19Z</timestamp>
+      <contributor>
+        <username>Warofdreams</username>
+        <id>20855</id>
+      </contributor>
+      <minor/>
+      <comment>#REDIRECT [[Sherkin Island]]</comment>
+      <text xml:space="preserve" bytes="28">#REDIRECT [[Sherkin Island]]</text>
+      <sha1>bavfgi3ee9mkfwjntwzs3w4q3ekgvi9</sha1>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+    </revision>
+  </page>
 </mediawiki>

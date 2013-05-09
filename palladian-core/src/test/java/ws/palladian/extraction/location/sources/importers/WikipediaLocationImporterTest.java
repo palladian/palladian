@@ -20,13 +20,17 @@ public class WikipediaLocationImporterTest {
     public void testImport() throws FileNotFoundException, Exception {
         LocationStore locationStore = new CollectionLocationStore();
         WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore);
-        importer.importDump(ResourceHelper.getResourceFile("/apiResponse/WikipediaPagesDump.xml"));
+        importer.readRedirects(ResourceHelper.getResourceStream("/apiResponse/redirects.sql"));
+        importer.importLocationPages(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
+        importer.importLocationAlternativeNames(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
 
         Location location = locationStore.getLocation(564258);
         assertEquals("Sherkin Island", location.getPrimaryName());
         assertEquals(LocationType.LANDMARK, location.getType());
         assertEquals(51.466667, location.getLatitude(), 0.0001);
         assertEquals(-9.416667, location.getLongitude(), 0.0001);
+        assertEquals(1, location.getAlternativeNames().size());
+        assertEquals("Sherkin", location.getAlternativeNames().iterator().next().getName());
     }
 
     @Test

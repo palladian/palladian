@@ -1,9 +1,22 @@
 package ws.palladian.extraction.location.sources.importers;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
@@ -14,6 +27,12 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Philipp Katz
  */
 public class WikipediaPageContentHandler extends DefaultHandler {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPageContentHandler.class);
+
+    private int pageCounter;
+    private final StopWatch stopWatch;
 
     private final WikipediaPageCallback callback;
 
@@ -37,6 +56,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
     public WikipediaPageContentHandler(WikipediaPageCallback callback) {
         Validate.notNull(callback, "callback must not be null");
         this.callback = callback;
+        this.stopWatch = new StopWatch();
     }
 
     @Override
@@ -62,8 +82,16 @@ public class WikipediaPageContentHandler extends DefaultHandler {
         } else if (qName.equals("ns")) {
             namespaceId = Integer.valueOf(getBuffer());
         } else if (qName.equals("page")) {
-            callback.callback(new WikipediaPage(pageId, namespaceId, title, text));
+            processPage();
         }
+    }
+
+    private void processPage() {
+        if (++pageCounter % 1000 == 0) {
+            float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
+            LOGGER.info("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
+        }
+        callback.callback(new WikipediaPage(pageId, namespaceId, title, text));
     }
 
     @Override
@@ -80,6 +108,24 @@ public class WikipediaPageContentHandler extends DefaultHandler {
             buffer = new StringBuilder();
             bufferText = false;
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        SAXParser parser = saxParserFactory.newSAXParser();
+        File redirects = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
+        InputStream inputStream = new MultiStreamBZip2InputStream(new BufferedInputStream(
+                new FileInputStream(redirects)));
+        parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+
+            @Override
+            public void callback(WikipediaPage page) {
+                if (page.getTitle().equalsIgnoreCase("Sherkin")) {
+                    System.out.println(page);
+                    System.exit(0);
+                }
+            }
+        }));
     }
 
 }

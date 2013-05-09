@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources.importers;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,9 +9,9 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -21,12 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
@@ -40,9 +43,10 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">Link 2</a>
  * @author Philipp Katz
  */
-public class WikipediaLocationImporter implements WikipediaPageCallback {
+public class WikipediaLocationImporter {
 
-    // TODO get alternative names by redirects
+    // TODO add rule-based mapping for unmapped locations (e.g. having 'university' in their names, ...)
+    // TODO read redirects from page dump
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
@@ -120,91 +124,183 @@ public class WikipediaLocationImporter implements WikipediaPageCallback {
         return Collections.unmodifiableMap(map);
     }
 
+    /** The main namespace for import. Other namespaces contain meta pages, like discussions etc. */
+    private static final int MAIN_NAMESPACE = 0;
+
     private final LocationStore locationStore;
 
-    // private int id;
+    private final MultiMap<String, Integer> redirectDestinationSources;
 
-    private int pageCounter;
-    private StopWatch stopWatch;
+    private final Map<Integer, Integer> locationRedirectSourceDestination;
+
+    private final SAXParserFactory saxParserFactory;
 
     public WikipediaLocationImporter(LocationStore locationStore) {
         Validate.notNull(locationStore, "locationStore must not be null");
         this.locationStore = locationStore;
+        this.saxParserFactory = SAXParserFactory.newInstance();
+        this.redirectDestinationSources = MultiMap.create();
+        this.locationRedirectSourceDestination = CollectionHelper.newHashMap();
     }
 
     /**
+     * <p>
+     * Import locations from Wikipedia dump files: Pages dump file (like "enwiki-latest-pages-articles.xml.bz2") and
+     * redirects SQL dump (like "enwiki-20130403-redirect.sql.gz").
+     * </p>
      * 
-     * @param dumpXml
+     * @param dumpXml Path to the XML pages dump file (of type bz2).
+     * @param redirects Path to the SQL redirect dump file (of type gz).
+     * @throws IllegalArgumentException In case the given dumps cannot be read or are of wrong type.
+     * @throws IllegalStateException In case of any error during import.
      */
-    public void importDump(File dumpXml) {
+    public void importDump(File dumpXml, File redirects) {
+        Validate.notNull(dumpXml, "dumpXml must not be null");
+        Validate.notNull(redirects, "redirects must not be null");
+
+        if (!dumpXml.isFile() || !redirects.isFile()) {
+            throw new IllegalArgumentException("At least one of the given dump paths does not exist or is no file");
+        }
+        if (!dumpXml.getName().endsWith(".bz2")) {
+            throw new IllegalArgumentException("XML dump file must be of type .bz2");
+        }
+        if (!redirects.getName().endsWith(".gz")) {
+            throw new IllegalArgumentException("SQL dump file must be of type .gz");
+        }
+
+        StopWatch stopWatch = new StopWatch();
+
         InputStream in = null;
+        InputStream in2 = null;
+        InputStream in3 = null;
         try {
-            in = new FileInputStream(dumpXml);
-            importDump(in);
+            LOGGER.info("Reading redirects from {}", redirects);
+            in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(redirects)));
+            readRedirects(in);
+
+            in2 = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
+            LOGGER.info("Reading location data from {}", dumpXml);
+            importLocationPages(in2);
+
+            in3 = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
+            LOGGER.info("Reading location alternative names from {}", dumpXml);
+            importLocationAlternativeNames(in3);
+
         } catch (FileNotFoundException e) {
             throw new IllegalStateException(e);
-        } finally {
-            FileHelper.close(in);
-        }
-    }
-
-    public void importDump(InputStream inputStream) {
-        // id = locationStore.getHighestId() + 1;
-        pageCounter = 0;
-        stopWatch = new StopWatch();
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        try {
-            SAXParser parser = factory.newSAXParser();
-            parser.parse(inputStream, new WikipediaPageContentHandler(this));
         } catch (ParserConfigurationException e) {
             throw new IllegalStateException(e);
         } catch (SAXException e) {
             throw new IllegalStateException(e);
         } catch (IOException e) {
             throw new IllegalStateException(e);
+        } finally {
+            FileHelper.close(in, in2, in3);
         }
+        LOGGER.info("Finished import in {}", stopWatch);
     }
 
-    @Override
-    public void callback(WikipediaPage page) {
-        if (++pageCounter % 1000 == 0) {
-            float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
-            LOGGER.info("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
-        }
-        if (page.getNamespaceId() != 0) {
-            return;
-        }
-        if (IGNORED_PAGES.matcher(page.getTitle()).matches()) {
-            LOGGER.info("Ignoring '{}' by blacklist", page.getTitle());
-            return;
-        }
+    void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException,
+            IOException {
+        locationRedirectSourceDestination.clear();
+        final int[] counter = new int[] {0};
+        SAXParser parser = saxParserFactory.newSAXParser();
+        parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
 
-        String text = page.getText();
-        List<MarkupLocation> locations = extractCoordinateTag(text);
-
-        for (MarkupLocation location : locations) {
-            if (location.display != null && location.display.contains("title")) {
-                String name = cleanName(page.getTitle());
-
-                LocationType type = LocationType.UNDETERMINED;
-                if (location.type != null) {
-                    type = TYPE_MAPPING.get(location.type);
-                    if (type == null) { // no mapping
-                        LOGGER.warn("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
-                        continue;
-                    }
+            @Override
+            public void callback(WikipediaPage page) {
+                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                    return;
+                }
+                if (IGNORED_PAGES.matcher(page.getTitle()).matches()) {
+                    LOGGER.info("Ignoring '{}' by blacklist", page.getTitle());
+                    return;
                 }
 
-                locationStore.save(new ImmutableLocation(page.getPageId(), name, type, location.lat, location.lng,
-                        location.population));
+                String text = page.getText();
+                List<MarkupLocation> locations = extractCoordinateTag(text);
+
+                for (MarkupLocation location : locations) {
+                    if (location.display != null && location.display.contains("title")) {
+                        String name = cleanName(page.getTitle());
+
+                        LocationType type = LocationType.UNDETERMINED;
+                        if (location.type != null) {
+                            type = TYPE_MAPPING.get(location.type);
+                            if (type == null) { // no mapping
+                                LOGGER.warn("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
+                                continue;
+                            }
+                        }
+
+                        List<Integer> redirectSources = redirectDestinationSources.get(page.getTitle());
+                        if (redirectSources != null) {
+                            for (Integer redirectId : redirectSources) {
+                                locationRedirectSourceDestination.put(redirectId, page.getPageId());
+                            }
+                        }
+
+                        locationStore.save(new ImmutableLocation(page.getPageId(), name, type, location.lat,
+                                location.lng, location.population));
+                        counter[0]++;
+                    }
+                }
             }
-        }
+        }));
+        redirectDestinationSources.clear(); // not needed any more
+        LOGGER.info("Finished importing {} locations", counter[0]);
+        LOGGER.info("LocationRedirectSourceDestination contains {} entries", locationRedirectSourceDestination.size());
+    }
+
+    /**
+     * Import alternative names for the locations (which are given as Wikipedia redirects).
+     * 
+     * @param inputStream
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     * @throws IOException
+     */
+    void importLocationAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException,
+            IOException {
+        SAXParser parser = saxParserFactory.newSAXParser();
+        final int[] counter = new int[] {0};
+        parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+
+            @Override
+            public void callback(WikipediaPage page) {
+                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                    return;
+                }
+                Integer redirectDestination = locationRedirectSourceDestination.get(page.getPageId());
+                if (redirectDestination == null) {
+                    return;
+                }
+                AlternativeName alternativeName = new AlternativeName(page.getTitle(), null);
+                locationStore.addAlternativeNames(redirectDestination, Collections.singleton(alternativeName));
+                counter[0]++;
+            }
+        }));
+        LOGGER.info("Finished importing {} alternative names", counter[0]);
     }
 
     static String cleanName(String name) {
         String clean = name.replaceAll("\\s\\([^)]*\\)", "");
         clean = clean.replaceAll(",.*", "");
         return clean;
+    }
+
+    void readRedirects(InputStream inputStream) throws FileNotFoundException, IOException {
+        redirectDestinationSources.clear();
+        FileHelper.performActionOnEveryLine(inputStream, new WikipediaRedirectLineAction() {
+            @Override
+            public void readRedirect(int fromPageId, int namespace, String toTitle) {
+                if (namespace != MAIN_NAMESPACE) {
+                    return;
+                }
+                redirectDestinationSources.add(toTitle, fromPageId);
+            }
+        });
+        LOGGER.info("Finished reading {} redirects", redirectDestinationSources.size());
     }
 
 //    static boolean extractInfobox(String text) {
@@ -338,12 +434,9 @@ public class WikipediaLocationImporter implements WikipediaPageCallback {
         locationStore.truncate();
 
         WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore);
-        // String fileName = "/Users/pk/Downloads/enwiki-20130403-pages-meta-current1.xml-p000000010p000010000.bz2";
-        String fileName = "/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2";
-        InputStream in = new FileInputStream(new File(fileName));
-        // BZip2CompressorInputStream bzipIn = new BZip2CompressorInputStream(in);
-        InputStream bzipIn = new MultiStreamBZip2InputStream(in);
-        importer.importDump(bzipIn);
+        File dumpXml = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
+        File redirects = new File("/Users/pk/Downloads/enwiki-20130403-redirect.sql.gz");
+        importer.importDump(dumpXml, redirects);
     }
 
 }
