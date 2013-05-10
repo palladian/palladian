@@ -20,9 +20,8 @@ public class WikipediaLocationImporterTest {
     public void testImport() throws FileNotFoundException, Exception {
         LocationStore locationStore = new CollectionLocationStore();
         WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore);
-        importer.readRedirects(ResourceHelper.getResourceStream("/apiResponse/redirects.sql"));
         importer.importLocationPages(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
-        importer.importLocationAlternativeNames(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
+        importer.importAlternativeNames(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
 
         Location location = locationStore.getLocation(564258);
         assertEquals("Sherkin Island", location.getPrimaryName());
@@ -31,6 +30,12 @@ public class WikipediaLocationImporterTest {
         assertEquals(-9.416667, location.getLongitude(), 0.0001);
         assertEquals(1, location.getAlternativeNames().size());
         assertEquals("Sherkin", location.getAlternativeNames().iterator().next().getName());
+
+        location = locationStore.getLocation(1227);
+        assertEquals("Ashmore and Cartier Islands", location.getPrimaryName());
+        assertEquals(-12.258333, location.getLatitude(), 0.0001);
+        assertEquals(123.041667, location.getLongitude(), 0.0001);
+        assertEquals(0, location.getAlternativeNames().size());
     }
 
     @Test
@@ -112,6 +117,8 @@ public class WikipediaLocationImporterTest {
                 WikipediaLocationImporter.cleanName("Theater District (San Francisco, California)"));
         assertEquals("Oregon", WikipediaLocationImporter.cleanName("Oregon, Illinois"));
         assertEquals("West Seneca", WikipediaLocationImporter.cleanName("West Seneca (town), New York"));
+        assertEquals("Capital of the Cocos Islands",
+                WikipediaLocationImporter.cleanName("Capital of the Cocos (Keeling) Islands"));
     }
 
 }
