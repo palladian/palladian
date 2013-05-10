@@ -1,13 +1,13 @@
 # ************************************************************
 # Sequel Pro SQL dump
-# Version 4004
+# Version 4096
 #
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-03-31 16:04:12 +0000
+# Erstellungsdauer: 2013-05-10 15:02:45 +0000
 # ************************************************************
 
 
@@ -29,6 +29,7 @@ CREATE TABLE `location_alternative_names` (
   `locationId` bigint(20) unsigned NOT NULL COMMENT 'The id of the location.',
   `alternativeName` varchar(200) DEFAULT NULL COMMENT 'An alternative name used for the location.',
   `language` char(2) DEFAULT NULL COMMENT 'The language for this alternative name, in ISO 639-1 format. NULL means no specified language.',
+  UNIQUE KEY `idNameLangUnique` (`locationId`,`alternativeName`,`language`),
   KEY `locationId` (`locationId`),
   KEY `alternativeName` (`alternativeName`),
   KEY `language` (`language`)
@@ -48,7 +49,7 @@ CREATE TABLE `locations` (
   `latitude` double(8,5) DEFAULT NULL COMMENT 'The latitude of the location.',
   `longitude` double(8,5) DEFAULT NULL COMMENT 'The longitude of the location.',
   `population` bigint(15) unsigned DEFAULT NULL COMMENT 'If applicable, the population of the location.',
-  `ancestorIds` varchar(255) COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes, starting with the root ancestor. String must start and end with slash character.',
+  `ancestorIds` varchar(255) DEFAULT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes, starting with the root ancestor. String must start and end with slash character.',
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `type` (`type`),

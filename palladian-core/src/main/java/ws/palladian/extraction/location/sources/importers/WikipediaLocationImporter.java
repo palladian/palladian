@@ -47,6 +47,8 @@ public class WikipediaLocationImporter {
 
     // TODO add rule-based mapping for unmapped locations (e.g. having 'university' in their names, ...)
     // TODO read redirects from page dump
+    // TODO ignore redirects pointing to an anchor (e.g. 'Ashmore and Cartier Islands/Government' -> Ashmore and Cartier
+    // Islands#Government)
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
@@ -275,7 +277,8 @@ public class WikipediaLocationImporter {
                 if (redirectDestination == null) {
                     return;
                 }
-                AlternativeName alternativeName = new AlternativeName(page.getTitle(), null);
+                String name = cleanName(page.getTitle());
+                AlternativeName alternativeName = new AlternativeName(name, null);
                 locationStore.addAlternativeNames(redirectDestination, Collections.singleton(alternativeName));
                 counter[0]++;
             }

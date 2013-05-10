@@ -111,6 +111,7 @@ public class WikipediaLocationImporterTest {
         assertEquals("Theater District",
                 WikipediaLocationImporter.cleanName("Theater District (San Francisco, California)"));
         assertEquals("Oregon", WikipediaLocationImporter.cleanName("Oregon, Illinois"));
+        assertEquals("West Seneca", WikipediaLocationImporter.cleanName("West Seneca (town), New York"));
     }
 
 }
