@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -29,7 +28,6 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
@@ -46,9 +44,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 public class WikipediaLocationImporter {
 
     // TODO add rule-based mapping for unmapped locations (e.g. having 'university' in their names, ...)
-    // TODO read redirects from page dump
-    // TODO ignore redirects pointing to an anchor (e.g. 'Ashmore and Cartier Islands/Government' -> Ashmore and Cartier
-    // Islands#Government)
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
@@ -131,9 +126,7 @@ public class WikipediaLocationImporter {
 
     private final LocationStore locationStore;
 
-    private final MultiMap<String, Integer> redirectDestinationSources;
-
-    private final Map<Integer, Integer> locationRedirectSourceDestination;
+    private final Map<String, Integer> locationNamesIds;
 
     private final SAXParserFactory saxParserFactory;
 
@@ -141,8 +134,7 @@ public class WikipediaLocationImporter {
         Validate.notNull(locationStore, "locationStore must not be null");
         this.locationStore = locationStore;
         this.saxParserFactory = SAXParserFactory.newInstance();
-        this.redirectDestinationSources = MultiMap.create();
-        this.locationRedirectSourceDestination = CollectionHelper.newHashMap();
+        this.locationNamesIds = CollectionHelper.newHashMap();
     }
 
     /**
@@ -152,41 +144,32 @@ public class WikipediaLocationImporter {
      * </p>
      * 
      * @param dumpXml Path to the XML pages dump file (of type bz2).
-     * @param redirects Path to the SQL redirect dump file (of type gz).
      * @throws IllegalArgumentException In case the given dumps cannot be read or are of wrong type.
      * @throws IllegalStateException In case of any error during import.
      */
-    public void importDump(File dumpXml, File redirects) {
+    public void importDumpBz2(File dumpXml) {
         Validate.notNull(dumpXml, "dumpXml must not be null");
-        Validate.notNull(redirects, "redirects must not be null");
 
-        if (!dumpXml.isFile() || !redirects.isFile()) {
+        if (!dumpXml.isFile()) {
             throw new IllegalArgumentException("At least one of the given dump paths does not exist or is no file");
         }
         if (!dumpXml.getName().endsWith(".bz2")) {
             throw new IllegalArgumentException("XML dump file must be of type .bz2");
-        }
-        if (!redirects.getName().endsWith(".gz")) {
-            throw new IllegalArgumentException("SQL dump file must be of type .gz");
         }
 
         StopWatch stopWatch = new StopWatch();
 
         InputStream in = null;
         InputStream in2 = null;
-        InputStream in3 = null;
         try {
-            LOGGER.info("Reading redirects from {}", redirects);
-            in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(redirects)));
-            readRedirects(in);
+
+            in = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
+            LOGGER.info("Reading location data from {}", dumpXml);
+            importLocationPages(in);
 
             in2 = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
-            LOGGER.info("Reading location data from {}", dumpXml);
-            importLocationPages(in2);
-
-            in3 = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
             LOGGER.info("Reading location alternative names from {}", dumpXml);
-            importLocationAlternativeNames(in3);
+            importAlternativeNames(in2);
 
         } catch (FileNotFoundException e) {
             throw new IllegalStateException(e);
@@ -197,14 +180,12 @@ public class WikipediaLocationImporter {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } finally {
-            FileHelper.close(in, in2, in3);
+            FileHelper.close(in, in2);
         }
         LOGGER.info("Finished import in {}", stopWatch);
     }
 
-    void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException,
-            IOException {
-        locationRedirectSourceDestination.clear();
+    void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
         SAXParser parser = saxParserFactory.newSAXParser();
         parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
@@ -229,29 +210,21 @@ public class WikipediaLocationImporter {
                         LocationType type = LocationType.UNDETERMINED;
                         if (location.type != null) {
                             type = TYPE_MAPPING.get(location.type);
-                            if (type == null) { // no mapping
+                            if (type == null) { // explicit 'null' mapping -> ignore
                                 LOGGER.warn("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
                                 continue;
                             }
                         }
 
-                        List<Integer> redirectSources = redirectDestinationSources.get(page.getTitle());
-                        if (redirectSources != null) {
-                            for (Integer redirectId : redirectSources) {
-                                locationRedirectSourceDestination.put(redirectId, page.getPageId());
-                            }
-                        }
-
                         locationStore.save(new ImmutableLocation(page.getPageId(), name, type, location.lat,
                                 location.lng, location.population));
+                        locationNamesIds.put(name, page.getPageId());
                         counter[0]++;
                     }
                 }
             }
         }));
-        redirectDestinationSources.clear(); // not needed any more
         LOGGER.info("Finished importing {} locations", counter[0]);
-        LOGGER.info("LocationRedirectSourceDestination contains {} entries", locationRedirectSourceDestination.size());
     }
 
     /**
@@ -262,8 +235,7 @@ public class WikipediaLocationImporter {
      * @throws ParserConfigurationException
      * @throws IOException
      */
-    void importLocationAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException,
-            IOException {
+    void importAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         SAXParser parser = saxParserFactory.newSAXParser();
         final int[] counter = new int[] {0};
         parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
@@ -273,13 +245,23 @@ public class WikipediaLocationImporter {
                 if (page.getNamespaceId() != MAIN_NAMESPACE) {
                     return;
                 }
-                Integer redirectDestination = locationRedirectSourceDestination.get(page.getPageId());
-                if (redirectDestination == null) {
+                if (!page.isRedirect()) {
+                    return;
+                }
+                // ignore redirects pointing to an anchor (e.g. 'Ashmore and Cartier Islands/Government' -> Ashmore and
+                // Cartier Islands#Government)
+                String redirectTo = page.getRedirectTitle();
+                if (redirectTo.contains("#")) {
+                    LOGGER.debug("Skip anchor redirect '{}'", redirectTo);
+                    return;
+                }
+                Integer id = locationNamesIds.get(redirectTo);
+                if (id == null) {
                     return;
                 }
                 String name = cleanName(page.getTitle());
                 AlternativeName alternativeName = new AlternativeName(name, null);
-                locationStore.addAlternativeNames(redirectDestination, Collections.singleton(alternativeName));
+                locationStore.addAlternativeNames(id, Collections.singleton(alternativeName));
                 counter[0]++;
             }
         }));
@@ -290,20 +272,6 @@ public class WikipediaLocationImporter {
         String clean = name.replaceAll("\\s\\([^)]*\\)", "");
         clean = clean.replaceAll(",.*", "");
         return clean;
-    }
-
-    void readRedirects(InputStream inputStream) throws FileNotFoundException, IOException {
-        redirectDestinationSources.clear();
-        FileHelper.performActionOnEveryLine(inputStream, new WikipediaRedirectLineAction() {
-            @Override
-            public void readRedirect(int fromPageId, int namespace, String toTitle) {
-                if (namespace != MAIN_NAMESPACE) {
-                    return;
-                }
-                redirectDestinationSources.add(toTitle, fromPageId);
-            }
-        });
-        LOGGER.info("Finished reading {} redirects", redirectDestinationSources.size());
     }
 
 //    static boolean extractInfobox(String text) {
@@ -438,8 +406,7 @@ public class WikipediaLocationImporter {
 
         WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore);
         File dumpXml = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
-        File redirects = new File("/Users/pk/Downloads/enwiki-20130403-redirect.sql.gz");
-        importer.importDump(dumpXml, redirects);
+        importer.importDumpBz2(dumpXml);
     }
 
 }
