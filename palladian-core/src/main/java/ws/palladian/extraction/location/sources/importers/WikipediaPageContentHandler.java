@@ -33,7 +33,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPageContentHandler.class);
 
-    private static final Pattern REDIRECT_MARKUP = Pattern.compile("#redirect\\s*\\[\\[(.*)\\]\\]",
+    private static final Pattern REDIRECT_MARKUP = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
             Pattern.CASE_INSENSITIVE);
 
     private int pageCounter;

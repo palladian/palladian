@@ -63,34 +63,6 @@ public class WikipediaLocationImporter {
             // -(9)----------------------------------
             "\\}\\}", Pattern.CASE_INSENSITIVE);//
 
-//    private static final String LATD = "latd|lat_deg|lat_d|lat_degrees";
-//    private static final String LATM = "latm|lat_min|lat_m|lat_minutes";
-//    private static final String LATS = "lats|lat_sec|lat_s|lat_seconds";
-//    private static final String LATNS = "latNS|lat_NS|lat_direction";
-//    private static final String LNGD = "longd|long_deg|long_d|long_degrees|lond|lon_deg|long_d|lon_degrees";
-//    private static final String LNGM = "longm|long_min|long_m|long_minutes|lonm|lon_min|lon_m|lon_minutes";
-//    private static final String LNGS = "longs|long_sec|long_s|long_seconds|lons|lon_sec|lon_s|lon_seconds";
-//    private static final String LNGEW = "longEW|long_EW|long_direction|lonEW|lon_EW|lon_direction";
-
-//    /**
-//     * matcher for info box content:
-//     * | latd = 37
-//     * | latm = 47
-//     * | latNS = N
-//     * | longd = 122
-//     * | longm = 25
-//     * | longEW = W
-//     */
-//    private static final Pattern INFOBOX_PATTERN = Pattern.compile("" + //
-//            "\\|\\s*(?:" + LATD + ")\\s*=\\s*(-?\\d+(?:\\.\\d+)?)" + //
-//            "(?:\\s*\\|\\s*(?:" + LATM + ")\\s*=\\s*(\\d+(?:\\.\\d+)?))?" + //
-//            "(?:\\s*\\|\\s*(?:" + LATS + ")\\s*=\\s*(\\d+(?:\\.\\d+)?))?" + //
-//            "(?:\\s*\\|\\s*(?:" + LATNS + ")(?:\\s*=\\s*([NS])))?" + //
-//            "\\s*\\|\\s*(?:" + LNGD + ")\\s*=\\s*(-?\\d+(?:\\.\\d+)?)" + //
-//            "(?:\\s*\\|\\s*(?:" + LNGM + ")\\s*=\\s*(\\d+(?:\\.\\d+)?))?" + //
-//            "(?:\\s*\\|\\s*(?:" + LNGS + ")\\s*=\\s*(\\d+(?:\\.\\d+)?))?" + //
-//            "(?:\\s*\\|\\s*(?:" + LNGEW + ")(?:\\s*=\\s*([EW])))?");
-
     /** Pages with those titles will be ignored. */
     private static final Pattern IGNORED_PAGES = Pattern.compile("(?:Geography|Battle) of .*");
 
@@ -260,6 +232,10 @@ public class WikipediaLocationImporter {
                     return;
                 }
                 String name = cleanName(page.getTitle());
+                if (name.startsWith(redirectTo + "/")) {
+                    LOGGER.debug("Skip redirect from '{}' to '{}'", name, redirectTo);
+                    return;
+                }
                 AlternativeName alternativeName = new AlternativeName(name, null);
                 locationStore.addAlternativeNames(id, Collections.singleton(alternativeName));
                 counter[0]++;
@@ -273,18 +249,6 @@ public class WikipediaLocationImporter {
         clean = clean.replaceAll(",.*", "");
         return clean;
     }
-
-//    static boolean extractInfobox(String text) {
-//        Matcher m = INFOBOX_PATTERN.matcher(text);
-//        while (m.find()) {
-//            double decLat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
-//            double decLng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
-//            System.out.println(m.group());
-//            System.out.println(decLat + ", " + decLng);
-//            return true;
-//        }
-//        return false;
-//    }
 
     static List<MarkupLocation> extractCoordinateTag(String text) {
         List<MarkupLocation> result = CollectionHelper.newArrayList();
