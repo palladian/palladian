@@ -277,7 +277,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     @Override
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
         for (AlternativeName alternativeName : alternativeNames) {
-            String languageString = null;
+            String languageString = StringUtils.EMPTY;
             if (alternativeName.getLanguage() != null) {
                 languageString = alternativeName.getLanguage().getIso6391();
             }

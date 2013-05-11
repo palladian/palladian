@@ -1,5 +1,7 @@
 package ws.palladian.helper.constants;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * <p>
  * Enumeration for languages.
@@ -78,10 +80,13 @@ public enum Language {
      * 639-1</a> Code.
      * </p>
      * 
-     * @param iso6391 The ISO 639-1 Code, not <code>null</code>.
+     * @param iso6391 The ISO 639-1 code.
      * @return The {@link Language} for the specified code, or <code>null</code> if no matching language was found.
      */
     public static Language getByIso6391(String iso6391) {
+        if (StringUtils.isBlank(iso6391)) {
+            return null;
+        }
         for (Language language : values()) {
             if (language.getIso6391().equalsIgnoreCase(iso6391)) {
                 return language;
