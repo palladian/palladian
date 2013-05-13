@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.sources;
+package ws.palladian.extraction.location.sources.importers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,6 +15,8 @@ import org.junit.Test;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.sources.CollectionLocationStore;
+import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.extraction.location.sources.importers.GeonamesImporter;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
