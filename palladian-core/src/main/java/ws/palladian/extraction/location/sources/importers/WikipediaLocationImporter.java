@@ -111,8 +111,7 @@ public class WikipediaLocationImporter {
 
     /**
      * <p>
-     * Import locations from Wikipedia dump files: Pages dump file (like "enwiki-latest-pages-articles.xml.bz2") and
-     * redirects SQL dump (like "enwiki-20130403-redirect.sql.gz").
+     * Import locations from Wikipedia dump files: Pages dump file (like "enwiki-latest-pages-articles.xml.bz2").
      * </p>
      * 
      * @param dumpXml Path to the XML pages dump file (of type bz2).
@@ -167,6 +166,9 @@ public class WikipediaLocationImporter {
                 if (page.getNamespaceId() != MAIN_NAMESPACE) {
                     return;
                 }
+                if (page.isRedirect()) {
+                    return;
+                }
                 if (IGNORED_PAGES.matcher(page.getTitle()).matches()) {
                     LOGGER.info("Ignoring '{}' by blacklist", page.getTitle());
                     return;
@@ -190,6 +192,7 @@ public class WikipediaLocationImporter {
 
                         locationStore.save(new ImmutableLocation(page.getPageId(), name, type, location.lat,
                                 location.lng, location.population));
+                        LOGGER.debug("Saved location with ID {}, name {}", page.getPageId(), name);
                         locationNamesIds.put(name, page.getPageId());
                         counter[0]++;
                     }
@@ -238,6 +241,7 @@ public class WikipediaLocationImporter {
                 }
                 AlternativeName alternativeName = new AlternativeName(name, null);
                 locationStore.addAlternativeNames(id, Collections.singleton(alternativeName));
+                LOGGER.debug("Save alternative name {} for location with ID {}", name, id);
                 counter[0]++;
             }
         }));
