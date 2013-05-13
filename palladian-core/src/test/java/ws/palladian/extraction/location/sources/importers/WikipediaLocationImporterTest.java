@@ -36,6 +36,10 @@ public class WikipediaLocationImporterTest {
         assertEquals(-12.258333, location.getLatitude(), 0.0001);
         assertEquals(123.041667, location.getLongitude(), 0.0001);
         assertEquals(0, location.getAlternativeNames().size());
+
+        location = locationStore.getLocation(27394805);
+        assertEquals("Heir Island", location.getPrimaryName());
+
     }
 
     @Test
@@ -126,6 +130,12 @@ public class WikipediaLocationImporterTest {
         assertEquals(1, locations.size());
         assertEquals("city", locations.get(0).type);
         assertEquals("inline,title", locations.get(0).display);
+
+        locations = WikipediaLocationImporter
+                .extractCoordinateTag("{{Coord|51|30|N|9|26|W|region:IE_type:isle|display=title,inline}}");
+        assertEquals(1, locations.size());
+        assertEquals("isle", locations.get(0).type);
+        assertEquals("title,inline", locations.get(0).display);
     }
 
     @Test

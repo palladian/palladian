@@ -144,11 +144,15 @@ public class WikipediaPageContentHandler extends DefaultHandler {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.isRedirect()) {
-                    if (page.getRedirectTitle().contains("#")) {
-                        System.out.println(page);
-                    }
+                if (page.getPageId() == 27394805) {
+                    System.out.println(page);
+                    System.exit(0);
                 }
+//                if (page.isRedirect()) {
+//                    if (page.getRedirectTitle().contains("#")) {
+//                        System.out.println(page);
+//                    }
+//                }
 //                if (page.getTitle().equalsIgnoreCase("Sherkin")) {
 //                    System.out.println(page);
 //                    System.exit(0);
