@@ -2,7 +2,7 @@ package ws.palladian.extraction.location;
 
 /**
  * <p>
- * This enumeration provides available types for different {@link ImmutableLocation}s.
+ * This enumeration provides available types for different {@link Location}s.
  * </p>
  * 
  * @author Philipp Katz
