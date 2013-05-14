@@ -230,7 +230,8 @@ public class ConfusionMatrix {
      * </p>
      * 
      * @param category The category.
-     * @param alpha A value between 0 and 1 to weight precision and recall (0.5 for F1).
+     * @param alpha A value between 0 and 1 to weight precision and recall (0.5 for F1). Use values of 0.333333333 for
+     *            F2 score and 0.66666666666666 for F0.5 score and so on.
      * @return The F measure for a given category.
      */
     public double getF(String category, double alpha) {
@@ -239,6 +240,7 @@ public class ConfusionMatrix {
         if (precision < 0 || recall < 0) {
             return -1;
         }
+        // return (1.+alpha) * ((precision * recall)/(alpha*precision+recall));
         return 1.0 / (alpha * 1.0 / precision + (1.0 - alpha) * 1.0 / recall);
     }
 
