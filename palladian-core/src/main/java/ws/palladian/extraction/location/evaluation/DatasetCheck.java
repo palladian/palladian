@@ -27,7 +27,7 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 final class DatasetCheck {
 
-    private static final Pattern TAG_REGEX = Pattern.compile("<([^>]*)>([^<]*)<(/[^>]*)>");
+    private static final Pattern TAG_REGEX = Pattern.compile("<([^>]*)>([^<]*)<(/?)([^>]*)>");
 
     private static final Set<String> allowedTags;
 
@@ -78,19 +78,20 @@ final class DatasetCheck {
 
             while (matcher.find()) {
 
+                // System.out.println(matcher.group());
+
                 String openingTag = matcher.group(1);
                 if (openingTag.contains("role=\"main\"")) {
                     openingTag = openingTag.substring(0, openingTag.indexOf("role=\"main\"")).trim();
                 }
                 String content = matcher.group(2);
-                String closingTag = matcher.group(3);
+                String closingSlash = matcher.group(3);
+                String closingTag = matcher.group(4);
 
                 // closing tag does not start with slash
-                if (!closingTag.startsWith("/")) {
+                if (!"/".equals(closingSlash)) {
                     System.out.println("[error] " + closingTag + " does not start with '/' in " + fileName);
                 }
-
-                closingTag = closingTag.substring(1);
 
                 // opening does not match closing tag
                 if (!openingTag.equals(closingTag)) {
@@ -162,7 +163,7 @@ final class DatasetCheck {
     }
 
     public static void main(String[] args) {
-        performCheck(new File("/Users/pk/Desktop/LocationLab/LocationDatasetUliana"));
+        performCheck(new File("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2"));
     }
 
 }
