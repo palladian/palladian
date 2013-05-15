@@ -17,7 +17,6 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.CollectionLocationStore;
 import ws.palladian.extraction.location.sources.LocationStore;
-import ws.palladian.extraction.location.sources.importers.GeonamesImporter;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
 
@@ -438,7 +437,7 @@ public class GeonamesImporterTest {
     public void testAlternativeNames() {
         Location location = locationStore.getLocation(2825297);
         Collection<AlternativeName> alternativeNames = location.getAlternativeNames();
-        assertEquals(39, alternativeNames.size());
+        assertEquals(57, alternativeNames.size());
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.GERMAN)));
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.ENGLISH)));
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.SPANISH)));
