@@ -15,6 +15,7 @@ import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -24,7 +25,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * 
  */
-public class PalladianLangDetect extends LanguageClassifier {
+public class PalladianLangDetect implements LanguageClassifier {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLangDetect.class);
@@ -111,8 +112,9 @@ public class PalladianLangDetect extends LanguageClassifier {
     }
 
     @Override
-    public String classify(String text) {
-        return classifyAsCategoryEntry(text).getMostLikelyCategory();
+    public Language classify(String text) {
+        String lanugageString = classifyAsCategoryEntry(text).getMostLikelyCategory();
+        return Language.getByIso6391(lanugageString);
     }
 
     public CategoryEntries classifyAsCategoryEntry(String text) {
