@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.language.LanguageClassifier;
 import ws.palladian.classification.language.PalladianLangDetect;
-import ws.palladian.classification.language.TagTheNetLangDetect;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -38,7 +37,6 @@ public class LanguageDetectionEvaluation {
         // LanguageClassifier googleLanguageClassifier = new GoogleLangDetect();
         // LanguageClassifier alchemyLanguageClassifier = new AlchemyLangDetect();
         LanguageClassifier palladianClassifier = new PalladianLangDetect(PALLADIAN_MODEL_PATH);
-        LanguageClassifier tagTheNetClassifier = new TagTheNetLangDetect();
 
         // we tell Palladian that only a subset of the learned languages is allowed for this evaluation, otherwise
         // jLangDetect has an advantage
@@ -55,8 +53,6 @@ public class LanguageDetectionEvaluation {
         int alchemyClassified = 0;
         int palladianCorrect = 0;
         int palladianClassified = 0;
-        int ttnCorrect = 0;
-        int ttnClassified = 0;
 
         int lineCount = 1;
         int totalLines = lines.size();
@@ -77,7 +73,6 @@ public class LanguageDetectionEvaluation {
             boolean google = false;
             boolean alchemy = false;
             boolean palladian = false;
-            boolean ttn = false;
 
             // jlang
             // String jLangClass = jLangDetectClassifier.classify(document);
@@ -121,20 +116,10 @@ public class LanguageDetectionEvaluation {
                 palladianClassified++;
             }
 
-            // tagthe.net
-            String ttnClass = tagTheNetClassifier.classify(document);
-            if (correctLanguage.equals(ttnClass)) {
-                ttnCorrect++;
-                ttn = true;
-            }
-            if (ttnClass.length() > 0) {
-                ttnClassified++;
-            }
-
             double percent = 100.0 * MathHelper.round(lineCount / (double) totalLines, 2);
             LOGGER.info("line " + lineCount + ", " + percent + "% ("
                     + palladianClassifier.mapLanguageCode(correctLanguage) + ") -> jlang: " + jlang + " | google: "
-                    + google + " | alchemy: " + alchemy + " | palladian: " + palladian + " | tagthenet: " + ttn);
+                    + google + " | alchemy: " + alchemy + " | palladian: " + palladian);
 
             lineCount++;
         }
@@ -149,10 +134,6 @@ public class LanguageDetectionEvaluation {
         LOGGER.info("Accuracy Palladian  : "
                 + MathHelper.round(100 * palladianCorrect / (double) palladianClassified, 2) + "% ("
                 + palladianClassified + " classified)");
-        LOGGER.info("Accuracy tagthe.net : " + MathHelper.round(100 * ttnCorrect / (double) ttnClassified, 2) + "% ("
-                + ttnClassified + " classified)");
-        
-        LOGGER.info("tagthe.net detected: " + ((TagTheNetLangDetect) tagTheNetClassifier).getDetectedLanguages());
     }
 
     /**
