@@ -11,6 +11,7 @@ import ws.palladian.classification.language.LanguageClassifier;
 import ws.palladian.classification.language.PalladianLangDetect;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 
@@ -107,19 +108,18 @@ public class LanguageDetectionEvaluation {
             // }
 
             // palladian
-            String palladianClass = palladianClassifier.classify(document);
-            if (correctLanguage.equals(palladianClass)) {
+            Language palladianClass = palladianClassifier.classify(document);
+            if (correctLanguage.equals(palladianClass.getIso6391())) {
                 palladianCorrect++;
                 palladian = true;
             }
-            if (palladianClass.length() > 0) {
+            if (palladianClass != null) {
                 palladianClassified++;
             }
 
-            double percent = 100.0 * MathHelper.round(lineCount / (double) totalLines, 2);
-            LOGGER.info("line " + lineCount + ", " + percent + "% ("
-                    + palladianClassifier.mapLanguageCode(correctLanguage) + ") -> jlang: " + jlang + " | google: "
-                    + google + " | alchemy: " + alchemy + " | palladian: " + palladian);
+            double percent = 100.0 * MathHelper.round(lineCount / (double)totalLines, 2);
+            LOGGER.info("line " + lineCount + ", " + percent + "% (" + correctLanguage + ") -> jlang: " + jlang
+                    + " | google: " + google + " | alchemy: " + alchemy + " | palladian: " + palladian);
 
             lineCount++;
         }

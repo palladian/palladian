@@ -18,6 +18,7 @@ import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -28,7 +29,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  * @author Philipp Katz
  */
-public class JLangDetect extends LanguageClassifier {
+public class JLangDetect implements LanguageClassifier {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(JLangDetect.class);
@@ -134,7 +135,7 @@ public class JLangDetect extends LanguageClassifier {
     }
 
     @Override
-    public String classify(String text) {
+    public Language classify(String text) {
         Collection<Score> languages = langDetector.scoreLanguages(text);
         Iterator<Score> iterator = languages.iterator();
         if (iterator.hasNext()) {
@@ -144,7 +145,7 @@ public class JLangDetect extends LanguageClassifier {
             String lang = StringHelper.getSubstringBetween(scoreString, "Score{language='", "', score=");
             double score = Double.valueOf(StringHelper.getSubstringBetween(scoreString, "score=", "}"));
             if (score > THRESHOLD) {
-                return lang;
+                return Language.getByIso6391(lang);
             }
         }
         return null;
