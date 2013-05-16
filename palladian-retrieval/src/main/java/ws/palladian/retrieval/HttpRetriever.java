@@ -144,12 +144,19 @@ public class HttpRetriever {
     /** The socket timeout when checking for redirects. */
     private long socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
+    /** Number of retries for one request, if error occurs. */
     private int numRetries = DEFAULT_NUM_RETRIES;
+
+    /** Username for authentication, or <code>null</code> if no authentication necessary. */
+    private String username;
+
+    /** Password for authentication, or <code>null</code> if no authentication necessary. */
+    private String password;
 
     // ///////////// Misc. ////////
 
     /** Hook for http* methods. */
-    private HttpHook httpHook = new HttpHook.DefaultHttpHook();
+    private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -181,7 +188,7 @@ public class HttpRetriever {
      * </p>
      **/
     // TODO visibility should be set to protected, as instances are created by the factory
-    protected HttpRetriever() {
+    public HttpRetriever() {
         setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
@@ -189,36 +196,6 @@ public class HttpRetriever {
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
     }
 
-    private AbstractHttpClient createHttpClient() {
-
-        // initialize the HttpClient
-        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, httpParams);
-
-        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-        backend.setHttpRequestRetryHandler(retryHandler);
-
-        /*
-         * fix #261 to get connection metrics for head requests, see also discussion at
-         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
-         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
-         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
-         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
-         */
-        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
-            @Override
-            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-                HttpConnectionMetrics metrics = conn.getMetrics();
-                context.setAttribute(CONTEXT_METRICS_ID, metrics);
-            }
-        };
-
-        backend.addResponseInterceptor(metricsSaver);
-        // end edit
-
-        return backend;
-
-    }
 
     // ////////////////////////////////////////////////////////////////
     // HTTP methods
@@ -246,7 +223,9 @@ public class HttpRetriever {
      * @param headers map with key-value pairs of request headers.
      * @return response for the GET.
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
+     * @deprecated Use {@link #execute(HttpRequest)} instead.
      */
+    @Deprecated
     public HttpResult httpGet(String url, Map<String, String> headers) throws HttpException {
         Validate.notEmpty(url, "url must not be empty");
 
@@ -296,7 +275,9 @@ public class HttpRetriever {
      * @param content name-value pairs for the POST.
      * @return response for the POST.
      * @throws HttpException in case the POST fails, or the supplied URL is not valid.
+     * @deprecated Use {@link #execute(HttpRequest)} instead.
      */
+    @Deprecated
     public HttpResult httpPost(String url, Map<String, String> content) throws HttpException {
         return httpPost(url, Collections.<String, String> emptyMap(), content);
     }
@@ -311,7 +292,9 @@ public class HttpRetriever {
      * @param content name-value pairs for the POST.
      * @return response for the POST.
      * @throws HttpException in case the POST fails, or the supplied URL is not valid.
+     * @deprecated Use {@link #execute(HttpRequest)} instead.
      */
+    @Deprecated
     public HttpResult httpPost(String url, Map<String, String> headers, Map<String, String> content)
             throws HttpException {
         Validate.notEmpty(url, "url must not be empty");
@@ -377,6 +360,47 @@ public class HttpRetriever {
         }
 
         return execute(request.getUrl(), httpRequest);
+    }
+
+    // ////////////////////////////////////////////////////////////////
+    // internal functionality
+    // ////////////////////////////////////////////////////////////////
+
+    private AbstractHttpClient createHttpClient() {
+
+        // initialize the HttpClient
+        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, httpParams);
+
+        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
+        backend.setHttpRequestRetryHandler(retryHandler);
+
+        /*
+         * fix #261 to get connection metrics for head requests, see also discussion at
+         * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
+         * start code taken from apache, licensed as http://www.apache.org/licenses/LICENSE-2.0
+         * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
+         * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
+         */
+        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
+            @Override
+            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnectionMetrics metrics = conn.getMetrics();
+                context.setAttribute(CONTEXT_METRICS_ID, metrics);
+            }
+        };
+
+        backend.addResponseInterceptor(metricsSaver);
+        // end edit
+
+        // set the credentials, if they were provided
+        if (StringUtils.isNotEmpty(username)) {
+            Credentials credentials = new UsernamePasswordCredentials(username, password);
+            backend.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
+        }
+
+        return backend;
+
     }
 
     private String createUrl(HttpRequest httpRequest) {
@@ -490,21 +514,22 @@ public class HttpRetriever {
     }
 
     private void setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
-        Proxy proxy = httpHook.getProxy(url);
-        if (proxy != null) {
-            HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
-            backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
+        Proxy proxy = proxyProvider.getProxy(url);
+        if (proxy == null) {
+            return;
+        }
+        HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
+        backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
 
-            // set proxy authentication if available
-            if (StringUtils.isNotEmpty(proxy.getUsername())) {
-                Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
-                AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
-                backend.getCredentialsProvider().setCredentials(scope, credentials);
+        // set proxy authentication if available
+        if (StringUtils.isNotEmpty(proxy.getUsername())) {
+            Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
+            AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
+            backend.getCredentialsProvider().setCredentials(scope, credentials);
 
-                String usernamePassword = proxy.getUsername() + ":" + proxy.getPassword();
-                String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
-                request.setHeader("Proxy-Authorization", "Basic " + encoded);
-            }
+            String usernamePassword = proxy.getUsername() + ":" + proxy.getPassword();
+            String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
+            request.setHeader("Proxy-Authorization", "Basic " + encoded);
         }
     }
 
@@ -660,14 +685,6 @@ public class HttpRetriever {
         HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
     }
 
-//    public void setCredentials(AuthScope scope, Credentials defaultcreds) {
-//        backend.getCredentialsProvider().setCredentials(scope, defaultcreds);
-//    }
-
-//    public long getConnectionTimeout() {
-//        return HttpConnectionParams.getConnectionTimeout(httpParams);
-//    }
-
     /**
      * <p>
      * Resets this {@link HttpRetriever}'s socket timeout time overwriting the old value. The default value for this
@@ -679,18 +696,6 @@ public class HttpRetriever {
     public void setSocketTimeout(long socketTimeout) {
         HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
     }
-
-//    /**
-//     * <p>
-//     * Provides this {@code HttpRetriever}s socket timeout time. The default value set upon initialization is
-//     * {@value #DEFAULT_SOCKET_TIMEOUT}.
-//     * </p>
-//     * 
-//     * @return The socket timeout time of this {@code HttpRetriever} in milliseconds.
-//     */
-//    public long getSocketTimeout() {
-//        return HttpConnectionParams.getSoTimeout(httpParams);
-//    }
 
     public void setNumRetries(int numRetries) {
         this.numRetries = numRetries;
@@ -719,6 +724,22 @@ public class HttpRetriever {
         this.maxFileSize = maxFileSize;
     }
 
+    /**
+     * <p>
+     * Set credentials for all requests performed by this {@link HttpRetriever}. <b>Attention</b>: When requesting from
+     * multiple sources, take care of not to sent credentials to the wrong source. Either set credentials to
+     * <code>null</code> when finished with a specific source, or create multiple instances of {@link HttpRetriever} for
+     * every source.
+     * </p>
+     * 
+     * @param username The username for HTTP authentication, or <code>null</code>.
+     * @param password The password for HTTP authentication, or <code>null</code>.
+     */
+    public void setCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     // ////////////////////////////////////////////////////////////////
     // Traffic count and statistics
     // ////////////////////////////////////////////////////////////////
@@ -742,21 +763,13 @@ public class HttpRetriever {
         sessionDownloadedBytes = 0;
     }
 
-    public void setHttpHook(HttpHook httpHook) {
-        this.httpHook = httpHook;
+    public void setProxyProvider(ProxyProvider proxyProvider) {
+        this.proxyProvider = proxyProvider;
     }
-
-//    public long getConnectionTimeoutRedirects() {
-//        return connectionTimeoutRedirects;
-//    }
 
     public void setConnectionTimeoutRedirects(long connectionTimeoutRedirects) {
         this.connectionTimeoutRedirects = connectionTimeoutRedirects;
     }
-
-//    public long getSocketTimeoutRedirects() {
-//        return socketTimeoutRedirects;
-//    }
 
     public void setSocketTimeoutRedirects(long socketTimeoutRedirects) {
         this.socketTimeoutRedirects = socketTimeoutRedirects;
