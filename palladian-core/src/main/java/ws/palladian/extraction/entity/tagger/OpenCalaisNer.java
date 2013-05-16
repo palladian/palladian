@@ -25,6 +25,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -126,9 +127,9 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotated> getAnnotations(String inputText) {
 
-        Annotations annotations = new Annotations();
+        Annotations<Annotated> annotations = new Annotations<Annotated>();
 
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
@@ -139,10 +140,12 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         int cumulatedOffset = 0;
         for (String textChunk : textChunks) {
 
+            String response = null;
+
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
+                response = HttpHelper.getStringContent(httpResult);
 
                 JSONObject json = new JSONObject(response);
 
@@ -175,10 +178,10 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                     }
                 }
 
-            } catch (JSONException e) {
-                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             } catch (HttpException e) {
-                LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+                LOGGER.error("Error performing HTTP POST: {}", e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.error("Could not parse the JSON response: {}, exception: {}", response, e.getMessage());
             }
 
             cumulatedOffset += textChunk.length();
@@ -253,8 +256,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////
-        EvaluationResult er = tagger
-                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv", TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
     }

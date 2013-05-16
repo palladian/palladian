@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.DatasetManager;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -24,10 +23,16 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  * 
  */
-public class FileFormatParser {
+public final class FileFormatParser {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileFormatParser.class);
+
+    private static final int WINDOW_SIZE = 40;
+
+    private FileFormatParser() {
+        // no instances.
+    }
 
     /**
      * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the ConLL 2003 file.
@@ -90,24 +95,22 @@ public class FileFormatParser {
      * @param outputFilePath The location where the transformed file should be written to.
      * @param columnSeparator The separator for the columns.
      */
-    public static void columnToXml(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnToXml(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[4];
         final StringBuilder xml = new StringBuilder();
 
         // the currently open tag
-        obj[1] = "o";
-        obj[2] = columnSeparator;
+        final String[] currentTag = {"o"};
 
         // whether the last line was a break
-        obj[3] = true;
+        final boolean[] previousLineBreak = new boolean[] {true};
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[2]);
+                String[] parts = line.split(columnSeparator);
 
                 // skip empty lines at the beginning of the file
                 if (parts.length < 2 && xml.length() == 0) {
@@ -118,13 +121,12 @@ public class FileFormatParser {
 
                     // add breaks for empty lines
                     if (line.length() == 0) {
-                        // ((StringBuilder) obj[0]).deleteCharAt(((StringBuilder) obj[0]).length() - 1);
-                        if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                            xml.append("</").append((String) obj[1]).append(">");
-                            obj[1] = "o";
+                        if (!currentTag[0].equalsIgnoreCase("o") && lineNumber > 1) {
+                            xml.append("</").append(currentTag[0]).append(">");
+                            currentTag[0] = "o";
                         }
                         xml.append("\n");
-                        obj[3] = true;
+                        previousLineBreak[0] = true;
                     }
 
                     return;
@@ -132,32 +134,34 @@ public class FileFormatParser {
 
                 boolean openTag = false;
 
-                if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+                String tag = parts[1];
+                String value = parts[0];
 
-                    if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                        xml.append("</").append((String) obj[1]).append(">");
+                if (!currentTag[0].equalsIgnoreCase(tag)) {
+
+                    if (!currentTag[0].equalsIgnoreCase("o") && lineNumber > 1) {
+                        xml.append("</").append(currentTag[0]).append(">");
                     }
 
-                    if (!parts[1].equalsIgnoreCase("o")) {
-                        if (lineNumber > 1 && (Boolean) obj[3] == false) {
+                    if (!tag.equalsIgnoreCase("o")) {
+                        if (lineNumber > 1 && !previousLineBreak[0]) {
                             xml.append(" ");
                         }
-                        xml.append("<").append(parts[1]).append(">");
+                        xml.append("<").append(tag).append(">");
                         openTag = true;
                     }
 
                 }
 
-                obj[1] = parts[1];
+                currentTag[0] = tag;
 
-                if (parts.length > 0
-                        && parts[0].length() > 0
-                        && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
-                        && !openTag && lineNumber > 1 && (Boolean) obj[3] == false) {
+                if (parts.length > 0 && value.length() > 0
+                        && (Character.isLetterOrDigit(value.charAt(0)) || StringHelper.isBracket(value.charAt(0)))
+                        && !openTag && lineNumber > 1 && !previousLineBreak[0]) {
                     xml.append(" ");
                 }
-                xml.append(parts[0]);
-                obj[3] = false;
+                xml.append(value);
+                previousLineBreak[0] = false;
 
             }
         };
@@ -185,10 +189,9 @@ public class FileFormatParser {
         final StringBuilder transformedText = new StringBuilder();
 
         // whether the last line was a break
-        final Object[] obj = new Object[1];
-        obj[0] = true;
+        final boolean[] previousLineBreak = new boolean[] {true};
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -200,7 +203,7 @@ public class FileFormatParser {
                     // add breaks for empty lines
                     if (line.length() == 0) {
                         transformedText.append("\n");
-                        obj[0] = true;
+                        previousLineBreak[0] = true;
                     }
 
                     return;
@@ -209,7 +212,7 @@ public class FileFormatParser {
                 if (parts.length > 0
                         && parts[0].length() > 0
                         && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
-                        && lineNumber > 1 && (Boolean) obj[0] == false) {
+                        && lineNumber > 1 && !previousLineBreak[0]) {
                     transformedText.append(" ");
                 }
 
@@ -217,7 +220,7 @@ public class FileFormatParser {
                 transformedText.append(parts[0]);
                 transformedText.append("</").append(parts[1]).append(">");
 
-                obj[0] = false;
+                previousLineBreak[0] = false;
             }
         };
 
@@ -226,19 +229,19 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, transformedText);
     }
 
-    public static void columnToBracket(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnToBracket(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[3];
-        obj[0] = new StringBuilder();
-        obj[1] = "";
-        obj[2] = columnSeparator;
+        final StringBuilder transformedText = new StringBuilder();
 
-        LineAction la = new LineAction(obj) {
+        // the currently open tag
+        final String[] currentTag = {""};
+
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[2]);
+                String[] parts = line.split(columnSeparator);
 
                 if (parts.length < 2) {
                     return;
@@ -246,47 +249,46 @@ public class FileFormatParser {
 
                 boolean openTag = false;
 
-                if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+                if (!currentTag[0].equalsIgnoreCase(parts[1])) {
 
-                    if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
-                        ((StringBuilder) obj[0]).append(" ]");
+                    if (!currentTag[0].equalsIgnoreCase("o") && lineNumber > 1) {
+                        transformedText.append(" ]");
                     }
 
                     if (!parts[1].equalsIgnoreCase("o")) {
                         if (lineNumber > 1) {
-                            ((StringBuilder) obj[0]).append(" ");
+                            transformedText.append(" ");
                         }
-                        ((StringBuilder) obj[0]).append("[").append(parts[1]).append(" ");
+                        transformedText.append("[").append(parts[1]).append(" ");
                         openTag = true;
                     }
 
                 }
 
-                obj[1] = parts[1];
+                currentTag[0] = parts[1];
 
                 if (Character.isLetterOrDigit(parts[0].charAt(0)) && !openTag) {
-                    ((StringBuilder) obj[0]).append(" ");
+                    transformedText.append(" ");
                 }
-                ((StringBuilder) obj[0]).append(parts[0]);
+                transformedText.append(parts[0]);
 
             }
         };
 
         FileHelper.performActionOnEveryLine(inputFilePath, la);
 
-        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+        FileHelper.writeToFile(outputFilePath, transformedText.toString());
     }
 
     public static void columnToColumnBio(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[1];
         // the bio format string
         final StringBuilder sb = new StringBuilder();
 
         // the last tag
-        obj[0] = "";
+        final String[] lastTag = {""};
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -314,11 +316,11 @@ public class FileFormatParser {
 
                 if (!parts[lastIndex].equalsIgnoreCase("o")) {
 
-                    if (!((String) obj[0]).equalsIgnoreCase(parts[lastIndex])) {
+                    if (!lastTag[0].equalsIgnoreCase(parts[lastIndex])) {
 
                         bioTag = "B-" + parts[lastIndex];
 
-                    } else if (((String) obj[0]).equalsIgnoreCase(parts[lastIndex])) {
+                    } else if (lastTag[0].equalsIgnoreCase(parts[lastIndex])) {
 
                         bioTag = "I-" + parts[lastIndex];
 
@@ -327,7 +329,7 @@ public class FileFormatParser {
                 }
 
                 // assign last tag
-                obj[0] = parts[lastIndex];
+                lastTag[0] = parts[lastIndex];
 
                 // create transformed line
                 sb.append(tokenContent).append(columnSeparator).append(bioTag).append("\n");
@@ -340,18 +342,16 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, sb);
     }
 
-    public static void columnBioToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnBioToColumn(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[2];
-        obj[0] = new StringBuilder();
-        obj[1] = columnSeparator;
+        final StringBuilder sb = new StringBuilder();
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[1]);
+                String[] parts = line.split(columnSeparator);
 
                 if (parts.length < 2) {
                     return;
@@ -362,23 +362,24 @@ public class FileFormatParser {
                 // remove BIO tag parts (B- or I-)
                 tag = tag.replaceFirst("B-", "").replaceFirst("I-", "");
 
-                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[1]).append(tag).append("\n");
+                sb.append(parts[0]).append(columnSeparator).append(tag).append("\n");
 
             }
         };
 
         FileHelper.performActionOnEveryLine(inputFilePath, la);
 
-        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+        FileHelper.writeToFile(outputFilePath, sb.toString());
     }
 
     public static void xmlToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
-
-        // String inputText = FileHelper.readFileToString(inputFilePath);
-        //
-        // List<String> tokens = Tokenizer.tokenize(inputText);
-        //
         // StringBuilder columnFile = new StringBuilder();
+        //
+        // List<String> lines = FileHelper.readFileToArray(inputFilePath);
+        //
+        // for (String line : lines) {
+        //
+        // List<String> tokens = Tokenizer.tokenize(line);
         //
         // String openTag = "O";
         // for (String token : tokens) {
@@ -391,16 +392,21 @@ public class FileFormatParser {
         // }
         // }
         //
-        // // CollectionHelper.print(tokens);
-        //
-        // FileHelper.writeToFile(outputFilePath, columnFile);
+        // columnFile.append("\n");
+        // }
 
-        StringBuilder columnFile = new StringBuilder();
+        String xmlText = FileHelper.readFileToString(inputFilePath);
+        String columnFile = xmlToColumnText(xmlText, columnSeparator);
 
-        List<String> lines = FileHelper.readFileToArray(inputFilePath);
+        // CollectionHelper.print(tokens);
 
+        FileHelper.writeToFile(outputFilePath, columnFile);
+    }
+
+    public static String xmlToColumnText(String xmlText, String columnSeparator) {
+        StringBuilder columnText = new StringBuilder();
+        String[] lines = xmlText.split("\n");
         for (String line : lines) {
-
             List<String> tokens = Tokenizer.tokenize(line);
 
             String openTag = "O";
@@ -410,16 +416,12 @@ public class FileFormatParser {
                 } else if (token.startsWith("<")) {
                     openTag = StringHelper.getSubstringBetween(token, "<", ">");
                 } else {
-                    columnFile.append(token).append(columnSeparator).append(openTag).append("\n");
+                    columnText.append(token).append(columnSeparator).append(openTag).append("\n");
                 }
             }
-
-            columnFile.append("\n");
+            columnText.append("\n");
         }
-
-        // CollectionHelper.print(tokens);
-
-        FileHelper.writeToFile(outputFilePath, columnFile);
+        return columnText.toString();
     }
 
     public static void slashToXml(String slashFilePath, String xmlFilePath) {
@@ -452,28 +454,23 @@ public class FileFormatParser {
         columnToSlash(columnFilePath, slashFilePath, columnSeparator, "|");
     }
 
-    public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator,
-            String slashSign) {
-        StringBuilder slashFile = new StringBuilder();
+    public static void columnToSlash(String columnFilePath, String slashFilePath, final String columnSeparator,
+            final String slashSign) {
+        final StringBuilder slashFile = new StringBuilder();
 
-        final Object[] obj = new Object[3];
-        obj[0] = slashFile;
-        obj[1] = columnSeparator;
-        obj[2] = slashSign;
-
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[1]);
+                String[] parts = line.split(columnSeparator);
 
                 if (parts.length < 2) {
                     return;
                 }
 
                 String tag = parts[1];
-                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[2]).append(tag).append(" ");
+                slashFile.append(parts[0]).append(slashSign).append(tag).append(" ");
             }
         };
 
@@ -483,8 +480,13 @@ public class FileFormatParser {
     }
 
     public static void bracketToXml(String inputFilePath, String outputFilePath) {
-
         String inputText = FileHelper.readFileToString(inputFilePath);
+        String outputText = bracketToXmlText(inputText);
+        FileHelper.writeToFile(outputFilePath, outputText);
+    }
+
+    public static String bracketToXmlText(String inputText) {
+
         String outputText = inputText;
 
         Pattern pattern = Pattern.compile("\\[(\\w+)\\s(.+?)(\\s(.+?))*?\\s{1,2}\\]", Pattern.DOTALL
@@ -499,7 +501,8 @@ public class FileFormatParser {
             outputText = outputText.replace(matcher.group(0), xmlTag);
         }
 
-        FileHelper.writeToFile(outputFilePath, outputText);
+        return outputText;
+
     }
 
     public static void bracketToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
@@ -541,7 +544,7 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, columnFile);
     }
 
-    public static Annotations getAnnotations(String taggedTextFilePath, TaggingFormat format) {
+    public static Annotations<ContextAnnotation> getAnnotations(String taggedTextFilePath, TaggingFormat format) {
 
         if (format.equals(TaggingFormat.XML)) {
             return getAnnotationsFromXmlFile(taggedTextFilePath);
@@ -554,12 +557,12 @@ public class FileFormatParser {
         return null;
     }
 
-    public static Annotations getAnnotationsFromColumn(String taggedTextFilePath) {
+    public static Annotations<ContextAnnotation> getAnnotationsFromColumn(String taggedTextFilePath) {
         columnToXml(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
         return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
 
-    public static Annotations getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
+    public static Annotations<ContextAnnotation> getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
         columnToXmlTokenBased(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
         return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
@@ -570,8 +573,8 @@ public class FileFormatParser {
      * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
      * @return A list of annotations that were found in the text.
      */
-    public static Annotations getAnnotationsFromXmlText(String taggedText) {
-        Annotations annotations = new Annotations();
+    public static Annotations<ContextAnnotation> getAnnotationsFromXmlText(String taggedText) {
+        Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
         // entities in the plain text
@@ -604,13 +607,12 @@ public class FileFormatParser {
              * }
              */
 
-            int windowSize = Annotation.WINDOW_SIZE;
-
             // get the left and right context of the annotation
-            String leftContext = HtmlHelper.stripHtmlTags(taggedText.substring(
-                    Math.max(0, matcher.start() - windowSize), matcher.start()));
-            String rightContext = HtmlHelper.stripHtmlTags(taggedText.substring(matcher.end(),
-                    Math.min(taggedText.length(), matcher.end() + windowSize)));
+            String leftContext = HtmlHelper.stripHtmlTags(
+                    taggedText.substring(Math.max(0, matcher.start() - WINDOW_SIZE), matcher.start())).trim();
+            String rightContext = HtmlHelper.stripHtmlTags(
+                    taggedText.substring(matcher.end(), Math.min(taggedText.length(), matcher.end() + WINDOW_SIZE)))
+                    .trim();
 
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);
@@ -628,11 +630,7 @@ public class FileFormatParser {
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
 
-            Annotation annotation = new Annotation(offset, entityName, conceptName, annotations);
-            annotation.setLeftContext(leftContext.trim());
-            annotation.setRightContext(rightContext.trim());
-            //            annotation.createFeatures();
-            annotations.add(annotation);
+            annotations.add(new ContextAnnotation(offset, entityName, conceptName, leftContext, rightContext));
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
             cumulatedTagOffset += nestedTagLength + conceptName.length() + 3;
@@ -643,7 +641,7 @@ public class FileFormatParser {
         return annotations;
     }
 
-    public static Annotations getAnnotationsFromXmlFile(String taggedTextFilePath) {
+    public static Annotations<ContextAnnotation> getAnnotationsFromXmlFile(String taggedTextFilePath) {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);
 
         // throw out special characters that might disturb tokenization such as "'" or "=".
@@ -662,8 +660,9 @@ public class FileFormatParser {
      *            annotations of the file are taken.
      * @return Annotations with numberOfSeedsPerConcept entries per concept.
      */
-    public static Annotations getSeedAnnotations(String annotatedFilePath, int numberOfSeedsPerConcept) {
-        Annotations annotations = new Annotations();
+    public static Annotations<ContextAnnotation> getSeedAnnotations(String annotatedFilePath,
+            int numberOfSeedsPerConcept) {
+        Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
 
         // count the number of collected seeds per concept
         CountMap<String> conceptSeedCount = CountMap.create();
@@ -671,18 +670,18 @@ public class FileFormatParser {
         // store entities in a set to avoid duplicates
         Set<String> entitySet = new HashSet<String>();
 
-        Annotations allAnnotations = getAnnotationsFromColumn(annotatedFilePath);
+        Annotations<ContextAnnotation> allAnnotations = getAnnotationsFromColumn(annotatedFilePath);
 
         // iterate through the annotations and collect numberOfSeedsPerConcept
-        for (Annotation annotation : allAnnotations) {
+        for (ContextAnnotation annotation : allAnnotations) {
 
-            String conceptName = annotation.getTargetClass();
+            String conceptName = annotation.getTag();
             int numberOfSeeds = conceptSeedCount.getCount(conceptName);
 
             if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)
-                    && !entitySet.contains(annotation.getEntity())) {
+                    && !entitySet.contains(annotation.getValue())) {
                 annotations.add(annotation);
-                entitySet.add(annotation.getEntity());
+                entitySet.add(annotation.getValue());
                 conceptSeedCount.add(conceptName);
             }
 
@@ -729,7 +728,8 @@ public class FileFormatParser {
         FileFormatParser.slashToXml("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
         FileFormatParser.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
 
-        Annotations annotations = FileFormatParser.getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
+        List<ContextAnnotation> annotations = FileFormatParser
+                .getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
         CollectionHelper.print(annotations);
     }
 

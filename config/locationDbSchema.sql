@@ -1,13 +1,13 @@
 # ************************************************************
 # Sequel Pro SQL dump
-# Version 4004
+# Version 4096
 #
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-02-28 14:05:32 +0000
+# Erstellungsdauer: 2013-05-10 15:02:45 +0000
 # ************************************************************
 
 
@@ -29,26 +29,10 @@ CREATE TABLE `location_alternative_names` (
   `locationId` bigint(20) unsigned NOT NULL COMMENT 'The id of the location.',
   `alternativeName` varchar(200) DEFAULT NULL COMMENT 'An alternative name used for the location.',
   `language` char(2) DEFAULT NULL COMMENT 'The language for this alternative name, in ISO 639-1 format. NULL means no specified language.',
+  UNIQUE KEY `idNameLangUnique` (`locationId`,`alternativeName`,`language`),
   KEY `locationId` (`locationId`),
   KEY `alternativeName` (`alternativeName`),
   KEY `language` (`language`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
-
-# Export von Tabelle location_hierarchy
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `location_hierarchy`;
-
-CREATE TABLE `location_hierarchy` (
-  `parentId` bigint(20) unsigned NOT NULL COMMENT 'The parent in the hierarchical relation.',
-  `childId` bigint(20) unsigned NOT NULL COMMENT 'The child in the hierarchical relation.',
-  `priority` tinyint(4) unsigned NOT NULL COMMENT 'A priority for the parent relation, where smaller values denote a higher priority.',
-  UNIQUE KEY `parentChildPriorityUnique` (`parentId`,`childId`,`priority`),
-  KEY `parentId` (`parentId`),
-  KEY `childId` (`childId`),
-  KEY `priority` (`priority`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -59,15 +43,17 @@ CREATE TABLE `location_hierarchy` (
 DROP TABLE IF EXISTS `locations`;
 
 CREATE TABLE `locations` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'The id of the location.',
+  `id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'The id of the location.',
   `type` varchar(20) NOT NULL DEFAULT '' COMMENT 'The type of the location.',
   `name` varchar(255) NOT NULL COMMENT 'The primary name of the location.',
-  `longitude` double(8,5) DEFAULT NULL COMMENT 'The longitude of the location.',
   `latitude` double(8,5) DEFAULT NULL COMMENT 'The latitude of the location.',
+  `longitude` double(8,5) DEFAULT NULL COMMENT 'The longitude of the location.',
   `population` bigint(15) unsigned DEFAULT NULL COMMENT 'If applicable, the population of the location.',
+  `ancestorIds` varchar(255) DEFAULT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes, starting with the root ancestor. String must start and end with slash character.',
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
-  KEY `type` (`type`)
+  KEY `type` (`type`),
+  KEY `ancestorIds` (`ancestorIds`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 

@@ -1,10 +1,9 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
-import ws.palladian.extraction.location.sources.LocationRelation;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -20,17 +19,6 @@ public interface LocationSource {
 
     /**
      * <p>
-     * Search for {@link Location}s by a given name.
-     * </p>
-     * 
-     * @param locationName The name of the location to search, not <code>null</code>.
-     * @return A list of locations matching the given name, or an empty list, if no matches were found, never
-     *         <code>null</code>.
-     */
-    Collection<Location> retrieveLocations(String locationName);
-
-    /**
-     * <p>
      * Search for {@link Location}s by a given name in a specified set of {@link Language}s.
      * </p>
      * 
@@ -38,10 +26,26 @@ public interface LocationSource {
      * @param languages A set of {@link Language}s in which the given name must be, not <code>null</code>. Names in
      *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
      *            language always match.
-     * @return A list of locations matching the given name, or an empty list, if no matches were found, never
-     *         <code>null</code>.
+     * @return A collection of locations matching the given name, or an empty collection, if no matches were found,
+     *         never <code>null</code>.
      */
-    Collection<Location> retrieveLocations(String locationName, EnumSet<Language> languages);
+    Collection<Location> getLocations(String locationName, Set<Language> languages);
+
+    /**
+     * <p>
+     * Search for multiple {@link Location}s by given names in a specified set of {@link Language}s. When multiple
+     * {@link Location}s need to be searched at one go, this allows implementations performance optimizations in
+     * contrast to {@link #getLocation(int)}. E.g. database implementations can do this with only one round trip.
+     * </p>
+     * 
+     * @param locationName The names of the location to search, not <code>null</code>.
+     * @param languages A set of {@link Language}s in which the given name must be, not <code>null</code>. Names in
+     *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
+     *            language always match.
+     * @return A collection of locations, each matching any of the given names, or an empty collection, if no matches
+     *         were found, never <code>null</code>.
+     */
+    Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages);
 
     /**
      * <p>
@@ -52,22 +56,19 @@ public interface LocationSource {
      * @param locationId The identifier of the location to retrieve.
      * @return The location for the given identifier, or <code>null</code> if no such location was found.
      */
-    Location retrieveLocation(int locationId);
+    Location getLocation(int locationId);
 
     /**
      * <p>
-     * Get the logical hierarchy for a given {@link Location}. For example, "Baden-Württemberg" is contained in
-     * "Germany", which is contained in "Europe", which is contained in "Earth". The given location as point of origin
-     * is <b>not</b> included in the returned hierarchy. The order of the returned list is from specific to general
-     * (e.g. the last element in the list would be "Earth").
+     * Get a list of {@link Location}s by their IDs. When multiple {@link Location}s need to be fetched at one go, this
+     * allows implementations performance optimizations in contrast to {@link #getLocation(int)}. E.g. database
+     * implementations can do this with only one round trip.
      * </p>
      * 
-     * @param location The identifier of the location for which to retrieve the hierarchy.
-     * @return The hierarchy as list of parents for the given location, or an empty list, if no hierarchy was found,
-     *         never <code>null</code>.
+     * @param locationIds The IDs for the {@link Location}s to retrieve, not <code>null</code>.
+     * @return List of {@link Location}s in the same order as the provided IDs. If a location for a specific ID could
+     *         not be found, the returned list might be smaller than the list of supplied IDs.
      */
-    List<Location> getHierarchy(int locationId);
-
-    Collection<LocationRelation> getParents(int locationId);
+    List<Location> getLocations(List<Integer> locationIds);
 
 }

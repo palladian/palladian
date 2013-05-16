@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -16,12 +18,14 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import de.julielab.jnet.tagger.JNETException;
 import de.julielab.jnet.tagger.NETagger;
 import de.julielab.jnet.tagger.Sentence;
@@ -140,8 +144,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
+    public List<Annotated> getAnnotations(String inputText) {
 
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
         FileFormatParser.textToColumn("data/temp/julieInputText.txt", "data/temp/julieInputTextColumn.txt", " ");
@@ -172,18 +175,20 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
             Utils.writeFile(new File("data/temp/juliePredictionOutput_original.txt"), predictIOB);
 
             // reformatOutput(outFile);
-            alignContent(outFile, inputText);
+            NerHelper.alignContent(outFile, inputText);
 
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
-        annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
-
-        annotations.instanceCategoryToClassified();
+        // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
+        String alignedContent = NerHelper.alignContentText(FileHelper.readFileToString(outFile.getPath()), inputText);
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
+        annotations.removeNested();
+        annotations.sort();
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
 
-        return annotations;
+        return Collections.<Annotated> unmodifiableList(annotations);
     }
 
     /**
@@ -349,8 +354,8 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"),
-                            cmd.getOptionValue("configFile"), TaggingFormat.XML);
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
                     System.out.println(evResult);
 
                 } else if (cmd.hasOption("demo")) {
@@ -432,8 +437,8 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
 
         //tagger.train("data/datasets/ner/tud/tud2011_train.txt", "data/temp/julieNER2.model");
         tagger.train("data/datasets/ner/conll/training_verysmall.txt", "data/temp/julieNER.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt",
-                "data/temp/julieNER.model", TaggingFormat.COLUMN);
+        tagger.loadModel("data/temp/julieNER.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt", TaggingFormat.COLUMN);
 
         // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener_small.mod");
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",

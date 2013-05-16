@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
@@ -29,16 +28,16 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * 
  */
 class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionIdFixProcessingAction.class);
-    
+
     private final FeedDatabase feedStore;
-    
+
     SessionIdFixProcessingAction(FeedDatabase feedStore) {
         this.feedStore = feedStore;
     }
-    
+
     @Override
     public boolean performAction(Feed feed, HttpResult httpResult) {
 
@@ -93,14 +92,14 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
         if (!metadata) {
             success = false;
         }
-        
+
         LOGGER.debug("added " + newItems + " new posts to file " + csvFilePath + " (feed: " + feed.getId() + ")");
 
         return success;
     }
 
     private static String buildCsvLine(FeedItem item) {
-        
+
         // build csv line for new entry
         StringBuilder fileEntry = new StringBuilder();
 
@@ -122,7 +121,7 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
             fileEntry.append(DatasetCreator.NO_TITLE_REPLACEMENT).append(";");
         } else {
             fileEntry.append("\"");
-            fileEntry.append(StringHelper.cleanStringToCsv(item.getTitle()));
+            fileEntry.append(item.getTitle().replace("\"", "'"));
             fileEntry.append("\";");
         }
 
@@ -131,7 +130,7 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
             fileEntry.append(DatasetCreator.NO_LINK_REPLACEMENT).append(";");
         } else {
             fileEntry.append("\"");
-            fileEntry.append(StringHelper.cleanStringToCsv(item.getLink()));
+            fileEntry.append(item.getLink().replace("\"", "'"));
             fileEntry.append("\";");
         }
 
@@ -167,7 +166,7 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
         return false;
     }
 
-    
+
     /**
      * Put data to PollMetaInformation, write to database.
      * 
@@ -177,9 +176,9 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
      * @return
      */
     private boolean processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
-        
+
         long correctedTime = (long) ((Math.ceil(feed.getLastPollTime().getTime() / 1000)) * 1000);
-        
+
         PollMetaInformation pollMetaInfo = feedStore.getFeedPoll(feed.getId(), new Timestamp(correctedTime));
         if (pollMetaInfo == null) {
             LOGGER.error("Could not load PollMetaInformation from DB for feed id " + feed.getId()

@@ -1,10 +1,9 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +11,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
@@ -21,7 +21,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 
-public class WebKnoxLocationSource implements LocationSource {
+public class WebKnoxLocationSource extends SingleQueryLocationSource implements LocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxLocationSource.class);
@@ -45,7 +45,13 @@ public class WebKnoxLocationSource implements LocationSource {
     }
 
     @Override
-    public List<Location> retrieveLocations(String locationName) {
+    public Location getLocation(int locationId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Location> getLocations(String locationName, Set<Language> languages) {
+        LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
         List<Location> locations = CollectionHelper.newArrayList();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
@@ -87,7 +93,8 @@ public class WebKnoxLocationSource implements LocationSource {
                             population = Long.valueOf(value);
                         }
                     }
-                    locations.add(new Location(-1, primaryName, null, locationType, latitude, longitude, population));
+                    locations
+                            .add(new ImmutableLocation(-1, primaryName, locationType, latitude, longitude, population));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -95,26 +102,6 @@ public class WebKnoxLocationSource implements LocationSource {
         }
 
         return locations;
-    }
-
-    @Override
-    public Location retrieveLocation(int locationId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<Location> getHierarchy(int locationId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<Location> retrieveLocations(String locationName, EnumSet<Language> languages) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<LocationRelation> getParents(int locationId) {
-        throw new UnsupportedOperationException();
     }
 
 }

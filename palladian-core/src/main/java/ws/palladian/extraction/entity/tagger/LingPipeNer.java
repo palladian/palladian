@@ -3,6 +3,7 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -23,6 +24,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.helper.Conll2002ChunkTagParser;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 
 import com.aliasi.chunk.CharLmRescoringChunker;
 import com.aliasi.chunk.Chunk;
@@ -97,17 +99,17 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
             Conll2002ChunkTagParser parser = new Conll2002ChunkTagParser();
             parser.setHandler(chunkerEstimator);
 
-            LOGGER.info("training with data from file=" + corpusFile);
+            LOGGER.info("training with data from file={}", corpusFile);
             parser.parse(corpusFile);
 
             // System.out.println("Training with Data from File=" + devFile);
             // parser.parse(devFile);
 
-            LOGGER.info("compiling and writing model to file=" + modelFile);
+            LOGGER.info("compiling and writing model to file={}", modelFile);
             AbstractExternalizable.compileTo(chunkerEstimator, modelFile);
 
         } catch (IOException e) {
-            LOGGER.error(getName() + " failed training, " + e.getMessage());
+            LOGGER.error("{} failed training: {}", getName(), e.getMessage());
             return false;
         }
 
@@ -120,44 +122,33 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
 
         File modelFile = new File(configModelFilePath);
 
-        Chunker chunker;
-
-        LOGGER.info("Reading chunker from file=" + modelFile);
+        LOGGER.info("Reading chunker from file {}", modelFile);
         try {
             chunker = (Chunker)AbstractExternalizable.readObject(modelFile);
-        } catch (IOException e) {
-            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
-            return false;
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
-            return false;
         } catch (Exception e) {
-            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+            LOGGER.error("{} error in loading model from {}: {}", new Object[] {getName(), modelFile, e.getMessage()});
             return false;
         }
 
-        this.chunker = chunker;
-        LOGGER.info("model " + modelFile.toString() + " successfully loaded in " + stopWatch.getElapsedTimeString());
-
+        LOGGER.info("Model {} successfully loaded in {}", modelFile, stopWatch.getElapsedTimeString());
         return true;
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
+    public List<Annotated> getAnnotations(String inputText) {
+        Annotations<Annotated> annotations = new Annotations<Annotated>();
 
-        String[] args = new String[1];
-        args[0] = inputText;
+        String[] args = {inputText};
         Set<Chunk> chunkSet = new HashSet<Chunk>();
         for (int i = 0; i < args.length; ++i) {
             Chunking chunking = chunker.chunk(args[i]);
-            LOGGER.debug("Chunking=" + chunking);
+            LOGGER.debug("Chunking={}", chunking);
             chunkSet.addAll(chunking.chunkSet());
         }
 
         for (Chunk chunk : chunkSet) {
             int offset = chunk.start();
-            String entityName = inputText.substring(chunk.start(), chunk.end());
+            String entityName = inputText.substring(offset, chunk.end());
             String tagName = chunk.type();
             annotations.add(new Annotation(offset, entityName, tagName));
         }
@@ -165,6 +156,8 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
         // FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
 
+        annotations.removeNested();
+        annotations.sort();
         return annotations;
     }
 
@@ -290,8 +283,8 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
-                            TaggingFormat.XML);
+                    tagger.loadModel(cmd.getOptionValue("configFile"));
+                    tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
 
                 }
 
@@ -318,8 +311,8 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
         // using a column trainig and testing file
         // tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/lingPipeNER.model");
         tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingPipeNER.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lingPipeNER.model",
-                TaggingFormat.COLUMN);
+        tagger.loadModel("data/temp/lingPipeNER.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", TaggingFormat.COLUMN);
 
         // tagger.train("C:\\My Dropbox\\taggedHierarchicalPrepared_train.txt", "data/temp/lingPipeNER2.model");
         // EvaluationResult er = tagger.evaluate("C:\\My Dropbox\\taggedHierarchicalPrepared_test.txt",

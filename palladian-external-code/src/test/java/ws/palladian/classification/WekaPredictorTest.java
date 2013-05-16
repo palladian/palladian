@@ -3,12 +3,13 @@
  */
 package ws.palladian.classification;
 
+import static org.junit.Assert.assertThat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import weka.classifiers.bayes.NaiveBayes;
@@ -62,7 +63,7 @@ public class WekaPredictorTest {
         testVector.add(new NominalFeature("c", "v2"));
         CategoryEntries result = objectOfClassUnderTest.classify(testVector, model);
 
-        Assert.assertThat(result.getMostLikelyCategoryEntry().getName(), Matchers.isOneOf("c1", "c2"));
+        assertThat(result.getMostLikelyCategory(), Matchers.isOneOf("c1", "c2"));
     }
 
     @Test
@@ -97,6 +98,6 @@ public class WekaPredictorTest {
 
         CategoryEntries result = objectOfClassUnderTest.classify(instance1.getFeatureVector(), model);
 
-        Assert.assertThat(result.getMostLikelyCategoryEntry().getName(), Matchers.is("c1"));
+        assertThat(result.getMostLikelyCategory(), Matchers.is("c1"));
     }
 }

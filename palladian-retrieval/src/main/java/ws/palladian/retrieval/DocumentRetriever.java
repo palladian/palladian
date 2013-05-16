@@ -525,10 +525,6 @@ public class DocumentRetriever {
         retrieverCallbacks.remove(retrieverCallback);
     }
 
-    public String getUserAgent() {
-        return httpRetriever.getUserAgent();
-    }
-
     public Map<String, String> getGlobalHeaders() {
         return globalHeaders;
     }

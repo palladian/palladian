@@ -482,7 +482,7 @@ public final class StringHelper {
     }
 
     public static String removeWord(String word, String searchString) {
-        return removeDoubleWhitespaces(replaceWord(word, "", searchString));
+        return replaceWord(word, "", searchString).replaceAll("[ ]{2,10}", " ");
     }
 
     public static String replaceWord(String word, String replacement, String searchString) {
@@ -548,30 +548,6 @@ public final class StringHelper {
         }
         Matcher matcher = pattern.matcher(searchString);
         return matcher.find();
-    }
-
-    /**
-     * Clean the given string from stop words, i.e. words that appear often but have no meaning itself.
-     * 
-     * @deprecated use StopWordRemover instead.
-     * @param string The string.
-     * @return The string without the stop words.
-     */
-    @Deprecated
-    public static String removeStopWords(String string) {
-        String[] stopWords = {"the", "and", "of", "by", "as", "but", "not", "is", "it", "to", "in", "or", "for", "on",
-                "at", "up", "what", "how", "why", "when", "where"};
-        int stopWordsSize = stopWords.length;
-
-        String modString = " " + string + " ";
-        for (int i = 0; i < stopWordsSize; ++i) {
-            // remove stop words followed by a space
-            modString = modString.replaceAll("(?<![\\w])(?i)" + stopWords[i] + "\\s", "");
-            // remove stop words followed by punctuation
-            modString = modString.replaceAll("\\s" + stopWords[i] + "(?=(\\!|\\?|\\.|,|;))", "");
-        }
-
-        return modString.trim();
     }
 
     /**
@@ -912,7 +888,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯"};
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
@@ -1416,7 +1392,7 @@ public final class StringHelper {
      * @return The cleansed text.
      */
     public static String removeDoubleWhitespaces(String text) {
-        return text.replaceAll("[ ]{1,}", " ");
+        return text.replaceAll("[ ]{2,}", " ");
     }
 
     /**
@@ -1665,36 +1641,6 @@ public final class StringHelper {
         caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
 
         return caseSignature;
-    }
-
-    /**
-     * Remove all evil characters from the string that prevent the string from being written into a single line of a csv
-     * file. Removes all control characters, replaces double quotes " by {@link #DOUBLE_QUOTES_REPLACEMENT} and replaces
-     * semicolons by {@link #SEMICOLON_REPLACEMENT}
-     * 
-     * @param text The string to be cleaned.
-     * @return The cleaned string.
-     * @see #recoverStringFromCsv(String)
-     * @deprecated Use a dedicated CSV parser/writer for such tasks.
-     */
-    @Deprecated
-    public static String cleanStringToCsv(String text) {
-        return StringHelper.removeControlCharacters(text).replaceAll("\"", DOUBLE_QUOTES_REPLACEMENT)
-                .replaceAll(";", SEMICOLON_REPLACEMENT);
-    }
-
-    /**
-     * Restore double quotes " and semicolon in a string that is read from a csv file and has initially been processed
-     * by {@link #cleanStringToCsv(String)}.
-     * 
-     * @param csvText The text to recover.
-     * @return The partly reconstructed string. Removed control characters are not recovered.
-     * @see #cleanStringToCsv(String)
-     * @deprecated Use a dedicated CSV parser/writer for such tasks.
-     */
-    @Deprecated
-    public static String recoverStringFromCsv(String csvText) {
-        return csvText.replaceAll(DOUBLE_QUOTES_REPLACEMENT, "\"").replaceAll(SEMICOLON_REPLACEMENT, ";");
     }
 
     /**

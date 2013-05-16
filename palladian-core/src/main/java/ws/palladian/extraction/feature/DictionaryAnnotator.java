@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -28,6 +30,8 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * @since 0.1.7
  */
 public final class DictionaryAnnotator extends AbstractFeatureProvider {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(DictionaryAnnotator.class);
 
     /**
      * <p>
@@ -56,7 +60,11 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
     protected void processDocument() throws DocumentUnprocessableException {
         TextDocument document = (TextDocument)getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
+        if (annotations.isEmpty()) {
+            LOGGER.warn("No tokens found. Did you specify a Tokenizer before using the DictionaryAnnotator?");
+        }
         List<PositionAnnotation> matchingToken = CollectionHelper.newArrayList();
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(getCreatedFeatureName(), document);
         for (PositionAnnotation tokenAnnotation : annotations) {
@@ -68,7 +76,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
                 matchingToken.add(annotation);
             }
         }
-        
+
         document.getFeatureVector().addAll(matchingToken);
 
         // document.addFeature(new TextAnnotationFeature(getDescriptor(), matchingToken));

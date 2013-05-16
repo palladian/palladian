@@ -472,7 +472,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
-        String imgXPath = ".//img";
+        String imgXPath = ".//xhtml:img";
 
         List<Node> imageNodes = CollectionHelper.newArrayList();
 

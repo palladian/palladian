@@ -11,6 +11,7 @@ import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalization;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -57,16 +58,14 @@ public final class KnnModel implements Model {
      * 
      * @param trainingInstances The {@link Instance}s this model is based on.
      */
-    public KnnModel(List<Instance> trainingInstances) {
-        super();
-
+    public KnnModel(Iterable<? extends Trainable> trainingInstances) {
         this.trainingExamples = initTrainingInstances(trainingInstances);
         this.isNormalized = false;
     }
 
-    private List<TrainingExample> initTrainingInstances(List<Instance> instances) {
-        List<TrainingExample> ret = new ArrayList<TrainingExample>(instances.size());
-        for (Instance instance : instances) {
+    private List<TrainingExample> initTrainingInstances(Iterable<? extends Trainable> instances) {
+        List<TrainingExample> ret = new ArrayList<TrainingExample>();
+        for (Trainable instance : instances) {
             TrainingExample trainingInstance = new TrainingExample();
 
             trainingInstance.targetClass = instance.getTargetClass();

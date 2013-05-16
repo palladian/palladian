@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -21,10 +22,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
 public class PalladianNerExperiments {
-
-    // FIXME remove hard coded api keys
-    public static final String WX_API_KEY = "ubve84tz3498zncq84z59238bzv5389";
-    public static final String GEONAMES_USERNAME = "qqilihq";
 
     public void trainTest() {
         PalladianNer tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
@@ -48,7 +45,8 @@ public class PalladianNerExperiments {
 
         // Annotations annotations = new Annotations();
         String trainingSeedFilePath = "data/namesNerDictionary.txt";
-        Annotations trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
+        Annotations<ContextAnnotation> trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath,
+                -1);
         tagger.train(trainingPath, trainingAnnotations, modelPath);
 
         EvaluationResult evaluationResult = tagger.evaluate("data/datasets/ner/conll/test_final.txt",

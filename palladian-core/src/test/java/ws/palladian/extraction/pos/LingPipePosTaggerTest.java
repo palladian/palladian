@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
@@ -24,6 +23,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -97,7 +97,7 @@ public class LingPipePosTaggerTest {
     public void testSimple() throws FileNotFoundException {
         File modelFile = ResourceHelper.getResourceFile(MODEL);
         BasePosTagger tagger = new LingPipePosTagger(modelFile);
-        TagAnnotations tagResult = tagger.tag(document.getContent());
+        List<Annotated> tagResult = tagger.getAnnotations(document.getContent());
         Assert.assertEquals(expectedTags.length, tagResult.size());
     }
 }

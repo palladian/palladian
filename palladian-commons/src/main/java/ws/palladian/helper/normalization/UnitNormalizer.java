@@ -174,8 +174,31 @@ public class UnitNormalizer {
         return weightUnits.contains(unit);
     }
 
+    private static boolean isVolumeUnit(String unit) {
+        HashSet<String> volumeUnits = new HashSet<String>();
+        volumeUnits.add("gal");
+        volumeUnits.add("gallon");
+        volumeUnits.add("gallons");
+        volumeUnits.add("pint");
+        volumeUnits.add("pints");
+        volumeUnits.add("quart");
+        volumeUnits.add("quarts");
+        volumeUnits.add("qt");
+        volumeUnits.add("qts");
+        volumeUnits.add("liter");
+        volumeUnits.add("liters");
+        volumeUnits.add("l");
+        volumeUnits.add("milliliter");
+        volumeUnits.add("milliliters");
+        volumeUnits.add("ml");
+
+        return volumeUnits.contains(unit);
+    }
+
     /**
+     * <p>
      * Returns true if unitB is bigger than units. e.g. hours > minutes and GB > MB
+     * </p>
      * 
      * @param unitB The bigger unit.
      * @param unitS The smaller unit.
@@ -186,8 +209,10 @@ public class UnitNormalizer {
     }
 
     /**
+     * <p>
      * Returns true if units are the same unit type (time,distance etc.). e.g. MB and GB are digital size, hours and
-     * minutes are time units
+     * minutes are time units.
+     * </p>
      * 
      * @param unit1 The first unit.
      * @param unit2 The second unit.
@@ -220,6 +245,11 @@ public class UnitNormalizer {
 
         // weight
         if (isWeightUnit(unit1) && isWeightUnit(unit2)) {
+            return true;
+        }
+
+        // volume
+        if (isVolumeUnit(unit1) && isVolumeUnit(unit2)) {
             return true;
         }
 
@@ -344,7 +374,7 @@ public class UnitNormalizer {
                 || unit.equals("square meter") || unit.equals("square meters") || unit.equals("m²")) {
             multiplier = 1.0;
 
-            // volume (density of water) all to milli liter
+            // volume (density of water) all to milliliter
         } else if (unit.equals("teaspoon") || unit.equals("teaspoons") || origUnit.equals("t") || unit.equals("tsp")
                 || unit.equals("tsps")) {
             multiplier = 4.92892;
@@ -353,9 +383,15 @@ public class UnitNormalizer {
             multiplier = 14.7868;
         } else if (unit.equals("liters") || unit.equals("liter") || unit.equals("l")) {
             multiplier = 1000.;
-        } else if (unit.equals("cups") || unit.equals("cup")) {
+        } else if (unit.equals("gallons") || unit.equals("gallon") || unit.equals("gal")) {
+            multiplier = 3785.41;
+        } else if (unit.equals("quart") || unit.equals("quarts") || unit.equals("qt") || unit.equals("qts")) {
+            multiplier = 946.353;
+        } else if (unit.equals("pint") || unit.equals("pints")) {
+            multiplier = 473.176;
+        } else if (unit.equals("cups") || unit.equals("cup") || unit.equals("c")) {
             multiplier = 236.588;
-        } else if (unit.equals("milli liters") || unit.equals("ml")) {
+        } else if (unit.equals("milli liters") || unit.equals("milliliters") || unit.equals("ml")) {
             multiplier = 1.;
 
             // technical, hp and kw to hp, mile per hour to kilometer per hour, lb-ft to Nm

@@ -7,12 +7,6 @@ import org.junit.Test;
 public class DateHelperTest {
 
     @Test
-    public void testGetTimeStamp() throws Exception {
-        assertEquals(1273795200000l, DateHelper.getTimestamp("2010-05-14 00:00:00"));
-        assertEquals(1273795200000l, DateHelper.getTimestamp("2010-05-14"));
-    }
-
-    @Test
     public void testGetDatetime() {
         assertEquals("20.05.2010", DateHelper.getDatetime("dd.MM.yyyy", 1274313600000l));
     }

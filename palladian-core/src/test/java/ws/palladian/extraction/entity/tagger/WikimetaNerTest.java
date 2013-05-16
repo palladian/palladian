@@ -5,14 +5,15 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.parser.ParserException;
 
 public class WikimetaNerTest {
@@ -30,15 +31,15 @@ public class WikimetaNerTest {
     public void testParseApiResponse() throws FileNotFoundException, ParserException {
         WikimetaNer wikimetaNer = new WikimetaNer();
         InputSource inputSource = new InputSource(new FileInputStream(XML_FILE));
-        Annotations annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
+        List<Annotated> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
 
         assertEquals(134, annotations.size());
-        assertEquals("eastern United States", annotations.get(2).getEntity());
+        assertEquals("eastern United States", annotations.get(2).getValue());
 
-        assertEquals("LOC", annotations.get(2).getMostLikelyTagName());
+        assertEquals("LOC", annotations.get(2).getTag());
 
-        assertEquals(101, annotations.get(2).getOffset());
-        assertEquals(21, annotations.get(2).getLength());
+        assertEquals(101, annotations.get(2).getStartPosition());
+        assertEquals(21, annotations.get(2).getValue().length());
 
     }
     
@@ -46,7 +47,7 @@ public class WikimetaNerTest {
     public void testTagging() throws FileNotFoundException, ParserException {
         WikimetaNer wikimetaNer = new WikimetaNer();
         InputSource inputSource = new InputSource(new FileInputStream(XML_FILE));
-        Annotations annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
+        List<Annotated> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
         // make sure this stupid alignment error doesn't show up, it should throw an exception though
         // (see NamedEntityRecognizer, line 282)
         wikimetaNer.tagText(ORIGINAL_TEXT, annotations);

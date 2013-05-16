@@ -30,6 +30,7 @@ public final class FeatureRanking {
     private boolean isSorted;
 
     private List<RankedFeature> rankedFeatures;
+
     public FeatureRanking() {
         this.rankedFeatures = new LinkedList<RankedFeature>();
         this.isSorted = false;
@@ -60,7 +61,11 @@ public final class FeatureRanking {
 
     public List<RankedFeature> getTopN(int n) {
         sort();
-        return rankedFeatures.subList(0, n);
+        if (rankedFeatures.size() < n) {
+            return rankedFeatures;
+        } else {
+            return rankedFeatures.subList(0, n);
+        }
     }
 
     /**

@@ -13,11 +13,10 @@ import ws.palladian.processing.Classifiable;
  * 
  * @author Philipp Katz
  * @author Klemens Muthmann
- * @version 3.0
- * @since 0.1.7
+ * @author David Urbansky
  */
-// TODO rename to TextAnnotation
-public class PositionAnnotation extends NominalFeature implements Classifiable, Comparable<PositionAnnotation> {
+// FIXME rename to TextAnnotation
+public class PositionAnnotation extends NominalFeature implements Classifiable, Annotated {
 
     /**
      * <p>
@@ -39,7 +38,8 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
      */
     private final int index;
 
-    private final FeatureVector featureVector;
+    // lazy-initialized field
+    private FeatureVector featureVector;
 
     /**
      * <p>
@@ -61,7 +61,7 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.index = index;
-        this.featureVector = new FeatureVector();
+        this.featureVector = null;
     }
     
     /**
@@ -80,24 +80,51 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.startPosition = annotation.getStartPosition();
         this.endPosition = annotation.getEndPosition();
         this.index = annotation.getIndex();
-        this.featureVector = new FeatureVector(annotation.getFeatureVector());
+        this.featureVector = null;
     }
 
+    @Override
     public int getStartPosition() {
         return startPosition;
     }
 
+    @Override
     public int getEndPosition() {
         return endPosition;
     }
-
-    public int getIndex() {
-        return index;
+    
+    @Override
+    public int getLength() {
+    	return endPosition-startPosition;
     }
 
     @Override
+    public int getIndex() {
+        return index;
+    }
+    
+    @Override
+    public String getTag() {
+        return getName();
+    }
+
+
+    @Override
     public FeatureVector getFeatureVector() {
+        if (featureVector == null) {
+            featureVector = new FeatureVector();
+        }
         return featureVector;
+    }
+
+    @Override
+    // FIXME this needs to go in parent -> duplicate of NerHelper
+    public boolean overlaps(Annotated annotated) {
+        if (getStartPosition() <= annotated.getStartPosition() && getEndPosition() >= annotated.getStartPosition()
+                || getStartPosition() <= annotated.getEndPosition() && getEndPosition() >= annotated.getStartPosition()) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -154,9 +181,8 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
     }
 
     @Override
-    public int compareTo(PositionAnnotation o) {
-        int comparisonValue = Integer.valueOf(this.startPosition).compareTo(o.startPosition);
-        return comparisonValue;
+    public int compareTo(Annotated o) {
+        return Integer.valueOf(this.startPosition).compareTo(o.getStartPosition());
     }
 
 }

@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.Preprocessor;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.classification.text.PreprocessingPipeline;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifierModel;
@@ -23,8 +24,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -71,17 +73,14 @@ public class PalladianPosTagger extends BasePosTagger {
             setFeatures(instance, previousTag, annotation.getValue());
 
             CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
-            String tag = categoryEntries.getMostLikelyCategoryEntry().getName();
+            String tag = categoryEntries.getMostLikelyCategory();
             assignTag(annotation, Arrays.asList(new String[] {tag}));
             previousTag = tag;
         }
     }
 
     private UniversalClassifier getTagger() {
-        FeatureSetting featureSetting = new FeatureSetting();
-        featureSetting.setMinNGramLength(1);
-        featureSetting.setMaxNGramLength(7);
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 1, 7);
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
     }
 
@@ -124,7 +123,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 previousTag = wordAndTag[1];
             }
 
-            ProgressHelper.showProgress(c++, trainingFiles.length, 1);
+            ProgressHelper.printProgress(c++, trainingFiles.length, 1);
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
@@ -163,9 +162,15 @@ public class PalladianPosTagger extends BasePosTagger {
             instance.getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
         }
 
-        FeatureVector fv = Preprocessor.preProcessDocument(word, tagger.getFeatureSetting());
-        for (Feature<?> feature : fv) {
-            instance.getFeatureVector().add(feature);
+        try {
+            PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
+            TextDocument textDocument = new TextDocument(word);
+            preprocessingPipeline.process(textDocument);
+            for (Feature<?> feature : textDocument.getFeatureVector()) {
+                instance.getFeatureVector().add(feature);
+            }
+        } catch (DocumentUnprocessableException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -213,7 +218,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 setFeatures(instance, previousTag, wordAndTag[0]);
 
                 CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
-                String assignedTag = categoryEntries.getMostLikelyCategoryEntry().getName();
+                String assignedTag = categoryEntries.getMostLikelyCategory();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
                 previousTag = assignedTag;
@@ -225,7 +230,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 total++;
             }
 
-            ProgressHelper.showProgress(c++, testFiles.length, 1);
+            ProgressHelper.printProgress(c++, testFiles.length, 1);
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
@@ -242,17 +247,17 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     public static void main(String[] args) {
-        PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
+        // PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
 
         // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
         // palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
         // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
-        palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
-        palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
+        // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
+        // palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
 
         // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")
         // .getTaggedString());
-        System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
+        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 }

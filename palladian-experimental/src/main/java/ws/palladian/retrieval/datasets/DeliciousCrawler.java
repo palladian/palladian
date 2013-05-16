@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,7 +192,7 @@ public class DeliciousCrawler {
         LOGGER.info("serializing results...");
         FileHelper.appendFile("data/benchmarkSelection/page/deliciouspages.txt", content);
         FileHelper.serialize(urlStack, "data/benchmarkSelection/page/urlStack.ser");
-        LOGGER.info("runtime: " + DateHelper.getRuntime(t1));
+        LOGGER.info("runtime: " + DateHelper.formatDuration(t1));
     }
 
     /**
@@ -207,7 +208,7 @@ public class DeliciousCrawler {
         final Object[] obj2 = new Object[1];
         obj2[0] = new HashMap<String, Integer>(); // tags and counts
 
-        LineAction la = new LineAction(obj2) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -239,9 +240,9 @@ public class DeliciousCrawler {
         final Object[] obj = new Object[3];
         obj[0] = new StringBuilder(); // the cleansed output
         obj[1] = minAppearance; // minimal appearance of a tag to be kept
-        obj[2] = la.arguments[0]; // tags and counts
+        obj[2] = obj2[0]; // tags and counts
 
-        la = new LineAction(obj) {
+        la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -293,10 +294,10 @@ public class DeliciousCrawler {
 
         FileHelper.performActionOnEveryLine("data/benchmarkSelection/page/deliciouspages.txt", la);
 
-        StringBuilder cleansedDataSet = (StringBuilder) la.arguments[0];
+        StringBuilder cleansedDataSet = (StringBuilder)obj[0];
         FileHelper.writeToFile("data/benchmarkSelection/page/deliciouspages_cleansed_" + minAppearance + ".txt", cleansedDataSet);
 
-        System.out.println("data set cleansed and saved in " + DateHelper.getRuntime(t1));
+        System.out.println("data set cleansed and saved in " + DateHelper.formatDuration(t1));
     }
 
     @SuppressWarnings("unchecked")
@@ -311,7 +312,7 @@ public class DeliciousCrawler {
         obj[2] = 0; // average URL length
         obj[3] = 0; // tags per URL
 
-        LineAction la = new LineAction(obj) {
+        LineAction la = new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
@@ -357,10 +358,10 @@ public class DeliciousCrawler {
 
         FileHelper.performActionOnEveryLine(location, la);
 
-        Integer totalURLs = (Integer) la.arguments[0];
-        double avgURLLength = MathHelper.round(Double.valueOf((Integer) la.arguments[2]) / Double.valueOf((Integer) la.arguments[0]), 4);
-        double avgTagsPerURL = MathHelper.round(Double.valueOf((Integer) la.arguments[3]) / Double.valueOf((Integer) la.arguments[0]), 4);
-        HashMap<String, Integer> tagMap = (HashMap<String, Integer>) la.arguments[1];
+        Integer totalURLs = (Integer)obj[0];
+        double avgURLLength = MathHelper.round(Double.valueOf((Integer)obj[2]) / Double.valueOf((Integer)obj[0]), 4);
+        double avgTagsPerURL = MathHelper.round(Double.valueOf((Integer)obj[3]) / Double.valueOf((Integer)obj[0]), 4);
+        HashMap<String, Integer> tagMap = (HashMap<String, Integer>)obj[1];
         tagMap = CollectionHelper.sortByValue(tagMap, false);
 
         s.append("URLs in data set:     	" + totalURLs + "\n");
@@ -395,7 +396,7 @@ public class DeliciousCrawler {
         }
 
         System.out.println(s);
-        System.out.println("data set analyzed in " + DateHelper.getRuntime(t1));
+        System.out.println("data set analyzed in " + DateHelper.formatDuration(t1));
     }
 
     /**
@@ -761,7 +762,7 @@ public class DeliciousCrawler {
             c.crawl();
             // DeliciousCrawler.analyzeDataSet("");
             try {
-                Thread.sleep(2 * DateHelper.MINUTE_MS);
+                Thread.sleep(2 * TimeUnit.MINUTES.toMillis(1));
             } catch (InterruptedException e) {
                 LOGGER.warn(e.getMessage());
                 break;
