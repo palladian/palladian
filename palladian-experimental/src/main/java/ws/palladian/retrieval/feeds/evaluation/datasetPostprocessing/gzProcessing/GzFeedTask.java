@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
@@ -58,7 +58,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
 
     /** Number of checks the feed had before running this task. */
     private int initialChecks = 0;
-    
+
     /** The total number of items the feed had before running this task. */
     private int initialTotalItems = 0;
 
@@ -71,7 +71,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
     /**
      * Warn if processing of a feed takes longer than this.
      */
-    public static final long EXECUTION_WARN_TIME = 3 * DateHelper.MINUTE_MS;
+    public static final long EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
 
     /**
      * All items that have ever been seen in this feed. Remember to call {@link FeedItem#freeMemory()} on all items
@@ -109,7 +109,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                 doFinalLogging(timer);
                 return getResult();
             }
-            
+
             // skip feeds that contain no item
             if(initialTotalItems == 0){
                 LOGGER.debug("Feed id " + correctedFeed.getId() + " has no items. Nothing to do.");

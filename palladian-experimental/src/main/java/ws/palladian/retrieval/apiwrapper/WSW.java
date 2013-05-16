@@ -30,7 +30,8 @@ public class WSW {
     public ArrayList<Integer> getWebServiceIDs(int profileID) {
         ArrayList<Integer> wsids = new ArrayList<Integer>();
 
-        List<Node> ws = XPathHelper.getChildNodes(document.getLastChild(), "//profiles/profile[@id=" + profileID + "]/webservices/ws");
+        List<Node> ws = XPathHelper.getNodes(document.getLastChild(), ".//profiles/profile[@id=" + profileID
+                + "]/webservices/ws");
 
         for (Node wsn : ws) {
             try {
@@ -46,13 +47,13 @@ public class WSW {
 
         String queryURL = "";
 
-        Node ws = XPathHelper.getChildNode(document, "//webservices/webservice[@id=" + webServiceID + "]");
+        Node ws = XPathHelper.getNode(document, ".//webservices/webservice[@id=" + webServiceID + "]");
 
-        queryURL += XPathHelper.getChildNode(ws, "endpoint").getTextContent();
+        queryURL += XPathHelper.getNode(ws, "endpoint").getTextContent();
 
-        Node rp = XPathHelper.getChildNode(ws, "requestParameters");
+        Node rp = XPathHelper.getNode(ws, "./requestParameters");
         for (ParameterBinding pb : parameterBindings) {
-            Node pn = XPathHelper.getChildNode(rp, "parameter[@term='" + pb.term + "']");
+            Node pn = XPathHelper.getNode(rp, "./parameter[@term='" + pb.term + "']");
             if (pn != null) {
                 queryURL += "&" + pn.getTextContent() + "=" + pb.value;
             }
@@ -105,7 +106,8 @@ public class WSW {
 
         HashSet<ParameterBinding> outputParameterBindings = new HashSet<ParameterBinding>();
 
-        List<Node> rps = XPathHelper.getChildNodes(document, "//webservices/webservice[@id=" + webServiceID + "]/responseParameters/parameter");
+        List<Node> rps = XPathHelper.getNodes(document, ".//webservices/webservice[@id=" + webServiceID
+                + "]/responseParameters/parameter");
 
         for (Node rn : rps) {
             String term = rn.getAttributes().getNamedItem("term").getTextContent();

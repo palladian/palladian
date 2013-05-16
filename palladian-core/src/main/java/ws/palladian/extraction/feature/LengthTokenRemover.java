@@ -27,7 +27,6 @@ public final class LengthTokenRemover extends AbstractTokenRemover {
      * @param maxLength Maximum length for a token to be accepted.
      */
     public LengthTokenRemover(int minLength, int maxLength) {
-        super();
         this.minLength = minLength;
         this.maxLength = maxLength;
     }

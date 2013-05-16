@@ -46,10 +46,9 @@ public final class CollectionHelper {
      * @param map The {@link Map} to sort.
      * @param ascending {@link CollectionHelper#ASCENDING} or {@link CollectionHelper#DESCENDING}.
      * @return A sorted map.
-     * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
-     *             {@link Pair}s, sorted as required.
+     *         XXX {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
+     *         {@link Pair}s, sorted as required.
      */
-    @Deprecated
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
@@ -246,6 +245,23 @@ public final class CollectionHelper {
      */
     public static <E> ArrayList<E> newArrayList() {
         return new ArrayList<E>();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link ArrayList} and fill it with the contents of the given {@link Iterable}.
+     * </p>
+     * 
+     * @param iterable The {@link Iterable} providing the content for the {@link List}.
+     * @return The {@link List} with items from the {@link Iterable}.
+     */
+    public static <E> List<E> newArrayList(Iterable<E> iterable) {
+        Validate.notNull(iterable, "iterable must not be null");
+        List<E> list = new ArrayList<E>();
+        for (E item : iterable) {
+            list.add(item);
+        }
+        return list;
     }
 
     /**

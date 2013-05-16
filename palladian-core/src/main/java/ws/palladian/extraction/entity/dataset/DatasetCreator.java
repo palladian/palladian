@@ -21,8 +21,8 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
@@ -35,6 +35,7 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.HttpRetriever;
@@ -734,20 +735,21 @@ public class DatasetCreator {
                 + minMentionsPerSeed + " mentions per seed");
 
         // get seed annotations from the training file
-        Annotations annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, numberOfSeedsPerConcept);
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath,
+                numberOfSeedsPerConcept);
 
         // write the seeds to files
         Map<String, StringBuilder> fileMap = new HashMap<String, StringBuilder>();
-        for (Annotation annotation : annotations) {
-            StringBuilder seedFileContent = fileMap.get(annotation.getTargetClass());
+        for (Annotated annotation : annotations) {
+            StringBuilder seedFileContent = fileMap.get(annotation.getTag());
             if (seedFileContent == null) {
                 seedFileContent = new StringBuilder();
                 // we need to write a header
-                seedFileContent.append("Seeds for ").append(annotation.getTargetClass()).append("\n");
-                fileMap.put(annotation.getTargetClass(), seedFileContent);
+                seedFileContent.append("Seeds for ").append(annotation.getTag()).append("\n");
+                fileMap.put(annotation.getTag(), seedFileContent);
             }
 
-            seedFileContent.append(annotation.getEntity()).append("\n");
+            seedFileContent.append(annotation.getValue()).append("\n");
         }
 
         String seedFolderPath = getDataSetLocation() + "seedEntities/";

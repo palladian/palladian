@@ -1370,13 +1370,14 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<Object[]> runNativeQuery(String query, ParameterFiller parameterFiller) {
         Query queryObj = getManager().createNativeQuery(query);
         parameterFiller.fillParameter(queryObj);
 
         Boolean openedTransaction = openTransaction();
         try {
-            return queryObj.getResultList();
+            return (List<Object[]>)queryObj.getResultList();
         } finally {
             commitTransaction(openedTransaction);
         }
@@ -1401,7 +1402,9 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @return The {@link List} of all {@link Item}s authored by the provided {@link Author}.
      */
     public List<Item> loadItemsByAuthor(Author author) {
-        TypedQuery<Item> query = getManager().createQuery("SELECT i FROM Item i JOIN i.author a", Item.class);
+        TypedQuery<Item> query = getManager().createQuery("SELECT i FROM Item i JOIN i.author a WHERE a=:author",
+                Item.class);
+        query.setParameter("author", author);
         Boolean openedTransaction = openTransaction();
         try {
             return query.getResultList();

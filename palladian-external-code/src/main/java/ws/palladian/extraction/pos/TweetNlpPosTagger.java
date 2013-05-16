@@ -3,10 +3,9 @@ package ws.palladian.extraction.pos;
 import java.util.Arrays;
 import java.util.List;
 
-import ws.palladian.extraction.TagAnnotation;
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.PositionAnnotation;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
 
@@ -52,9 +51,9 @@ public class TweetNlpPosTagger extends BasePosTagger {
 
     public static void main(String[] args) {
         TweetNlpPosTagger posTagger = new TweetNlpPosTagger();
-        TagAnnotations tags = posTagger
-                .tag("I predict I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh");
-        for (TagAnnotation tagAnnotation : tags) {
+        List<Annotated> tags = posTagger
+                .getAnnotations("I predict I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh");
+        for (Annotated tagAnnotation : tags) {
             System.out.println(tagAnnotation);
         }
     }

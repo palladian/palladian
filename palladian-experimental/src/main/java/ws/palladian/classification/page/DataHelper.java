@@ -204,7 +204,7 @@ final class DataHelper {
         // FileHelper.writeToFile("data/benchmarkSelection/page/" + DateHelper.getCurrentDatetime() + "_odp.txt", transformedString);
 
         mergeURLFiles();
-        DateHelper.getRuntime(t1);
+        DateHelper.formatDuration(t1);
     }
 
     /**

@@ -5,11 +5,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -20,7 +19,6 @@ import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.extraction.location.sources.LocationRelation;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -54,11 +52,6 @@ public final class GeonamesImporter {
     /** Name of the file in the ZIP archive containing the hierarchy. */
     private static final String HIERARCHY_FILE_NAME = "hierarchy.txt";
 
-    /** The priority to assign for hierarchy relations as extracted from the hierarchies file. */
-    private static final int HIERARCHY_PRIORITY = 0;
-    /** The priority to assign for hierarchy relations extracted from the implicit administrative relations. */
-    private static final int IMPLICIT_ADM_PRIORITY = 10;
-
     /** Mapping between the administrative/country codes and our internal numeric level. */
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
 
@@ -86,7 +79,7 @@ public final class GeonamesImporter {
     private final Map<String, Integer> admin4Mapping;
 
     /** Explicitly given hierarchy relations, they have precedence over the administrative relations. */
-    private final MultiMap<Integer, LocationRelation> hierarchyMappings;
+    private final Map<Integer, Integer> hierarchyMappings;
 
     /**
      * <p>
@@ -104,7 +97,7 @@ public final class GeonamesImporter {
         this.admin2Mapping = CollectionHelper.newHashMap();
         this.admin3Mapping = CollectionHelper.newHashMap();
         this.admin4Mapping = CollectionHelper.newHashMap();
-        this.hierarchyMappings = MultiMap.create();
+        this.hierarchyMappings = CollectionHelper.newHashMap();
     }
 
     /**
@@ -164,7 +157,6 @@ public final class GeonamesImporter {
                 return null;
             }
         });
-        saveHierarchy();
         LOGGER.info("Finished importing {} items", numLinesCountries);
     }
 
@@ -193,7 +185,7 @@ public final class GeonamesImporter {
         }
 
         try {
-            int numLines = FileHelper.getNumberOfLines(hierarchyFile);
+            int numLines = FileHelper.getNumberOfLines(alternateNamesFile);
             inputStream = new FileInputStream(alternateNamesFile);
             importAlternativeNames(inputStream, numLines);
         } finally {
@@ -213,20 +205,9 @@ public final class GeonamesImporter {
             inputStream2 = new FileInputStream(locationFile);
             importLocations(inputStream2, totalLines);
 
-            saveHierarchy();
-
             LOGGER.info("Finished importing {} items", totalLines);
         } finally {
             FileHelper.close(inputStream1, inputStream2);
-        }
-    }
-
-    private void saveHierarchy() {
-        for (Integer childId : hierarchyMappings.keySet()) {
-            List<LocationRelation> parents = hierarchyMappings.get(childId);
-            for (LocationRelation parent : parents) {
-                locationStore.addHierarchy(parent);
-            }
         }
     }
 
@@ -251,12 +232,10 @@ public final class GeonamesImporter {
         readLocations(inputStream, totalLines, new LocationLineCallback() {
             @Override
             public void readLocation(GeonameLocation geonameLocation) {
-                locationStore.save(geonameLocation.buildLocation());
-                List<LocationRelation> parentLocations = getParent(geonameLocation);
-                if (parentLocations != null) {
-                    for (LocationRelation parentLocation : parentLocations) {
-                        locationStore.addHierarchy(parentLocation);
-                    }
+                locationStore.save(geonameLocation);
+                Integer parentId = getParent(geonameLocation);
+                if (parentId != null) {
+                    locationStore.addHierarchy(geonameLocation.geonamesId, parentId);
                 } else {
                     LOGGER.debug("No parent for {}", geonameLocation.geonamesId);
                 }
@@ -264,14 +243,23 @@ public final class GeonamesImporter {
         });
     }
 
-    private List<LocationRelation> getParent(GeonameLocation location) {
-        List<LocationRelation> ret = CollectionHelper.newArrayList();
+    /**
+     * <p>
+     * Get ID of parent location, if it exists. First try to get parent from the relations in the
+     * <code>hierarchy.txt</code> file. If there is no given relation, determine parent through administrative
+     * relations.
+     * </p>
+     * 
+     * @param location The {@link GeonameLocation} for which to get the parent.
+     * @return The ID of the parent relation, if a parent exists, or <code>null</code> if no parent could be found.
+     */
+    private Integer getParent(GeonameLocation location) {
 
         // explicitly given hierarchy relations (as defined in the hierarchy.txt file) have precedence over the derived
         // parental relations
-        List<LocationRelation> explicitMappings = hierarchyMappings.get(location.geonamesId);
-        if (explicitMappings != null) {
-            ret.addAll(explicitMappings);
+        Integer explicitMapping = hierarchyMappings.get(location.geonamesId);
+        if (explicitMapping != null) {
+            return explicitMapping;
         }
 
         List<String> hierarchyCode = location.getCodeParts();
@@ -298,12 +286,11 @@ public final class GeonamesImporter {
                 Map<String, Integer> mapping = getMappingForLevel(i - 1);
                 Integer retrievedParentId = mapping.get(parentCode);
                 if (retrievedParentId != null && retrievedParentId != location.geonamesId) {
-                    ret.add(new LocationRelation(retrievedParentId, location.geonamesId, IMPLICIT_ADM_PRIORITY));
-                    break;
+                    return retrievedParentId;
                 }
             }
         }
-        return ret;
+        return null;
     }
 
     private Map<String, Integer> getMappingForLevel(int level) {
@@ -386,24 +373,10 @@ public final class GeonamesImporter {
      * @param geonamesId The geonames id which to remove.
      * @return The number of removed entries.
      */
-    private int removeChildFromHierarchy(final int geonamesid) {
-        int removeCount = 0;
-        Iterator<Entry<Integer, List<LocationRelation>>> iterator = hierarchyMappings.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Entry<Integer, List<LocationRelation>> entry = iterator.next();
-            Iterator<LocationRelation> parentIterator = entry.getValue().iterator();
-            while (parentIterator.hasNext()) {
-                LocationRelation currentRelation = parentIterator.next();
-                if (currentRelation.getParentId() == geonamesid) {
-                    parentIterator.remove();
-                    removeCount++;
-                }
-            }
-            if (entry.getValue().isEmpty()) {
-                iterator.remove();
-            }
-        }
-        return removeCount;
+    private int removeChildFromHierarchy(int geonamesid) {
+        int oldSize = hierarchyMappings.size();
+        hierarchyMappings.values().removeAll(Collections.singleton(geonamesid));
+        return oldSize - hierarchyMappings.size();
     }
 
     /**
@@ -417,6 +390,7 @@ public final class GeonamesImporter {
     private void importHierarchy(InputStream inputStream, final int numLines) {
         LOGGER.info("Importing hierarchy, {} lines to read", numLines);
         final StopWatch stopWatch = new StopWatch();
+        final MultiMap<Integer, Integer> childParents = MultiMap.create();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -431,8 +405,7 @@ public final class GeonamesImporter {
                     type = split[2];
                 }
                 if (type == null || type.equals("ADM")) {
-                    LocationRelation parentRelation = new LocationRelation(parentId, childId, HIERARCHY_PRIORITY);
-                    hierarchyMappings.add(childId, parentRelation);
+                    childParents.add(childId, parentId);
                 }
                 String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
@@ -440,6 +413,13 @@ public final class GeonamesImporter {
                 }
             }
         });
+        // only add relation, if unambiguous
+        for (Integer childId : childParents.keySet()) {
+            List<Integer> parentIds = childParents.get(childId);
+            if (parentIds.size() == 1) {
+                hierarchyMappings.put(childId, parentIds.get(0));
+            }
+        }
         LOGGER.info("Finished importing hierarchy in {}", stopWatch.getTotalElapsedTimeString());
     }
 
@@ -509,7 +489,7 @@ public final class GeonamesImporter {
      * </pre>
      * 
      * @param line The line to parse, not <code>null</code>.
-     * @return The parser {@link Location}.
+     * @return The parsed {@link GeonameLocation}.
      */
     protected static GeonameLocation parse(String line) {
         String[] parts = line.split("\\t");
@@ -573,7 +553,7 @@ public final class GeonamesImporter {
     /**
      * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
      */
-    static final class GeonameLocation {
+    private static final class GeonameLocation implements Location {
         int geonamesId;
         double longitude;
         double latitude;
@@ -669,11 +649,6 @@ public final class GeonamesImporter {
             return "A".equals(featureClass);
         }
 
-        Location buildLocation() {
-            LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
-            return new Location(geonamesId, primaryName, null, locationType, latitude, longitude, population);
-        }
-
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
@@ -703,6 +678,46 @@ public final class GeonamesImporter {
             builder.append(admin4Code);
             builder.append("]");
             return builder.toString();
+        }
+
+        @Override
+        public int getId() {
+            return geonamesId;
+        }
+
+        @Override
+        public String getPrimaryName() {
+            return primaryName;
+        }
+
+        @Override
+        public Collection<AlternativeName> getAlternativeNames() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public LocationType getType() {
+            return GeonamesUtil.mapType(featureClass, featureCode);
+        }
+
+        @Override
+        public Double getLatitude() {
+            return latitude;
+        }
+
+        @Override
+        public Double getLongitude() {
+            return longitude;
+        }
+
+        @Override
+        public Long getPopulation() {
+            return population;
+        }
+
+        @Override
+        public List<Integer> getAncestorIds() {
+            return Collections.emptyList();
         }
 
     }

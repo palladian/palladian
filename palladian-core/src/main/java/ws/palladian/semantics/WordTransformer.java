@@ -11,13 +11,13 @@ import java.util.Set;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import ws.palladian.extraction.TagAnnotations;
-import ws.palladian.extraction.pos.PosTagger;
+import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -182,7 +182,7 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToSingularEnglish(pluralForm);
         } else if (language.equals(Language.GERMAN)) {
-            //            return wordToSingularGerman(pluralForm);
+            // return wordToSingularGerman(pluralForm);
             // TODO
             throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
         }
@@ -263,28 +263,28 @@ public class WordTransformer {
         return plural;
     }
 
-    //    /**
-    //     * <p>
-    //     * Transform a German plural word to its singular form using the wiktionary DB.
-    //     * </p>
-    //     *
-    //     * @param pluralForm The plural form of the word.
-    //     * @return The singular form of the word.
-    //     */
-    //    public static String wordToSingularGerman(String pluralForm) {
+    // /**
+    // * <p>
+    // * Transform a German plural word to its singular form using the wiktionary DB.
+    // * </p>
+    // *
+    // * @param pluralForm The plural form of the word.
+    // * @return The singular form of the word.
+    // */
+    // public static String wordToSingularGerman(String pluralForm) {
     //
-    //        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-    //        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+    // PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+    // String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
     //
-    //        WordDB wordDB = new WordDB(path);
-    //        Word word = wordDB.getWord(pluralForm);
+    // WordDB wordDB = new WordDB(path);
+    // Word word = wordDB.getWord(pluralForm);
     //
-    //        if (word != null) {
-    //            return word.getWord();
-    //        }
+    // if (word != null) {
+    // return word.getWord();
+    // }
     //
-    //        return pluralForm;
-    //    }
+    // return pluralForm;
+    // }
 
     /**
      * <p>
@@ -304,7 +304,7 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglish(singular);
         } else if (language.equals(Language.GERMAN)) {
-            //            return wordToPluralGerman(singular);
+            // return wordToPluralGerman(singular);
             // TODO
             throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
         }
@@ -397,27 +397,27 @@ public class WordTransformer {
         return prefix + singular + "s";
     }
 
-    //    /**
-    //     * <p>
-    //     * Transform a German singular word to its plural form using the wiktionary DB.
-    //     * </p>
-    //     *
-    //     * @param singularForm The singular form of the word.
-    //     * @return The plural form of the word.
-    //     */
-    //    public static String wordToPluralGerman(String singularForm) {
-    //        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-    //        String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+    // /**
+    // * <p>
+    // * Transform a German singular word to its plural form using the wiktionary DB.
+    // * </p>
+    // *
+    // * @param singularForm The singular form of the word.
+    // * @return The plural form of the word.
+    // */
+    // public static String wordToPluralGerman(String singularForm) {
+    // PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+    // String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
     //
-    //        WordDB wordDB = new WordDB(path);
-    //        Word word = wordDB.getWord(singularForm);
+    // WordDB wordDB = new WordDB(path);
+    // Word word = wordDB.getWord(singularForm);
     //
-    //        if (word != null && !word.getPlural().isEmpty()) {
-    //            return word.getPlural();
-    //        }
+    // if (word != null && !word.getPlural().isEmpty()) {
+    // return word.getPlural();
+    // }
     //
-    //        return singularForm;
-    //    }
+    // return singularForm;
+    // }
 
     public static String stemEnglishWord(String word) {
         SnowballStemmer snowballStemmer = new englishStemmer();
@@ -544,7 +544,6 @@ public class WordTransformer {
             return verb.replaceAll("(.)$", "$1$1ed");
         }
 
-
         return verb + "ed";
     }
 
@@ -568,11 +567,11 @@ public class WordTransformer {
      * @param string The English sentence.
      * @return The detected English tense.
      */
-    public static EnglishTense getTense(String string, PosTagger posTagger) {
-        return getTense(string, posTagger.tag(string));
+    public static EnglishTense getTense(String string, BasePosTagger posTagger) {
+        return getTense(string, posTagger.getAnnotations(string));
     }
 
-    public static EnglishTense getTense(String string, TagAnnotations posTags) {
+    public static EnglishTense getTense(String string, List<Annotated> annotations) {
 
         string = string.toLowerCase();
 
@@ -589,19 +588,24 @@ public class WordTransformer {
         boolean isAreFound = (StringHelper.containsWord("is", string) || StringHelper.containsWord("are", string));
         boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
 
-        if (posTags.containTag("VBD") && !isAreFound) {
+        Set<String> posTags = CollectionHelper.newHashSet();
+        for (Annotated a : annotations) {
+            posTags.add(a.getTag());
+        }
+
+        if (posTags.contains("VBD") && !isAreFound) {
             return EnglishTense.SIMPLE_PAST;
         }
 
-        if (posTags.containTag("HVD") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+        if (posTags.contains("HVD") && (posTags.contains("VBN") || posTags.contains("HVN"))) {
             return EnglishTense.PAST_PERFECT;
         }
 
-        if (posTags.containTag("HV") && (posTags.containTag("VBN") || posTags.containTag("HVN"))) {
+        if (posTags.contains("HV") && (posTags.contains("VBN") || posTags.contains("HVN"))) {
             return EnglishTense.PRESENT_PERFECT;
         }
 
-        if (posTags.containTag("VBN") && !isAreFound) {
+        if (posTags.contains("VBN") && !isAreFound) {
             return EnglishTense.PRESENT_PERFECT;
         }
 
@@ -614,7 +618,7 @@ public class WordTransformer {
 
     public static void main(String[] args) {
 
-        //        System.out.println(WordTransformer.stemEnglishWord("bleed"));
+        // System.out.println(WordTransformer.stemEnglishWord("bleed"));
         System.out.println(WordTransformer.getThirdPersonSingular("cross"));
         System.exit(0);
 

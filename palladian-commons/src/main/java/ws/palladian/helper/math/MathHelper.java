@@ -246,10 +246,6 @@ public final class MathHelper {
         return sum / values.length;
     }
 
-    /**
-     * @deprecated Use {@link #getDistances(Collection)}, then {@link #getMedian(Collection)} instead.
-     */
-    @Deprecated
     public static long getMedianDifference(long[] sortedList) {
         long[] distances = getDistances(sortedList);
         return (long)getMedian(distances);
@@ -348,7 +344,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Check whether two numeric intervals overlap.
+     * </p>
      * 
      * @param start1 The start1.
      * @param end1 The end1.
@@ -360,26 +358,20 @@ public final class MathHelper {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
-    public static double computeRootMeanSquareError(String inputFile, String columnSeparator) {
+    public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
         // array with correct and predicted values
-        List<double[]> values = new ArrayList<double[]>();
+        final List<double[]> values = new ArrayList<double[]>();
 
-        final Object[] obj = new Object[2];
-        obj[0] = values;
-        obj[1] = columnSeparator;
-
-        LineAction la = new LineAction(obj) {
-
-            @SuppressWarnings("unchecked")
+        LineAction la = new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split((String)obj[1]);
+                String[] parts = line.split(columnSeparator);
 
                 double[] pair = new double[2];
                 pair[0] = Double.valueOf(parts[0]);
                 pair[1] = Double.valueOf(parts[1]);
 
-                ((List<double[]>)obj[0]).add(pair);
+                values.add(pair);
             }
         };
 
@@ -449,27 +441,18 @@ public final class MathHelper {
         return new ListSimilarity(similarity, squaredShiftSimilarity, rootMeanSquareError);
     }
 
-    public static ListSimilarity computeListSimilarity(String listFile, String separator) {
+    public static ListSimilarity computeListSimilarity(String listFile, final String separator) {
 
         // two list
-        List<String> list1 = new ArrayList<String>();
-        List<String> list2 = new ArrayList<String>();
+        final List<String> list1 = new ArrayList<String>();
+        final List<String> list2 = new ArrayList<String>();
 
-        final Object[] obj = new Object[3];
-        obj[0] = list1;
-        obj[1] = list2;
-        obj[2] = separator;
-
-        LineAction la = new LineAction(obj) {
-
-            @SuppressWarnings({"rawtypes", "unchecked"})
+        LineAction la = new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] parts = line.split((String)obj[2]);
-
-                ((List)obj[0]).add(parts[0]);
-                ((List)obj[1]).add(parts[1]);
-
+                String[] parts = line.split(separator);
+                list1.add(parts[0]);
+                list2.add(parts[1]);
             }
         };
 
@@ -479,7 +462,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Transform an IP address to a number.
+     * </p>
      * 
      * @param ipAddress The IP address given in w.x.y.z notation.
      * @return The integer of the IP address.
@@ -496,7 +481,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Transform a number into an IP address.
+     * </p>
      * 
      * @param number The integer to be transformed.
      * @return The IP address.
@@ -506,7 +493,26 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
+     * Return a random entry from a given collection.
+     * </p>
+     * 
+     * @param collection The collection from we want to sample from.
+     * @return A random entry from the collection.
+     */
+    public static <T> T randomEntry(Collection<T> collection) {
+        Collection<T> randomSample = randomSample(collection, 1);
+        if (!randomSample.isEmpty()) {
+            return randomSample.iterator().next();
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>
      * Create a random sample from a given collection.
+     * </p>
      * 
      * @param collection The collection from we want to sample from.
      * @param sampleSize The size of the sample.
@@ -596,11 +602,12 @@ public final class MathHelper {
 
     /**
      * <p>
+     * Returns a random number in the interval [low,high].
      * </p>
      * 
-     * @param low The minimum number that the random number
-     * @param high
-     * @return
+     * @param low The minimum number.
+     * @param high The maximum number.
+     * @return The random number within the interval.
      */
     public static int getRandomIntBetween(int low, int high) {
         int hl = high - low;
