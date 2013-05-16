@@ -163,7 +163,7 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     static {
-        setNumConnections(DEFAULT_NUM_RETRIES);
+        setNumConnections(DEFAULT_NUM_CONNECTIONS);
         setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
     }
 
