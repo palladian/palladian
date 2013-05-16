@@ -1392,7 +1392,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
     // ////////////// accessors for testing only. /////////////////////
 
-    DictionaryModel getEntityDictionary() {
+    public DictionaryModel getEntityDictionary() {
         return entityDictionary;
     }
 
