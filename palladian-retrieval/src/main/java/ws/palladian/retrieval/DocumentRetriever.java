@@ -16,8 +16,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -565,7 +563,6 @@ public class DocumentRetriever {
         .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
     }
     public void switchAgent(){
-        HttpParams httpParams = new SyncBasicHttpParams();
         int index =  (int) (Math.random() * userAgents.size());
         String s = userAgents.get(index);
         httpRetriever.setUserAgent(s);
