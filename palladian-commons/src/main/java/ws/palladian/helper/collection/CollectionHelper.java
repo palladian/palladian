@@ -373,18 +373,16 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Get the first element in a {@link List}.
+     * Get the first element in an {@link Iterable}.
      * </p>
      * 
-     * @param list The List from which to get the element, not <code>null</code>.
-     * @return The first element, or <code>null</code> if the list was empty.
+     * @param list The Iterable from which to get the element, not <code>null</code>.
+     * @return The first element, or <code>null</code> if the iterable was empty.
      */
-    public static <T> T getFirst(List<T> list) {
-        Validate.notNull(list, "list must not be null");
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.get(0);
+    public static <T> T getFirst(Iterable<T> iterable) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Iterator<T> iterator = iterable.iterator();
+        return iterator.hasNext() ? iterator.next() : null;
     }
 
     /**
