@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.PalladianLocationExtractor.LocationLookup;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Filter;
 import ws.palladian.processing.features.Annotated;
 
 public class ProximityDisambiguation implements LocationDisambiguation {
@@ -24,12 +27,15 @@ public class ProximityDisambiguation implements LocationDisambiguation {
 
     @Override
     public List<LocationAnnotation> disambiguate(List<Annotated> annotations, LocationLookup cache) {
+        // System.out.println(cache.toString());
+
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
         Collection<Location> anchorLocations = getAnchors(annotations, cache);
 
         for (Annotated annotation : annotations) {
             Collection<Location> locations = cache.get(annotation.getValue());
+            LOGGER.debug("{} -> {}", annotation.getValue(), locations);
             if (locations.isEmpty()) {
                 continue; // no match
             }
@@ -45,8 +51,18 @@ public class ProximityDisambiguation implements LocationDisambiguation {
                 }
                 for (Location other : otherAnchors) {
                     double distance = GeoUtils.getDistance(current, other);
+                    // LOGGER.debug("Distance to anchors for {} is {}", current, distance);
                     if (distance < DISTANCE_THRESHOLD) {
                         selection.add(current);
+                    }
+
+                    if (EnumSet.of(LocationType.CITY, LocationType.UNIT, LocationType.COUNTRY)
+                            .contains(other.getType())) {
+                        boolean isChildOfAnchors = isChildOf(current, other);
+                        if (isChildOfAnchors) {
+                            LOGGER.debug("{} is child of anchor {}", current, other);
+                            selection.add(current);
+                        }
                     }
                 }
             }
@@ -92,6 +108,14 @@ public class ProximityDisambiguation implements LocationDisambiguation {
         return CollectionHelper.getFirst(temp);
     }
 
+    public static boolean isChildOf(Location child, Location parent) {
+        String childString = StringUtils.join(child.getAncestorIds(), "/");
+        String parentString = parent.getId() + "/" + StringUtils.join(parent.getAncestorIds(), "/");
+        // System.out.println("child=" + childString);
+        // System.out.println("parent=" + parentString);
+        return childString.endsWith(parentString) && child.getPopulation() > 5000;
+    }
+
     public static Collection<Location> getAnchors(List<Annotated> annotations, LocationLookup cache) {
         Collection<Location> allLocations = cache.getAll();
         Collection<Location> anchorLocations = CollectionHelper.newHashSet();
@@ -101,8 +125,20 @@ public class ProximityDisambiguation implements LocationDisambiguation {
             if (locations.isEmpty()) {
                 continue;
             }
+            // clumsy fix, assume that we have locations with and without coordinates in the DB;
+            // through the new wikipedia DB import, this problem should be obsolete though
+            if (locations.size() > 1) {
+                CollectionHelper.filter(locations, new Filter<Location>() {
+                    @Override
+                    public boolean accept(Location item) {
+                        return item.getLatitude() != null;
+                    }
+                });
+            }
             boolean ambiguous = FirstDisambiguation.checkAmbiguity(locations);
+            // LOGGER.info("{} ambiguous {}", annotation.getValue(), ambiguous);
             if (ambiguous) {
+                // LOGGER.info("{} is ambiguous", annotation.getValue());
                 continue;
             }
 //            Location location = CollectionHelper.getFirst(locations);
@@ -115,6 +151,11 @@ public class ProximityDisambiguation implements LocationDisambiguation {
             for (Location location : locations) {
                 if (location.getPopulation() != null && location.getPopulation() > 5000) {
                     LOGGER.debug("Unambiguous achor location {}", location);
+                    anchorLocations.add(location);
+                }
+                if ((location.getPopulation() == null || location.getPopulation() == 0)
+                        && annotation.getValue().split("\\s").length > 2) {
+                    LOGGER.debug("Unambiguous anchor location {}", location);
                     anchorLocations.add(location);
                 }
             }
@@ -150,5 +191,13 @@ public class ProximityDisambiguation implements LocationDisambiguation {
         }
         return anchorLocations;
     }
+
+//    public static void main(String[] args) {
+//        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+//        Location l1 = database.getLocation(2921044);
+//        Location l2 = database.getLocation(2947416);
+//        System.out.println(isChildOf(l2, l1));
+//
+//    }
 
 }
