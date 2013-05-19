@@ -1537,6 +1537,56 @@ public final class StringHelper {
         return out.toString();
     }
 
+    /**
+     * <p>
+     * Transform "one" to 1, "two" to 2, etc. if no number was transformed, return null
+     * </p>
+     * 
+     * @param numberWord The string with a number word.
+     * @return The number or null if nothing was transformed.
+     */
+    public static Integer numberWordToNumber(String numberWord) {
+        numberWord = numberWord.toLowerCase().trim();
+        if (numberWord.equals("one")) {
+            return 1;
+        }
+        if (numberWord.equals("two") || numberWord.equals("couple")) {
+            return 2;
+        }
+        if (numberWord.equals("three") || numberWord.equals("few")) {
+            return 3;
+        }
+        if (numberWord.equals("four")) {
+            return 4;
+        }
+        if (numberWord.equals("five")) {
+            return 5;
+        }
+        if (numberWord.equals("six")) {
+            return 6;
+        }
+        if (numberWord.equals("seven")) {
+            return 7;
+        }
+        if (numberWord.equals("eight")) {
+            return 8;
+        }
+        if (numberWord.equals("nine")) {
+            return 9;
+        }
+        if (numberWord.equals("ten")) {
+            return 10;
+        }
+        if (numberWord.equals("eleven")) {
+            return 11;
+        }
+        if (numberWord.equals("twelve")) {
+            return 12;
+        }
+
+        return null;
+    }
+
     public static String getRegexpMatch(String regexp, String text) {
         return getRegexpMatch(regexp, text, false, false);
     }
