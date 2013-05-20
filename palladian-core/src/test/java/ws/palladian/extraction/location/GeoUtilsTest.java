@@ -29,4 +29,14 @@ public class GeoUtilsTest {
         assertEquals(-153.661864, midpoint.getLongitude(), 0.01);
     }
 
+    @Test
+    public void testBoundingBox() {
+        double[] boundingBox = GeoUtils.getBoundingBox(new ImmutableGeoCoordinate(52.52437, 13.41053), 10);
+        assertEquals(4, boundingBox.length);
+        assertEquals(52.4343, boundingBox[0], 0.001);
+        assertEquals(13.2625, boundingBox[1], 0.001);
+        assertEquals(52.6144, boundingBox[2], 0.001);
+        assertEquals(13.5585, boundingBox[3], 0.001);
+    }
+
 }
