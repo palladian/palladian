@@ -66,6 +66,29 @@ public final class GeoUtils {
         return new ImmutableGeoCoordinate(lat, lng);
     }
 
+    /**
+     * <p>
+     * Calculates a (quadratic) bounding box around the given {@link GeoCoordinate} with the specified distance in
+     * kilometers.
+     * </p>
+     * 
+     * @param c The {@link GeoCoordinate} around which to create the bounding box, not <code>null</code>.
+     * @param distance The distance around the coordinate in kilometers, greater/equal zero.
+     * @return An array with four elements specifying the coordinates of the bounding box in the following order:
+     *         [south, west, north, east].
+     */
+    public static final double[] getBoundingBox(GeoCoordinate c, double distance) {
+        Validate.notNull(c, "c must not be null");
+        Validate.isTrue(distance >= 0, "distance must be equal/greater zero");
+
+        // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/
+        double lat1 = c.getLatitude() - distance / 111.04;
+        double lat2 = c.getLatitude() + distance / 111.04;
+        double long1 = c.getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(c.getLatitude())) * 111.04);
+        double long2 = c.getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(c.getLatitude())) * 111.04);
+        return new double[] {lat1, long1, lat2, long2};
+    }
+
     private GeoUtils() {
         // no instances.
     }
