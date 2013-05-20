@@ -453,6 +453,53 @@ public class ImageHandler {
         return resizedImage.getAsBufferedImage();
     }
 
+    private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
+
+        // "SubsampleAverage" is smooth but does only work for downscaling. If upscaling, we need to use "Scale".
+        boolean upscale = false;
+        if (scale > 1.0) {
+            upscale = true;
+        }
+
+        ParameterBlock pb = new ParameterBlock();
+        pb.addSource(bufferedImage); // The source image
+        // x scale
+        if (upscale) {
+            pb.add((float)scale);
+        } else {
+            pb.add(scale);
+        }
+        // y scale
+        if (upscale) {
+            pb.add((float)scale);
+        } else {
+            pb.add(scale);
+        }
+        // x translation
+        pb.add(0.0f);
+        // y translation
+        pb.add(0.0f);
+        pb.add(new InterpolationBicubic(4));
+        pb.add(bufferedImage);
+
+        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+
+        // results in exactly the same as above (tested only for downscaling)
+        // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
+        // RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+        RenderedOp resizedImage = null;
+
+        if (upscale) {
+            resizedImage = JAI.create("scale", pb, qualityHints1);
+        } else {
+            resizedImage = JAI.create("SubsampleAverage", pb, qualityHints1);
+        }
+
+        return resizedImage.getAsBufferedImage();
+    }
+
     /**
      * <p>
      * Rescaling an image using JAI SubsampleAverage. The image looks smooth after rescaling.
@@ -479,10 +526,10 @@ public class ImageHandler {
             scale = (double)newWidth / (double)iHeight;
         }
 
-        return scaleDown(bufferedImage, scale);
+        return rescaleImage(bufferedImage, scale);
     }
 
-    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth) {
+    private static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth) {
         return rescaleImage(bufferedImage, newWidth, false);
     }
 
