@@ -20,6 +20,15 @@ import org.junit.Test;
 public class StringHelperTest {
 
     @Test
+    public void testNumberToWord() {
+        assertEquals(null, StringHelper.numberToWord(3.57));
+        assertEquals(null, StringHelper.numberToWord(-1.));
+        assertEquals("three", StringHelper.numberToWord(3.));
+        assertEquals("seven", StringHelper.numberToWord(7.));
+        assertEquals("twelve", StringHelper.numberToWord(12.));
+    }
+
+    @Test
     public void testFirstWord() {
         assertEquals("samsung", StringHelper.getFirstWord("samsung galaxy s4"));
         assertEquals("samsung", StringHelper.getFirstWord("samsung"));

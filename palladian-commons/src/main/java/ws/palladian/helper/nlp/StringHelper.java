@@ -1539,6 +1539,61 @@ public final class StringHelper {
 
     /**
      * <p>
+     * Transform numbers between 0 and 12 to words, e.g. 1 becomes "one" and 12 becomes "twelve".
+     * </p>
+     * 
+     * @param number The number.
+     * @return The word or null if nothing was transformed.
+     */
+    public static String numberToWord(Double number) {
+        int intNumber = number.intValue();
+
+        if (number % intNumber > 0) {
+            return null;
+        }
+
+        if (intNumber == 1) {
+            return "one";
+        }
+        if (intNumber == 2) {
+            return "two";
+        }
+        if (intNumber == 3) {
+            return "three";
+        }
+        if (intNumber == 4) {
+            return "four";
+        }
+        if (intNumber == 5) {
+            return "five";
+        }
+        if (intNumber == 6) {
+            return "six";
+        }
+        if (intNumber == 7) {
+            return "seven";
+        }
+        if (intNumber == 8) {
+            return "eight";
+        }
+        if (intNumber == 9) {
+            return "nine";
+        }
+        if (intNumber == 10) {
+            return "ten";
+        }
+        if (intNumber == 11) {
+            return "eleven";
+        }
+        if (intNumber == 12) {
+            return "twelve";
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>
      * Transform "one" to 1, "two" to 2, etc. if no number was transformed, return null
      * </p>
      * 
