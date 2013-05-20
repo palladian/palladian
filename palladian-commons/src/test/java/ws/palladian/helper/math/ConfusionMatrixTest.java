@@ -50,17 +50,17 @@ public class ConfusionMatrixTest {
         assertEquals(5. / 7, confusionMatrix.getPrecision("cat"), DELTA);
         assertEquals(5. / 8, confusionMatrix.getRecall("cat"), DELTA);
         assertEquals(22. / 27, confusionMatrix.getAccuracy("cat"), DELTA);
-        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getF("cat", 0.5), DELTA);
+        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getF("cat", 1.0), DELTA);
 
         assertEquals(3. / 8, confusionMatrix.getPrecision("dog"), DELTA);
         assertEquals(3. / 6, confusionMatrix.getRecall("dog"), DELTA);
         assertEquals(19. / 27, confusionMatrix.getAccuracy("dog"), DELTA);
-        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getF("dog", 0.5), DELTA);
+        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getF("dog", 1.0), DELTA);
 
         assertEquals(11. / 12, confusionMatrix.getPrecision("rabbit"), DELTA);
         assertEquals(11. / 13, confusionMatrix.getRecall("rabbit"), DELTA);
         assertEquals(24. / 27, confusionMatrix.getAccuracy("rabbit"), DELTA);
-        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getF("rabbit", 0.5), DELTA);
+        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getF("rabbit", 1.0), DELTA);
 
         assertEquals(8. / 27, confusionMatrix.getPrior("cat"), DELTA);
         assertEquals(6. / 27, confusionMatrix.getPrior("dog"), DELTA);
@@ -69,11 +69,13 @@ public class ConfusionMatrixTest {
         assertEquals((5. / 7 + 3. / 8 + 11. / 12) / 3, confusionMatrix.getAveragePrecision(false), DELTA);
         assertEquals((5. / 8 + 3. / 6 + 11. / 13) / 3, confusionMatrix.getAverageRecall(false), DELTA);
 
-        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12, confusionMatrix.getAveragePrecision(true), DELTA);
-        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true), DELTA);
+        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12,
+                confusionMatrix.getAveragePrecision(true), DELTA);
+        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true),
+                DELTA);
 
         // TODO test for superiority
-        
+
         // System.out.println(confusionMatrix);
 
     }

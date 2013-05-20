@@ -230,8 +230,8 @@ public class ConfusionMatrix {
      * </p>
      * 
      * @param category The category.
-     * @param alpha A value between 0 and 1 to weight precision and recall (0.5 for F1). Use values of 0.333333333 for
-     *            F2 score and 0.66666666666666 for F0.5 score and so on.
+     * @param alpha A value between 0 and 1 to weight precision and recall (1.0 for F1). Use values of 2.0 for
+     *            F2 score and 0.5 for F0.5 score and so on.
      * @return The F measure for a given category.
      */
     public double getF(String category, double alpha) {
@@ -240,8 +240,8 @@ public class ConfusionMatrix {
         if (precision < 0 || recall < 0) {
             return -1;
         }
-        // return (1.+alpha) * ((precision * recall)/(alpha*precision+recall));
-        return 1.0 / (alpha * 1.0 / precision + (1.0 - alpha) * 1.0 / recall);
+        return (1. + alpha) * ((precision * recall) / (alpha * precision + recall));
+        // return 1.0 / (alpha * 1.0 / precision + (1.0 - alpha) * 1.0 / recall);
     }
 
     /**
@@ -396,15 +396,15 @@ public class ConfusionMatrix {
      * Get the average F measure of all categories.
      * </p>
      * 
-     * @param alpha To weight precision and recall (0.5 for F1 measure).
+     * @param beta To weight precision and recall (1.0 for F1 measure).
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
      *            each category equally.
      * @return The average F of all categories.
      */
-    public double getAverageF(double alpha, boolean weighted) {
+    public double getAverageF(double beta, boolean weighted) {
         double f = 0.0;
         for (String category : getCategories()) {
-            double fForCategory = getF(category, alpha);
+            double fForCategory = getF(category, beta);
             if (fForCategory < 0.0) {
                 continue;
             }
@@ -557,7 +557,7 @@ public class ConfusionMatrix {
             double precision = MathHelper.round(getPrecision(clazz), 4);
             double recall = MathHelper.round(getRecall(clazz), 4);
             double accuracy = MathHelper.round(getAccuracy(clazz), 4);
-            double f1measure = MathHelper.round(getF(clazz, 0.5), 4);
+            double f1measure = MathHelper.round(getF(clazz, 1.0), 4);
             out.append(prior);
             int precisionSpaces = "prior  ".length() - String.valueOf(prior).length();
             out.append(CharBuffer.allocate(Math.max(precisionSpaces, 0)).toString().replace('\0', ' ')).append(
