@@ -20,6 +20,34 @@ import org.junit.Test;
 public class StringHelperTest {
 
     @Test
+    public void testNumberToWord() {
+        assertEquals(null, StringHelper.numberToWord(3.57));
+        assertEquals(null, StringHelper.numberToWord(-1.));
+        assertEquals("three", StringHelper.numberToWord(3.));
+        assertEquals("seven", StringHelper.numberToWord(7.));
+        assertEquals("twelve", StringHelper.numberToWord(12.));
+    }
+
+    @Test
+    public void testFirstWord() {
+        assertEquals("samsung", StringHelper.getFirstWord("samsung galaxy s4"));
+        assertEquals("samsung", StringHelper.getFirstWord("samsung"));
+        assertEquals("galaxy s4", StringHelper.removeFirstWord("samsung galaxy s4"));
+        assertEquals("", StringHelper.removeFirstWord("samsung"));
+    }
+
+    @Test
+    public void testRemoveBrackets() {
+        assertEquals("samsung s4", StringHelper.removeBrackets("samsung (galaxy) s4"));
+        assertEquals("samsung s4", StringHelper.removeBrackets("samsung [galaxy] s4"));
+        assertEquals("samsung s4", StringHelper.removeBrackets("samsung {galaxy} s4"));
+        assertEquals("samsung s4 a", StringHelper.removeBrackets("samsung {galaxy} s4 (cool!) a {123}"));
+        assertEquals("samsung s4 a", StringHelper.removeBrackets("samsung{galaxy} s4 (cool!)a {123}"));
+        // TODO, nested, would require looping
+        // assertEquals("samsung s4", StringHelper.removeBrackets("samsung (galaxy (pretty)) s4"));
+    }
+
+    @Test
     public void testContainsWord() {
 
         assertEquals(true, StringHelper.containsWord("test", "a test b"));
@@ -311,7 +339,7 @@ public class StringHelperTest {
         assertEquals("The Fog", StringHelper.putArticleInFront("Fog,the"));
         assertEquals("Los Amigos", StringHelper.putArticleInFront("Amigos, Los"));
     }
-    
+
     @Test
     public void testContainsAny() {
         assertTrue(StringHelper.containsAny("the quick brown fox", Arrays.asList("cat", "dog", "fox")));

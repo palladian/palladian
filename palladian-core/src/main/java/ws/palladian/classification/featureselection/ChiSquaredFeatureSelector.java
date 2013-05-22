@@ -6,25 +6,71 @@ package ws.palladian.classification.featureselection;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureUtils;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
+ * <p>
+ * An implementation of the chi squared feature selection method. This method calculates the probability that the null
+ * hypothesis is wrong for the correlation between a feature and a target class.
+ * </p>
+ * <p>
+ * Further details are available for example in C. D. Manning, P. Raghavan, and H. Schütze, An introduction to
+ * information retrieval, no. c. New York: Cambridge University Press, 2009, Page 275.
+ * </p>
+ * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.2.0
  */
 public final class ChiSquaredFeatureSelector implements FeatureSelector {
 
+    /**
+     * <p>
+     * The logger for objects of this class. Configure it using <tt>/src/main/resources/log4j.properties</tt>
+     * </p>
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureSelector.class);
 
+    /**
+     * <p>
+     * A strategy describing how feature rankings for different classes are merged.
+     * </p>
+     */
+    private final SelectedFeatureMergingStrategy mergingStrategy;
+
+    /**
+     * <p>
+     * Creates a new completely initialized {@link FeatureSelector}.
+     * </p>
+     * 
+     * @param mergingStrategy A strategy describing how feature rankings for different classes are merged.
+     */
+    public ChiSquaredFeatureSelector(SelectedFeatureMergingStrategy mergingStrategy) {
+        this.mergingStrategy = mergingStrategy;
+    }
+
+    /**
+     * <p>
+     * This is the core method calculating the raw chi squared scores. Only call it directly if you know what you are
+     * doing. Otherwise use the {@link FeatureSelector} interface.
+     * </p>
+     * 
+     * @param featurePath The name of or path to the features to calculate the chi squared values for.
+     * @param featureType The implementation class of the features at the provided path. this is necessary to get the
+     *            correct features from the provided instances' {@link FeatureVector}.
+     * @param instances The dataset to use to calculate chi squared values for. The instances should actually contain
+     *            the feature provided by {@code featurePath} and it needs to be of the correct type (i.e.
+     *            {@code featureType}).
+     * @return A mapping with the first key being a feature mapped to a map where the key is a target class from the
+     *         {@code instances} and the value is the chi squared score for the feature with that class.
+     */
     public static <T extends Feature<?>> Map<String, Map<String, Double>> calculateChiSquareValues(String featurePath,
             Class<T> featureType, Collection<Instance> instances) {
         Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
@@ -43,37 +89,29 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
             classCounts.put(instance.getTargetClass(), ++count);
         }
 
-        // The following variables are uppercase because that is the way they are used in the literature.
         for (Map.Entry<String, Map<String, Long>> termOccurence : termClassCorrelationMatrix.entrySet()) {
+            // The following variables are uppercase because that is the way they are used in the literature.
             int N = instances.size();
             for (Map.Entry<String, Long> currentClassCount : classCounts.entrySet()) {
-                // for (Map.Entry<String, Integer> classOccurence : termOccurence.getValue().entrySet()) {
                 String className = currentClassCount.getKey();
                 Long classCount = currentClassCount.getValue();
                 Long termClassCoocurrence = termOccurence.getValue().get(className);
                 if (termClassCoocurrence == null) {
                     termClassCoocurrence = 0L;
                 }
-                LOGGER.debug("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
+                LOGGER.trace("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
                 long N_11 = termClassCoocurrence;
                 long N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
                 long N_01 = classCount - termClassCoocurrence;
                 long N_00 = N - (N_10 + N_01 + N_11);
-                LOGGER.debug("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", new Long[] {N_11, N_10, N_01, N_00});
-
-                // double E_11 = calculateExpectedCount(N_11, N_10, N_11, N_01, N);
-                // double E_10 = calculateExpectedCount(N_11, N_10, N_00, N_10, N);
-                // double E_01 = calculateExpectedCount(N_01, N_00, N_11, N_01, N);
-                // double E_00 = calculateExpectedCount(N_01, N_00, N_10, N_00, N);
+                LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", new Long[] {N_11, N_10, N_01, N_00});
 
                 double numerator = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
                 long denominatorInt = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
                 double denominator = Double.valueOf(denominatorInt);
                 double chiSquare = numerator / denominator;
-                // double chiSquare = summand(N_11, E_11) + summand(N_10, E_10) + summand(N_01, E_01)
-                // + summand(N_00, E_00);
 
-                LOGGER.debug("Chi² value is {}", chiSquare);
+                LOGGER.trace("Chi² value is {}", chiSquare);
                 Map<String, Double> chiSquaresForCurrentTerm = ret.get(termOccurence.getKey());
                 if (chiSquaresForCurrentTerm == null) {
                     chiSquaresForCurrentTerm = new HashMap<String, Double>();
@@ -130,28 +168,6 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
 
     @Override
     public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
-        FeatureRanking ranking = new FeatureRanking();
-        for (FeatureDetails featureDetails : featuresToConsider) {
-            Map<String, Map<String, Double>> scoredFeature = calculateChiSquareValues(featureDetails.getPath(),
-                    featureDetails.getType(), dataset);
-            Validate.isTrue((!featureDetails.isSparse() && scoredFeature.size() == 1) || (featureDetails.isSparse()));
-
-            // this should usually only run once for non sparse features.
-            for (Entry<String, Map<String, Double>> scoredValue : scoredFeature.entrySet()) {
-                double averageScore = 0.0d;
-
-                for (Double value : scoredValue.getValue().values()) {
-                    averageScore += value;
-                }
-                averageScore /= scoredValue.getValue().size();
-
-                if (featureDetails.isSparse()) {
-                    ranking.addSparse(featureDetails.getPath(), scoredValue.getKey(), averageScore);
-                } else {
-                    ranking.add(scoredValue.getKey(), averageScore);
-                }
-            }
-        }
-        return ranking;
+        return mergingStrategy.merge(dataset, featuresToConsider);
     }
 }

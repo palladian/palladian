@@ -51,7 +51,6 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
      * @param dataset The collection of instances to select features for.
      * @return
      */
-    @SuppressWarnings("unchecked")
     private Map<Feature<?>, Double> calculateInformationGain(FeatureDetails featureDetails, Collection<Instance> dataset) {
         Validate.notNull(featureDetails);
         Validate.notNull(dataset);
