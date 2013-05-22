@@ -2,7 +2,7 @@ package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
 import java.util.Collection;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +166,7 @@ public class DatasetEvaluator {
     public static void main(String[] args) {
 
         // load configuration from palladian.properies
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
         UpdateStrategy updateStrategy = null;
         int benchmarkMode = -1;
         boolean fatalErrorOccurred = false;

@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -493,10 +493,10 @@ public final class FeedDiscovery {
         this.webSearcher = webSearcher;
     }
 
-    public void setSearchEngine(String webSearcherName) {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
-    }
+//    public void setSearchEngine(String webSearcherName) {
+//        Configuration config = ConfigHolder.getInstance().getConfig();
+//        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
+//    }
 
     public WebSearcher<WebResult> getSearchEngine() {
         return webSearcher;
