@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections15.bag.HashBag;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +112,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
 
         // configure monitoring and logging
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
         if (config != null) {
             maxSlowPercentage = config.getInt("schedulerTask.maxSlowPercentage", MAX_SLOW_PERCENTAGE_DEFAULT);
             maxUnreachablePercentage = config.getInt("schedulerTask.maxUnreachablePercentage",
