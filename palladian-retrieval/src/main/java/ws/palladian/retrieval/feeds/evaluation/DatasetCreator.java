@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -384,7 +384,7 @@ public class DatasetCreator {
      * Detects system limitations like number of file descriptors that might cause trouble.
      */
     private void detectSystemLimitations() {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
         boolean checkLimitations = CHECK_SYSTEM_LIMITATIONS_DEFAULT;
         if (config != null) {
             checkLimitations = config.getBoolean("feedReader.checkSystemLimitations", CHECK_SYSTEM_LIMITATIONS_DEFAULT);
