@@ -599,7 +599,9 @@ public final class StringHelper {
      * 
      * @param inputString the input string
      * @return the string
+     * @deprecated Use {@link Pattern#quote(String)} instead.
      */
+    @Deprecated
     public static String escapeForRegularExpression(String inputString) {
         String string = inputString;
         try {
