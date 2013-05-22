@@ -5,15 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -322,95 +313,9 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
      * @param args
      * @throws Exception
      */
-    @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
         StanfordNer tagger = new StanfordNer();
-
-        if (args.length > 0) {
-
-            Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
-                    .create());
-
-            OptionGroup modeOptionGroup = new OptionGroup();
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
-                    .create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train")
-                    .withDescription("train a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
-                    .withDescription("evaluate a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("dm").withLongOpt("demo")
-                    .withDescription("demo mode of the tagger").create());
-            modeOptionGroup.setRequired(true);
-            options.addOptionGroup(modeOptionGroup);
-
-            options.addOption(OptionBuilder.withLongOpt("trainingFile")
-                    .withDescription("the path and name of the training file for the tagger (only if mode = train)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder
-                    .withLongOpt("testFile")
-                    .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("configFile")
-                    .withDescription("the path and name of the config file for the tagger").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("inputText")
-                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            HelpFormatter formatter = new HelpFormatter();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-
-                if (cmd.hasOption("tag")) {
-
-                    tagger.loadModel(cmd.getOptionValue("configFile"));
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
-
-                    if (cmd.hasOption("outputFile")) {
-                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
-                    } else {
-                        System.out.println("No output file given so tagged text will be printed to the console:");
-                        System.out.println(taggedText);
-                    }
-
-                } else if (cmd.hasOption("train")) {
-
-                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
-
-                } else if (cmd.hasOption("evaluate")) {
-
-                    tagger.loadModel(cmd.getOptionValue("configFile"));
-                    tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
-
-                } else if (cmd.hasOption("demo")) {
-
-                    try {
-                        tagger.demo(cmd.getOptionValue("inputText"));
-                    } catch (IOException e) {
-                        LOGGER.error(e.getMessage());
-                    }
-
-                }
-
-            } catch (ParseException e) {
-                LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("StanfordNER", options);
-            }
-
-        }
 
         // // HOW TO USE ////
         // tagger.loadModel("data/models/stanfordner/data/ner-eng-ie.crf-3-all2008.ser.gz");

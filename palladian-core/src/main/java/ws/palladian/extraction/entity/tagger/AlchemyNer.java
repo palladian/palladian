@@ -7,13 +7,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
@@ -27,7 +20,6 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
@@ -511,42 +503,9 @@ public class AlchemyNer extends NamedEntityRecognizer {
                 content);
     }
 
-    @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
         AlchemyNer tagger = new AlchemyNer("");
-
-        if (args.length > 0) {
-
-            Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("inputText").withDescription("the text that should be tagged")
-                    .hasArg().withArgName("text").withType(String.class).create());
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            HelpFormatter formatter = new HelpFormatter();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-
-                String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
-
-                if (cmd.hasOption("outputFile")) {
-                    FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
-                } else {
-                    System.out.println("No output file given so tagged text will be printed to the console:");
-                    System.out.println(taggedText);
-                }
-
-            } catch (ParseException e) {
-                LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("FeedChecker", options);
-            }
-
-        }
 
         // // HOW TO USE ////
         System.out
