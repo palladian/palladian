@@ -10,28 +10,18 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
 /**
@@ -275,63 +265,63 @@ public class FeedImporter {
         this.downloadFeeds = downloadFeeds;
     }
 
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) {
-
-        CommandLineParser parser = new BasicParser();
-
-        // CLI usage:
-        // FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn] [-noDownload]
-        Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg()
-                .withArgName("feedUrl").create());
-        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
-                .hasArg().withArgName("file").create());
-        options.addOption(OptionBuilder.withLongOpt("storeItems")
-                .withDescription("also store the items of each added feed to the database").create());
-        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("number of threads").hasArg()
-                .withArgName("nn").withType(Number.class).create());
-        options.addOption(OptionBuilder
-                .withLongOpt("noDownload")
-                .withDescription(
-                        "do not poll and downlaod feed, just add it to database. Must not be combined with -storeItems and -classifyText")
-                        .create());
-
-        try {
-
-            FeedImporter importer = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder
-                    .getInstance().getConfig()));
-
-            CommandLine cmd = parser.parse(options, args);
-
-            if (args.length < 1) {
-                // no arguments given, print usage help in catch clause.
-                throw new ParseException(null);
-            }
-            if (cmd.hasOption("noDownload")) {
-                importer.setDownloadFeeds(false);
-            }
-            if (cmd.hasOption("storeItems")) {
-                importer.setStoreItems(true);
-            }
-            if (cmd.hasOption("threads")) {
-                importer.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
-            }
-            if (cmd.hasOption("add")) {
-                importer.addFeed(cmd.getOptionValue("add"));
-            }
-            if (cmd.hasOption("addFile")) {
-                importer.addFeedsFromFile(cmd.getOptionValue("addFile"));
-            }
-
-            return;
-
-        } catch (ParseException e) {
-            // print usage help
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(FeedImporter.class.getName() + " [options]", options);
-        }
-
-    }
+    // @SuppressWarnings("static-access")
+    // public static void main(String[] args) {
+    //
+//        CommandLineParser parser = new BasicParser();
+//
+//        // CLI usage:
+//        // FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn] [-noDownload]
+//        Options options = new Options();
+//        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg()
+//                .withArgName("feedUrl").create());
+//        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
+//                .hasArg().withArgName("file").create());
+//        options.addOption(OptionBuilder.withLongOpt("storeItems")
+//                .withDescription("also store the items of each added feed to the database").create());
+//        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("number of threads").hasArg()
+//                .withArgName("nn").withType(Number.class).create());
+//        options.addOption(OptionBuilder
+//                .withLongOpt("noDownload")
+//                .withDescription(
+//                        "do not poll and downlaod feed, just add it to database. Must not be combined with -storeItems and -classifyText")
+//                        .create());
+//
+//        try {
+//
+//            FeedImporter importer = new FeedImporter(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder
+//                    .getInstance().getConfig()));
+//
+//            CommandLine cmd = parser.parse(options, args);
+//
+//            if (args.length < 1) {
+//                // no arguments given, print usage help in catch clause.
+//                throw new ParseException(null);
+//            }
+//            if (cmd.hasOption("noDownload")) {
+//                importer.setDownloadFeeds(false);
+//            }
+//            if (cmd.hasOption("storeItems")) {
+//                importer.setStoreItems(true);
+//            }
+//            if (cmd.hasOption("threads")) {
+//                importer.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
+//            }
+//            if (cmd.hasOption("add")) {
+//                importer.addFeed(cmd.getOptionValue("add"));
+//            }
+//            if (cmd.hasOption("addFile")) {
+//                importer.addFeedsFromFile(cmd.getOptionValue("addFile"));
+//            }
+//
+//            return;
+//
+//        } catch (ParseException e) {
+//            // print usage help
+//            HelpFormatter formatter = new HelpFormatter();
+//            formatter.printHelp(FeedImporter.class.getName() + " [options]", options);
+//        }
+    //
+    // }
 
 }
