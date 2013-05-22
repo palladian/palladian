@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -42,8 +44,10 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.BingSearcher;
-import ws.palladian.retrieval.search.web.DuckDuckGoSearcher;
+import ws.palladian.retrieval.search.web.BlekkoSearcher;
+import ws.palladian.retrieval.search.web.CascadingSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
+import ws.palladian.retrieval.search.web.WebKnoxSearcher;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 import ws.palladian.semantics.WordTransformer;
@@ -161,19 +165,18 @@ public class DatasetCreator {
         meta.append("Start Date of Creation: ")
         .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
-        meta.append("Total Generated Traffic: ").append(HttpRetriever.getTraffic(SizeUnit.MEGABYTES))
-        .append("MB\n");
+        meta.append("Total Generated Traffic: ").append(HttpRetriever.getTraffic(SizeUnit.MEGABYTES)).append("MB\n");
         meta.append("Search Engine used: ").append(searcher.getName()).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
 
         // check which concepts have entities with their number of mentions
         for (Object[] object : getConceptsMentions()) {
-            String conceptName = (String) object[0];
-            String entitiesWithFewMentions = (String) object[1];
+            String conceptName = (String)object[0];
+            String entitiesWithFewMentions = (String)object[1];
             if (entitiesWithFewMentions.length() == 0) {
                 entitiesWithFewMentions = "-";
             }
-            Double averageMentionsPerEntity = (Double) object[2];
+            Double averageMentionsPerEntity = (Double)object[2];
             meta.append("  Concept: ").append(conceptName).append("\n  Entities with few mentions: ")
             .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
             .append(averageMentionsPerEntity).append("\n\n");
@@ -258,7 +261,7 @@ public class DatasetCreator {
                 totalMentions += count;
             }
             o[1] = entitiesWithFewMentions;
-            o[2] = totalMentions / (double) countMap.size();
+            o[2] = totalMentions / (double)countMap.size();
 
             objectSet.add(o);
         }
@@ -419,7 +422,7 @@ public class DatasetCreator {
 
                 String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
                 String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
-                + "(?=(\\s|[.,!?]))";
+                        + "(?=(\\s|[.,!?]))";
 
                 if (webPageText.contains(seedEntity)) {
                     foundMarkup = true;
@@ -427,7 +430,7 @@ public class DatasetCreator {
                     // mark up html
                     webPageContent = webPageContent.replaceAll(searchRegexp,
                             "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">"
-                            + seedEntity + "</" + conceptName.toUpperCase() + ">");
+                                    + seedEntity + "</" + conceptName.toUpperCase() + ">");
 
                     // mark up text
                     webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">"
@@ -449,8 +452,8 @@ public class DatasetCreator {
         if (webPageContent.length() > 100 && foundMarkup) {
             FileHelper.writeToFile(
                     getDataSetLocation() + seedFileName + "/html/"
-                    + StringHelper.makeSafeName(UrlHelper.getCleanUrl(webPage.getDocumentURI()), 30) + ".html",
-                    webPageContent);
+                            + StringHelper.makeSafeName(UrlHelper.getCleanUrl(webPage.getDocumentURI()), 30) + ".html",
+                            webPageContent);
 
             LOGGER.debug("saved html file");
         }
@@ -459,7 +462,7 @@ public class DatasetCreator {
         if (webPageText.length() > 50 && foundMarkup) {
 
             String filePath = getDataSetLocation() + seedFileName + "/"
-            + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
+                    + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
             FileHelper.writeToFile(filePath, webPageText);
 
             FileHelper.removeDuplicateLines(filePath, filePath);
@@ -506,7 +509,7 @@ public class DatasetCreator {
                     if (cleansedText.length() > 10) {
 
                         String filePath = targetLocation + seedFileName + "/"
-                        + FileHelper.getFileName(taggedFile.getPath()) + ".xml";
+                                + FileHelper.getFileName(taggedFile.getPath()) + ".xml";
                         FileHelper.writeToFile(filePath, cleansedText);
 
                         FileHelper.removeDuplicateLines(filePath, filePath);
@@ -638,7 +641,7 @@ public class DatasetCreator {
 
                 counter++;
                 content = "\n\n----------------------------------------------- NEW DOCUMENT (#" + counter + " / "
-                + conceptName + ") -----------------------------------------------\n\n" + content;
+                        + conceptName + ") -----------------------------------------------\n\n" + content;
 
                 try {
                     combinedFile.write(content);
@@ -667,7 +670,7 @@ public class DatasetCreator {
         for (String combinedFilePath : combinedFilePaths) {
             String content = FileHelper.readFileToString(combinedFilePath);
             content = "\n\n----------------------------------------------- NEW CONCEPT -----------------------------------------------"
-                + content;
+                    + content;
             try {
                 combinedFile.write(content);
                 combinedFile.flush();
@@ -727,7 +730,8 @@ public class DatasetCreator {
         return searcher;
     }
 
-    public String generateDataset(String trainingFilePath, int numberOfSeedsPerConcept, int minMentionsPerSeed) {
+    public String generateDataset(String configFilePath, String trainingFilePath, int numberOfSeedsPerConcept,
+            int minMentionsPerSeed) throws ConfigurationException {
 
         StopWatch stopWatch = new StopWatch();
 
@@ -758,7 +762,18 @@ public class DatasetCreator {
             FileHelper.writeToFile(seedFolderPath + entry.getKey() + ".txt", entry.getValue());
         }
 
-        setWebSearcher(SearcherFactory.createSearcher(DuckDuckGoSearcher.class, ConfigHolder.getInstance().getConfig()));
+        // create cascaded searcher
+        PropertiesConfiguration properties = new PropertiesConfiguration(configFilePath);
+        List<WebSearcher<WebResult>> searchers = new ArrayList<WebSearcher<WebResult>>();
+        searchers.add(SearcherFactory.createSearcher(GoogleSearcher.class, properties));
+        searchers.add(SearcherFactory.createSearcher(BlekkoSearcher.class, properties));
+        searchers.add(SearcherFactory.createSearcher(WebKnoxSearcher.class, properties));
+        // searchers.add(SearcherFactory.createSearcher(DuckDuckGoSearcher.class, Controller.getConfig()));
+        // searchers.add(SearcherFactory.createSearcher(BingSearcher.class, Controller.getConfig()));
+        // searchers.add(SearcherFactory.createSearcher(GoogleScraperSearcher.class, Controller.getConfig()));
+        CascadingSearcher cascadingSearcher = new CascadingSearcher(searchers);
+
+        setWebSearcher(cascadingSearcher);
         setMentionsPerEntity(minMentionsPerSeed);
         setSeedsPerConcept(numberOfSeedsPerConcept);
         createDataset(seedFolderPath);
@@ -802,13 +817,14 @@ public class DatasetCreator {
         return finalColumnTaggedFilePath;
     }
 
-    public static void generateDatasets(String targetFolder, String name, String seedTrainingSetPath, int minSeeds,
-            int maxSeeds, int minMentionsPerSeed) {
+    public static void generateDatasets(String configFilePath, String targetFolder, String name,
+            String seedTrainingSetPath, int minSeeds, int maxSeeds, int minMentionsPerSeed)
+                    throws ConfigurationException {
 
         for (int i = minSeeds; i <= maxSeeds; i++) {
             DatasetCreator dsc = new DatasetCreator(name + i);
             dsc.setDataSetLocation(targetFolder);
-            dsc.generateDataset(seedTrainingSetPath, i, minMentionsPerSeed);
+            dsc.generateDataset(configFilePath, seedTrainingSetPath, i, minMentionsPerSeed);
 
             // copy the cleansed, combined "allColumn.txt" from each subfolder in the main folder
             FileHelper.copyFile(dsc.getDataSetLocation() + "allColumn.txt", targetFolder + "seedsTest" + i + ".txt");
@@ -819,11 +835,13 @@ public class DatasetCreator {
     /**
      * @param args
      * @throws PageContentExtractorException
+     * @throws ConfigurationException
      */
-    public static void main(String[] args) throws PageContentExtractorException {
+    public static void main(String[] args) throws PageContentExtractorException, ConfigurationException {
 
         // DatasetCreator.generateDatasets("www_eval_seeds","data/datasets/ner/conll/training.txt", 1, 50, 5);
-        DatasetCreator.generateDatasets("data/temp/autoGeneratedData/", "www_eval_seeds",
+        String configFile = "config/palladian.properties";
+        DatasetCreator.generateDatasets(configFile, "data/temp/autoGeneratedData/", "www_eval_seeds",
                 "data/datasets/ner/conll/training.txt", 1, 50, 5);
         System.exit(0);
 
@@ -894,7 +912,8 @@ public class DatasetCreator {
         // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "H:\\PalladianData\\Datasets\\www\\");
         // System.exit(0);
 
-        datasetCreator.setWebSearcher(SearcherFactory.createSearcher(BingSearcher.class, ConfigHolder.getInstance().getConfig()));
+        datasetCreator.setWebSearcher(SearcherFactory.createSearcher(BingSearcher.class, ConfigHolder.getInstance()
+                .getConfig()));
         datasetCreator.setMentionsPerEntity(2);
         datasetCreator.setSeedsPerConcept(2);
         datasetCreator.createDataset("data/knowledgeBase/seedEntities/");
