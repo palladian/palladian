@@ -71,20 +71,22 @@ public class ImageHandlerTest {
         BufferedImage bufferedImage = null;
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk1.jpg"));
-        bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
-        assertEquals(200, bufferedImage.getWidth());
+        bufferedImage = ImageHandler.boxFit(bufferedImage, 200, 200);
+        assertEquals(200, bufferedImage.getHeight());
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk5.jpg"));
-        bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
-        assertEquals(200, bufferedImage.getWidth());
+        bufferedImage = ImageHandler.boxFit(bufferedImage, 200, 200);
+        assertEquals(200, bufferedImage.getHeight());
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
-        bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
-        assertEquals(200, bufferedImage.getWidth());
+        bufferedImage = ImageHandler.boxCrop(bufferedImage, 200, 200);
+        assertEquals(199, bufferedImage.getWidth());
+        assertEquals(200, bufferedImage.getHeight());
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/homer.gif"));
-        bufferedImage = ImageHandler.rescaleImage(bufferedImage, 200);
-        assertEquals(200, bufferedImage.getWidth());
+        bufferedImage = ImageHandler.boxCrop(bufferedImage, 300, 300);
+        assertEquals(299, bufferedImage.getWidth());
+        assertEquals(300, bufferedImage.getHeight());
     }
 
     // public void testSaveImage() {
