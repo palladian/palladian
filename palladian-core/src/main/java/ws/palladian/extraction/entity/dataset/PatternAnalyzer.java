@@ -46,7 +46,9 @@ public class PatternAnalyzer {
 
         String[] types = {"LOCATION", "ORGANIZATION", "PERSON"};
 
-        String p = "(\\w+\\s\\w+\\s\\w+)\\s\\<TYPE\\>.*?\\</TYPE\\>\\s(\\w+\\s\\w+\\s\\w+)";
+        String w = "[\\w,:;-]+";
+        String p = "(" + w + "\\s" + w + "\\s" + w + ")\\s\\<TYPE\\>.*?\\</TYPE\\>\\s(" + w + "\\s" + w + "\\s" + w
+                + ")";
 
         String xml = FileHelper.readFileToString(filePath);
 
