@@ -40,29 +40,16 @@ public final class StringHelper {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(StringHelper.class);
 
-    private static final Pattern PATTERN_FIRST_WORD;
-    private static final Pattern PATTERN_STRING;
-    private static final Pattern PATTERN_NUMBER;
-    private static final Pattern PATTERN_STARTS_WITH_NUMBER;
-    private static final Pattern PATTERN_NUMBERING1;
-    private static final Pattern PATTERN_NUMBERING2;
-    private static final Pattern PATTERN_LIMITED_WHITESPACES;
-    private static final Pattern PATTERN_NON_ASCII;
-    private static final Pattern PATTERN_BRACKETS;
-    private static final Pattern PATTERN_MULTIPLE_WHITESPACES;
-
-    static {
-        PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
-        PATTERN_STRING = Pattern.compile(RegExp.STRING);
-        PATTERN_NUMBER = Pattern.compile(RegExp.NUMBER);
-        PATTERN_STARTS_WITH_NUMBER = Pattern.compile("^" + RegExp.NUMBER);
-        PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
-        PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
-        PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
-        PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
-        PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
-        PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
-    }
+    private static final Pattern PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
+    private static final Pattern PATTERN_STRING = Pattern.compile(RegExp.STRING);
+    private static final Pattern PATTERN_NUMBER = Pattern.compile(RegExp.NUMBER);
+    private static final Pattern PATTERN_STARTS_WITH_NUMBER = Pattern.compile("^" + RegExp.NUMBER);
+    private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
+    private static final Pattern PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
+    private static final Pattern PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
+    private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
+    private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
+    private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
 
     private StringHelper() {
 
