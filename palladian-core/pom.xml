@@ -107,10 +107,6 @@
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>
 		</dependency -->
-		<dependency>
-			<groupId>org.apache.pdfbox</groupId>
-			<artifactId>pdfbox</artifactId>
-		</dependency>
 		<!-- dependency>
 			<groupId>uk.ac.shef.wit.simmetrics</groupId>
 			<artifactId>similaritymetrics</artifactId>
