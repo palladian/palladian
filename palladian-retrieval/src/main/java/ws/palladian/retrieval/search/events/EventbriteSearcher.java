@@ -110,6 +110,10 @@ public class EventbriteSearcher extends EventSearcher {
 
                 JsonObjectWrapper venueEntry = eventEntry.getJSONObject("venue");
 
+                if (venueEntry == null) {
+                    continue;
+                }
+
                 event.setVenueName(venueEntry.getString("name"));
                 event.setVenueAddress(venueEntry.getString("address"));
                 event.setVenueZipCode(venueEntry.getString("postal_code"));
