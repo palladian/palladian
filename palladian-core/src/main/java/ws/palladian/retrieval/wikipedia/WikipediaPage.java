@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.sources.importers;
+package ws.palladian.retrieval.wikipedia;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,10 +103,11 @@ public class WikipediaPage {
         if (infoboxMarkup == null) {
             return null;
         }
-        Pattern pattern = Pattern.compile("infobox\\s(\\w+)");
+        // Pattern pattern = Pattern.compile("infobox\\s(\\w+)");
+        Pattern pattern = Pattern.compile("infobox\\s([^|<}]+)");
         Matcher matcher = pattern.matcher(infoboxMarkup.toLowerCase());
         if (matcher.find()) {
-            return matcher.group(1);
+            return matcher.group(1).trim();
         }
         return null;
     }
