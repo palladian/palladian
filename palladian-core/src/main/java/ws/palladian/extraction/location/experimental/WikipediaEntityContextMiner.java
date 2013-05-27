@@ -167,7 +167,7 @@ class WikipediaEntityContextMiner {
         result.put("protected area", "LOC");
         result.put("football club season", "MISC");
         result.put("election", "MISC");
-        result.put("college coach", "");
+        result.put("college coach", "PER");
         result.put("journal", "MISC");
         return Collections.unmodifiableMap(result);
     }
@@ -179,12 +179,14 @@ class WikipediaEntityContextMiner {
 
         Writer writer = null;
         try {
+            int maximumTypeCount = 0;
             writer = new BufferedWriter(new FileWriter(fileName));
             // write header
             StringBuilder header = new StringBuilder();
             header.append("context");
             for (String type : types) {
                 header.append(CSV_SEPARATOR).append(type);
+                maximumTypeCount = Math.max(maximumTypeCount, typeCounts.getCount(type));
             }
             header.append('\n');
             writer.append(header);
@@ -193,22 +195,22 @@ class WikipediaEntityContextMiner {
             for (String context : contexts) {
                 StringBuilder line = new StringBuilder();
                 line.append(context);
-                int maximumCount = 0;
+                int maximumCategoryCount = 0;
                 for (String type : types) {
                     int count = contextMatrix.getCount(type, context);
 
                     // normalize the count in regards to the # of documents
                     // XXX maybe it would make more sense to normalize by text length?
-                    double normalization = (double)typeCounts.getCount(type) / typeCounts.totalSize();
+                    double normalization = (double)maximumTypeCount / typeCounts.getCount(type);
                     int normalizedCount = (int)Math.round(count * normalization);
 
-                    maximumCount = Math.max(maximumCount, normalizedCount);
+                    maximumCategoryCount = Math.max(maximumCategoryCount, normalizedCount);
                     line.append(CSV_SEPARATOR).append(normalizedCount);
                 }
                 line.append('\n');
 
                 // only write, if at least one column is larger than zero
-                if (maximumCount > 0) {
+                if (maximumCategoryCount > 0) {
                     writer.append(line);
                 }
             }
