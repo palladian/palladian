@@ -182,7 +182,7 @@ public class WikipediaLocationImporter {
 
                 for (MarkupLocation location : locations) {
                     if (location.display != null && location.display.contains("title")) {
-                        String name = cleanName(page.getTitle());
+                        String name = page.getCleanTitle();
 
                         LocationType type = LocationType.UNDETERMINED;
                         if (location.type != null) {
@@ -237,7 +237,7 @@ public class WikipediaLocationImporter {
                 if (id == null) {
                     return;
                 }
-                String name = cleanName(page.getTitle());
+                String name = page.getCleanTitle();
                 if (name.startsWith(redirectTo + "/")) {
                     LOGGER.debug("Skip redirect from '{}' to '{}'", name, redirectTo);
                     return;
@@ -249,12 +249,6 @@ public class WikipediaLocationImporter {
             }
         }));
         LOGGER.info("Finished importing {} alternative names", counter[0]);
-    }
-
-    static String cleanName(String name) {
-        String clean = name.replaceAll("\\s\\([^)]*\\)", "");
-        clean = clean.replaceAll(",.*", "");
-        return clean;
     }
 
     static List<MarkupLocation> extractCoordinateTag(String text) {
