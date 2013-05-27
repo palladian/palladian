@@ -1892,6 +1892,21 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
+     * Replace typographic ("curly") quotation marks and apostrophes by their "dumb" equivalents.
+     * </p>
+     * 
+     * @param text The string in which to replace quotation marks and apostrohpes.
+     * @return The normalized string, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String normalizeQuotes(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replaceAll("[„“”»«]", "\"").replaceAll("[’‘]", "'").replaceAll("[–—]", "-");
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments
