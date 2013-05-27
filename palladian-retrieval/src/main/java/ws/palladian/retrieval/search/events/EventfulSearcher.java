@@ -118,7 +118,12 @@ public class EventfulSearcher extends EventSearcher {
                     }
                     event.setRecurringString(getField(eventNode, "recur_string"));
                     event.setUrl(getField(eventNode, "url"));
-                    event.setVenueName(getField(eventNode, "venue_name"));
+
+                    String venueName = getField(eventNode, "venue_name");
+                    if (venueName.isEmpty()) {
+                        continue;
+                    }
+                    event.setVenueName(venueName);
                     event.setVenueAddress(getField(eventNode, "venue_address"));
                     event.setVenueZipCode(getField(eventNode, "postal_code"));
                     event.setVenueCity(getField(eventNode, "city_name"));
@@ -136,7 +141,7 @@ public class EventfulSearcher extends EventSearcher {
                     LOGGER.error(e.getMessage());
                 }
             }
-        
+
             // see if there are more pages
             Node pageCountNode = XPathHelper.getXhtmlNode(resultDocument, "//page_count");
             if (pageCountNode != null) {
@@ -170,6 +175,8 @@ public class EventfulSearcher extends EventSearcher {
             field = StringHelper.removeNonAsciiCharacters(field);
 
         } catch (Exception e) {
+            // HtmlHelper.printDom(node);
+            // System.out.println(HtmlHelper.getInnerXml(node));
             LOGGER.error(e.getMessage());
         }
         return field;
