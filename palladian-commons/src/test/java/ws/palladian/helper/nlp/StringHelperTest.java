@@ -356,4 +356,16 @@ public class StringHelperTest {
         assertEquals("line1\nline2\nline3", StringHelper.trimLines("\n\nline1\n     line2\n \n \n \n \nline3"));
     }
 
+    @Test
+    public void testNormalizeQuotes() {
+        assertEquals("This is a sample text with \"different\" \"quotation\" \"marks\"",
+                StringHelper.normalizeQuotes("This is a sample text with »different« „quotation“ “marks”"));
+        assertEquals(
+                "This text's purpose is to test apostrophes normalized by StringHelper's normalizeQuotes",
+                StringHelper
+                        .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
+        assertEquals("This text contains longer dashes - like this - and this",
+                StringHelper.normalizeQuotes("This text contains longer dashes – like this — and this"));
+    }
+
 }
