@@ -1903,7 +1903,7 @@ public final class StringHelper {
         if (text == null) {
             return null;
         }
-        return text.replaceAll("[„“”»«]", "\"").replaceAll("[’‘]", "'");
+        return text.replaceAll("[„“”»«]", "\"").replaceAll("[’‘]", "'").replaceAll("[–—]", "-");
     }
 
     /**

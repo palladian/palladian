@@ -364,6 +364,8 @@ public class StringHelperTest {
                 "This text's purpose is to test apostrophes normalized by StringHelper's normalizeQuotes",
                 StringHelper
                         .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
+        assertEquals("This text contains longer dashes - like this - and this",
+                StringHelper.normalizeQuotes("This text contains longer dashes – like this — and this"));
     }
 
 }
