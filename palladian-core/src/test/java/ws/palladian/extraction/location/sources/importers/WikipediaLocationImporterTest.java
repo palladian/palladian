@@ -138,6 +138,7 @@ public class WikipediaLocationImporterTest {
         assertEquals("title,inline", locations.get(0).display);
     }
 
+    /*
     @Test
     public void testCleanName() {
         assertEquals("Theater District",
@@ -147,5 +148,6 @@ public class WikipediaLocationImporterTest {
         assertEquals("Capital of the Cocos Islands",
                 WikipediaLocationImporter.cleanName("Capital of the Cocos (Keeling) Islands"));
     }
+    */
 
 }

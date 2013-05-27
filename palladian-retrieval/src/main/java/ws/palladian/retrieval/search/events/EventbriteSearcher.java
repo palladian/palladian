@@ -91,6 +91,9 @@ public class EventbriteSearcher extends EventSearcher {
         JsonObjectWrapper json = new JsonObjectWrapper(jsonString);
 
         JSONArray eventEntries = json.getJSONArray("events");
+        if (eventEntries == null) {
+            return events;
+        }
         for (int i = 1; i < eventEntries.length(); i++) {
 
             JsonObjectWrapper eventEntry;
@@ -109,6 +112,10 @@ public class EventbriteSearcher extends EventSearcher {
                 event.setUrl(eventEntry.getString("url"));
 
                 JsonObjectWrapper venueEntry = eventEntry.getJSONObject("venue");
+
+                if (venueEntry == null) {
+                    continue;
+                }
 
                 event.setVenueName(venueEntry.getString("name"));
                 event.setVenueAddress(venueEntry.getString("address"));
