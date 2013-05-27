@@ -29,11 +29,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationBicubic;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.ScaleDescriptor;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.lang.Validate;
@@ -229,8 +227,12 @@ public class ImageHandler {
      * @return The transformed buffered image.
      */
     public static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight) {
+        return boxFit(image, boxWidth, boxHeight, true);
+    }
+
+    private static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight, boolean toFit) {
         Validate.notNull(image);
-        return rescaleImage(image, boxWidth, boxHeight);
+        return rescaleImage(image, boxWidth, boxHeight, toFit);
     }
 
     /**
@@ -260,10 +262,10 @@ public class ImageHandler {
         double scale = Math.max((double)boxWidth / (double)image.getWidth(),
                 (double)boxHeight / (double)image.getHeight());
 
-        int targetWidth = (int)(image.getWidth() * scale);
-        int targetHeight = (int)(image.getHeight() * scale);
+        int targetWidth = Math.max((int)(image.getWidth() * scale), boxWidth);
+        int targetHeight = Math.max((int)(image.getHeight() * scale), boxHeight);
 
-        image = boxFit(image, targetWidth, targetHeight);
+        image = boxFit(image, targetWidth, targetHeight, false);
 
         // saveImage(image, "jpg", "test.jpg");
 
@@ -284,54 +286,7 @@ public class ImageHandler {
         return image.getSubimage((int)xOffset, (int)yOffset, Math.min(boxWidth, iWidth), Math.min(boxHeight, iHeight));
     }
 
-    public static BufferedImage rescaleImage(String imageURL, int width) {
-        BufferedImage bufferedImage = load(imageURL);
-        return rescaleImage(bufferedImage, width);
-    }
-
-    /**
-     * <p>
-     * Rescaling an image using JAI SubsampleAverage for downscaling and getScaledInstance for upscaling. This produces
-     * smooth images but upscaling is slightly slower.
-     * </p>
-     * 
-     * @param bufferedImage The input image.
-     * @param newWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
-     * @return The scaled image.
-     */
-    @Deprecated
-    public static BufferedImage rescaleImageOptimal(BufferedImage bufferedImage, int newWidth, boolean fit) {
-
-        int iWidth = bufferedImage.getWidth();
-        int iHeight = bufferedImage.getHeight();
-
-        double scale = (double)newWidth / (double)iWidth;
-
-        if (fit && iWidth < iHeight) {
-            scale = (double)newWidth / (double)iHeight;
-        }
-
-        if (scale > 1.0) {
-            return rescaleImageSmooth(bufferedImage, newWidth, iHeight);
-        } else {
-            return rescaleImage(bufferedImage, newWidth, fit);
-        }
-
-    }
-
-    /**
-     * <p>
-     * Rescaling an image using JAI SubsampleAverage for downscaling and getScaledInstance for upscaling. This produces
-     * smooth images but upscaling is slightly slower.
-     * </p>
-     * 
-     * @param bufferedImage The input image.
-     * @param newWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
-     * @return The scaled image.
-     */
-    public static BufferedImage rescaleImageOptimal(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
+    private static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean toFit) {
 
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -341,97 +296,34 @@ public class ImageHandler {
         int iWidth = bufferedImage.getWidth();
         int iHeight = bufferedImage.getHeight();
 
-        double scale = Math.min((double)boxWidth / (double)iWidth, (double)boxHeight / (double)iHeight);
+        double scaleX = (double)boxWidth / (double)iWidth;
+        double scaleY = (double)boxHeight / (double)iHeight;
+        double scale = Math.min(scaleX, scaleY);
 
-        if (scale > 1.0) {
-            return rescaleImageSmooth(bufferedImage, boxWidth, boxHeight);
-        } else {
-            return rescaleImage(bufferedImage, boxWidth, boxHeight);
+        if (toFit) {
+            scaleX = scale;
+            scaleY = scale;
         }
-    }
-
-    /**
-     * <p>
-     * Rescale an image to fit a in a given bounding box. For example, a 600x120 image is transformed to 200x40 to fit a
-     * 200x100 box.
-     * </p>
-     * 
-     * @param bufferedImage The buffered image which should be transformed.
-     * @param boxWidth The width of the box in which the image should be positioned.
-     * @param boxHeight The height of the box in which the image should be positioned.
-     * @return The transformed buffered image.
-     */
-    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
-
-        if (bufferedImage == null) {
-            LOGGER.warn("given image was NULL");
-            return null;
-        }
-
-        int iWidth = bufferedImage.getWidth();
-        int iHeight = bufferedImage.getHeight();
-
-        double scale = Math.min((double)boxWidth / (double)iWidth, (double)boxHeight / (double)iHeight);
 
         BufferedImage rescaledImage;
 
         if (scale >= 1.0) {
-            rescaledImage = scaleUp(bufferedImage, scale);
+            rescaledImage = scaleUp(bufferedImage, scaleX, scaleY);
         } else {
-            rescaledImage = scaleDown(bufferedImage, scale);
+            rescaledImage = scaleDown(bufferedImage, scaleX, scaleY);
         }
 
         return rescaledImage;
     }
 
-    public static BufferedImage rescaleImageAndCrop(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
-        return rescaleImageAndCrop(bufferedImage, boxWidth, boxHeight, false);
-    }
-
-    public static BufferedImage rescaleImageAndCropOptimal(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
-        return rescaleImageAndCrop(bufferedImage, boxWidth, boxHeight, true);
-    }
-
-    public static BufferedImage rescaleImageAndCrop(BufferedImage bufferedImage, int boxWidth, int boxHeight,
-            boolean optimal) {
-
-        if (bufferedImage == null) {
-            LOGGER.warn("given image was NULL");
-            return null;
-        }
-
-        BufferedImage rescaledImage;
-        if (optimal) {
-            rescaledImage = rescaleImageOptimal(bufferedImage, boxWidth, boxHeight);
-        } else {
-            rescaledImage = rescaleImage(bufferedImage, boxWidth, boxHeight);
-        }
-
-        int iWidth = rescaledImage.getWidth();
-        int iHeight = rescaledImage.getHeight();
-
-        // vertically center the image in the box if the height is greater than the box height
-        double yOffset = (iHeight - boxHeight) / 2.0;
-
-        // horizontally center the image in the box if the width is greater than the box width
-        double xOffset = (iWidth - boxWidth) / 2.0;
-
-        // nothing to crop
-        if (yOffset <= 0 && xOffset <= 0) {
-            return rescaledImage;
-        }
-
-        return rescaledImage.getSubimage((int)xOffset, (int)yOffset, boxWidth, boxHeight);
-    }
-
-    private static BufferedImage scaleDown(BufferedImage bufferedImage, double scale) {
+    private static BufferedImage scaleDown(BufferedImage bufferedImage, double scaleX, double scaleY) {
 
         ParameterBlock pb = new ParameterBlock();
         pb.addSource(bufferedImage); // The source image
         // x scale
-        pb.add(scale);
+        pb.add(scaleX);
         // y scale
-        pb.add(scale);
+        pb.add(scaleY);
         // x translation
         pb.add(0.0f);
         // y translation
@@ -534,53 +426,6 @@ public class ImageHandler {
     }
 
     /**
-     * Rescaling an image using JAI Scale descriptor. The image does not look smooth after rescaling.
-     * 
-     * @param bufferedImage The input image.
-     * @param newWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
-     * @return The scaled image.
-     */
-    private static BufferedImage rescaleImage2(BufferedImage bufferedImage, int newWidth, boolean fit) {
-
-        if (bufferedImage == null) {
-            LOGGER.warn("given image was NULL");
-            return null;
-        }
-
-        RenderedOp renderedOp = null;
-
-        int iWidth = bufferedImage.getWidth();
-        int iHeight = bufferedImage.getHeight();
-
-        float scale = (float)newWidth / (float)iWidth;
-
-        if (fit && iWidth < iHeight) {
-            scale = (float)newWidth / (float)iHeight;
-        }
-
-        RenderingHints renderingHints = new RenderingHints(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-        renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        // renderingHints.put(RenderingHints.KEY_DITHERING,
-        // RenderingHints.VALUE_DITHER_DISABLE);
-        // renderingHints.put(RenderingHints.KEY_STROKE_CONTROL,
-        // RenderingHints.VALUE_STROKE_PURE);
-        // renderingHints.put(RenderingHints.KEY_FRACTIONALMETRICS,
-        // RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
-        // renderingHints.put(RenderingHints.KEY_ALPHA_INTERPOLATION,
-        // RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-        renderedOp = ScaleDescriptor.create(bufferedImage, new Float(scale), new Float(scale), new Float(0.0f),
-                new Float(0.0f), Interpolation.getInstance(Interpolation.INTERP_BICUBIC), renderingHints);
-
-        return renderedOp.getAsBufferedImage();
-    }
-
-    private static BufferedImage rescaleImage2(BufferedImage bufferedImage, int newWidth) {
-        return rescaleImage2(bufferedImage, newWidth, false);
-    }
-
-    /**
      * <p>
      * Rescaling an image using java.awt.Image.getScaledInstance. The image looks smooth after rescaling.
      * </p>
@@ -590,13 +435,15 @@ public class ImageHandler {
      * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
-    private static BufferedImage scaleUp(BufferedImage bufferedImage, double scale) {
+    private static BufferedImage scaleUp(BufferedImage bufferedImage, double scaleX, double scaleY) {
         ImageIcon imageIcon = new ImageIcon(bufferedImage);
         Image image = imageIcon.getImage();
         Image resizedImage = null;
 
-        resizedImage = image.getScaledInstance((int)(scale * bufferedImage.getWidth()),
-                (int)(scale * bufferedImage.getHeight()), Image.SCALE_SMOOTH);
+        int width = (int)(Math.round(scaleX * bufferedImage.getWidth()));
+        int height = (int)(Math.round(scaleY * bufferedImage.getHeight()));
+        resizedImage = image.getScaledInstance(width,
+                height, Image.SCALE_SMOOTH);
 
         // ensure that all the pixels in the image are loaded.
         Image temp = new ImageIcon(resizedImage).getImage();
@@ -611,69 +458,6 @@ public class ImageHandler {
         g.fillRect(0, 0, temp.getWidth(null), temp.getHeight(null));
         g.drawImage(temp, 0, 0, null);
         g.dispose();
-
-        return bufferedImage;
-    }
-
-    /**
-     * <p>
-     * Rescaling an image using java.awt.Image.getScaledInstance. The image looks smooth after rescaling.
-     * </p>
-     * 
-     * @param bufferedImage The input image.
-     * @param boxWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
-     * @return The scaled image.
-     */
-    private static BufferedImage rescaleImageSmooth(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
-
-        if (bufferedImage == null) {
-            LOGGER.warn("given image was NULL");
-            return null;
-        }
-
-        ImageIcon imageIcon = new ImageIcon(bufferedImage);
-        Image image = imageIcon.getImage();
-        Image resizedImage = null;
-
-        int iWidth = image.getWidth(null);
-        int iHeight = image.getHeight(null);
-
-        double imageRatio = (double)iWidth / (double)iHeight;
-        double boxRatio = (double)boxWidth / (double)boxHeight;
-
-        double scale = (double)boxWidth / (double)iWidth;
-
-        if (imageRatio > boxRatio) {
-            scale = (double)boxHeight / (double)iHeight;
-        }
-
-        resizedImage = image.getScaledInstance((int)(scale * iWidth), (int)(scale * iHeight), Image.SCALE_SMOOTH);
-
-        // ensure that all the pixels in the image are loaded.
-        Image temp = new ImageIcon(resizedImage).getImage();
-
-        bufferedImage = new BufferedImage(temp.getWidth(null), temp.getHeight(null), BufferedImage.TYPE_INT_RGB);
-
-        // copy image to buffered image.
-        Graphics g = bufferedImage.createGraphics();
-
-        // clear background and paint the image.
-        g.setColor(Color.white);
-        g.fillRect(0, 0, temp.getWidth(null), temp.getHeight(null));
-        g.drawImage(temp, 0, 0, null);
-        g.dispose();
-
-        // Encodes image as a JPEG data stream
-        // FileOutputStream out = new FileOutputStream(resizedFile);
-        // com.sun.image.codec.jpeg.JPEGImageEncoder encoder =
-        // com.sun.image.codec.jpeg.JPEGCodec.createJPEGEncoder(out);
-        // com.sun.image.codec.jpeg.JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(bufferedImage);
-        // param.setQuality(1.0f, true);
-        // encoder.setJPEGEncodeParam(param);
-        // encoder.encode(bufferedImage);
-        //
-        // out.close();
 
         return bufferedImage;
     }
@@ -1071,8 +855,8 @@ public class ImageHandler {
         // BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
         BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
         StopWatch sw = new StopWatch();
-        BufferedImage testImage = ImageHandler.boxCrop(testImg, 200, 100);
-        // BufferedImage testImage = ImageHandler.boxFit(testImg, 200, 100);
+        // BufferedImage testImage = ImageHandler.boxCrop(testImg, 800, 500);
+        BufferedImage testImage = ImageHandler.boxCrop(testImg, 500, 100);
         // BufferedImage testImage = ImageHandler.rescaleImageSmooth(testImg, 500, 500);
         // BufferedImage testImage = ImageHandler.rescaleImage(testImg, 350, 233);
         System.out.println(sw.getElapsedTimeString());
@@ -1114,12 +898,6 @@ public class ImageHandler {
 
         System.exit(0);
 
-        BufferedImage im = ImageHandler
-                .load("http://img-cdn.mediaplex.com/0/9609/82826/160x600_budget_gpsgeneric_0909.gif");
-        im = ImageHandler.rescaleImage(im, 240, 150);
-        ImageHandler.saveImage(im, "jpg", "test2.jpg");
-        System.exit(0);
-
         // urlLocation = new URL(url);
         BufferedImage bufferedImage = ImageIO.read(new File("data/test/images/tdk5.jpg"));
         // bufferedImage = rescaleImage(bufferedImage, 200);
@@ -1143,9 +921,6 @@ public class ImageHandler {
         System.exit(0);
 
         bufferedImage.getScaledInstance(200, -1, Image.SCALE_SMOOTH);
-
-        bufferedImage = rescaleImage2(ImageIO.read(new File("data/test/images/tdk5.jpg")), 200);
-        saveImage(bufferedImage, "jpg", "data/test/images/1_tdk1_rescaled2.jpg");
 
         // bufferedImage = rescaleImage3(ImageIO.read(new File("data/test/images/tdk5.jpg")), 200);
         saveImage(bufferedImage, "jpg", "data/test/images/1_tdk1_rescaled3.jpg");
