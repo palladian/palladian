@@ -72,6 +72,9 @@ class WikipediaEntityContextMiner {
         }
         Validate.isTrue(contextSize > 0, "contextSize must be greater zero");
         Validate.isTrue(limit > 0, "limit must be greater zero");
+        leftContexts.clear();
+        rightContexts.clear();
+        typeCounts.clear();
         try {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
             SAXParser parser = saxParserFactory.newSAXParser();
