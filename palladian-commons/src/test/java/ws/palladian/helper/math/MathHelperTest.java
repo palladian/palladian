@@ -33,6 +33,24 @@ public class MathHelperTest {
     }
 
     @Test
+    public void testNumberToFraction() {
+        assertEquals("-12.5", MathHelper.numberToFraction(-12.5));
+        assertEquals("0", MathHelper.numberToFraction(0.04));
+        assertEquals("1.005", MathHelper.numberToFraction(1.005));
+        assertEquals("1/2", MathHelper.numberToFraction(0.5));
+        assertEquals("1/3", MathHelper.numberToFraction(0.33));
+        assertEquals("1/4", MathHelper.numberToFraction(0.25));
+        assertEquals("1/5", MathHelper.numberToFraction(0.2));
+        assertEquals("1/6", MathHelper.numberToFraction(0.16));
+        assertEquals("1/7", MathHelper.numberToFraction(0.143));
+        assertEquals("1/8", MathHelper.numberToFraction(0.13));
+        assertEquals("1/9", MathHelper.numberToFraction(0.11));
+        assertEquals("1/10", MathHelper.numberToFraction(0.105));
+        assertEquals("1", MathHelper.numberToFraction(0.96));
+        assertEquals("31.0", MathHelper.numberToFraction(31.));
+    }
+
+    @Test
     public void testComputeCosineSimilarity() {
         Double[] vector1 = {10.0, 50.0};
         Double[] vector2 = {8.0, 66.0};

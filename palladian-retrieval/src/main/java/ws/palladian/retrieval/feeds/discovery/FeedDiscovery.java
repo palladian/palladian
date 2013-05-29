@@ -2,7 +2,6 @@ package ws.palladian.retrieval.feeds.discovery;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,14 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -32,7 +24,6 @@ import org.w3c.dom.Node;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -502,10 +493,10 @@ public final class FeedDiscovery {
         this.webSearcher = webSearcher;
     }
 
-    public void setSearchEngine(String webSearcherName) {
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
-    }
+//    public void setSearchEngine(String webSearcherName) {
+//        Configuration config = ConfigHolder.getInstance().getConfig();
+//        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
+//    }
 
     public WebSearcher<WebResult> getSearchEngine() {
         return webSearcher;
@@ -584,96 +575,96 @@ public final class FeedDiscovery {
         return csvOutput;
     }
 
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) {
-
-        FeedDiscovery discovery = new FeedDiscovery();
-
-        CommandLineParser parser = new BasicParser();
-
-        Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("numResults").withDescription("maximum results per query").hasArg()
-                .withArgName("nn").withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("threads")
-                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn")
-                .withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
-                .withArgName("filename").create());
-        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
-                .withArgName("query1[,query2,...]").create());
-        options.addOption(OptionBuilder.withLongOpt("queryFile")
-                .withDescription("runs the specified queries from the file (one query per line)").hasArg()
-                .withArgName("filename").create());
-        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
-                .withArgName("url").create());
-        options.addOption(OptionBuilder.withLongOpt("combineQueries")
-                .withDescription("combine single queries to create more mixed queries").hasArg().withArgName("nn")
-                .withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("searchEngine")
-                .withDescription("fully qualified class name of the search engine to use").hasArg().withArgName("n")
-                .create());
-        options.addOption(OptionBuilder.withLongOpt("csvOutput")
-                .withDescription("write full output with additional data as CSV file instead of only URLs").create());
-
-        try {
-
-            if (args.length < 1) {
-                // no options supplied, go to catch clause, print help.
-                throw new ParseException(null);
-            }
-
-            CommandLine cmd = parser.parse(options, args);
-
-            if (cmd.hasOption("numResults")) {
-                discovery.setNumResults(((Number)cmd.getParsedOptionValue("numResults")).intValue());
-            }
-            if (cmd.hasOption("threads")) {
-                discovery.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
-            }
-            if (cmd.hasOption("outputFile")) {
-                discovery.setResultFilePath(cmd.getOptionValue("outputFile"));
-            }
-            if (cmd.hasOption("query")) {
-
-                List<String> queries = Arrays.asList(cmd.getOptionValue("query").replace("+", " ").split(","));
-                discovery.addQueries(queries);
-
-            }
-            if (cmd.hasOption("queryFile")) {
-                discovery.addQueries(cmd.getOptionValue("queryFile"));
-            }
-            if (cmd.hasOption("combineQueries")) {
-                int targetCount = ((Number)cmd.getParsedOptionValue("combineQueries")).intValue();
-                discovery.combineQueries(targetCount);
-            }
-            if (cmd.hasOption("searchEngine")) {
-                String searchEngine = cmd.getOptionValue("searchEngine");
-                discovery.setSearchEngine(searchEngine);
-            }
-            if (cmd.hasOption("csvOutput")) {
-                discovery.setCsvOutput(true);
-            }
-
-            discovery.findFeeds();
-
-            if (cmd.hasOption("check")) {
-                List<DiscoveredFeed> feeds = discovery.discoverFeeds(cmd.getOptionValue("check"));
-                if (feeds.size() > 0) {
-                    CollectionHelper.print(feeds);
-                } else {
-                    LOGGER.info("no feeds found");
-                }
-            }
-
-            // done, exit.
-            return;
-
-        } catch (ParseException e) {
-            // print usage help
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("FeedDiscovery [options]", options);
-        }
-
-    }
+//    @SuppressWarnings("static-access")
+//    public static void main(String[] args) {
+//
+//        FeedDiscovery discovery = new FeedDiscovery();
+//
+//        CommandLineParser parser = new BasicParser();
+//
+//        Options options = new Options();
+//        options.addOption(OptionBuilder.withLongOpt("numResults").withDescription("maximum results per query").hasArg()
+//                .withArgName("nn").withType(Number.class).create());
+//        options.addOption(OptionBuilder.withLongOpt("threads")
+//                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn")
+//                .withType(Number.class).create());
+//        options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
+//                .withArgName("filename").create());
+//        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
+//                .withArgName("query1[,query2,...]").create());
+//        options.addOption(OptionBuilder.withLongOpt("queryFile")
+//                .withDescription("runs the specified queries from the file (one query per line)").hasArg()
+//                .withArgName("filename").create());
+//        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
+//                .withArgName("url").create());
+//        options.addOption(OptionBuilder.withLongOpt("combineQueries")
+//                .withDescription("combine single queries to create more mixed queries").hasArg().withArgName("nn")
+//                .withType(Number.class).create());
+//        options.addOption(OptionBuilder.withLongOpt("searchEngine")
+//                .withDescription("fully qualified class name of the search engine to use").hasArg().withArgName("n")
+//                .create());
+//        options.addOption(OptionBuilder.withLongOpt("csvOutput")
+//                .withDescription("write full output with additional data as CSV file instead of only URLs").create());
+//
+//        try {
+//
+//            if (args.length < 1) {
+//                // no options supplied, go to catch clause, print help.
+//                throw new ParseException(null);
+//            }
+//
+//            CommandLine cmd = parser.parse(options, args);
+//
+//            if (cmd.hasOption("numResults")) {
+//                discovery.setNumResults(((Number)cmd.getParsedOptionValue("numResults")).intValue());
+//            }
+//            if (cmd.hasOption("threads")) {
+//                discovery.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
+//            }
+//            if (cmd.hasOption("outputFile")) {
+//                discovery.setResultFilePath(cmd.getOptionValue("outputFile"));
+//            }
+//            if (cmd.hasOption("query")) {
+//
+//                List<String> queries = Arrays.asList(cmd.getOptionValue("query").replace("+", " ").split(","));
+//                discovery.addQueries(queries);
+//
+//            }
+//            if (cmd.hasOption("queryFile")) {
+//                discovery.addQueries(cmd.getOptionValue("queryFile"));
+//            }
+//            if (cmd.hasOption("combineQueries")) {
+//                int targetCount = ((Number)cmd.getParsedOptionValue("combineQueries")).intValue();
+//                discovery.combineQueries(targetCount);
+//            }
+//            if (cmd.hasOption("searchEngine")) {
+//                String searchEngine = cmd.getOptionValue("searchEngine");
+//                discovery.setSearchEngine(searchEngine);
+//            }
+//            if (cmd.hasOption("csvOutput")) {
+//                discovery.setCsvOutput(true);
+//            }
+//
+//            discovery.findFeeds();
+//
+//            if (cmd.hasOption("check")) {
+//                List<DiscoveredFeed> feeds = discovery.discoverFeeds(cmd.getOptionValue("check"));
+//                if (feeds.size() > 0) {
+//                    CollectionHelper.print(feeds);
+//                } else {
+//                    LOGGER.info("no feeds found");
+//                }
+//            }
+//
+//            // done, exit.
+//            return;
+//
+//        } catch (ParseException e) {
+//            // print usage help
+//            HelpFormatter formatter = new HelpFormatter();
+//            formatter.printHelp("FeedDiscovery [options]", options);
+//        }
+//
+//    }
 
 }

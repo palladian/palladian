@@ -23,7 +23,7 @@ public final class FeatureRanking {
     private final class FeatureRankingComparator implements Comparator<RankedFeature> {
         @Override
         public int compare(RankedFeature o1, RankedFeature o2) {
-            return Double.compare(o1.getScore(), o2.getScore());
+            return Double.compare(o2.getScore(), o1.getScore());
         }
     }
 
@@ -84,6 +84,10 @@ public final class FeatureRanking {
             Collections.sort(rankedFeatures, new FeatureRankingComparator());
             isSorted = true;
         }
+    }
+
+    public int size() {
+        return rankedFeatures.size();
     }
 
     @Override
