@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.ContextAnnotation;
-import ws.palladian.extraction.entity.RegExContextTagger;
+import ws.palladian.extraction.entity.ContextTagger;
 import ws.palladian.extraction.entity.StringTagger;
+import ws.palladian.extraction.entity.WindowSizeContextTagger;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -36,13 +37,13 @@ public class EntityPreprocessingTagger implements Tagger {
     private static final int CONTEXT_LENGTH = 5;
 
     /** The base tagger, which delivers the annotations. */
-    private final RegExContextTagger tagger;
+    private final ContextTagger tagger;
 
     /** The case dictionary which contains the lowercase ratio for tokens. */
     private final Map<String, Double> caseDictionary;
 
     public EntityPreprocessingTagger() {
-        tagger = new RegExContextTagger(StringTagger.PATTERN, StringTagger.CANDIDATE_TAG, CONTEXT_LENGTH);
+        tagger = new WindowSizeContextTagger(StringTagger.PATTERN, StringTagger.CANDIDATE_TAG, CONTEXT_LENGTH);
         InputStream inputStream = null;
         try {
             inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/caseDictionary.csv");

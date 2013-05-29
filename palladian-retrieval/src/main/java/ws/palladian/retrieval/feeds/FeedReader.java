@@ -10,14 +10,6 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +25,8 @@ import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -422,7 +412,6 @@ public final class FeedReader {
      * 
      * @throws FeedParserException
      */
-    @SuppressWarnings("static-access")
     public static void main(String[] args) throws FeedParserException {
 
         /**
@@ -456,87 +445,87 @@ public final class FeedReader {
         fch.updateCheckIntervals(feed, false);
         System.exit(0);
 
-        Options options = new Options();
-
-        OptionGroup checkApproachOption = new OptionGroup();
-        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED")
-                .withDescription("check each feed at a fixed interval").create());
-        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE")
-                .withDescription("check each feed and learn its update times").create());
-        checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
-                .withDescription("check each feed and adapt to its update rate").create());
-        checkApproachOption.setRequired(true);
-        options.addOptionGroup(checkApproachOption);
-        options.addOption("r", "runtime", true,
-                "The runtime of the checker in minutes or -1 if it should run until aborted.");
-        options.addOption("ci", "checkInterval", true,
-                "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
-        HelpFormatter formatter = new HelpFormatter();
-
-        CommandLineParser parser = new PosixParser();
-        CommandLine cmd = null;
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            LOGGER.debug("Command line arguments could not be parsed!");
-            formatter.printHelp("FeedReader", options);
-        }
-
-        int runtime = -1;
-        UpdateStrategy updateStrategy = new FixLearnedUpdateStrategy();
-        int checkInterval = -1;
-
-        if (cmd.hasOption("r")) {
-            runtime = Integer.valueOf(cmd.getOptionValue("r"));
-        } else {
-            formatter.printHelp("FeedReader", options);
-        }
-        if (cmd.hasOption("ci")) {
-            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
-        }
-        if (cmd.hasOption("cf")) {
-            if (checkInterval == -1) { // emulate old usage of FixLearned as checkInterval = -1
-                updateStrategy = new FixLearnedUpdateStrategy();
-            } else {
-                updateStrategy = new FixUpdateStrategy(checkInterval);
-            }
-        } else if (cmd.hasOption("ca")) {
-            updateStrategy = new MavUpdateStrategy();
-        } else if (cmd.hasOption("cp")) {
-            updateStrategy = new PostRateUpdateStrategy();
-        }
-
-        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
-        FeedProcessingAction fpa = new FeedProcessingAction() {
-
-            @Override
-            public boolean performAction(Feed feed, HttpResult httpResult) {
-                LOGGER.info("do stuff with " + feed.getFeedUrl());
-                LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: " + feed.getChecks());
-                return true;
-            }
-
-            @Override
-            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return true;
-            }
-
-            @Override
-            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            @Override
-            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-        };
-        fc.setUpdateStrategy(updateStrategy);
-        fc.setFeedProcessingAction(fpa);
-        fc.startContinuousReading(TimeUnit.MINUTES.toMillis(runtime));
+//        Options options = new Options();
+//
+//        OptionGroup checkApproachOption = new OptionGroup();
+//        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED")
+//                .withDescription("check each feed at a fixed interval").create());
+//        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE")
+//                .withDescription("check each feed and learn its update times").create());
+//        checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
+//                .withDescription("check each feed and adapt to its update rate").create());
+//        checkApproachOption.setRequired(true);
+//        options.addOptionGroup(checkApproachOption);
+//        options.addOption("r", "runtime", true,
+//                "The runtime of the checker in minutes or -1 if it should run until aborted.");
+//        options.addOption("ci", "checkInterval", true,
+//                "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
+//        HelpFormatter formatter = new HelpFormatter();
+//
+//        CommandLineParser parser = new PosixParser();
+//        CommandLine cmd = null;
+//        try {
+//            cmd = parser.parse(options, args);
+//        } catch (ParseException e) {
+//            LOGGER.debug("Command line arguments could not be parsed!");
+//            formatter.printHelp("FeedReader", options);
+//        }
+//
+//        int runtime = -1;
+//        UpdateStrategy updateStrategy = new FixLearnedUpdateStrategy();
+//        int checkInterval = -1;
+//
+//        if (cmd.hasOption("r")) {
+//            runtime = Integer.valueOf(cmd.getOptionValue("r"));
+//        } else {
+//            formatter.printHelp("FeedReader", options);
+//        }
+//        if (cmd.hasOption("ci")) {
+//            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
+//        }
+//        if (cmd.hasOption("cf")) {
+//            if (checkInterval == -1) { // emulate old usage of FixLearned as checkInterval = -1
+//                updateStrategy = new FixLearnedUpdateStrategy();
+//            } else {
+//                updateStrategy = new FixUpdateStrategy(checkInterval);
+//            }
+//        } else if (cmd.hasOption("ca")) {
+//            updateStrategy = new MavUpdateStrategy();
+//        } else if (cmd.hasOption("cp")) {
+//            updateStrategy = new PostRateUpdateStrategy();
+//        }
+//
+//        FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
+//        FeedProcessingAction fpa = new FeedProcessingAction() {
+//
+//            @Override
+//            public boolean performAction(Feed feed, HttpResult httpResult) {
+//                LOGGER.info("do stuff with " + feed.getFeedUrl());
+//                LOGGER.info("::: update interval: " + feed.getUpdateInterval() + ", checks: " + feed.getChecks());
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean performActionOnException(Feed feed, HttpResult httpResult) {
+//                // TODO Auto-generated method stub
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
+//                // TODO Auto-generated method stub
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean performActionOnError(Feed feed, HttpResult httpResult) {
+//                // TODO Auto-generated method stub
+//                return false;
+//            }
+//        };
+//        fc.setUpdateStrategy(updateStrategy);
+//        fc.setFeedProcessingAction(fpa);
+//        fc.startContinuousReading(TimeUnit.MINUTES.toMillis(runtime));
     }
 
 }

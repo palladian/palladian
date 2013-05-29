@@ -40,11 +40,16 @@ public final class StringHelper {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(StringHelper.class);
 
-    /** Used to replace a semicolon in a string to store it in csv file that uses semicolon to separate fields. */
-    private static final String SEMICOLON_REPLACEMENT = "###putSemicolonHere###";
-
-    /** Used to replace a double quote " in a string to store it in csv file that uses double quotes to enclose fields. */
-    private static final String DOUBLE_QUOTES_REPLACEMENT = "###putDoubleQuotesHere###";
+    private static final Pattern PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
+    private static final Pattern PATTERN_STRING = Pattern.compile(RegExp.STRING);
+    private static final Pattern PATTERN_NUMBER = Pattern.compile(RegExp.NUMBER);
+    private static final Pattern PATTERN_STARTS_WITH_NUMBER = Pattern.compile("^" + RegExp.NUMBER);
+    private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
+    private static final Pattern PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
+    private static final Pattern PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
+    private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
+    private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
+    private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
 
     private StringHelper() {
 
@@ -209,7 +214,9 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
      * Make camel case.
+     * </p>
      * 
      * @param name the name
      * @param uppercaseFirst the uppercase first
@@ -341,25 +348,21 @@ public final class StringHelper {
      * @return The text without the numbers.
      */
     public static String removeNumbering(String numberedText) {
-        String modText = numberedText.replaceAll("^\\s*\\d+(\\.?\\d?)*\\s*", "");
-        modText = modText.replaceAll("^\\s*#\\d+(\\.?\\d?)*\\s*", "");
+        String modText = PATTERN_NUMBERING1.matcher(numberedText).replaceAll("");
+        modText = PATTERN_NUMBERING2.matcher(modText).replaceAll("");
         return modText;
     }
 
     /**
+     * <p>
      * Check whether a given string contains a proper noun.
+     * </p>
      * 
      * @param searchString The search string.
      * @return True if the string contains a proper noun, else false.
      */
     public static boolean containsProperNoun(String searchString) {
-        Pattern pat = null;
-        try {
-            pat = Pattern.compile(RegExp.STRING);
-        } catch (PatternSyntaxException e) {
-            throw new IllegalStateException("Error compiling the predefined RegEx.");
-        }
-        Matcher m = pat.matcher(searchString);
+        Matcher m = PATTERN_STRING.matcher(searchString);
         return m.find();
     }
 
@@ -481,8 +484,22 @@ public final class StringHelper {
         return Arrays.asList('.', ',', ':', ';', '?', '!').contains(character);
     }
 
+    public static String getFirstWord(String searchString) {
+        Matcher matcher = PATTERN_FIRST_WORD.matcher(searchString);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        return "";
+    }
+
+    public static String removeFirstWord(String searchString) {
+        String firstWord = getFirstWord(searchString);
+        return searchString.replaceFirst(firstWord + "(\\s|$)", "");
+    }
+
     public static String removeWord(String word, String searchString) {
-        return replaceWord(word, "", searchString).replaceAll("[ ]{2,10}", " ");
+        return PATTERN_LIMITED_WHITESPACES.matcher(replaceWord(word, "", searchString)).replaceAll(" ");
     }
 
     public static String replaceWord(String word, String replacement, String searchString) {
@@ -540,37 +557,33 @@ public final class StringHelper {
      * @return True if the string contains a numeric value, else false.
      */
     public static boolean containsNumber(String searchString) {
-        Pattern pattern = null;
-        try {
-            pattern = Pattern.compile(RegExp.NUMBER);
-        } catch (PatternSyntaxException e) {
-            throw new IllegalStateException("Error compiling the predefined RegEx.");
-        }
-        Matcher matcher = pattern.matcher(searchString);
+        Matcher matcher = PATTERN_NUMBER.matcher(searchString);
         return matcher.find();
     }
 
     /**
+     * <p>
      * Replace "non-breaking" aka. protected whitespace (unicode 0x00A0) with normal whitespace.
+     * </p>
      * 
      * @param string the string
      * @return the string
      */
     public static String replaceProtectedSpace(String string) {
-        // String modString = string.replaceAll(" ", " ");
-        // let's use this notation, which does the same, to make clear what's going on ...:
         return string.replaceAll("\u00A0", " ");
     }
 
     /**
-     * Strips all non-ASCII characters from the supplied string. Useful to remove asian characters, for example.
+     * <p>
+     * Strips all non-ASCII characters from the supplied string. Useful to remove Asian characters, for example.
+     * </p>
      * 
-     * @param string
-     * @return
+     * @param string The input string.
+     * @see http://forums.sun.com/thread.jspa?threadID=5370865
+     * @return The input string removed from non-ascii characters.
      */
     public static String removeNonAsciiCharacters(String string) {
-        // http://forums.sun.com/thread.jspa?threadID=5370865
-        return string.replaceAll("[^\\p{ASCII}]", "");
+        return PATTERN_NON_ASCII.matcher(string).replaceAll("");
     }
 
     /**
@@ -579,18 +592,13 @@ public final class StringHelper {
      * "This is a text (just a sample)." becomes "This is a text ."
      * </p>
      * 
-     * @param bracketString the bracket string
-     * @return the string
+     * @param bracketString The bracket string
+     * @return The string without brackets.
      */
     public static String removeBrackets(String bracketString) {
         String string = bracketString;
-        try {
-            string = string.replaceAll("\\(.*?\\)", "");
-            string = string.replaceAll("\\[.*?\\]", "");
-            string = string.replaceAll("\\{.*?\\}", "");
-        } catch (Exception e) {
-            LOGGER.error("{}, {}", string, e.getMessage());
-        }
+        string = PATTERN_BRACKETS.matcher(bracketString).replaceAll("");
+        string = removeDoubleWhitespaces(string);
         return string.trim();
     }
 
@@ -599,7 +607,9 @@ public final class StringHelper {
      * 
      * @param inputString the input string
      * @return the string
+     * @deprecated Use {@link Pattern#quote(String)} instead.
      */
+    @Deprecated
     public static String escapeForRegularExpression(String inputString) {
         String string = inputString;
         try {
@@ -712,8 +722,7 @@ public final class StringHelper {
             }
         }
 
-        Pattern pattern = Pattern.compile("^" + RegExp.NUMBER);
-        Matcher m = pattern.matcher(string);
+        Matcher m = PATTERN_STARTS_WITH_NUMBER.matcher(string);
         try {
 
             if (m.find()) {
@@ -1392,7 +1401,7 @@ public final class StringHelper {
      * @return The cleansed text.
      */
     public static String removeDoubleWhitespaces(String text) {
-        return text.replaceAll("[ ]{2,}", " ");
+        return PATTERN_MULTIPLE_WHITESPACES.matcher(text).replaceAll(" ");
     }
 
     /**
@@ -1461,15 +1470,6 @@ public final class StringHelper {
     public static int countRegexMatches(String text, String pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         return countRegexMatches(text, Pattern.compile(pattern));
-        //        if (text == null || text.isEmpty()) {
-        //            return 0;
-        //        }
-        //        Matcher matcher = Pattern.compile(pattern).matcher(text);
-        //        int matches = 0;
-        //        while (matcher.find()) {
-        //            matches++;
-        //        }
-        //        return matches;
     }
 
     public static int countRegexMatches(String text, Pattern pattern) {
@@ -1485,17 +1485,17 @@ public final class StringHelper {
         return matches;
     }
 
-    //    /**
-    //     * Calculates Levenshtein similarity between the strings.
-    //     *
-    //     * @param s1
-    //     * @param s2
-    //     * @return similarity between 0 and 1 (inclusive).
-    //     */
-    //    public static float getLevenshteinSim(String s1, String s2) {
-    //        int distance = StringUtils.getLevenshteinDistance(s1, s2);
-    //        return 1 - (float)distance / Math.max(s1.length(), s2.length());
-    //    }
+    // /**
+    // * Calculates Levenshtein similarity between the strings.
+    // *
+    // * @param s1
+    // * @param s2
+    // * @return similarity between 0 and 1 (inclusive).
+    // */
+    // public static float getLevenshteinSim(String s1, String s2) {
+    // int distance = StringUtils.getLevenshteinDistance(s1, s2);
+    // return 1 - (float)distance / Math.max(s1.length(), s2.length());
+    // }
 
     /**
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
@@ -1524,6 +1524,111 @@ public final class StringHelper {
             }
         }
         return out.toString();
+    }
+
+    /**
+     * <p>
+     * Transform numbers between 0 and 12 to words, e.g. 1 becomes "one" and 12 becomes "twelve".
+     * </p>
+     * 
+     * @param number The number.
+     * @return The word or null if nothing was transformed.
+     */
+    public static String numberToWord(Double number) {
+        int intNumber = number.intValue();
+
+        if (number % intNumber > 0) {
+            return null;
+        }
+
+        if (intNumber == 1) {
+            return "one";
+        }
+        if (intNumber == 2) {
+            return "two";
+        }
+        if (intNumber == 3) {
+            return "three";
+        }
+        if (intNumber == 4) {
+            return "four";
+        }
+        if (intNumber == 5) {
+            return "five";
+        }
+        if (intNumber == 6) {
+            return "six";
+        }
+        if (intNumber == 7) {
+            return "seven";
+        }
+        if (intNumber == 8) {
+            return "eight";
+        }
+        if (intNumber == 9) {
+            return "nine";
+        }
+        if (intNumber == 10) {
+            return "ten";
+        }
+        if (intNumber == 11) {
+            return "eleven";
+        }
+        if (intNumber == 12) {
+            return "twelve";
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>
+     * Transform "one" to 1, "two" to 2, etc. if no number was transformed, return null
+     * </p>
+     * 
+     * @param numberWord The string with a number word.
+     * @return The number or null if nothing was transformed.
+     */
+    public static Integer numberWordToNumber(String numberWord) {
+        numberWord = numberWord.toLowerCase().trim();
+        if (numberWord.equals("one")) {
+            return 1;
+        }
+        if (numberWord.equals("two") || numberWord.equals("couple")) {
+            return 2;
+        }
+        if (numberWord.equals("three") || numberWord.equals("few")) {
+            return 3;
+        }
+        if (numberWord.equals("four")) {
+            return 4;
+        }
+        if (numberWord.equals("five")) {
+            return 5;
+        }
+        if (numberWord.equals("six")) {
+            return 6;
+        }
+        if (numberWord.equals("seven")) {
+            return 7;
+        }
+        if (numberWord.equals("eight")) {
+            return 8;
+        }
+        if (numberWord.equals("nine")) {
+            return 9;
+        }
+        if (numberWord.equals("ten")) {
+            return 10;
+        }
+        if (numberWord.equals("eleven")) {
+            return 11;
+        }
+        if (numberWord.equals("twelve")) {
+            return 12;
+        }
+
+        return null;
     }
 
     public static String getRegexpMatch(String regexp, String text) {
@@ -1689,11 +1794,13 @@ public final class StringHelper {
      * to be inserted in (older) MySQL databases, as four byte characters cause trouble.
      * </p>
      * 
+     * @deprecated Does this use anybody or was that Sandro's?
      * @param string The string from which to remove four byte characters.
      * @return The string with four byte characters removed, or <code>null</code> if input was <code>null</code>.
      * @see <a href="http://mzsanford.com/blog/mysql-and-unicode">MySQL and Unicode</a>
      * @see <a href="http://stackoverflow.com/a/3220210/388827>Code snippet on Stack Overflow</a>
      */
+    @Deprecated
     public static String removeFourByteChars(String string) {
         if (string == null) {
             return null;
@@ -1753,7 +1860,7 @@ public final class StringHelper {
         }
         return false;
     }
-    
+
     /**
      * <p>
      * Remove empty lines from a String.
@@ -1785,6 +1892,21 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
+     * Replace typographic ("curly") quotation marks and apostrophes by their "dumb" equivalents.
+     * </p>
+     * 
+     * @param text The string in which to replace quotation marks and apostrohpes.
+     * @return The normalized string, <code>null</code> in case the supplied String was <code>null</code>.
+     */
+    public static String normalizeQuotes(String text) {
+        if (text == null) {
+            return null;
+        }
+        return text.replaceAll("[„“”»«]", "\"").replaceAll("[’‘]", "'").replaceAll("[–—]", "-");
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments
@@ -1792,9 +1914,12 @@ public final class StringHelper {
     public static void main(String[] args) {
 
         StopWatch sw = new StopWatch();
-        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                                       ";
-        for (int i = 0; i < 1000; i++) {
-            StringHelper.removeDoubleWhitespaces(text);
+        Pattern pattern = Pattern.compile("[ ]{2,}");
+        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjd        flabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                                       ";
+        for (int i = 0; i < 5000; i++) {
+            // StringHelper.removeDoubleWhitespaces(text);
+            // text.replaceAll("[ ]{2,}", "");
+            pattern.matcher(text).replaceAll("");
         }
         System.out.println(sw.getElapsedTimeString());
         System.exit(0);
@@ -1970,7 +2095,5 @@ public final class StringHelper {
         }
 
     }
-
-
 
 }

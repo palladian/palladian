@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -34,6 +35,43 @@ public final class MathHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
+
+    private static final Map<Double, String> FRACTION_MAP;
+
+    static {
+        FRACTION_MAP = new HashMap<Double, String>();
+        FRACTION_MAP.put(0.5, "1/2");
+        FRACTION_MAP.put(0.3333, "1/3");
+        FRACTION_MAP.put(0.6667, "2/3");
+        FRACTION_MAP.put(0.25, "1/4");
+        FRACTION_MAP.put(0.75, "3/4");
+        FRACTION_MAP.put(0.2, "1/5");
+        FRACTION_MAP.put(0.4, "2/5");
+        FRACTION_MAP.put(0.6, "3/5");
+        FRACTION_MAP.put(0.8, "4/5");
+        FRACTION_MAP.put(0.1667, "1/6");
+        FRACTION_MAP.put(0.8333, "5/6");
+        FRACTION_MAP.put(0.1429, "1/7");
+        FRACTION_MAP.put(0.2857, "2/7");
+        FRACTION_MAP.put(0.4286, "3/7");
+        FRACTION_MAP.put(0.5714, "4/7");
+        FRACTION_MAP.put(0.7143, "5/7");
+        FRACTION_MAP.put(0.8571, "6/7");
+        FRACTION_MAP.put(0.125, "1/8");
+        FRACTION_MAP.put(0.375, "3/8");
+        FRACTION_MAP.put(0.625, "5/8");
+        FRACTION_MAP.put(0.875, "7/8");
+        FRACTION_MAP.put(0.1111, "1/9");
+        FRACTION_MAP.put(0.2222, "2/9");
+        FRACTION_MAP.put(0.4444, "4/9");
+        FRACTION_MAP.put(0.5556, "5/9");
+        FRACTION_MAP.put(0.7778, "7/9");
+        FRACTION_MAP.put(0.8889, "8/9");
+        FRACTION_MAP.put(0.1, "1/10");
+        FRACTION_MAP.put(0.3, "3/10");
+        FRACTION_MAP.put(0.7, "7/10");
+        FRACTION_MAP.put(0.9, "9/10");
+    }
 
     private MathHelper() {
         // no instances.
@@ -808,6 +846,42 @@ public final class MathHelper {
         double denominator = Math.sqrt(denominatorX * denominatorY);
 
         return nominator / denominator;
+    }
+
+    /**
+     * <p>
+     * Try to translate a number into a fraction, e.g. 0.333 = 1/3.
+     * </p>
+     * 
+     * @parameter number A number between 0 and 1.
+     * @return The fraction of the number if it was possible to transform, otherwise the number as a string.
+     */
+    public static String numberToFraction(Double number) {
+        String fraction = "";
+
+        double minMargin = 1;
+        for (Entry<Double, String> fractionEntry : FRACTION_MAP.entrySet()) {
+
+            double margin = Math.abs(fractionEntry.getKey() - number);
+
+            if (margin < minMargin) {
+                fraction = fractionEntry.getValue();
+                minMargin = margin;
+            }
+
+        }
+
+        if (number < 0.05 && number >= 0) {
+            fraction = "0";
+        } else if (number > 0.95 && number <= 1) {
+            fraction = "1";
+        }
+
+        if (fraction.isEmpty() || number > 1 || number < 0) {
+            fraction = String.valueOf(number);
+        }
+
+        return fraction;
     }
 
     /**

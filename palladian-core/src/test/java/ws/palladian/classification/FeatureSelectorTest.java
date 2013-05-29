@@ -3,6 +3,10 @@
  */
 package ws.palladian.classification;
 
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,11 +18,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.classification.featureselection.AverageMergingStrategy;
 import ws.palladian.classification.featureselection.ChiSquaredFeatureSelector;
 import ws.palladian.classification.featureselection.FeatureDetails;
 import ws.palladian.classification.featureselection.FeatureRanking;
 import ws.palladian.classification.featureselection.FeatureSelector;
 import ws.palladian.classification.featureselection.InformationGainFeatureSelector;
+import ws.palladian.classification.featureselection.RoundRobinMergingStrategy;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -72,7 +78,7 @@ public class FeatureSelectorTest {
 
     @Test
     public void testChiSquareFeatureSelection() {
-        FeatureSelector featureSelector = new ChiSquaredFeatureSelector();
+        FeatureSelector featureSelector = new ChiSquaredFeatureSelector(new AverageMergingStrategy());
 
         Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
         featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
@@ -80,18 +86,42 @@ public class FeatureSelectorTest {
         FeatureRanking ranking = featureSelector.rankFeatures(fixture, featuresToConsider);
         // System.out.println(ranking);
 
-        Assert.assertThat(ranking.getAll().get(0).getValue(), Matchers.is("d"));
-        Assert.assertThat(ranking.getAll().get(0).getScore(), Matchers.is(Matchers.closeTo(0.75, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(1).getValue(), Matchers.is("f"));
-        Assert.assertThat(ranking.getAll().get(1).getScore(), Matchers.is(Matchers.closeTo(3.0, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(2).getValue(), Matchers.is("e"));
-        Assert.assertThat(ranking.getAll().get(2).getScore(), Matchers.is(Matchers.closeTo(3.0, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(3).getValue(), Matchers.is("b"));
-        Assert.assertThat(ranking.getAll().get(3).getScore(), Matchers.is(Matchers.closeTo(3.0, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(4).getValue(), Matchers.is("c"));
-        Assert.assertThat(ranking.getAll().get(4).getScore(), Matchers.is(Matchers.closeTo(3.0, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(5).getValue(), Matchers.is("a"));
-        Assert.assertThat(ranking.getAll().get(5).getScore(), Matchers.is(Matchers.closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(5).getValue(), is("d"));
+        assertThat(ranking.getAll().get(5).getScore(), is(closeTo(0.75, 0.0001)));
+        assertThat(ranking.getAll().get(4).getValue(), is("a"));
+        assertThat(ranking.getAll().get(4).getScore(), is(closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(3).getValue(), is("c"));
+        assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(2).getValue(), is("b"));
+        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(1).getValue(), is("e"));
+        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(0).getValue(), is("f"));
+        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(3.0, 0.0001)));
+    }
+
+    @Test
+    public void testChiSquaredRoundRobinMerge() throws Exception {
+        FeatureSelector featureSelector = new ChiSquaredFeatureSelector(new RoundRobinMergingStrategy());
+
+        Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
+        featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
+
+        FeatureRanking ranking = featureSelector.rankFeatures(fixture, featuresToConsider);
+        // System.out.println(ranking);
+
+        assertThat(ranking.getAll().get(5).getValue(), is("d"));
+        assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.0, 0.0001)));
+        assertThat(ranking.getAll().get(4).getValue(), is("a"));
+        assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.0, 0.0001)));
+        assertThat(ranking.getAll().get(3).getValue(), is("c"));
+        assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(2).getValue(), is("b"));
+        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(4.0, 0.0001)));
+        assertThat(ranking.getAll().get(1).getValue(), is("e"));
+        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
+        assertThat(ranking.getAll().get(0).getValue(), is("f"));
+        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(6.0, 0.0001)));
     }
 
     @Test
@@ -104,18 +134,18 @@ public class FeatureSelectorTest {
         FeatureRanking ranking = featureSelector.rankFeatures(fixture, featuresToConsider);
         // System.out.println(ranking);
 
-        Assert.assertThat(ranking.getAll().get(0).getValue(), Matchers.is("d"));
-        Assert.assertThat(ranking.getAll().get(0).getScore(), Matchers.is(Matchers.closeTo(0.6759197036979384, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(1).getValue(), Matchers.is("b"));
-        Assert.assertThat(ranking.getAll().get(1).getScore(), Matchers.is(Matchers.closeTo(0.9638892693751062, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(2).getValue(), Matchers.is("c"));
-        Assert.assertThat(ranking.getAll().get(2).getScore(), Matchers.is(Matchers.closeTo(0.9638892693751062, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(3).getValue(), Matchers.is("a"));
-        Assert.assertThat(ranking.getAll().get(3).getScore(), Matchers.is(Matchers.closeTo(0.9638892693751062, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(4).getValue(), Matchers.is("f"));
-        Assert.assertThat(ranking.getAll().get(4).getScore(), Matchers.is(Matchers.closeTo(0.9638892693751062, 0.0001)));
-        Assert.assertThat(ranking.getAll().get(5).getValue(), Matchers.is("e"));
-        Assert.assertThat(ranking.getAll().get(5).getScore(), Matchers.is(Matchers.closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(5).getValue(), is("d"));
+        assertThat(ranking.getAll().get(5).getScore(), is(closeTo(0.6759197036979384, 0.0001)));
+        assertThat(ranking.getAll().get(4).getValue(), is("e"));
+        assertThat(ranking.getAll().get(4).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(3).getValue(), is("f"));
+        assertThat(ranking.getAll().get(3).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(2).getValue(), is("a"));
+        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(1).getValue(), is("c"));
+        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(0).getValue(), is("b"));
+        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
     }
 
     @Test

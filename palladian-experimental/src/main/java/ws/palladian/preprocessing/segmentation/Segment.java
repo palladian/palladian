@@ -1,6 +1,6 @@
 package ws.palladian.preprocessing.segmentation;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -22,7 +22,7 @@ public class Segment {
     // ///////////////////// Attributes of a segment ///////////////////////
 
     /** Reads the segmenter.config */
-    private final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+    private final Configuration config = ConfigHolder.getInstance().getConfig();
 
     /** The document to which the segment belongs */
     private Document document = null;
