@@ -1,6 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -16,8 +16,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Annotated;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
-import edu.stanford.nlp.io.IOUtils;
-import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.StringUtils;
 
@@ -96,47 +94,47 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         configFileContent += "wordShape=chris2useLC";
     }
 
-    @SuppressWarnings("unchecked")
-    public void demo(String inputText) throws IOException {
-
-        String serializedClassifier = "data/temp/stanfordner/classifiers/ner-eng-ie.crf-3-all2008.ser.gz";
-
-        AbstractSequenceClassifier<CoreLabel> classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
-
-        String inputTextPath = "data/temp/inputText.txt";
-        FileHelper.writeToFile(inputTextPath, inputText);
-
-        /*
-         * For either a file to annotate or for the hardcoded text example,
-         * this demo file shows two ways to process the output, for teaching
-         * purposes. For the file, it shows both how to run NER on a String
-         * and how to run it on a whole file. For the hard-coded String,
-         * it shows how to run it on a single sentence, and how to do this
-         * and produce an inline XML output format.
-         */
-        if (inputTextPath.length() > 1) {
-            String fileContents = IOUtils.slurpFile(inputTextPath);
-            List<List<CoreLabel>> out = classifier.classify(fileContents);
-            for (List<CoreLabel> sentence : out) {
-                for (CoreLabel word : sentence) {
-                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
-                }
-            }
-            out = classifier.classifyFile(inputTextPath);
-            for (List<CoreLabel> sentence : out) {
-                for (CoreLabel word : sentence) {
-                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
-                }
-            }
-
-        } else {
-            String s1 = "Good afternoon Rajat Raina, how are you today?";
-            String s2 = "I go to school at Stanford University, which is located in California.";
-            LOGGER.info(classifier.classifyToString(s1));
-            LOGGER.info(classifier.classifyWithInlineXML(s2));
-            LOGGER.info(classifier.classifyToString(s2, "xml", true));
-        }
-    }
+//    @SuppressWarnings("unchecked")
+//    public void demo(String inputText) throws IOException {
+//
+//        String serializedClassifier = "data/temp/stanfordner/classifiers/ner-eng-ie.crf-3-all2008.ser.gz";
+//
+//        AbstractSequenceClassifier<CoreLabel> classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+//
+//        String inputTextPath = "data/temp/inputText.txt";
+//        FileHelper.writeToFile(inputTextPath, inputText);
+//
+//        /*
+//         * For either a file to annotate or for the hardcoded text example,
+//         * this demo file shows two ways to process the output, for teaching
+//         * purposes. For the file, it shows both how to run NER on a String
+//         * and how to run it on a whole file. For the hard-coded String,
+//         * it shows how to run it on a single sentence, and how to do this
+//         * and produce an inline XML output format.
+//         */
+//        if (inputTextPath.length() > 1) {
+//            String fileContents = IOUtils.slurpFile(inputTextPath);
+//            List<List<CoreLabel>> out = classifier.classify(fileContents);
+//            for (List<CoreLabel> sentence : out) {
+//                for (CoreLabel word : sentence) {
+//                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+//                }
+//            }
+//            out = classifier.classifyFile(inputTextPath);
+//            for (List<CoreLabel> sentence : out) {
+//                for (CoreLabel word : sentence) {
+//                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+//                }
+//            }
+//
+//        } else {
+//            String s1 = "Good afternoon Rajat Raina, how are you today?";
+//            String s2 = "I go to school at Stanford University, which is located in California.";
+//            LOGGER.info(classifier.classifyToString(s1));
+//            LOGGER.info(classifier.classifyWithInlineXML(s2));
+//            LOGGER.info(classifier.classifyToString(s2, "xml", true));
+//        }
+//    }
 
     @Override
     public String getModelFileEnding() {
@@ -158,11 +156,12 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         buildConfigFile();
         configFileContent = configFileContent.replaceAll("###TRAINING_FILE###", trainingFilePath2);
         configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
-        FileHelper.writeToFile("data/temp/stanfordNerConfig.props", configFileContent);
+        String propertiesFilePath = new File(FileHelper.getTempDir(), "stanfordNerConfig.props").getPath();
+        FileHelper.writeToFile(propertiesFilePath, configFileContent);
 
         String[] args = new String[2];
         args[0] = "-props";
-        args[1] = "data/temp/stanfordNerConfig.props";
+        args[1] = propertiesFilePath;
 
         Properties props = StringUtils.argsToProperties(args);
         CRFClassifier<CoreLabel> crf = new CRFClassifier<CoreLabel>(props);
@@ -222,18 +221,18 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
     @Override
     public List<Annotated> getAnnotations(String inputText) {
 
-        String inputTextPath = "data/temp/inputText.txt";
+        String inputTextPath = new File(FileHelper.getTempDir(), "inputText.txt").getPath();
         FileHelper.writeToFile(inputTextPath, inputText);
 
         StringBuilder taggedText = new StringBuilder();
         taggedText.append(classifier.classifyWithInlineXML(inputText));
 
-        String taggedTextFilePath = "data/temp/stanfordNERTaggedText.txt";
+        String taggedTextFilePath = new File(FileHelper.getTempDir(), "stanfordNERTaggedText.txt").getPath();
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
 
-        FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
+        // FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
 
         annotations.removeNested();
         annotations.sort();
