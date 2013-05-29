@@ -4,37 +4,40 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Tagger;
 
-public class RegExContextTagger implements Tagger {
+public abstract class ContextTagger implements Tagger {
 
     private final Pattern pattern;
     private final String tagName;
-    private final int windowSize;
 
-    public RegExContextTagger(Pattern pattern, String tagName, int windowSize) {
+    public ContextTagger(Pattern pattern, String tagName) {
+        Validate.notNull(pattern, "pattern must not be null");
+        Validate.notNull(tagName, "tagName must not be null");
         this.pattern = pattern;
         this.tagName = tagName;
-        this.windowSize = windowSize;
     }
 
     @Override
     public List<ContextAnnotation> getAnnotations(String text) {
-
         List<ContextAnnotation> annotations = CollectionHelper.newArrayList();
-
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
             int startPosition = matcher.start();
             int endPosition = matcher.end();
             String value = matcher.group();
-            String leftContext = text.substring(Math.max(0, startPosition - windowSize), startPosition);
-            String rightContext = text.substring(endPosition, Math.min(endPosition + windowSize, text.length()));
+            String leftContext = getLeftContext(text.substring(0, startPosition));
+            String rightContext = getRightContext(text.substring(endPosition));
             annotations.add(new ContextAnnotation(startPosition, value, tagName, leftContext, rightContext));
         }
-
         return annotations;
     }
+
+    protected abstract String getRightContext(String rightString);
+
+    protected abstract String getLeftContext(String leftString);
 
 }

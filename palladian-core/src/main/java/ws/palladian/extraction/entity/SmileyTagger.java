@@ -2,8 +2,6 @@ package ws.palladian.extraction.entity;
 
 import java.util.regex.Pattern;
 
-import ws.palladian.helper.nlp.StringHelper;
-
 /**
  * <p>
  * Tag Smileys in a text.
@@ -30,16 +28,16 @@ public class SmileyTagger extends RegExTagger {
     private static final Pattern SMILEY_PATTERN = createPattern();
 
     private static final Pattern createPattern() {
-        StringBuilder smileyPatterhRegEx = new StringBuilder();
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_HAPPY)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_HAPPY2)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_WINK)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_WINK2)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_SAD)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_SAD2)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_CRY)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_CRY2));
-        return Pattern.compile(smileyPatterhRegEx.toString());
+        StringBuilder smileyPatternRegEx = new StringBuilder();
+        smileyPatternRegEx.append(Pattern.quote(S_HAPPY)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_HAPPY2)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_WINK)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_WINK2)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_SAD)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_SAD2)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_CRY)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_CRY2));
+        return Pattern.compile(smileyPatternRegEx.toString());
     }
 
     public SmileyTagger() {
