@@ -71,4 +71,16 @@ public interface LocationSource {
      */
     List<Location> getLocations(List<Integer> locationIds);
 
+//    /**
+//     * <p>
+//     * Get a List of all {@link Location}s which are within a specified distance from the given {@link GeoCoordinate}.
+//     * </p>
+//     * 
+//     * @param coordinate The {@link GeoCoordinate} representing the center around which to search.
+//     * @param distance The maximum distance from the given coordinate, must be greater/equal zero.
+//     * @return A list of {@link Location}s which are within the given distance from the specified coordinate ordered by
+//     *         distance (closest first), or an empty list, if no locations are found, never <code>null</code>.
+//     */
+//    List<Location> getLocations(GeoCoordinate coordinate, double distance);
+
 }
