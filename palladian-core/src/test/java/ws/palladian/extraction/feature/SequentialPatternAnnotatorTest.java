@@ -29,7 +29,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureUtils;
+import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>

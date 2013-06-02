@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>
