@@ -1,10 +1,13 @@
 package ws.palladian.retrieval.wikipedia;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -119,6 +122,19 @@ public class WikipediaPage {
         String clean = title.replaceAll("\\s\\([^)]*\\)", "");
         clean = clean.replaceAll(",.*", "");
         return clean;
+    }
+
+    /**
+     * @return The categories links assigned to this page, or an empty List if no category links are present.
+     */
+    public List<String> getCategories() {
+        List<String> categories = CollectionHelper.newArrayList();
+        Pattern pattern = Pattern.compile("\\[\\[Category:([^|\\]]*)(?:\\|[^|\\]]*)?\\]\\]");
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            categories.add(matcher.group(1));
+        }
+        return categories;
     }
 
     @Override

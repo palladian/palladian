@@ -72,6 +72,9 @@ class WikipediaEntityContextMiner {
         }
         Validate.isTrue(contextSize > 0, "contextSize must be greater zero");
         Validate.isTrue(limit > 0, "limit must be greater zero");
+        leftContexts.clear();
+        rightContexts.clear();
+        typeCounts.clear();
         try {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
             SAXParser parser = saxParserFactory.newSAXParser();
@@ -81,7 +84,11 @@ class WikipediaEntityContextMiner {
             parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
                 @Override
                 public void callback(WikipediaPage page) {
-                    if (counter[0]++ == limit || getFreeMemory() < SizeUnit.MEGABYTES.toBytes(128)) {
+                    if (counter[0]++ == limit) {
+                        throw new StopException();
+                    }
+                    if (getFreeMemory() < SizeUnit.MEGABYTES.toBytes(128)) {
+                        LOGGER.info("Memory nearly exhausted, stopping. Make sure to assign lots of heap memory before running!");
                         throw new StopException();
                     }
                     String pageType = page.getInfoboxType();
@@ -96,9 +103,7 @@ class WikipediaEntityContextMiner {
                 }
             }));
         } catch (StopException e) {
-            LOGGER.info("Document type statistics: {}, total documents: {}", typeCounts, typeCounts.totalSize());
-            writeContexts(leftContexts, "leftContexts_" + contextSize + ".csv");
-            writeContexts(rightContexts, "rightContexts_" + contextSize + ".csv");
+            // finished.
         } catch (FileNotFoundException e) {
             throw new IllegalStateException(e);
         } catch (ParserConfigurationException e) {
@@ -108,6 +113,9 @@ class WikipediaEntityContextMiner {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+        LOGGER.info("Document type statistics: {}, total documents: {}", typeCounts, typeCounts.totalSize());
+        writeContexts(leftContexts, "leftContexts_" + contextSize + ".csv");
+        writeContexts(rightContexts, "rightContexts_" + contextSize + ".csv");
     }
 
     private static Map<String, String> createTypeMap() {
@@ -274,8 +282,11 @@ class WikipediaEntityContextMiner {
     }
 
     public static void main(String[] args) {
-        File wikipediaDump = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
-        mineContexts(wikipediaDump, 3, 500000);
+        File wikipediaDump = new File("/Volumes/iMac HD/temp/enwiki-20130503-pages-articles.xml.bz2");
+        mineContexts(wikipediaDump, 1, Integer.MAX_VALUE);
+        mineContexts(wikipediaDump, 2, Integer.MAX_VALUE);
+        mineContexts(wikipediaDump, 3, Integer.MAX_VALUE);
+        mineContexts(wikipediaDump, 4, Integer.MAX_VALUE);
     }
 
 }
