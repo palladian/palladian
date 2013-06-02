@@ -27,10 +27,11 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.SparseFeature;
+import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>
@@ -173,8 +174,6 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
             Map<String, Normalization> normalizations) {
         if (feature instanceof NumericFeature) {
             NumericFeature numericFeature = (NumericFeature)feature;
-            // TODO this will not work always, since the name is only the last part of the feature path. Should however
-            // be possible if we provide a featureDescriptor carrying the whole path and not just the name.
             Normalization normalization = normalizations.get(numericFeature.getName());
             if (normalization != null) {
                 return normalization.apply(numericFeature.getValue());
@@ -186,6 +185,9 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
         } else if (feature instanceof NominalFeature) {
             List<String> values = getNominalValues(((NominalFeature)feature), trainables);
             return values.indexOf(feature.getValue());
+        } else if (feature instanceof SparseFeature<?>) {
+            SparseFeature sparseFeature = (SparseFeature)feature;
+            return ((Number)sparseFeature.getValue()).doubleValue();
         } else {
             throw new IllegalArgumentException("Unsupported feature type " + feature.getClass());
         }
@@ -264,11 +266,20 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
         for (String featurePath : sparseFeaturePaths) {
             List<Feature<?>> feature = FeatureUtils.getFeaturesAtPath(vector, featurePath);
             for (Feature<?> sparseFeature : feature) {
-                sparseFeatures.put(sparseFeature.getValue().toString(), sparseFeature);
+                String featureIdentifier = null;
+                // This is probably hard to understand. Not every sparse feature must have the type sparse feature (at
+                // least not at the moment).
+                if (sparseFeature instanceof SparseFeature) {
+                    SparseFeature castedSparseFeature = (SparseFeature)sparseFeature;
+                    featureIdentifier = castedSparseFeature.getName() + ":" + castedSparseFeature.getIdentifier();
+                } else {
+                    featureIdentifier = sparseFeature.getName() + ":" + sparseFeature.getValue();
+                }
+                sparseFeatures.put(featureIdentifier.toString(), sparseFeature);
 
                 if (trainingMode) {
-                    if (!indices.containsKey(sparseFeature.getValue().toString())) {
-                        indices.put(sparseFeature.getValue().toString(), currentIndex++);
+                    if (!indices.containsKey(featureIdentifier)) {
+                        indices.put(featureIdentifier, currentIndex++);
                     }
                 }
             }
@@ -289,7 +300,9 @@ public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
             }
             svm_node node = new svm_node();
             node.index = featureIndex;
-            node.value = 1.0;
+            // node.value = featureToDouble(entry.getValue(), trainables, normalizations);
+            node.value = (entry.getValue() instanceof SparseFeature) ? ((SparseFeature<Number>)entry.getValue())
+                    .getValue().getValue().doubleValue() : 1.0;
             libSvmFeatureVector.add(node);
         }
         return libSvmFeatureVector.toArray(new svm_node[libSvmFeatureVector.size()]);

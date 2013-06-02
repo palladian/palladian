@@ -23,10 +23,10 @@ import ws.palladian.classification.Instance;
 import ws.palladian.classification.discretization.Binner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureDescriptor;
-import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.utils.FeatureDescriptor;
+import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>

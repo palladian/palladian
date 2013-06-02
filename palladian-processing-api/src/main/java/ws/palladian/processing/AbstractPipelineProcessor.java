@@ -188,4 +188,27 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
     public void processingFinished() {
     }
 
+    /**
+     * <p>
+     * Provides the {@link PipelineDocument} from the default input port if one is available or {@code null} if not.
+     * Also resets the input port.
+     * </p>
+     * 
+     * @return The {@link PipelineDocument} from the default input port or {@code null}.
+     */
+    protected final PipelineDocument<?> getInput() {
+        return getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
+    }
+
+    /**
+     * <p>
+     * Sets the provided {@link PipelineDocument} as the default output of this {@link PipelineProcessor}.
+     * </p>
+     * 
+     * @param document The {@link PipelineDocument}, which is the output of this {@link PipelineProcessor}.
+     */
+    protected final void setOutput(PipelineDocument<?> document) {
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document);
+    }
+
 }

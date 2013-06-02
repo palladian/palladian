@@ -5,6 +5,8 @@ package ws.palladian.processing.features;
 
 import org.junit.Test;
 
+import ws.palladian.processing.features.utils.FeatureUtils;
+
 /**
  * <p>
  * 
@@ -18,7 +20,7 @@ public class FeatureUtilsTest {
 
     /**
      * Test method for
-     * {@link ws.palladian.processing.features.FeatureUtils#find(ws.palladian.processing.features.Feature, ws.palladian.processing.features.FeatureVector)}
+     * {@link ws.palladian.processing.features.utils.FeatureUtils#find(ws.palladian.processing.features.Feature, ws.palladian.processing.features.FeatureVector)}
      * .
      */
     @Test
