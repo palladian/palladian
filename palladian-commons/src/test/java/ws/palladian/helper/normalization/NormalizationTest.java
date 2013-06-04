@@ -29,6 +29,9 @@ public class NormalizationTest {
     @Test
     public void testGetNormalizedNumber() {
 
+        assertEquals(214, UnitNormalizer.getNormalizedNumber("214 pixel [1]"), 1);
+        assertEquals(214, UnitNormalizer.getNormalizedNumber("214pixel [1]"), 1);
+
         // System.out.println(MathHelper.getNormalizedNumber(3800,"thousand square miles"));
         assertEquals(UnitNormalizer.getNormalizedNumber(21.4, " million. [1]"), 21400000.0, 1);
         assertEquals(UnitNormalizer.getNormalizedNumber(13, " per thousand asdf asdfisdf "), 1.3, 1);
