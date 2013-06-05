@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +88,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         MultiMap<String, Location> locationMap = MultiMap.create();
 
-        MultiMap<String, Location> cache = fetchLocations(taggedEntities);
+        Map<String, Collection<Location>> cache = fetchLocations(taggedEntities);
 
         // try to find them in the database
         for (Annotated locationCandidate : taggedEntities) {
@@ -109,7 +108,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             // search entities by name
             // Collection<Location> retrievedLocations = locationSource.getLocations(entityValue,
             // EnumSet.of(Language.ENGLISH));
-            Collection<Location> retrievedLocations = cache.get(StringUtils.stripAccents(entityValue.toLowerCase()));
+            Collection<Location> retrievedLocations = cache.get(entityValue);
             
             // FIXME make nicer
             // XXX check total length, and avoid checking long capitalized words which are no acronyms (AMERICA)
@@ -120,11 +119,15 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 String temp1 = entityValue.replace(".", "");
                 String temp2 = makeAcronymSeparated(temp1);
                 retrievedLocations = CollectionHelper.newHashSet();
-                List<Location> temp = cache.get(StringUtils.stripAccents(temp1.toLowerCase()));
+                Collection<Location> temp = cache.get(temp1);
                 if (temp != null) {
                     retrievedLocations.addAll(temp);
                 }
-                temp = cache.get(StringUtils.stripAccents(temp2.toLowerCase()));
+                temp = cache.get(temp2);
+                if (temp != null) {
+                    retrievedLocations.addAll(temp);
+                }
+                temp = cache.get(StringHelper.upperCaseFirstLetter(temp1.toLowerCase()));
                 if (temp != null) {
                     retrievedLocations.addAll(temp);
                 }
@@ -248,7 +251,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return locationEntities;
     }
 
-    private MultiMap<String, Location> fetchLocations(List<? extends Annotated> annotations) {
+    private Map<String, Collection<Location>> fetchLocations(List<? extends Annotated> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
             String entityValue = annotation.getValue();
@@ -263,24 +266,13 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
             if (StringHelper.isCompletelyUppercase(entityValue) || isAcronymSeparated(entityValue)) {
                 valuesToRetrieve.add(entityValue.replace(".", ""));
+                valuesToRetrieve.add(StringHelper.upperCaseFirstLetter(entityValue.replace(".", "").toLowerCase()));
                 valuesToRetrieve.add(makeAcronymSeparated(entityValue.replace(".", "")));
                 continue;
             }
             valuesToRetrieve.add(entityValue);
         }
-        Collection<Location> locations = locationSource.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
-        // FIXME multimap ---> Map<String, Set<>>
-        MultiMap<String, Location> result = MultiMap.create();
-        for (Location location : locations) {
-            result.add(StringUtils.stripAccents(location.getPrimaryName().toLowerCase()), location);
-            Collection<AlternativeName> alternativeNames = location.getAlternativeNames();
-            for (AlternativeName alternativeName : alternativeNames) {
-                if (alternativeName.getLanguage() == null || alternativeName.getLanguage() == Language.ENGLISH) {
-                    result.add(StringUtils.stripAccents(alternativeName.getName().toLowerCase()), location);
-                }
-            }
-        }
-        return result;
+        return locationSource.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
     }
 
     private Map<String, Location> checkFinalResults(Map<String, Location> finalResultsForCheck,
@@ -557,8 +549,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public static void main(String[] args) throws PageContentExtractorException {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text40.txt");
+        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text31.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
         List<LocationAnnotation> locations = extractor.getAnnotations(cleanText);
         CollectionHelper.print(locations);

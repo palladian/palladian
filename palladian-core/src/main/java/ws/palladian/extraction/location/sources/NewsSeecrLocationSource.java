@@ -2,7 +2,9 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +79,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        return getLocations(Collections.singletonList(locationName), languages);
+        return getLocations(Collections.singletonList(locationName), languages).get(locationName);
     }
 
     @Override
@@ -104,18 +106,12 @@ public final class NewsSeecrLocationSource implements LocationSource {
         return resultString;
     }
 
-    private List<Location> parseResultArray(String jsonString) {
+    private List<Location> parseResultArray(JSONArray resultArray) throws JSONException {
         List<Location> locations = CollectionHelper.newArrayList();
-        try {
-            JSONArray resultArray = JPathHelper.get(jsonString, "results", JSONArray.class);
-            for (int i = 0; i < resultArray.length(); i++) {
-                JSONObject resultObject = resultArray.getJSONObject(i);
-                Location location = parseSingleResult(resultObject);
-                locations.add(location);
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
-                    + e.getMessage(), e);
+        for (int i = 0; i < resultArray.length(); i++) {
+            JSONObject resultObject = resultArray.getJSONObject(i);
+            Location location = parseSingleResult(resultObject);
+            locations.add(location);
         }
         return locations;
     }
@@ -158,11 +154,17 @@ public final class NewsSeecrLocationSource implements LocationSource {
     public List<Location> getLocations(List<Integer> locationIds) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + StringUtils.join(locationIds, '+'));
         String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
+        try {
+            JSONArray resultArray = new JSONObject(jsonString).getJSONArray("results");
+            return parseResultArray(resultArray);
+        } catch (JSONException e) {
+            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
+                    + e.getMessage(), e);
+        }
     }
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+    public Map<String, Collection<Location>> getLocations(Collection<String> locationNames, Set<Language> languages) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
         request.addParameter("names", StringUtils.join(locationNames, ','));
         if (languages != null && !languages.isEmpty()) {
@@ -178,7 +180,22 @@ public final class NewsSeecrLocationSource implements LocationSource {
             request.addParameter("languages", langParameter.toString());
         }
         String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
+
+        // parse the bulk response
+        try {
+            JSONObject jsonResults = new JSONObject(jsonString).getJSONObject("results");
+            Map<String, Collection<Location>> result = CollectionHelper.newHashMap();
+            @SuppressWarnings("unchecked")
+            Iterator<String> keyIterator = jsonResults.keys();
+            while (keyIterator.hasNext()) {
+                String key = keyIterator.next();
+                result.put(key, parseResultArray(jsonResults.getJSONArray(key)));
+            }
+            return result;
+        } catch (JSONException e) {
+            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
+                    + e.getMessage(), e);
+        }
     }
 
 }

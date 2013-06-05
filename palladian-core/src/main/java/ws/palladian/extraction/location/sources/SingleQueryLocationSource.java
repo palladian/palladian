@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
@@ -21,12 +22,12 @@ import ws.palladian.helper.constants.Language;
 abstract class SingleQueryLocationSource implements LocationSource {
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
-        Collection<Location> locations = CollectionHelper.newHashSet();
+    public Map<String, Collection<Location>> getLocations(Collection<String> locationNames, Set<Language> languages) {
+        Map<String, Collection<Location>> locationMap = CollectionHelper.newHashMap();
         for (String locationName : locationNames) {
-            locations.addAll(getLocations(locationName, languages));
+            locationMap.put(locationName, getLocations(locationName, languages));
         }
-        return locations;
+        return locationMap;
     }
 
     @Override

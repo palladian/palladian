@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -54,7 +57,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT IGNORE INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
-    private static final String GET_LOCATIONS_LANGUAGE = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l JOIN (SELECT id FROM locations WHERE name IN (%s) UNION SELECT locationId AS id FROM location_alternative_names WHERE alternativeName IN (%s) AND (language IS NULL OR language IN (%s))) AS ids ON l.id = ids.id LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
+    private static final String GET_LOCATIONS_LANGUAGE = "{call search_locations(?,?)}";
     private static final String GET_LOCATIONS_BY_ID = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN(%s) GROUP BY id;";
     private static final String ADD_HIERARCHY = "INSERT INTO locations SET id = ?, ancestorIds = ?, type = '', name = '' ON DUPLICATE KEY UPDATE ancestorIds = ?";
     private static final String GET_ANCESTOR_IDS = "SELECT ancestorIds FROM locations WHERE id = ?";
@@ -124,7 +127,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        return getLocations(Collections.singletonList(locationName), languages);
+        return getLocations(Collections.singletonList(locationName), languages).get(locationName);
     }
 
     /**
@@ -140,26 +143,35 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+    public Map<String, Collection<Location>> getLocations(Collection<String> locationNames, Set<Language> languages) {
         if (locationNames.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
-        String nameMask = createMask(locationNames.size());
-        String languageMask = createMask(languages.isEmpty() ? 1 : languages.size());
-        String prepStmt = String.format(GET_LOCATIONS_LANGUAGE, nameMask, nameMask, languageMask);
-        List<Object> args = CollectionHelper.newArrayList();
-        args.addAll(locationNames);
-        args.addAll(locationNames);
-        // when no language was specified, use place holder
-        if (languages.isEmpty()) {
-            args.add("''");
-        } else {
-            // else, add all languages to to arguments
-            for (Language language : languages) {
-                args.add(language.getIso6391());
+        StringBuilder languageList = new StringBuilder();
+        boolean first = true;
+        for (Language language : languages) {
+            if (first) {
+                first = false;
+            } else {
+                languageList.append(",");
             }
+            languageList.append(language.getIso6391());
         }
-        return runQuery(LOCATION_CONVERTER, prepStmt, args);
+        String names = StringUtils.join(locationNames, ',');
+        final Map<String, Collection<Location>> result = LazyMap.create(new Factory<Collection<Location>>() {
+            @Override
+            public Collection<Location> create() {
+                return CollectionHelper.newHashSet();
+            }
+        });
+        runQuery(new ResultSetCallback() {
+            @Override
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                String query = resultSet.getString("query");
+                result.get(query).add(LOCATION_CONVERTER.convert(resultSet));
+            }
+        }, GET_LOCATIONS_LANGUAGE, names, languageList.toString());
+        return result;
     }
 
     @Override
