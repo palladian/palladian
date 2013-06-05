@@ -75,15 +75,15 @@ begin
   declare currentName varchar(1024);
   -- two tables with same content; necessary because MySQL does not allow to re-use one table
   -- within a stored procedure
-  create temporary table tmp1 (query varchar(1024)) engine memory;
-  create temporary table tmp2 (query varchar(1024)) engine memory;
+  CREATE temporary table tmp1 (query varchar(1024)) engine memory;
+  CREATE temporary table tmp2 (query varchar(1024)) engine memory;
   -- split up the comma-separated query locations and store them in temporary table
   while(char_length(searchNames) > 0) do
     if (locate(',', searchNames)) then
       -- head: take first element
-      set currentName = (select substring_index(searchNames, ',', 1)); 
+      set currentName = (SELECT substring_index(searchNames, ',', 1)); 
       -- tail: remaining elements
-      set searchNames = (select substring(searchNames, char_length(currentName) + 2));
+      set searchNames = (SELECT substring(searchNames, char_length(currentName) + 2));
     else
       set currentName = searchNames;
       set searchNames = '';
@@ -93,18 +93,18 @@ begin
   end while;
   -- the query; important is to include the actual search string as first column, so that we
   -- can associate this later
-  select ids.query, l.* , lan.*, group_concat(alternativeName, '', '#', ifnull(language,'')) as alternatives
+  SELECT ids.query, l.* , lan.*, group_concat(alternativeName, '', '#', IFNULL(`language`,'')) as alternatives
   from locations l join
-  (select id, query from tmp1, locations where query = name 
+  (SELECT id, `query` FROM tmp1, locations WHERE `query` = `name`
   union
-  select locationId as id, query 
-    from tmp2, location_alternative_names 
-    where query = alternativeName and (language is null or find_in_set(language, searchLanguages) > 0)
+  SELECT locationId AS id, `query` 
+    FROM tmp2, location_alternative_names 
+    WHERE `query` = alternativeName AND (`language` IS NULL or find_in_set(`language`, searchLanguages) > 0)
   ) as ids
   on l.id = ids.id left join location_alternative_names lan on l.id = lan.locationId
-  group by id, query;
-  drop temporary table if exists tmp1;
-  drop temporary table if exists tmp2;
+  group by id, `query`;
+  DROP temporary table IF EXISTS tmp1;
+  DROP temporary table IF EXISTS tmp2;
 end */;;
 
 /*!50003 SET SESSION SQL_MODE=@OLD_SQL_MODE */;;
