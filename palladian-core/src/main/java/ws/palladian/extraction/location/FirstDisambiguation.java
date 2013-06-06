@@ -15,9 +15,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.PalladianLocationExtractor.LocationLookup;
 import ws.palladian.extraction.location.PalladianLocationExtractor.LocationTypeFilter;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
@@ -33,23 +33,21 @@ public class FirstDisambiguation implements LocationDisambiguation {
     }
 
     @Override
-    public List<LocationAnnotation> disambiguate(List<Annotated> taggedEntities, LocationLookup cache) {
+    public List<LocationAnnotation> disambiguate(List<Annotated> taggedEntities, MultiMap<String, Location> locations) {
 
         List<LocationAnnotation> locationEntities = CollectionHelper.newArrayList();
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
-        MultiMap<String, Location> locationMap = MultiMap.create();
+        MultiMap<String, Location> locationMap = DefaultMultiMap.createWithSet();
 
         // try to find them in the database
         for (Annotated locationCandidate : taggedEntities) {
 
             String entityValue = locationCandidate.getValue();
 
-            entityValue = PalladianLocationExtractor.cleanName(entityValue);
+            entityValue = LocationExtractorUtils.normalize(entityValue);
 
             // search entities by name
-            // Collection<Location> retrievedLocations = locationSource.getLocations(entityValue,
-            // EnumSet.of(Language.ENGLISH));
-            Collection<Location> retrievedLocations = cache.get(entityValue);
+            Collection<Location> retrievedLocations = locations.get(entityValue);
 
             if (retrievedLocations == null) {
                 continue;
@@ -111,7 +109,7 @@ public class FirstDisambiguation implements LocationDisambiguation {
 
         Set<Location> consolidatedLocations = CollectionHelper.newHashSet();
         consolidatedLocations.addAll(anchorLocations);
-        for (List<Location> temp : locationMap.values()) {
+        for (Collection<Location> temp : locationMap.values()) {
             consolidatedLocations.addAll(temp);
         }
 
@@ -124,7 +122,7 @@ public class FirstDisambiguation implements LocationDisambiguation {
             LocationAnnotation annotation = iterator.next();
             String entityValue = annotation.getValue();
 
-            entityValue = PalladianLocationExtractor.cleanName(entityValue);
+            entityValue = LocationExtractorUtils.normalize(entityValue);
 
             if (!locationMap.containsKey(entityValue)) {
                 iterator.remove();
@@ -195,7 +193,7 @@ public class FirstDisambiguation implements LocationDisambiguation {
 
             LOGGER.debug(locationName);
 
-            List<Location> list = ambiguousLocations.get(locationName);
+            Collection<Location> list = ambiguousLocations.get(locationName);
 
             // check each location in group
             Iterator<Location> it = list.iterator();

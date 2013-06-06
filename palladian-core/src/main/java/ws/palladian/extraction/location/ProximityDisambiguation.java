@@ -13,9 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.PalladianLocationExtractor.LocationLookup;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
 public class ProximityDisambiguation implements LocationDisambiguation {
@@ -26,25 +26,25 @@ public class ProximityDisambiguation implements LocationDisambiguation {
     private static final int DISTANCE_THRESHOLD = 150;
 
     @Override
-    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, LocationLookup cache) {
+    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
         // System.out.println(cache.toString());
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
-        Collection<Location> anchorLocations = getAnchors(annotations, cache);
+        Collection<Location> anchorLocations = getAnchors(annotations, locations);
 
         for (Annotated annotation : annotations) {
-            Collection<Location> locations = cache.get(annotation.getValue());
-            LOGGER.debug("{} -> {}", annotation.getValue(), locations);
+            Collection<Location> currentLocations = locations.get(annotation.getValue());
+            LOGGER.debug("{} -> {}", annotation.getValue(), currentLocations);
             if (locations.isEmpty()) {
                 continue; // no match
             }
 
             Collection<Location> otherAnchors = new HashSet<Location>(anchorLocations);
-            otherAnchors.removeAll(locations);
+            otherAnchors.removeAll(currentLocations);
 
             Set<Location> selection = CollectionHelper.newHashSet();
-            for (Location current : locations) {
+            for (Location current : currentLocations) {
                 if (anchorLocations.contains(current)) {
                     selection.add(current);
                     continue;
@@ -116,8 +116,8 @@ public class ProximityDisambiguation implements LocationDisambiguation {
         return childString.endsWith(parentString) && child.getPopulation() > 5000;
     }
 
-    public static Collection<Location> getAnchors(List<Annotated> annotations, LocationLookup cache) {
-        Collection<Location> allLocations = cache.getAll();
+    public static Collection<Location> getAnchors(List<Annotated> annotations, MultiMap<String, Location> cache) {
+        Collection<Location> allLocations = cache.allValues();
         Collection<Location> anchorLocations = CollectionHelper.newHashSet();
 
         for (Annotated annotation : annotations) {

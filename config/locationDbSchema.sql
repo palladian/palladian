@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-05-29 21:30:04 +0000
+# Erstellungsdauer: 2013-06-04 19:45:40 +0000
 # ************************************************************
 
 
@@ -59,6 +59,56 @@ CREATE TABLE `locations` (
 
 
 
+
+--
+-- Dumping routines (PROCEDURE) for database 'locations'
+--
+DELIMITER ;;
+
+# Dump of PROCEDURE search_locations
+# ------------------------------------------------------------
+
+/*!50003 DROP PROCEDURE IF EXISTS `search_locations` */;;
+/*!50003 SET SESSION SQL_MODE=""*/;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `search_locations`(in searchNames varchar(1048576), in searchLanguages varchar(512))
+begin
+  declare currentName varchar(1024);
+  -- two tables with same content; necessary because MySQL does not allow to re-use one table
+  -- within a stored procedure
+  CREATE temporary table tmp1 (query varchar(1024)) engine memory;
+  CREATE temporary table tmp2 (query varchar(1024)) engine memory;
+  -- split up the comma-separated query locations and store them in temporary table
+  while(char_length(searchNames) > 0) do
+    if (locate(',', searchNames)) then
+      -- head: take first element
+      set currentName = (SELECT substring_index(searchNames, ',', 1)); 
+      -- tail: remaining elements
+      set searchNames = (SELECT substring(searchNames, char_length(currentName) + 2));
+    else
+      set currentName = searchNames;
+      set searchNames = '';
+    end if;
+    insert into tmp1 values(currentName);
+    insert into tmp2 values(currentName);
+  end while;
+  -- the query; important is to include the actual search string as first column, so that we
+  -- can associate this later
+  SELECT ids.query, l.* , lan.*, group_concat(alternativeName, '', '#', IFNULL(`language`,'')) as alternatives
+  from locations l join
+  (SELECT id, `query` FROM tmp1, locations WHERE `query` = `name`
+  union
+  SELECT locationId AS id, `query` 
+    FROM tmp2, location_alternative_names 
+    WHERE `query` = alternativeName AND (`language` IS NULL or find_in_set(`language`, searchLanguages) > 0)
+  ) as ids
+  on l.id = ids.id left join location_alternative_names lan on l.id = lan.locationId
+  group by id, `query`;
+  DROP temporary table IF EXISTS tmp1;
+  DROP temporary table IF EXISTS tmp2;
+end */;;
+
+/*!50003 SET SESSION SQL_MODE=@OLD_SQL_MODE */;;
+DELIMITER ;
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
