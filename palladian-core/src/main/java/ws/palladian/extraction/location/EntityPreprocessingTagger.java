@@ -15,6 +15,7 @@ import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.entity.WindowSizeContextTagger;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -33,6 +34,9 @@ public class EntityPreprocessingTagger implements Tagger {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityPreprocessingTagger.class);
 
+    /** The threshold total:uppercase, above which tokens are considered being lowercase. */
+    private static final double LOWERCASE_THRESHOLD = 1.25;
+
     /** Length of the context. */
     private static final int CONTEXT_LENGTH = 5;
 
@@ -47,6 +51,7 @@ public class EntityPreprocessingTagger implements Tagger {
         InputStream inputStream = null;
         try {
             inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/caseDictionary.csv");
+            // inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/wikipediaCaseDictionary.csv");
             caseDictionary = loadCaseDictionary(inputStream);
         } finally {
             FileHelper.close(inputStream);
@@ -65,7 +70,7 @@ public class EntityPreprocessingTagger implements Tagger {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split("\t");
-                Double ratio = Double.valueOf(parts[3]);
+                Double ratio = Double.valueOf(parts[1]) / Double.valueOf(parts[2]);
                 result.put(parts[0], ratio);
             }
         });
@@ -86,14 +91,19 @@ public class EntityPreprocessingTagger implements Tagger {
             String value = annotation.getValue();
             // only annotations at sentence start are processed, but if the annotation also occurs within a sentence, no
             // processing is required
-            if (!isAtSentenceStart(annotation) || inSentence.contains(value)) {
+            if (!isAtSentenceStart(annotation)) {
+                fixedAnnotations.add(annotation);
+                continue;
+            }
+            if (inSentence.contains(value)) {
+                LOGGER.trace("Skip '{}', because it appears within a sentence", value);
                 fixedAnnotations.add(annotation);
                 continue;
             }
             String[] parts = value.split("\\s");
             if (parts.length == 1) { // filtering of single token annotations
                 double lcRatio = getLowercaseRatio(value);
-                if (lcRatio > 1.0) {
+                if (lcRatio > LOWERCASE_THRESHOLD) {
                     LOGGER.debug("Drop '{}' because of lc/uc ratio of {}", value, lcRatio);
                     continue;
                 } else if (lowercaseTokens.contains(value.toLowerCase())) {
@@ -107,7 +117,7 @@ public class EntityPreprocessingTagger implements Tagger {
                 String newValue = value;
                 for (String token : parts) {
                     double lcRatio = getLowercaseRatio(token);
-                    if (lcRatio <= 1.0) {
+                    if (lcRatio <= LOWERCASE_THRESHOLD) {
                         LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
                                 newValue, lcRatio});
                         break;
@@ -166,7 +176,9 @@ public class EntityPreprocessingTagger implements Tagger {
         Set<String> inSentence = CollectionHelper.newHashSet();
         for (ContextAnnotation annotation : annotations) {
             if (!isAtSentenceStart(annotation)) {
-                inSentence.add(annotation.getValue());
+                String value = annotation.getValue();
+                LOGGER.trace("Add '{}' to in-sentence candidates ({})", value, annotation.getLeftContext());
+                inSentence.add(value);
             }
         }
         return inSentence;
@@ -179,7 +191,8 @@ public class EntityPreprocessingTagger implements Tagger {
      * @return
      */
     private static boolean isAtSentenceStart(ContextAnnotation annotation) {
-        return annotation.getLeftContext().matches(".*[.:?!]\\s+|.*\n{2,}|$^");
+        // return annotation.getLeftContext().matches(".*[.:?!]\\s+|.*\n{2,}|$^");
+        return annotation.getLeftContext().matches(".*[.:?!][^A-Za-z0-9]+|.*\n{2,}|$^");
     }
 
     /**
@@ -191,6 +204,13 @@ public class EntityPreprocessingTagger implements Tagger {
     private double getLowercaseRatio(String value) {
         Double ratio = caseDictionary.get(value.toLowerCase());
         return ratio == null ? 0 : ratio;
+    }
+
+    public static void main(String[] args) {
+        EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+        List<Annotated> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
+                .readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text27.txt")));
+        CollectionHelper.print(annotations);
     }
 
 }

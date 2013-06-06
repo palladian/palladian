@@ -415,7 +415,7 @@ public final class CollectionHelper {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
 
-        MultiMap<V, I> result = MultiMap.create();
+        MultiMap<V, I> result = DefaultMultiMap.createWithList();
         for (I item : iterable) {
             result.add(function.compute(item), item);
         }

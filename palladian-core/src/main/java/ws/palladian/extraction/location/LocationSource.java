@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -42,10 +43,10 @@ public interface LocationSource {
      * @param languages A set of {@link Language}s in which the given name must be, not <code>null</code>. Names in
      *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
      *            language always match.
-     * @return A collection of locations, each matching any of the given names, or an empty collection, if no matches
-     *         were found, never <code>null</code>.
+     * @return A map containing the given query names as keys and the found locations as value collections, or empty
+     *         collections, if no matches were found, never <code>null</code>.
      */
-    Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages);
+    MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages);
 
     /**
      * <p>

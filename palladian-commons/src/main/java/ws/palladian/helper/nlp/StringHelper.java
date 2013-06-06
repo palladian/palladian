@@ -63,19 +63,28 @@ public final class StringHelper {
      * @return The safe name.
      */
     public static String makeSafeName(String name, int maxLength) {
-        String safeName = name.replace(" ", "_");
-        safeName = safeName.replace("/", "_");
+        String safeName = name.replace(" ", "-");
+        safeName = safeName.replace("/", "-");
         safeName = safeName.replace("'", "");
+        safeName = safeName.replace("`", "");
+        safeName = safeName.replace("´", "");
         safeName = safeName.replace("%", "");
-        safeName = safeName.replace("&", "_");
+        safeName = safeName.replace("&", "-");
+        safeName = safeName.replace("#", "-");
+        safeName = safeName.replace("$", "-");
+        safeName = safeName.replace("§", "-");
         safeName = safeName.replace("\"", "");
-        safeName = safeName.replace(",", "_");
-        safeName = safeName.replace("*", "_");
-        safeName = safeName.replace(".", "_");
-        safeName = safeName.replace(";", "_");
-        safeName = safeName.replace(":", "_");
+        safeName = safeName.replace(",", "-");
+        safeName = safeName.replace("*", "-");
+        safeName = safeName.replace(".", "-");
+        safeName = safeName.replace(";", "-");
+        safeName = safeName.replace(":", "-");
+        safeName = safeName.replace("|", "-");
         safeName = safeName.replace("!", "");
         safeName = safeName.replace("?", "");
+        safeName = safeName.replace(">", "");
+        safeName = safeName.replace("<", "");
+        safeName = safeName.replace("^", "");
         safeName = safeName.replace("ä", "ae");
         safeName = safeName.replace("Ä", "Ae");
         safeName = safeName.replace("ö", "oe");

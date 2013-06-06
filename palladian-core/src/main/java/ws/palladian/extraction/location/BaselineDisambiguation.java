@@ -3,8 +3,8 @@ package ws.palladian.extraction.location;
 import java.util.Collection;
 import java.util.List;
 
-import ws.palladian.extraction.location.PalladianLocationExtractor.LocationLookup;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
 /**
@@ -15,16 +15,16 @@ import ws.palladian.processing.features.Annotated;
 public class BaselineDisambiguation implements LocationDisambiguation {
 
     @Override
-    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, LocationLookup cache) {
+    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
         // only get anchor locations
         for (Annotated annotation : annotations) {
-            Collection<Location> locations = cache.get(annotation.getValue());
+            Collection<Location> currentLocations = locations.get(annotation.getValue());
 
             Location selectedLocation = null;
             long maxPopulation = 0;
-            for (Location location : locations) {
+            for (Location location : currentLocations) {
                 LocationType type = location.getType();
                 if (type == LocationType.CONTINENT || type == LocationType.COUNTRY) {
                     selectedLocation = location;
