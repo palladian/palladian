@@ -21,6 +21,9 @@ public class WikipediaPage {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
 
+    /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
+    public static final int MAIN_NAMESPACE = 0;
+
     private final int pageId;
     private final int namespaceId;
     private final String title;
