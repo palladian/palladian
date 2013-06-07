@@ -35,7 +35,7 @@ public class EntityPreprocessingTagger implements Tagger {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityPreprocessingTagger.class);
 
     /** The threshold total:uppercase, above which tokens are considered being lowercase. */
-    private static final double LOWERCASE_THRESHOLD = 1.25;
+    private static final double LOWERCASE_THRESHOLD = 1.75;
 
     /** Length of the context. */
     private static final int CONTEXT_LENGTH = 5;
@@ -51,7 +51,6 @@ public class EntityPreprocessingTagger implements Tagger {
         InputStream inputStream = null;
         try {
             inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/caseDictionary.csv");
-            // inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/wikipediaCaseDictionary.csv");
             caseDictionary = loadCaseDictionary(inputStream);
         } finally {
             FileHelper.close(inputStream);

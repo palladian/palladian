@@ -30,6 +30,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;

@@ -8,7 +8,9 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
 /**
+ * <p>
  * Baseline disambiguation using maximum population heuristic.
+ * </p>
  * 
  * @author Philipp Katz
  */
@@ -18,10 +20,8 @@ public class BaselineDisambiguation implements LocationDisambiguation {
     public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
-        // only get anchor locations
         for (Annotated annotation : annotations) {
             Collection<Location> currentLocations = locations.get(annotation.getValue());
-
             Location selectedLocation = null;
             long maxPopulation = 0;
             for (Location location : currentLocations) {

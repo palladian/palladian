@@ -7,6 +7,6 @@ import ws.palladian.processing.features.Annotated;
 
 public interface LocationDisambiguation {
 
-    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations);
+    List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations);
 
 }
