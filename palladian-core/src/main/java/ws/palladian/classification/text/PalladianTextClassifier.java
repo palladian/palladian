@@ -44,15 +44,20 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
     public DictionaryModel train(Iterable<? extends Trainable> trainables) {
         DictionaryModel model = new DictionaryModel(featureSetting);
         for (Trainable trainable : trainables) {
-            process(trainable);
-            String targetClass = trainable.getTargetClass();
-            List<PositionAnnotation> annotations = trainable.getFeatureVector().getAll(PositionAnnotation.class,
-                    BaseTokenizer.PROVIDED_FEATURE);
-            for (PositionAnnotation annotation : annotations) {
-                model.updateTerm(annotation.getValue(), targetClass);
-            }
-            model.addCategory(targetClass);
+            updateModel(trainable, model);
         }
+        return model;
+    }
+
+    public DictionaryModel updateModel(Trainable trainable, DictionaryModel model) {
+        process(trainable);
+        String targetClass = trainable.getTargetClass();
+        List<PositionAnnotation> annotations = trainable.getFeatureVector().getAll(PositionAnnotation.class,
+                BaseTokenizer.PROVIDED_FEATURE);
+        for (PositionAnnotation annotation : annotations) {
+            model.updateTerm(annotation.getValue(), targetClass);
+        }
+        model.addCategory(targetClass);
         return model;
     }
 
@@ -76,7 +81,7 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
                 }
             }
         }
-        
+
         // If we have a category weight by matching terms from the document, use them to create the probability
         // distribution. Else wise return the prior probability distribution of the categories.
         CategoryEntriesMap categories;
