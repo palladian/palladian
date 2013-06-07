@@ -96,9 +96,6 @@ public class WikipediaLocationImporter {
         return Collections.unmodifiableMap(map);
     }
 
-    /** The main namespace for import. Other namespaces contain meta pages, like discussions etc. */
-    private static final int MAIN_NAMESPACE = 0;
-
     private final LocationStore locationStore;
 
     private final Map<String, Integer> locationNamesIds;
@@ -166,7 +163,7 @@ public class WikipediaLocationImporter {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (page.isRedirect()) {
@@ -220,7 +217,7 @@ public class WikipediaLocationImporter {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (!page.isRedirect()) {

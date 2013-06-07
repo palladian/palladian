@@ -100,6 +100,15 @@ public final class WikipediaUtil {
         return builder.toString();
     }
 
+    public static String extractSentences(String text) {
+        // remove lines which do not contain a sentence and bulleted items
+        Pattern pattern = Pattern.compile("^(\\*.*|.*\\w)$", Pattern.MULTILINE);
+        String result = pattern.matcher(text).replaceAll("");
+        result = result.replaceAll("\n{2,}", "\n\n");
+        result = result.trim();
+        return result;
+    }
+
     private WikipediaUtil() {
         // leave me alone!
     }
