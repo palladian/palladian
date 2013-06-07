@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import ws.palladian.extraction.location.sources.importers.MultiStreamBZip2InputStream;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -32,6 +31,7 @@ import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;

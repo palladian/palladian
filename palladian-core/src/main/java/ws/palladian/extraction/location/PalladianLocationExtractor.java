@@ -1,8 +1,8 @@
 package ws.palladian.extraction.location;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
@@ -39,30 +38,13 @@ public class PalladianLocationExtractor extends LocationExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLocationExtractor.class);
 
     // words that are unlikely to be a location
-    private static final Set<String> skipWords;
-
-    private final LocationSource locationSource;
-    private final LocationDisambiguation disambiguation;
-
-    private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
+    private static final Set<String> skipWords = loadSkipWords();
 
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
 
-    static {
-        skipWords = new HashSet<String>();
+    private final LocationSource locationSource;
 
-        FileHelper.performActionOnEveryLine(
-                PalladianLocationExtractor.class.getResourceAsStream("/locationsBlacklist.txt"), new LineAction() {
-                    @Override
-                    public void performAction(String line, int lineNumber) {
-                        if (line.isEmpty() || line.startsWith("#")) {
-                            return;
-                        }
-                        skipWords.add(line);
-                    }
-                });
-
-    }
+    private final LocationDisambiguation disambiguation;
 
     public PalladianLocationExtractor(LocationSource locationSource) {
         this.locationSource = locationSource;
@@ -70,6 +52,21 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // this.disambiguation = new BaselineDisambiguation();
         // this.disambiguation = new ProximityDisambiguation();
         // this.disambiguation = new ClusteringDisambiguation();
+    }
+
+    private static final Set<String> loadSkipWords() {
+        final Set<String> skipWords = CollectionHelper.newHashSet();
+        InputStream inputStream = PalladianLocationExtractor.class.getResourceAsStream("/locationsBlacklist.txt");
+        FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                if (line.isEmpty() || line.startsWith("#")) {
+                    return;
+                }
+                skipWords.add(line);
+            }
+        });
+        return skipWords;
     }
 
     @Override
@@ -97,10 +94,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             Annotated annotation = iterator.next();
             String entityValue = annotation.getValue();
             entityValue = LocationExtractorUtils.cleanName(entityValue);
-            boolean remove = false;
-//            boolean remove = !StringHelper.isCompletelyUppercase(entityValue)
-//                    && stopTokenRemover.isStopword(entityValue);
-            remove |= skipWords.contains(entityValue);
+            boolean remove = skipWords.contains(entityValue);
             if (remove) {
                 iterator.remove();
             }
@@ -110,13 +104,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
     private MultiMap<String, Location> fetchLocations(List<? extends Annotated> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
-            String entityValue = annotation.getValue();
-            entityValue = LocationExtractorUtils.normalize(entityValue);
+            String entityValue = LocationExtractorUtils.normalize(annotation.getValue());
             valuesToRetrieve.add(entityValue);
         }
         return locationSource.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
     }
-
 
     // FIXME -> not cool, NER learns that stuff and many more
     private static final List<String> PREFIXES = Arrays.asList("Mrs.", "Mrs", "Mr.", "Mr", "Ms.", "Ms", "President",
