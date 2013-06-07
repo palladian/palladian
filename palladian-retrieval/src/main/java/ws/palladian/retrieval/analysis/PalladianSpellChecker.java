@@ -43,7 +43,7 @@ public class PalladianSpellChecker {
         StopWatch stopWatch = new StopWatch();
 
         // read the input file and create a P(w) model by counting the word occurrences
-        final Pattern p = Pattern.compile("\\w+");
+        final Pattern p = Pattern.compile("[\\wöäüß]+");
         LineAction lineAction = new LineAction() {
 
             @Override
