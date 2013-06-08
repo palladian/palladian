@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
@@ -507,6 +508,13 @@ public final class StringHelper {
         return searchString.replaceFirst(firstWord + "(\\s|$)", "");
     }
 
+    public static String removeWords(List<String> words, String searchString) {
+        Collections.sort(words, new StringLengthComparator());
+        for (String word : words) {
+            searchString = removeWord(word, searchString);
+        }
+        return searchString;
+    }
     public static String removeWord(String word, String searchString) {
         return PATTERN_LIMITED_WHITESPACES.matcher(replaceWord(word, "", searchString)).replaceAll(" ");
     }
