@@ -2,11 +2,19 @@ package ws.palladian.extraction.location;
 
 import java.util.Collection;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.math.MathHelper;
 
+/**
+ * @author Philipp Katz
+ */
 public final class GeoUtils {
+
+    private static final String DMS_FORMAT = "%d°%d′%d″";
+    private static final String DMS_PREFIX_FORMAT = "%s" + DMS_FORMAT;
+    private static final String DMS_SUFFIX_FORMAT = DMS_FORMAT + "%s";
 
     public static final double getDistance(GeoCoordinate c1, GeoCoordinate c2) {
         Validate.notNull(c1, "c1 must not be null");
@@ -87,6 +95,68 @@ public final class GeoUtils {
         double long1 = c.getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(c.getLatitude())) * 111.04);
         double long2 = c.getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(c.getLatitude())) * 111.04);
         return new double[] {lat1, long1, lat2, long2};
+    }
+
+    /**
+     * <p>
+     * Convert decimal degrees to a DMS coordinate.
+     * </p>
+     * 
+     * @param decimal The decimal value to convert.
+     * @return The DMS string.
+     */
+    public static final String decimalToDms(double decimal) {
+        String sign = decimal < 0 ? "-" : "";
+        int[] parts = getParts(decimal);
+        return String.format(DMS_PREFIX_FORMAT, sign, parts[0], parts[1], parts[2]);
+    }
+
+    private static int[] getParts(double decimal) {
+        int[] parts = new int[3];
+        double temp = Math.abs(decimal);
+
+        parts[0] = (int)temp;
+
+        double mod = temp % 1;
+        temp = mod * 60;
+        parts[1] = (int)temp;
+
+        mod = temp % 1;
+        temp = mod * 60;
+        parts[2] = (int)temp;
+        return parts;
+    }
+
+    /**
+     * <p>
+     * Convert {@link GeoCoordinate} to DMS coordinates.
+     * </p>
+     * 
+     * @param c The coordinate to convert.
+     * @return A DMS string representing the coordinate.
+     */
+    public static final String coordinateToDms(GeoCoordinate c) {
+        Validate.notNull(c, "c must not be null");
+
+        double lat = c.getLatitude();
+        double lng = c.getLongitude();
+        int[] latParts = getParts(lat);
+        int[] lngParts = getParts(lng);
+        String latSuffix = StringUtils.EMPTY;
+        if (lat > 0) {
+            latSuffix = "N";
+        } else if (lat < 0) {
+            latSuffix = "S";
+        }
+        String lngSuffix = StringUtils.EMPTY;
+        if (lng > 0) {
+            lngSuffix = "E";
+        } else if (lng < 0) {
+            lngSuffix = "W";
+        }
+        String latString = String.format(DMS_SUFFIX_FORMAT, latParts[0], latParts[1], latParts[2], latSuffix);
+        String lngString = String.format(DMS_SUFFIX_FORMAT, lngParts[0], lngParts[1], lngParts[2], lngSuffix);
+        return latString + "," + lngString;
     }
 
     private GeoUtils() {

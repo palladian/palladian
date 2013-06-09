@@ -138,16 +138,4 @@ public class WikipediaLocationImporterTest {
         assertEquals("title,inline", locations.get(0).display);
     }
 
-    /*
-    @Test
-    public void testCleanName() {
-        assertEquals("Theater District",
-                WikipediaLocationImporter.cleanName("Theater District (San Francisco, California)"));
-        assertEquals("Oregon", WikipediaLocationImporter.cleanName("Oregon, Illinois"));
-        assertEquals("West Seneca", WikipediaLocationImporter.cleanName("West Seneca (town), New York"));
-        assertEquals("Capital of the Cocos Islands",
-                WikipediaLocationImporter.cleanName("Capital of the Cocos (Keeling) Islands"));
-    }
-    */
-
 }

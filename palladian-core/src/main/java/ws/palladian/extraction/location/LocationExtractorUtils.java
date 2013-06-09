@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import ws.palladian.helper.collection.Filter;
+
 public class LocationExtractorUtils {
 
     public static String cleanName(String value) {
@@ -17,6 +19,21 @@ public class LocationExtractorUtils {
             value = "U.S.";
         }
         return value;
+    }
+
+    static class LocationTypeFilter implements Filter<Location> {
+
+        private final LocationType type;
+
+        public LocationTypeFilter(LocationType type) {
+            this.type = type;
+        }
+
+        @Override
+        public boolean accept(Location item) {
+            return item.getType() == type;
+        }
+
     }
 
 }

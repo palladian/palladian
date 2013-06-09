@@ -48,6 +48,8 @@ import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 public class WikipediaLocationImporter {
 
     // TODO add rule-based mapping for unmapped locations (e.g. having 'university' in their names, ...)
+    // TODO extract information from infoboxes
+    // TODO extract information from geoboxes like here: http://en.wikipedia.org/wiki/Charles_River
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
