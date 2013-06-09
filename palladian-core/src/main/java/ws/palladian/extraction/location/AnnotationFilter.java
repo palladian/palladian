@@ -38,8 +38,7 @@ public class AnnotationFilter {
                 }
                 if (line.startsWith("*") && line.endsWith("*")) {
                     parts.add(line.substring(1, line.length() - 1));
-                }
-                if (line.startsWith("*")) {
+                } else if (line.startsWith("*")) {
                     suffixes.add(line.substring(1));
                 } else if (line.endsWith("*")) {
                     prefixes.add(line.substring(0, line.length() - 1));
@@ -87,6 +86,7 @@ public class AnnotationFilter {
             }
             result.add(annotation);
         }
+        LOGGER.debug("Filter removed {} annotations", annotations.size() - result.size());
         return result;
     }
 
