@@ -1,8 +1,6 @@
 package ws.palladian.extraction.location;
 
-import java.io.InputStream;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -13,7 +11,6 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.features.Annotated;
 
@@ -27,12 +24,9 @@ import ws.palladian.processing.features.Annotated;
  */
 public class PalladianLocationExtractor extends LocationExtractor {
 
-    // words that are unlikely to be a location
-    private static final Set<String> skipWords = loadSkipWords();
-
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
 
-    private final PersonNameFilter personFilter = new PersonNameFilter();
+    private final AnnotationFilter filter = new AnnotationFilter();
 
     private final LocationSource locationSource;
 
@@ -46,26 +40,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // this.disambiguation = new ClusteringDisambiguation();
     }
 
-    private static final Set<String> loadSkipWords() {
-        final Set<String> skipWords = CollectionHelper.newHashSet();
-        InputStream inputStream = PalladianLocationExtractor.class.getResourceAsStream("/locationsBlacklist.txt");
-        FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
-            @Override
-            public void performAction(String line, int lineNumber) {
-                if (line.isEmpty() || line.startsWith("#")) {
-                    return;
-                }
-                skipWords.add(line);
-            }
-        });
-        return skipWords;
-    }
-
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
         List<Annotated> taggedEntities = tagger.getAnnotations(text);
-        taggedEntities = personFilter.filterPersonNames(taggedEntities);
-        clean2(taggedEntities);
+        taggedEntities = filter.filter(taggedEntities);
 
         MultiMap<String, Location> locations = fetchLocations(taggedEntities);
 
@@ -78,19 +56,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
         locationEntities.addAll(annotatedStreets);
 
         return locationEntities;
-    }
-
-    private void clean2(List<Annotated> taggedEntities) {
-        Iterator<Annotated> iterator = taggedEntities.iterator();
-        while (iterator.hasNext()) {
-            Annotated annotation = iterator.next();
-            String entityValue = annotation.getValue();
-            entityValue = LocationExtractorUtils.cleanName(entityValue);
-            boolean remove = skipWords.contains(entityValue);
-            if (remove) {
-                iterator.remove();
-            }
-        }
     }
 
     private MultiMap<String, Location> fetchLocations(List<? extends Annotated> annotations) {
@@ -110,7 +75,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public static void main(String[] args) throws PageContentExtractorException {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text16.txt");
+        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text6.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38822240.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38765806.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38812825.txt");
