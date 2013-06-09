@@ -39,4 +39,16 @@ public class GeoUtilsTest {
         assertEquals(13.5585, boundingBox[3], 0.001);
     }
 
+    @Test
+    public void testDecToDms() {
+        assertEquals("40°26′46″", GeoUtils.decimalToDms(40.446195));
+        assertEquals("-79°56′55″", GeoUtils.decimalToDms(-79.948862));
+    }
+
+    @Test
+    public void testCoordinateToDms() {
+        assertEquals("51°1′59″N,13°43′59″E", GeoUtils.coordinateToDms(new ImmutableGeoCoordinate(51.033333, 13.733333)));
+        assertEquals("0°0′0″,0°0′0″", GeoUtils.coordinateToDms(new ImmutableGeoCoordinate(0., 0.)));
+    }
+
 }

@@ -25,7 +25,7 @@ public final class WikipediaUtil {
     private static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}([^=]*)={1,6}$", Pattern.MULTILINE);
     private static final Pattern CONVERT_PATTERN = Pattern
             .compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
-    private static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
+    public static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
     private static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
 
     public static String stripMediaWikiMarkup(String markup) {
@@ -107,6 +107,12 @@ public final class WikipediaUtil {
         result = result.replaceAll("\n{2,}", "\n\n");
         result = result.trim();
         return result;
+    }
+
+    public static String cleanTitle(String title) {
+        String clean = title.replaceAll("\\s\\([^)]*\\)", "");
+        clean = clean.replaceAll(",.*", "");
+        return clean;
     }
 
     private WikipediaUtil() {

@@ -18,6 +18,46 @@ import ws.palladian.helper.collection.CollectionHelper;
  */
 public class WikipediaPage {
 
+    /**
+     * <p>
+     * Internal link on a Wikipedia page.
+     * </p>
+     */
+    public static class WikipediaLink {
+
+        private final String destination;
+        private final String title;
+
+        public WikipediaLink(String destination, String title) {
+            this.destination = destination;
+            this.title = title;
+        }
+
+        public String getDestination() {
+            return destination;
+        }
+
+        public String getTitle() {
+            // return title != null ? title : destination;
+            return title;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("WikipediaLink [");
+            builder.append("destination=");
+            builder.append(destination);
+            if (title != null) {
+                builder.append(", title=");
+                builder.append(title);
+            }
+            builder.append("]");
+            return builder.toString();
+        }
+
+    }
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
 
@@ -122,9 +162,7 @@ public class WikipediaPage {
      * @return The title of the page, but with text in parenthesis and after comma removed.
      */
     public String getCleanTitle() {
-        String clean = title.replaceAll("\\s\\([^)]*\\)", "");
-        clean = clean.replaceAll(",.*", "");
-        return clean;
+        return WikipediaUtil.cleanTitle(title);
     }
 
     /**
@@ -138,6 +176,42 @@ public class WikipediaPage {
             categories.add(matcher.group(1));
         }
         return categories;
+    }
+
+    /**
+     * @return <code>true</code> in case this page is marked as "disambiguation page".
+     */
+    public boolean isDisambiguation() {
+        if (title.endsWith("(disambiguation)")) {
+            return true;
+        }
+        String temp = text.toLowerCase();
+        return temp.contains("{{disambig") || temp.contains("{{hndis") || temp.contains("{{geodis");
+    }
+
+    /**
+     * @return A {@link List} with all internal links on the page (sans "category:" links; they can be retrieved using
+     *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
+     */
+    public List<WikipediaLink> getLinks() {
+        List<WikipediaLink> result = CollectionHelper.newArrayList();
+        Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String target = matcher.group(1);
+            // strip fragments
+            int idx = target.indexOf('#');
+            if (idx >= 0) {
+                target = target.substring(0, idx);
+            }
+            String text = matcher.group(2);
+            // ignore category links here
+            if (target.toLowerCase().startsWith("category:")) {
+                continue;
+            }
+            result.add(new WikipediaLink(target, text));
+        }
+
+        return result;
     }
 
     @Override

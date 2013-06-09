@@ -15,7 +15,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.PalladianLocationExtractor.LocationTypeFilter;
+import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.Filter;
