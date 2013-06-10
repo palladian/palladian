@@ -30,6 +30,14 @@ final class LocationExtractorUtils {
         return child.getAncestorIds().contains(parent.getId());
     }
 
+    public static boolean isDirectChildOf(Location child, Location parent) {
+        Integer firstId = CollectionHelper.getFirst(child.getAncestorIds());
+        if (firstId == null) {
+            return false;
+        }
+        return firstId == parent.getId();
+    }
+
     public static Location getBiggest(Collection<Location> locations) {
         Location biggest = null;
         for (Location location : locations) {
