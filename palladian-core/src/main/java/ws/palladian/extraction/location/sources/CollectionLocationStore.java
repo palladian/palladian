@@ -13,6 +13,7 @@ import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
@@ -33,7 +34,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
 
     public CollectionLocationStore() {
         idLocation = CollectionHelper.newHashMap();
-        namesLocations = MultiMap.create();
+        namesLocations = DefaultMultiMap.createWithSet();
     }
 
     @Override

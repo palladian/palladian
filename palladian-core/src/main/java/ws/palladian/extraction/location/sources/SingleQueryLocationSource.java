@@ -2,12 +2,13 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -22,8 +23,8 @@ import ws.palladian.helper.constants.Language;
 abstract class SingleQueryLocationSource implements LocationSource {
 
     @Override
-    public Map<String, Collection<Location>> getLocations(Collection<String> locationNames, Set<Language> languages) {
-        Map<String, Collection<Location>> locationMap = CollectionHelper.newHashMap();
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+        MultiMap<String, Location> locationMap = DefaultMultiMap.createWithSet();
         for (String locationName : locationNames) {
             locationMap.put(locationName, getLocations(locationName, languages));
         }

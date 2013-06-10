@@ -30,6 +30,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
@@ -47,6 +48,8 @@ import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 public class WikipediaLocationImporter {
 
     // TODO add rule-based mapping for unmapped locations (e.g. having 'university' in their names, ...)
+    // TODO extract information from infoboxes
+    // TODO extract information from geoboxes like here: http://en.wikipedia.org/wiki/Charles_River
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
@@ -95,9 +98,6 @@ public class WikipediaLocationImporter {
         map.put("camera", null);
         return Collections.unmodifiableMap(map);
     }
-
-    /** The main namespace for import. Other namespaces contain meta pages, like discussions etc. */
-    private static final int MAIN_NAMESPACE = 0;
 
     private final LocationStore locationStore;
 
@@ -166,7 +166,7 @@ public class WikipediaLocationImporter {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (page.isRedirect()) {
@@ -220,7 +220,7 @@ public class WikipediaLocationImporter {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (!page.isRedirect()) {
