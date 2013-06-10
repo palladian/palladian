@@ -30,14 +30,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final LocationSource locationSource;
 
-    private final LocationDisambiguation disambiguation;
+    private final LocationDisambiguation disambiguation = new ProximityDisambiguation();
 
     public PalladianLocationExtractor(LocationSource locationSource) {
         this.locationSource = locationSource;
-        // this.disambiguation = new FirstDisambiguation(locationSource);
-        // this.disambiguation = new BaselineDisambiguation();
-        this.disambiguation = new ProximityDisambiguation();
-        // this.disambiguation = new ClusteringDisambiguation();
     }
 
     @Override
@@ -75,7 +71,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public static void main(String[] args) throws PageContentExtractorException {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text6.txt");
+        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text34.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38822240.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38765806.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38812825.txt");

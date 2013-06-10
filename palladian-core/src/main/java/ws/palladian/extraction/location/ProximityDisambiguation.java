@@ -17,16 +17,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
+import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
+/**
+ * <p>
+ * Disambiguation strategy based on anchor locations, and proximities.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class ProximityDisambiguation implements LocationDisambiguation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ProximityDisambiguation.class);
 
+    /** Maximum distance for anchoring. */
     private static final int DISTANCE_THRESHOLD = 150;
+
+    /** Minimum population for anchoring. */
+    private static final int LOWER_POPULATION_THRESHOLD = 5000;
+
+    /** Minimum population for a location to become anchor. */
+    private static final int ANCHOR_POPULATION_THRESHOLD = 1000000;
+
+    /** Maximum distance between two locations with equal name, to assume they are the same. */
+    private static final int SAME_DISTANCE_THRESHOLD = 50;
 
     @Override
     public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
@@ -53,6 +71,7 @@ public class ProximityDisambiguation implements LocationDisambiguation {
 
             for (Location candidate : candidates) {
                 if (anchors.contains(candidate)) {
+                    LOGGER.debug("{} is in anchors", candidate);
                     preselection.add(candidate);
                     continue;
                 }
@@ -63,7 +82,8 @@ public class ProximityDisambiguation implements LocationDisambiguation {
                         LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
                         preselection.add(candidate);
                     } else if (anchorType == CITY || anchorType == UNIT || anchorType == COUNTRY) {
-                        if (LocationExtractorUtils.isChildOf(candidate, anchor) && candidate.getPopulation() > 5000) {
+                        if (LocationExtractorUtils.isChildOf(candidate, anchor)
+                                && candidate.getPopulation() > LOWER_POPULATION_THRESHOLD) {
                             LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
                             preselection.add(candidate);
                         }
@@ -78,35 +98,40 @@ public class ProximityDisambiguation implements LocationDisambiguation {
         return result;
     }
 
-    // XXX copied from old code.
-    /**
-     * Select one location when multiple were retrieved.
-     * 
-     * @param retrievedLocations
-     * @return
-     */
-    private Location selectLocation(Collection<Location> retrievedLocations) {
-        List<Location> temp = new ArrayList<Location>(retrievedLocations);
+    private static Location selectLocation(Collection<Location> selection) {
+
+        // if we have a continent, take the continent
+        Set<Location> result = LocationExtractorUtils.filterConditionally(selection, new LocationTypeFilter(CONTINENT));
+        if (result.size() == 1) {
+            return CollectionHelper.getFirst(result);
+        }
+
+        List<Location> temp = new ArrayList<Location>(selection);
         Collections.sort(temp, new Comparator<Location>() {
             @Override
             public int compare(Location l1, Location l2) {
-                if (l1.getType() != l2.getType()) {
-                    if (l1.getType() == CONTINENT) {
-                        return -1;
-                    }
-                    if (l2.getType() == CONTINENT) {
-                        return 1;
-                    }
+
+                // if locations are nested, take the "deepest" one
+                if (LocationExtractorUtils.isDirectChildOf(l2, l1)) {
+                    return 1;
+                } else if (LocationExtractorUtils.isDirectChildOf(l1, l2)) {
+                    return -1;
                 }
-                Long l1Population = l1.getPopulation();
-                Long l2Population = l2.getPopulation();
+
+                // as last step, compare by population
+                Long p1 = l1.getPopulation() != null ? l1.getPopulation() : 0;
+                Long p2 = l2.getPopulation() != null ? l2.getPopulation() : 0;
+
+                // XXX dirty hack; favor cities
                 if (l1.getType() == CITY) {
-                    l1Population *= 2;
+                    p1 *= 2;
                 }
                 if (l2.getType() == CITY) {
-                    l2Population *= 2;
+                    p2 *= 2;
                 }
-                return l2Population.compareTo(l1Population);
+
+                return p2.compareTo(p1);
+
             }
         });
         return CollectionHelper.getFirst(temp);
@@ -119,7 +144,7 @@ public class ProximityDisambiguation implements LocationDisambiguation {
         for (Location location : locations.allValues()) {
             LocationType type = location.getType();
             long population = location.getPopulation() != null ? location.getPopulation() : 0;
-            if (type == CONTINENT || type == COUNTRY || population > 1000000) {
+            if (type == CONTINENT || type == COUNTRY || population > ANCHOR_POPULATION_THRESHOLD) {
                 LOGGER.debug("Prominent anchor location: {}", location);
                 anchorLocations.add(location);
             }
@@ -134,10 +159,10 @@ public class ProximityDisambiguation implements LocationDisambiguation {
             // without coordinates
             group = LocationExtractorUtils.filterConditionally(group, new CoordinateFilter());
 
-            if (LocationExtractorUtils.getLargestDistance(group) < 50) {
+            if (LocationExtractorUtils.getLargestDistance(group) < SAME_DISTANCE_THRESHOLD) {
                 for (Location location : group) {
                     long population = location.getPopulation() != null ? location.getPopulation() : 0;
-                    if (population > 5000 || name.split("\\s").length > 2) {
+                    if (population > LOWER_POPULATION_THRESHOLD || name.split("\\s").length > 2) {
                         LOGGER.debug("Unambiguous anchor location: {}", location);
                         anchorLocations.add(location);
                     }
