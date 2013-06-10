@@ -1613,7 +1613,7 @@ public final class FileHelper {
      */
     public static String addTrailingSlash(String path) {
 
-        if (!path.endsWith("/")) {
+        if (!path.endsWith("/") && !path.isEmpty()) {
             return path + "/";
         }
 
