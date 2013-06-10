@@ -34,9 +34,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     public PalladianLocationExtractor(LocationSource locationSource) {
         this.locationSource = locationSource;
-        this.disambiguation = new FirstDisambiguation(locationSource);
+        // this.disambiguation = new FirstDisambiguation(locationSource);
         // this.disambiguation = new BaselineDisambiguation();
-        // this.disambiguation = new ProximityDisambiguation();
+        this.disambiguation = new ProximityDisambiguation();
         // this.disambiguation = new ClusteringDisambiguation();
     }
 
@@ -61,7 +61,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     private MultiMap<String, Location> fetchLocations(List<? extends Annotated> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
-            String entityValue = LocationExtractorUtils.normalize(annotation.getValue());
+            String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue());
             valuesToRetrieve.add(entityValue);
         }
         return locationSource.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
@@ -69,7 +69,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     @Override
     public String getName() {
-        return "PalladianLocationExtractor";
+        return String.format("PalladianLocationExtractor:%s", disambiguation);
     }
 
     public static void main(String[] args) throws PageContentExtractorException {

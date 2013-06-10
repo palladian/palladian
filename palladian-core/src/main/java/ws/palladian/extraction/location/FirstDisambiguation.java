@@ -15,10 +15,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
@@ -44,31 +44,22 @@ public class FirstDisambiguation implements LocationDisambiguation {
 
             String entityValue = locationCandidate.getValue();
 
-            entityValue = LocationExtractorUtils.normalize(entityValue);
+            entityValue = LocationExtractorUtils.normalizeName(entityValue);
 
             // search entities by name
-            Collection<Location> retrievedLocations = locations.get(entityValue);
+            Collection<Location> candidates = locations.get(entityValue);
 
-            if (retrievedLocations == null) {
+            if (candidates == null) {
                 continue;
             }
 
             // if we retrieved locations with AND without coordinates, only keep those WITH coordinates
-            Filter<Location> coordFilter = new Filter<Location>() {
-                @Override
-                public boolean accept(Location item) {
-                    return item.getLatitude() != null && item.getLongitude() != null;
-                }
-            };
-            HashSet<Location> temp = CollectionHelper.filter(retrievedLocations, coordFilter, new HashSet<Location>());
-            if (temp.size() > 0) {
-                retrievedLocations = temp;
-            }
+            candidates = LocationExtractorUtils.filterConditionally(candidates, new CoordinateFilter());
 
-            if (retrievedLocations.isEmpty()) {
+            if (candidates.isEmpty()) {
                 continue;
             }
-            for (Location location : retrievedLocations) {
+            for (Location location : candidates) {
                 if (EnumSet.of(LocationType.CONTINENT, LocationType.COUNTRY).contains(location.getType())) {
                     anchorLocations.add(location);
                 }
@@ -82,18 +73,18 @@ public class FirstDisambiguation implements LocationDisambiguation {
 
             }
 
-            boolean ambiguous = checkAmbiguity(retrievedLocations);
+            boolean ambiguous = LocationExtractorUtils.getLargestDistance(candidates) > 50;
             if (ambiguous) {
                 LOGGER.debug("- " + entityValue + " is ambiguous!");
             } else {
-                LOGGER.debug("+ " + entityValue + " is not amiguous: " + retrievedLocations);
+                LOGGER.debug("+ " + entityValue + " is not amiguous: " + candidates);
             }
 
             if (!locationMap.containsKey(entityValue)) {
-                locationMap.addAll(entityValue, retrievedLocations);
+                locationMap.addAll(entityValue, candidates);
             }
 
-            Location location = selectLocation(retrievedLocations);
+            Location location = selectLocation(candidates);
 
             LocationAnnotation locationAnnotation = new LocationAnnotation(locationCandidate, location);
             locationEntities.add(locationAnnotation);
@@ -122,7 +113,7 @@ public class FirstDisambiguation implements LocationDisambiguation {
             LocationAnnotation annotation = iterator.next();
             String entityValue = annotation.getValue();
 
-            entityValue = LocationExtractorUtils.normalize(entityValue);
+            entityValue = LocationExtractorUtils.normalizeName(entityValue);
 
             if (!locationMap.containsKey(entityValue)) {
                 iterator.remove();
@@ -234,32 +225,6 @@ public class FirstDisambiguation implements LocationDisambiguation {
             LOGGER.debug("-----------");
         }
 
-    }
-
-    /**
-     * Check, if a Collection of {@link ImmutableLocation}s are "ambiguous". The condition of ambiguity is fulfilled, if
-     * two
-     * given Locations in the Collection have a greater distance then a specified threshold.
-     * 
-     * @param locations
-     * @return
-     */
-    public static boolean checkAmbiguity(Collection<Location> locations) {
-        if (locations.size() <= 1) {
-            return false;
-        }
-        List<Location> temp = new ArrayList<Location>(locations);
-        for (int i = 0; i < temp.size(); i++) {
-            Location location1 = temp.get(i);
-            for (int j = i + 1; j < temp.size(); j++) {
-                Location location2 = temp.get(j);
-                double distance = GeoUtils.getDistance(location1, location2);
-                if (distance > 50) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**
