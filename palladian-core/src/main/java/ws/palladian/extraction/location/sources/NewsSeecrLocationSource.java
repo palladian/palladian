@@ -2,7 +2,6 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -122,10 +121,10 @@ public final class NewsSeecrLocationSource implements LocationSource {
         Double latitude = JPathHelper.get(resultObject, "latitude", Double.class);
         Double longitude = JPathHelper.get(resultObject, "longitude", Double.class);
         String primaryName = JPathHelper.get(resultObject, "primaryName", String.class);
-        String typeString = JPathHelper.get(resultObject, "locationType", String.class);
+        String typeString = JPathHelper.get(resultObject, "type", String.class);
         Long population = JPathHelper.get(resultObject, "population", Long.class);
         List<AlternativeName> altNames = CollectionHelper.newArrayList();
-        JSONArray jsonArray = JPathHelper.get(resultObject, "alternateNames", JSONArray.class);
+        JSONArray jsonArray = JPathHelper.get(resultObject, "alternativeNames", JSONArray.class);
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject altLanguageJson = jsonArray.getJSONObject(i);
             String nameValue = altLanguageJson.getString("name");
@@ -138,15 +137,9 @@ public final class NewsSeecrLocationSource implements LocationSource {
         }
         LocationType type = LocationType.valueOf(typeString);
         List<Integer> ancestors = CollectionHelper.newArrayList();
-        String ancestorPath = JPathHelper.get(resultObject, "ancestorPath", String.class);
-        if (ancestorPath != null) {
-            String[] split = ancestorPath.split("/");
-            for (int i = split.length - 1; i >= 0; i--) {
-                String ancestorId = split[i];
-                if (StringUtils.isNotBlank(ancestorId)) {
-                    ancestors.add(Integer.valueOf(ancestorId));
-                }
-            }
+        JSONArray ancestorIds = JPathHelper.get(resultObject, "ancestorIds", JSONArray.class);
+        for (int i = 0; i < ancestorIds.length(); i++) {
+            ancestors.add(ancestorIds.getInt(i));
         }
         return new ImmutableLocation(id, primaryName, altNames, type, latitude, longitude, population, ancestors);
     }
@@ -184,13 +177,13 @@ public final class NewsSeecrLocationSource implements LocationSource {
 
         // parse the bulk response
         try {
-            JSONObject jsonResults = new JSONObject(jsonString).getJSONObject("results");
+            JSONArray jsonResults = new JSONObject(jsonString).getJSONArray("results");
             MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
-            @SuppressWarnings("unchecked")
-            Iterator<String> keyIterator = jsonResults.keys();
-            while (keyIterator.hasNext()) {
-                String key = keyIterator.next();
-                result.put(key, parseResultArray(jsonResults.getJSONArray(key)));
+            for (int i = 0; i < jsonResults.length(); i++) {
+                JSONObject currentResult = jsonResults.getJSONObject(i);
+                String query = currentResult.getString("query");
+                List<Location> locations = parseResultArray(currentResult.getJSONArray("result"));
+                result.put(query, locations);
             }
             return result;
         } catch (JSONException e) {
