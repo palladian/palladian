@@ -18,7 +18,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import ws.palladian.extraction.location.sources.importers.MultiStreamBZip2InputStream;
 import ws.palladian.helper.StopWatch;
 
 /**

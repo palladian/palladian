@@ -2,9 +2,9 @@ package ws.palladian.extraction.location;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -46,7 +46,7 @@ public interface LocationSource {
      * @return A map containing the given query names as keys and the found locations as value collections, or empty
      *         collections, if no matches were found, never <code>null</code>.
      */
-    Map<String, Collection<Location>> getLocations(Collection<String> locationNames, Set<Language> languages);
+    MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages);
 
     /**
      * <p>
@@ -71,5 +71,17 @@ public interface LocationSource {
      *         not be found, the returned list might be smaller than the list of supplied IDs.
      */
     List<Location> getLocations(List<Integer> locationIds);
+
+//    /**
+//     * <p>
+//     * Get a List of all {@link Location}s which are within a specified distance from the given {@link GeoCoordinate}.
+//     * </p>
+//     * 
+//     * @param coordinate The {@link GeoCoordinate} representing the center around which to search.
+//     * @param distance The maximum distance from the given coordinate, must be greater/equal zero.
+//     * @return A list of {@link Location}s which are within the given distance from the specified coordinate ordered by
+//     *         distance (closest first), or an empty list, if no locations are found, never <code>null</code>.
+//     */
+//    List<Location> getLocations(GeoCoordinate coordinate, double distance);
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author Philipp Katz
  */
-public interface Location {
+public interface Location extends GeoCoordinate {
 
     /**
      * @return The unique identifier of this location.
@@ -43,16 +43,6 @@ public interface Location {
      *         <code>null</code>.
      */
     LocationType getType();
-
-    /**
-     * @return The geographical latitude of this location, or <code>null</code> if no coordinates exist.
-     */
-    Double getLatitude();
-
-    /**
-     * @return The geographical longitude of this location, or <code>null</code> if no coordinates exist.
-     */
-    Double getLongitude();
 
     /**
      * @return The population of this location, or <code>null</code> if no population values exist.

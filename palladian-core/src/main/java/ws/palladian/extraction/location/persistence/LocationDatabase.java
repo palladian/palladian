@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -18,13 +17,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
-import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.collection.DefaultMultiMap;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -63,6 +65,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     private static final String GET_ANCESTOR_IDS = "SELECT ancestorIds FROM locations WHERE id = ?";
     private static final String UPDATE_HIERARCHY = "UPDATE locations SET ancestorIds = CONCAT(?, ancestorIds) WHERE ancestorIds LIKE ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
+    private static final String GET_LOCATIONS_BY_COORDINATE = "SELECT l.*, lan.*, GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives, 6371 * 2 * ASIN(SQRT(POWER(SIN(RADIANS(? - ABS(latitude))), 2) + COS(RADIANS(?)) * COS(RADIANS(ABS(latitude))) * POWER(SIN(RADIANS(? - longitude)), 2))) AS distance FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ? GROUP BY id HAVING distance < ? ORDER BY distance;";
 
     // ////////////////// row converts ////////////////////////////////////
     private static final RowConverter<Location> LOCATION_CONVERTER = new RowConverter<Location>() {
@@ -143,9 +146,10 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     }
 
     @Override
-    public Map<String, Collection<Location>> getLocations(Collection<String> locationNames, Set<Language> languages) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+        final MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
         if (locationNames.isEmpty()) {
-            return Collections.emptyMap();
+            return result;
         }
         StringBuilder languageList = new StringBuilder();
         boolean first = true;
@@ -158,17 +162,11 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             languageList.append(language.getIso6391());
         }
         String names = StringUtils.join(locationNames, ',');
-        final Map<String, Collection<Location>> result = LazyMap.create(new Factory<Collection<Location>>() {
-            @Override
-            public Collection<Location> create() {
-                return CollectionHelper.newHashSet();
-            }
-        });
         runQuery(new ResultSetCallback() {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 String query = resultSet.getString("query");
-                result.get(query).add(LOCATION_CONVERTER.convert(resultSet));
+                result.add(query, LOCATION_CONVERTER.convert(resultSet));
             }
         }, GET_LOCATIONS_LANGUAGE, names, languageList.toString());
         return result;
@@ -301,6 +299,22 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     public int getHighestId() {
         Integer id = runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
         return id != null ? id : 0;
+    }
+
+    // @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        // see http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/
+        double[] box = GeoUtils.getBoundingBox(coordinate, distance);
+        Double lat = coordinate.getLatitude();
+        Double lng = coordinate.getLongitude();
+        Object[] args = new Object[] {lat, lat, lng, box[0], box[2], box[1], box[3], distance};
+        return runQuery(LOCATION_CONVERTER, GET_LOCATIONS_BY_COORDINATE, args);
+    }
+
+    public static void main(String[] args) {
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        List<Location> locations = database.getLocations(new ImmutableGeoCoordinate(49.1, 9.216667), 10);
+        CollectionHelper.print(locations);
     }
 
 }

@@ -13,9 +13,9 @@ import ws.palladian.helper.io.StringOutputStream;
  * This class should provide convenience methods for interacting with the OS functionality.
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
-public class ProcessHelper {
+public final class ProcessHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessHelper.class);
@@ -54,6 +54,15 @@ public class ProcessHelper {
         }
 
         return result.toString();
+    }
+
+    public static final long getFreeMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+    }
+
+    private ProcessHelper() {
+
     }
 
 }
