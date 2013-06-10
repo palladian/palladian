@@ -1,6 +1,7 @@
 package ws.palladian.extraction.entity.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
@@ -171,7 +173,7 @@ public class EvaluationResult {
                 return CountMap.create();
             }
         });
-        this.resultAnnotations = MultiMap.create();
+        this.resultAnnotations = DefaultMultiMap.createWithList();
         this.confusionMatrix = new ConfusionMatrix();
         this.actualAssignments = CountMap.create();
         this.possibleAssignments = CountMap.create();
@@ -475,7 +477,7 @@ public class EvaluationResult {
     }
 
     int getResultTypeCount(ResultType resultType) {
-        List<Annotated> annotations = resultAnnotations.get(resultType);
+        Collection<Annotated> annotations = resultAnnotations.get(resultType);
         return annotations != null ? annotations.size() : 0;
     }
 
@@ -499,9 +501,10 @@ public class EvaluationResult {
         return assignments.get(tagName).getCount(resultType);
     }
 
-    public List<Annotated> getAnnotations(ResultType resultType) {
-        List<Annotated> annotations = resultAnnotations.get(resultType);
-        return annotations != null ? Collections.unmodifiableList(annotations) : Collections.<Annotated> emptyList();
+    public Collection<Annotated> getAnnotations(ResultType resultType) {
+        Collection<Annotated> annotations = resultAnnotations.get(resultType);
+        return annotations != null ? Collections.unmodifiableCollection(annotations) : Collections
+                .<Annotated> emptyList();
     }
 
     /**
