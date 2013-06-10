@@ -1,20 +1,23 @@
 package ws.palladian.extraction.location;
 
+import static ws.palladian.extraction.location.LocationType.CITY;
+import static ws.palladian.extraction.location.LocationType.CONTINENT;
+import static ws.palladian.extraction.location.LocationType.COUNTRY;
+import static ws.palladian.extraction.location.LocationType.UNIT;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
@@ -27,48 +30,49 @@ public class ProximityDisambiguation implements LocationDisambiguation {
 
     @Override
     public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
-        // System.out.println(cache.toString());
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
-        Collection<Location> anchorLocations = getAnchors(annotations, locations);
+        Set<Location> anchors = getAnchors(locations);
 
         for (Annotated annotation : annotations) {
-            Collection<Location> currentLocations = locations.get(annotation.getValue());
-            LOGGER.debug("{} -> {}", annotation.getValue(), currentLocations);
-            if (locations.isEmpty()) {
-                continue; // no match
+            String value = LocationExtractorUtils.normalizeName(annotation.getValue());
+            Collection<Location> candidates = locations.get(value);
+            if (candidates.isEmpty()) {
+                LOGGER.debug("'{}' could not be found and will be dropped", annotation.getValue());
+                continue;
             }
 
-            Collection<Location> otherAnchors = new HashSet<Location>(anchorLocations);
-            otherAnchors.removeAll(currentLocations);
+            LOGGER.debug("'{}' has {} candidates", annotation.getValue(), candidates.size());
 
-            Set<Location> selection = CollectionHelper.newHashSet();
-            for (Location current : currentLocations) {
-                if (anchorLocations.contains(current)) {
-                    selection.add(current);
+            // for distance checks below, only consider anchor locations, which are not in the current candidate set
+            Collection<Location> currentAnchors = new HashSet<Location>(anchors);
+            currentAnchors.removeAll(candidates);
+
+            Set<Location> preselection = CollectionHelper.newHashSet();
+
+            for (Location candidate : candidates) {
+                if (anchors.contains(candidate)) {
+                    preselection.add(candidate);
                     continue;
                 }
-                for (Location other : otherAnchors) {
-                    double distance = GeoUtils.getDistance(current, other);
-                    // LOGGER.debug("Distance to anchors for {} is {}", current, distance);
+                for (Location anchor : currentAnchors) {
+                    double distance = GeoUtils.getDistance(candidate, anchor);
+                    LocationType anchorType = anchor.getType();
                     if (distance < DISTANCE_THRESHOLD) {
-                        selection.add(current);
-                    }
-
-                    if (EnumSet.of(LocationType.CITY, LocationType.UNIT, LocationType.COUNTRY)
-                            .contains(other.getType())) {
-                        boolean isChildOfAnchors = isChildOf(current, other);
-                        if (isChildOfAnchors) {
-                            LOGGER.debug("{} is child of anchor {}", current, other);
-                            selection.add(current);
+                        LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
+                        preselection.add(candidate);
+                    } else if (anchorType == CITY || anchorType == UNIT || anchorType == COUNTRY) {
+                        if (LocationExtractorUtils.isChildOf(candidate, anchor) && candidate.getPopulation() > 5000) {
+                            LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
+                            preselection.add(candidate);
                         }
                     }
                 }
             }
-            if (selection.size() > 0) {
-                Location best = selectLocation(selection);
-                result.add(new LocationAnnotation(annotation, best));
+            if (preselection.size() > 0) {
+                Location selection = selectLocation(preselection);
+                result.add(new LocationAnnotation(annotation, selection));
             }
         }
         return result;
@@ -87,19 +91,19 @@ public class ProximityDisambiguation implements LocationDisambiguation {
             @Override
             public int compare(Location l1, Location l2) {
                 if (l1.getType() != l2.getType()) {
-                    if (l1.getType() == LocationType.CONTINENT) {
+                    if (l1.getType() == CONTINENT) {
                         return -1;
                     }
-                    if (l2.getType() == LocationType.CONTINENT) {
+                    if (l2.getType() == CONTINENT) {
                         return 1;
                     }
                 }
                 Long l1Population = l1.getPopulation();
                 Long l2Population = l2.getPopulation();
-                if (l1.getType() == LocationType.CITY) {
+                if (l1.getType() == CITY) {
                     l1Population *= 2;
                 }
-                if (l2.getType() == LocationType.CITY) {
+                if (l2.getType() == CITY) {
                     l2Population *= 2;
                 }
                 return l2Population.compareTo(l1Population);
@@ -108,96 +112,50 @@ public class ProximityDisambiguation implements LocationDisambiguation {
         return CollectionHelper.getFirst(temp);
     }
 
-    public static boolean isChildOf(Location child, Location parent) {
-        String childString = StringUtils.join(child.getAncestorIds(), "/");
-        String parentString = parent.getId() + "/" + StringUtils.join(parent.getAncestorIds(), "/");
-        // System.out.println("child=" + childString);
-        // System.out.println("parent=" + parentString);
-        return childString.endsWith(parentString) && child.getPopulation() > 5000;
-    }
+    private static Set<Location> getAnchors(MultiMap<String, Location> locations) {
+        Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
-    public static Collection<Location> getAnchors(List<Annotated> annotations, MultiMap<String, Location> cache) {
-        Collection<Location> allLocations = cache.allValues();
-        Collection<Location> anchorLocations = CollectionHelper.newHashSet();
-
-        for (Annotated annotation : annotations) {
-            Collection<Location> locations = cache.get(annotation.getValue());
-            if (locations.isEmpty()) {
-                continue;
-            }
-            // clumsy fix, assume that we have locations with and without coordinates in the DB;
-            // through the new wikipedia DB import, this problem should be obsolete though
-            if (locations.size() > 1) {
-                CollectionHelper.filter(locations, new Filter<Location>() {
-                    @Override
-                    public boolean accept(Location item) {
-                        return item.getLatitude() != null;
-                    }
-                });
-            }
-            boolean ambiguous = FirstDisambiguation.checkAmbiguity(locations);
-            // LOGGER.info("{} ambiguous {}", annotation.getValue(), ambiguous);
-            if (ambiguous) {
-                // LOGGER.info("{} is ambiguous", annotation.getValue());
-                continue;
-            }
-//            Location location = CollectionHelper.getFirst(locations);
-//            if (location.getPopulation() > 5000) {
-//                boolean added = anchorLocations.add(location);
-//                if (added) {
-//                    LOGGER.debug("Unambiguous achor location {}", location);
-//                }
-//            }
-            for (Location location : locations) {
-                if (location.getPopulation() != null && location.getPopulation() > 5000) {
-                    LOGGER.debug("Unambiguous achor location {}", location);
-                    anchorLocations.add(location);
-                }
-                if ((location.getPopulation() == null || location.getPopulation() == 0)
-                        && annotation.getValue().split("\\s").length > 2) {
-                    LOGGER.debug("Unambiguous anchor location {}", location);
-                    anchorLocations.add(location);
-                }
-            }
-        }
-
-        // determine anchor locations
-        for (Location location : allLocations) {
+        // get prominent anchor locations; continents, countries and locations with very high population
+        for (Location location : locations.allValues()) {
             LocationType type = location.getType();
-            if (type == LocationType.CONTINENT || type == LocationType.COUNTRY || location.getPopulation() > 1000000) {
-                boolean added = anchorLocations.add(location);
-                if (added) {
-                    LOGGER.info("Anchor location: {}", location);
-                }
+            long population = location.getPopulation() != null ? location.getPopulation() : 0;
+            if (type == CONTINENT || type == COUNTRY || population > 1000000) {
+                LOGGER.debug("Prominent anchor location: {}", location);
+                anchorLocations.add(location);
             }
         }
 
-        // FIXME doesn't make (much) sense
-        if (anchorLocations.isEmpty()) {
-            Location biggestLocation = null;
-            long maxPopulation = 0;
-            for (Location location : allLocations) {
-                if (location.getPopulation() > maxPopulation) {
-                    maxPopulation = location.getPopulation();
-                    biggestLocation = location;
+        // get unique and unambiguous locations; location whose name only occurs once, or which are very closely
+        // together (because we might have multiple entries in the database with the same name which lie on a cluster)
+        for (String name : locations.keySet()) {
+            Collection<Location> group = locations.get(name);
+
+            // in case we have locations with same name, but once with and without coordinates in the DB, we drop those
+            // without coordinates
+            group = LocationExtractorUtils.filterConditionally(group, new CoordinateFilter());
+
+            if (LocationExtractorUtils.getLargestDistance(group) < 50) {
+                for (Location location : group) {
+                    long population = location.getPopulation() != null ? location.getPopulation() : 0;
+                    if (population > 5000 || name.split("\\s").length > 2) {
+                        LOGGER.debug("Unambiguous anchor location: {}", location);
+                        anchorLocations.add(location);
+                    }
                 }
+            } else {
+                LOGGER.debug("Ambiguous location: {} ({} candidates)", name, group.size());
             }
-            if (biggestLocation != null) {
-                boolean added = anchorLocations.add(biggestLocation);
-                if (added) {
-                    LOGGER.info("Anchor location: {}", biggestLocation);
-                }
+        }
+
+        // if we could not get any anchor locations, just take the biggest one from the given candidates
+        if (anchorLocations.isEmpty()) {
+            Location biggest = LocationExtractorUtils.getBiggest(locations.allValues());
+            if (biggest != null) {
+                LOGGER.debug("Biggest anchor location: {}", biggest);
+                anchorLocations.add(biggest);
             }
         }
         return anchorLocations;
     }
-
-//    public static void main(String[] args) {
-//        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-//        Location l1 = database.getLocation(2921044);
-//        Location l2 = database.getLocation(2947416);
-//        System.out.println(isChildOf(l2, l1));
-//
-//    }
 
 }
