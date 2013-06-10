@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +20,8 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.JPathHelper;
 import ws.palladian.retrieval.HttpException;
@@ -164,7 +165,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
     }
 
     @Override
-    public Map<String, Collection<Location>> getLocations(Collection<String> locationNames, Set<Language> languages) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
         request.addParameter("names", StringUtils.join(locationNames, ','));
         if (languages != null && !languages.isEmpty()) {
@@ -184,7 +185,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
         // parse the bulk response
         try {
             JSONObject jsonResults = new JSONObject(jsonString).getJSONObject("results");
-            Map<String, Collection<Location>> result = CollectionHelper.newHashMap();
+            MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
             @SuppressWarnings("unchecked")
             Iterator<String> keyIterator = jsonResults.keys();
             while (keyIterator.hasNext()) {

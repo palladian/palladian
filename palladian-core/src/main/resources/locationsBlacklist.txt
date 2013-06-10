@@ -1,3 +1,29 @@
+# company suffixes
+* GmbH
+* Inc.
+* Co.
+* Corp.
+
+# person titles
+Mrs. *
+Mrs *
+Mr. *
+Mr *
+Ms. *
+Ms *
+Sir *
+Lady *
+Dr. *
+Dr *
+Professor *
+Prof. *
+Prof *
+President *
+
+# person titles which may occur within annotation 
+# (e.g. German President Angela Merkel)
+* President *
+
 # adjectives and demonyms for continents
 African
 Africans
