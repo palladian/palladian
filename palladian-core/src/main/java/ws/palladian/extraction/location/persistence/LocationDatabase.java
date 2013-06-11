@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -59,13 +58,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT IGNORE INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
-    private static final String GET_LOCATIONS_LANGUAGE = "{call search_locations(?,?)}";
     private static final String GET_LOCATIONS_BY_ID = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN(%s) GROUP BY id;";
     private static final String ADD_HIERARCHY = "INSERT INTO locations SET id = ?, ancestorIds = ?, type = '', name = '' ON DUPLICATE KEY UPDATE ancestorIds = ?";
     private static final String GET_ANCESTOR_IDS = "SELECT ancestorIds FROM locations WHERE id = ?";
     private static final String UPDATE_HIERARCHY = "UPDATE locations SET ancestorIds = CONCAT(?, ancestorIds) WHERE ancestorIds LIKE ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
-    private static final String GET_LOCATIONS_BY_COORDINATE = "SELECT l.*, lan.*, GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives, 6371 * 2 * ASIN(SQRT(POWER(SIN(RADIANS(? - ABS(latitude))), 2) + COS(RADIANS(?)) * COS(RADIANS(ABS(latitude))) * POWER(SIN(RADIANS(? - longitude)), 2))) AS distance FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ? GROUP BY id HAVING distance < ? ORDER BY distance;";
+    private static final String GET_LOCATIONS_UNIVERSAL = "{call search_locations(?,?,?,?,?)}";
 
     // ////////////////// row converts ////////////////////////////////////
     private static final RowConverter<Location> LOCATION_CONVERTER = new RowConverter<Location>() {
@@ -147,28 +145,36 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     @Override
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
-        final MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
-        if (locationNames.isEmpty()) {
-            return result;
-        }
-        StringBuilder languageList = new StringBuilder();
-        boolean first = true;
-        for (Language language : languages) {
-            if (first) {
-                first = false;
-            } else {
-                languageList.append(",");
+        return getLocationsInternal(locationNames, languages, null, null);
+    }
+
+    private MultiMap<String, Location> getLocationsInternal(Collection<String> locationNames, Set<Language> languages,
+            GeoCoordinate coordinate, Double distance) {
+        String languageList = null;
+        if (languages != null) {
+            StringBuilder builder = new StringBuilder();
+            boolean first = true;
+            for (Language language : languages) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(",");
+                }
+                builder.append(language.getIso6391());
             }
-            languageList.append(language.getIso6391());
+            languageList = builder.toString();
         }
-        String names = StringUtils.join(locationNames, ',');
+        String names = locationNames != null ? StringUtils.join(locationNames, ',') : null;
+        Double latitude = coordinate != null ? coordinate.getLatitude() : null;
+        Double longitude = coordinate != null ? coordinate.getLongitude() : null;
+        final MultiMap<String, Location> result = DefaultMultiMap.createWithList();
         runQuery(new ResultSetCallback() {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 String query = resultSet.getString("query");
                 result.add(query, LOCATION_CONVERTER.convert(resultSet));
             }
-        }, GET_LOCATIONS_LANGUAGE, names, languageList.toString());
+        }, GET_LOCATIONS_UNIVERSAL, names, languageList, latitude, longitude, distance);
         return result;
     }
 
@@ -303,18 +309,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     // @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
-        // see http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/
-        double[] box = GeoUtils.getBoundingBox(coordinate, distance);
-        Double lat = coordinate.getLatitude();
-        Double lng = coordinate.getLongitude();
-        Object[] args = new Object[] {lat, lat, lng, box[0], box[2], box[1], box[3], distance};
-        return runQuery(LOCATION_CONVERTER, GET_LOCATIONS_BY_COORDINATE, args);
+        return new ArrayList<Location>(getLocationsInternal(null, null, coordinate, distance).get("dummy"));
     }
 
-    public static void main(String[] args) {
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        List<Location> locations = database.getLocations(new ImmutableGeoCoordinate(49.1, 9.216667), 10);
-        CollectionHelper.print(locations);
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
+            GeoCoordinate coordinate, double distance) {
+        return getLocationsInternal(locationNames, languages, coordinate, distance);
     }
 
 }
