@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.extraction.content.PageContentExtractorException;
+import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
@@ -32,6 +33,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final LocationDisambiguation disambiguation = new ProximityDisambiguation();
 
+    private final AddressTagger addressTagger = new AddressTagger();
+
     public PalladianLocationExtractor(LocationSource locationSource) {
         this.locationSource = locationSource;
     }
@@ -43,15 +46,19 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         MultiMap<String, Location> locations = fetchLocations(taggedEntities);
 
+        Annotations<LocationAnnotation> result = new Annotations<LocationAnnotation>();
+
         List<LocationAnnotation> locationEntities = disambiguation.disambiguate(taggedEntities, locations);
+        result.addAll(locationEntities);
 
         // last step, recognize streets. For also extracting ZIP codes, this needs to be better integrated into above's
         // workflow. We should use the CITY annotations, to search for neighboring ZIP codes.
-        AddressTagger addressTagger = new AddressTagger();
         List<LocationAnnotation> annotatedStreets = addressTagger.getAnnotations(text);
-        locationEntities.addAll(annotatedStreets);
+        result.addAll(annotatedStreets);
 
-        return locationEntities;
+        result.sort();
+
+        return result;
     }
 
     private MultiMap<String, Location> fetchLocations(List<? extends Annotated> annotations) {
@@ -71,7 +78,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public static void main(String[] args) throws PageContentExtractorException {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text34.txt");
+        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text2.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38822240.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38765806.txt");
         // .readFileToString("/Users/pk/Desktop/temp_lgl/text_38812825.txt");

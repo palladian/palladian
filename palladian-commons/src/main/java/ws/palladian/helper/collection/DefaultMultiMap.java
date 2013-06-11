@@ -209,6 +209,13 @@ public class DefaultMultiMap<K, V> implements MultiMap<K, V> {
     }
 
     @Override
+    public void addAll(MultiMap<? extends K, ? extends V> multiMap) {
+        for (K key : multiMap.keySet()) {
+            addAll(key, multiMap.get(key));
+        }
+    }
+
+    @Override
     public List<V> allValues() {
         List<V> values = new ArrayList<V>();
         for (Collection<V> value : map.values()) {

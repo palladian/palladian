@@ -1,0 +1,103 @@
+settlement	CITY
+company	POI
+french commune	CITY
+nrhp	POI
+school	POI
+uk place	CITY
+road	STREET
+university	POI
+mountain	LANDMARK
+german location	CITY
+airport	POI
+station	POI
+lake	LANDMARK
+italian comune	CITY
+river	LANDMARK
+australian place	CITY
+building	POI
+organization	POI
+indian jurisdiction	UNIT
+stadium	POI
+protected area	POI
+church	POI
+japan station	POI
+uk school	POI
+military structure	POI
+museum	POI
+non-profit	POI
+government agency	POI
+islands	LANDMARK
+uk disused station	POI
+bridge	POI
+u.s. county	UNIT
+swiss town	CITY
+religious building	POI
+diocese	REGION
+district	CITY
+dam	POI
+record label	POI
+former country	COUNTRY
+hospital	POI
+shopping mall	POI
+historic site	POI
+secondary school	POI
+russian district	UNIT
+greek dimos	CITY
+mountain range	LANDMARK
+park	POI
+power station	POI
+ort in österreich	CITY
+education in canada	POI
+city	CITY
+uk station	POI
+lighthouse	POI
+historic building	POI
+bus transit	POI
+school district	POI
+city japan	CITY
+china station	POI
+canada electoral district	UNIT
+defunct company	POI
+law enforcement agency	POI
+sg rail	POI
+theatre	POI
+hotel	POI
+rockunit	LANDMARK
+south african town	CITY
+mountain pass	LANDMARK
+deutsche bahn station	POI
+former subdivision	UNDETERMINED
+town at	CITY
+world heritage site	POI
+zoo	POI
+gb station	POI
+prison	POI
+street	STREET
+waterfall	LANDMARK
+australian electorate	UNIT
+public transit	POI
+venue	POI
+roller coaster	POI
+nycs	POI
+hiking trail	POI
+dotcom company	POI
+london station	POI
+restaurant	POI
+mandir	POI
+historic subdivision	UNDETERMINED
+russian town	CITY
+library	POI
+french canton	UNIT
+cricket ground	POI
+rail service	POI
+belgium municipality	UNIT
+glacier	LANDMARK
+sssi	POI
+sms station	POI
+rail	POI
+mine	POI
+ski area	POI
+south african subplace	UNIT
+uk feature	UNDETERMINED
+cemetery	POI
+amusement park	POI

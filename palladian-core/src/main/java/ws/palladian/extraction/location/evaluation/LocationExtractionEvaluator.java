@@ -143,9 +143,10 @@ public final class LocationExtractionEvaluator {
         String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
-        // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
-        // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
         // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
+        // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
+        // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
+        // evaluate(new ExtractivLocationExtractor(), DATASET_LOCATION);
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
