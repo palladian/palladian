@@ -844,11 +844,12 @@ public final class FileHelper {
      * @param obj The obj to serialize.
      * @param filePath The file path where the object should be serialized to.
      */
-    public static void serialize(Serializable obj, String filePath) {
+    public static boolean serialize(Serializable obj, String filePath) {
+
+        boolean success = true;
 
         if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            serializeCompress(obj, filePath);
-            return;
+            return serializeCompress(obj, filePath);
         }
 
         ObjectOutputStream out = null;
@@ -863,14 +864,18 @@ public final class FileHelper {
             out.writeObject(obj);
         } catch (IOException e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", " + e.getCause());
+            success = false;
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
-            System.exit(1);
+            success = false;
         } catch (Exception e) {
             LOGGER.error("could not serialize object, " + e.getMessage());
+            success = false;
         } finally {
             close(out);
         }
+
+        return success;
     }
 
     /**
@@ -879,7 +884,9 @@ public final class FileHelper {
      * @param obj The obj to serialize and compress.
      * @param filePath The file path where the object should be serialized to.
      */
-    private static void serializeCompress(Serializable obj, String filePath) {
+    private static boolean serializeCompress(Serializable obj, String filePath) {
+        boolean success = true;
+
         ObjectOutputStream out = null;
         try {
 
@@ -892,14 +899,18 @@ public final class FileHelper {
             out.writeObject(obj);
         } catch (IOException e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage(), e);
+            success = false;
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage() + ", exiting now!");
-            System.exit(1);
+            success = false;
         } catch (Exception e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage());
+            success = false;
         } finally {
             close(out);
         }
+
+        return success;
     }
 
     /**
