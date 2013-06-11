@@ -80,7 +80,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             if (alternativesString != null) {
                 for (String nameLanguageString : alternativesString.split(",")) {
                     String[] parts = nameLanguageString.split("#");
-                    if (parts[0].equalsIgnoreCase("alternativeName")) {
+                    if (parts.length == 0 || parts[0].equalsIgnoreCase("alternativeName")) {
                         continue;
                     }
                     Language language = null;

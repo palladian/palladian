@@ -19,7 +19,7 @@ public class WikipediaLocationImporterTest {
     @Test
     public void testImport() throws FileNotFoundException, Exception {
         LocationStore locationStore = new CollectionLocationStore();
-        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore);
+        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore, 0);
         importer.importLocationPages(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
         importer.importAlternativeNames(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
 
