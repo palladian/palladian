@@ -211,7 +211,12 @@ public class WikipediaLocationImporter {
                 String text = page.getText();
                 List<MarkupLocation> locations = extractCoordinateTag(text);
                 
-                LocationType type = INFOBOX_MAPPING.get(page.getInfoboxType());
+                String infoboxType = page.getInfoboxType();
+                if (infoboxType == null) {
+                    LOGGER.debug("Page '{}' has no infobox; skip", page.getTitle());
+                    return;
+                }
+                LocationType type = INFOBOX_MAPPING.get(infoboxType);
                 if (type == null) {
                     LOGGER.debug("Unmapped type for '{}'; ignore", page.getTitle());
                     return;
