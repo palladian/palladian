@@ -94,12 +94,6 @@ public class Annotation implements Annotated {
     }
 
     @Override
-    public int getIndex() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
     public String getValue() {
         return entity;
     }

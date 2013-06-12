@@ -29,14 +29,14 @@ public class TokenOverlapCalculatorTest {
                 "secondDocument");
 
         TextDocument firstDocument = new TextDocument("a b c");
-        firstDocument.getFeatureVector().add(new PositionAnnotation("firstDocument", 0, 1, 0, "a"));
-        firstDocument.getFeatureVector().add(new PositionAnnotation("firstDocument", 2, 3, 1, "b"));
-        firstDocument.getFeatureVector().add(new PositionAnnotation("firstDocument", 4, 5, 2, "c"));
+        firstDocument.getFeatureVector().add(new PositionAnnotation("firstDocument", 0, 1, "a"));
+        firstDocument.getFeatureVector().add(new PositionAnnotation("firstDocument", 2, 3, "b"));
+        firstDocument.getFeatureVector().add(new PositionAnnotation("firstDocument", 4, 5, "c"));
 
         TextDocument secondDocument = new TextDocument("b c d");
-        secondDocument.getFeatureVector().add(new PositionAnnotation("secondDocument", 0, 1, 0, "b"));
-        secondDocument.getFeatureVector().add(new PositionAnnotation("secondDocument", 2, 3, 1, "c"));
-        secondDocument.getFeatureVector().add(new PositionAnnotation("secondDocument", 4, 5, 2, "d"));
+        secondDocument.getFeatureVector().add(new PositionAnnotation("secondDocument", 0, 1, "b"));
+        secondDocument.getFeatureVector().add(new PositionAnnotation("secondDocument", 2, 3, "c"));
+        secondDocument.getFeatureVector().add(new PositionAnnotation("secondDocument", 4, 5, "d"));
 
         objectOfClassUnderTest.getInputPorts().get(0).put(firstDocument);
         objectOfClassUnderTest.getInputPorts().get(1).put(secondDocument);

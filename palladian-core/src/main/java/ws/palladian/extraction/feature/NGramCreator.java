@@ -98,16 +98,16 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
             List<PositionAnnotation> group = CollectionHelper.newArrayList();
 
             // for checking, if we have consecutive annotations
-            int indexCheck = tokensArray[i].getIndex();
+            int lastEnd = tokensArray[i].getEndPosition();
 
             for (int j = i; j < i + n; j++) {
-                group.add(tokensArray[j]);
+                PositionAnnotation current = tokensArray[j];
+                group.add(current);
                 if (j > i) {
-                    int currentIndex = tokensArray[j].getIndex();
-                    if (indexCheck + 1 != currentIndex) {
+                    if (lastEnd + 1 != current.getStartPosition()) {
                         continue tokenLoop; // skip adding this n-gram, as its tokens were not consecutive
                     }
-                    indexCheck = currentIndex;
+                    lastEnd = current.getEndPosition();
                 }
             }
             PositionAnnotation mergedGroup = postProcess(group);
@@ -151,7 +151,7 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
             throw new IllegalStateException("Yo, something is fucked up.");
         }
         
-        PositionAnnotation ret = new PositionAnnotation(name, newStart, newEnd, 0, newValue.toString().trim());
+        PositionAnnotation ret = new PositionAnnotation(name, newStart, newEnd, newValue.toString().trim());
         
         // combine NominalFeatures
         for (String descriptor : considerableFeatureDescriptors) {
