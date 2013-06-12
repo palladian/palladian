@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -61,7 +60,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return result;
     }
 
-    private MultiMap<String, Location> fetchLocations(List<? extends Annotated> annotations) {
+    private MultiMap<String, Location> fetchLocations(List<Annotated> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue());
@@ -75,7 +74,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return String.format("PalladianLocationExtractor:%s", disambiguation);
     }
 
-    public static void main(String[] args) throws PageContentExtractorException {
+    public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
         String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text2.txt");
