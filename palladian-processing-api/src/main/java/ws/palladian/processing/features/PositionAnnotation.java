@@ -92,11 +92,6 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
     public int getEndPosition() {
         return endPosition;
     }
-    
-    @Override
-    public int getLength() {
-    	return endPosition-startPosition;
-    }
 
     @Override
     public int getIndex() {
