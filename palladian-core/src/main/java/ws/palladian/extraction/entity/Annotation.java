@@ -36,11 +36,6 @@ public class Annotation implements Annotated {
         tags.set(tagName, 1);
     }
 
-    @Override
-    public int getLength() {
-        return length;
-    }
-
     public CategoryEntries getTags() {
         return tags;
     }

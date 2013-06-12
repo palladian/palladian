@@ -14,8 +14,6 @@ public interface Annotated extends Comparable<Annotated> {
     int getStartPosition();
 
     int getEndPosition();
-
-    int getLength();
     
     int getIndex();
 
