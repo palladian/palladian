@@ -35,11 +35,6 @@ public class LocationAnnotation implements Annotated {
     }
 
     @Override
-    public int getIndex() {
-        return 0;
-    }
-
-    @Override
     public String getTag() {
         return location.getType().toString();
     }

@@ -31,13 +31,6 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
      */
     private final int endPosition;
 
-    /**
-     * <p>
-     * The running index of this {@link PositionAnnotation}.
-     * </p>
-     */
-    private final int index;
-
     // lazy-initialized field
     private FeatureVector featureVector;
 
@@ -53,14 +46,13 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
      * @param index The running index of this {@link PositionAnnotation}.
      * @param value The text value of this {@link PositionAnnotation}.
      */
-    public PositionAnnotation(String name, int startPosition, int endPosition, int index, String value) {
+    public PositionAnnotation(String name, int startPosition, int endPosition, String value) {
         super(name, value);
         Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
         Validate.isTrue(endPosition > startPosition, "endPosition must be greater than startPosition.");
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
-        this.index = index;
         this.featureVector = null;
     }
     
@@ -79,7 +71,6 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
 
         this.startPosition = annotation.getStartPosition();
         this.endPosition = annotation.getEndPosition();
-        this.index = annotation.getIndex();
         this.featureVector = null;
     }
 
@@ -93,10 +84,10 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         return endPosition;
     }
 
-    @Override
-    public int getIndex() {
-        return index;
-    }
+    // @Override
+    // public int getIndex() {
+    // return index;
+    // }
     
     @Override
     public String getTag() {
@@ -133,8 +124,6 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         builder.append(getStartPosition());
         builder.append(", endPosition=");
         builder.append(getEndPosition());
-        builder.append(", index=");
-        builder.append(getIndex());
         builder.append(", featureVector=");
         builder.append(getFeatureVector());
         builder.append("]");
@@ -147,7 +136,6 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         int result = 1;
         result = prime * result + endPosition;
         result = prime * result + startPosition;
-        result = prime * result + index;
         return result;
     }
 
@@ -167,9 +155,6 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
             return false;
         }
         if (startPosition != other.startPosition) {
-            return false;
-        }
-        if (index != other.index) {
             return false;
         }
         return true;
