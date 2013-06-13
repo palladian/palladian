@@ -13,15 +13,6 @@ import ws.palladian.retrieval.HttpResult;
  */
 public class DefaultFeedProcessingAction implements FeedProcessingAction {
 
-    public Object[] arguments = null;
-
-    public DefaultFeedProcessingAction() {
-    }
-
-    public DefaultFeedProcessingAction(Object[] parameters) {
-        arguments = parameters;
-    }
-
     @Override
     public boolean performAction(Feed feed, HttpResult httpResult) {
         return true;

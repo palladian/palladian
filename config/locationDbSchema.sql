@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-06-11 19:18:31 +0000
+# Erstellungsdauer: 2013-06-13 22:13:13 +0000
 # ************************************************************
 
 
@@ -71,7 +71,7 @@ DELIMITER ;;
 /*!50003 DROP PROCEDURE IF EXISTS `search_locations` */;;
 /*!50003 SET SESSION SQL_MODE=""*/;;
 /*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `search_locations`(
-  IN searchNames varchar(1048576), 
+  IN searchNames varchar(1048576) CHARACTER SET utf8, 
   IN searchLanguages varchar(512),
   IN latitude double,
   IN longitude double,
@@ -90,7 +90,8 @@ BEGIN
   DECLARE nameQuery bool;
   DECLARE geoQuery bool;
   DECLARE currentName varchar(1024);
-  DECLARE north double DEFAULT 0; DECLARE east double DEFAULT 0;
+  DECLARE north double DEFAULT 0;
+  DECLARE east double DEFAULT 0;
   DECLARE south double DEFAULT 0;
   DECLARE west double DEFAULT 0;
   -- 
@@ -105,8 +106,8 @@ BEGIN
   END IF;
   -- two tables with same content; necessary because MySQL does not allow to re-use one table
   -- within a stored procedure
-  CREATE TEMPORARY TABLE `tmp1` (`query` varchar(1024)) ENGINE MEMORY;
-  CREATE TEMPORARY TABLE `tmp2` (`query` varchar(1024)) ENGINE MEMORY;
+  CREATE TEMPORARY TABLE `tmp1` (`query` varchar(1024) CHARACTER SET utf8) ENGINE MEMORY;
+  CREATE TEMPORARY TABLE `tmp2` (`query` varchar(1024) CHARACTER SET utf8) ENGINE MEMORY;
   -- split up the comma-separated query locations and store them in temporary table
   WHILE (CHAR_LENGTH(searchNames) > 0) DO
     IF (LOCATE(',', searchNames)) THEN
