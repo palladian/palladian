@@ -301,9 +301,13 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
         PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
+        addFeatureVectorToOutput(document.getFeatureVector());
+    }
+    
+    public void addFeatureVectorToOutput(final FeatureVector vector) {
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
         for (String featurePath : featurePaths) {
-            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(), featurePath);
+            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(vector, featurePath);
             handleFeature(features, newInstance);
         }
         instances.add(newInstance);
@@ -416,7 +420,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            {@see #handleFeature(Feature, List)}
      */
     private void handleSequentialPattern(final SequentialPattern feature, final List<Pair<Integer, String>> newInstance) {
-        String featureType = "\"" + feature.getStringValue() + "\" numeric";
+        String featureType = "\"" + mask(feature.getStringValue()) + "\" numeric";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
@@ -448,7 +452,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
         // }
         // featureTypeBuilder.append("}");
         // String featureType = featureTypeBuilder.toString();
-        String featureType = "\"" + feature.getName() + "\"";
+        String featureType = "\"" + mask(feature.getName()) + "\"";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
@@ -481,7 +485,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * @param schema
      */
     private void handleBooleanFeature(BooleanFeature feature, List<Pair<Integer, String>> newInstance) {
-        String featureType = "\"" + feature.getName() + "\" {dummy,true,false}";
+        String featureType = "\"" + mask(feature.getName()) + "\" {dummy,true,false}";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
@@ -508,7 +512,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      */
     private void handleAnnotationFeature(List<? extends Feature<?>> features, List<Pair<Integer, String>> newInstance) {
         for (Feature<?> feature : features) {
-            String featureType = "\"" + feature.getValue() + "\" numeric";
+            String featureType = "\"" + mask(feature.getValue().toString()) + "\" numeric";
 
             Integer featureTypeIndex = featureTypes.get(featureType);
             if (featureTypeIndex == null) {
@@ -522,6 +526,12 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
                 newInstance.add(featureValue);
             }
         }
+    }
+
+    private String mask(String string) {
+        String maskedString = string.replace("\\", "\\\\");
+        maskedString = maskedString.replace("\"", "\\\"");
+        return maskedString;
     }
 
     /**
