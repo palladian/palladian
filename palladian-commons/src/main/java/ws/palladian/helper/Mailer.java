@@ -1,8 +1,12 @@
 package ws.palladian.helper;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
+import javax.mail.Authenticator;
 import javax.mail.Message;
+import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -11,31 +15,31 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * The mailer can be used to send emails.
+ * Send mail via SMTP server.
  * </p>
  * 
+ * @author Philipp Katz
  * @author David Urbansky
- * 
  */
 public class Mailer {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = LoggerFactory.getLogger(Mailer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Mailer.class);
 
-    private Session session;
+    private final Properties properties;
 
-    public Mailer() {
-
-    }
+    private final Authenticator authenticator;
 
     /**
      * <p>
-     * Initialize a mailer with a properties object that has to hold the following information:
+     * Create a new {@link SendMail}. The {@link Properties} configuration should usually provide the following
+     * information:
      * <ul>
      * <li>mail.smtp.host</li>
      * <li>mail.smtp.socketFactory.port</li>
@@ -45,35 +49,88 @@ public class Mailer {
      * </ul>
      * </p>
      * 
-     * @param props The properties.
+     * @param properties {@link Properties} object supplying the configuration, not <code>null</code>.
+     * @param username The username, not <code>null</code> or empty.
+     * @param password The password, not <code>null</code> or empty.
      */
-    public Mailer(Properties props, final String username, final String password) {
-        initialize(props, username, password);
-    }
+    public Mailer(Properties properties, final String username, final String password) {
+        Validate.notNull(properties, "properties must not be null");
+        Validate.notEmpty(username, "username must not be empty");
+        Validate.notEmpty(password, "password must not be empty");
 
-    protected void initialize(Properties props, final String username, final String password) {
-        session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+        this.properties = properties;
+        authenticator = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
-            }
-        });
+            };
+        };
     }
 
-    public void sendMail(String fromAddress, String toAddress, String subject, String messageString) {
-        Message message = new MimeMessage(session);
-        try {
-            message.setFrom(new InternetAddress(fromAddress));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress));
-            message.setSubject(subject);
-            message.setText(messageString);
+    /**
+     * <p>
+     * Send a new mail to multiple recipients.
+     * </p>
+     * 
+     * @param sender The sender, not <code>null</code> or empty.
+     * @param recipients The list of recipients, not <code>null</code> or empty.
+     * @param subject The subject of the mail, not <code>null</code>.
+     * @param text The text content of the mail, not <code>null</code>.
+     * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
+     */
+    public boolean sendMail(String sender, List<String> recipients, String subject, String text) {
+        Validate.notEmpty(sender, "sender must not be empty");
+        Validate.notEmpty(recipients, "recipients must not be empty");
+        Validate.notNull(subject, "subject must not be null");
+        Validate.notNull(text, "text must not be null");
 
-            Transport.send(message);
+        boolean success = false;
+
+        Session mailSession = Session.getDefaultInstance(properties, authenticator);
+        Message simpleMessage = new MimeMessage(mailSession);
+
+        try {
+
+            simpleMessage.setFrom(new InternetAddress(sender));
+            for (String recipient : recipients) {
+                simpleMessage.addRecipient(RecipientType.TO, new InternetAddress(recipient));
+            }
+            simpleMessage.setSubject(subject);
+            simpleMessage.setText(text);
+
+            Transport.send(simpleMessage);
+
+            LOGGER.debug("Successfully sent mail to {} ", recipients);
+            success = true;
+
         } catch (AddressException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Exception while sending: {}", e);
         } catch (MessagingException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Exception while sending: {}", e);
         }
+
+        return success;
+
+    }
+
+    /**
+     * <p>
+     * Send a new mail to multiple recipients.
+     * </p>
+     * 
+     * @param sender The sender, not <code>null</code> or empty.
+     * @param recipient The recipient, not <code>null</code> or empty.
+     * @param subject The subject of the mail, not <code>null</code>.
+     * @param text The text content of the mail, not <code>null</code>.
+     * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
+     */
+    public boolean sendMail(String sender, String recipient, String subject, String text) {
+        Validate.notEmpty(sender, "sender must not be empty");
+        Validate.notEmpty(recipient, "recipient must not be empty");
+        Validate.notNull(subject, "subject must not be null");
+        Validate.notNull(text, "text must not be null");
+
+        return sendMail(sender, Arrays.asList(recipient), subject, text);
     }
 
 }
