@@ -102,7 +102,7 @@ BEGIN
   SET east = longitude + radius / ABS(COS(RADIANS(latitude)) * 111.04);
   SET west = longitude - radius / ABS(COS(RADIANS(latitude)) * 111.04);
   IF (NOT nameQuery AND NOT geoQuery) THEN 
-    SIGNAL SQLSTATE '99001';
+    CALL raise_error;
   END IF;
   -- two tables with same content; necessary because MySQL does not allow to re-use one table
   -- within a stored procedure
