@@ -650,7 +650,6 @@ public final class Tokenizer {
         // pattern to find the end of a sentence
         Matcher matcher = pattern.matcher(maskedText);
         int lastIndex = 0;
-        int index = 0;
 
         while (matcher.find()) {
             int endPosition = matcher.end();
@@ -662,10 +661,9 @@ public final class Tokenizer {
 
             int leftIndex = lastIndex + leftOffset;
             int rightIndex = leftIndex + value.length();
-            PositionAnnotation sentence = new PositionAnnotation(featureName, leftIndex, rightIndex, index, value);
+            PositionAnnotation sentence = new PositionAnnotation(featureName, leftIndex, rightIndex, value);
             sentences.add(sentence);
             lastIndex = endPosition;
-            index++;
         }
 
         // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
@@ -682,7 +680,7 @@ public final class Tokenizer {
                 int leftIndex = lastIndex + leftOffset;
                 int rightIndex = leftIndex + value.length();
                 PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(featureName, leftIndex, rightIndex,
-                        index, value);
+                        value);
                 sentences.add(lastSentenceAnnotation);
             }
         }
@@ -753,7 +751,7 @@ public final class Tokenizer {
             String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
                     originalEndPosition));
             PositionAnnotation transformedSentence = new PositionAnnotation(featureName, originalStartPosition,
-                    originalEndPosition, sentence.getIndex(), transformedValue);
+                    originalEndPosition, transformedValue);
             ret.add(transformedSentence);
             lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
@@ -776,12 +774,11 @@ public final class Tokenizer {
         List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
 
         for (Annotated annotation : annotations) {
-            int index = annotations.indexOf(annotation);
             String value = annotation.getValue();
             int startPosition = annotation.getStartPosition();
             int endPosition = annotation.getStartPosition() + annotation.getValue().length();
             PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
-                    index, value);
+                    value);
 
             ret.add(positionAnnotation);
         }
