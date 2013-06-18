@@ -202,14 +202,19 @@ public final class WikipediaUtil {
     public static Map<String, String> extractInfobox(String markup) {
         Validate.notNull(markup, "markup must not be null");
         Map<String, String> properties = new LinkedHashMap<String, String>();
-        Matcher matcher = INFOBOX_KEY_PATTERN.matcher(markup);
+        // trim surrounding {{ and }}
+        String infoboxContent = markup.substring(2, markup.length() - 2);
+        Matcher matcher = INFOBOX_KEY_PATTERN.matcher(infoboxContent);
         if (matcher.find()) {
             String key = matcher.group(1).trim();
             String value = null;
             int startIdx = matcher.end();
             while (matcher.find()) {
                 int endIdx = matcher.start();
-                value = markup.substring(startIdx, endIdx).trim();
+                if (getDoubleBracketBalance(infoboxContent.substring(0, endIdx)) != 0) {
+                    continue;
+                }
+                value = infoboxContent.substring(startIdx, endIdx).trim();
                 properties.put(key, value);
                 key = matcher.group(1).trim();
                 startIdx = matcher.end();
@@ -219,11 +224,26 @@ public final class WikipediaUtil {
         return properties;
     }
 
+    /**
+     * Determine the opening/closing balance of double curly brackets.
+     * 
+     * @param markup The markup.
+     * @return The balance, zero if same amount of brackets have been opened and closed, if value is positive, more
+     *         brackets have been opened than closed.
+     */
+    private static final int getDoubleBracketBalance(String markup) {
+        int open = markup.length() - markup.replace("{{", "").length() / 2;
+        int close = markup.length() - markup.replace("}}", "").length() / 2;
+        return open - close;
+    }
+
     private WikipediaUtil() {
         // leave me alone!
     }
 
     public static void main(String[] args) {
+        System.out.println(getDoubleBracketBalance("{{xx{{{{"));
+        System.exit(0);
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/newYork.wikipedia");
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/sample2.wikipedia");
         // String text = stripMediaWikiMarkup(wikipediaPage);
