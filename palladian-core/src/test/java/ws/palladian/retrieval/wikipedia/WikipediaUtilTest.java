@@ -14,4 +14,9 @@ public class WikipediaUtilTest {
         assertEquals("Capital of the Cocos Islands", WikipediaUtil.cleanTitle("Capital of the Cocos (Keeling) Islands"));
     }
 
+    @Test
+    public void testGetRedirect() {
+        assertEquals("Los Angeles", WikipediaUtil.getRedirect("#REDIRECT [[Los Angeles]]"));
+    }
+
 }
