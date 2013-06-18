@@ -35,5 +35,17 @@ public class WikipediaUtilTest {
         assertEquals("Dresden", data.get("Name"));
         assertEquals("City", data.get("Art"));
         assertEquals("Dresden-Altstadt von der Marienbruecke-II.jpg", data.get("image_photo"));
+        assertEquals("300px", data.get("imagesize"));
+        assertEquals("", data.get("image_caption"));
+        // ...
+
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Stack_Overflow.wikipedia"));
+        page = new WikipediaPage(0, 0, "Stack Overflow", markup);
+        data = WikipediaUtil.extractInfobox(page.getInfoboxMarkup());
+        // CollectionHelper.print(data);
+        assertEquals(17, data.size());
+        assertEquals(
+                "84 ({{as of|2013|02|15|alt=February 2013}})<ref name=\"alexa\">{{cite web|url= http://www.alexa.com/siteinfo/stackoverflow.com |title= Stackoverflow.com Site Info | publisher= [[Alexa Internet]] |accessdate= 2013-02-15 }}</ref><!--Updated monthly by OKBot.-->",
+                data.get("alexa"));
     }
 }

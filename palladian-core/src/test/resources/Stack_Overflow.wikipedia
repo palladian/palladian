@@ -1,0 +1,175 @@
+{{Other uses2|Stack overflow}}
+{{primary sources|date=August 2012}}
+{{Infobox Website
+| name           = Stack Overflow
+| logo           = [[File:Stack Overflow website logo.png]]
+| screenshot     = [[File:StackOverflow.png|280px]]
+| caption        = Screenshot of Stack Overflow as of December 2011
+| url            = [http://stackoverflow.com/ stackoverflow.com]
+| alexa          = 84 ({{as of|2013|02|15|alt=February 2013}})<ref name="alexa">{{cite web|url= http://www.alexa.com/siteinfo/stackoverflow.com |title= Stackoverflow.com Site Info | publisher= [[Alexa Internet]] |accessdate= 2013-02-15 }}</ref><!--Updated monthly by OKBot.-->
+| commercial     = Yes
+| content_license = [[CC-BY-SA 3.0]] (for user contributions)
+| type           = [[:Category:Knowledge markets|Knowledge markets]]
+| language       = [[English language|English]]
+| registration   = Optional; Uses [[OpenID]]
+| owner          = Stack Exchange, Inc.
+| author         = [[Joel Spolsky]] and [[Jeff Atwood]]
+| launch date    = August 2008
+| current status = Online
+| revenue        =
+| slogan         =
+}}
+
+'''Stack Overflow''' is a [[website]], the flagship site of the [[Stack Exchange Network]],<ref name="Legal">{{cite web
+| title      = Stack Exchange Network Legal Links
+| url        = http://stackexchange.com/legal
+| accessdate = 2012-01-02
+| work       = Stack Exchange}}</ref><ref name="stackapps_legal">{{cite web
+| title      = Stack Exchange API
+| url        = http://stackexchange.com/legal/terms-of-service
+| author     = Stack Overflow Internet Services, Inc.
+| date       = 2010-06-08
+| accessdate = 2010-06-08
+| work       = Stack Apps}}</ref> created in 2008 by [[Jeff Atwood]] and [[Joel Spolsky]],<ref name="introducing">{{cite web
+| title      = Introducing Stackoverflow.com
+| url        = http://www.codinghorror.com/blog/archives/001101.html
+| work       = Coding Horror
+| date       = 2008-04-16
+| accessdate = 2009-03-11
+| author     = Jeff Atwood}}</ref><ref>{{cite web
+| title      = None of Us is as Dumb as All of Us
+| url        = http://www.codinghorror.com/blog/archives/001169.html
+| work       = Coding Horror
+| date       = 2008-09-16
+| accessdate = 2009-03-11
+| author     = Jeff Atwood}}</ref> as a more open alternative to earlier forums such as [[Experts Exchange]]. The name for the website was chosen by voting in April 2008 by readers of ''Coding Horror'', Atwood's popular programming blog.<ref name="help_name">{{cite web
+| title      = Help Name Our Website
+| url        = http://www.codinghorror.com/blog/archives/001101.html
+| work       = Coding Horror
+| date       = 2008-04-06
+| accessdate = 2009-06-15
+| author     = Jeff Atwood}}</ref>
+
+It features questions and answers on a wide range of topics in [[computer programming]].<ref name="secrets">{{cite web
+| title      = Secrets of social site success
+| url        = http://www.sdtimes.com/SHORT_TAKES_APRIL_15_2009/About_SHORTTAKES/33403
+| work       = [[SD Times]]
+| date       = 2009-04-15
+| accessdate = 2009-04-16
+| author     = Alan Zeichick}}</ref><ref name="slashdot">{{cite web
+| title      = Spolsky's Software Q-and-A Site
+| url        = http://developers.slashdot.org/article.pl?sid=08/09/16/1910214
+| work       = Slashdot
+| date       = 2008-09-16
+| accessdate = 2009-05-23}}</ref><ref name="google-tech-talks">{{cite web
+| title      = Google Tech Talks: Learning from StackOverflow.com
+| url        = http://www.youtube.com/watch?v=NWHfY_lvKIQ
+| author     = Joel Spolsky
+| publisher  = YouTube
+| date       = 2009-04-24
+| accessdate = 2009-05-23}}</ref> The website serves as a platform for users to ask and answer questions, and, through membership and active participation, to vote questions and answers up or down and edit questions and answers in a fashion similar to a [[wiki]] or [[digg]].<ref name="fashion">{{cite web | url = http://www.codinghorror.com/blog/2011/10/the-gamification.html | work = Coding Horror Blog | author = Jeff Atwood | date= 2008-09-21 | title = The Gamification | accessdate = 2011-01-24}}</ref> Users of Stack Overflow can earn [[Trust metric|reputation points]] and "badges"; for example, a person is awarded 10 reputation points for receiving an "up" vote on an answer given to a question, and can receive badges for their valued contributions,<ref name="soFAQ">{{cite web | url = http://stackoverflow.com/faq#reputation | work = Stack Overflow | title = FAQ: What is Reputation? | accessdate = 19 January 2010}}</ref> which represents a kind of [[gamification]] of the traditional [[Q&A site]] or forum. All user-generated content is licensed under a [[CC-BY-SA 3.0|Creative Commons Attribute-ShareAlike]] license.<ref>[http://wiki.creativecommons.org/Case_Studies/StackOverflow.com Creativecommons.org]</ref>
+
+{{As of|2013|06}}, Stack Overflow has over 1,700,000 registered users and more than 500,000 questions.<ref name="soUSERS">{{cite web | url = http://stackoverflow.com/users | work = Stack Overflow | title = Users | accessdate = 01 June 2013}}</ref><ref name="soQUESTIONS">{{cite web | url = http://stackoverflow.com/questions | work = Stack Overflow | title = Questions | accessdate = 01 June 2013}}</ref> Based on the type of [[tag (metadata)|tags]] assigned to questions, the top eight most discussed topics on the site are: [[C Sharp (programming language)|C#]], [[Java (programming language)|Java]], [[PHP]], [[JavaScript]], [[Android (operating system)|Android]], [[jQuery]], [[C++]] and [[Python (programming language)|Python]].<ref name="tags">{{cite web | work = Stack Overflow | title = Tags | url = http://stackoverflow.com/tags | accessdate = 01 June 2013}}</ref>
+
+== History ==
+
+The website was created by [[Jeff Atwood]] and [[Joel Spolsky]] in 2008.<ref name="introducing"/>  On 31 July 2008, Jeff Atwood sent out invitations encouraging his subscribers to take part in the private beta of the new website, limiting its use to those willing to test out the new software.  On 15 September 2008 it was announced the public beta version was in session and that the general public was now able to use it to seek assistance on programming related issues. The design of the Stack Overflow logo was decided by a voting process.<ref>{{cite web
+| title      = Logo Design Contest
+| url        = http://blog.stackoverflow.com/2008/04/logo-design-contest
+| date       = 2008-04-24
+| accessdate = 2012-06-12
+| author     = Jeff Atwood}}</ref>
+
+On 3 May 2010 it was announced that Stack Overflow had raised $6 million in venture capital from a group of investors led by [[Union Square Ventures]].<ref>{{cite web | url=http://blog.stackoverflow.com/2010/05/announcing-our-series-a/ | title=Announcing the Stack Overflow Series A Financing | accessdate=2010-08-31 | work=blog.stackoverflow.com }}</ref><ref>{{cite web|last=Ha|first=Anthony|title=Stack Overflow raises $6M to take its Q&A model beyond programming|url=http://venturebeat.com/2010/05/04/stack-overflow-funding/}}</ref>
+
+== Technology ==
+
+Stack Overflow is written in [[ASP.NET]] 4 <ref>{{cite web | url = http://meta.stackoverflow.com/questions/10369/which-tools-and-technologies-are-used-to-build-the-stack-exchange-network | title = Which tools and technologies are used to build the Stack Exchange Network? | work = Meta Stack Overflow | publisher = Stack Overflow}}</ref> using the [[ASP.NET MVC]] ([[Model-View-Controller]]) framework.<ref name="soStack">{{cite web | title= What Was Stack Overflow Built With? | url= http://blog.stackoverflow.com/2008/09/what-was-stack-overflow-built-with/| work= Stack Overflow Blog | author = Jeff Atwood | date= 2008-09-21 | accessdate=2009-05-23}}</ref> Unregistered users have access to most of the site's functionality, while users that sign in (for example, by using the [[OpenID]] service) can gain access to more functionality, such as establishing a profile and being able to earn reputation to allow functionality like re-tagging questions or voting to close a question.
+
+== Sister sites ==
+{{Merge to|Stack Exchange Network|date=April 2013}}
+{{main|Stack Exchange Network}}
+
+=== Server Fault ===
+
+In April 2009, the owners of Stack Overflow began a private beta for ''[[Server Fault]]'', a sister site. The site deals exclusively with questions and answers related to the field of [[system administration]].
+
+=== Super User ===
+
+[[Stack Exchange Network#Super User|Super User]], a sister site dedicated to questions from all computer "[[power user]]s",<ref name="ReadWriteStart ">{{cite web | url = http://www.readwriteweb.com/readwritestart/2009/07/geeks-only-qa-from-super-user.php | work = ReadWriteStart | title = Geeks-Only Q&A From Super User | accessdate = 2009-08-18 | first = Jolie | last = O'Dell | date = 2009-07-26}}</ref> rather than just programmers or system administrators, entered a "semi-private beta" in July 2009<ref name="SUbeta">{{cite web | url = http://blog.stackoverflow.com/2009/07/super-user-semi-private-beta-begins/ | work = Stack Overflow Blog | title = Super User Semi-Private Beta Begins | accessdate = 2009-07-19 | first = Jeff | last = Atwood | date = 2009-07-14}}</ref> and was launched publicly on 18 August 2009.<ref name="SUpublic">{{cite web | url = http://blog.stackoverflow.com/2009/08/super-user-now-public/ | work = Stack Overflow Blog | title = Super User Now Public | accessdate = 2009-08-18 | first = Jeff | last = Atwood | date = 2009-08-18}}</ref>
+
+=== Meta Stack Overflow ===
+
+Meta Stack Overflow became the site for questions about the sister sites themselves and various other meta-level discussions.<ref name="MetaAnnounce">{{cite web | url = http://blog.stackoverflow.com/2009/06/cmon-get-meta/ | work = Stack Overflow Blog | title = C'Mon Get Meta | accessdate = 2009-07-20 | first = Jeff | last = Atwood | date = 2009-06-28}}</ref> Most support, feature-request and bug report entries were moved from [[UserVoice]]-hosted stackoverflow.uservoice.com in July 2009.<ref name="MetaMove">{{cite web | url = http://meta.stackoverflow.com/questions/1/should-meta-stackoverflow-com-replace-uservoice-com | title = Should meta.stackoverflow.com replace uservoice.com? | work = Meta Stack Overflow | date = 2009-06-28 | first = Jeff | last = Atwood | accessdate = 2009-07-20}}</ref>
+
+=== Area 51 ===
+Area 51 is a "New Site Staging Zone".<ref name="Area 51">[http://area51.stackexchange.com/ Area 51]</ref> This is intended for anybody to create their own Q&A site on any topic, using similar software.
+
+=== Careers ===
+
+Stack Overflow offers a careers site, Stack Overflow Careers 2.0.<ref>{{cite web|title=Stack Overflow Careers 2.0|url=http://careers.stackoverflow.com|publisher=Stack Exchange Inc.|accessdate=7 January 2013}}</ref> The careers site is targeted toward  companies that are seeking top quality programmers.  Careers allows Stack Overflow members to link their Stack Overflow profile with their online resume (created on the site, or imported via [[LinkedIn]]), allowing employers to browse member contribution history to Stack Overflow.  Initially job-seekers had to pay a fee in order to file their resume, i.e. the resume will be searchable by employers, but now it is free for job-seekers.
+
+=== Stack Apps ===
+
+The Stack Overflow team has recently begun the creation of an API for accessing the data contained on the other sites. Discussion on Stack Apps centers around the API, although users are encouraged to list [[application software|apps]] and [[Library (computing)|libraries]] developed for the API.
+
+== User reputation ==
+Over the course of a user's experience on Stack Overflow they can earn Reputation.  Reputation can be earned from asking questions, providing answers, suggesting edits (capped to a maximum amount of 1000 Rep).  The more reputation a user obtains the more trusted they are on the site, and the more privileges they are given. 
+
+If the reputation owner needs an answer to difficult question, he can pay by the owned reputation points to other users, as reward (called a "bounty" on the site). The owners loses the earned rights as the reputation decreases. The reputation is also lost if other users "vote down" one's question or answer, but the voter himself is also penalized (though less so). This makes the frequent voting down less attractive. 
+
+The privileges that can be earned are as follows:<ref name="Privileges">{{cite web|url=http://stackoverflow.com/privileges|title=Privileges - Stack Overflow|publisher=[[Stack Exchange Network|StackExchange]]|accessdate=April 8, 2013}}</ref>
+
+* trusted user 
+* protect questions 
+* access to moderator tools 
+* approve tag wiki edits 
+* cast close and reopen votes 
+* create tag synonyms 
+* edit questions and answers 
+* create tags 
+* create gallery chat rooms 
+* established user 
+* retag questions 
+* view close votes 
+* reduce ads 
+* vote down 
+* create chat rooms 
+* edit community wiki 
+* set bounties 
+* comment everywhere 
+* talk in chat 
+* flag posts 
+* vote up 
+* create wiki posts 
+* remove new user restrictions 
+* participate in meta 
+* create posts
+
+== User suspension ==
+In April, 2009 Stack Exchange implemented a policy of "timed suspension",<ref name="Stackoverflow Blog ">{{cite web | url = http://blog.stackoverflow.com/2009/04/a-day-in-the-penalty-box | work = StackOverflow Blog | title = A Day in the Penalty Box| accessdate = 2009-04-06 | first = Jeff | last = Atwood | date = 2009-04-06}}</ref> in order to curtail users who either show "No effort to learn (the community rules) and improve over time" or engage in "disruptive behavior" and become a nuisance. The suspension is accompanied by temporarily setting the user's reputation score at '1' and a notation on the user's profile page indicating the suspension and remaining duration.
+
+== See also ==
+{{portal|Internet|Information technology}}
+* [[Askbot]] (free engine)
+* [[OSQA]]
+* [[Shapado]]
+* [[Stack Exchange Network]]
+
+== References ==
+
+{{reflist|2}}
+
+== External links ==
+* [http://stackoverflow.com/ Stack Overflow]
+* [http://itc.conversationsnetwork.org/series/stackoverflow.html Stack Overflow podcast]
+* [http://stackexchange.com/sites List of Stack Exchange sites]
+* [http://stackapps.com/ Stack Apps]
+
+{{use dmy dates|date=March 2012}}
+
+[[Category:Computing websites]]
+[[Category:Internet properties established in 2008]]
+[[Category:Software developer communities]]
+[[Category:Stack Exchange network]]
+[[Category:Article Feedback 5 Additional Articles]]
