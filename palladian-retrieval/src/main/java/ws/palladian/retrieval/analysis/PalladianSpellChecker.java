@@ -59,7 +59,7 @@ public class PalladianSpellChecker {
 
         FileHelper.performActionOnEveryLine(file, lineAction);
 
-        LOGGER.info("read file in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("read file in " + stopWatch.getElapsedTimeString() + ", " + words.size() + " words added");
     }
 
     /**
@@ -148,12 +148,12 @@ public class PalladianSpellChecker {
             return word;
         }
 
-
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<Integer, String>();
         for (String s : list) {
-            if (words.contains(s)) {
-                candidates.put(words.getCount(s), s);
+            int count = words.getCount(s);
+            if (count > 0) {
+                candidates.put(count, s);
             }
         }
 
@@ -161,8 +161,9 @@ public class PalladianSpellChecker {
         if (candidates.isEmpty()) {
             for (String s : list) {
                 for (String w : edits(s)) {
-                    if (words.contains(w)) {
-                        candidates.put(words.getCount(w), w);
+                    int count = words.getCount(w);
+                    if (count > 0) {
+                        candidates.put(count, w);
                     }
                 }
             }

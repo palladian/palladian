@@ -456,8 +456,8 @@ public final class StringHelper {
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
      */
-    public static boolean containsWord(String word, String searchString) {
-        int index = searchString.toLowerCase().indexOf(word.toLowerCase());
+    public static boolean containsWordCaseSensitive(String word, String searchString) {
+        int index = searchString.indexOf(word);
         if (index == -1) {
             return false;
         }
@@ -480,6 +480,24 @@ public final class StringHelper {
             rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
         }
         return leftBorder && rightBorder;
+    }
+
+    /**
+     * <p>
+     * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
+     * within another word.
+     * </p>
+     * <p>
+     * NOTE: <b>This method is case INsensitive</b>. {@link StringHelper#containsWordCaseSensitive(String, String)} is a
+     * case sensitive alternative which is considerably faster.
+     * </p>
+     * 
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return True, if the word is contained, false if not.
+     */
+    public static boolean containsWord(String word, String searchString) {
+        return containsWordCaseSensitive(word.toLowerCase(), searchString.toLowerCase());
     }
 
     /**
