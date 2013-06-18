@@ -126,7 +126,7 @@ public class WikipediaPage {
                     break;
                 }
             }
-            return text.substring(startIdx, endIdx);
+            return text.substring(startIdx, endIdx + 1);
         } catch (StringIndexOutOfBoundsException e) {
             LOGGER.warn("Encountered {} at '{}' (page id: {}), potentially caused by invalid markup.", new Object[] {e,
                     title, pageId});

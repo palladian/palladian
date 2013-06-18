@@ -1,11 +1,14 @@
 package ws.palladian.retrieval.wikipedia;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +42,8 @@ public final class WikipediaUtil {
 
     private static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
             Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern INFOBOX_KEY_PATTERN = Pattern.compile("\\|\\s*([^|=]+)\\s*=");
 
     public static String stripMediaWikiMarkup(String markup) {
 
@@ -183,6 +188,35 @@ public final class WikipediaUtil {
         } catch (JSONException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     * <p>
+     * Extract key-value pairs from Wikipedia infobox markup.
+     * </p>
+     * 
+     * @param markup The markup, not <code>null</code>.
+     * @return A {@link Map} containing extracted key-value pairs from the infobox, entries in the map have the same
+     *         order as in the markup.
+     */
+    public static Map<String, String> extractInfobox(String markup) {
+        Validate.notNull(markup, "markup must not be null");
+        Map<String, String> properties = new LinkedHashMap<String, String>();
+        Matcher matcher = INFOBOX_KEY_PATTERN.matcher(markup);
+        if (matcher.find()) {
+            String key = matcher.group(1).trim();
+            String value = null;
+            int startIdx = matcher.end();
+            while (matcher.find()) {
+                int endIdx = matcher.start();
+                value = markup.substring(startIdx, endIdx).trim();
+                properties.put(key, value);
+                key = matcher.group(1).trim();
+                startIdx = matcher.end();
+            }
+            properties.put(key, value);
+        }
+        return properties;
     }
 
     private WikipediaUtil() {

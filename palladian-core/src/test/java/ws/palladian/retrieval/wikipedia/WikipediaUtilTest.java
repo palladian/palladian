@@ -2,7 +2,13 @@ package ws.palladian.retrieval.wikipedia;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
+import java.util.Map;
+
 import org.junit.Test;
+
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 public class WikipediaUtilTest {
 
@@ -19,4 +25,15 @@ public class WikipediaUtilTest {
         assertEquals("Los Angeles", WikipediaUtil.getRedirect("#REDIRECT [[Los Angeles]]"));
     }
 
+    @Test
+    public void testInfoboxExtraction() throws FileNotFoundException {
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
+        Map<String, String> data = WikipediaUtil.extractInfobox(page.getInfoboxMarkup());
+        // CollectionHelper.print(data);
+        assertEquals(34, data.size());
+        assertEquals("Dresden", data.get("Name"));
+        assertEquals("City", data.get("Art"));
+        assertEquals("Dresden-Altstadt von der Marienbruecke-II.jpg", data.get("image_photo"));
+    }
 }

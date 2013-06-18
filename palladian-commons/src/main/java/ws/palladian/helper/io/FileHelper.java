@@ -490,6 +490,20 @@ public final class FileHelper {
      * Perform an action on every line of the provided input file.
      * </p>
      * 
+     * @param file The File which should be processed line by line, not <code>null</code>.
+     * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
+     * @return The number of lines processed, <code>-1</code> in case of errors.
+     */
+    public static int performActionOnEveryLine(File file, LineAction lineAction) {
+        Validate.notNull(file, "file must not be null");
+        return performActionOnEveryLine(file.getPath(), lineAction);
+    }
+
+    /**
+     * <p>
+     * Perform an action on every line of the provided input file.
+     * </p>
+     * 
      * @param filePath The path to the file which should be processed line by line, not <code>null</code>.
      * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
      * @return The number of lines processed, <code>-1</code> in case of errors.
