@@ -68,14 +68,12 @@ public class WikipediaPage {
     private final int namespaceId;
     private final String title;
     private final String text;
-    private final String redirectTitle;
 
-    public WikipediaPage(int pageId, int namespaceId, String title, String text, String redirectTitle) {
+    public WikipediaPage(int pageId, int namespaceId, String title, String text) {
         this.pageId = pageId;
         this.namespaceId = namespaceId;
         this.title = title;
         this.text = text;
-        this.redirectTitle = redirectTitle;
     }
 
     public int getPageId() {
@@ -95,11 +93,11 @@ public class WikipediaPage {
     }
 
     public boolean isRedirect() {
-        return redirectTitle != null;
+        return getRedirectTitle() != null;
     }
 
     public String getRedirectTitle() {
-        return redirectTitle;
+        return WikipediaUtil.getRedirect(text);
     }
 
     /**
@@ -224,7 +222,7 @@ public class WikipediaPage {
         builder.append(", title=");
         builder.append(title);
         builder.append(", redirectTitle=");
-        builder.append(redirectTitle);
+        builder.append(getRedirectTitle());
         builder.append("]");
         return builder.toString();
     }
