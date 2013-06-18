@@ -36,22 +36,16 @@ public final class TokenMetricsCalculator extends TextDocumentPipelineProcessor 
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-//        TextAnnotationFeature annotationFeature = document.getFeatureVector().getFeature(TextAnnotationFeature.class,
-//                BaseTokenizer.PROVIDED_FEATURE);
-//        if (annotationFeature == null) {
-//            throw new DocumentUnprocessableException("The required feature "
-//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " is missing.");
-//        }
         List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
         CountMap<String> occurrences = CountMap.create();
         Map<String, Integer> firstOccurrences = new HashMap<String, Integer>();
         Map<String, Integer> lastOccurrences = new HashMap<String, Integer>();
         int lastPosition = 0;
+        int tokenPosition = 0;
         for (PositionAnnotation annotation : annotations) {
             // changed to lower case, 2012-05-01
             String value = annotation.getValue().toLowerCase();
             occurrences.add(value);
-            int tokenPosition = annotation.getIndex();
             if (tokenPosition == -1) {
                 throw new DocumentUnprocessableException(
                         "Token index is missing, looks like the used Tokenizer implementation needs to be updated for supplying indices.");
@@ -69,6 +63,7 @@ public final class TokenMetricsCalculator extends TextDocumentPipelineProcessor 
                 lastOccurrences.put(value, Math.max(tokenPosition, lastOccurrence));
             }
             lastPosition = Math.max(tokenPosition, lastPosition);
+            tokenPosition++;
         }
 
         // calculate "normalized term frequency", see "Information Retrieval", Grossman/Frieder, p. 32

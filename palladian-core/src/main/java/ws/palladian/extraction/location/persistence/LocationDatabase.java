@@ -78,7 +78,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             if (alternativesString != null) {
                 for (String nameLanguageString : alternativesString.split(",")) {
                     String[] parts = nameLanguageString.split("#");
-                    if (parts.length == 0 || parts[0].equalsIgnoreCase("alternativeName")) {
+                    if (parts.length == 0 || StringUtils.isBlank(parts[0]) || parts[0].equals("alternativeName")) {
                         continue;
                     }
                     Language language = null;
@@ -309,7 +309,8 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
     // @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
-        return new ArrayList<Location>(getLocationsInternal(null, null, coordinate, distance).get("dummy"));
+        Collection<Collection<Location>> result = getLocationsInternal(null, null, coordinate, distance).values();
+        return new ArrayList<Location>(CollectionHelper.getFirst(result));
     }
 
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,

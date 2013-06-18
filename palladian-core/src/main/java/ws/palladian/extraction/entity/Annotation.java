@@ -36,11 +36,6 @@ public class Annotation implements Annotated {
         tags.set(tagName, 1);
     }
 
-    @Override
-    public int getLength() {
-        return length;
-    }
-
     public CategoryEntries getTags() {
         return tags;
     }
@@ -96,12 +91,6 @@ public class Annotation implements Annotated {
     @Override
     public int getEndPosition() {
         return offset + length;
-    }
-
-    @Override
-    public int getIndex() {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     @Override

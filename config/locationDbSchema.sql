@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-06-11 19:18:31 +0000
+# Erstellungsdauer: 2013-06-13 22:13:13 +0000
 # ************************************************************
 
 
@@ -26,7 +26,7 @@
 DROP TABLE IF EXISTS `location_alternative_names`;
 
 CREATE TABLE `location_alternative_names` (
-  `locationId` bigint(20) unsigned NOT NULL COMMENT 'The id of the location.',
+  `locationId` int(11) unsigned NOT NULL COMMENT 'The id of the location.',
   `alternativeName` varchar(200) DEFAULT NULL COMMENT 'An alternative name used for the location.',
   `language` char(2) DEFAULT NULL COMMENT 'The language for this alternative name, in ISO 639-1 format. NULL means no specified language.',
   UNIQUE KEY `idNameLangUnique` (`locationId`,`alternativeName`,`language`),
@@ -43,7 +43,7 @@ CREATE TABLE `location_alternative_names` (
 DROP TABLE IF EXISTS `locations`;
 
 CREATE TABLE `locations` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'The id of the location.',
+  `id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'The id of the location.',
   `type` varchar(20) NOT NULL DEFAULT '' COMMENT 'The type of the location.',
   `name` varchar(255) NOT NULL COMMENT 'The primary name of the location.',
   `latitude` double(8,5) DEFAULT NULL COMMENT 'The latitude of the location.',
@@ -71,7 +71,7 @@ DELIMITER ;;
 /*!50003 DROP PROCEDURE IF EXISTS `search_locations` */;;
 /*!50003 SET SESSION SQL_MODE=""*/;;
 /*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `search_locations`(
-  IN searchNames varchar(1048576), 
+  IN searchNames varchar(1048576) CHARACTER SET utf8, 
   IN searchLanguages varchar(512),
   IN latitude double,
   IN longitude double,
@@ -90,7 +90,8 @@ BEGIN
   DECLARE nameQuery bool;
   DECLARE geoQuery bool;
   DECLARE currentName varchar(1024);
-  DECLARE north double DEFAULT 0; DECLARE east double DEFAULT 0;
+  DECLARE north double DEFAULT 0;
+  DECLARE east double DEFAULT 0;
   DECLARE south double DEFAULT 0;
   DECLARE west double DEFAULT 0;
   -- 
@@ -101,12 +102,12 @@ BEGIN
   SET east = longitude + radius / ABS(COS(RADIANS(latitude)) * 111.04);
   SET west = longitude - radius / ABS(COS(RADIANS(latitude)) * 111.04);
   IF (NOT nameQuery AND NOT geoQuery) THEN 
-    SIGNAL SQLSTATE '99001';
+    CALL raise_error;
   END IF;
   -- two tables with same content; necessary because MySQL does not allow to re-use one table
   -- within a stored procedure
-  CREATE TEMPORARY TABLE `tmp1` (`query` varchar(1024)) ENGINE MEMORY;
-  CREATE TEMPORARY TABLE `tmp2` (`query` varchar(1024)) ENGINE MEMORY;
+  CREATE TEMPORARY TABLE `tmp1` (`query` varchar(1024) CHARACTER SET utf8) ENGINE MEMORY;
+  CREATE TEMPORARY TABLE `tmp2` (`query` varchar(1024) CHARACTER SET utf8) ENGINE MEMORY;
   -- split up the comma-separated query locations and store them in temporary table
   WHILE (CHAR_LENGTH(searchNames) > 0) DO
     IF (LOCATE(',', searchNames)) THEN

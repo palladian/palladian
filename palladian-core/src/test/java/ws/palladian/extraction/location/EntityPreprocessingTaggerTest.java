@@ -23,7 +23,6 @@ public class EntityPreprocessingTaggerTest {
         assertEquals("Clean Water Act", annotations.get(0).getValue());
         assertEquals(31, annotations.get(0).getStartPosition());
         assertEquals(46, annotations.get(0).getEndPosition());
-        assertEquals(15, annotations.get(0).getLength());
         assertEquals("Cleveland", annotations.get(3).getValue());
         assertEquals("Bill Ruckelshaus", annotations.get(33).getValue());
     }
