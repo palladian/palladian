@@ -37,6 +37,12 @@ public final class AllColumnsRowConverter {
 
                 if (columnType == Types.INTEGER) {
                     map.put(columnName, resultSet.getInt(i));
+                } else if (columnType == Types.TINYINT) {
+                    map.put(columnName, resultSet.getInt(i));
+                } else if (columnType == Types.SMALLINT) {
+                    map.put(columnName, resultSet.getInt(i));
+                } else if (columnType == Types.NUMERIC) {
+                    map.put(columnName, resultSet.getInt(i));
                 } else if (columnType == Types.BIGINT) {
                     map.put(columnName, resultSet.getLong(i));
                 } else if (columnType == Types.DOUBLE) {
