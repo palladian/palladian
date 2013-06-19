@@ -426,7 +426,11 @@ public class UnitNormalizer {
                 || unit.equals("megapixels") || unit.equals("mpix") || unit.equals("mpixel") || unit.equals("mp")
                 || unit.equals("mpx")) {
             multiplier = 1000000.0;
-        } else if (unit.equals("%")) {
+        }else if (unit.equals("kpix") || unit.equals("kilopixels") || unit.equals("kilopixel")
+                || unit.equals("kilo pixel")) {
+            multiplier = 1000.0;
+        }
+        else if (unit.equals("%")) {
             multiplier = 0.01;
         }
 
