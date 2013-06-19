@@ -113,21 +113,20 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
      */
     public NewsSeecrSearcher(Configuration configuration) {
         String mashapeKey = configuration.getString(CONFIG_MASHAPE_KEY);
+        String publicKey = configuration.getString(CONFIG_MASHAPE_PUBLIC_KEY);
+        String privateKey = configuration.getString(CONFIG_MASHAPE_PRIVATE_KEY);
         if (StringUtils.isNotEmpty(mashapeKey)) {
             this.mashapeKey = mashapeKey;
             this.mashapePublicKey = null;
             this.mashapePrivateKey = null;
+        } else if (StringUtils.isNotEmpty(publicKey) && StringUtils.isNotEmpty(privateKey)) {
+            this.mashapeKey = null;
+            this.mashapePublicKey = publicKey;
+            this.mashapePrivateKey = privateKey;
         } else {
-            String publicKey = configuration.getString(CONFIG_MASHAPE_PUBLIC_KEY);
-            String privateKey = configuration.getString(CONFIG_MASHAPE_PRIVATE_KEY);
-            if (StringUtils.isNotEmpty(publicKey) && StringUtils.isNotEmpty(privateKey)) {
-                this.mashapeKey = null;
-                this.mashapePublicKey = publicKey;
-                this.mashapePrivateKey = privateKey;
-            }
+            throw new IllegalArgumentException(
+                    "The authentication must either be supplied as one Mashape key, or as public/private key combination (old scheme).");
         }
-        throw new IllegalArgumentException(
-                "The authentication must either be supplied as one Mashape key, or as public/private key combination (old scheme).");
     }
 
     @Override

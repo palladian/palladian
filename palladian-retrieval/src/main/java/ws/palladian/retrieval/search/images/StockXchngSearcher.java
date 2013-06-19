@@ -2,6 +2,8 @@ package ws.palladian.retrieval.search.images;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -22,6 +24,9 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author David Urbansky
  */
 public class StockXchngSearcher extends WebSearcher<WebImageResult> {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(StockXchngSearcher.class);
 
     @Override
     public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
@@ -105,7 +110,7 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
         String url = "http://www.sxc.hu/browse.phtml?f=advanced_search&q1=" + q1 + "&q2=" + q2 + "&q3=" + q3
                 + "&cat=0&r=0&t=0&p=" + page;
 
-        System.out.println(url);
+        LOGGER.debug(url);
 
         return url;
     }
