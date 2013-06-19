@@ -19,6 +19,8 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.JPathHelper;
 import ws.palladian.retrieval.HttpException;
@@ -77,7 +79,7 @@ public final class NewsSeecrLocationSource implements LocationSource {
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        return getLocations(Collections.singletonList(locationName), languages);
+        return getLocations(Collections.singletonList(locationName), languages).get(locationName);
     }
 
     @Override
@@ -104,18 +106,12 @@ public final class NewsSeecrLocationSource implements LocationSource {
         return resultString;
     }
 
-    private List<Location> parseResultArray(String jsonString) {
+    private List<Location> parseResultArray(JSONArray resultArray) throws JSONException {
         List<Location> locations = CollectionHelper.newArrayList();
-        try {
-            JSONArray resultArray = JPathHelper.get(jsonString, "results", JSONArray.class);
-            for (int i = 0; i < resultArray.length(); i++) {
-                JSONObject resultObject = resultArray.getJSONObject(i);
-                Location location = parseSingleResult(resultObject);
-                locations.add(location);
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
-                    + e.getMessage(), e);
+        for (int i = 0; i < resultArray.length(); i++) {
+            JSONObject resultObject = resultArray.getJSONObject(i);
+            Location location = parseSingleResult(resultObject);
+            locations.add(location);
         }
         return locations;
     }
@@ -125,10 +121,10 @@ public final class NewsSeecrLocationSource implements LocationSource {
         Double latitude = JPathHelper.get(resultObject, "latitude", Double.class);
         Double longitude = JPathHelper.get(resultObject, "longitude", Double.class);
         String primaryName = JPathHelper.get(resultObject, "primaryName", String.class);
-        String typeString = JPathHelper.get(resultObject, "locationType", String.class);
+        String typeString = JPathHelper.get(resultObject, "type", String.class);
         Long population = JPathHelper.get(resultObject, "population", Long.class);
         List<AlternativeName> altNames = CollectionHelper.newArrayList();
-        JSONArray jsonArray = JPathHelper.get(resultObject, "alternateNames", JSONArray.class);
+        JSONArray jsonArray = JPathHelper.get(resultObject, "alternativeNames", JSONArray.class);
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject altLanguageJson = jsonArray.getJSONObject(i);
             String nameValue = altLanguageJson.getString("name");
@@ -141,15 +137,9 @@ public final class NewsSeecrLocationSource implements LocationSource {
         }
         LocationType type = LocationType.valueOf(typeString);
         List<Integer> ancestors = CollectionHelper.newArrayList();
-        String ancestorPath = JPathHelper.get(resultObject, "ancestorPath", String.class);
-        if (ancestorPath != null) {
-            String[] split = ancestorPath.split("/");
-            for (int i = split.length - 1; i >= 0; i--) {
-                String ancestorId = split[i];
-                if (StringUtils.isNotBlank(ancestorId)) {
-                    ancestors.add(Integer.valueOf(ancestorId));
-                }
-            }
+        JSONArray ancestorIds = JPathHelper.get(resultObject, "ancestorIds", JSONArray.class);
+        for (int i = 0; i < ancestorIds.length(); i++) {
+            ancestors.add(ancestorIds.getInt(i));
         }
         return new ImmutableLocation(id, primaryName, altNames, type, latitude, longitude, population, ancestors);
     }
@@ -158,11 +148,17 @@ public final class NewsSeecrLocationSource implements LocationSource {
     public List<Location> getLocations(List<Integer> locationIds) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + StringUtils.join(locationIds, '+'));
         String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
+        try {
+            JSONArray resultArray = new JSONObject(jsonString).getJSONArray("results");
+            return parseResultArray(resultArray);
+        } catch (JSONException e) {
+            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
+                    + e.getMessage(), e);
+        }
     }
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL);
         request.addParameter("names", StringUtils.join(locationNames, ','));
         if (languages != null && !languages.isEmpty()) {
@@ -178,7 +174,22 @@ public final class NewsSeecrLocationSource implements LocationSource {
             request.addParameter("languages", langParameter.toString());
         }
         String jsonString = retrieveResult(request);
-        return parseResultArray(jsonString);
+
+        // parse the bulk response
+        try {
+            JSONArray jsonResults = new JSONObject(jsonString).getJSONArray("results");
+            MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
+            for (int i = 0; i < jsonResults.length(); i++) {
+                JSONObject currentResult = jsonResults.getJSONObject(i);
+                String query = currentResult.getString("query");
+                List<Location> locations = parseResultArray(currentResult.getJSONArray("result"));
+                result.put(query, locations);
+            }
+            return result;
+        } catch (JSONException e) {
+            throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
+                    + e.getMessage(), e);
+        }
     }
 
 }

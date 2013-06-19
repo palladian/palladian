@@ -19,7 +19,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  */
 public class UnitNormalizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UnitNormalizer.class);
 
@@ -493,7 +493,7 @@ public class UnitNormalizer {
                 combinedValue = number * 3600; // hours to seconds
                 int lastColonIndex = matcher.group().lastIndexOf(":");
                 combinedValue += Double.valueOf(matcher.group().substring(1, lastColonIndex)) * 60; // minutes to
-                                                                                                    // seconds
+                // seconds
                 combinedValue += Double.valueOf(matcher.group().substring(lastColonIndex + 1, matcher.end()));
                 return MathHelper.round(combinedValue, decimals);
             }
@@ -606,12 +606,20 @@ public class UnitNormalizer {
     }
 
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
-        String words[] = unitText.trim().split(" ");
+
+        // add space in case it's missing "2.4Ghz" => "2.4 Ghz"
+        unitText = unitText.replaceAll("(\\d)([A-Za-z])", "$1 $2").trim();
+        String words[] = unitText.split(" ");
+
+        if (words.length == 0) {
+            words = unitText.trim().split("(?<=[0-9])(?=\\w)");
+        }
+
         double number = Double.parseDouble(words[0]);
 
         String newUnitText = "";
         for (int i = 1; i < words.length; i++) {
-            newUnitText = words[i] + " ";
+            newUnitText += words[i] + " ";
         }
         return getNormalizedNumber(number, newUnitText, 3, "");
     }

@@ -143,6 +143,7 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
+            rollback(connection);
             Object[] args = null;
             if (data != null) {
                 args = data.toArray();
@@ -230,6 +231,7 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
+            rollback(connection);
             logError(e, sql);
         } finally {
             close(connection, ps);
@@ -678,7 +680,8 @@ public class DatabaseManager {
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }
-        LOGGER.error(errorLog.toString(), exception);
+        LOGGER.error(errorLog.toString());
+        LOGGER.debug(errorLog.toString(), exception); // only print stack trace in DEBUG mode
     }
 
     /**
@@ -783,6 +786,23 @@ public class DatabaseManager {
         // the answer is likely: yes, we do!
         for (int i = 0; i < args.length; i++) {
             ps.setObject(i + 1, args[i]);
+        }
+    }
+
+    /**
+     * <p>
+     * Rollback the connection.
+     * </p>
+     * 
+     * @param connection The connection, or <code>null</code>.
+     */
+    protected static final void rollback(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                LOGGER.error("Error while rollback: {}", e);
+            }
         }
     }
 

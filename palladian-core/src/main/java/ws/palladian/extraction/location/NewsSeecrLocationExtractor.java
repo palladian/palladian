@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -35,8 +36,8 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
     /** The name of this extractor. */
     private static final String EXTRACTOR_NAME = "Palladian/NewsSeecr";
 
-    // private static final String BASE_URL = "http://localhost:8080/api/locations/extract";
-    private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/locations/extract";
+    // private static final String BASE_URL = "http://localhost:8080/api/locations/extractor";
+    private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/locations/extractor";
 
     private final String mashapeKey;
 
@@ -76,13 +77,31 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
                 JSONObject currentResult = resultArray.getJSONObject(i);
                 int startPos = currentResult.getInt("startPosition");
                 int endPos = currentResult.getInt("endPosition");
-                String name = currentResult.getString("name");
-                LocationType type = LocationType.valueOf(currentResult.getString("type"));
-                Double lat = currentResult.optDouble("latitude");
-                Double lng = currentResult.optDouble("longitude");
-                int id = 0;
-                Long population = null;
-                Location location = new ImmutableLocation(id, name, type, lat, lng, population);
+                String name = currentResult.getString("value");
+
+                JSONObject locationJson = currentResult.getJSONObject("location");
+                int locationId = locationJson.getInt("id");
+                String primaryName = locationJson.getString("primaryName");
+                LocationType type = LocationType.valueOf(locationJson.getString("type"));
+                Double lat = locationJson.optDouble("latitude");
+                Double lng = locationJson.optDouble("longitude");
+                Long population = locationJson.optLong("population");
+                List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
+                JSONArray altNamesJson = locationJson.getJSONArray("alternativeNames");
+                for (int j = 0; j < altNamesJson.length(); j++) {
+                    JSONObject altNameJson = altNamesJson.getJSONObject(j);
+                    String altName = altNameJson.getString("name");
+                    Language altLng = Language.getByIso6391(altNameJson.getString("language"));
+                    alternativeNames.add(new AlternativeName(altName, altLng));
+                }
+                List<Integer> ancestorIds = CollectionHelper.newArrayList();
+                JSONArray ancestorJson = locationJson.getJSONArray("ancestorIds");
+                for (int j = 0; j < ancestorJson.length(); j++) {
+                    ancestorIds.add(ancestorJson.getInt(j));
+                }
+
+                Location location = new ImmutableLocation(locationId, primaryName, alternativeNames, type, lat, lng,
+                        population, ancestorIds);
                 annotations.add(new LocationAnnotation(startPos, endPos, name, location));
 
             }

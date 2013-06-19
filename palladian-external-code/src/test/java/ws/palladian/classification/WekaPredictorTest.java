@@ -68,8 +68,8 @@ public class WekaPredictorTest {
 
     @Test
     public void testWithPositionalData() {
-        PositionAnnotation annotation1 = new PositionAnnotation("token", 0, 3, 0, "abc");
-        PositionAnnotation annotation2 = new PositionAnnotation("token", 4, 6, 1, "de");
+        PositionAnnotation annotation1 = new PositionAnnotation("token", 0, 3, "abc");
+        PositionAnnotation annotation2 = new PositionAnnotation("token", 4, 6, "de");
         annotation1.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"a"})));
         annotation1.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"b"})));
 
@@ -78,7 +78,7 @@ public class WekaPredictorTest {
         featureVector1.add(annotation1);
         featureVector1.add(annotation2);
 
-        PositionAnnotation annotation3 = new PositionAnnotation("token", 0, 2, 0, "de");
+        PositionAnnotation annotation3 = new PositionAnnotation("token", 0, 2, "de");
         annotation3.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"d"})));
         FeatureVector featureVector2 = new FeatureVector();
         featureVector2.add(annotation3);
