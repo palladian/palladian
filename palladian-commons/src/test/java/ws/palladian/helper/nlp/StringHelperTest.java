@@ -59,6 +59,11 @@ public class StringHelperTest {
         assertEquals(true, StringHelper.containsWord("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
         assertEquals(false, StringHelper.containsWord("cab", "Copacabana, he went there."));
 
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "a test b"));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("test", "a Test b"));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "test"));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("Test", "test"));
+
         assertEquals(true, StringHelper.containsWordRegExp("test", "a test b"));
         assertEquals(true, StringHelper.containsWordRegExp("test", "test"));
         assertEquals(true, StringHelper.containsWordRegExp("yes", "Yes, he went there."));
@@ -363,7 +368,9 @@ public class StringHelperTest {
         assertEquals(
                 "This text's purpose is to test apostrophes normalized by StringHelper's normalizeQuotes",
                 StringHelper
-                        .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
+                .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
+        assertEquals("This text contains longer dashes - like this - and this",
+                StringHelper.normalizeQuotes("This text contains longer dashes – like this — and this"));
     }
 
 }

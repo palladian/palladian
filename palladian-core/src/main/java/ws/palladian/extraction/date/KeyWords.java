@@ -2,8 +2,6 @@ package ws.palladian.extraction.date;
 
 import java.util.Arrays;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 /**
  * 
  * All keywords for different techniques. TODO: refactor for not having a

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -35,15 +37,17 @@ public class PalladianSpellChecker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianSpellChecker.class);
+    private static final Pattern SPLIT = Pattern.compile("\\s");
 
-    private final CountMap<String> words = new CountMap<String>();
+    private final Trie words = new Trie();
 
     public PalladianSpellChecker(String file) {
 
         StopWatch stopWatch = new StopWatch();
 
         // read the input file and create a P(w) model by counting the word occurrences
-        final Pattern p = Pattern.compile("\\w+");
+        final Set<String> uniqueWords = new HashSet<String>();
+        final Pattern p = Pattern.compile("[\\wöäüß]+");
         LineAction lineAction = new LineAction() {
 
             @Override
@@ -51,7 +55,12 @@ public class PalladianSpellChecker {
                 Matcher m = p.matcher(line.toLowerCase());
                 while (m.find()) {
                     String match = m.group();
-                    words.add(match);
+                    Integer count = words.get(match);
+                    if (count == null) {
+                        count = 0;
+                    }
+                    words.put(match, count + 1);
+                    uniqueWords.add(match);
                 }
             }
 
@@ -59,7 +68,7 @@ public class PalladianSpellChecker {
 
         FileHelper.performActionOnEveryLine(file, lineAction);
 
-        LOGGER.info("read file in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("dictionary of " + uniqueWords.size() + " created in " + stopWatch.getElapsedTimeString());
     }
 
     /**
@@ -118,7 +127,7 @@ public class PalladianSpellChecker {
     public String autoCorrect(String text) {
         StringBuilder correctedText = new StringBuilder();
 
-        String[] textWords = text.split("\\s");
+        String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
             word = StringHelper.trim(word);
             correctedText.append(correctWord(word)).append(" ");
@@ -141,19 +150,19 @@ public class PalladianSpellChecker {
         word = word.toLowerCase();
 
         // correct words don't need to be corrected
-        if (words.contains(word)) {
+        if (words.get(word) != null) {
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(word);
             }
             return word;
         }
 
-
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<Integer, String>();
         for (String s : list) {
-            if (words.contains(s)) {
-                candidates.put(words.getCount(s), s);
+            Integer count = words.get(s);
+            if (count != null) {
+                candidates.put(count, s);
             }
         }
 
@@ -161,8 +170,9 @@ public class PalladianSpellChecker {
         if (candidates.isEmpty()) {
             for (String s : list) {
                 for (String w : edits(s)) {
-                    if (words.contains(w)) {
-                        candidates.put(words.getCount(w), w);
+                    Integer count = words.get(w);
+                    if (count != null) {
+                        candidates.put(count, w);
                     }
                 }
             }
@@ -181,10 +191,11 @@ public class PalladianSpellChecker {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(new PalladianSpellChecker("en.txt").autoCorrect("caar"));
-        System.out.println(new PalladianSpellChecker("en.txt").autoCorrect("This ls hoow the etxt is supossed to be"));
-        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("Ist das nichk enn schoner Tetx"));
-        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("blauess hadny"));
+        // System.out.println(new PalladianSpellChecker("en.txt").autoCorrect("caar"));
+        // System.out.println(new
+        // PalladianSpellChecker("en.txt").autoCorrect("This ls hoow the etxt is supossed to be"));
+        // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("Ist das nichk enn schoner Tetx"));
+        // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("blauess hadny"));
         System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("oranes Hadny"));
     }
 }

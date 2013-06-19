@@ -490,6 +490,20 @@ public final class FileHelper {
      * Perform an action on every line of the provided input file.
      * </p>
      * 
+     * @param file The File which should be processed line by line, not <code>null</code>.
+     * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
+     * @return The number of lines processed, <code>-1</code> in case of errors.
+     */
+    public static int performActionOnEveryLine(File file, LineAction lineAction) {
+        Validate.notNull(file, "file must not be null");
+        return performActionOnEveryLine(file.getPath(), lineAction);
+    }
+
+    /**
+     * <p>
+     * Perform an action on every line of the provided input file.
+     * </p>
+     * 
      * @param filePath The path to the file which should be processed line by line, not <code>null</code>.
      * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
      * @return The number of lines processed, <code>-1</code> in case of errors.
@@ -844,11 +858,12 @@ public final class FileHelper {
      * @param obj The obj to serialize.
      * @param filePath The file path where the object should be serialized to.
      */
-    public static void serialize(Serializable obj, String filePath) {
+    public static boolean serialize(Serializable obj, String filePath) {
+
+        boolean success = true;
 
         if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            serializeCompress(obj, filePath);
-            return;
+            return serializeCompress(obj, filePath);
         }
 
         ObjectOutputStream out = null;
@@ -863,14 +878,18 @@ public final class FileHelper {
             out.writeObject(obj);
         } catch (IOException e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", " + e.getCause());
+            success = false;
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
-            System.exit(1);
+            success = false;
         } catch (Exception e) {
             LOGGER.error("could not serialize object, " + e.getMessage());
+            success = false;
         } finally {
             close(out);
         }
+
+        return success;
     }
 
     /**
@@ -879,7 +898,9 @@ public final class FileHelper {
      * @param obj The obj to serialize and compress.
      * @param filePath The file path where the object should be serialized to.
      */
-    private static void serializeCompress(Serializable obj, String filePath) {
+    private static boolean serializeCompress(Serializable obj, String filePath) {
+        boolean success = true;
+
         ObjectOutputStream out = null;
         try {
 
@@ -892,14 +913,18 @@ public final class FileHelper {
             out.writeObject(obj);
         } catch (IOException e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage(), e);
+            success = false;
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage() + ", exiting now!");
-            System.exit(1);
+            success = false;
         } catch (Exception e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage());
+            success = false;
         } finally {
             close(out);
         }
+
+        return success;
     }
 
     /**
@@ -1613,7 +1638,7 @@ public final class FileHelper {
      */
     public static String addTrailingSlash(String path) {
 
-        if (!path.endsWith("/")) {
+        if (!path.endsWith("/") && !path.isEmpty()) {
             return path + "/";
         }
 

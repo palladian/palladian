@@ -91,6 +91,9 @@ public class EventbriteSearcher extends EventSearcher {
         JsonObjectWrapper json = new JsonObjectWrapper(jsonString);
 
         JSONArray eventEntries = json.getJSONArray("events");
+        if (eventEntries == null) {
+            return events;
+        }
         for (int i = 1; i < eventEntries.length(); i++) {
 
             JsonObjectWrapper eventEntry;

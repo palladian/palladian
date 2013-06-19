@@ -1,9 +1,9 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -33,13 +33,13 @@ public final class LocationExtractionEvaluator {
                     + "' does not exist or is no directory.");
         }
 
-        Map<ResultType, Map<String, List<Annotated>>> errors = new LinkedHashMap<ResultType, Map<String, List<Annotated>>>();
-        errors.put(ResultType.CORRECT, new HashMap<String, List<Annotated>>());
-        errors.put(ResultType.ERROR1, new HashMap<String, List<Annotated>>());
-        errors.put(ResultType.ERROR2, new HashMap<String, List<Annotated>>());
-        errors.put(ResultType.ERROR3, new HashMap<String, List<Annotated>>());
-        errors.put(ResultType.ERROR4, new HashMap<String, List<Annotated>>());
-        errors.put(ResultType.ERROR5, new HashMap<String, List<Annotated>>());
+        Map<ResultType, Map<String, Collection<Annotated>>> errors = new LinkedHashMap<ResultType, Map<String, Collection<Annotated>>>();
+        errors.put(ResultType.CORRECT, new HashMap<String, Collection<Annotated>>());
+        errors.put(ResultType.ERROR1, new HashMap<String, Collection<Annotated>>());
+        errors.put(ResultType.ERROR2, new HashMap<String, Collection<Annotated>>());
+        errors.put(ResultType.ERROR3, new HashMap<String, Collection<Annotated>>());
+        errors.put(ResultType.ERROR4, new HashMap<String, Collection<Annotated>>());
+        errors.put(ResultType.ERROR5, new HashMap<String, Collection<Annotated>>());
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
 
@@ -115,14 +115,14 @@ public final class LocationExtractionEvaluator {
         detailedOutput.append("\n\n\n");
 
         // detailed error stats
-        for (Entry<ResultType, Map<String, List<Annotated>>> entry : errors.entrySet()) {
+        for (Entry<ResultType, Map<String, Collection<Annotated>>> entry : errors.entrySet()) {
             ResultType resultType = entry.getKey();
             int errorTypeCount = 0;
-            for (List<Annotated> errorEntry : entry.getValue().values()) {
+            for (Collection<Annotated> errorEntry : entry.getValue().values()) {
                 errorTypeCount += errorEntry.size();
             }
             detailedOutput.append(resultType.getDescription()).append(";").append(errorTypeCount).append("\n");
-            for (Entry<String, List<Annotated>> errorEntry : entry.getValue().entrySet()) {
+            for (Entry<String, Collection<Annotated>> errorEntry : entry.getValue().entrySet()) {
                 for (Annotated annotation : errorEntry.getValue()) {
                     String fileName = errorEntry.getKey();
                     detailedOutput.append("\t").append(annotation).append(";").append(fileName).append("\n");
@@ -140,12 +140,13 @@ public final class LocationExtractionEvaluator {
     }
 
     public static void main(String[] args) {
-        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/LocationExtractionDataset";
+        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
-        // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
-        // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
         // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
+        // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
+        // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
+        // evaluate(new ExtractivLocationExtractor(), DATASET_LOCATION);
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
