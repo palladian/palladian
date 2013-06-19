@@ -613,3 +613,9 @@ Sikh
 Mormon
 Atheist
 Agnostic
+
+# these words alone are too general
+North
+East
+South
+West
