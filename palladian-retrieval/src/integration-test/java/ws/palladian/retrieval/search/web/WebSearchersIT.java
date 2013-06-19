@@ -28,7 +28,6 @@ import ws.palladian.retrieval.search.images.StockXchngSearcher;
 import ws.palladian.retrieval.search.news.BingNewsSearcher;
 import ws.palladian.retrieval.search.news.FarooNewsSearcher;
 import ws.palladian.retrieval.search.news.HakiaNewsSearcher;
-import ws.palladian.retrieval.search.news.NewsSeecrSearcher;
 import ws.palladian.retrieval.search.news.WebKnoxNewsSearcher;
 import ws.palladian.retrieval.search.socialmedia.FacebookSearcher;
 import ws.palladian.retrieval.search.socialmedia.InstagramTagSearcher;
@@ -81,7 +80,7 @@ public class WebSearchersIT {
         searchers.add(new Object[] {new TwitterSearcher()});
 
         // news searchers
-        searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
+        // searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
         searchers.add(new Object[] {new BingNewsSearcher(configuration)});
         searchers.add(new Object[] {new WebKnoxNewsSearcher(configuration)});
         searchers.add(new Object[] {new HakiaNewsSearcher(configuration)});

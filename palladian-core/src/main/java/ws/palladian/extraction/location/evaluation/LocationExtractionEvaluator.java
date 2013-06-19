@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,14 +42,16 @@ public final class LocationExtractionEvaluator {
         errors.put(ResultType.ERROR4, new HashMap<String, Collection<Annotated>>());
         errors.put(ResultType.ERROR5, new HashMap<String, Collection<Annotated>>());
 
+
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
 
+        // for macro averaging
         double precisionMuc = 0;
         double precisionExact = 0;
         double recallMuc = 0;
         double recallExact = 0;
-        double f1Muc = 0;
-        double f1Exact = 0;
+
+        EvaluationResult micro = new EvaluationResult(Collections.<Annotated> emptyList());
 
         StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < files.length; i++) {
@@ -83,16 +86,15 @@ public final class LocationExtractionEvaluator {
             if (!recall2.equals(Double.NaN)) {
                 recallExact += recall2;
             }
-            Double f1 = result.getF1(EvaluationMode.MUC);
-            if (!f1.equals(Double.NaN)) {
-                f1Muc += f1;
-            }
-            Double f12 = result.getF1(EvaluationMode.EXACT_MATCH);
-            if (!f12.equals(Double.NaN)) {
-                f1Exact += f12;
-            }
+
+            micro.merge(result);
 
         }
+
+        precisionExact /= files.length;
+        recallExact /= files.length;
+        precisionMuc /= files.length;
+        recallMuc /= files.length;
 
         // summary
         StringBuilder summary = new StringBuilder();
@@ -100,13 +102,26 @@ public final class LocationExtractionEvaluator {
         summary.append("Result for:").append(extractor.getName()).append("\n\n");
         summary.append("Using dataset:").append(goldStandardFileFolderPath).append("\n\n");
 
-        summary.append("Precision-Exact:").append(precisionExact / files.length).append('\n');
-        summary.append("Recall-Exact:").append(recallExact / files.length).append('\n');
-        summary.append("F1-Exact:").append(f1Exact / files.length).append('\n');
+        summary.append("============ macro average ============\n\n");
+
+        summary.append("Precision-Exact:").append(precisionExact).append('\n');
+        summary.append("Recall-Exact:").append(recallExact).append('\n');
+        summary.append("F1-Exact:").append(2 * precisionExact * recallExact / (precisionExact + recallExact))
+                .append('\n');
         summary.append('\n');
-        summary.append("Precision-MUC:").append(precisionMuc / files.length).append('\n');
-        summary.append("Recall-MUC:").append(recallMuc / files.length).append('\n');
-        summary.append("F1-MUC:").append(f1Muc / files.length).append("\n\n");
+        summary.append("Precision-MUC:").append(precisionMuc).append('\n');
+        summary.append("Recall-MUC:").append(recallMuc).append('\n');
+        summary.append("F1-MUC:").append(2 * precisionMuc * recallMuc / (precisionMuc + recallMuc)).append("\n\n");
+
+        summary.append("============ micro average ============\n\n");
+
+        summary.append("Precision-Exact:").append(micro.getPrecision(EvaluationMode.EXACT_MATCH)).append('\n');
+        summary.append("Recall-Exact:").append(micro.getRecall(EvaluationMode.EXACT_MATCH)).append('\n');
+        summary.append("F1-Exact:").append(micro.getF1(EvaluationMode.EXACT_MATCH)).append('\n');
+        summary.append('\n');
+        summary.append("Precision-MUC:").append(micro.getPrecision(EvaluationMode.MUC)).append('\n');
+        summary.append("Recall-MUC:").append(micro.getRecall(EvaluationMode.MUC)).append('\n');
+        summary.append("F1-MUC:").append(micro.getF1(EvaluationMode.MUC)).append("\n\n");
 
         summary.append("Elapsed time:").append(stopWatch.getTotalElapsedTimeString()).append('\n');
 
