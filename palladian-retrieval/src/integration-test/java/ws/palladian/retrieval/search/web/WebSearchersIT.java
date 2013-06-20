@@ -77,7 +77,7 @@ public class WebSearchersIT {
         // social media searchers
         searchers.add(new Object[] {new InstagramTagSearcher(configuration)});
         searchers.add(new Object[] {new FacebookSearcher()});
-        searchers.add(new Object[] {new TwitterSearcher()});
+        searchers.add(new Object[] {new TwitterSearcher(configuration)});
 
         // news searchers
         // searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
