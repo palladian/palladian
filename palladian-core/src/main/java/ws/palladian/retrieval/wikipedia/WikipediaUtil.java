@@ -2,6 +2,7 @@ package ws.palladian.retrieval.wikipedia;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +13,11 @@ import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -32,6 +37,61 @@ import ws.palladian.retrieval.helper.HttpHelper;
  */
 public final class WikipediaUtil {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaUtil.MarkupLocation.class);
+
+    /**
+     * Utility class representing a location extracted from Wikipedia coordinate markup.
+     */
+    public static final class MarkupLocation implements GeoCoordinate {
+        double lat;
+        double lng;
+        Long population;
+        String display;
+        String name;
+        String type;
+        String region;
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("MarkupLocation [lat=");
+            builder.append(lat);
+            builder.append(", lng=");
+            builder.append(lng);
+            builder.append(", population=");
+            builder.append(population);
+            builder.append(", display=");
+            builder.append(display);
+            builder.append(", name=");
+            builder.append(name);
+            builder.append(", type=");
+            builder.append(type);
+            builder.append(", region=");
+            builder.append(region);
+            builder.append("]");
+            return builder.toString();
+        }
+
+        @Override
+        public Double getLatitude() {
+            return lat;
+        }
+
+        @Override
+        public Double getLongitude() {
+            return lng;
+        }
+
+        public String getDisplay() {
+            return display;
+        }
+
+        public Long getPopulation() {
+            return population;
+        }
+    }
+
     private static final Pattern REF_PATTERN = Pattern.compile("<ref(?:\\s[^>]*)?>[^<]*</ref>|<ref[^/>]*/>",
             Pattern.MULTILINE);
     private static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}([^=]*)={1,6}$", Pattern.MULTILINE);
@@ -44,6 +104,21 @@ public final class WikipediaUtil {
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern INFOBOX_KEY_PATTERN = Pattern.compile("\\|\\s*([^|=]+)\\s*=");
+
+    /**
+     * matcher for coordinate template: {{Coord|47|33|27|N|10|45|00|E|display=title}}
+     */
+    private static final Pattern COORDINATE_TAG_PATTERN = Pattern.compile("\\{\\{Coord" + //
+            // match latitude, either DMS or decimal, N/S is optional
+            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([NS]))?" +
+            // ..-(1)--------------.......-(2)------------........-(3)---------------.........-(4)--
+            // match longitude, either DMS or decimal, W/E is optional
+            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([WE]))?" +
+            // ..-(5)--------------.......-(6)--------------......-(7)---------------.........-(8)--
+            // additional data
+            "((?:\\|[^}|<]+(?:<\\w+>[^<]*</\\w+>)?)*)" + //
+            // -(9)----------------------------------
+            "\\}\\}", Pattern.CASE_INSENSITIVE);//
 
     public static String stripMediaWikiMarkup(String markup) {
 
@@ -235,6 +310,97 @@ public final class WikipediaUtil {
         int open = markup.length() - markup.replace("{{", "").length() / 2;
         int close = markup.length() - markup.replace("}}", "").length() / 2;
         return open - close;
+    }
+
+    /**
+     * <p>
+     * Extract geographical data from Wikipedia page markup.
+     * </p>
+     * 
+     * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject
+     *      Geographical coordinates</a>
+     * @param text The markup, not <code>null</code>.
+     * @return {@link List} of extracted {@link MarkupLocation}s, or an empty list, never <code>null</code>.
+     */
+    public static List<MarkupLocation> extractCoordinateTag(String text) {
+        Validate.notNull(text, "text must not be null");
+        List<MarkupLocation> result = CollectionHelper.newArrayList();
+        Matcher m = COORDINATE_TAG_PATTERN.matcher(text);
+        while (m.find()) {
+            MarkupLocation coordMarkup = new MarkupLocation();
+            coordMarkup.lat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
+            coordMarkup.lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
+
+            // get coordinate parameters
+            String type = getCoordinateParam(m.group(9), "type");
+            if (type != null) {
+                coordMarkup.population = getNumberInBrackets(type);
+                type = type.replaceAll("\\(.*\\)", ""); // remove population
+            }
+            coordMarkup.type = type;
+            coordMarkup.region = getCoordinateParam(m.group(9), "region");
+            // get other parameters
+            coordMarkup.display = getOtherParam(m.group(9), "display");
+            coordMarkup.name = getOtherParam(m.group(9), "name");
+
+            result.add(coordMarkup);
+        }
+        return result;
+    }
+
+    private static Long getNumberInBrackets(String string) {
+        Matcher matcher = Pattern.compile("\\(([\\d,]+)\\)").matcher(string);
+        if (matcher.find()) {
+            String temp = matcher.group(1).replace(",", "");
+            try {
+                return Long.valueOf(temp);
+            } catch (NumberFormatException e) {
+                LOGGER.error("Error parsing {}", temp);
+            }
+        }
+        return null;
+    }
+
+    private static String getOtherParam(String group, String name) {
+        String[] parts = group.split("\\|");
+        for (String temp1 : parts) {
+            String[] keyValue = temp1.split("=");
+            if (keyValue.length == 2 && keyValue[0].equals(name)) {
+                return keyValue[1].trim();
+            }
+        }
+        return null;
+    }
+
+    private static String getCoordinateParam(String group, String name) {
+        String[] parts = group.split("\\|");
+        for (String temp1 : parts) {
+            for (String temp2 : temp1.split("_")) {
+                String[] keyValue = temp2.split(":");
+                if (keyValue.length == 2 && keyValue[0].equals(name)) {
+                    return keyValue[1].trim();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parse DMS components. The only part which must not be <code>null</code> is deg.
+     * 
+     * @param deg Degree part, not <code>null</code>.
+     * @param min Minute part, may be <code>null</code>.
+     * @param sec Second part, may be <code>null</code>.
+     * @param nsew NSEW modifier, should be in [NSEW], may be <code>null</code>.
+     * @return Parsed double value.
+     */
+    private static double parseComponents(String deg, String min, String sec, String nsew) {
+        Validate.notNull(deg, "deg must not be null");
+        double parsedDeg = Double.valueOf(deg);
+        double parsedMin = min != null ? Double.valueOf(min) : 0;
+        double parsedSec = sec != null ? Double.valueOf(sec) : 0;
+        int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
+        return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
     }
 
     private WikipediaUtil() {
