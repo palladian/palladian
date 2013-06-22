@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
@@ -235,10 +236,11 @@ public final class WikipediaUtil {
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
         // http://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=Dresden
-        String underscoreTitle = title.replace(" ", "_");
+        String escapedTitle = title.replace(" ", "_");
+        escapedTitle = UrlHelper.encodeParameter(escapedTitle);
         String url = String.format("http://%s.wikipedia.org/w/api.php?action=query"
                 + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", language.getIso6391(),
-                underscoreTitle);
+                escapedTitle);
         try {
             HttpResult httpResult = retriever.httpGet(url);
             String stringResult = HttpHelper.getStringContent(httpResult);
