@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -58,9 +55,6 @@ public class WikipediaPage {
 
     }
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
-
     /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
     public static final int MAIN_NAMESPACE = 0;
 
@@ -108,30 +102,7 @@ public class WikipediaPage {
      * @return The markup of the infobox, if found, or <code>null</code>.
      */
     public String getInfoboxMarkup() {
-        int startIdx = text.toLowerCase().indexOf("{{infobox");
-        if (startIdx == -1) {
-            return null;
-        }
-        try {
-            int brackets = 0;
-            int endIdx;
-            for (endIdx = startIdx; startIdx < text.length(); endIdx++) {
-                char current = text.charAt(endIdx);
-                if (current == '{') {
-                    brackets++;
-                } else if (current == '}') {
-                    brackets--;
-                }
-                if (brackets == 0) {
-                    break;
-                }
-            }
-            return text.substring(startIdx, endIdx + 1);
-        } catch (StringIndexOutOfBoundsException e) {
-            LOGGER.warn("Encountered {} at '{}' (page id: {}), potentially caused by invalid markup.", new Object[] {e,
-                    title, pageId});
-            return null;
-        }
+        return CollectionHelper.getFirst(WikipediaUtil.getNamedMarkup(text, "infobox"));
     }
 
     /**
@@ -192,24 +163,7 @@ public class WikipediaPage {
      *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
      */
     public List<WikipediaLink> getLinks() {
-        List<WikipediaLink> result = CollectionHelper.newArrayList();
-        Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(text);
-        while (matcher.find()) {
-            String target = matcher.group(1);
-            // strip fragments
-            int idx = target.indexOf('#');
-            if (idx >= 0) {
-                target = target.substring(0, idx);
-            }
-            String text = matcher.group(2);
-            // ignore category links here
-            if (target.toLowerCase().startsWith("category:")) {
-                continue;
-            }
-            result.add(new WikipediaLink(target, text));
-        }
-
-        return result;
+        return WikipediaUtil.getLinks(text);
     }
 
     @Override

@@ -26,6 +26,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaLink;
 
 /**
  * <p>
@@ -38,7 +39,7 @@ import ws.palladian.retrieval.helper.HttpHelper;
 public final class WikipediaUtil {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaUtil.MarkupLocation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaUtil.class);
 
     /**
      * Utility class representing a location extracted from Wikipedia coordinate markup.
@@ -97,7 +98,7 @@ public final class WikipediaUtil {
     private static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}([^=]*)={1,6}$", Pattern.MULTILINE);
     private static final Pattern CONVERT_PATTERN = Pattern
             .compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
-    public static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
+    private static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
     private static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
 
     private static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
@@ -121,6 +122,7 @@ public final class WikipediaUtil {
             "\\}\\}", Pattern.CASE_INSENSITIVE);//
 
     public static String stripMediaWikiMarkup(String markup) {
+        Validate.notNull(markup, "markup must not be null");
 
         // strip everything in <ref> tags
         String result = REF_PATTERN.matcher(markup).replaceAll("");
@@ -146,7 +148,10 @@ public final class WikipediaUtil {
 
         // remove everything left in between { ... } and [ ... ]
         result = removeArea(result, '{', '}');
-        result = removeArea(result, '[', ']');
+
+        // result = removeArea(result, '[', ']');
+        // XXX replaced by RegEx, not sure if accurate
+        result = result.replaceAll("\\[\\[[^]]*\\]\\]", "");
 
         // remove single line breaks; but keep lists (lines starting with *)
         result = result.replaceAll("(?<!\n)\n(?![*\n])", " ");
@@ -294,6 +299,7 @@ public final class WikipediaUtil {
                 key = matcher.group(1).trim();
                 startIdx = matcher.end();
             }
+            value = infoboxContent.substring(startIdx, infoboxContent.length()).trim();
             properties.put(key, value);
         }
         return properties;
@@ -401,6 +407,73 @@ public final class WikipediaUtil {
         double parsedSec = sec != null ? Double.valueOf(sec) : 0;
         int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
         return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
+    }
+
+    /**
+     * @param markup The markup, nor <code>null</code>.
+     * @return A {@link List} with all internal links on the page (sans "category:" links; they can be retrieved using
+     *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
+     */
+    public static final List<WikipediaLink> getLinks(String markup) {
+        Validate.notNull(markup, "markup must not be null");
+        List<WikipediaLink> result = CollectionHelper.newArrayList();
+        Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(markup);
+        while (matcher.find()) {
+            String target = matcher.group(1);
+            // strip fragments
+            int idx = target.indexOf('#');
+            if (idx >= 0) {
+                target = target.substring(0, idx);
+            }
+            String text = matcher.group(2);
+            // ignore category links here
+            if (target.toLowerCase().startsWith("category:")) {
+                continue;
+            }
+            result.add(new WikipediaLink(target, text));
+        }
+
+        return result;
+    }
+    
+    /**
+     * <p>
+     * Get the content of markup area between double curly braces, like {{infobox …}}, {{quote …}}, etc.
+     * </p>
+     * 
+     * @param markup The media wiki markup, not <code>null</code>.
+     * @param name The name, like infobox, quote, etc.
+     * @return The content in the markup, or <code>null</code> if not found.
+     */
+    public static List<String> getNamedMarkup(String markup, String name) {
+        List<String> result = CollectionHelper.newArrayList();
+        int startIdx = 0;
+        for (;;) {
+            startIdx = markup.toLowerCase().indexOf("{{" + name.toLowerCase(), startIdx);
+            if (startIdx == -1) {
+                break;
+            }
+            int brackets = 0;
+            int endIdx;
+            for (endIdx = startIdx; startIdx < markup.length(); endIdx++) {
+                char current = markup.charAt(endIdx);
+                if (current == '{') {
+                    brackets++;
+                } else if (current == '}') {
+                    brackets--;
+                }
+                if (brackets == 0) {
+                    break;
+                }
+            }
+            try {
+                result.add(markup.substring(startIdx, endIdx + 1));
+            } catch (StringIndexOutOfBoundsException e) {
+                LOGGER.warn("Encountered {}, potentially caused by invalid markup.");
+            }
+            startIdx = endIdx;
+        }
+        return result;
     }
 
     private WikipediaUtil() {

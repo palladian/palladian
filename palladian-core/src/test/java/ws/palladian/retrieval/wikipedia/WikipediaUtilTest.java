@@ -40,6 +40,7 @@ public class WikipediaUtilTest {
         assertEquals("300px", data.get("imagesize"));
         assertEquals("", data.get("image_caption"));
         // ...
+        assertEquals("1206", data.get("year"));
 
         markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Stack_Overflow.wikipedia"));
         page = new WikipediaPage(0, 0, "Stack Overflow", markup);
@@ -147,5 +148,14 @@ public class WikipediaUtilTest {
         assertEquals(1, locations.size());
         assertEquals("landmark", locations.get(0).type);
         assertEquals("t", locations.get(0).display);
+    }
+
+    @Test
+    public void testStripMarkup() throws FileNotFoundException {
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        String cleanText = WikipediaUtil.stripMediaWikiMarkup(markup);
+        // System.out.println(cleanText);
+        assertEquals(46225, cleanText.length());
+        assertEquals(-43112148, cleanText.hashCode());
     }
 }
