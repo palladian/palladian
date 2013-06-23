@@ -105,8 +105,6 @@ public final class WikipediaUtil {
     private static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
             Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern INFOBOX_KEY_PATTERN = Pattern.compile("\\|\\s*([^|=]+)\\s*=");
-
     /**
      * matcher for coordinate template: {{Coord|47|33|27|N|10|45|00|E|display=title}}
      */
@@ -274,50 +272,58 @@ public final class WikipediaUtil {
 
     /**
      * <p>
-     * Extract key-value pairs from Wikipedia infobox markup.
+     * Extract key-value pairs from Wikipedia template markup.
      * </p>
      * 
      * @param markup The markup, not <code>null</code>.
-     * @return A {@link Map} containing extracted key-value pairs from the infobox, entries in the map have the same
-     *         order as in the markup.
+     * @return A {@link Map} containing extracted key-value pairs from the template, entries in the map have the same
+     *         order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
      */
-    public static Map<String, String> extractInfobox(String markup) {
+    public static Map<String, String> extractTemplate(String markup) {
         Validate.notNull(markup, "markup must not be null");
         Map<String, String> properties = new LinkedHashMap<String, String>();
         // trim surrounding {{ and }}
-        String infoboxContent = markup.substring(2, markup.length() - 2);
-        Matcher matcher = INFOBOX_KEY_PATTERN.matcher(infoboxContent);
-        if (matcher.find()) {
-            String key = matcher.group(1).trim();
-            String value = null;
-            int startIdx = matcher.end();
-            while (matcher.find()) {
-                int endIdx = matcher.start();
-                if (getDoubleBracketBalance(infoboxContent.substring(0, endIdx)) != 0) {
-                    continue;
+        String content = markup.substring(2, markup.length() - 2);
+        int i = 0;
+        for (String part : splitTemplateMarkup(content)) {
+            String key = String.valueOf(i++);
+            int equalIdx = part.indexOf('=');
+            if (equalIdx > 0) {
+                String potentialKey = part.substring(0, equalIdx);
+                if (isBracketBalanced(potentialKey)) {
+                    key = part.substring(0, equalIdx).trim();
                 }
-                value = infoboxContent.substring(startIdx, endIdx).trim();
-                properties.put(key, value);
-                key = matcher.group(1).trim();
-                startIdx = matcher.end();
             }
-            value = infoboxContent.substring(startIdx, infoboxContent.length()).trim();
-            properties.put(key, value);
+            properties.put(key, part.substring(equalIdx + 1).trim());
         }
         return properties;
     }
 
+    static final List<String> splitTemplateMarkup(String markup) {
+        List<String> result = CollectionHelper.newArrayList();
+        int startIdx = markup.indexOf('|') + 1;
+        for (int currentIdx = startIdx; currentIdx < markup.length(); currentIdx++) {
+            char currentChar = markup.charAt(currentIdx);
+            String substring = markup.substring(0, currentIdx);
+            if (currentChar == '|' && isBracketBalanced(substring)) {
+                result.add(markup.substring(startIdx, currentIdx));
+                startIdx = currentIdx + 1;
+            }
+        }
+        result.add(markup.substring(startIdx));
+        return result;
+    }
+
     /**
-     * Determine the opening/closing balance of double curly brackets.
+     * Check, whether opening/closing brackets are in balance.
      * 
      * @param markup The markup.
-     * @return The balance, zero if same amount of brackets have been opened and closed, if value is positive, more
-     *         brackets have been opened than closed.
+     * @return <code>true</code>, if number of opening = number of closing characters.
      */
-    private static final int getDoubleBracketBalance(String markup) {
-        int open = markup.length() - markup.replace("{{", "").length() / 2;
-        int close = markup.length() - markup.replace("}}", "").length() / 2;
-        return open - close;
+    private static final boolean isBracketBalanced(String markup) {
+        int open = markup.replace("{{", "").replace("[[", "").length();
+        int close = markup.replace("}}", "").replace("]]", "").length();
+        return open - close == 0;
     }
 
     /**
@@ -483,8 +489,8 @@ public final class WikipediaUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(getDoubleBracketBalance("{{xx{{{{"));
-        System.exit(0);
+        // System.out.println(getDoubleBracketBalance("{{xx{{{{"));
+        // System.exit(0);
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/newYork.wikipedia");
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/sample2.wikipedia");
         // String text = stripMediaWikiMarkup(wikipediaPage);
