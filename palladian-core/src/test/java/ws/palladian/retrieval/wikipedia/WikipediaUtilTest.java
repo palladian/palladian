@@ -171,4 +171,11 @@ public class WikipediaUtilTest {
         assertEquals(46225, cleanText.length());
         assertEquals(-43112148, cleanText.hashCode());
     }
+
+    @Test
+    public void testGetSections() throws FileNotFoundException {
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        List<String> sections = WikipediaUtil.getSections(markup);
+        assertEquals(46, sections.size());
+    }
 }
