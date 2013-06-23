@@ -105,6 +105,9 @@ public final class WikipediaUtil {
     private static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
             Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern OPEN_TAG_PATTERN = Pattern.compile("<\\w+[^>/]*>");
+    private static final Pattern CLOSE_TAG_PATTERN = Pattern.compile("</\\w+[^>]*>");
+
     /**
      * matcher for coordinate template: {{Coord|47|33|27|N|10|45|00|E|display=title}}
      */
@@ -207,7 +210,7 @@ public final class WikipediaUtil {
 
     public static String cleanTitle(String title) {
         String clean = title.replaceAll("\\s\\([^)]*\\)", "");
-        clean = clean.replaceAll(",.*", "");
+        clean = clean.replaceAll(",.*", ""); // XXX comma should not be here! (makes sense for locations only)
         return clean;
     }
 
@@ -290,8 +293,10 @@ public final class WikipediaUtil {
             int equalIdx = part.indexOf('=');
             if (equalIdx > 0) {
                 String potentialKey = part.substring(0, equalIdx);
-                if (isBracketBalanced(potentialKey)) {
+                if (isBracketBalanced(potentialKey) && isTagBalanced(potentialKey)) {
                     key = part.substring(0, equalIdx).trim();
+                } else {
+                    equalIdx = -1;
                 }
             }
             properties.put(key, part.substring(equalIdx + 1).trim());
@@ -321,9 +326,17 @@ public final class WikipediaUtil {
      * @return <code>true</code>, if number of opening = number of closing characters.
      */
     private static final boolean isBracketBalanced(String markup) {
-        int open = markup.replace("{{", "").replace("[[", "").length();
-        int close = markup.replace("}}", "").replace("]]", "").length();
+        // check the balance of bracket-like characters
+        int open = markup.replace("{{", "").replace("[", "").replace("<", "").length();
+        int close = markup.replace("}}", "").replace("]", "").replace(">", "").length();
         return open - close == 0;
+    }
+
+    private static final boolean isTagBalanced(String markup) {
+        // check the balance of HTML tags
+        int openTags = StringHelper.countRegexMatches(markup, OPEN_TAG_PATTERN);
+        int closeTags = StringHelper.countRegexMatches(markup, CLOSE_TAG_PATTERN);
+        return openTags - closeTags == 0;
     }
 
     /**
@@ -481,6 +494,30 @@ public final class WikipediaUtil {
             }
             startIdx = endIdx;
         }
+        return result;
+    }
+
+    /**
+     * <p>
+     * Split the given MediaWiki markup into individual sections. The beginning of the article is also added to the
+     * result, even if it does not start with a section heading.
+     * </p>
+     * 
+     * @param markup The MediaWiki markup, not <code>null</code>.
+     * @return List with sections, starting with the original section headings, or empty list if no sections were found,
+     *         never <code>null</code> however.
+     */
+    public static List<String> getSections(String markup) {
+        Validate.notNull(markup, "markup must not be null");
+        List<String> result = CollectionHelper.newArrayList();
+        Matcher matcher = HEADING_PATTERN.matcher(markup);
+        int start = 0;
+        while (matcher.find()) {
+            int end = matcher.start();
+            result.add(markup.substring(start, end));
+            start = end;
+        }
+        result.add(markup.substring(start));
         return result;
     }
 
