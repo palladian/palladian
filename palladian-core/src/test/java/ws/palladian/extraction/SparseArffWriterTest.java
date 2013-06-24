@@ -8,7 +8,11 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.extraction.feature.SparseArffWriter;
@@ -17,12 +21,13 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * 
+ * Tests whether the {@link SparseArffWriter} works correctly or not.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -32,39 +37,57 @@ import ws.palladian.processing.features.NumericFeature;
 public class SparseArffWriterTest {
     // private final String expectedArffFile =
     // "@relation model\n\n @attribute \"la\" numeric\n@attribute \"blah\" numeric\n@attribute \"da\" numeric\n@attribute \"nominalFeature\" {wekadummy,a}\n@attribute \"numericFeature\" numeric\n\n@data\n{0 1.0,1 1.0,2 1.0,3 a,4 0.78}\n";
-    private final String expectedArffFile = "@relation model\n\n @attribute \"nominalFeature\" {wekadummy,a}\n@attribute \"numericFeature\" numeric\n@attribute \"la\" numeric\n@attribute \"blah\" numeric\n@attribute \"da\" numeric\n\n@data\n{0 a,1 0.78,2 1.0,3 1.0,4 1.0}\n";
+    private final String expectedArffFile = "@relation model\n\n@attribute \"la\" numeric\n@attribute \"blah\" numeric\n@attribute \"da\" numeric\n@attribute \"nominalFeature\" {wekadummy,a}\n@attribute \"numericFeature\" numeric\n@attribute \"la-count\" numeric\n@attribute \"blah-count\" numeric\n@attribute \"da-count\" numeric\n\n@data\n{0 1.0,1 1.0,2 1.0,3 a,4 0.78,5 2.0,6 1.0,7 1.0}\n";
+    private File tempFile;
+
+    @Before
+    public void setUp() throws IOException {
+        tempFile = File.createTempFile("sparsearffwritertext", "arff");
+    }
+
+    @After
+    public void tearDown() {
+        if (tempFile.exists()) {
+            tempFile.delete();
+        }
+    }
 
     @Test
     public void test() throws IOException, DocumentUnprocessableException {
         String nominalFeatureName = "nominalFeature";
         String numericFeatureName = "numericFeature";
         String listFeatureName = "listFeature";
+        String numericListFeatureName = "numericListFeature";
         TextDocument document = new TextDocument("This is some test document.");
         FeatureVector featureVector = document.getFeatureVector();
+
+        // la should be only once in the result ARFF.
+        List<String> listFeatureValue = new ArrayList<String>();
+        listFeatureValue.add("la");
+        listFeatureValue.add("blah");
+        listFeatureValue.add("da");
+        listFeatureValue.add("la");
+        ListFeature<String> listFeature = new ListFeature<String>(listFeatureName, listFeatureValue);
+        featureVector.add(listFeature);
+
+        List<NumericFeature> numericListFeatureValue = new ArrayList<NumericFeature>();
+        numericListFeatureValue.add(new NumericFeature("la-count", 2));
+        numericListFeatureValue.add(new NumericFeature("blah-count", 1));
+        numericListFeatureValue.add(new NumericFeature("da-count", 1));
+        ListFeature<NumericFeature> numericListFeature = new ListFeature<NumericFeature>(numericListFeatureName,
+                numericListFeatureValue);
+        featureVector.add(numericListFeature);
+
         featureVector.add(new NominalFeature(nominalFeatureName, "a"));
         featureVector.add(new NumericFeature(numericFeatureName, 0.78));
-        // la should be only once in the result ARFF.
-        featureVector.add(new NominalFeature(listFeatureName, "la"));
-        featureVector.add(new NominalFeature(listFeatureName, "blah"));
-        featureVector.add(new NominalFeature(listFeatureName, "da"));
-        featureVector.add(new NominalFeature(listFeatureName, "la"));
 
-        String[] featureNames = new String[] {nominalFeatureName, numericFeatureName, listFeatureName};
-
-        File tempFile = File.createTempFile("sparsearffwritertext", "arff");
-
-        SparseArffWriter objectOfClassUnderTest = new SparseArffWriter(tempFile.getAbsolutePath(), featureNames);
+        SparseArffWriter objectOfClassUnderTest = new SparseArffWriter(tempFile.getAbsolutePath());
         objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
         objectOfClassUnderTest.process();
         objectOfClassUnderTest.saveModel();
-        // objectOfClassUnderTest.processingFinished();
-
-        // File arffFile = new File("sparsearffwritertest");
 
         String actualArffFile = FileHelper.readFileToString(tempFile);
-        // System.out.println(actualArffFile);
         assertThat(actualArffFile, is(expectedArffFile));
-        // // FileUtils.forceDelete(arffFile);
     }
 
 }

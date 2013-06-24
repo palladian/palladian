@@ -11,7 +11,7 @@ package ws.palladian.processing.features;
  * @version 2.0
  * @since 0.1.7
  */
-public class NominalFeature extends Feature<String> {
+public class NominalFeature extends AbstractFeature<String> {
 
     /**
      * <p>

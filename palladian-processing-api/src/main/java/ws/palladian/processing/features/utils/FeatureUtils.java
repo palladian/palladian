@@ -3,16 +3,9 @@
  */
 package ws.palladian.processing.features.utils;
 
-import java.util.ArrayList;
 import java.util.EmptyStackException;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.Stack;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Feature;
@@ -30,191 +23,191 @@ public final class FeatureUtils {
                 + this.getClass().getCanonicalName());
     }
 
-    public static <T extends Feature<?>> Set<T> convertToSet(FeatureVector vector, Class<T> featureClass,
-            String featurePath) {
-        return new HashSet<T>(getFeaturesAtPath(vector, featureClass, featurePath));
-    }
+    // public static <T extends Feature<?>> Set<T> convertToSet(FeatureVector vector, Class<T> featureClass,
+    // String featurePath) {
+    // return new HashSet<T>(getFeaturesAtPath(vector, featureClass, featurePath));
+    // }
+    //
+    // public static Iterable<Feature<?>> iterateRecursively(final FeatureVector vector) {
+    // return new Iterable<Feature<?>>() {
+    // @Override
+    // public Iterator<Feature<?>> iterator() {
+    // return new FeatureIterator(vector);
+    // }
+    // };
+    // }
 
-    public static Iterable<Feature<?>> iterateRecursively(final FeatureVector vector) {
-        return new Iterable<Feature<?>>() {
-            @Override
-            public Iterator<Feature<?>> iterator() {
-                return new FeatureIterator(vector);
-            }
-        };
-    }
+    // public static <T extends Feature<?>> List<T> getFeaturesAtPath(FeatureVector vector, Class<T> featureClass,
+    // String featurePath) {
+    // int slashIndex = featurePath.indexOf("/");
+    // String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
+    // String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
+    // List<Feature<?>> featureList = vector.getAll(leadingPathPart);
+    //
+    // List<T> ret = new ArrayList<T>();
+    // if (!trailingPathPart.isEmpty()) {
+    // for (Feature<?> feature : featureList) {
+    // if (feature instanceof Classifiable) {
+    // Classifiable classifiable = (Classifiable)feature;
+    // ret.addAll(getFeaturesAtPath(classifiable.getFeatureVector(), featureClass, trailingPathPart));
+    // }
+    // }
+    // } else {
+    // for (Feature<?> feature : featureList) {
+    // if (featureClass.isInstance(feature)) {
+    // ret.add(featureClass.cast(feature));
+    // }
+    // }
+    // }
+    // return ret;
+    // }
+    //
+    // public static List<Feature<?>> getFeaturesAtPath(FeatureVector vector, String featurePath) {
+    // int slashIndex = featurePath.indexOf("/");
+    // String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
+    // String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
+    // List<Feature<?>> featureList = vector.getAll(leadingPathPart);
+    //
+    // List<Feature<?>> ret = new ArrayList<Feature<?>>();
+    // if (!trailingPathPart.isEmpty()) {
+    // for (Feature<?> feature : featureList) {
+    // if (feature instanceof Classifiable) {
+    // Classifiable classifiable = (Classifiable)feature;
+    // ret.addAll(getFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart));
+    // }
+    // }
+    // } else {
+    // for (Feature<?> feature : featureList) {
+    // ret.add(feature);
+    // }
+    // }
+    // return ret;
+    // }
 
-    public static <T extends Feature<?>> List<T> getFeaturesAtPath(FeatureVector vector, Class<T> featureClass,
-            String featurePath) {
-        int slashIndex = featurePath.indexOf("/");
-        String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
-        String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
-        List<Feature<?>> featureList = vector.getAll(leadingPathPart);
+    // /**
+    // * <p>
+    // * Removes the feature with the specified value at the provided path from the {@link FeatureVector}.
+    // * </p>
+    // *
+    // * @param featureVector the {@link FeatureVector} to remove a {@link Feature} from.
+    // * @param featurePath The path the the feature to remove.
+    // * @param value The value of the feature to remove at the path.
+    // */
+    // public static void removeFeatureAtPath(FeatureVector featureVector, String featurePath, String value) {
+    // int slashIndex = featurePath.indexOf("/");
+    // String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
+    // String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
+    // List<Feature<?>> featureList = new ArrayList<Feature<?>>(featureVector.getAll(leadingPathPart));
+    //
+    // if (!trailingPathPart.isEmpty()) {
+    // for (Feature<?> feature : featureList) {
+    // if (feature instanceof Classifiable) {
+    // Classifiable classifiable = (Classifiable)feature;
+    // removeFeatureAtPath(classifiable.getFeatureVector(), trailingPathPart, value);
+    // }
+    // }
+    // } else {
+    // for (Feature<?> feature : featureList) {
+    // if (feature.getValue().equals(value)) {
+    // featureVector.removeAll(feature.getName());
+    // }
+    // }
+    // }
+    // }
 
-        List<T> ret = new ArrayList<T>();
-        if (!trailingPathPart.isEmpty()) {
-            for (Feature<?> feature : featureList) {
-                if (feature instanceof Classifiable) {
-                    Classifiable classifiable = (Classifiable)feature;
-                    ret.addAll(getFeaturesAtPath(classifiable.getFeatureVector(), featureClass, trailingPathPart));
-                }
-            }
-        } else {
-            for (Feature<?> feature : featureList) {
-                if (featureClass.isInstance(feature)) {
-                    ret.add(featureClass.cast(feature));
-                }
-            }
-        }
-        return ret;
-    }
+    // /**
+    // * <p>
+    // * Finds all occurrences of the {@link Feature} inside the provided {@link FeatureVector} including its
+    // * {@link Feature}s {@link FeatureVector}s.
+    // * </p>
+    // *
+    // * @param feature An instance of the {@link Feature} to search for.
+    // * @param featureVector The {@link FeatureVector} to search.
+    // * @return A {@link List} of the found {@link Feature}s.
+    // */
+    // public static List<? extends Feature<?>> find(Feature<?> feature, FeatureVector featureVector) {
+    // List<Feature<?>> ret = new ArrayList<Feature<?>>();
+    // for (Feature<?> existingFeature : featureVector) {
+    // if (existingFeature.getName().equals(feature.getName())) {
+    // ret.add(existingFeature);
+    // } else if (existingFeature instanceof Classifiable) {
+    // ret.addAll(find(feature, ((Classifiable)existingFeature).getFeatureVector()));
+    // }
+    // }
+    // return ret;
+    // }
 
-    public static List<Feature<?>> getFeaturesAtPath(FeatureVector vector, String featurePath) {
-        int slashIndex = featurePath.indexOf("/");
-        String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
-        String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
-        List<Feature<?>> featureList = vector.getAll(leadingPathPart);
+    // /**
+    // * <p>
+    // * Creates a unique identifier for each feature extracted at the provided path. The identifier is uniqe across the
+    // * entire hierarchy of features.
+    // * </p>
+    // *
+    // * @param featureVector
+    // * @param class
+    // * @param path
+    // * @return
+    // */
+    // public static List<Pair<List<FeatureDescriptor>, Feature<?>>> getIdentifiedFeaturesAtPath(FeatureVector vector,
+    // String path, List<FeatureDescriptor> prefix) {
+    // int slashIndex = path.indexOf("/");
+    // String leadingPathPart = slashIndex == -1 ? path : path.substring(0, slashIndex);
+    // String trailingPathPart = slashIndex == -1 ? "" : path.substring(slashIndex + 1, path.length());
+    // List<? extends Feature<?>> featureList = vector.getAll(leadingPathPart);
+    //
+    // List<Pair<List<FeatureDescriptor>, Feature<?>>> ret = new ArrayList<Pair<List<FeatureDescriptor>, Feature<?>>>();
+    // if (!trailingPathPart.isEmpty()) {
+    // for (Feature<?> feature : featureList) {
+    // if (feature instanceof Classifiable) {
+    // Classifiable classifiable = (Classifiable)feature;
+    // List<FeatureDescriptor> currentPrefix = new ArrayList<FeatureDescriptor>();
+    // currentPrefix.add(new FeatureDescriptor(leadingPathPart, feature.getValue().toString()));
+    // ret.addAll(getIdentifiedFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart,
+    // currentPrefix));
+    // }
+    // }
+    // } else {
+    // for (Feature<?> feature : featureList) {
+    // List<FeatureDescriptor> identifier = new ArrayList<FeatureDescriptor>(prefix);
+    // identifier.add(new FeatureDescriptor(leadingPathPart, leadingPathPart));
+    // ret.add(new ImmutablePair<List<FeatureDescriptor>, Feature<?>>(identifier, feature));
+    // }
+    // }
+    // return ret;
+    // }
 
-        List<Feature<?>> ret = new ArrayList<Feature<?>>();
-        if (!trailingPathPart.isEmpty()) {
-            for (Feature<?> feature : featureList) {
-                if (feature instanceof Classifiable) {
-                    Classifiable classifiable = (Classifiable)feature;
-                    ret.addAll(getFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart));
-                }
-            }
-        } else {
-            for (Feature<?> feature : featureList) {
-                ret.add(feature);
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Removes the feature with the specified value at the provided path from the {@link FeatureVector}.
-     * </p>
-     * 
-     * @param featureVector the {@link FeatureVector} to remove a {@link Feature} from.
-     * @param featurePath The path the the feature to remove.
-     * @param value The value of the feature to remove at the path.
-     */
-    public static void removeFeatureAtPath(FeatureVector featureVector, String featurePath, String value) {
-        int slashIndex = featurePath.indexOf("/");
-        String leadingPathPart = slashIndex == -1 ? featurePath : featurePath.substring(0, slashIndex);
-        String trailingPathPart = slashIndex == -1 ? "" : featurePath.substring(slashIndex + 1, featurePath.length());
-        List<Feature<?>> featureList = new ArrayList<Feature<?>>(featureVector.getAll(leadingPathPart));
-
-        if (!trailingPathPart.isEmpty()) {
-            for (Feature<?> feature : featureList) {
-                if (feature instanceof Classifiable) {
-                    Classifiable classifiable = (Classifiable)feature;
-                    removeFeatureAtPath(classifiable.getFeatureVector(), trailingPathPart, value);
-                }
-            }
-        } else {
-            for (Feature<?> feature : featureList) {
-                if (feature.getValue().equals(value)) {
-                    featureVector.removeAll(feature.getName());
-                }
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Finds all occurrences of the {@link Feature} inside the provided {@link FeatureVector} including its
-     * {@link Feature}s {@link FeatureVector}s.
-     * </p>
-     * 
-     * @param feature An instance of the {@link Feature} to search for.
-     * @param featureVector The {@link FeatureVector} to search.
-     * @return A {@link List} of the found {@link Feature}s.
-     */
-    public static List<? extends Feature<?>> find(Feature<?> feature, FeatureVector featureVector) {
-        List<Feature<?>> ret = new ArrayList<Feature<?>>();
-        for (Feature<?> existingFeature : featureVector) {
-            if (existingFeature.getName().equals(feature.getName())) {
-                ret.add(existingFeature);
-            } else if (existingFeature instanceof Classifiable) {
-                ret.addAll(find(feature, ((Classifiable)existingFeature).getFeatureVector()));
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Creates a unique identifier for each feature extracted at the provided path. The identifier is uniqe across the
-     * entire hierarchy of features.
-     * </p>
-     * 
-     * @param featureVector
-     * @param class
-     * @param path
-     * @return
-     */
-    public static List<Pair<List<FeatureDescriptor>, Feature<?>>> getIdentifiedFeaturesAtPath(FeatureVector vector,
-            String path, List<FeatureDescriptor> prefix) {
-        int slashIndex = path.indexOf("/");
-        String leadingPathPart = slashIndex == -1 ? path : path.substring(0, slashIndex);
-        String trailingPathPart = slashIndex == -1 ? "" : path.substring(slashIndex + 1, path.length());
-        List<? extends Feature<?>> featureList = vector.getAll(leadingPathPart);
-
-        List<Pair<List<FeatureDescriptor>, Feature<?>>> ret = new ArrayList<Pair<List<FeatureDescriptor>, Feature<?>>>();
-        if (!trailingPathPart.isEmpty()) {
-            for (Feature<?> feature : featureList) {
-                if (feature instanceof Classifiable) {
-                    Classifiable classifiable = (Classifiable)feature;
-                    List<FeatureDescriptor> currentPrefix = new ArrayList<FeatureDescriptor>();
-                    currentPrefix.add(new FeatureDescriptor(leadingPathPart, feature.getValue().toString()));
-                    ret.addAll(getIdentifiedFeaturesAtPath(classifiable.getFeatureVector(), trailingPathPart,
-                            currentPrefix));
-                }
-            }
-        } else {
-            for (Feature<?> feature : featureList) {
-                List<FeatureDescriptor> identifier = new ArrayList<FeatureDescriptor>(prefix);
-                identifier.add(new FeatureDescriptor(leadingPathPart, leadingPathPart));
-                ret.add(new ImmutablePair<List<FeatureDescriptor>, Feature<?>>(identifier, feature));
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Retrieves the feature identified by an identifier as created by
-     * {@link #getIdentifiedFeaturesAtPath(FeatureVector, Class, String, String)}.
-     * </p>
-     * 
-     * @param featureVector
-     * @param type
-     * @param featureIdentifier
-     * @return
-     */
-    public static <T extends Feature<?>> T getFeatureForIdentifier(FeatureVector vector, Class<T> type,
-            List<FeatureDescriptor> identifier) {
-        List<Feature<?>> featureList = vector.getAll(identifier.get(0).getName());
-
-        for (Feature<?> feature : featureList) {
-            if (feature.getName().equals(identifier.get(0).getName())) {
-                if (feature instanceof Classifiable && identifier.size() > 1
-                        && feature.getValue().toString().equals(identifier.get(0).getIdentifier())) {
-                    List<FeatureDescriptor> shortenedIdentifier = identifier.subList(1, identifier.size());
-                    Classifiable classifiable = (Classifiable)feature;
-                    return getFeatureForIdentifier(classifiable.getFeatureVector(), type, shortenedIdentifier);
-                } else if (identifier.size() == 1) {
-                    if (type.isInstance(feature)) {
-                        return (T)feature;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
+    // /**
+    // * <p>
+    // * Retrieves the feature identified by an identifier as created by
+    // * {@link #getIdentifiedFeaturesAtPath(FeatureVector, Class, String, String)}.
+    // * </p>
+    // *
+    // * @param featureVector
+    // * @param type
+    // * @param featureIdentifier
+    // * @return
+    // */
+    // public static <T extends Feature<?>> T getFeatureForIdentifier(FeatureVector vector, Class<T> type,
+    // List<FeatureDescriptor> identifier) {
+    // List<Feature<?>> featureList = vector.getAll(identifier.get(0).getName());
+    //
+    // for (Feature<?> feature : featureList) {
+    // if (feature.getName().equals(identifier.get(0).getName())) {
+    // if (feature instanceof Classifiable && identifier.size() > 1
+    // && feature.getValue().toString().equals(identifier.get(0).getIdentifier())) {
+    // List<FeatureDescriptor> shortenedIdentifier = identifier.subList(1, identifier.size());
+    // Classifiable classifiable = (Classifiable)feature;
+    // return getFeatureForIdentifier(classifiable.getFeatureVector(), type, shortenedIdentifier);
+    // } else if (identifier.size() == 1) {
+    // if (type.isInstance(feature)) {
+    // return (T)feature;
+    // }
+    // }
+    // }
+    // }
+    //
+    // return null;
+    // }
 }
 
 /**
