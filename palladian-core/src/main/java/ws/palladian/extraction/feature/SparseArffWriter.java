@@ -114,8 +114,22 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * @param fileName The name of the target ARFF file this writer should write to.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final String... featurePaths) throws IOException {
-        this(fileName, true, 1, featurePaths);
+    public SparseArffWriter(final String fileName, final String... featureNames) throws IOException {
+        this(fileName, true, 1, featureNames);
+    }
+
+    /**
+     * <p>
+     * reates a new {@code SparseArffWriter} saving all data identified by the provided feature identifiers to the file
+     * specified by {@code fileName}, creating that file if it does not exist and overwriting it if it already exists.
+     * </p>
+     * 
+     * @param fileName The name of the target ARFF file this writer should write to.
+     * @param featureNames
+     * @throws IOException
+     */
+    public SparseArffWriter(final String fileName, final List<String> featureNames) throws IOException {
+        this(fileName, true, 1, featureNames.toArray(new String[featureNames.size()]));
     }
 
     /**
@@ -130,9 +144,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            new data to the created ARFF file if it already exists.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final Boolean overwrite, final String... featurePaths)
+    public SparseArffWriter(final String fileName, final Boolean overwrite, final String... featureNames)
             throws IOException {
-        this(fileName, overwrite, 1, featurePaths);
+        this(fileName, overwrite, 1, featureNames);
     }
 
     /**
@@ -150,9 +164,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            and thus improves performance but requires more memory.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final Integer batchSize, final String... featurePaths)
+    public SparseArffWriter(final String fileName, final Integer batchSize, final String... featureNames)
             throws IOException {
-        this(fileName, true, batchSize, featurePaths);
+        this(fileName, true, batchSize, featureNames);
     }
 
     /**
@@ -174,8 +188,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * @throws IOException If the target file could not be initialized successfully.
      */
     public SparseArffWriter(final String fileName, final Boolean overwrite, final Integer batchSize,
-            final String... featurePaths) throws IOException {
-        this(new File(fileName), overwrite, batchSize, featurePaths);
+            final String... featureNames) throws IOException {
+        this(new File(fileName), overwrite, batchSize, featureNames);
     }
 
     /**
@@ -197,11 +211,11 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * @throws IOException If the target file could not be initialized successfully.
      */
     public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final Integer batchSize,
-            String[] featurePaths) throws IOException {
+            String[] featureNames) throws IOException {
         super(new InputPort[] {new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER)}, new OutputPort[0]);
 
         Validate.notNull(modelArffFile, "fileName must not be null");
-        Validate.notEmpty(featurePaths, "featureDescriptors must not be empty");
+        Validate.notEmpty(featureNames, "featureDescriptors must not be empty");
 
         featureTypes = new BidiMap<String, Integer>();
         instances = new LinkedList<List<Pair<Integer, String>>>();
@@ -216,7 +230,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
                 readExistingArffFile();
             }
         }
-        this.featurePaths = Arrays.asList(featurePaths);
+        this.featurePaths = Arrays.asList(featureNames);
     }
 
     /**
@@ -231,9 +245,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            new data to the created ARFF file if it already exists.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final String... featurePaths)
+    public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final String... featureNames)
             throws IOException {
-        this(modelArffFile, overwrite, 1, featurePaths);
+        this(modelArffFile, overwrite, 1, featureNames);
     }
 
     /**
@@ -303,7 +317,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
         PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
         addFeatureVectorToOutput(document.getFeatureVector());
     }
-    
+
     public void addFeatureVectorToOutput(final FeatureVector vector) {
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
         for (String featurePath : featurePaths) {
@@ -390,7 +404,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            handled {@code Feature}s to which the current {@code Feature} is added.
      */
     private void handleFeature(final List<? extends Feature<?>> features, final List<Pair<Integer, String>> newInstance) {
-        if (features.size() == 1) {
+        // TODO remove this as soon as possible
+        if (features.size() == 1 && !features.get(0).getName().equals("cngram")) {
             Feature<?> feature = features.get(0);
             if (feature instanceof NumericFeature) {
                 handleNumericFeature((NumericFeature)feature, newInstance);

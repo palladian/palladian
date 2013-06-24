@@ -277,4 +277,8 @@ public class ProcessingPipeline {
         }
     }
 
+    public boolean contains(PipelineProcessor processor) {
+        return pipelineProcessors.contains(processor);
+    }
+
 }
