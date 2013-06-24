@@ -28,7 +28,7 @@ public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * type.
      * </p>
      */
-    private final SortedMap<String, List<Feature<?>>> features;
+    private final SortedMap<String, Feature<?>> features;
 
     /**
      * <p>
@@ -36,7 +36,7 @@ public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * </p>
      */
     public FeatureVector() {
-        features = new TreeMap<String, List<Feature<?>>>();
+        features = new TreeMap<String, Feature<?>>();
     }
 
     /**
@@ -47,78 +47,64 @@ public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * @param featureVector The feature vector which Features to copy.
      */
     public FeatureVector(FeatureVector featureVector) {
-        features = new TreeMap<String, List<Feature<?>>>(featureVector.features);
+        features = new TreeMap<String, Feature<?>>(featureVector.features);
     }
 
     /**
      * <p>
-     * Adds a new {@code Feature} to this {@code FeatureVector}.
+     * Adds a new {@code Feature} to this {@code FeatureVector} or overwrites an existing one with the same name without
+     * warning.
      * </p>
      * 
      * @param feature
      *            The actual {@code Feature} instance containing the value.
      */
     public void add(Feature<?> feature) {
-        List<Feature<?>> list = features.get(feature.getName());
-        if (list == null) {
-            list = new ArrayList<Feature<?>>();
-            features.put(feature.getName(), list);
-        }
-        list.add(feature);
+        features.put(feature.getName(), feature);
     }
 
+    /**
+     * <p>
+     * Adds all provided {@link Feature}s to this {@link FeatureVector} and overwrites existing {@link Feature}s with
+     * the same name.
+     * </p>
+     * 
+     * @param features The {@link Feature}s to add to this {@link FeatureVector}.
+     */
     public void addAll(Iterable<? extends Feature<?>> features) {
         for (Feature<?> feature : features) {
             add(feature);
         }
     }
 
-    public <T extends Feature<?>> T getFeature(Class<T> type, String name) {
-        List<T> selectedFeatures = getAll(type, name);
-        if (selectedFeatures.isEmpty()) {
+    /**
+     * <p>
+     * Provides the {@link Feature} with the provided name cast to the provided feature subtype.
+     * </p>
+     * 
+     * @param type The type to cast to.
+     * @param name The name of the {@link Feature} to get and cast.
+     * @return Either the requested {@link Feature} or {@code null} if the {@link Feature} is not available or not of
+     *         the correct type.
+     */
+    public <T extends Feature<?>> T get(Class<T> type, String name) {
+        try {
+            return type.cast(features.get(name));
+        } catch (ClassCastException e) {
             return null;
         }
-        return selectedFeatures.get(0);
     }
 
     /**
      * <p>
-     * Provides the {@link Feature} with the provided name. If there are multiple {@link Feature}s with the same name it
-     * provides an arbitrary one.
+     * Provides the {@link Feature} with the provided name.
      * </p>
      * 
      * @param name The name of the queried {@link Feature}.
      * @return The queried {@link Feature} or {@code null} if no such {@link Feature} exists.
      */
-    public Feature<?> getFeature(String name) {
-        List<Feature<?>> selectedFeatures = getAll(name);
-        if (selectedFeatures.isEmpty()) {
-            return null;
-        }
-        return selectedFeatures.get(0);
-    }
-
-    /**
-     * <p>
-     * Provides all features under a certain name with a certain implementation type.
-     * </p>
-     * 
-     * @param type The queried type.
-     * @param name The name of the {@link Feature}s to provide.
-     * @return The {@link List} of all {@link Feature}s with the provided type and name or an empty {@link List} if no
-     *         such {@link Feature}s exist.
-     */
-    public <T extends Feature<?>> List<T> getAll(Class<T> type, String name) {
-        List<T> selectedFeatures = new ArrayList<T>();
-        for (Feature<?> feature : getAll(type)) {
-            if (feature.getName().equals(name)) {
-                selectedFeatures.add(type.cast(feature));
-            }
-        }
-        // return selectedFeatures;
-        // changed this to a immutable list, else wise it might cause confusion, because the returned list is not
-        // intended to be modified -- Philipp, 2012-11-16.
-        return Collections.unmodifiableList(selectedFeatures);
+    public Feature<?> get(String name) {
+        return features.get(name);
     }
 
     /**
@@ -132,31 +118,12 @@ public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      */
     public <T extends Feature<?>> List<T> getAll(Class<T> type) {
         List<T> selectedFeatures = new ArrayList<T>();
-        for (List<Feature<?>> list : features.values()) {
-            for (Feature<?> feature : list) {
-                if (type.isInstance(feature)) {
-                    selectedFeatures.add(type.cast(feature));
-                }
+        for (Feature<?> feature : features.values()) {
+            if (type.isInstance(feature)) {
+                selectedFeatures.add(type.cast(feature));
             }
         }
         return selectedFeatures;
-    }
-
-    /**
-     * <p>
-     * Provides all features available via the provided name.
-     * </p>
-     * 
-     * @param name The name of the queried {@link Feature} or {@link Feature}s.
-     * @return The {@link List} of all {@link Feature}s matching the provided name in this {@link FeatureVector} or an
-     *         empty {@link List} if no such {@link Feature}s are available.
-     */
-    public List<Feature<?>> getAll(String name) {
-        List<Feature<?>> featureList = features.get(name);
-        if (featureList != null) {
-            return Collections.unmodifiableList(featureList);
-        }
-        return Collections.emptyList();
     }
 
     /**
@@ -169,8 +136,8 @@ public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      */
     public List<Feature<?>> getAll() {
         List<Feature<?>> featureList = new ArrayList<Feature<?>>();
-        for (List<Feature<?>> features : this.features.values()) {
-            featureList.addAll(features);
+        for (Feature<?> feature : this.features.values()) {
+            featureList.add(feature);
         }
         return Collections.unmodifiableList(featureList);
     }
@@ -200,7 +167,7 @@ public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
      *         specified identifier to remove.
      */
-    public boolean removeAll(String name) {
+    public boolean remove(String name) {
         return features.remove(name) != null;
     }
 
@@ -252,15 +219,7 @@ public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * @param feature The {@link Feature} to remove.
      */
     public synchronized void remove(Feature<?> feature) {
-        String[] featurePath = feature.getName().split("/");
-        String localName = featurePath[featurePath.length - 1];
-        List<Feature<?>> existingFeatures = new ArrayList<Feature<?>>(features.get(localName));
-        existingFeatures.remove(feature);
-        if (!existingFeatures.isEmpty()) {
-            features.put(localName, existingFeatures);
-        } else {
-            features.remove(localName);
-        }
+        features.remove(feature.getName());
     }
 
     @Override

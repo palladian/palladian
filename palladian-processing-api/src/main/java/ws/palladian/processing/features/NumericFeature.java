@@ -9,7 +9,7 @@ package ws.palladian.processing.features;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class NumericFeature extends Feature<Double> {
+public class NumericFeature extends AbstractFeature<Double> {
 
     /**
      * <p>
