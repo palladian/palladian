@@ -2,6 +2,7 @@ package ws.palladian.retrieval.wikipedia;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +13,12 @@ import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -21,6 +27,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaLink;
 
 /**
  * <p>
@@ -32,20 +39,92 @@ import ws.palladian.retrieval.helper.HttpHelper;
  */
 public final class WikipediaUtil {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaUtil.class);
+
+    /**
+     * Utility class representing a location extracted from Wikipedia coordinate markup.
+     */
+    public static final class MarkupLocation implements GeoCoordinate {
+        double lat;
+        double lng;
+        Long population;
+        String display;
+        String name;
+        String type;
+        String region;
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("MarkupLocation [lat=");
+            builder.append(lat);
+            builder.append(", lng=");
+            builder.append(lng);
+            builder.append(", population=");
+            builder.append(population);
+            builder.append(", display=");
+            builder.append(display);
+            builder.append(", name=");
+            builder.append(name);
+            builder.append(", type=");
+            builder.append(type);
+            builder.append(", region=");
+            builder.append(region);
+            builder.append("]");
+            return builder.toString();
+        }
+
+        @Override
+        public Double getLatitude() {
+            return lat;
+        }
+
+        @Override
+        public Double getLongitude() {
+            return lng;
+        }
+
+        public String getDisplay() {
+            return display;
+        }
+
+        public Long getPopulation() {
+            return population;
+        }
+    }
+
     private static final Pattern REF_PATTERN = Pattern.compile("<ref(?:\\s[^>]*)?>[^<]*</ref>|<ref[^/>]*/>",
             Pattern.MULTILINE);
     private static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}([^=]*)={1,6}$", Pattern.MULTILINE);
     private static final Pattern CONVERT_PATTERN = Pattern
             .compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
-    public static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
+    private static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
     private static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
 
     private static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
             Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern INFOBOX_KEY_PATTERN = Pattern.compile("\\|\\s*([^|=]+)\\s*=");
+    private static final Pattern OPEN_TAG_PATTERN = Pattern.compile("<\\w+[^>/]*>");
+    private static final Pattern CLOSE_TAG_PATTERN = Pattern.compile("</\\w+[^>]*>");
+
+    /**
+     * matcher for coordinate template: {{Coord|47|33|27|N|10|45|00|E|display=title}}
+     */
+    private static final Pattern COORDINATE_TAG_PATTERN = Pattern.compile("\\{\\{Coord" + //
+            // match latitude, either DMS or decimal, N/S is optional
+            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([NS]))?" +
+            // ..-(1)--------------.......-(2)------------........-(3)---------------.........-(4)--
+            // match longitude, either DMS or decimal, W/E is optional
+            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([WE]))?" +
+            // ..-(5)--------------.......-(6)--------------......-(7)---------------.........-(8)--
+            // additional data
+            "((?:\\|[^}|<]+(?:<\\w+>[^<]*</\\w+>)?)*)" + //
+            // -(9)----------------------------------
+            "\\}\\}", Pattern.CASE_INSENSITIVE);//
 
     public static String stripMediaWikiMarkup(String markup) {
+        Validate.notNull(markup, "markup must not be null");
 
         // strip everything in <ref> tags
         String result = REF_PATTERN.matcher(markup).replaceAll("");
@@ -71,7 +150,10 @@ public final class WikipediaUtil {
 
         // remove everything left in between { ... } and [ ... ]
         result = removeArea(result, '{', '}');
-        result = removeArea(result, '[', ']');
+
+        // result = removeArea(result, '[', ']');
+        // XXX replaced by RegEx, not sure if accurate
+        result = result.replaceAll("\\[\\[[^]]*\\]\\]", "");
 
         // remove single line breaks; but keep lists (lines starting with *)
         result = result.replaceAll("(?<!\n)\n(?![*\n])", " ");
@@ -128,7 +210,7 @@ public final class WikipediaUtil {
 
     public static String cleanTitle(String title) {
         String clean = title.replaceAll("\\s\\([^)]*\\)", "");
-        clean = clean.replaceAll(",.*", "");
+        clean = clean.replaceAll(",.*", ""); // XXX comma should not be here! (makes sense for locations only)
         return clean;
     }
 
@@ -155,15 +237,22 @@ public final class WikipediaUtil {
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
         // http://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=Dresden
-        String underscoreTitle = title.replace(" ", "_");
-        String url = String.format("http://%s.wikipedia.org/w/api.php?action=query"
-                + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", language.getIso6391(),
-                underscoreTitle);
+        String escapedTitle = title.replace(" ", "_");
+        escapedTitle = UrlHelper.encodeParameter(escapedTitle);
+        String url = String
+                .format("http://%s.wikipedia.org/w/api.php?action=query"
+                        + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", language.getIso6391(),
+                        escapedTitle);
+        HttpResult httpResult;
         try {
-            HttpResult httpResult = retriever.httpGet(url);
-            String stringResult = HttpHelper.getStringContent(httpResult);
-            JSONObject jsonResult = new JSONObject(stringResult);
+            httpResult = retriever.httpGet(url);
+        } catch (HttpException e) {
+            throw new IllegalStateException(e);
+        }
 
+        String stringResult = HttpHelper.getStringContent(httpResult);
+        try {
+            JSONObject jsonResult = new JSONObject(stringResult);
             JSONObject queryJson = jsonResult.getJSONObject("query");
             JSONObject pagesJson = queryJson.getJSONObject("pages");
             @SuppressWarnings("rawtypes")
@@ -172,6 +261,10 @@ public final class WikipediaUtil {
                 String key = (String)keys.next();
                 JSONObject pageJson = pagesJson.getJSONObject(key);
                 // System.out.println(pageJson);
+
+                if (pageJson.has("missing")) {
+                    return null;
+                }
 
                 String pageTitle = pageJson.getString("title");
                 int namespaceId = pageJson.getInt("ns");
@@ -183,58 +276,258 @@ public final class WikipediaUtil {
                 return new WikipediaPage(pageId, namespaceId, pageTitle, pageText);
             }
             return null;
-        } catch (HttpException e) {
-            throw new IllegalStateException(e);
         } catch (JSONException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
+                    + stringResult + "'", e);
         }
     }
 
     /**
      * <p>
-     * Extract key-value pairs from Wikipedia infobox markup.
+     * Extract key-value pairs from Wikipedia template markup.
      * </p>
      * 
      * @param markup The markup, not <code>null</code>.
-     * @return A {@link Map} containing extracted key-value pairs from the infobox, entries in the map have the same
-     *         order as in the markup.
+     * @return A {@link Map} containing extracted key-value pairs from the template, entries in the map have the same
+     *         order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
      */
-    public static Map<String, String> extractInfobox(String markup) {
+    public static Map<String, String> extractTemplate(String markup) {
         Validate.notNull(markup, "markup must not be null");
         Map<String, String> properties = new LinkedHashMap<String, String>();
         // trim surrounding {{ and }}
-        String infoboxContent = markup.substring(2, markup.length() - 2);
-        Matcher matcher = INFOBOX_KEY_PATTERN.matcher(infoboxContent);
-        if (matcher.find()) {
-            String key = matcher.group(1).trim();
-            String value = null;
-            int startIdx = matcher.end();
-            while (matcher.find()) {
-                int endIdx = matcher.start();
-                if (getDoubleBracketBalance(infoboxContent.substring(0, endIdx)) != 0) {
-                    continue;
+        String content = markup.substring(2, markup.length() - 2);
+        int i = 0;
+        for (String part : splitTemplateMarkup(content)) {
+            String key = String.valueOf(i++);
+            int equalIdx = part.indexOf('=');
+            if (equalIdx > 0) {
+                String potentialKey = part.substring(0, equalIdx);
+                if (isBracketBalanced(potentialKey) && isTagBalanced(potentialKey)) {
+                    key = part.substring(0, equalIdx).trim();
+                } else {
+                    equalIdx = -1;
                 }
-                value = infoboxContent.substring(startIdx, endIdx).trim();
-                properties.put(key, value);
-                key = matcher.group(1).trim();
-                startIdx = matcher.end();
             }
-            properties.put(key, value);
+            properties.put(key, part.substring(equalIdx + 1).trim());
         }
         return properties;
     }
 
+    static final List<String> splitTemplateMarkup(String markup) {
+        List<String> result = CollectionHelper.newArrayList();
+        int startIdx = markup.indexOf('|') + 1;
+        for (int currentIdx = startIdx; currentIdx < markup.length(); currentIdx++) {
+            char currentChar = markup.charAt(currentIdx);
+            String substring = markup.substring(0, currentIdx);
+            if (currentChar == '|' && isBracketBalanced(substring)) {
+                result.add(markup.substring(startIdx, currentIdx));
+                startIdx = currentIdx + 1;
+            }
+        }
+        result.add(markup.substring(startIdx));
+        return result;
+    }
+
     /**
-     * Determine the opening/closing balance of double curly brackets.
+     * Check, whether opening/closing brackets are in balance.
      * 
      * @param markup The markup.
-     * @return The balance, zero if same amount of brackets have been opened and closed, if value is positive, more
-     *         brackets have been opened than closed.
+     * @return <code>true</code>, if number of opening = number of closing characters.
      */
-    private static final int getDoubleBracketBalance(String markup) {
-        int open = markup.length() - markup.replace("{{", "").length() / 2;
-        int close = markup.length() - markup.replace("}}", "").length() / 2;
-        return open - close;
+    private static final boolean isBracketBalanced(String markup) {
+        // check the balance of bracket-like characters
+        int open = markup.replace("{{", "").replace("[", "").replace("<", "").length();
+        int close = markup.replace("}}", "").replace("]", "").replace(">", "").length();
+        return open - close == 0;
+    }
+
+    private static final boolean isTagBalanced(String markup) {
+        // check the balance of HTML tags
+        int openTags = StringHelper.countRegexMatches(markup, OPEN_TAG_PATTERN);
+        int closeTags = StringHelper.countRegexMatches(markup, CLOSE_TAG_PATTERN);
+        return openTags - closeTags == 0;
+    }
+
+    /**
+     * <p>
+     * Extract geographical data from Wikipedia page markup.
+     * </p>
+     * 
+     * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject
+     *      Geographical coordinates</a>
+     * @param text The markup, not <code>null</code>.
+     * @return {@link List} of extracted {@link MarkupLocation}s, or an empty list, never <code>null</code>.
+     */
+    public static List<MarkupLocation> extractCoordinateTag(String text) {
+        Validate.notNull(text, "text must not be null");
+        List<MarkupLocation> result = CollectionHelper.newArrayList();
+        Matcher m = COORDINATE_TAG_PATTERN.matcher(text);
+        while (m.find()) {
+            MarkupLocation coordMarkup = new MarkupLocation();
+            coordMarkup.lat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
+            coordMarkup.lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
+
+            // get coordinate parameters
+            String type = getCoordinateParam(m.group(9), "type");
+            if (type != null) {
+                coordMarkup.population = getNumberInBrackets(type);
+                type = type.replaceAll("\\(.*\\)", ""); // remove population
+            }
+            coordMarkup.type = type;
+            coordMarkup.region = getCoordinateParam(m.group(9), "region");
+            // get other parameters
+            coordMarkup.display = getOtherParam(m.group(9), "display");
+            coordMarkup.name = getOtherParam(m.group(9), "name");
+
+            result.add(coordMarkup);
+        }
+        return result;
+    }
+
+    private static Long getNumberInBrackets(String string) {
+        Matcher matcher = Pattern.compile("\\(([\\d,]+)\\)").matcher(string);
+        if (matcher.find()) {
+            String temp = matcher.group(1).replace(",", "");
+            try {
+                return Long.valueOf(temp);
+            } catch (NumberFormatException e) {
+                LOGGER.error("Error parsing {}", temp);
+            }
+        }
+        return null;
+    }
+
+    private static String getOtherParam(String group, String name) {
+        String[] parts = group.split("\\|");
+        for (String temp1 : parts) {
+            String[] keyValue = temp1.split("=");
+            if (keyValue.length == 2 && keyValue[0].equals(name)) {
+                return keyValue[1].trim();
+            }
+        }
+        return null;
+    }
+
+    private static String getCoordinateParam(String group, String name) {
+        String[] parts = group.split("\\|");
+        for (String temp1 : parts) {
+            for (String temp2 : temp1.split("_")) {
+                String[] keyValue = temp2.split(":");
+                if (keyValue.length == 2 && keyValue[0].equals(name)) {
+                    return keyValue[1].trim();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parse DMS components. The only part which must not be <code>null</code> is deg.
+     * 
+     * @param deg Degree part, not <code>null</code>.
+     * @param min Minute part, may be <code>null</code>.
+     * @param sec Second part, may be <code>null</code>.
+     * @param nsew NSEW modifier, should be in [NSEW], may be <code>null</code>.
+     * @return Parsed double value.
+     */
+    private static double parseComponents(String deg, String min, String sec, String nsew) {
+        Validate.notNull(deg, "deg must not be null");
+        double parsedDeg = Double.valueOf(deg);
+        double parsedMin = min != null ? Double.valueOf(min) : 0;
+        double parsedSec = sec != null ? Double.valueOf(sec) : 0;
+        int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
+        return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
+    }
+
+    /**
+     * @param markup The markup, nor <code>null</code>.
+     * @return A {@link List} with all internal links on the page (sans "category:" links; they can be retrieved using
+     *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
+     */
+    public static final List<WikipediaLink> getLinks(String markup) {
+        Validate.notNull(markup, "markup must not be null");
+        List<WikipediaLink> result = CollectionHelper.newArrayList();
+        Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(markup);
+        while (matcher.find()) {
+            String target = matcher.group(1);
+            // strip fragments
+            int idx = target.indexOf('#');
+            if (idx >= 0) {
+                target = target.substring(0, idx);
+            }
+            String text = matcher.group(2);
+            // ignore category links here
+            if (target.toLowerCase().startsWith("category:")) {
+                continue;
+            }
+            result.add(new WikipediaLink(target, text));
+        }
+
+        return result;
+    }
+    
+    /**
+     * <p>
+     * Get the content of markup area between double curly braces, like {{infobox …}}, {{quote …}}, etc.
+     * </p>
+     * 
+     * @param markup The media wiki markup, not <code>null</code>.
+     * @param name The name, like infobox, quote, etc.
+     * @return The content in the markup, or <code>null</code> if not found.
+     */
+    public static List<String> getNamedMarkup(String markup, String name) {
+        List<String> result = CollectionHelper.newArrayList();
+        int startIdx = 0;
+        for (;;) {
+            startIdx = markup.toLowerCase().indexOf("{{" + name.toLowerCase(), startIdx);
+            if (startIdx == -1) {
+                break;
+            }
+            int brackets = 0;
+            int endIdx;
+            for (endIdx = startIdx; startIdx < markup.length(); endIdx++) {
+                char current = markup.charAt(endIdx);
+                if (current == '{') {
+                    brackets++;
+                } else if (current == '}') {
+                    brackets--;
+                }
+                if (brackets == 0) {
+                    break;
+                }
+            }
+            try {
+                result.add(markup.substring(startIdx, endIdx + 1));
+            } catch (StringIndexOutOfBoundsException e) {
+                LOGGER.warn("Encountered {}, potentially caused by invalid markup.");
+            }
+            startIdx = endIdx;
+        }
+        return result;
+    }
+
+    /**
+     * <p>
+     * Split the given MediaWiki markup into individual sections. The beginning of the article is also added to the
+     * result, even if it does not start with a section heading.
+     * </p>
+     * 
+     * @param markup The MediaWiki markup, not <code>null</code>.
+     * @return List with sections, starting with the original section headings, or empty list if no sections were found,
+     *         never <code>null</code> however.
+     */
+    public static List<String> getSections(String markup) {
+        Validate.notNull(markup, "markup must not be null");
+        List<String> result = CollectionHelper.newArrayList();
+        Matcher matcher = HEADING_PATTERN.matcher(markup);
+        int start = 0;
+        while (matcher.find()) {
+            int end = matcher.start();
+            result.add(markup.substring(start, end));
+            start = end;
+        }
+        result.add(markup.substring(start));
+        return result;
     }
 
     private WikipediaUtil() {
@@ -242,15 +535,17 @@ public final class WikipediaUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(getDoubleBracketBalance("{{xx{{{{"));
-        System.exit(0);
+        // System.out.println(getDoubleBracketBalance("{{xx{{{{"));
+        // System.exit(0);
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/newYork.wikipedia");
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/sample2.wikipedia");
         // String text = stripMediaWikiMarkup(wikipediaPage);
         // System.out.println(text);
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
-        WikipediaPage page = retrieveArticle("Mac mini", Language.GERMAN);
+        WikipediaPage page = retrieveArticle("Nokia_Lumia_920", Language.GERMAN);
+        Map<String, String> infoboxData = extractTemplate(page.getInfoboxMarkup());
+        CollectionHelper.print(infoboxData);
         System.out.println(page);
 
     }
