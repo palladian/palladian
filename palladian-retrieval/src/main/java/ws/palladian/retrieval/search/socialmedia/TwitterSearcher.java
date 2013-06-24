@@ -9,17 +9,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.OAuthParams;
+import ws.palladian.retrieval.OAuthUtil;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -27,9 +32,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
- * Searcher for Tweets on Twitter. In contrast to other web searchers, not every search result contains a URL, as we
- * simply extract URLs from the Tweet text, if present. Furthermore, no title is present. The Tweet content can be
- * accessed via {@link WebResult#getSummary()}.
+ * Searcher for Tweets on Twitter. The Tweet content can be accessed via {@link WebResult#getSummary()}.
  * </p>
  * 
  * @see <a href="https://dev.twitter.com/docs/api/1/get/search">API Resources: GET search</a>
@@ -50,9 +53,62 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
         POPULAR
     }
 
+    /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
+    public static final String CONFIG_CONSUMER_KEY = "api.twitter.consumerKey";
+    /** The identifier for the {@link Configuration} key with the OAuth consumer secret. */
+    public static final String CONFIG_CONSUMER_SECRET = "api.twitter.consumerSecret";
+    /** The identifier for the {@link Configuration} key with the OAuth access token. */
+    public static final String CONFIG_ACCESS_TOKEN = "api.twitter.accessToken";
+    /** The identifier for the {@link Configuration} key with the OAuth access token secret. */
+    public static final String CONFIG_ACCESS_TOKEN_SECRET = "api.twitter.accessTokenSecret";
+
     private static final String DATE_PATTERN = "E, dd MMM yyyy HH:mm:ss Z";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+
+    private final OAuthParams oAuthParams;
+
+    /**
+     * <p>
+     * Create a new {@link TwitterSearcher}.
+     * </p>
+     * 
+     * @param oAuthParams The parameters for the OAuth-based authentication, not <code>null</code>
+     */
+    public TwitterSearcher(OAuthParams oAuthParams) {
+        Validate.notNull(oAuthParams, "oAuthParams must not be null");
+        this.oAuthParams = oAuthParams;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link TwitterSearcher}.
+     * </p>
+     * 
+     * @param consumerKey The OAuth consumer key, not <code>null</code> or empty.
+     * @param consumerSecret The OAuth consumer secret, not <code>null</code> or empty.
+     * @param accessToken The OAuth access token, not <code>null</code> or empty.
+     * @param accessTokenSecret The OAuth access token secret, not <code>null</code> or empty.
+     */
+    public TwitterSearcher(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
+        this(new OAuthParams(consumerKey, consumerSecret, accessToken, accessTokenSecret));
+    }
+
+    /**
+     * <p>
+     * Create a new {@link TwitterSearcher}.
+     * </p>
+     * 
+     * @param configuration A {@link Configuration} instance providing the necessary parameters for OAuth authentication
+     *            ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
+     *            {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
+     */
+    public TwitterSearcher(Configuration configuration) {
+        Validate.notNull(configuration, "configuration must not be null");
+        this.oAuthParams = new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
+                configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
+                configuration.getString(CONFIG_ACCESS_TOKEN_SECRET));
+    }
 
     public List<WebResult> search(String query, int resultCount, Language language, ResultType resultType)
             throws SearcherException {
@@ -60,17 +116,27 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
         int resultsPerPage = Math.min(100, resultCount);
         int numRequests = (int)Math.ceil(resultCount / 100.);
 
+        // XXX v1.1 currently does not support paging, so 100 results is maximum;
+        // leave code here for now, maybe this will be improved in the future
+        // https://dev.twitter.com/discussions/11016
+        if (resultCount > 100) {
+            LOGGER.warn("Currently, at most 100 results per query are supported by the Twitter API.");
+        }
+
+        String responseString = null;
+
         try {
+
             for (int page = 1; page <= numRequests; page++) {
 
-                String requestUrl = buildRequestUrl(query, resultsPerPage, language, page, resultType);
-                HttpResult httpResult = performHttpRequest(requestUrl);
+                HttpRequest request = buildRequest(query, resultsPerPage, language, page, resultType);
+                HttpResult httpResult = performHttpRequest(request);
 
-                String responseString = HttpHelper.getStringContent(httpResult);
-                LOGGER.debug("response for " + requestUrl + " : " + responseString);
+                responseString = HttpHelper.getStringContent(httpResult);
+                LOGGER.debug("Response for {}: {}", request, responseString);
 
                 JSONObject jsonObject = new JSONObject(responseString);
-                JSONArray jsonResults = jsonObject.getJSONArray("results");
+                JSONArray jsonResults = jsonObject.getJSONArray("statuses");
                 int numResults = jsonResults.length();
 
                 // stop, if we got no results
@@ -83,10 +149,8 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                     String text = StringEscapeUtils.unescapeHtml4(jsonResult.getString("text"));
                     String dateString = jsonResult.getString("created_at");
                     Date date = parseDate(dateString);
-                    // take the first URL from the tweet, if present.
-                    // List<String> urls = UrlHelper.extractUrls(text);
-                    // String url = urls.isEmpty() ? null : urls.get(0);
-                    String url = createTweetUrl(jsonResult.getString("from_user"), jsonResult.getString("id_str"));
+                    JSONObject jsonUser = jsonResult.getJSONObject("user");
+                    String url = createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str"));
                     webResults.add(new WebResult(url, text, null, date));
                     if (webResults.size() >= resultCount) {
                         break;
@@ -98,10 +162,10 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                     + e.getMessage(), e);
         } catch (JSONException e) {
             throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
-                    + getName() + ": " + e.getMessage(), e);
+                    + getName() + ": " + e.getMessage() + " (JSON: '" + responseString + "')", e);
         }
 
-        LOGGER.debug("twitter requests: " + TOTAL_REQUEST_COUNT.get());
+        LOGGER.debug("twitter requests: {}", TOTAL_REQUEST_COUNT.get());
         return webResults;
     }
 
@@ -134,21 +198,22 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
         try {
             date = dateFormat.parse(dateString);
         } catch (ParseException e) {
-            LOGGER.error("error parsing date " + dateString, e);
+            LOGGER.error("Error parsing date {}", dateString, e);
         }
         return date;
     }
 
-    private HttpResult performHttpRequest(String requestUrl) throws HttpException, SearcherException {
-        HttpResult httpResult = retriever.httpGet(requestUrl);
+    private HttpResult performHttpRequest(HttpRequest request) throws HttpException, SearcherException {
+        HttpResult httpResult = retriever.execute(request);
         TOTAL_REQUEST_COUNT.incrementAndGet();
 
         int statusCode = httpResult.getStatusCode();
         if (statusCode == 420) {
-            throw new SearcherException("twitter is currently blocked due to rate limit");
+            throw new SearcherException("Twitter is currently blocked due to rate limit");
         }
         if (statusCode >= 400) {
-            throw new SearcherException("HTTP error " + statusCode + " for request URL " + requestUrl);
+            String content = HttpHelper.getStringContent(httpResult);
+            throw new SearcherException("HTTP error " + statusCode + " for request " + request + ": " + content);
         }
         return httpResult;
     }
@@ -164,35 +229,15 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
      * @param page The page index.
      * @return
      */
-    private String buildRequestUrl(String query, int resultsPerPage, Language language, int page, ResultType resultType) {
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("http://search.twitter.com/search.json");
-        urlBuilder.append("?q=").append(UrlHelper.encodeParameter(query));
-        urlBuilder.append("&page=").append(page);
-        urlBuilder.append("&rpp=").append(resultsPerPage);
-        urlBuilder.append("&lang=").append(getLanguageCode(language));
-        urlBuilder.append("&result_type").append(resultType.toString().toLowerCase());
-        return urlBuilder.toString();
-    }
-
-    /**
-     * <p>
-     * Get the ISO 639-1 code for the specified language.
-     * </p>
-     * 
-     * @param language
-     * @return
-     */
-    private String getLanguageCode(Language language) {
-        switch (language) {
-            case ENGLISH:
-                return "en";
-            case GERMAN:
-                return "de";
-            default:
-                break;
-        }
-        throw new IllegalArgumentException("No code defined for language " + language);
+    private HttpRequest buildRequest(String query, int resultsPerPage, Language language, int page,
+            ResultType resultType) {
+        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://api.twitter.com/1.1/search/tweets.json");
+        request.addParameter("q", query);
+        request.addParameter("count", resultsPerPage);
+        request.addParameter("lang", language.getIso6391());
+        request.addParameter("result_type", resultType.toString().toLowerCase());
+        HttpRequest signedRequest = OAuthUtil.createSignedRequest(request, oAuthParams);
+        return signedRequest;
     }
 
     @Override

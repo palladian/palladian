@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +34,8 @@ import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
+import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wikipedia.WikipediaUtil.MarkupLocation;
 
 /**
  * <p>
@@ -53,21 +54,6 @@ public class WikipediaLocationImporter {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
-
-    /**
-     * matcher for coordinate template: {{Coord|47|33|27|N|10|45|00|E|display=title}}
-     */
-    private static final Pattern COORDINATE_TAG_PATTERN = Pattern.compile("\\{\\{Coord" + //
-            // match latitude, either DMS or decimal, N/S is optional
-            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([NS]))?" +
-            // ..-(1)--------------.......-(2)------------........-(3)---------------.........-(4)--
-            // match longitude, either DMS or decimal, W/E is optional
-            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([WE]))?" +
-            // ..-(5)--------------.......-(6)--------------......-(7)---------------.........-(8)--
-            // additional data
-            "((?:\\|[^}|<]+(?:<\\w+>[^<]*</\\w+>)?)*)" + //
-            // -(9)----------------------------------
-            "\\}\\}", Pattern.CASE_INSENSITIVE);//
 
     /** Pages with those titles will be ignored. */
     private static final Pattern IGNORED_PAGES = Pattern.compile("(?:Geography|Battle) of .*");
@@ -209,7 +195,7 @@ public class WikipediaLocationImporter {
                 }
 
                 String text = page.getText();
-                List<MarkupLocation> locations = extractCoordinateTag(text);
+                List<MarkupLocation> locations = WikipediaUtil.extractCoordinateTag(text);
                 
                 String infoboxType = page.getInfoboxType();
                 if (infoboxType == null) {
@@ -223,7 +209,8 @@ public class WikipediaLocationImporter {
                 }
 
                 for (MarkupLocation location : locations) {
-                    if (location.display != null && location.display.contains("title")) {
+                    String display = location.getDisplay();
+                    if (display != null && (display.contains("title") || display.equals("t"))) {
                         String name = page.getCleanTitle();
 
 //                        LocationType type = LocationType.UNDETERMINED;
@@ -243,8 +230,8 @@ public class WikipediaLocationImporter {
 //                            }
 //                        }
 
-                        locationStore.save(new ImmutableLocation(page.getPageId() + idOffset, name, type,
-                                location.lat, location.lng, location.population));
+                        locationStore.save(new ImmutableLocation(page.getPageId() + idOffset, name, type, location
+                                .getLatitude(), location.getLongitude(), location.getPopulation()));
                         LOGGER.trace("Saved location with ID {}, name {}", page.getPageId(), name);
                         locationNamesIds.put(page.getTitle(), page.getPageId());
                         counter[0]++;
@@ -301,119 +288,13 @@ public class WikipediaLocationImporter {
         LOGGER.info("Finished importing {} alternative names", counter[0]);
     }
 
-    static List<MarkupLocation> extractCoordinateTag(String text) {
-        List<MarkupLocation> result = CollectionHelper.newArrayList();
-        Matcher m = COORDINATE_TAG_PATTERN.matcher(text);
-        while (m.find()) {
-            MarkupLocation coordMarkup = new MarkupLocation();
-            coordMarkup.lat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
-            coordMarkup.lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
 
-            // get coordinate parameters
-            String type = getCoordinateParam(m.group(9), "type");
-            if (type != null) {
-                coordMarkup.population = getNumberInBrackets(type);
-                type = type.replaceAll("\\(.*\\)", ""); // remove population
-            }
-            coordMarkup.type = type;
-            coordMarkup.region = getCoordinateParam(m.group(9), "region");
-            // get other parameters
-            coordMarkup.display = getOtherParam(m.group(9), "display");
-            coordMarkup.name = getOtherParam(m.group(9), "name");
 
-            result.add(coordMarkup);
-        }
-        return result;
-    }
 
-    private static Long getNumberInBrackets(String string) {
-        Matcher matcher = Pattern.compile("\\(([\\d,]+)\\)").matcher(string);
-        if (matcher.find()) {
-            String temp = matcher.group(1).replace(",", "");
-            try {
-                return Long.valueOf(temp);
-            } catch (NumberFormatException e) {
-                LOGGER.error("Error parsing {}", temp);
-            }
-        }
-        return null;
-    }
 
-    private static String getOtherParam(String group, String name) {
-        String[] parts = group.split("\\|");
-        for (String temp1 : parts) {
-            String[] keyValue = temp1.split("=");
-            if (keyValue.length == 2 && keyValue[0].equals(name)) {
-                return keyValue[1].trim();
-            }
-        }
-        return null;
-    }
 
-    private static String getCoordinateParam(String group, String name) {
-        String[] parts = group.split("\\|");
-        for (String temp1 : parts) {
-            for (String temp2 : temp1.split("_")) {
-                String[] keyValue = temp2.split(":");
-                if (keyValue.length == 2 && keyValue[0].equals(name)) {
-                    return keyValue[1].trim();
-                }
-            }
-        }
-        return null;
-    }
 
-    /**
-     * Parse DMS components. The only part which must not be <code>null</code> is deg.
-     * 
-     * @param deg Degree part, not <code>null</code>.
-     * @param min Minute part, may be <code>null</code>.
-     * @param sec Second part, may be <code>null</code>.
-     * @param nsew NSEW modifier, should be in [NSEW], may be <code>null</code>.
-     * @return Parsed double value.
-     */
-    private static double parseComponents(String deg, String min, String sec, String nsew) {
-        Validate.notNull(deg, "deg must not be null");
-        double parsedDeg = Double.valueOf(deg);
-        double parsedMin = min != null ? Double.valueOf(min) : 0;
-        double parsedSec = sec != null ? Double.valueOf(sec) : 0;
-        int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
-        return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
-    }
 
-    /**
-     * Utility class representing a location extracted from Wikipedia coordinate markup.
-     */
-    static final class MarkupLocation {
-        double lat;
-        double lng;
-        Long population;
-        String display;
-        String name;
-        String type;
-        String region;
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("MarkupLocation [lat=");
-            builder.append(lat);
-            builder.append(", lng=");
-            builder.append(lng);
-            builder.append(", population=");
-            builder.append(population);
-            builder.append(", display=");
-            builder.append(display);
-            builder.append(", name=");
-            builder.append(name);
-            builder.append(", type=");
-            builder.append(type);
-            builder.append(", region=");
-            builder.append(region);
-            builder.append("]");
-            return builder.toString();
-        }
-    }
 
     public static void main(String[] args) throws Exception {
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations2");

@@ -21,4 +21,10 @@ public interface Annotated extends Comparable<Annotated> {
 
     boolean overlaps(Annotated annotated);
 
+    // XXX add commented methods below, but introduce common base class first
+
+    // boolean congruent(Annotated annotated);
+
+    // boolean sameTag(Annotated annotated);
+
 }

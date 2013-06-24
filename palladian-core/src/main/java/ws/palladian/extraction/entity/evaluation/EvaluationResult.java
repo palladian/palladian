@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -544,6 +545,26 @@ public class EvaluationResult {
                 break;
             default:
                 throw new IllegalStateException();
+        }
+    }
+
+    public void merge(EvaluationResult result) {
+        this.resultAnnotations.addAll(result.resultAnnotations);
+        this.actualAssignments.addAll(result.actualAssignments);
+        this.possibleAssignments.addAll(result.possibleAssignments);
+
+        // merge assignments
+        for (String assignment : result.assignments.keySet()) {
+            CountMap<ResultType> counts = result.assignments.get(assignment);
+            this.assignments.get(assignment).addAll(counts);
+        }
+        // merge confusion matrix
+        Set<String> categories = result.confusionMatrix.getCategories();
+        for (String realCategory : categories) {
+            for (String predictedCategory : categories) {
+                int count = result.confusionMatrix.getConfusions(realCategory, predictedCategory);
+                this.confusionMatrix.add(realCategory, predictedCategory, count);
+            }
         }
     }
 
