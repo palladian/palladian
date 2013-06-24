@@ -196,10 +196,10 @@ public final class FeatureUtils {
      */
     public static <T extends Feature<?>> T getFeatureForIdentifier(FeatureVector vector, Class<T> type,
             List<FeatureDescriptor> identifier) {
-        List<Feature<?>> featureList = vector.getAll(identifier.get(0).getQualifier());
+        List<Feature<?>> featureList = vector.getAll(identifier.get(0).getName());
 
         for (Feature<?> feature : featureList) {
-            if (feature.getName().equals(identifier.get(0).getQualifier())) {
+            if (feature.getName().equals(identifier.get(0).getName())) {
                 if (feature instanceof Classifiable && identifier.size() > 1
                         && feature.getValue().toString().equals(identifier.get(0).getIdentifier())) {
                     List<FeatureDescriptor> shortenedIdentifier = identifier.subList(1, identifier.size());

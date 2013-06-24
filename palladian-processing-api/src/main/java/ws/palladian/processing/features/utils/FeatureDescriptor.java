@@ -12,7 +12,7 @@ public class FeatureDescriptor {
         this.identifier = identifier;
     }
 
-    public String getQualifier() {
+    public String getName() {
         return qualifier;
     }
 
