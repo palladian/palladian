@@ -88,28 +88,30 @@ public class PalladianSpellChecker {
     private List<String> edits(String word) {
         List<String> result = new ArrayList<String>();
 
+        int n = word.length();
+
         // deletes, n
-        for (int i = 0; i < word.length(); ++i) {
+        for (int i = 0; i < n; ++i) {
             result.add(word.substring(0, i) + word.substring(i + 1));
         }
 
         // transpositions, n-1
-        for (int i = 0; i < word.length() - 1; ++i) {
+        for (int i = 0; i < n - 1; ++i) {
             result.add(word.substring(0, i) + word.substring(i + 1, i + 2) + word.substring(i, i + 1)
                     + word.substring(i + 2));
         }
 
         // alternations, 26n
-        for (int i = 0; i < word.length(); ++i) {
+        for (int i = 0; i < n; ++i) {
             for (char c = 'a'; c <= 'z'; ++c) {
-                result.add(word.substring(0, i) + String.valueOf(c) + word.substring(i + 1));
+                result.add(word.substring(0, i) + c + word.substring(i + 1));
             }
         }
 
         // insertions, 26(n+1)
-        for (int i = 0; i <= word.length(); ++i) {
+        for (int i = 0; i <= n; ++i) {
             for (char c = 'a'; c <= 'z'; ++c) {
-                result.add(word.substring(0, i) + String.valueOf(c) + word.substring(i));
+                result.add(word.substring(0, i) + c + word.substring(i));
             }
         }
 
@@ -196,6 +198,6 @@ public class PalladianSpellChecker {
         // PalladianSpellChecker("en.txt").autoCorrect("This ls hoow the etxt is supossed to be"));
         // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("Ist das nichk enn schoner Tetx"));
         // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("blauess hadny"));
-        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("oranes Hadny"));
+        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("orankes Hadny"));
     }
 }
