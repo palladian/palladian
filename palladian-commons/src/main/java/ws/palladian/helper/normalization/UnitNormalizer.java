@@ -161,6 +161,7 @@ public class UnitNormalizer {
         weightUnits.add("kgs");
         weightUnits.add("pound");
         weightUnits.add("pounds");
+        weightUnits.add("lb");
         weightUnits.add("lbs");
         weightUnits.add("ounce");
         weightUnits.add("ounces");
@@ -169,6 +170,7 @@ public class UnitNormalizer {
         weightUnits.add("gram");
         weightUnits.add("grams");
         weightUnits.add("g");
+        weightUnits.add("gs");
         weightUnits.add("gr");
 
         return weightUnits.contains(unit);
@@ -191,6 +193,7 @@ public class UnitNormalizer {
         volumeUnits.add("milliliter");
         volumeUnits.add("milliliters");
         volumeUnits.add("ml");
+        volumeUnits.add("mls");
 
         return volumeUnits.contains(unit);
     }
@@ -254,7 +257,6 @@ public class UnitNormalizer {
         }
 
         return false;
-        // TODO more
     }
 
     public static double unitLookup(String unit) {
