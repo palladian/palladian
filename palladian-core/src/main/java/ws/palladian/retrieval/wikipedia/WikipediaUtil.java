@@ -239,14 +239,20 @@ public final class WikipediaUtil {
         // http://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=Dresden
         String escapedTitle = title.replace(" ", "_");
         escapedTitle = UrlHelper.encodeParameter(escapedTitle);
-        String url = String.format("http://%s.wikipedia.org/w/api.php?action=query"
-                + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", language.getIso6391(),
-                escapedTitle);
+        String url = String
+                .format("http://%s.wikipedia.org/w/api.php?action=query"
+                        + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", language.getIso6391(),
+                        escapedTitle);
+        HttpResult httpResult;
         try {
-            HttpResult httpResult = retriever.httpGet(url);
-            String stringResult = HttpHelper.getStringContent(httpResult);
-            JSONObject jsonResult = new JSONObject(stringResult);
+            httpResult = retriever.httpGet(url);
+        } catch (HttpException e) {
+            throw new IllegalStateException(e);
+        }
 
+        String stringResult = HttpHelper.getStringContent(httpResult);
+        try {
+            JSONObject jsonResult = new JSONObject(stringResult);
             JSONObject queryJson = jsonResult.getJSONObject("query");
             JSONObject pagesJson = queryJson.getJSONObject("pages");
             @SuppressWarnings("rawtypes")
@@ -255,6 +261,10 @@ public final class WikipediaUtil {
                 String key = (String)keys.next();
                 JSONObject pageJson = pagesJson.getJSONObject(key);
                 // System.out.println(pageJson);
+
+                if (pageJson.has("missing")) {
+                    return null;
+                }
 
                 String pageTitle = pageJson.getString("title");
                 int namespaceId = pageJson.getInt("ns");
@@ -266,10 +276,9 @@ public final class WikipediaUtil {
                 return new WikipediaPage(pageId, namespaceId, pageTitle, pageText);
             }
             return null;
-        } catch (HttpException e) {
-            throw new IllegalStateException(e);
         } catch (JSONException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
+                    + stringResult + "'", e);
         }
     }
 
@@ -534,7 +543,9 @@ public final class WikipediaUtil {
         // System.out.println(text);
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
-        WikipediaPage page = retrieveArticle("Mac mini", Language.GERMAN);
+        WikipediaPage page = retrieveArticle("Nokia_Lumia_920", Language.GERMAN);
+        Map<String, String> infoboxData = extractTemplate(page.getInfoboxMarkup());
+        CollectionHelper.print(infoboxData);
         System.out.println(page);
 
     }
