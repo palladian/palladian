@@ -31,7 +31,7 @@ public class WikipediaUtilTest {
     public void testInfoboxExtraction() throws FileNotFoundException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
-        Map<String, String> data = WikipediaUtil.extractInfobox(page.getInfoboxMarkup());
+        Map<String, String> data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
         // CollectionHelper.print(data);
         assertEquals(34, data.size());
         assertEquals("Dresden", data.get("Name"));
@@ -44,12 +44,25 @@ public class WikipediaUtilTest {
 
         markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Stack_Overflow.wikipedia"));
         page = new WikipediaPage(0, 0, "Stack Overflow", markup);
-        data = WikipediaUtil.extractInfobox(page.getInfoboxMarkup());
+        data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
         // CollectionHelper.print(data);
         assertEquals(17, data.size());
         assertEquals(
                 "84 ({{as of|2013|02|15|alt=February 2013}})<ref name=\"alexa\">{{cite web|url= http://www.alexa.com/siteinfo/stackoverflow.com |title= Stackoverflow.com Site Info | publisher= [[Alexa Internet]] |accessdate= 2013-02-15 }}</ref><!--Updated monthly by OKBot.-->",
                 data.get("alexa"));
+    }
+
+    @Test
+    public void testTemplateExtraction() throws FileNotFoundException {
+        String quote = "{{Quote|text=Cry \"Havoc\" and let slip the dogs of war.|sign=[[William Shakespeare]]|source=''[[Julius Caesar (play)|Julius Caesar]]'', act III, scene I}}";
+        Map<String, String> extractedTemplate = WikipediaUtil.extractTemplate(quote);
+        assertEquals(3, extractedTemplate.size());
+        assertEquals("Cry \"Havoc\" and let slip the dogs of war.", extractedTemplate.get("text"));
+
+        quote = "{{Quote|Cry \"Havoc\" and let slip the dogs of war.|[[William Shakespeare]]|''[[Julius Caesar (play)|Julius Caesar]]'', act III, scene I}}";
+        extractedTemplate = WikipediaUtil.extractTemplate(quote);
+        assertEquals(3, extractedTemplate.size());
+        assertEquals("Cry \"Havoc\" and let slip the dogs of war.", extractedTemplate.get("0"));
     }
 
     @Test
@@ -157,5 +170,12 @@ public class WikipediaUtilTest {
         // System.out.println(cleanText);
         assertEquals(46225, cleanText.length());
         assertEquals(-43112148, cleanText.hashCode());
+    }
+
+    @Test
+    public void testGetSections() throws FileNotFoundException {
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        List<String> sections = WikipediaUtil.getSections(markup);
+        assertEquals(46, sections.size());
     }
 }

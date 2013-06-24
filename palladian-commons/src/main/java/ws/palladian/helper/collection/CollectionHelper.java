@@ -9,11 +9,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -287,6 +289,30 @@ public final class CollectionHelper {
      */
     public static <E> HashSet<E> newHashSet() {
         return new HashSet<E>();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the TreeSet:
+     * <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
+     * </p>
+     * 
+     * @return A new {@link TreeSet}.
+     */
+    public static <E> TreeSet<E> newTreeSet() {
+        return new TreeSet<E>();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
+     * LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
+     * </p>
+     * 
+     * @return A new {@link LinkedHashSet}.
+     */
+    public static <E> LinkedHashSet<E> newLinkedHashSet() {
+        return new LinkedHashSet<E>();
     }
 
     /**
