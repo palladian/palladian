@@ -48,12 +48,7 @@ public class LibSvmPredictorTest {
         instances.add(instance1);
         instances.add(instance2);
 
-        List<String> normalFeaturePaths = new ArrayList<String>();
-        normalFeaturePaths.add("a");
-        normalFeaturePaths.add("b");
-        List<String> sparseFeaturePaths = new ArrayList<String>();
-
-        LibSvmPredictor predictor = new LibSvmPredictor(new LinearKernel(1.0d), normalFeaturePaths, sparseFeaturePaths);
+        LibSvmPredictor predictor = new LibSvmPredictor(new LinearKernel(1.0d));
         LibSvmModel model = predictor.train(instances);
         assertThat(model, Matchers.is(Matchers.notNullValue()));
 
@@ -74,17 +69,12 @@ public class LibSvmPredictorTest {
      */
     @Test
     public void testRealDataSet() throws FileNotFoundException {
-        List<String> normalFeaturePaths = new ArrayList<String>();
-        List<String> sparseFeaturePaths = new ArrayList<String>();
-        List<Instance> instances = readInstances("/train.1", normalFeaturePaths, sparseFeaturePaths);
+        List<Instance> instances = readInstances("/train.1");
 
-        LibSvmPredictor predictor = new LibSvmPredictor(new RBFKernel(2.0d, 2.0d), normalFeaturePaths,
-                sparseFeaturePaths);
+        LibSvmPredictor predictor = new LibSvmPredictor(new RBFKernel(2.0d, 2.0d));
         LibSvmModel model = predictor.train(instances);
 
-        normalFeaturePaths.clear();
-        sparseFeaturePaths.clear();
-        List<Instance> test = readInstances("/test.1", normalFeaturePaths, sparseFeaturePaths);
+        List<Instance> test = readInstances("/test.1");
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
         for (Instance instance : test) {
             CategoryEntries result = predictor.classify(instance.getFeatureVector(), model);
@@ -97,8 +87,7 @@ public class LibSvmPredictorTest {
         assertThat(confusionMatrix.getAverageF(0.5, false), is(closeTo(0.954, 0.0001)));
     }
 
-    private List<Instance> readInstances(String resource, List<String> normalFeaturePaths,
-            List<String> sparseFeaturePaths) throws FileNotFoundException {
+    private List<Instance> readInstances(String resource) throws FileNotFoundException {
         File contentFile = ResourceHelper.getResourceFile(resource);
         List<String> lines = FileHelper.readFileToArray(contentFile);
         List<Instance> ret = new ArrayList<Instance>(lines.size());
@@ -117,7 +106,6 @@ public class LibSvmPredictorTest {
             Instance newInstance = new Instance(targetClass, featureVector);
             ret.add(newInstance);
         }
-        normalFeaturePaths.addAll(normalFeaturePathsSet);
         return ret;
     }
 

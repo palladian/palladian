@@ -17,7 +17,7 @@ import ws.palladian.processing.features.Feature;
  * @version 1.0
  * @since 0.1.7
  */
-public final class SequentialPattern extends Feature<List<String>> {
+public final class SequentialPattern extends AbstractFeature<List<String>> {
 
     // private List<String> pattern;
 
