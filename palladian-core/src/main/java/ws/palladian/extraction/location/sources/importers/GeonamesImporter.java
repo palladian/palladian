@@ -23,6 +23,7 @@ import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MultiMap;
@@ -390,7 +391,7 @@ public final class GeonamesImporter {
     private void importHierarchy(InputStream inputStream, final int numLines) {
         LOGGER.info("Importing hierarchy, {} lines to read", numLines);
         final StopWatch stopWatch = new StopWatch();
-        final MultiMap<Integer, Integer> childParents = MultiMap.create();
+        final MultiMap<Integer, Integer> childParents = DefaultMultiMap.createWithSet();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -415,9 +416,9 @@ public final class GeonamesImporter {
         });
         // only add relation, if unambiguous
         for (Integer childId : childParents.keySet()) {
-            List<Integer> parentIds = childParents.get(childId);
+            Collection<Integer> parentIds = childParents.get(childId);
             if (parentIds.size() == 1) {
-                hierarchyMappings.put(childId, parentIds.get(0));
+                hierarchyMappings.put(childId, CollectionHelper.getFirst(parentIds));
             }
         }
         LOGGER.info("Finished importing hierarchy in {}", stopWatch.getTotalElapsedTimeString());

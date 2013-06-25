@@ -103,31 +103,6 @@ public final class CoordinateTagger implements Tagger {
         return sign * (Math.abs(degrees) + minutes / 60. + seconds / 3600.);
     }
 
-    /**
-     * <p>
-     * Convert decimal degrees to a DMS coordinate.
-     * </p>
-     * 
-     * @param decimal The decimal value to convert.
-     * @return The DMS string.
-     */
-    public static final String decimalToDms(double decimal) {
-        String sign = decimal < 0 ? "-" : "";
-        double temp = Math.abs(decimal);
-
-        int degrees = (int)temp;
-
-        double mod = temp % 1;
-        temp = mod * 60;
-        int minutes = (int)temp;
-
-        mod = temp % 1;
-        temp = mod * 60;
-        int seconds = (int)temp;
-
-        return String.format("%s%d°%d′%d″", sign, degrees, minutes, seconds);
-    }
-
     @SuppressWarnings("unused")
     private static final void printGroups(Matcher matcher) {
         for (int i = 0; i <= matcher.groupCount(); i++) {

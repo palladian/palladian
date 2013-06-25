@@ -15,11 +15,9 @@ import org.junit.Test;
 import weka.classifiers.bayes.NaiveBayes;
 import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
@@ -76,8 +74,8 @@ public class WekaPredictorTest {
 
     @Test
     public void testWithPositionalData() {
-        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3, 0);
-        PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6, 1);
+        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3);
+        PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6);
         List<PositionAnnotation> annotations = new ArrayList<PositionAnnotation>();
         annotations.add(annotation1);
         annotations.add(annotation2);
@@ -93,7 +91,7 @@ public class WekaPredictorTest {
         featureVector1.add(annotationListFeature);
         featureVector1.add(sequentialPatternListFeature);
 
-        PositionAnnotation annotation3 = new PositionAnnotation("token", 0, 2, 0, "de");
+        PositionAnnotation annotation3 = new PositionAnnotation("token", 0, 2, "de");
         annotation3.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"d"})));
         FeatureVector featureVector2 = new FeatureVector();
         featureVector2.add(annotation3);

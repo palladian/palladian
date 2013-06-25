@@ -19,10 +19,10 @@ public class Annotation implements Annotated {
     private CategoryEntriesMap tags = new CategoryEntriesMap();
 
     /** The start index of the annotation in the annotated text. */
-    private int offset = -1;
+    private int offset;
 
     /** The length of the annotation. */
-    private int length = -1;
+    private int length;
 
     /** The annotated entity. */
     private String entity;
@@ -34,11 +34,6 @@ public class Annotation implements Annotated {
         this.length = entityName.length();
         entity = entityName;
         tags.set(tagName, 1);
-    }
-
-    @Override
-    public int getLength() {
-        return length;
     }
 
     public CategoryEntries getTags() {
@@ -96,12 +91,6 @@ public class Annotation implements Annotated {
     @Override
     public int getEndPosition() {
         return offset + length;
-    }
-
-    @Override
-    public int getIndex() {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     @Override

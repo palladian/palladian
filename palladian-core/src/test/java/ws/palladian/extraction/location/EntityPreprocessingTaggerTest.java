@@ -19,13 +19,12 @@ public class EntityPreprocessingTaggerTest {
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
         List<Annotated> annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
-        assertEquals(44, annotations.size());
+        assertEquals(41, annotations.size());
         assertEquals("Clean Water Act", annotations.get(0).getValue());
         assertEquals(31, annotations.get(0).getStartPosition());
         assertEquals(46, annotations.get(0).getEndPosition());
-        assertEquals(15, annotations.get(0).getLength());
-        assertEquals("Cleveland", annotations.get(4).getValue());
-        assertEquals("Bill Ruckelshaus", annotations.get(36).getValue());
+        assertEquals("Cleveland", annotations.get(3).getValue());
+        assertEquals("Bill Ruckelshaus", annotations.get(33).getValue());
     }
 
 }

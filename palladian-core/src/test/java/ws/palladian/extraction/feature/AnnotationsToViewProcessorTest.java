@@ -27,8 +27,8 @@ public class AnnotationsToViewProcessorTest {
     public void test() throws DocumentUnprocessableException {
         AnnotationsToViewProcessor objectOfClassUnderTest = new AnnotationsToViewProcessor("annotation");
         TextDocument testDocument = new TextDocument("test");
-        testDocument.getFeatureVector().add(new PositionAnnotation("annotation", 0, 3, 0, "The"));
-        testDocument.getFeatureVector().add(new PositionAnnotation("annotation", 5, 8, 1, "Fox"));
+        testDocument.getFeatureVector().add(new PositionAnnotation("annotation", 0, 3, "The"));
+        testDocument.getFeatureVector().add(new PositionAnnotation("annotation", 5, 8, "Fox"));
 
         objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(testDocument);
         objectOfClassUnderTest.process();

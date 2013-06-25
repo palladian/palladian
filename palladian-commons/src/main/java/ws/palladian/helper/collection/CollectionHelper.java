@@ -9,10 +9,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -229,10 +232,22 @@ public final class CollectionHelper {
      * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
      * </p>
      * 
-     * @return
+     * @return A new {@link HashMap}.
      */
     public static <K, V> HashMap<K, V> newHashMap() {
         return new HashMap<K, V>();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link TreeMap}. This method allows omitting the type parameter when creating the TreeMap:
+     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newTreeMap();</code>.
+     * </p>
+     * 
+     * @return A new {@link TreeMap}.
+     */
+    public static <K, V> TreeMap<K, V> newTreeMap() {
+        return new TreeMap<K, V>();
     }
 
     /**
@@ -241,7 +256,7 @@ public final class CollectionHelper {
      * <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
      * </p>
      * 
-     * @return
+     * @return A new {@link ArrayList}.
      */
     public static <E> ArrayList<E> newArrayList() {
         return new ArrayList<E>();
@@ -270,10 +285,34 @@ public final class CollectionHelper {
      * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
      * </p>
      * 
-     * @return
+     * @return A new {@link HashSet}.
      */
     public static <E> HashSet<E> newHashSet() {
         return new HashSet<E>();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the TreeSet:
+     * <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
+     * </p>
+     * 
+     * @return A new {@link TreeSet}.
+     */
+    public static <E> TreeSet<E> newTreeSet() {
+        return new TreeSet<E>();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
+     * LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
+     * </p>
+     * 
+     * @return A new {@link LinkedHashSet}.
+     */
+    public static <E> LinkedHashSet<E> newLinkedHashSet() {
+        return new LinkedHashSet<E>();
     }
 
     /**
@@ -373,18 +412,16 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Get the first element in a {@link List}.
+     * Get the first element in an {@link Iterable}.
      * </p>
      * 
-     * @param list The List from which to get the element, not <code>null</code>.
-     * @return The first element, or <code>null</code> if the list was empty.
+     * @param list The Iterable from which to get the element, not <code>null</code>.
+     * @return The first element, or <code>null</code> if the iterable was empty.
      */
-    public static <T> T getFirst(List<T> list) {
-        Validate.notNull(list, "list must not be null");
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.get(0);
+    public static <T> T getFirst(Iterable<T> iterable) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Iterator<T> iterator = iterable.iterator();
+        return iterator.hasNext() ? iterator.next() : null;
     }
 
     /**
@@ -417,7 +454,7 @@ public final class CollectionHelper {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
 
-        MultiMap<V, I> result = MultiMap.create();
+        MultiMap<V, I> result = DefaultMultiMap.createWithList();
         for (I item : iterable) {
             result.add(function.compute(item), item);
         }

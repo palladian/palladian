@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,10 +28,14 @@ import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
+import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wikipedia.WikipediaUtil.MarkupLocation;
 
 /**
  * <p>
@@ -46,58 +49,63 @@ import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
  */
 public class WikipediaLocationImporter {
 
-    // TODO add rule-based mapping for unmapped locations (e.g. having 'university' in their names, ...)
+    // TODO extract information from infoboxes
+    // TODO extract information from geoboxes like here: http://en.wikipedia.org/wiki/Charles_River
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
 
-    /**
-     * matcher for coordinate template: {{Coord|47|33|27|N|10|45|00|E|display=title}}
-     */
-    private static final Pattern COORDINATE_TAG_PATTERN = Pattern.compile("\\{\\{Coord" + //
-            // match latitude, either DMS or decimal, N/S is optional
-            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([NS]))?" +
-            // ..-(1)--------------.......-(2)------------........-(3)---------------.........-(4)--
-            // match longitude, either DMS or decimal, W/E is optional
-            "\\|(-?\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?)(?:\\|(\\d+(?:\\.\\d+)?))?)?(?:\\|([WE]))?" +
-            // ..-(5)--------------.......-(6)--------------......-(7)---------------.........-(8)--
-            // additional data
-            "((?:\\|[^}|<]+(?:<\\w+>[^<]*</\\w+>)?)*)" + //
-            // -(9)----------------------------------
-            "\\}\\}", Pattern.CASE_INSENSITIVE);//
-
     /** Pages with those titles will be ignored. */
     private static final Pattern IGNORED_PAGES = Pattern.compile("(?:Geography|Battle) of .*");
 
-    /** The mapping between Wikipedia types and Palladian {@link LocationType}. Values mapped to null will be dropped. */
-    private static final Map<String, LocationType> TYPE_MAPPING = getTypeMapping();
+//    /** The mapping between Wikipedia types and Palladian {@link LocationType}. Values mapped to null will be dropped. */
+//    private static final Map<String, LocationType> TYPE_MAPPING = getTypeMapping();
+//
+//    private static Map<String, LocationType> getTypeMapping() {
+//        Map<String, LocationType> map = CollectionHelper.newHashMap();
+//        map.put("adm1st", LocationType.UNIT);
+//        map.put("adm2nd", LocationType.UNIT);
+//        map.put("adm3rd", LocationType.UNIT);
+//        map.put("airport", LocationType.POI);
+//        map.put("city", LocationType.CITY);
+//        map.put("country", LocationType.COUNTRY);
+//        map.put("edu", LocationType.POI);
+//        map.put("event", null);
+//        map.put("forest", LocationType.LANDMARK);
+//        map.put("glacier", LocationType.LANDMARK);
+//        map.put("isle", LocationType.LANDMARK);
+//        map.put("landmark", LocationType.POI); // XXX not sure, whether this is accurate
+//        map.put("mountain", LocationType.LANDMARK);
+//        map.put("pass", LocationType.LANDMARK);
+//        map.put("railwaystation", LocationType.POI);
+//        map.put("river", LocationType.LANDMARK);
+//        map.put("satellite", null);
+//        map.put("waterbody", LocationType.LANDMARK);
+//        map.put("camera", null);
+//        return Collections.unmodifiableMap(map);
+//    }
+    
+    private static final Map<String, LocationType> INFOBOX_MAPPING = loadMapping();
 
-    private static Map<String, LocationType> getTypeMapping() {
-        Map<String, LocationType> map = CollectionHelper.newHashMap();
-        map.put("adm1st", LocationType.UNIT);
-        map.put("adm2nd", LocationType.UNIT);
-        map.put("adm3rd", LocationType.UNIT);
-        map.put("airport", LocationType.POI);
-        map.put("city", LocationType.CITY);
-        map.put("country", LocationType.COUNTRY);
-        map.put("edu", LocationType.POI);
-        map.put("event", null);
-        map.put("forest", LocationType.LANDMARK);
-        map.put("glacier", LocationType.LANDMARK);
-        map.put("isle", LocationType.LANDMARK);
-        map.put("landmark", LocationType.POI); // XXX not sure, whether this is accurate
-        map.put("mountain", LocationType.LANDMARK);
-        map.put("pass", LocationType.LANDMARK);
-        map.put("railwaystation", LocationType.POI);
-        map.put("river", LocationType.LANDMARK);
-        map.put("satellite", null);
-        map.put("waterbody", LocationType.LANDMARK);
-        map.put("camera", null);
-        return Collections.unmodifiableMap(map);
+    private static Map<String, LocationType> loadMapping() {
+        InputStream inputStream = null;
+        try {
+            final Map<String, LocationType> result = CollectionHelper.newHashMap();
+            inputStream = WikipediaLocationImporter.class.getResourceAsStream("/wikipediaLocationInfoboxMappings.csv");
+            FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
+                @Override
+                public void performAction(String line, int lineNumber) {
+                    String[] split = line.split("\\t");
+                    String infoboxType = split[0];
+                    LocationType locationType = LocationType.map(split[1]);
+                    result.put(infoboxType, locationType);
+                }
+            });
+            return result;
+        } finally {
+            FileHelper.close(inputStream);
+        }
     }
-
-    /** The main namespace for import. Other namespaces contain meta pages, like discussions etc. */
-    private static final int MAIN_NAMESPACE = 0;
 
     private final LocationStore locationStore;
 
@@ -105,9 +113,18 @@ public class WikipediaLocationImporter {
 
     private final SAXParserFactory saxParserFactory;
 
-    public WikipediaLocationImporter(LocationStore locationStore) {
+    private final int idOffset;
+
+    /**
+     * @param locationStore The {@link LocationStore} where to store the imported data.
+     * @param idOffset The offset for the inserted IDs. This way, ID clashes with existing data can be avoided. Zero for
+     *            no offset (keep original IDs).
+     */
+    public WikipediaLocationImporter(LocationStore locationStore, int idOffset) {
         Validate.notNull(locationStore, "locationStore must not be null");
+        Validate.isTrue(idOffset >= 0);
         this.locationStore = locationStore;
+        this.idOffset = idOffset;
         this.saxParserFactory = SAXParserFactory.newInstance();
         this.locationNamesIds = CollectionHelper.newHashMap();
     }
@@ -166,37 +183,57 @@ public class WikipediaLocationImporter {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (page.isRedirect()) {
                     return;
                 }
                 if (IGNORED_PAGES.matcher(page.getTitle()).matches()) {
-                    LOGGER.info("Ignoring '{}' by blacklist", page.getTitle());
+                    LOGGER.debug("Ignoring '{}' by blacklist", page.getTitle());
                     return;
                 }
 
                 String text = page.getText();
-                List<MarkupLocation> locations = extractCoordinateTag(text);
+                List<MarkupLocation> locations = WikipediaUtil.extractCoordinateTag(text);
+                
+                String infoboxType = page.getInfoboxType();
+                if (infoboxType == null) {
+                    LOGGER.debug("Page '{}' has no infobox; skip", page.getTitle());
+                    return;
+                }
+                LocationType type = INFOBOX_MAPPING.get(infoboxType);
+                if (type == null) {
+                    LOGGER.debug("Unmapped type for '{}'; ignore", page.getTitle());
+                    return;
+                }
 
                 for (MarkupLocation location : locations) {
-                    if (location.display != null && location.display.contains("title")) {
+                    String display = location.getDisplay();
+                    if (display != null && (display.contains("title") || display.equals("t"))) {
                         String name = page.getCleanTitle();
 
-                        LocationType type = LocationType.UNDETERMINED;
-                        if (location.type != null) {
-                            type = TYPE_MAPPING.get(location.type);
-                            if (type == null) { // explicit 'null' mapping -> ignore
-                                LOGGER.warn("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
-                                continue;
-                            }
-                        }
+//                        LocationType type = LocationType.UNDETERMINED;
+//                        if (location.type != null) {
+//                            type = TYPE_MAPPING.get(location.type);
+//                            if (type == null) { // explicit 'null' mapping -> ignore
+//                                LOGGER.warn("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
+//                                continue;
+//                            }
+//                        }
+                        
+//                        if (type == null) {
+//                            type = TYPE_MAPPING.get(location.type);
+//                            if (type == null) { // explicit 'null' mapping -> ignore
+//                                LOGGER.debug("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
+//                                continue;
+//                            }
+//                        }
 
-                        locationStore.save(new ImmutableLocation(page.getPageId(), name, type, location.lat,
-                                location.lng, location.population));
-                        LOGGER.debug("Saved location with ID {}, name {}", page.getPageId(), name);
-                        locationNamesIds.put(name, page.getPageId());
+                        locationStore.save(new ImmutableLocation(page.getPageId() + idOffset, name, type, location
+                                .getLatitude(), location.getLongitude(), location.getPopulation()));
+                        LOGGER.trace("Saved location with ID {}, name {}", page.getPageId(), name);
+                        locationNamesIds.put(page.getTitle(), page.getPageId());
                         counter[0]++;
                     }
                 }
@@ -220,7 +257,7 @@ public class WikipediaLocationImporter {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.getNamespaceId() != MAIN_NAMESPACE) {
+                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (!page.isRedirect()) {
@@ -243,7 +280,7 @@ public class WikipediaLocationImporter {
                     return;
                 }
                 AlternativeName alternativeName = new AlternativeName(name, null);
-                locationStore.addAlternativeNames(id, Collections.singleton(alternativeName));
+                locationStore.addAlternativeNames(id + idOffset, Collections.singleton(alternativeName));
                 LOGGER.debug("Save alternative name {} for location with ID {}", name, id);
                 counter[0]++;
             }
@@ -251,125 +288,19 @@ public class WikipediaLocationImporter {
         LOGGER.info("Finished importing {} alternative names", counter[0]);
     }
 
-    static List<MarkupLocation> extractCoordinateTag(String text) {
-        List<MarkupLocation> result = CollectionHelper.newArrayList();
-        Matcher m = COORDINATE_TAG_PATTERN.matcher(text);
-        while (m.find()) {
-            MarkupLocation coordMarkup = new MarkupLocation();
-            coordMarkup.lat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
-            coordMarkup.lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
 
-            // get coordinate parameters
-            String type = getCoordinateParam(m.group(9), "type");
-            if (type != null) {
-                coordMarkup.population = getNumberInBrackets(type);
-                type = type.replaceAll("\\(.*\\)", ""); // remove population
-            }
-            coordMarkup.type = type;
-            coordMarkup.region = getCoordinateParam(m.group(9), "region");
-            // get other parameters
-            coordMarkup.display = getOtherParam(m.group(9), "display");
-            coordMarkup.name = getOtherParam(m.group(9), "name");
 
-            result.add(coordMarkup);
-        }
-        return result;
-    }
 
-    private static Long getNumberInBrackets(String string) {
-        Matcher matcher = Pattern.compile("\\(([\\d,]+)\\)").matcher(string);
-        if (matcher.find()) {
-            String temp = matcher.group(1).replace(",", "");
-            try {
-                return Long.valueOf(temp);
-            } catch (NumberFormatException e) {
-                LOGGER.error("Error parsing {}", temp);
-            }
-        }
-        return null;
-    }
 
-    private static String getOtherParam(String group, String name) {
-        String[] parts = group.split("\\|");
-        for (String temp1 : parts) {
-            String[] keyValue = temp1.split("=");
-            if (keyValue.length == 2 && keyValue[0].equals(name)) {
-                return keyValue[1].trim();
-            }
-        }
-        return null;
-    }
 
-    private static String getCoordinateParam(String group, String name) {
-        String[] parts = group.split("\\|");
-        for (String temp1 : parts) {
-            for (String temp2 : temp1.split("_")) {
-                String[] keyValue = temp2.split(":");
-                if (keyValue.length == 2 && keyValue[0].equals(name)) {
-                    return keyValue[1].trim();
-                }
-            }
-        }
-        return null;
-    }
 
-    /**
-     * Parse DMS components. The only part which must not be <code>null</code> is deg.
-     * 
-     * @param deg Degree part, not <code>null</code>.
-     * @param min Minute part, may be <code>null</code>.
-     * @param sec Second part, may be <code>null</code>.
-     * @param nsew NSEW modifier, should be in [NSEW], may be <code>null</code>.
-     * @return Parsed double value.
-     */
-    private static double parseComponents(String deg, String min, String sec, String nsew) {
-        Validate.notNull(deg, "deg must not be null");
-        double parsedDeg = Double.valueOf(deg);
-        double parsedMin = min != null ? Double.valueOf(min) : 0;
-        double parsedSec = sec != null ? Double.valueOf(sec) : 0;
-        int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
-        return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
-    }
 
-    /**
-     * Utility class representing a location extracted from Wikipedia coordinate markup.
-     */
-    static final class MarkupLocation {
-        double lat;
-        double lng;
-        Long population;
-        String display;
-        String name;
-        String type;
-        String region;
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("MarkupLocation [lat=");
-            builder.append(lat);
-            builder.append(", lng=");
-            builder.append(lng);
-            builder.append(", population=");
-            builder.append(population);
-            builder.append(", display=");
-            builder.append(display);
-            builder.append(", name=");
-            builder.append(name);
-            builder.append(", type=");
-            builder.append(type);
-            builder.append(", region=");
-            builder.append(region);
-            builder.append("]");
-            return builder.toString();
-        }
-    }
 
     public static void main(String[] args) throws Exception {
-        LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations2");
         locationStore.truncate();
 
-        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore);
+        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore, 100000000);
         File dumpXml = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
         importer.importDumpBz2(dumpXml);
     }

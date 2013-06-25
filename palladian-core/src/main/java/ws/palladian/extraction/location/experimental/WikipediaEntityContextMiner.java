@@ -24,13 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import ws.palladian.extraction.location.sources.importers.MultiStreamBZip2InputStream;
+import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
@@ -87,7 +88,7 @@ class WikipediaEntityContextMiner {
                     if (counter[0]++ == limit) {
                         throw new StopException();
                     }
-                    if (getFreeMemory() < SizeUnit.MEGABYTES.toBytes(128)) {
+                    if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(128)) {
                         LOGGER.info("Memory nearly exhausted, stopping. Make sure to assign lots of heap memory before running!");
                         throw new StopException();
                     }
@@ -232,7 +233,7 @@ class WikipediaEntityContextMiner {
     private static void extractContexts(WikipediaPage page, String type, int contextSize) {
         String pageText = WikipediaUtil.stripMediaWikiMarkup(page.getText());
         pageText = StringHelper.normalizeQuotes(pageText);
-        pageText = extractSentences(pageText);
+        pageText = WikipediaUtil.extractSentences(pageText);
 
         String entityName = page.getCleanTitle();
         String lastName = entityName.substring(entityName.lastIndexOf(" ") + 1); // only use for "PER"?
@@ -262,23 +263,9 @@ class WikipediaEntityContextMiner {
         }
     }
 
-    private static String extractSentences(String text) {
-        // remove lines which do not contain a sentence and bulleted items
-        Pattern pattern = Pattern.compile("^(\\*.*|.*\\w)$", Pattern.MULTILINE);
-        String result = pattern.matcher(text).replaceAll("");
-        result = result.replaceAll("\n{2,}", "\n\n");
-        result = result.trim();
-        return result;
-    }
-
     /** Used to break the callback. */
     private static final class StopException extends RuntimeException {
         private static final long serialVersionUID = 1L;
-    }
-
-    private static final long getFreeMemory() {
-        Runtime runtime = Runtime.getRuntime();
-        return runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
     }
 
     public static void main(String[] args) {

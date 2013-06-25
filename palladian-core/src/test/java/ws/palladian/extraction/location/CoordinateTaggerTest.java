@@ -18,12 +18,6 @@ public class CoordinateTaggerTest {
     }
 
     @Test
-    public void testDecToDms() {
-        assertEquals("40°26′46″", CoordinateTagger.decimalToDms(40.446195));
-        assertEquals("-79°56′55″", CoordinateTagger.decimalToDms(-79.948862));
-    }
-
-    @Test
     public void testLocationTagger() {
         CoordinateTagger tagger = new CoordinateTagger();
 

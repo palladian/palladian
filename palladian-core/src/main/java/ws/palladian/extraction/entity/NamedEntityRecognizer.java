@@ -142,10 +142,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                 boolean samePositionAndLength = nerAnnotation.getStartPosition() == goldStandardAnnotation
                         .getStartPosition()
                         && nerAnnotation.getValue().length() == goldStandardAnnotation.getValue().length();
-                boolean overlaps = nerAnnotation.getStartPosition() <= goldStandardAnnotation.getStartPosition()
-                        && nerAnnotation.getEndPosition() >= goldStandardAnnotation.getStartPosition()
-                        || nerAnnotation.getStartPosition() <= goldStandardAnnotation.getEndPosition()
-                        && nerAnnotation.getEndPosition() >= goldStandardAnnotation.getStartPosition();
+                boolean overlaps = nerAnnotation.overlaps(goldStandardAnnotation);
                 boolean sameTag = nerAnnotation.getTag().equalsIgnoreCase(goldStandardAnnotation.getTag());
 
                 if (samePositionAndLength) {
