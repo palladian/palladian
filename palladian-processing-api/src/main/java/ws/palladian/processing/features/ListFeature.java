@@ -16,7 +16,7 @@ import java.util.List;
  * @since 0.2.2
  * @param <T>
  */
-public final class ListFeature<T> extends AbstractFeature<List<T>> {
+public final class ListFeature<T extends Feature<?>> extends AbstractFeature<List<T>> {
 
     /**
      * <p>

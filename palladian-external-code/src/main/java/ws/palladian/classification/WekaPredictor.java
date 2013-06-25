@@ -23,6 +23,7 @@ import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.utils.FeatureUtils;
@@ -47,8 +48,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
     private final static Logger LOGGER = LoggerFactory.getLogger(WekaPredictor.class);
 
     private final weka.classifiers.Classifier classifier;
-    private final List<String> normalFeaturePaths;
-    private final List<String> sparseFeaturePaths;
 
     /**
      * <p>
@@ -57,21 +56,17 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
      * 
      * @param classifier The classifier to use, not <code>null</code>.
      */
-    public WekaPredictor(weka.classifiers.Classifier classifier, List<String> normalFeaturePaths,
-            List<String> sparseFeaturePaths) {
+    public WekaPredictor(weka.classifiers.Classifier classifier) {
         Validate.notNull(classifier, "classifier must not be null.");
-        Validate.notNull(normalFeaturePaths);
 
         this.classifier = classifier;
-        this.normalFeaturePaths = normalFeaturePaths;
-        this.sparseFeaturePaths = sparseFeaturePaths;
     }
 
     @Override
     public WekaModel train(Iterable<? extends Trainable> trainables) {
         Validate.notNull(trainables);
         List<? extends Trainable> trainList = CollectionHelper.newArrayList(trainables);
-        FastVector schema = new FastVector(normalFeaturePaths.size() + sparseFeaturePaths.size());
+        FastVector schema = new FastVector();
         Instances data = new Instances("dataset", schema, trainList.size());
 
         // Create schema for weka dataset.
@@ -80,19 +75,29 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
         List<String> instanceClasses = new ArrayList<String>(trainList.size());
         for (Trainable trainable : trainables) {
             Map<Integer, Double> wekaFeatureSet = new HashMap<Integer, Double>();
-            for (String featurePath : normalFeaturePaths) {
-                List<Feature<?>> featureList = FeatureUtils
-                        .getFeaturesAtPath(trainable.getFeatureVector(), featurePath);
-                Validate.isTrue(featureList.size() == 1);
-                wekaFeatureSet.putAll(handleFeature(featureList.get(0), data, trainables));
+            for(Feature<?> feature:trainable.getFeatureVector()) {
+                if(feature instanceof ListFeature) {
+                    ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
+                    wekaFeatureSet.putAll(handleFeature(listFeature.getValue(), data));
+                } else {
+                wekaFeatureSet.putAll(handleFeature(feature, data, trainables));
+                }
             }
-
-            for (String sparseFeaturePath : sparseFeaturePaths) {
-                List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(trainable.getFeatureVector(),
-                        sparseFeaturePath);
-
-                wekaFeatureSet.putAll(handleFeature(sparseFeatures, data));
-            }
+            
+            
+//            for (String featurePath : normalFeaturePaths) {
+//                List<Feature<?>> featureList = FeatureUtils
+//                        .getFeaturesAtPath(trainable.getFeatureVector(), featurePath);
+//                Validate.isTrue(featureList.size() == 1);
+//                wekaFeatureSet.putAll(handleFeature(featureList.get(0), data, trainables));
+//            }
+//
+//            for (String sparseFeaturePath : sparseFeaturePaths) {
+//                List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(trainable.getFeatureVector(),
+//                        sparseFeaturePath);
+//
+//                wekaFeatureSet.putAll(handleFeature(sparseFeatures, data));
+//            }
             wekaFeatureSets.add(wekaFeatureSet);
             classes.add(trainable.getTargetClass());
             instanceClasses.add(trainable.getTargetClass());
@@ -136,7 +141,7 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
         } catch (Exception e) {
             throw new IllegalStateException("An exception occurred while building the classifier: " + e.getMessage(), e);
         }
-        return new WekaModel(classifier, data, normalFeaturePaths, sparseFeaturePaths);
+        return new WekaModel(classifier, data);
     }
 
     /**
@@ -226,7 +231,7 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
     private FastVector getValues(String name, Iterable<? extends Trainable> trainables) {
         Set<String> nominalValues = new HashSet<String>();
         for (Trainable instance : trainables) {
-            NominalFeature feature = instance.getFeatureVector().getFeature(NominalFeature.class, name);
+            NominalFeature feature = instance.getFeatureVector().get(NominalFeature.class, name);
             if (feature == null) {
                 continue;
             }
@@ -245,26 +250,24 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
 
         SortedMap<Integer, Double> indices = new TreeMap<Integer, Double>();
         Map<String, Attribute> schema = model.getSchema();
-        for (String sparseFeaturePath : sparseFeaturePaths) {
-            List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(),
-                    sparseFeaturePath);
-            for (Feature<?> sparseFeature : sparseFeatures) {
-                String featureName = sparseFeature.getValue().toString();
-                Attribute featureAttribute = schema.get(featureName);
-                if (featureAttribute == null) {
-                    LOGGER.info("Ignoring sparse feature " + featureName + " since it was not in training set.");
-                    continue;
-                }
-                int indexOfSparseFeature = featureAttribute.index();
-                indices.put(indexOfSparseFeature, 1.0);
-            }
-        }
-
-        for (String featurePath : normalFeaturePaths) {
-            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(), featurePath);
-            Validate.isTrue(features.size() == 1);
+        for(Feature<?> feature:classifiable.getFeatureVector()) {
+//            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(), featurePath);
+//            Validate.isTrue(features.size() == 1);
             // int indexOfFeature = model.getSchema().get(features.get(0).getName());
-            Feature<?> feature = features.get(0);
+//            Feature<?> feature = features.get(0);
+            if(feature instanceof ListFeature) {
+                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
+                for (Feature<?> sparseFeature : listFeature.getValue()) {
+                    String featureName = sparseFeature.getName();
+                    Attribute featureAttribute = schema.get(featureName);
+                    if (featureAttribute == null) {
+                        LOGGER.info("Ignoring sparse feature " + featureName + " since it was not in training set.");
+                        continue;
+                    }
+                    int indexOfSparseFeature = featureAttribute.index();
+                    indices.put(indexOfSparseFeature, 1.0);
+                }
+            } else {
             Attribute attribute = schema.get(feature.getName());
             if (!(feature instanceof NumericFeature)) {
                 // Attribute attribute = (Attribute)model.getSchema().elementAt(indexOfFeature);
@@ -274,7 +277,39 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
             } else {
                 indices.put(attribute.index(), Double.valueOf(feature.getValue().toString()));
             }
+            }
         }
+        
+//        for (String sparseFeaturePath : sparseFeaturePaths) {
+//            List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(),
+//                    sparseFeaturePath);
+//            for (Feature<?> sparseFeature : sparseFeatures) {
+//                String featureName = sparseFeature.getValue().toString();
+//                Attribute featureAttribute = schema.get(featureName);
+//                if (featureAttribute == null) {
+//                    LOGGER.info("Ignoring sparse feature " + featureName + " since it was not in training set.");
+//                    continue;
+//                }
+//                int indexOfSparseFeature = featureAttribute.index();
+//                indices.put(indexOfSparseFeature, 1.0);
+//            }
+//        }
+//
+//        for (String featurePath : normalFeaturePaths) {
+//            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(), featurePath);
+//            Validate.isTrue(features.size() == 1);
+//            // int indexOfFeature = model.getSchema().get(features.get(0).getName());
+//            Feature<?> feature = features.get(0);
+//            Attribute attribute = schema.get(feature.getName());
+//            if (!(feature instanceof NumericFeature)) {
+//                // Attribute attribute = (Attribute)model.getSchema().elementAt(indexOfFeature);
+//                // int indexOfValue = attribute.indexOfValue(features.get(0).getValue().toString());
+//                indices.put(attribute.index(), Integer.valueOf(attribute.indexOfValue(feature.getValue().toString()))
+//                        .doubleValue());
+//            } else {
+//                indices.put(attribute.index(), Double.valueOf(feature.getValue().toString()));
+//            }
+//        }
 
         double[] valuesArray = new double[indices.size()];
         int[] indicesArray = new int[indices.size()];

@@ -22,12 +22,12 @@ import ws.palladian.processing.features.utils.WhiteListFeatureVectorFilter;
 
 /**
  * <p>
- * 
+ * Tests whether the feature vector filter work correct or not.
  * </p>
  * 
  * @author Klemens Muthmann
  * @version 1.0
- * @since
+ * @since 0.2.2
  */
 public class FeatureVectorFilterTest {
 
@@ -42,13 +42,13 @@ public class FeatureVectorFilterTest {
         FeatureVector vector = textDocument.getFeatureVector();
         vector.add(new NominalFeature("test", "blah"));
         vector.add(new NominalFeature("tets3", "tuht"));
-        List<String> values = new ArrayList<String>();
-        values.add("unendliche");
-        values.add("Mannigfaltigkeit");
-        values.add("in");
-        values.add("unendlichen");
-        values.add("kombinationen");
-        vector.add(new ListFeature<String>("test4", values));
+        List<SparseFeature<String>> values = new ArrayList<SparseFeature<String>>();
+        values.add(new SparseFeature<String>("unendliche"));
+        values.add(new SparseFeature<String>("Mannigfaltigkeit"));
+        values.add(new SparseFeature<String>("in"));
+        values.add(new SparseFeature<String>("unendlichen"));
+        values.add(new SparseFeature<String>("kombinationen"));
+        vector.add(new ListFeature<SparseFeature<String>>("test4", values));
 
         List<NumericFeature> numericValues = new ArrayList<NumericFeature>();
         numericValues.add(new NumericFeature("v1", 1));
@@ -62,11 +62,11 @@ public class FeatureVectorFilterTest {
                 PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER).poll();
 
         assertThat(result.getFeatureVector().getAll().size(), is(2));
-        assertTrue(((ListFeature<String>)result.getFeatureVector().get("test2")).getValue().contains(
+        assertTrue(((ListFeature<SparseFeature<String>>)result.getFeatureVector().get("test2")).getValue().contains(
                 new NumericFeature("v1", 1)));
-        assertTrue(((ListFeature<String>)result.getFeatureVector().get("test2")).getValue().contains(
+        assertTrue(((ListFeature<SparseFeature<String>>)result.getFeatureVector().get("test2")).getValue().contains(
                 new NumericFeature("v2", 2)));
-        assertFalse(((ListFeature<String>)result.getFeatureVector().get("test2")).getValue().contains(
+        assertFalse(((ListFeature<SparseFeature<String>>)result.getFeatureVector().get("test2")).getValue().contains(
                 new NumericFeature("v3", 3)));
         assertNull(result.getFeatureVector().get("test3"));
         assertNull(result.getFeatureVector().get("test4"));
