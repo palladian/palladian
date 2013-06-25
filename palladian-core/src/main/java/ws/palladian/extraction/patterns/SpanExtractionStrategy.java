@@ -5,6 +5,8 @@ package ws.palladian.extraction.patterns;
 
 import java.util.List;
 
+import ws.palladian.processing.features.SequentialPattern;
+
 /**
  * <p>
  * Provides an extraction strategy for the {@link SequentialPatternAnnotator}.

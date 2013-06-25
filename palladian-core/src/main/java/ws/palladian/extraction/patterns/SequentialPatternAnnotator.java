@@ -22,9 +22,11 @@ import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
+import ws.palladian.processing.features.SequentialPattern;
 
 /**
  * <p>
@@ -94,10 +96,10 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
 
     @Override
     public void processDocument(TextDocument document) {
-        List<PositionAnnotation> posTags = new ArrayList<PositionAnnotation>(document.getFeatureVector().getAll(
-                PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE));
-        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>(document.getFeatureVector().getAll(
-                PositionAnnotation.class, AbstractSentenceDetector.PROVIDED_FEATURE));
+        List<PositionAnnotation> posTags = new ArrayList<PositionAnnotation>(document.get(ListFeature.class,
+                BaseTokenizer.PROVIDED_FEATURE));
+        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>(document.get(ListFeature.class,
+                AbstractSentenceDetector.PROVIDED_FEATURE));
         List<PositionAnnotation> markedKeywords = new ArrayList<PositionAnnotation>(markKeywords(document));
 
         Collections.sort(posTags);
@@ -124,7 +126,7 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
                     sequentialPattern.add(currentMarkedKeyword.getValue());
                     i = currentMarkedKeyword.getEndPosition();
                 } else if (currentPosTag != null && Integer.valueOf(currentPosTag.getStartPosition()).equals(i)) {
-                    List<NominalFeature> posTagFeatures = currentPosTag.getFeatureVector().getAll(NominalFeature.class,
+                    List<NominalFeature> posTagFeatures = currentPosTag.getFeatureVector().get(ListFeature.class,
                             BasePosTagger.PROVIDED_FEATURE);
                     for (NominalFeature posTagFeature : posTagFeatures) {
                         sequentialPattern.add(posTagFeature.getValue());
@@ -166,7 +168,7 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
         List<PositionAnnotation> markedKeywords = new LinkedList<PositionAnnotation>();
         String originalContent = document.getContent();
         String originalContentLowerCased = originalContent.toLowerCase();
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory("keyword", document);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         for (String keyword : keywords) {
             Pattern keywordPattern = Pattern.compile(keyword.toLowerCase());
             Matcher keywordMatcher = keywordPattern.matcher(originalContentLowerCased);
