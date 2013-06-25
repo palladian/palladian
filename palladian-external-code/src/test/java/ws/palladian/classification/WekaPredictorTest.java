@@ -42,22 +42,24 @@ public class WekaPredictorTest {
         v1.add(new NominalFeature("b", "value1"));
         List<SparseFeature<String>> v1ListFeatureList = new ArrayList<SparseFeature<String>>();
         v1ListFeatureList.add(new SparseFeature<String>("v1"));
-        ListFeature<SparseFeature<String>> v1ListFeature = new ListFeature<SparseFeature<String>>("c",v1ListFeatureList);
+        ListFeature<SparseFeature<String>> v1ListFeature = new ListFeature<SparseFeature<String>>("c",
+                v1ListFeatureList);
         v1.add(v1ListFeature);
-        
+
         Instance trainingInstance1 = new Instance("c1", v1);
-        
+
         FeatureVector v2 = new FeatureVector();
         v2.add(new NumericFeature("a", 1.1));
         v2.add(new NominalFeature("b", "value2"));
         List<SparseFeature<String>> v2ListFeatureList = new ArrayList<SparseFeature<String>>();
         v2ListFeatureList.add(new SparseFeature<String>("v1"));
         v2ListFeatureList.add(new SparseFeature<String>("v2"));
-        ListFeature<SparseFeature<String>> v2ListFeature = new ListFeature<SparseFeature<String>>("c", v2ListFeatureList);
+        ListFeature<SparseFeature<String>> v2ListFeature = new ListFeature<SparseFeature<String>>("c",
+                v2ListFeatureList);
         v2.add(v2ListFeature);
-        
+
         Instance trainingInstance2 = new Instance("c2", v2);
-        
+
         trainingInstances.add(trainingInstance1);
         trainingInstances.add(trainingInstance2);
         WekaModel model = objectOfClassUnderTest.train(trainingInstances);
@@ -74,8 +76,8 @@ public class WekaPredictorTest {
 
     @Test
     public void testWithPositionalData() {
-        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3, 0, "abc");
-        PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6, 1, "de");
+        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3, 0);
+        PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6, 1);
         List<PositionAnnotation> annotations = new ArrayList<PositionAnnotation>();
         annotations.add(annotation1);
         annotations.add(annotation2);
