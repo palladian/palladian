@@ -181,6 +181,20 @@ public class UnitNormalizer {
         volumeUnits.add("gallons");
         volumeUnits.add("pint");
         volumeUnits.add("pints");
+        volumeUnits.add("cups");
+        volumeUnits.add("cup");
+        volumeUnits.add("cp");
+        volumeUnits.add("c");
+        volumeUnits.add("teaspoons");
+        volumeUnits.add("teaspoon");
+        volumeUnits.add("tsps");
+        volumeUnits.add("tsp");
+        volumeUnits.add("t");
+        volumeUnits.add("tablespoons");
+        volumeUnits.add("tablespoon");
+        volumeUnits.add("tbsps");
+        volumeUnits.add("tbsp");
+        volumeUnits.add("T");
         volumeUnits.add("quart");
         volumeUnits.add("quarts");
         volumeUnits.add("qt");
@@ -191,6 +205,12 @@ public class UnitNormalizer {
         volumeUnits.add("milliliter");
         volumeUnits.add("milliliters");
         volumeUnits.add("ml");
+        volumeUnits.add("fl oz");
+        volumeUnits.add("fl oz.");
+        volumeUnits.add("fl ozs");
+        volumeUnits.add("fl ozs.");
+        volumeUnits.add("fl ounce");
+        volumeUnits.add("fl ounces");
 
         return volumeUnits.contains(unit);
     }
@@ -381,6 +401,10 @@ public class UnitNormalizer {
         } else if (unit.equals("tablespoon") || unit.equals("tablespoons") || origUnit.equals("T")
                 || unit.equals("tbsp") || unit.equals("tbsps")) {
             multiplier = 14.7868;
+        } else if (unit.equals("fl oz") || unit.equals("fl ozs") || origUnit.equals("fl ounce")
+                || unit.equals("fl ounces") || unit.equals("fl. oz") || unit.equals("fl. oz.")
+                || unit.equals("fl. ozs") || unit.equals("fl. ozs.")) {
+            multiplier = 29.57;
         } else if (unit.equals("liters") || unit.equals("liter") || unit.equals("l")) {
             multiplier = 1000.;
         } else if (unit.equals("gallons") || unit.equals("gallon") || unit.equals("gal")) {
@@ -389,7 +413,7 @@ public class UnitNormalizer {
             multiplier = 946.353;
         } else if (unit.equals("pint") || unit.equals("pints")) {
             multiplier = 473.176;
-        } else if (unit.equals("cups") || unit.equals("cup") || unit.equals("c")) {
+        } else if (unit.equals("cups") || unit.equals("cup") || unit.equals("c") || unit.equals("cp")) {
             multiplier = 236.588;
         } else if (unit.equals("milli liters") || unit.equals("milliliters") || unit.equals("ml")) {
             multiplier = 1.;
