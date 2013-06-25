@@ -1,16 +1,11 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>
- * A MultiMap can store multiple values for a key. It is basically a Map with a List assigned to each key.
+ * A MultiMap can store multiple values for a key. It is basically a Map with a {@link Collection} assigned to each key.
  * </p>
  * 
  * @author Philipp Katz
@@ -18,211 +13,44 @@ import java.util.Set;
  * @param <K> Type of key.
  * @param <V> Type of values.
  */
-public class MultiMap<K, V> implements Map<K, List<V>> {
-
-    private final Map<K, List<V>> map;
+public interface MultiMap<K, V> extends Map<K, Collection<V>> {
 
     /**
      * <p>
-     * Convenience constructor which allows omitting the redundant type parameters.
+     * Add a value to the collection of the specified key.
      * </p>
      * 
-     * @return A new instance of MultiMap.
+     * @param key The key.
+     * @param value The value.
      */
-    public static <K, V> MultiMap<K, V> create() {
-        return new MultiMap<K, V>();
-    }
-
-    /**
-     * @param map
-     */
-    public MultiMap() {
-        this.map = new HashMap<K, List<V>>();
-    }
-
-    // java.Util.Map API
-
-    /**
-     * 
-     * @see java.util.Map#clear()
-     */
-    @Override
-    public void clear() {
-        map.clear();
-    }
-
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#containsKey(java.lang.Object)
-     */
-    @Override
-    public boolean containsKey(Object key) {
-        return map.containsKey(key);
-    }
-
-    /**
-     * @param value
-     * @return
-     * @see java.util.Map#containsValue(java.lang.Object)
-     */
-    @Override
-    public boolean containsValue(Object value) {
-        return map.containsValue(value);
-    }
-
-    /**
-     * @return
-     * @see java.util.Map#entrySet()
-     */
-    @Override
-    public Set<Entry<K, List<V>>> entrySet() {
-        return map.entrySet();
-    }
-
-    /**
-     * @param o
-     * @return
-     * @see java.util.Map#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object o) {
-        return map.equals(o);
-    }
-
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#get(java.lang.Object)
-     */
-    @Override
-    public List<V> get(Object key) {
-        return map.get(key);
-    }
-
-    /**
-     * @return
-     * @see java.util.Map#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        return map.hashCode();
-    }
-
-    /**
-     * @return
-     * @see java.util.Map#isEmpty()
-     */
-    @Override
-    public boolean isEmpty() {
-        return map.isEmpty();
-    }
-
-    /**
-     * @return
-     * @see java.util.Map#keySet()
-     */
-    @Override
-    public Set<K> keySet() {
-        return map.keySet();
-    }
-
-    /**
-     * @param key
-     * @param value
-     * @return
-     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
-     */
-    @Override
-    public List<V> put(K key, List<V> value) {
-        return map.put(key, value);
-    }
-
-    /**
-     * @param m
-     * @see java.util.Map#putAll(java.util.Map)
-     */
-    @Override
-    public void putAll(Map<? extends K, ? extends List<V>> m) {
-        map.putAll(m);
-    }
-
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#remove(java.lang.Object)
-     */
-    @Override
-    public List<V> remove(Object key) {
-        return map.remove(key);
-    }
-
-    /**
-     * @return
-     * @see java.util.Map#size()
-     */
-    @Override
-    public int size() {
-        return map.size();
-    }
-
-    /**
-     * @return
-     * @see java.util.Map#values()
-     */
-    @Override
-    public Collection<List<V>> values() {
-        return map.values();
-    }
-
-    @Override
-    public String toString() {
-        return map.toString();
-    }
-
-    // MultiMap specific API
-
-    public void add(K key, V value) {
-//        List<V> values = map.get(key);
-//        if (values == null) {
-//            values = new ArrayList<V>();
-//            map.put(key, values);
-//        }
-//        values.add(value);
-        addAll(key, Collections.singleton(value));
-    }
-
-    public void addAll(K key, Collection<? extends V> values) {
-        List<V> existingValues = map.get(key);
-        if (existingValues == null) {
-            existingValues = new ArrayList<V>();
-            map.put(key, existingValues);
-        }
-        existingValues.addAll(values);
-    }
-
-    public List<V> allValues() {
-        List<V> values = new ArrayList<V>();
-        for (List<V> value : map.values()) {
-            values.addAll(value);
-        }
-        return values;
-    }
+    void add(K key, V value);
 
     /**
      * <p>
-     * Get the first value for the given key.
+     * Add values to the collection of the specified key.
      * </p>
      * 
-     * @param key The key for which to retrieve the first value.
-     * @return The first value for the given key, or <code>null</code> if no values exist.
+     * @param key The key.
+     * @param values The values.
      */
-    public V getFirst(K key) {
-        List<V> values = get(key);
-        if (values == null) {
-            return null;
-        }
-        return CollectionHelper.getFirst(values);
-    }
+    void addAll(K key, Collection<? extends V> values);
+
+    /**
+     * <p>
+     * Add all values from another {@link MultiMap}.
+     * </p>
+     * 
+     * @param multiMap The MultiMap from which to add all values.
+     */
+    void addAll(MultiMap<? extends K, ? extends V> multiMap);
+
+    /**
+     * <p>
+     * Get a collections of all single values.
+     * </p>
+     * 
+     * @return Collection with all values.
+     */
+    Collection<V> allValues();
 
 }

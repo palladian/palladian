@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
@@ -63,19 +64,28 @@ public final class StringHelper {
      * @return The safe name.
      */
     public static String makeSafeName(String name, int maxLength) {
-        String safeName = name.replace(" ", "_");
-        safeName = safeName.replace("/", "_");
+        String safeName = name.replace(" ", "-");
+        safeName = safeName.replace("/", "-");
         safeName = safeName.replace("'", "");
+        safeName = safeName.replace("`", "");
+        safeName = safeName.replace("´", "");
         safeName = safeName.replace("%", "");
-        safeName = safeName.replace("&", "_");
+        safeName = safeName.replace("&", "-");
+        safeName = safeName.replace("#", "-");
+        safeName = safeName.replace("$", "-");
+        safeName = safeName.replace("§", "-");
         safeName = safeName.replace("\"", "");
-        safeName = safeName.replace(",", "_");
-        safeName = safeName.replace("*", "_");
-        safeName = safeName.replace(".", "_");
-        safeName = safeName.replace(";", "_");
-        safeName = safeName.replace(":", "_");
+        safeName = safeName.replace(",", "-");
+        safeName = safeName.replace("*", "-");
+        safeName = safeName.replace(".", "-");
+        safeName = safeName.replace(";", "-");
+        safeName = safeName.replace(":", "-");
+        safeName = safeName.replace("|", "-");
         safeName = safeName.replace("!", "");
         safeName = safeName.replace("?", "");
+        safeName = safeName.replace(">", "");
+        safeName = safeName.replace("<", "");
+        safeName = safeName.replace("^", "");
         safeName = safeName.replace("ä", "ae");
         safeName = safeName.replace("Ä", "Ae");
         safeName = safeName.replace("ö", "oe");
@@ -446,8 +456,8 @@ public final class StringHelper {
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
      */
-    public static boolean containsWord(String word, String searchString) {
-        int index = searchString.toLowerCase().indexOf(word.toLowerCase());
+    public static boolean containsWordCaseSensitive(String word, String searchString) {
+        int index = searchString.indexOf(word);
         if (index == -1) {
             return false;
         }
@@ -470,6 +480,24 @@ public final class StringHelper {
             rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
         }
         return leftBorder && rightBorder;
+    }
+
+    /**
+     * <p>
+     * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
+     * within another word.
+     * </p>
+     * <p>
+     * NOTE: <b>This method is case INsensitive</b>. {@link StringHelper#containsWordCaseSensitive(String, String)} is a
+     * case sensitive alternative which is considerably faster.
+     * </p>
+     * 
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return True, if the word is contained, false if not.
+     */
+    public static boolean containsWord(String word, String searchString) {
+        return containsWordCaseSensitive(word.toLowerCase(), searchString.toLowerCase());
     }
 
     /**
@@ -498,6 +526,13 @@ public final class StringHelper {
         return searchString.replaceFirst(firstWord + "(\\s|$)", "");
     }
 
+    public static String removeWords(List<String> words, String searchString) {
+        Collections.sort(words, new StringLengthComparator());
+        for (String word : words) {
+            searchString = removeWord(word, searchString);
+        }
+        return searchString;
+    }
     public static String removeWord(String word, String searchString) {
         return PATTERN_LIMITED_WHITESPACES.matcher(replaceWord(word, "", searchString)).replaceAll(" ");
     }

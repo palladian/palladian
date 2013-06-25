@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.5.25)
 # Datenbank: locations
-# Erstellungsdauer: 2013-05-10 15:02:45 +0000
+# Erstellungsdauer: 2013-06-13 22:13:13 +0000
 # ************************************************************
 
 
@@ -26,7 +26,7 @@
 DROP TABLE IF EXISTS `location_alternative_names`;
 
 CREATE TABLE `location_alternative_names` (
-  `locationId` bigint(20) unsigned NOT NULL COMMENT 'The id of the location.',
+  `locationId` int(11) unsigned NOT NULL COMMENT 'The id of the location.',
   `alternativeName` varchar(200) DEFAULT NULL COMMENT 'An alternative name used for the location.',
   `language` char(2) DEFAULT NULL COMMENT 'The language for this alternative name, in ISO 639-1 format. NULL means no specified language.',
   UNIQUE KEY `idNameLangUnique` (`locationId`,`alternativeName`,`language`),
@@ -43,7 +43,7 @@ CREATE TABLE `location_alternative_names` (
 DROP TABLE IF EXISTS `locations`;
 
 CREATE TABLE `locations` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'The id of the location.',
+  `id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'The id of the location.',
   `type` varchar(20) NOT NULL DEFAULT '' COMMENT 'The type of the location.',
   `name` varchar(255) NOT NULL COMMENT 'The primary name of the location.',
   `latitude` double(8,5) DEFAULT NULL COMMENT 'The latitude of the location.',
@@ -53,11 +53,137 @@ CREATE TABLE `locations` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `type` (`type`),
-  KEY `ancestorIds` (`ancestorIds`)
+  KEY `ancestorIds` (`ancestorIds`),
+  KEY `latitudeLongitude` (`latitude`,`longitude`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
 
+
+--
+-- Dumping routines (PROCEDURE) for database 'locations'
+--
+DELIMITER ;;
+
+# Dump of PROCEDURE search_locations
+# ------------------------------------------------------------
+
+/*!50003 DROP PROCEDURE IF EXISTS `search_locations` */;;
+/*!50003 SET SESSION SQL_MODE=""*/;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `search_locations`(
+  IN searchNames varchar(1048576) CHARACTER SET utf8, 
+  IN searchLanguages varchar(512),
+  IN latitude double,
+  IN longitude double,
+  IN radius double
+  )
+BEGIN
+-- Procedure for searching locations. Three different search modi are available:
+-- a) search by name(s) and languages for alternative names;
+--    example: search_locations('san francisco', 'en', null, null, null)
+-- b) search by latitude and longitude coordinates and a given radius in kilometers;
+--    example: search_locations(null, null, 37, -122, 5)
+-- c) combination of a) and b), i.e. search for locations with a specified name in an area;
+--    example: search_locations('san francisco', 'en', 37, -122, 250)
+-- For parameters 'searchNames' and 'searchLanguages', multiple values can be specified
+-- by separating them with colons, e.g. 'san francisco,los angeles' or 'en,de,fr'.
+  DECLARE nameQuery bool;
+  DECLARE geoQuery bool;
+  DECLARE currentName varchar(1024);
+  DECLARE north double DEFAULT 0;
+  DECLARE east double DEFAULT 0;
+  DECLARE south double DEFAULT 0;
+  DECLARE west double DEFAULT 0;
+  -- 
+  SET nameQuery = searchNames IS NOT NULL;
+  SET geoQuery = latitude IS NOT NULL AND longitude IS NOT NULL AND radius IS NOT NULL;
+  SET north = latitude + radius / 111.04;
+  SET south = latitude - radius / 111.04;
+  SET east = longitude + radius / ABS(COS(RADIANS(latitude)) * 111.04);
+  SET west = longitude - radius / ABS(COS(RADIANS(latitude)) * 111.04);
+  IF (NOT nameQuery AND NOT geoQuery) THEN 
+    CALL raise_error;
+  END IF;
+  -- two tables with same content; necessary because MySQL does not allow to re-use one table
+  -- within a stored procedure
+  CREATE TEMPORARY TABLE `tmp1` (`query` varchar(1024) CHARACTER SET utf8) ENGINE MEMORY;
+  CREATE TEMPORARY TABLE `tmp2` (`query` varchar(1024) CHARACTER SET utf8) ENGINE MEMORY;
+  -- split up the comma-separated query locations and store them in temporary table
+  WHILE (CHAR_LENGTH(searchNames) > 0) DO
+    IF (LOCATE(',', searchNames)) THEN
+      -- head: take first element
+      SET currentName = (SELECT SUBSTRING_INDEX(searchNames, ',', 1)); 
+      -- tail: remaining elements
+      SET searchNames = (SELECT SUBSTRING(searchNames, char_length(currentName) + 2));
+    ELSE
+      SET currentName = searchNames;
+      SET searchNames = '';
+    END IF;
+    INSERT INTO `tmp1` VALUES(currentName);
+    INSERT INTO `tmp2` VALUES(currentName);
+  END WHILE;
+  -- if no name was given, a dummy string is inserted in the temporary table, this is because we have 
+  -- to use this for joining later (LEFT JOIN is not an option, because it performs terribly in this case)
+  IF (NOT nameQuery) THEN
+    INSERT INTO `tmp1` VALUES(CONCAT('radius(',latitude,', ',longitude,', ',radius,')'));
+  END IF;
+  -- the query; important is to include the actual search string as first column, so that we
+  -- can associate this later
+  SELECT 
+    ids.query, 
+    l.* , 
+    lan.*, 
+    -- concatenate all alternative name rows of a location into one column, use # and , as separators
+    GROUP_CONCAT(alternativeName, '', '#', IFNULL(`language`,'')) AS `alternatives`,
+    -- if we do a geo query, calculate distance, else just assume a distance of zero
+    IF (geoQuery, distance(latitude, longitude, l.`latitude`, l.`longitude`), 0) as `distance`
+  FROM `locations` l JOIN
+  (SELECT `id`, `query` FROM `tmp1`, `locations` l2
+    WHERE 
+      (NOT nameQuery OR `query` = l2.`name`) AND 
+      (NOT geoQuery OR (l2.`latitude` BETWEEN south AND north AND l2.`longitude` BETWEEN west AND east))
+  UNION
+  SELECT `locationId` AS id, `query` 
+    FROM `tmp2`, `location_alternative_names` 
+    WHERE 
+      (NOT nameQuery OR (`query` = alternativeName AND (`language` IS NULL OR FIND_IN_SET(`language`, searchLanguages) > 0)))
+  ) AS ids
+  ON l.`id` = ids.id LEFT JOIN `location_alternative_names` lan on l.`id` = lan.`locationId`
+  GROUP BY `id`, `query`
+  HAVING IF (geoQuery, `distance` <= radius, true) 
+  ORDER BY `distance`;
+  DROP TEMPORARY TABLE IF EXISTS `tmp1`;
+  DROP TEMPORARY TABLE IF EXISTS `tmp2`;
+END */;;
+
+/*!50003 SET SESSION SQL_MODE=@OLD_SQL_MODE */;;
+DELIMITER ;
+
+--
+-- Dumping routines (FUNCTION) for database 'locations'
+--
+DELIMITER ;;
+
+# Dump of FUNCTION distance
+# ------------------------------------------------------------
+
+/*!50003 DROP FUNCTION IF EXISTS `distance` */;;
+/*!50003 SET SESSION SQL_MODE=""*/;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 FUNCTION `distance`(lat1 double, lng1 double, lat2 double, lng2 double) RETURNS double
+    DETERMINISTIC
+BEGIN     
+  RETURN 2 * 6375 * ASIN( 
+    SQRT( 
+      POWER(SIN(RADIANS(lat2 - lat1)/2), 2) + 
+      COS(RADIANS(lat1)) * 
+      COS(RADIANS(lat2)) * 
+      POWER(SIN(RADIANS(lng2 - lng1)/2), 2)
+    )
+  );
+END */;;
+
+/*!50003 SET SESSION SQL_MODE=@OLD_SQL_MODE */;;
+DELIMITER ;
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

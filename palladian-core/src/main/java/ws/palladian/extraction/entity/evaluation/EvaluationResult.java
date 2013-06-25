@@ -1,14 +1,17 @@
 package ws.palladian.extraction.entity.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
@@ -171,7 +174,7 @@ public class EvaluationResult {
                 return CountMap.create();
             }
         });
-        this.resultAnnotations = MultiMap.create();
+        this.resultAnnotations = DefaultMultiMap.createWithList();
         this.confusionMatrix = new ConfusionMatrix();
         this.actualAssignments = CountMap.create();
         this.possibleAssignments = CountMap.create();
@@ -475,7 +478,7 @@ public class EvaluationResult {
     }
 
     int getResultTypeCount(ResultType resultType) {
-        List<Annotated> annotations = resultAnnotations.get(resultType);
+        Collection<Annotated> annotations = resultAnnotations.get(resultType);
         return annotations != null ? annotations.size() : 0;
     }
 
@@ -499,9 +502,10 @@ public class EvaluationResult {
         return assignments.get(tagName).getCount(resultType);
     }
 
-    public List<Annotated> getAnnotations(ResultType resultType) {
-        List<Annotated> annotations = resultAnnotations.get(resultType);
-        return annotations != null ? Collections.unmodifiableList(annotations) : Collections.<Annotated> emptyList();
+    public Collection<Annotated> getAnnotations(ResultType resultType) {
+        Collection<Annotated> annotations = resultAnnotations.get(resultType);
+        return annotations != null ? Collections.unmodifiableCollection(annotations) : Collections
+                .<Annotated> emptyList();
     }
 
     /**
@@ -541,6 +545,26 @@ public class EvaluationResult {
                 break;
             default:
                 throw new IllegalStateException();
+        }
+    }
+
+    public void merge(EvaluationResult result) {
+        this.resultAnnotations.addAll(result.resultAnnotations);
+        this.actualAssignments.addAll(result.actualAssignments);
+        this.possibleAssignments.addAll(result.possibleAssignments);
+
+        // merge assignments
+        for (String assignment : result.assignments.keySet()) {
+            CountMap<ResultType> counts = result.assignments.get(assignment);
+            this.assignments.get(assignment).addAll(counts);
+        }
+        // merge confusion matrix
+        Set<String> categories = result.confusionMatrix.getCategories();
+        for (String realCategory : categories) {
+            for (String predictedCategory : categories) {
+                int count = result.confusionMatrix.getConfusions(realCategory, predictedCategory);
+                this.confusionMatrix.add(realCategory, predictedCategory, count);
+            }
         }
     }
 

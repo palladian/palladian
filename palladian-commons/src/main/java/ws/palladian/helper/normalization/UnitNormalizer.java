@@ -19,7 +19,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  */
 public class UnitNormalizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UnitNormalizer.class);
 
@@ -161,6 +161,7 @@ public class UnitNormalizer {
         weightUnits.add("kgs");
         weightUnits.add("pound");
         weightUnits.add("pounds");
+        weightUnits.add("lb");
         weightUnits.add("lbs");
         weightUnits.add("ounce");
         weightUnits.add("ounces");
@@ -169,6 +170,7 @@ public class UnitNormalizer {
         weightUnits.add("gram");
         weightUnits.add("grams");
         weightUnits.add("g");
+        weightUnits.add("gs");
         weightUnits.add("gr");
 
         return weightUnits.contains(unit);
@@ -181,6 +183,20 @@ public class UnitNormalizer {
         volumeUnits.add("gallons");
         volumeUnits.add("pint");
         volumeUnits.add("pints");
+        volumeUnits.add("cups");
+        volumeUnits.add("cup");
+        volumeUnits.add("cp");
+        volumeUnits.add("c");
+        volumeUnits.add("teaspoons");
+        volumeUnits.add("teaspoon");
+        volumeUnits.add("tsps");
+        volumeUnits.add("tsp");
+        volumeUnits.add("t");
+        volumeUnits.add("tablespoons");
+        volumeUnits.add("tablespoon");
+        volumeUnits.add("tbsps");
+        volumeUnits.add("tbsp");
+        volumeUnits.add("T");
         volumeUnits.add("quart");
         volumeUnits.add("quarts");
         volumeUnits.add("qt");
@@ -191,6 +207,13 @@ public class UnitNormalizer {
         volumeUnits.add("milliliter");
         volumeUnits.add("milliliters");
         volumeUnits.add("ml");
+        volumeUnits.add("mls");
+        volumeUnits.add("fl oz");
+        volumeUnits.add("fl oz.");
+        volumeUnits.add("fl ozs");
+        volumeUnits.add("fl ozs.");
+        volumeUnits.add("fl ounce");
+        volumeUnits.add("fl ounces");
 
         return volumeUnits.contains(unit);
     }
@@ -254,7 +277,6 @@ public class UnitNormalizer {
         }
 
         return false;
-        // TODO more
     }
 
     public static double unitLookup(String unit) {
@@ -381,6 +403,10 @@ public class UnitNormalizer {
         } else if (unit.equals("tablespoon") || unit.equals("tablespoons") || origUnit.equals("T")
                 || unit.equals("tbsp") || unit.equals("tbsps")) {
             multiplier = 14.7868;
+        } else if (unit.equals("fl oz") || unit.equals("fl ozs") || origUnit.equals("fl ounce")
+                || unit.equals("fl ounces") || unit.equals("fl. oz") || unit.equals("fl. oz.")
+                || unit.equals("fl. ozs") || unit.equals("fl. ozs.")) {
+            multiplier = 29.57;
         } else if (unit.equals("liters") || unit.equals("liter") || unit.equals("l")) {
             multiplier = 1000.;
         } else if (unit.equals("gallons") || unit.equals("gallon") || unit.equals("gal")) {
@@ -389,7 +415,7 @@ public class UnitNormalizer {
             multiplier = 946.353;
         } else if (unit.equals("pint") || unit.equals("pints")) {
             multiplier = 473.176;
-        } else if (unit.equals("cups") || unit.equals("cup") || unit.equals("c")) {
+        } else if (unit.equals("cups") || unit.equals("cup") || unit.equals("c") || unit.equals("cp")) {
             multiplier = 236.588;
         } else if (unit.equals("milli liters") || unit.equals("milliliters") || unit.equals("ml")) {
             multiplier = 1.;
@@ -489,7 +515,7 @@ public class UnitNormalizer {
                 combinedValue = number * 3600; // hours to seconds
                 int lastColonIndex = matcher.group().lastIndexOf(":");
                 combinedValue += Double.valueOf(matcher.group().substring(1, lastColonIndex)) * 60; // minutes to
-                                                                                                    // seconds
+                // seconds
                 combinedValue += Double.valueOf(matcher.group().substring(lastColonIndex + 1, matcher.end()));
                 return MathHelper.round(combinedValue, decimals);
             }
@@ -602,12 +628,20 @@ public class UnitNormalizer {
     }
 
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
-        String words[] = unitText.trim().split(" ");
+
+        // add space in case it's missing "2.4Ghz" => "2.4 Ghz"
+        unitText = unitText.replaceAll("(\\d)([A-Za-z])", "$1 $2").trim();
+        String words[] = unitText.split(" ");
+
+        if (words.length == 0) {
+            words = unitText.trim().split("(?<=[0-9])(?=\\w)");
+        }
+
         double number = Double.parseDouble(words[0]);
 
         String newUnitText = "";
         for (int i = 1; i < words.length; i++) {
-            newUnitText = words[i] + " ";
+            newUnitText += words[i] + " ";
         }
         return getNormalizedNumber(number, newUnitText, 3, "");
     }

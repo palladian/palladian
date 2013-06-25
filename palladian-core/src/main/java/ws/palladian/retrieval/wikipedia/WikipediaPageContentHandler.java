@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -18,7 +16,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import ws.palladian.extraction.location.sources.importers.MultiStreamBZip2InputStream;
 import ws.palladian.helper.StopWatch;
 
 /**
@@ -34,9 +31,6 @@ public class WikipediaPageContentHandler extends DefaultHandler {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPageContentHandler.class);
 
-    private static final Pattern REDIRECT_MARKUP = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
-            Pattern.CASE_INSENSITIVE);
-
     private int pageCounter;
     private final StopWatch stopWatch;
 
@@ -51,8 +45,6 @@ public class WikipediaPageContentHandler extends DefaultHandler {
     private int pageId;
     private int namespaceId;
     private String text;
-    private boolean redirect;
-    private String redirectTitle;
 
     /**
      * <p>
@@ -75,9 +67,6 @@ public class WikipediaPageContentHandler extends DefaultHandler {
         if (qName.equals("revision")) {
             inRevision = true;
         }
-        if (qName.equals("redirect")) {
-            redirect = true;
-        }
     }
 
     @Override
@@ -88,27 +77,13 @@ public class WikipediaPageContentHandler extends DefaultHandler {
             pageId = Integer.valueOf(getBuffer());
         } else if (qName.equals("text")) {
             text = getBuffer();
-            if (redirect) {
-                redirectTitle = parseRedirect(text);
-            }
         } else if (qName.equals("title")) {
             title = getBuffer();
         } else if (qName.equals("ns")) {
             namespaceId = Integer.valueOf(getBuffer());
         } else if (qName.equals("page")) {
             processPage();
-            redirect = false;
-            redirectTitle = null;
         }
-    }
-
-    private String parseRedirect(String text) {
-        Matcher matcher = REDIRECT_MARKUP.matcher(text);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        LOGGER.error("Error parsing {}", text);
-        return null;
     }
 
     private void processPage() {
@@ -116,7 +91,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
             float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
             LOGGER.info("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
         }
-        callback.callback(new WikipediaPage(pageId, namespaceId, title, text, redirectTitle));
+        callback.callback(new WikipediaPage(pageId, namespaceId, title, text));
     }
 
     @Override

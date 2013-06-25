@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.sources.importers;
+package ws.palladian.retrieval.wikipedia;
 
 import java.io.IOException;
 import java.io.InputStream;

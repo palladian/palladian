@@ -97,11 +97,6 @@ public class PositionAnnotation implements Classifiable, Annotated, Feature<Stri
     }
 
     @Override
-    public int getLength() {
-        return endPosition - startPosition;
-    }
-
-    @Override
     public String getTag() {
         return getName();
     }

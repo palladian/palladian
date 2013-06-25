@@ -17,10 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -59,7 +60,6 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      * @param accountKey The account key for accessing Bing.
      */
     public BaseBingSearcher(String accountKey) {
-        super();
         Validate.notEmpty(accountKey, "accountKey must not be empty");
         this.accountKey = accountKey;
     }
@@ -89,10 +89,14 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
             String sourceType = getSourceType();
             String requestUrl = buildRequestUrl(query, sourceType, language, offset, getDefaultFetchSize());
+            String jsonString = null;
 
             try {
 
-                JSONObject responseData = getResponseData(requestUrl, accountKey);
+                jsonString = getResponseData(requestUrl, accountKey);
+
+                JSONObject jsonObject = new JSONObject(jsonString);
+                JSONObject responseData = jsonObject.getJSONObject("d");
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 JSONArray results = responseData.getJSONArray("results");
@@ -118,7 +122,8 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
                         + e.getMessage(), e);
             } catch (JSONException e) {
                 throw new SearcherException("Error parsing the JSON response while searching for \"" + query
-                        + "\" with " + getName() + ": " + e.getMessage() + ", url: \"" + requestUrl + "\"", e);
+                        + "\" with " + getName() + ": " + e.getMessage() + ", url: \"" + requestUrl + "\", json: \""
+                        + jsonString + "\"", e);
             }
         }
 
@@ -158,7 +163,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
     /**
      * <p>
-     * Perform the HTTP request and return the relevant JSON result.
+     * Perform the HTTP request and return the JSON result string.
      * </p>
      * 
      * @param requestUrl
@@ -166,13 +171,13 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      * @throws HttpException
      * @throws JSONException
      */
-    private JSONObject getResponseData(String requestUrl, String accountKey) throws HttpException, JSONException {
+    private String getResponseData(String requestUrl, String accountKey) throws HttpException, JSONException {
         String basicAuthentication = "Basic " + StringHelper.encodeBase64(":" + accountKey);
-        MapBuilder<String, String> headers = new MapBuilder<String, String>().add("Authorization", basicAuthentication);
-        HttpResult httpResult = retriever.httpGet(requestUrl, headers);
+        HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
+        httpRequest.addHeader("Authorization", basicAuthentication);
+        HttpResult httpResult = retriever.execute(httpRequest);
         String jsonString = new String(HttpHelper.getStringContent(httpResult));
-        JSONObject jsonObject = new JSONObject(jsonString);
-        return jsonObject.getJSONObject("d");
+        return jsonString;
     }
 
     /**
