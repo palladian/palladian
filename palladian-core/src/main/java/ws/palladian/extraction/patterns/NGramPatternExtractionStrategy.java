@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.processing.features.SequentialPattern;
 
 /**
  * <p>

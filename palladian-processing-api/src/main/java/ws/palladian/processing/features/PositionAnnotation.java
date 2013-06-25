@@ -58,7 +58,7 @@ public class PositionAnnotation implements Classifiable, Annotated, Feature<Stri
      * @param index The running index of this {@link PositionAnnotation}.
      * @param value The text value of this {@link PositionAnnotation}.
      */
-    public PositionAnnotation(String value, int startPosition, int endPosition, int index) {
+    public PositionAnnotation(String value, int startPosition, int endPosition) {
         Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
         Validate.isTrue(endPosition > startPosition, "endPosition must be greater than startPosition.");
         Validate.notEmpty(value);

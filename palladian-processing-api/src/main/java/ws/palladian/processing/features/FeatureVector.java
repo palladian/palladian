@@ -18,8 +18,9 @@ import ws.palladian.processing.Classifiable;
  * @author Klemens Muthmann
  * @author David Urbansky
  * @author Philipp Katz
+ * @version 2.0
  */
-public final class FeatureVector implements Iterable<Feature<?>>, Classifiable {
+public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
 
     /**
      * <p>

@@ -13,11 +13,13 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import weka.classifiers.bayes.NaiveBayes;
-import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.SequentialPattern;
+import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
@@ -76,20 +78,22 @@ public class WekaPredictorTest {
     public void testWithPositionalData() {
         PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3);
         PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6);
-        List<PositionAnnotation> annotations = new ArrayList<PositionAnnotation>();
-        annotations.add(annotation1);
-        annotations.add(annotation2);
-        ListFeature<PositionAnnotation> annotationListFeature = new ListFeature<PositionAnnotation>("token",annotations);
-        
-        annotation1.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"a"})));
-        annotation1.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"b"})));
+        ListFeature<PositionAnnotation> annotationListFeature = new ListFeature<PositionAnnotation>("token");
+        annotationListFeature.add(annotation1);
+        annotationListFeature.add(annotation2);
 
-        annotation2.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"d"})));
-        ListFeature<SequentialPattern> sequentialPatternListFeature
-        
+        ListFeature<SequentialPattern> patternListFeature1 = new ListFeature<SequentialPattern>("annotation1Pattern");
+
+        patternListFeature1.add(new SequentialPattern("pattern", Arrays.asList(new String[] {"a"})));
+        patternListFeature1.add(new SequentialPattern("pattern", Arrays.asList(new String[] {"b"})));
+
+        ListFeature<SequentialPattern> patternListFeature2 = new ListFeature<SequentialPattern>("annotation2Pattern");
+        patternListFeature2.add(new SequentialPattern("pattern", Arrays.asList(new String[] {"d"})));
+
         FeatureVector featureVector1 = new FeatureVector();
         featureVector1.add(annotationListFeature);
-        featureVector1.add(sequentialPatternListFeature);
+        featureVector1.add(patternListFeature1);
+        featureVector1.add(patternListFeature2);
 
         PositionAnnotation annotation3 = new PositionAnnotation("token", 0, 2, "de");
         annotation3.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"d"})));

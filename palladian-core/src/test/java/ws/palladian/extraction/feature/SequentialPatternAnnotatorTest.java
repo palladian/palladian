@@ -20,7 +20,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import ws.palladian.extraction.patterns.LabeledSequentialPatternExtractionStrategy;
 import ws.palladian.extraction.patterns.NGramPatternExtractionStrategy;
-import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.extraction.patterns.SequentialPatternAnnotator;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
@@ -29,6 +28,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.SequentialPattern;
 import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**

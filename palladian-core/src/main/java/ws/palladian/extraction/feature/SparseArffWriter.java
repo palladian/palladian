@@ -25,7 +25,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.helper.collection.BidiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
@@ -39,6 +38,7 @@ import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.SequentialPattern;
 
 /**
  * <p>
