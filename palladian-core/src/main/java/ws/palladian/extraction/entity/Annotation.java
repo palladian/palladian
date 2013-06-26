@@ -19,10 +19,10 @@ public class Annotation implements Annotated {
     private CategoryEntriesMap tags = new CategoryEntriesMap();
 
     /** The start index of the annotation in the annotated text. */
-    private int offset = -1;
+    private int offset;
 
     /** The length of the annotation. */
-    private int length = -1;
+    private int length;
 
     /** The annotated entity. */
     private String entity;
