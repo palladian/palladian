@@ -77,14 +77,13 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper
-        // .readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text2.txt");
+        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text2.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38822240.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38765806.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38812825.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38543488.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38543534.txt");
-                .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38543581.txt");
+        // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38543581.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
         List<LocationAnnotation> locations = extractor.getAnnotations(cleanText);
         CollectionHelper.print(locations);
