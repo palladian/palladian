@@ -66,6 +66,7 @@ public class PositionAnnotation implements Classifiable, Annotated, Feature<Stri
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.featureVector = null;
+        this.value = value;
     }
 
     /**

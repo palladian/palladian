@@ -3,12 +3,14 @@
  */
 package ws.palladian.processing.features;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * <p>
- * A labeled sequential pattern is a pattern that maps into some label. A pattern consists of a sequence of string,
- * which might be words, part of speech tags, named entities etc.
+ * A labeled sequential pattern is a concatenation of individual strings like tokens, part of speech tags, named
+ * entities or even a mixture thereof. The pattern is important as a feature to keep the tokenization but should not use
+ * up multiple features.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -19,14 +21,24 @@ public final class SequentialPattern extends AbstractFeature<List<String>> {
 
     /**
      * <p>
-     * 
+     * Creates a new completely initialized {@link SequentialPattern}.
      * </p>
      * 
-     * @param name
-     * @param value
+     * @param pattern The actual pattern this {@link Feature} consists of.
      */
-    public SequentialPattern(String name, List<String> value) {
-        super(name, value);
+    public SequentialPattern(List<String> pattern) {
+        super(getStringValue(pattern), pattern);
+    }
+
+    /**
+     * <p>
+     * Creates a new completely initialized {@link SequentialPattern}.
+     * </p>
+     * 
+     * @param pattern
+     */
+    public SequentialPattern(String... pattern) {
+        this(Arrays.asList(pattern));
     }
 
     // /**
@@ -192,9 +204,9 @@ public final class SequentialPattern extends AbstractFeature<List<String>> {
         return true;
     }
 
-    public String getStringValue() {
+    public static String getStringValue(final List<String> pattern) {
         StringBuilder ret = new StringBuilder("<");
-        for (String token : getValue()) {
+        for (String token : pattern) {
             ret.append(token);
             ret.append(',');
         }
