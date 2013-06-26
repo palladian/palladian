@@ -1,5 +1,12 @@
 package ws.palladian.extraction.location.evaluation;
 
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.CORRECT;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR2;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR3;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR4;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR5;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,12 +64,12 @@ public final class LocationExtractionEvaluator {
         }
 
         Map<ResultType, Map<String, Collection<Annotated>>> errors = new LinkedHashMap<ResultType, Map<String, Collection<Annotated>>>();
-        errors.put(ResultType.CORRECT, new HashMap<String, Collection<Annotated>>());
-        errors.put(ResultType.ERROR1, new HashMap<String, Collection<Annotated>>());
-        errors.put(ResultType.ERROR2, new HashMap<String, Collection<Annotated>>());
-        errors.put(ResultType.ERROR3, new HashMap<String, Collection<Annotated>>());
-        errors.put(ResultType.ERROR4, new HashMap<String, Collection<Annotated>>());
-        errors.put(ResultType.ERROR5, new HashMap<String, Collection<Annotated>>());
+        errors.put(CORRECT, new HashMap<String, Collection<Annotated>>());
+        errors.put(ERROR1, new HashMap<String, Collection<Annotated>>());
+        errors.put(ERROR2, new HashMap<String, Collection<Annotated>>());
+        errors.put(ERROR3, new HashMap<String, Collection<Annotated>>());
+        errors.put(ERROR4, new HashMap<String, Collection<Annotated>>());
+        errors.put(ERROR5, new HashMap<String, Collection<Annotated>>());
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
 
@@ -84,12 +91,12 @@ public final class LocationExtractionEvaluator {
             EvaluationResult result = extractor.evaluate(file1.getAbsolutePath(), TaggingFormat.XML);
 
             // write major error log
-            errors.get(ResultType.CORRECT).put(file.getName(), result.getAnnotations(ResultType.CORRECT));
-            errors.get(ResultType.ERROR1).put(file.getName(), result.getAnnotations(ResultType.ERROR1));
-            errors.get(ResultType.ERROR2).put(file.getName(), result.getAnnotations(ResultType.ERROR2));
-            errors.get(ResultType.ERROR3).put(file.getName(), result.getAnnotations(ResultType.ERROR3));
-            errors.get(ResultType.ERROR4).put(file.getName(), result.getAnnotations(ResultType.ERROR4));
-            errors.get(ResultType.ERROR5).put(file.getName(), result.getAnnotations(ResultType.ERROR5));
+            errors.get(CORRECT).put(file.getName(), result.getAnnotations(CORRECT));
+            errors.get(ERROR1).put(file.getName(), result.getAnnotations(ERROR1));
+            errors.get(ERROR2).put(file.getName(), result.getAnnotations(ERROR2));
+            errors.get(ERROR3).put(file.getName(), result.getAnnotations(ERROR3));
+            errors.get(ERROR4).put(file.getName(), result.getAnnotations(ERROR4));
+            errors.get(ERROR5).put(file.getName(), result.getAnnotations(ERROR5));
 
             Double precision = result.getPrecision(EvaluationMode.MUC);
             if (!precision.equals(Double.NaN)) {
@@ -173,7 +180,7 @@ public final class LocationExtractionEvaluator {
 
     private static final class EvaluationItem implements Comparable<EvaluationItem> {
 
-        public EvaluationItem(String file, Annotated annotation, String resultType, GeoCoordinate goldCoordinate,
+        public EvaluationItem(String file, Annotated annotation, ResultType resultType, GeoCoordinate goldCoordinate,
                 GeoCoordinate taggedCoordinate) {
             this.file = file;
             this.annotation = annotation;
@@ -184,7 +191,7 @@ public final class LocationExtractionEvaluator {
 
         String file;
         Annotated annotation;
-        String resultType;
+        ResultType resultType;
         GeoCoordinate goldCoord;
         GeoCoordinate taggedCoord;
 
@@ -224,6 +231,15 @@ public final class LocationExtractionEvaluator {
         }
     }
 
+    /**
+     * Evaluate the location disambiguation. This step considers locations of type CITY and POI and evaluates, whether
+     * the coordinates from the gold standard match the extracted coordinates within a given threshold (100 km).
+     * Locations without coordinates in the gold standard are skipped.
+     * 
+     * @param extractor
+     * @param goldStandardFileFolderPath
+     * @return
+     */
     public static String evaluateCoordinates(LocationExtractor extractor, String goldStandardFileFolderPath) {
         Validate.notNull(extractor, "extractor must not be null");
         Validate.notEmpty(goldStandardFileFolderPath, "goldStandardFileFolderPath must not be empty");
@@ -293,20 +309,20 @@ public final class LocationExtractionEvaluator {
                     if (congruent) {
                         // same start and end
                         taggedAnnotations.add(goldAnnotation);
-                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, "CONGRUENT", goldCoordinate,
+                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, CORRECT, goldCoordinate,
                                 assignedAnnotation.getLocation()));
                         break;
                     } else if (overlaps) {
                         // overlap
                         taggedOverlap = true;
                         taggedAnnotations.add(goldAnnotation);
-                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, "BOUNDARIES", goldCoordinate,
+                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate,
                                 assignedAnnotation.getLocation()));
                     } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
                             || counter == goldStandard.size()) {
                         if (!taggedOverlap) {
                             // false alarm
-                            evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, "FALSE", null,
+                            evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null,
                                     assignedAnnotation.getLocation()));
                         }
                         break;
@@ -320,7 +336,7 @@ public final class LocationExtractionEvaluator {
             for (Annotated goldAnnotation : goldStandard) {
                 if (!taggedAnnotations.contains(goldAnnotation)) {
                     GeoCoordinate goldCooardinate = coordinates.get(goldAnnotation.getStartPosition());
-                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, "MISS", goldCooardinate, null));
+                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR2, goldCooardinate, null));
                 }
             }
             completeEvaluationList.addAll(evaluationList);
@@ -346,10 +362,10 @@ public final class LocationExtractionEvaluator {
             if (distance != null && distance < 100) {
                 correct++;
             }
-            if (Arrays.asList("CONGRUENT", "BOUNDARIES", "FALSE").contains(item.resultType)) {
+            if (Arrays.asList(CORRECT, ERROR4, ERROR1).contains(item.resultType)) {
                 retrieved++;
             }
-            if (Arrays.asList("CONGRUENT", "BOUNDARIES", "MISS").contains(item.resultType)) {
+            if (Arrays.asList(CORRECT, ERROR4, ERROR2).contains(item.resultType)) {
                 relevant++;
             }
         }
@@ -369,7 +385,6 @@ public final class LocationExtractionEvaluator {
         evaluationDetails.append("# f1: " + f1).append('\n');
         evaluationDetails.append("#\n");
         evaluationDetails.append("#\n");
-
 
         evaluationDetails
                 .append("file;offset;type;value;annotationResult;goldLat;goldLng;taggedLat;taggedLng;distance\n");
