@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +29,8 @@ import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.YahooLocationExtractor;
+import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -36,6 +39,7 @@ import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.features.Annotated;
 
 public final class LocationExtractionEvaluator {
@@ -59,7 +63,6 @@ public final class LocationExtractionEvaluator {
         errors.put(ResultType.ERROR3, new HashMap<String, Collection<Annotated>>());
         errors.put(ResultType.ERROR4, new HashMap<String, Collection<Annotated>>());
         errors.put(ResultType.ERROR5, new HashMap<String, Collection<Annotated>>());
-
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
 
@@ -168,6 +171,59 @@ public final class LocationExtractionEvaluator {
         System.out.println(summary);
     }
 
+    private static final class EvaluationItem implements Comparable<EvaluationItem> {
+
+        public EvaluationItem(String file, Annotated annotation, String resultType, GeoCoordinate goldCoordinate,
+                GeoCoordinate taggedCoordinate) {
+            this.file = file;
+            this.annotation = annotation;
+            this.resultType = resultType;
+            this.goldCoord = goldCoordinate;
+            this.taggedCoord = taggedCoordinate;
+        }
+
+        String file;
+        Annotated annotation;
+        String resultType;
+        GeoCoordinate goldCoord;
+        GeoCoordinate taggedCoord;
+
+        @Override
+        public int compareTo(EvaluationItem other) {
+            int result = this.file.compareTo(other.file);
+            if (result != 0) {
+                return result;
+            }
+            return Integer.valueOf(this.annotation.getStartPosition()).compareTo(other.annotation.getStartPosition());
+        }
+
+        private Double getDistance() {
+            if (goldCoord == null || goldCoord.getLatitude() == null || goldCoord.getLongitude() == null) {
+                return null;
+            }
+            if (taggedCoord == null || taggedCoord.getLatitude() == null || taggedCoord.getLongitude() == null) {
+                return null;
+            }
+            return GeoUtils.getDistance(goldCoord, taggedCoord);
+        }
+
+        public String toCsvLine() {
+            StringBuilder builder = new StringBuilder();
+            builder.append(file).append(';');
+            builder.append(annotation.getStartPosition()).append(';');
+            builder.append(annotation.getTag()).append(';');
+            builder.append(annotation.getValue()).append(';');
+            builder.append(resultType).append(';');
+            builder.append(goldCoord != null ? goldCoord.getLatitude() : "").append(';');
+            builder.append(goldCoord != null ? goldCoord.getLongitude() : "").append(';');
+            builder.append(taggedCoord != null ? taggedCoord.getLatitude() : "").append(';');
+            builder.append(taggedCoord != null ? taggedCoord.getLongitude() : "").append(';');
+            Double distance = getDistance();
+            builder.append(distance != null ? getDistance() : "");
+            return builder.toString();
+        }
+    }
+
     public static String evaluateCoordinates(LocationExtractor extractor, String goldStandardFileFolderPath) {
         Validate.notNull(extractor, "extractor must not be null");
         Validate.notEmpty(goldStandardFileFolderPath, "goldStandardFileFolderPath must not be empty");
@@ -184,10 +240,10 @@ public final class LocationExtractionEvaluator {
         StopWatch stopWatch = new StopWatch();
         StringBuilder evaluationDetails = new StringBuilder();
 
-        evaluationDetails.append("Result for:").append(extractor.getName()).append("\n\n");
-        evaluationDetails.append("Using dataset:").append(goldStandardFileFolderPath).append("\n\n");
+        evaluationDetails.append("# Result for:").append(extractor.getName()).append('\n');
+        evaluationDetails.append("# Using dataset:").append(goldStandardFileFolderPath).append('\n');
 
-        evaluationDetails.append("file;offset;type;value;goldLat;goldLng;taggedLat;taggedLng;distance;rmsd\n");
+        List<EvaluationItem> completeEvaluationList = CollectionHelper.newArrayList();
 
         for (int i = 0; i < files.length; i++) {
 
@@ -196,7 +252,7 @@ public final class LocationExtractionEvaluator {
             File file = files[i];
             String inputText = FileHelper.readFileToString(file).replace(" role=\"main\"", "");
             String cleanText = HtmlHelper.stripHtmlTags(inputText);
-            // evaluationDetails.append(file.getName()).append('\n');
+            String fileName = file.getName();
 
             // get the gold standard annotations
             Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotationsFromXmlText(inputText);
@@ -205,75 +261,126 @@ public final class LocationExtractionEvaluator {
             List<LocationAnnotation> annotationResult = extractor.getAnnotations(cleanText);
 
             // the map holding the annotation index + coordinate
-            SortedMap<Integer, GeoCoordinate> coordinates = coordinatesMap.get(file.getName());
+            SortedMap<Integer, GeoCoordinate> coordinates = coordinatesMap.get(fileName);
 
             // verify, if we have data for every annotation in the gold standard
             for (ContextAnnotation annotation : goldStandard) {
                 int start = annotation.getStartPosition();
                 if (!coordinates.containsKey(start)) {
-                    LOGGER.error("Coordinate list does not contain data for annotation with offset {}", start);
+                    LOGGER.error("Coordinate list does not contain data for annotation with offset {} and value {}",
+                            start, annotation.getValue());
                 }
             }
 
-            double summedSquaredDistances = 0;
+            List<EvaluationItem> evaluationList = CollectionHelper.newArrayList();
+            Set<Annotated> taggedAnnotations = CollectionHelper.newHashSet();
 
             // evaluate
-            for (LocationAnnotation locationAnnotation : annotationResult) {
+            for (LocationAnnotation assignedAnnotation : annotationResult) {
 
-                LOGGER.debug("Check '{}'@{}", locationAnnotation.getValue(), locationAnnotation.getStartPosition());
+                boolean taggedOverlap = false;
+                int counter = 0;
 
-                for (Annotated goldStandardAnnotation : goldStandard) {
-                    GeoCoordinate goldStandardCoordinate = coordinates.get(goldStandardAnnotation.getStartPosition());
+                for (Annotated goldAnnotation : goldStandard) {
+                    counter++;
 
-                    boolean samePositionAndLength = locationAnnotation.getStartPosition() == goldStandardAnnotation
-                            .getStartPosition()
-                            && locationAnnotation.getValue().length() == goldStandardAnnotation.getValue().length();
-                    boolean overlaps = locationAnnotation.overlaps(goldStandardAnnotation);
+                    GeoCoordinate goldCoordinate = coordinates.get(goldAnnotation.getStartPosition());
 
-                    if (!samePositionAndLength && !overlaps) {
-                        continue;
-                    }
+                    boolean congruent = assignedAnnotation.getStartPosition() == goldAnnotation.getStartPosition()
+                            && assignedAnnotation.getEndPosition() == goldAnnotation.getEndPosition();
+                    boolean overlaps = assignedAnnotation.overlaps(goldAnnotation);
 
-                    LOGGER.debug("Compare with '{}'@{}", goldStandardAnnotation.getValue(),
-                            goldStandardAnnotation.getStartPosition());
-
-                    if (goldStandardCoordinate == null) {
-                        LOGGER.debug("No coordinates in gold standard.");
-                        continue;
-                    }
-                    if (locationAnnotation.getLocation().getLatitude() == null) {
-                        LOGGER.debug("No coordinates from extractor.");
-                        continue;
-                    }
-
-                    double distance = GeoUtils.getDistance(goldStandardCoordinate, locationAnnotation.getLocation());
-                    if (samePositionAndLength) {
-                        LOGGER.debug("Distance {} km, annotations are congruent", distance);
-                    } else if (overlaps) {
-                        LOGGER.debug("Distance {} km, annotations overlap", distance);
-                    }
-
-                    evaluationDetails.append(file.getName()).append(';');
-                    evaluationDetails.append(goldStandardAnnotation.getStartPosition()).append(';');
-                    evaluationDetails.append(goldStandardAnnotation.getTag()).append(';');
-                    evaluationDetails.append(goldStandardAnnotation.getValue()).append(';');
-                    evaluationDetails.append(goldStandardCoordinate.getLatitude()).append(';');
-                    evaluationDetails.append(goldStandardCoordinate.getLongitude()).append(';');
-                    evaluationDetails.append(locationAnnotation.getLocation().getLatitude()).append(';');
-                    evaluationDetails.append(locationAnnotation.getLocation().getLongitude()).append(';');
-                    evaluationDetails.append(distance).append('\n');
-                    summedSquaredDistances += Math.pow(distance, 2);
-
-                    if (samePositionAndLength) {
+                    if (congruent) {
+                        // same start and end
+                        taggedAnnotations.add(goldAnnotation);
+                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, "CONGRUENT", goldCoordinate,
+                                assignedAnnotation.getLocation()));
                         break;
+                    } else if (overlaps) {
+                        // overlap
+                        taggedOverlap = true;
+                        taggedAnnotations.add(goldAnnotation);
+                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, "BOUNDARIES", goldCoordinate,
+                                assignedAnnotation.getLocation()));
+                    } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
+                            || counter == goldStandard.size()) {
+                        if (!taggedOverlap) {
+                            // false alarm
+                            evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, "FALSE", null,
+                                    assignedAnnotation.getLocation()));
+                        }
+                        break;
+                    } else {
+                        continue;
                     }
                 }
             }
-            double rmsd = Math.sqrt(summedSquaredDistances / annotationResult.size());
-            evaluationDetails.append(file.getName()).append(";;;;;;;;;").append(rmsd).append('\n');
+
+            // check which gold standard annotations have not been found by the NER (error2)
+            for (Annotated goldAnnotation : goldStandard) {
+                if (!taggedAnnotations.contains(goldAnnotation)) {
+                    GeoCoordinate goldCooardinate = coordinates.get(goldAnnotation.getStartPosition());
+                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, "MISS", goldCooardinate, null));
+                }
+            }
+            completeEvaluationList.addAll(evaluationList);
         }
+
+
+        int correct = 0;
+        int retrieved = 0;
+        int relevant = 0;
+        for (EvaluationItem item : completeEvaluationList) {
+
+            // ignore other types than CITY and POI because they are too broad
+            if (!Arrays.asList("CITY", "POI").contains(item.annotation.getTag())) {
+                continue;
+            }
+
+            // when gold standard has no location, ignore
+            if (item.goldCoord == null) {
+                continue;
+            }
+
+            Double distance = item.getDistance();
+            if (distance != null && distance < 100) {
+                correct++;
+            }
+            if (Arrays.asList("CONGRUENT", "BOUNDARIES", "FALSE").contains(item.resultType)) {
+                retrieved++;
+            }
+            if (Arrays.asList("CONGRUENT", "BOUNDARIES", "MISS").contains(item.resultType)) {
+                relevant++;
+            }
+        }
+
+        evaluationDetails.append("#\n");
+        evaluationDetails.append("#\n");
+
+        evaluationDetails.append("# num correct: " + correct).append('\n');
+        evaluationDetails.append("# num retrieved: " + retrieved).append('\n');
+        evaluationDetails.append("# relevant: " + relevant).append('\n');
+        float precision = (float)correct / retrieved;
+        float recall = (float)correct / relevant;
+        float f1 = 2 * precision * recall / (precision + recall);
+
+        evaluationDetails.append("# precision: " + precision).append('\n');
+        evaluationDetails.append("# recall: " + recall).append('\n');
+        evaluationDetails.append("# f1: " + f1).append('\n');
+        evaluationDetails.append("#\n");
+        evaluationDetails.append("#\n");
+
+
+        evaluationDetails
+                .append("file;offset;type;value;annotationResult;goldLat;goldLng;taggedLat;taggedLng;distance\n");
+        Collections.sort(completeEvaluationList);
+        for (EvaluationItem item : completeEvaluationList) {
+            evaluationDetails.append(item.toCsvLine()).append('\n');
+        }
+
         FileHelper.writeToFile("data/temp/" + System.currentTimeMillis() + "_distances.csv",
                 evaluationDetails.toString());
+
         return evaluationDetails.toString();
     }
 
@@ -311,6 +418,7 @@ public final class LocationExtractionEvaluator {
     }
 
     public static void main(String[] args) {
+        // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/testTemp";
         String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
@@ -319,10 +427,10 @@ public final class LocationExtractionEvaluator {
         // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
         // evaluate(new ExtractivLocationExtractor(), DATASET_LOCATION);
 
-        // LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
-        // evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
-        evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
+        evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
+        // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
     }
 
 }
