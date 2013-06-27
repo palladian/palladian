@@ -3,7 +3,6 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
@@ -13,12 +12,13 @@ import org.xml.sax.InputSource;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -88,10 +88,13 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     private HttpResult performRequest(String inputText) throws HttpException {
-        Map<String, String> headers = new MapBuilder<String, String>().add("Accept", "application/xml");
-        Map<String, String> content = new MapBuilder<String, String>().add("contenu", inputText).add("api", apiKey)
-                .add("semtag", "0").add("lng", "EN"); // hard coded English language for now
-        return httpRetriever.httpPost("http://www.wikimeta.com/wapi/service", headers, content);
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://www.wikimeta.com/wapi/service");
+        request.addHeader("Accept", "application/xml");
+        request.addParameter("contenu", inputText);
+        request.addParameter("api", apiKey);
+        request.addParameter("semtag", "0");
+        request.addParameter("lng", "EN");// hard coded English language for now
+        return httpRetriever.execute(request);
     }
 
     /** Package-private for unit-testing. */

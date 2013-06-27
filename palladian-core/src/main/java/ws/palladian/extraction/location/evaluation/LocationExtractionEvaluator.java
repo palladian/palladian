@@ -36,7 +36,6 @@ import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -283,8 +282,9 @@ public final class LocationExtractionEvaluator {
             for (ContextAnnotation annotation : goldStandard) {
                 int start = annotation.getStartPosition();
                 if (!coordinates.containsKey(start)) {
-                    LOGGER.error("Coordinate list does not contain data for annotation with offset {} and value {}",
-                            start, annotation.getValue());
+                    LOGGER.error(
+                            "Coordinate list does not contain data for annotation with offset {} and value {} in {}",
+                            new Object[] {start, annotation.getValue(), fileName});
                 }
             }
 
@@ -434,7 +434,7 @@ public final class LocationExtractionEvaluator {
 
     public static void main(String[] args) {
         // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/testTemp";
-        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1";
+        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/TUD-Loc-2013/TUD-Loc-2013_V2";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
         // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
@@ -444,8 +444,12 @@ public final class LocationExtractionEvaluator {
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
-        evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
+        // evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
         // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
+        File pathToTexts = new File("/Users/pk/Desktop/LocationLab/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");
+        File pathToJsonResults = new File("/Users/pk/Desktop/LocationLab/UnlockTextResults");
+        // evaluate(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
+        evaluateCoordinates(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
     }
 
 }
