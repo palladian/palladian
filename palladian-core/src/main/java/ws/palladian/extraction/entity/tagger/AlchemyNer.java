@@ -2,10 +2,7 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -19,10 +16,10 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.MapBuilder;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -458,13 +455,20 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     }
 
                     // get locations of named entity
-                    String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
-                    Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
-                            + escapedEntity + "(?=\\s)", Pattern.DOTALL);
-
-                    Matcher matcher = pattern.matcher(inputText);
-                    while (matcher.find()) {
-                        int offset = matcher.start();
+//                    String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
+//                    Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
+//                            + escapedEntity + "(?=\\s)", Pattern.DOTALL);
+//
+//                    Matcher matcher = pattern.matcher(inputText);
+//                    while (matcher.find()) {
+//                        int offset = matcher.start();
+//                        Annotation annotation = new Annotation(offset, entityName, entityType);
+//                        annotation.addSubTypes(subTypeList);
+//                        annotations.add(annotation);
+//                    }
+                    
+                    List<Integer> entityOffsets = NerHelper.getEntityOffsets(inputText, entityName);
+                    for (Integer offset : entityOffsets) {
                         Annotation annotation = new Annotation(offset, entityName, entityType);
                         annotation.addSubTypes(subTypeList);
                         annotations.add(annotation);
@@ -490,17 +494,17 @@ public class AlchemyNer extends NamedEntityRecognizer {
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
-
-        Map<String, String> headers = new MapBuilder<String, String>().add("Content-Type",
-                "application/x-www-form-urlencoded; charset=UTF-8").add("Accept", "application/json");
-
-        Map<String, String> content = new MapBuilder<String, String>().add("text", inputText).add("apikey", apiKey)
-                .add("outputMode", "json").add("disambiguate", "1").add("maxRetrieve", "500");
-
-        content.put("coreference", coreferenceResolution ? "1" : "0");
-
-        return httpRetriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities", headers,
-                content);
+        HttpRequest request = new HttpRequest(HttpMethod.POST,
+                "http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.addHeader("Accept", "application/json");
+        request.addParameter("text", inputText);
+        request.addParameter("apikey", apiKey);
+        request.addParameter("outputMode", "json");
+        request.addParameter("disambiguate", "1");
+        request.addParameter("maxRetrieve", "500");
+        request.addParameter("coreference", coreferenceResolution ? "1" : "0");
+        return httpRetriever.execute(request);
     }
 
     public static void main(String[] args) {
