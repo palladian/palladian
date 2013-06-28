@@ -2,7 +2,6 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -15,10 +14,10 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -186,17 +185,15 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
-
-        Map<String, String> headers = new MapBuilder<String, String>().add("x-calais-licenseID", apiKey)
-                .add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .add("Accept", "application/json");
-
-        Map<String, String> content = new MapBuilder<String, String>()
-                .add("content", inputText)
-                .add("paramsXML",
-                        "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
-
-        return httpRetriever.httpPost("http://api.opencalais.com/tag/rs/enrich", headers, content);
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://api.opencalais.com/tag/rs/enrich");
+        request.addHeader("x-calais-licenseID", apiKey);
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.addHeader("Accept", "application/json");
+        request.addParameter("content", inputText);
+        request.addParameter(
+                "paramsXML",
+                "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
+        return httpRetriever.execute(request);
     }
 
     @Override
@@ -206,7 +203,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
 
     public static void main(String[] args) {
 
-        OpenCalaisNer tagger = new OpenCalaisNer(ConfigHolder.getInstance().getConfig());
+        OpenCalaisNer tagger = new OpenCalaisNer("");
 
         // HOW TO USE ////
         System.out

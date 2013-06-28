@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Annotated;
 
@@ -227,6 +230,20 @@ public final class NerHelper {
         taggedText.append(inputText.substring(lastEndIndex));
 
         return taggedText.toString();
+    }
+
+    public static List<Integer> getEntityOffsets(String text, String entityName) {
+        // String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
+        String escapedEntity = Pattern.quote(entityName);
+        Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
+                + escapedEntity + "(?=\\s)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(text);
+        List<Integer> offsets = CollectionHelper.newArrayList();
+        while (matcher.find()) {
+            int offset = matcher.start();
+            offsets.add(offset);
+        }
+        return offsets;
     }
 
 }

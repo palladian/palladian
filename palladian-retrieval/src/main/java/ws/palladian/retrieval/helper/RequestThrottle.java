@@ -27,7 +27,7 @@ public class RequestThrottle {
         this.pauseInterval = pauseInterval;
     }
 
-    public void hold() {
+    public synchronized void hold() {
         long sinceLast = System.currentTimeMillis() - lastRequest;
         if (sinceLast < pauseInterval) {
             try {
