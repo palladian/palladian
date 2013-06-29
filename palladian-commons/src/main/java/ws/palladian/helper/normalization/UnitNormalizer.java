@@ -1,13 +1,19 @@
 package ws.palladian.helper.normalization;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.constants.TemperatureUnit;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -29,193 +35,230 @@ public class UnitNormalizer {
     public static final int UNIT_FREQUENCY = 3;
     public static final int UNIT_LENGTH = 4;
     public static final int UNIT_WEIGHT = 5;
+    public static final int UNIT_TEMPERATURE = 6;
+
+    /** Time units. */
+    private static final Set<String> TIME_UNITS = new HashSet<String>();
+    private static final Set<String> DIGITAL_UNITS = new HashSet<String>();
+    private static final Set<String> FREQUENCY_UNITS = new HashSet<String>();
+    private static final Set<String> LENGTH_UNITS = new HashSet<String>();
+    private static final Set<String> WEIGHT_UNITS = new HashSet<String>();
+    private static final Set<String> VOLUME_UNITS = new HashSet<String>();
+    private static final Set<String> TEMPERATURE_UNITS = new HashSet<String>();
+    private static final List<String> ALL_UNITS = new ArrayList<String>();
+
+    static {
+        TIME_UNITS.add("year");
+        TIME_UNITS.add("years");
+        TIME_UNITS.add("month");
+        TIME_UNITS.add("months");
+        TIME_UNITS.add("week");
+        TIME_UNITS.add("weeks");
+        TIME_UNITS.add("day");
+        TIME_UNITS.add("days");
+        TIME_UNITS.add("day(s)");
+        TIME_UNITS.add("hour");
+        TIME_UNITS.add("hours");
+        TIME_UNITS.add("hour(s)");
+        TIME_UNITS.add("hrs");
+        TIME_UNITS.add("hr");
+        TIME_UNITS.add("h");
+        TIME_UNITS.add("minute");
+        TIME_UNITS.add("minutes");
+        TIME_UNITS.add("min");
+        TIME_UNITS.add("second");
+        TIME_UNITS.add("seconds");
+        TIME_UNITS.add("secs");
+        TIME_UNITS.add("sec");
+        TIME_UNITS.add("s");
+        TIME_UNITS.add("milli seconds");
+        TIME_UNITS.add("milliseconds");
+        TIME_UNITS.add("ms");
+        TIME_UNITS.add("years");
+
+        DIGITAL_UNITS.add("terra bytes");
+        DIGITAL_UNITS.add("terra byte");
+        DIGITAL_UNITS.add("tb");
+        DIGITAL_UNITS.add("giga bytes");
+        DIGITAL_UNITS.add("giga byte");
+        DIGITAL_UNITS.add("gb");
+        DIGITAL_UNITS.add("mega bytes");
+        DIGITAL_UNITS.add("mega byte");
+        DIGITAL_UNITS.add("mb");
+        DIGITAL_UNITS.add("kilo bytes");
+        DIGITAL_UNITS.add("kilo byte");
+        DIGITAL_UNITS.add("kilobyte");
+        DIGITAL_UNITS.add("kb");
+        DIGITAL_UNITS.add("kbytes");
+        DIGITAL_UNITS.add("kbyte");
+        DIGITAL_UNITS.add("bytes");
+        DIGITAL_UNITS.add("byte");
+        DIGITAL_UNITS.add("b");
+        DIGITAL_UNITS.add("bit");
+        DIGITAL_UNITS.add("bits");
+
+        FREQUENCY_UNITS.add("terrahertz");
+        FREQUENCY_UNITS.add("thz");
+        FREQUENCY_UNITS.add("terra hertz");
+        FREQUENCY_UNITS.add("gigahertz");
+        FREQUENCY_UNITS.add("ghz");
+        FREQUENCY_UNITS.add("giga hertz");
+        FREQUENCY_UNITS.add("megahertz");
+        FREQUENCY_UNITS.add("mhz");
+        FREQUENCY_UNITS.add("mega hertz");
+        FREQUENCY_UNITS.add("kilohertz");
+        FREQUENCY_UNITS.add("khz");
+        FREQUENCY_UNITS.add("kilo hertz");
+        FREQUENCY_UNITS.add("hertz");
+        FREQUENCY_UNITS.add("hz");
+
+        LENGTH_UNITS.add("km");
+        LENGTH_UNITS.add("kms");
+        LENGTH_UNITS.add("kilometer");
+        LENGTH_UNITS.add("kilometers");
+        LENGTH_UNITS.add("kilometre");
+        LENGTH_UNITS.add("kilometres");
+        LENGTH_UNITS.add("mile");
+        LENGTH_UNITS.add("miles");
+        LENGTH_UNITS.add("mi");
+        LENGTH_UNITS.add("meter");
+        LENGTH_UNITS.add("meters");
+        LENGTH_UNITS.add("metre");
+        LENGTH_UNITS.add("metres");
+        LENGTH_UNITS.add("m");
+        LENGTH_UNITS.add("decimeter");
+        LENGTH_UNITS.add("decimeters");
+        LENGTH_UNITS.add("decimetre");
+        LENGTH_UNITS.add("decimetres");
+        LENGTH_UNITS.add("dm");
+        LENGTH_UNITS.add("foot");
+        LENGTH_UNITS.add("feet");
+        LENGTH_UNITS.add("ft");
+        LENGTH_UNITS.add("in");
+        LENGTH_UNITS.add("inch");
+        LENGTH_UNITS.add("inches");
+        LENGTH_UNITS.add("\"");
+        LENGTH_UNITS.add("centimeter");
+        LENGTH_UNITS.add("centimeters");
+        LENGTH_UNITS.add("centimetre");
+        LENGTH_UNITS.add("centimetres");
+        LENGTH_UNITS.add("cm");
+        LENGTH_UNITS.add("millimeter");
+        LENGTH_UNITS.add("millimeters");
+        LENGTH_UNITS.add("millimetre");
+        LENGTH_UNITS.add("millimetres");
+        LENGTH_UNITS.add("mm");
+
+        WEIGHT_UNITS.add("ton");
+        WEIGHT_UNITS.add("tons");
+        WEIGHT_UNITS.add("kilograms");
+        WEIGHT_UNITS.add("kilogram");
+        WEIGHT_UNITS.add("kg");
+        WEIGHT_UNITS.add("kgs");
+        WEIGHT_UNITS.add("pound");
+        WEIGHT_UNITS.add("pounds");
+        WEIGHT_UNITS.add("lb");
+        WEIGHT_UNITS.add("lbs");
+        WEIGHT_UNITS.add("ounce");
+        WEIGHT_UNITS.add("ounces");
+        WEIGHT_UNITS.add("oz");
+        WEIGHT_UNITS.add("ozs");
+        WEIGHT_UNITS.add("gram");
+        WEIGHT_UNITS.add("grams");
+        WEIGHT_UNITS.add("g");
+        WEIGHT_UNITS.add("gs");
+        WEIGHT_UNITS.add("gr");
+
+        VOLUME_UNITS.add("gal");
+        VOLUME_UNITS.add("gallon");
+        VOLUME_UNITS.add("gallons");
+        VOLUME_UNITS.add("pint");
+        VOLUME_UNITS.add("pints");
+        VOLUME_UNITS.add("cups");
+        VOLUME_UNITS.add("cup");
+        VOLUME_UNITS.add("cp");
+        VOLUME_UNITS.add("c");
+        VOLUME_UNITS.add("teaspoons");
+        VOLUME_UNITS.add("teaspoon");
+        VOLUME_UNITS.add("tsps");
+        VOLUME_UNITS.add("tsp");
+        VOLUME_UNITS.add("t");
+        VOLUME_UNITS.add("tablespoons");
+        VOLUME_UNITS.add("tablespoon");
+        VOLUME_UNITS.add("tbsps");
+        VOLUME_UNITS.add("tbsp");
+        VOLUME_UNITS.add("T");
+        VOLUME_UNITS.add("quart");
+        VOLUME_UNITS.add("quarts");
+        VOLUME_UNITS.add("qt");
+        VOLUME_UNITS.add("qts");
+        VOLUME_UNITS.add("liter");
+        VOLUME_UNITS.add("liters");
+        VOLUME_UNITS.add("l");
+        VOLUME_UNITS.add("milliliter");
+        VOLUME_UNITS.add("milliliters");
+        VOLUME_UNITS.add("ml");
+        VOLUME_UNITS.add("mls");
+        VOLUME_UNITS.add("fl oz");
+        VOLUME_UNITS.add("fl oz.");
+        VOLUME_UNITS.add("fl ozs");
+        VOLUME_UNITS.add("fl ozs.");
+        VOLUME_UNITS.add("fl ounce");
+        VOLUME_UNITS.add("fl ounces");
+
+        for (TemperatureUnit tUnit : TemperatureUnit.values()) {
+            for (String name : tUnit.getNames()) {
+                TEMPERATURE_UNITS.add(name);
+            }
+        }
+
+        ALL_UNITS.addAll(FREQUENCY_UNITS);
+        ALL_UNITS.addAll(DIGITAL_UNITS);
+        ALL_UNITS.addAll(LENGTH_UNITS);
+        ALL_UNITS.addAll(TIME_UNITS);
+        ALL_UNITS.addAll(VOLUME_UNITS);
+        ALL_UNITS.addAll(WEIGHT_UNITS);
+        ALL_UNITS.addAll(TEMPERATURE_UNITS);
+
+        Collections.sort(ALL_UNITS, new StringLengthComparator());
+    }
 
     private static boolean isTimeUnit(String unit) {
-        HashSet<String> timeUnits = new HashSet<String>();
-        timeUnits.add("year");
-        timeUnits.add("years");
-        timeUnits.add("month");
-        timeUnits.add("months");
-        timeUnits.add("week");
-        timeUnits.add("weeks");
-        timeUnits.add("day");
-        timeUnits.add("days");
-        timeUnits.add("day(s)");
-        timeUnits.add("hour");
-        timeUnits.add("hours");
-        timeUnits.add("hour(s)");
-        timeUnits.add("hrs");
-        timeUnits.add("hr");
-        timeUnits.add("h");
-        timeUnits.add("minute");
-        timeUnits.add("minutes");
-        timeUnits.add("min");
-        timeUnits.add("second");
-        timeUnits.add("seconds");
-        timeUnits.add("secs");
-        timeUnits.add("sec");
-        timeUnits.add("s");
-        timeUnits.add("milli seconds");
-        timeUnits.add("milliseconds");
-        timeUnits.add("ms");
-        timeUnits.add("years");
-
-        return timeUnits.contains(unit);
+        return TIME_UNITS.contains(unit);
     }
 
     private static boolean isDigitalUnit(String unit) {
-        HashSet<String> digitalUnits = new HashSet<String>();
-        digitalUnits.add("terra bytes");
-        digitalUnits.add("terra byte");
-        digitalUnits.add("tb");
-        digitalUnits.add("giga bytes");
-        digitalUnits.add("giga byte");
-        digitalUnits.add("gb");
-        digitalUnits.add("mega bytes");
-        digitalUnits.add("mega byte");
-        digitalUnits.add("mb");
-        digitalUnits.add("kilo bytes");
-        digitalUnits.add("kilo byte");
-        digitalUnits.add("kilobyte");
-        digitalUnits.add("kb");
-        digitalUnits.add("kbytes");
-        digitalUnits.add("kbyte");
-        digitalUnits.add("bytes");
-        digitalUnits.add("byte");
-        digitalUnits.add("b");
-        digitalUnits.add("bit");
-        digitalUnits.add("bits");
-
-        return digitalUnits.contains(unit);
+        return DIGITAL_UNITS.contains(unit);
     }
 
     private static boolean isFrequencyUnit(String unit) {
-        HashSet<String> frequencyUnits = new HashSet<String>();
-        frequencyUnits.add("terrahertz");
-        frequencyUnits.add("thz");
-        frequencyUnits.add("terra hertz");
-        frequencyUnits.add("gigahertz");
-        frequencyUnits.add("ghz");
-        frequencyUnits.add("giga hertz");
-        frequencyUnits.add("megahertz");
-        frequencyUnits.add("mhz");
-        frequencyUnits.add("mega hertz");
-        frequencyUnits.add("kilohertz");
-        frequencyUnits.add("khz");
-        frequencyUnits.add("kilo hertz");
-        frequencyUnits.add("hertz");
-        frequencyUnits.add("hz");
-
-        return frequencyUnits.contains(unit);
+        return FREQUENCY_UNITS.contains(unit);
     }
 
     private static boolean isLengthUnit(String unit) {
-        HashSet<String> lengthUnits = new HashSet<String>();
-        lengthUnits.add("km");
-        lengthUnits.add("kms");
-        lengthUnits.add("kilometer");
-        lengthUnits.add("kilometers");
-        lengthUnits.add("kilometre");
-        lengthUnits.add("kilometres");
-        lengthUnits.add("mile");
-        lengthUnits.add("miles");
-        lengthUnits.add("mi");
-        lengthUnits.add("meter");
-        lengthUnits.add("meters");
-        lengthUnits.add("metre");
-        lengthUnits.add("metres");
-        lengthUnits.add("m");
-        lengthUnits.add("decimeter");
-        lengthUnits.add("decimeters");
-        lengthUnits.add("decimetre");
-        lengthUnits.add("decimetres");
-        lengthUnits.add("dm");
-        lengthUnits.add("foot");
-        lengthUnits.add("feet");
-        lengthUnits.add("ft");
-        lengthUnits.add("in");
-        lengthUnits.add("inch");
-        lengthUnits.add("inches");
-        lengthUnits.add("\"");
-        lengthUnits.add("centimeter");
-        lengthUnits.add("centimeters");
-        lengthUnits.add("centimetre");
-        lengthUnits.add("centimetres");
-        lengthUnits.add("cm");
-        lengthUnits.add("millimeter");
-        lengthUnits.add("millimeters");
-        lengthUnits.add("millimetre");
-        lengthUnits.add("millimetres");
-        lengthUnits.add("mm");
-
-        return lengthUnits.contains(unit);
+        return LENGTH_UNITS.contains(unit);
     }
 
     private static boolean isWeightUnit(String unit) {
-        HashSet<String> weightUnits = new HashSet<String>();
-        weightUnits.add("ton");
-        weightUnits.add("tons");
-        weightUnits.add("kilograms");
-        weightUnits.add("kilogram");
-        weightUnits.add("kg");
-        weightUnits.add("kgs");
-        weightUnits.add("pound");
-        weightUnits.add("pounds");
-        weightUnits.add("lb");
-        weightUnits.add("lbs");
-        weightUnits.add("ounce");
-        weightUnits.add("ounces");
-        weightUnits.add("oz");
-        weightUnits.add("ozs");
-        weightUnits.add("gram");
-        weightUnits.add("grams");
-        weightUnits.add("g");
-        weightUnits.add("gs");
-        weightUnits.add("gr");
-
-        return weightUnits.contains(unit);
+        return WEIGHT_UNITS.contains(unit);
     }
 
     private static boolean isVolumeUnit(String unit) {
-        HashSet<String> volumeUnits = new HashSet<String>();
-        volumeUnits.add("gal");
-        volumeUnits.add("gallon");
-        volumeUnits.add("gallons");
-        volumeUnits.add("pint");
-        volumeUnits.add("pints");
-        volumeUnits.add("cups");
-        volumeUnits.add("cup");
-        volumeUnits.add("cp");
-        volumeUnits.add("c");
-        volumeUnits.add("teaspoons");
-        volumeUnits.add("teaspoon");
-        volumeUnits.add("tsps");
-        volumeUnits.add("tsp");
-        volumeUnits.add("t");
-        volumeUnits.add("tablespoons");
-        volumeUnits.add("tablespoon");
-        volumeUnits.add("tbsps");
-        volumeUnits.add("tbsp");
-        volumeUnits.add("T");
-        volumeUnits.add("quart");
-        volumeUnits.add("quarts");
-        volumeUnits.add("qt");
-        volumeUnits.add("qts");
-        volumeUnits.add("liter");
-        volumeUnits.add("liters");
-        volumeUnits.add("l");
-        volumeUnits.add("milliliter");
-        volumeUnits.add("milliliters");
-        volumeUnits.add("ml");
-        volumeUnits.add("mls");
-        volumeUnits.add("fl oz");
-        volumeUnits.add("fl oz.");
-        volumeUnits.add("fl ozs");
-        volumeUnits.add("fl ozs.");
-        volumeUnits.add("fl ounce");
-        volumeUnits.add("fl ounces");
+        return VOLUME_UNITS.contains(unit);
+    }
 
-        return volumeUnits.contains(unit);
+    private static boolean isTemperatureUnit(String unit) {
+        return TEMPERATURE_UNITS.contains(unit);
+    }
+
+    public static String detectUnit(String text) {
+        for (String unit : ALL_UNITS) {
+            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                return unit;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -273,6 +316,11 @@ public class UnitNormalizer {
 
         // volume
         if (isVolumeUnit(unit1) && isVolumeUnit(unit2)) {
+            return true;
+        }
+
+        // temperature
+        if (isTemperatureUnit(unit1) && isTemperatureUnit(unit2)) {
             return true;
         }
 
@@ -564,10 +612,13 @@ public class UnitNormalizer {
     }
 
     /**
-     * transforms a normalized value to the target unit
-     * @param unitTo unit to transform to
-     * @param value value to transorm
-     * @return transformed value
+     * <p>
+     * Transforms a normalized value to the target unit.
+     * </p>
+     * 
+     * @param unitTo The unit to transform.
+     * @param value The value to transform.
+     * @return The transformed value.
      */
     public static double transorm(String unitTo, double value) {
         double divider = unitLookup(unitTo);
@@ -619,6 +670,9 @@ public class UnitNormalizer {
             }
             if (isWeightUnit(word)) {
                 unitType = UNIT_WEIGHT;
+            }
+            if (isTemperatureUnit(word)) {
+                unitType = UNIT_TEMPERATURE;
             }
             if (unitType != UNIT_UNITLESS) {
                 break; // we found a unit
