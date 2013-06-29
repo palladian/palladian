@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -831,8 +832,6 @@ public final class HtmlHelper {
     }
 
     /**
-     * TODO duplicate of {@link #getXmlDump(Node)}?
-     * 
      * @param document
      * @return
      */
@@ -846,6 +845,28 @@ public final class HtmlHelper {
     private static boolean isWrappingNode(Node node) {
         String nodeName = node.getNodeName().toLowerCase();
         return BLOCK_ELEMENTS.contains(nodeName);
+    }
+
+    /**
+     * <p>
+     * Get all siblings of a {@link Node}, depth-first.
+     * </p>
+     * 
+     * @param node The node, not <code>null</code>.
+     * @return A list with all siblings in depth-first order, or an empty {@link List}, but never <code>null</code>.
+     */
+    public static List<Node> getAllSiblings(Node node) {
+        Validate.notNull(node, "node must not be null");
+        List<Node> result = CollectionHelper.newArrayList();
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            result.add(childNode);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                result.addAll(getAllSiblings(childNode));
+            }
+        }
+        return result;
     }
 
 }
