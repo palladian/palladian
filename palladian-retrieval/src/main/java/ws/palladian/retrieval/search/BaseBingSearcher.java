@@ -210,7 +210,8 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
     /**
      * <p>
-     * Transform the {@link Language} into a string identifier. See Bing API documentation for available language codes.
+     * Transform the {@link Language} into a string identifier. See <a
+     * href="http://msdn.microsoft.com/en-us/library/dd251064.aspx">here</a> available language codes.
      * </p>
      * 
      * @param language
