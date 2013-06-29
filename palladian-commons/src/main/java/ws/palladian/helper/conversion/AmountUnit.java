@@ -24,4 +24,22 @@ public class AmountUnit {
     public String getCombined() {
         return amount + " " + unit;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("AmountUnit [");
+        if (amount != null) {
+            builder.append("amount=");
+            builder.append(amount);
+            builder.append(", ");
+        }
+        if (unit != null) {
+            builder.append("unit=");
+            builder.append(unit);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
 }
