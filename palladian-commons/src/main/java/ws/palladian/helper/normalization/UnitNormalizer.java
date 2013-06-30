@@ -88,6 +88,7 @@ public class UnitNormalizer {
         DIGITAL_UNITS.add("kilo bytes");
         DIGITAL_UNITS.add("kilo byte");
         DIGITAL_UNITS.add("kilobyte");
+        DIGITAL_UNITS.add("kilobytes");
         DIGITAL_UNITS.add("kb");
         DIGITAL_UNITS.add("kbytes");
         DIGITAL_UNITS.add("kbyte");
