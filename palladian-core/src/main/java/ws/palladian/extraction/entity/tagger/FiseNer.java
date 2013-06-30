@@ -2,8 +2,6 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +9,6 @@ import org.json.JSONObject;
 import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
@@ -98,18 +95,26 @@ public class FiseNer extends NamedEntityRecognizer {
             // double confidence = Double.valueOf(getValue(current, "http://fise.iks-project.eu/ontology/confidence"));
 
             // the service provides no occurrence indices, so we have to look for the annotations in the text
-            String escapedEntity = StringHelper.escapeForRegularExpression(entityName.replace(" .", "."));
-            Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
-                    + escapedEntity + "(?=\\s)", Pattern.DOTALL);
-
-            Matcher matcher = pattern.matcher(text);
-            boolean found = false;
-            while (matcher.find()) {
-                annotations.add(new Annotation(matcher.start(), entityName, type));
-                found = true;
-            }
-            if (!found) {
+//            String escapedEntity = StringHelper.escapeForRegularExpression(entityName.replace(" .", "."));
+//            Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
+//                    + escapedEntity + "(?=\\s)", Pattern.DOTALL);
+//
+//            Matcher matcher = pattern.matcher(text);
+//            boolean found = false;
+//            while (matcher.find()) {
+//                annotations.add(new Annotation(matcher.start(), entityName, type));
+//                found = true;
+//            }
+//            if (!found) {
+//                LOGGER.warn("Could not find position for entity {} in text", entityName);
+//            }
+            
+            List<Integer> entityOffsets = NerHelper.getEntityOffsets(text, entityName);
+            if (entityOffsets.isEmpty()) {
                 LOGGER.warn("Could not find position for entity {} in text", entityName);
+            }
+            for (Integer offset : entityOffsets) {
+                annotations.add(new Annotation(offset, entityName, type));
             }
         }
         return annotations;
