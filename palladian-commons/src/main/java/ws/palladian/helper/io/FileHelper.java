@@ -251,6 +251,10 @@ public final class FileHelper {
         return readFileToString(new File(path));
     }
 
+    public static String readFileToString(String path, String encoding) {
+        return readFileToString(new File(path), encoding);
+    }
+
     public static String readFileToString(InputStream is) {
         return StringUtils.join(readFileToArray(is), "\n");
     }
@@ -262,12 +266,16 @@ public final class FileHelper {
      */
     // TODO throw exception if file cannot be accessed.
     public static String readFileToString(File file) {
+        return readFileToString(file, DEFAULT_ENCODING);
+    }
+
+    public static String readFileToString(File file, String encoding) {
 
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), DEFAULT_ENCODING));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
 
             String line = null;
             while ((line = reader.readLine()) != null) {

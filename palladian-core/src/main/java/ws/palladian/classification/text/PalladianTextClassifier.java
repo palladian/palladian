@@ -40,6 +40,11 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
         }
     }
 
+    public PalladianTextClassifier(FeatureSetting featureSetting, ProcessingPipeline pipeline) {
+        this.featureSetting = featureSetting;
+        this.pipeline = pipeline;
+    }
+
     @Override
     public DictionaryModel train(Iterable<? extends Trainable> trainables) {
         DictionaryModel model = new DictionaryModel(featureSetting);
