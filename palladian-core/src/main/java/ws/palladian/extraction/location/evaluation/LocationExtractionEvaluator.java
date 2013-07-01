@@ -36,6 +36,7 @@ import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
+import ws.palladian.extraction.location.OpenCalaisLocationExtractor2;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -399,7 +400,7 @@ public final class LocationExtractionEvaluator {
         return evaluationDetails.toString();
     }
 
-    private static Map<String, SortedMap<Integer, GeoCoordinate>> readCoordinatesCsv(File coordinatesCsvFile) {
+    static Map<String, SortedMap<Integer, GeoCoordinate>> readCoordinatesCsv(File coordinatesCsvFile) {
         final Map<String, SortedMap<Integer, GeoCoordinate>> coordinateMap = LazyMap
                 .create(new Factory<SortedMap<Integer, GeoCoordinate>>() {
                     @Override
@@ -433,8 +434,8 @@ public final class LocationExtractionEvaluator {
     }
 
     public static void main(String[] args) {
-        // String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/testTemp";
-        String DATASET_LOCATION = "/Users/pk/Desktop/LocationLab/TUD-Loc-2013/TUD-Loc-2013_V2";
+        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted";
+        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
         // String DATASET_LOCATION = "Q:\\Users\\David\\Desktop\\LocationExtractionDataset";
         // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
@@ -446,10 +447,12 @@ public final class LocationExtractionEvaluator {
         // evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
         // evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
         // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
-        File pathToTexts = new File("/Users/pk/Desktop/LocationLab/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");
-        File pathToJsonResults = new File("/Users/pk/Desktop/LocationLab/UnlockTextResults");
+        File pathToTexts = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");
+        File pathToJsonResults = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/UnlockTextResults");
         // evaluate(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
-        evaluateCoordinates(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
+        // evaluateCoordinates(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
+        // evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
+        evaluateCoordinates(new OpenCalaisLocationExtractor2("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
     }
 
 }
