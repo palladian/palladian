@@ -36,6 +36,7 @@ import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
+import ws.palladian.extraction.location.OpenCalaisLocationExtractor2;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -449,8 +450,9 @@ public final class LocationExtractionEvaluator {
         File pathToTexts = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");
         File pathToJsonResults = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/UnlockTextResults");
         // evaluate(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
-        evaluateCoordinates(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
+        // evaluateCoordinates(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
         // evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
+        evaluateCoordinates(new OpenCalaisLocationExtractor2("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
     }
 
 }
