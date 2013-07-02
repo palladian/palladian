@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.discretization.Binner;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureDescriptor;
 import ws.palladian.processing.features.FeatureUtils;
@@ -51,7 +52,8 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
      * @param dataset The collection of instances to select features for.
      * @return
      */
-    private Map<Feature<?>, Double> calculateInformationGain(FeatureDetails featureDetails, Collection<Instance> dataset) {
+    private Map<Feature<?>, Double> calculateInformationGain(FeatureDetails featureDetails,
+            Collection<? extends Trainable> dataset) {
         Validate.notNull(featureDetails);
         Validate.notNull(dataset);
         if (dataset.isEmpty()) {
@@ -72,7 +74,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         }
 
         // count occurences in dataset
-        for (Instance instance : dataset) {
+        for (Trainable instance : dataset) {
 
             Integer targetClassCount = classCounts.get(instance.getTargetClass());
             if (targetClassCount == null) {
@@ -99,7 +101,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                 Feature<?> feature = null;
                 Binner featureBinner = binner.get(identifiedFeature.getKey());
                 if (featureBinner != null) {
-                    feature = (Feature<?>)featureBinner.bin((NumericFeature)identifiedFeature.getValue());
+                    feature = featureBinner.bin((NumericFeature)identifiedFeature.getValue());
                 } else {
                     feature = identifiedFeature.getValue();
                 }
@@ -186,23 +188,23 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
      *         provided {@link NumericFeature}.
      */
     public static Map<List<FeatureDescriptor>, Binner> discretize(final FeatureDetails featureDetails,
-            Collection<Instance> dataset) {
-        Map<List<FeatureDescriptor>, List<Instance>> sortedInstances = new HashMap<List<FeatureDescriptor>, List<Instance>>();
-        for (Instance instance : dataset) {
+            Collection<? extends Trainable> dataset) {
+        Map<List<FeatureDescriptor>, List<Trainable>> sortedInstances = new HashMap<List<FeatureDescriptor>, List<Trainable>>();
+        for (Trainable instance : dataset) {
             List<Pair<List<FeatureDescriptor>, Feature<?>>> features = FeatureUtils.getIdentifiedFeaturesAtPath(
                     instance.getFeatureVector(), featureDetails.getPath(), new ArrayList<FeatureDescriptor>());
             for (Pair<List<FeatureDescriptor>, Feature<?>> feature : features) {
                 final List<FeatureDescriptor> featureIdentifier = feature.getKey();
 
-                List<Instance> sorted = sortedInstances.get(featureIdentifier);
+                List<Trainable> sorted = sortedInstances.get(featureIdentifier);
                 if (sorted == null) {
-                    sorted = new ArrayList<Instance>();
+                    sorted = new ArrayList<Trainable>();
                 }
                 sorted.add(instance);
-                Collections.sort(sorted, new Comparator<Instance>() {
+                Collections.sort(sorted, new Comparator<Trainable>() {
 
                     @Override
-                    public int compare(Instance o1, Instance o2) {
+                    public int compare(Trainable o1, Trainable o2) {
                         NumericFeature o1Feature = FeatureUtils.getFeatureForIdentifier(o1.getFeatureVector(),
                                 NumericFeature.class, featureIdentifier);
                         NumericFeature o2Feature = FeatureUtils.getFeatureForIdentifier(o2.getFeatureVector(),
@@ -215,14 +217,14 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         }
 
         Map<List<FeatureDescriptor>, Binner> ret = new HashMap<List<FeatureDescriptor>, Binner>();
-        for (Entry<List<FeatureDescriptor>, List<Instance>> entry : sortedInstances.entrySet()) {
+        for (Entry<List<FeatureDescriptor>, List<Trainable>> entry : sortedInstances.entrySet()) {
             Binner binner = createBinner(entry.getValue(), entry.getKey());
             ret.put(entry.getKey(), binner);
         }
         return ret;
     }
 
-    private static Binner createBinner(List<Instance> sortedDataset, List<FeatureDescriptor> featureIdentifier) {
+    private static Binner createBinner(List<Trainable> sortedDataset, List<FeatureDescriptor> featureIdentifier) {
         List<Integer> boundaryPoints = findBoundaryPoints(sortedDataset);
 
         StringBuilder nameBuilder = new StringBuilder();
@@ -231,7 +233,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         }
 
         List<NumericFeature> features = new ArrayList<NumericFeature>();
-        for (Instance instance : sortedDataset) {
+        for (Trainable instance : sortedDataset) {
             NumericFeature feature = FeatureUtils.getFeatureForIdentifier(instance.getFeatureVector(),
                     NumericFeature.class, featureIdentifier);
             features.add(feature);
@@ -239,10 +241,10 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         return new Binner(nameBuilder.toString(), boundaryPoints, features);
     }
 
-    private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
+    private static List<Integer> findBoundaryPoints(List<Trainable> sortedDataset) {
         List<Integer> boundaryPoints = new ArrayList<Integer>();
         int N = sortedDataset.size();
-        List<Instance> s = sortedDataset;
+        List<Trainable> s = sortedDataset;
         for (int t = 1; t < sortedDataset.size(); t++) {
             if (sortedDataset.get(t - 1).getTargetClass() != sortedDataset.get(t).getTargetClass()
                     && gain(t, s) > (Math.log(N - 1) / Math.log(2)) - N + delta(t, s) / N) {
@@ -252,27 +254,27 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         return boundaryPoints;
     }
 
-    private static double gain(int t, List<Instance> s) {
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
+    private static double gain(int t, List<Trainable> s) {
+        List<Trainable> s1 = s.subList(0, t);
+        List<Trainable> s2 = s.subList(t, s.size());
         return entropy(s) - (s1.size() * entropy(s1)) / s.size() - (s2.size() * entropy(s2)) / s.size();
     }
 
-    private static double delta(int t, List<Instance> s) {
+    private static double delta(int t, List<Trainable> s) {
         double k = calculateNumberOfClasses(s);
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
+        List<Trainable> s1 = s.subList(0, t);
+        List<Trainable> s2 = s.subList(t, s.size());
         double k1 = calculateNumberOfClasses(s1);
         double k2 = calculateNumberOfClasses(s2);
         return Math.log(Math.pow(3.0d, k) - 2) / Math.log(2.0d)
                 - (k * entropy(s) - k1 * entropy(s1) - k2 * entropy(s2));
     }
 
-    private static double entropy(List<Instance> dataset) {
+    private static double entropy(List<Trainable> dataset) {
         double entropy = 0.0d;
         Map<String, Integer> absoluteOccurrences = new HashMap<String, Integer>();
         Set<String> targetClasses = new HashSet<String>();
-        for (Instance instance : dataset) {
+        for (Trainable instance : dataset) {
             targetClasses.add(instance.getTargetClass());
             Integer absoluteCount = absoluteOccurrences.get(instance.getTargetClass());
             if (absoluteCount == null) {
@@ -287,9 +289,9 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         return entropy;
     }
 
-    private static double calculateNumberOfClasses(List<Instance> s) {
+    private static double calculateNumberOfClasses(List<Trainable> s) {
         Set<String> possibleClasses = new HashSet<String>();
-        for (Instance instance : s) {
+        for (Trainable instance : s) {
             possibleClasses.add(instance.getTargetClass());
         }
         return possibleClasses.size();
@@ -300,7 +302,8 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset,
+            Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
 
         for (FeatureDetails featureDetails : featuresToConsider) {

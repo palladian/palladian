@@ -5,7 +5,7 @@ package ws.palladian.classification.featureselection;
 
 import java.util.Collection;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -18,5 +18,5 @@ import ws.palladian.classification.Instance;
  */
 public interface FeatureSelector {
 
-    FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider);
+    FeatureRanking rankFeatures(Collection<? extends Trainable> dataset, Collection<FeatureDetails> featuresToConsider);
 }

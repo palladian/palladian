@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -23,7 +23,7 @@ import ws.palladian.classification.Instance;
 public final class AverageMergingStrategy implements SelectedFeatureMergingStrategy {
 
     @Override
-    public FeatureRanking merge(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
+    public FeatureRanking merge(Collection<? extends Trainable> dataset, Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
         for (FeatureDetails featureDetails : featuresToConsider) {
             Map<String, Map<String, Double>> scoredFeature = ChiSquaredFeatureSelector.calculateChiSquareValues(
