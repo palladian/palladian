@@ -125,7 +125,7 @@ public class FeatureSelectorTest {
     }
 
     @Test
-    public void testInformationGainFeatureExtraction() throws Exception {
+    public void testInformationGainFeatureRanking() throws Exception {
         FeatureSelector featureSelector = new InformationGainFeatureSelector();
 
         Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
@@ -135,17 +135,17 @@ public class FeatureSelectorTest {
         // System.out.println(ranking);
 
         assertThat(ranking.getAll().get(5).getValue(), is("d"));
-        assertThat(ranking.getAll().get(5).getScore(), is(closeTo(0.6759197036979384, 0.0001)));
+        assertThat(ranking.getAll().get(5).getScore(), is(closeTo(-0.013155014372715268, 0.0001)));
         assertThat(ranking.getAll().get(4).getValue(), is("e"));
-        assertThat(ranking.getAll().get(4).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(4).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
         assertThat(ranking.getAll().get(3).getValue(), is("f"));
-        assertThat(ranking.getAll().get(3).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(3).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
         assertThat(ranking.getAll().get(2).getValue(), is("a"));
-        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
         assertThat(ranking.getAll().get(1).getValue(), is("c"));
-        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
         assertThat(ranking.getAll().get(0).getValue(), is("b"));
-        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(0.9638892693751062, 0.0001)));
+        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
     }
 
     @Test
@@ -174,6 +174,6 @@ public class FeatureSelectorTest {
 
         Assert.assertThat(ranking.getAll().get(0).getValue(), Matchers.is("numeric"));
         Assert.assertThat(ranking.getAll().get(0).getIdentifier(), Matchers.is("feature"));
-        Assert.assertThat(ranking.getAll().get(0).getScore(), Matchers.is(Matchers.closeTo(1.0306392820559587, 0.0001)));
+        Assert.assertThat(ranking.getAll().get(0).getScore(), Matchers.is(Matchers.closeTo(0.35255381922216517, 0.0001)));
     }
 }
