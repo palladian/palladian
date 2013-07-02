@@ -160,7 +160,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                 double Prcint = laplaceSmooth(absoluteOccurences.keySet().size(), sumOfFeaturesInAllClasses
                         - featuresInClass.get(absoluteConditionalOccurence.getKey()), dataset.size()
                         - absoluteConditionalOccurence.getValue());
-                termClassNonCoocurrence = Prcint * Math.log(Prcint);
+                termClassNonCoocurrence += Prcint * Math.log(Prcint);
             }
             double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() + termClassCoocurrence;
 
