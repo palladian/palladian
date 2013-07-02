@@ -30,7 +30,7 @@ public final class RoundRobinMergingStrategy implements SelectedFeatureMergingSt
         Map<String, FeatureRanking> rankingsPerTargetClass = new HashMap<String, FeatureRanking>();
 
         for (FeatureDetails featureDetails : featuresToConsider) {
-            Map<String, Map<String, Double>> classRanking = ChiSquaredFeatureSelector.calculateChiSquareValues(
+            Map<String, Map<String, Double>> classRanking = ChiSquaredFeatureRanker.calculateChiSquareValues(
                     featureDetails.getPath(), featureDetails.getType(), dataset);
 
             Validate.isTrue((!featureDetails.isSparse() && classRanking.size() == 1) || (featureDetails.isSparse()));
