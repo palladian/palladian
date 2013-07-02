@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -35,10 +35,10 @@ public class UniversalClassifierTest {
     @Test
     public void test() throws FileNotFoundException {
 
-        List<Instance> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.createInstances(
                 ResourceHelper.getResourcePath("/classifier/saheart.csv"), true, ",");
 
-        List<Instance> trainingSet = ClassificationUtils.drawRandomSubset(instances, 60);
+        List<Trainable> trainingSet = ClassificationUtils.drawRandomSubset(instances, 60);
         instances.removeAll(trainingSet);
 
         UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();

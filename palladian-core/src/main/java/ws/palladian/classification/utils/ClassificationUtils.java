@@ -52,7 +52,7 @@ public final class ClassificationUtils {
      * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
      *            (column names are generated automatically).
      */
-    public static List<Instance> createInstances(String filePath, boolean readHeader) {
+    public static List<Trainable> createInstances(String filePath, boolean readHeader) {
         return createInstances(filePath, readHeader, DEFAULT_SEPARATOR);
     }
 
@@ -71,12 +71,13 @@ public final class ClassificationUtils {
      *            (column names are generated automatically).
      * @param fieldSeparator The separator {@code String} for individual fields.
      */
-    public static List<Instance> createInstances(String filePath, final boolean readHeader, final String fieldSeparator) {
+    public static List<Trainable> createInstances(String filePath, final boolean readHeader,
+            final String fieldSeparator) {
         if (!new File(filePath).canRead()) {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
 
-        final List<Instance> instances = CollectionHelper.newArrayList();
+        final List<Trainable> instances = CollectionHelper.newArrayList();
 
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
 
