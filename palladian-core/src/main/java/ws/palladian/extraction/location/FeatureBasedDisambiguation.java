@@ -2,18 +2,23 @@ package ws.palladian.extraction.location;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
@@ -31,14 +36,51 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
     private final Set<Trainable> trainInstanceCollection = CollectionHelper.newHashSet();
 
+    private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+
+    private BaggedDecisionTreeModel model;
+
+    // XXX ugly
+    public void setModel(BaggedDecisionTreeModel model) {
+        this.model = model;
+    }
+
     @Override
     public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
 
         Set<LocationInstance> instances = makeInstances(annotations, locations, "foo");
-        CollectionHelper.print(instances);
+        Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
-        // TODO Auto-generated method stub
-        return Collections.emptyList();
+        for (LocationInstance instance : instances) {
+            CategoryEntries classification = classifier.classify(instance, model);
+            scoredLocations.put(instance.getId(), classification.getProbability("true"));
+        }
+        
+        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        for (Annotated annotation : annotations) {
+            String value = LocationExtractorUtils.normalizeName(annotation.getValue());
+            Collection<Location> candidates = locations.get(value);
+            
+            double highestScore = 0;
+            Location selectedLocation = null;
+            
+            for (Location location : candidates) {
+                double score = scoredLocations.get(location.getId());
+                if (score > highestScore) {
+                    highestScore = score;
+                    selectedLocation = location;
+                }
+            }
+            
+            if (selectedLocation != null && highestScore >= 0.5) {
+                result.add(new LocationAnnotation(annotation, selectedLocation));
+                Object[] logArgs = new Object[] {annotation.getValue(), highestScore, selectedLocation};
+                LOGGER.debug("[+] '{}' was classfied as location with {}: {}", logArgs);
+            } else {
+                LOGGER.debug("[-] '{}' was classfied as no location with {}", annotation.getValue(), highestScore);
+            }
+        }
+        return result;
     }
 
     public void addTrainData(List<Annotated> annotations, MultiMap<String, Location> locations, Set<Location> positive,
@@ -60,6 +102,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 }
                 boolean samePlace = GeoUtils.getDistance(instance, location) < 50;
                 boolean sameName = LocationExtractorUtils.commonName(instance, location);
+                // consider locations as positive samples, if they have same name and have max. distance of 50 kms
                 if (samePlace && sameName) {
                     numPositive++;
                     positiveClass = true;
@@ -70,13 +113,19 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
 
         double positivePercentage = MathHelper.round((float)numPositive / instances.size() * 100, 2);
-        LOGGER.info("{} positive instances in {} ({}%)", new Object[] {numPositive, instances.size(),
+        LOGGER.debug("{} positive instances in {} ({}%)", new Object[] {numPositive, instances.size(),
                 positivePercentage});
         return result;
     }
 
     public void buildModel() {
-        ClassificationUtils.writeToCsv(trainInstanceCollection, new File("instancesNew2.csv"));
+        String baseFileName = String.format("location_disambiguation_%s", System.currentTimeMillis());
+        ClassificationUtils.writeToCsv(trainInstanceCollection, new File(baseFileName + ".csv"));
+
+        StopWatch stopWatch = new StopWatch();
+        model = classifier.train(trainInstanceCollection);
+        FileHelper.serialize(model, baseFileName + ".model");
+        LOGGER.info("Built and serialized model in {}.", stopWatch.getTotalElapsedTimeString());
     }
 
     private static Set<LocationInstance> makeInstances(List<Annotated> annotations,
@@ -92,8 +141,10 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             Collection<Location> candidates = locations.get(LocationExtractorUtils.normalizeName(value));
             for (Location location : candidates) {
 
+                // all locations except the current one
                 Set<Location> others = new HashSet<Location>(allLocations);
                 others.remove(location);
+
                 Long population = location.getPopulation();
 
                 // extract features and add them to the feature vector
@@ -124,9 +175,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new NumericFeature("siblingCount", siblingCount(location, others)));
                 fv.add(new BooleanFeature("siblingOccurs", siblingCount(location, others) > 0));
 
-                // just for debuggging purposes
-                fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
-                fv.add(new NominalFeature("documentId", fileName));
+                // just for debugging purposes
+                // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
+                // fv.add(new NominalFeature("documentId", fileName));
 
                 instances.add(new LocationInstance(location, fv));
             }

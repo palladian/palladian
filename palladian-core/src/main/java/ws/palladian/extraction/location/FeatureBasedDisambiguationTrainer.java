@@ -31,7 +31,7 @@ public class FeatureBasedDisambiguationTrainer {
 
     public static void main(String[] args) {
         StopWatch stopWatch = new StopWatch();
-        File goldStandardFileFolderPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2");
+        File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013_V2_train");
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath.getPath(), "text");
         Map<String, SortedMap<Integer, GeoCoordinate>> coordinates = LocationExtractionEvaluator
