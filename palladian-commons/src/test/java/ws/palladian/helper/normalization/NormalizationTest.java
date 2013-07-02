@@ -27,6 +27,16 @@ public class NormalizationTest {
     }
 
     @Test
+    public void testDetectUnit() {
+        
+        assertEquals("kilobytes", UnitNormalizer.detectUnit("how much are 100 kilobytes"));
+        assertEquals("kilometers", UnitNormalizer.detectUnit("kilometers"));
+        assertEquals("miles", UnitNormalizer.detectUnit("1.5miles"));
+        assertEquals("liters", UnitNormalizer.detectUnit("2 liters of milk"));
+        assertEquals("g", UnitNormalizer.detectUnit("2g"));
+    }
+
+    @Test
     public void testGetNormalizedNumber() {
 
         assertEquals(214, UnitNormalizer.getNormalizedNumber("214 pixel [1]"), 1);
