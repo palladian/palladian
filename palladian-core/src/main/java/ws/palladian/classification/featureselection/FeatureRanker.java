@@ -16,7 +16,7 @@ import ws.palladian.classification.Instance;
  * @version 2.0
  * @since 0.1.8
  */
-public interface FeatureSelector {
+public interface FeatureRanker {
 
     FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider);
 }

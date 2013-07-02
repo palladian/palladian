@@ -19,10 +19,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.classification.featureselection.AverageMergingStrategy;
-import ws.palladian.classification.featureselection.ChiSquaredFeatureSelector;
+import ws.palladian.classification.featureselection.ChiSquaredFeatureRanker;
 import ws.palladian.classification.featureselection.FeatureDetails;
 import ws.palladian.classification.featureselection.FeatureRanking;
-import ws.palladian.classification.featureselection.FeatureSelector;
+import ws.palladian.classification.featureselection.FeatureRanker;
 import ws.palladian.classification.featureselection.InformationGainFeatureSelector;
 import ws.palladian.classification.featureselection.RoundRobinMergingStrategy;
 import ws.palladian.processing.features.FeatureVector;
@@ -31,7 +31,7 @@ import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * Tests whether the {@link FeatureSelector} works correctly or nor.
+ * Tests whether the {@link FeatureRanker} works correctly or nor.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -78,7 +78,7 @@ public class FeatureSelectorTest {
 
     @Test
     public void testChiSquareFeatureSelection() {
-        FeatureSelector featureSelector = new ChiSquaredFeatureSelector(new AverageMergingStrategy());
+        FeatureRanker featureSelector = new ChiSquaredFeatureRanker(new AverageMergingStrategy());
 
         Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
         featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
@@ -102,7 +102,7 @@ public class FeatureSelectorTest {
 
     @Test
     public void testChiSquaredRoundRobinMerge() throws Exception {
-        FeatureSelector featureSelector = new ChiSquaredFeatureSelector(new RoundRobinMergingStrategy());
+        FeatureRanker featureSelector = new ChiSquaredFeatureRanker(new RoundRobinMergingStrategy());
 
         Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
         featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
@@ -126,7 +126,7 @@ public class FeatureSelectorTest {
 
     @Test
     public void testInformationGainFeatureExtraction() throws Exception {
-        FeatureSelector featureSelector = new InformationGainFeatureSelector();
+        FeatureRanker featureSelector = new InformationGainFeatureSelector();
 
         Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
         featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
@@ -164,7 +164,7 @@ public class FeatureSelectorTest {
         Instance instance3 = new Instance("a", fV3);
         dataset.add(instance3);
 
-        FeatureSelector featureSelector = new InformationGainFeatureSelector();
+        FeatureRanker featureSelector = new InformationGainFeatureSelector();
 
         Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
         featuresToConsider.add(new FeatureDetails("numeric", NumericFeature.class, false));

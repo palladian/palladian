@@ -6,14 +6,16 @@ package ws.palladian.classification.featureselection;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.utils.FeatureUtils;
+import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
@@ -29,7 +31,7 @@ import ws.palladian.processing.features.utils.FeatureUtils;
  * @version 1.0
  * @since 0.2.0
  */
-public final class ChiSquaredFeatureSelector implements FeatureSelector {
+public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
 
     /**
      * <p>
@@ -47,38 +49,48 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
 
     /**
      * <p>
-     * Creates a new completely initialized {@link FeatureSelector}.
+     * Creates a new completely initialized {@link FeatureRanker}.
      * </p>
      * 
-     * @param mergingStrategy A strategy describing how feature rankings for different classes are merged.
+     * @param mergingStrategy
+     *            A strategy describing how feature rankings for different
+     *            classes are merged.
      */
-    public ChiSquaredFeatureSelector(SelectedFeatureMergingStrategy mergingStrategy) {
+    public ChiSquaredFeatureRanker(SelectedFeatureMergingStrategy mergingStrategy) {
         this.mergingStrategy = mergingStrategy;
     }
 
     /**
      * <p>
      * This is the core method calculating the raw chi squared scores. Only call it directly if you know what you are
-     * doing. Otherwise use the {@link FeatureSelector} interface.
+     * doing. Otherwise use the {@link FeatureRanker} interface.
      * </p>
      * 
-     * @param featurePath The name of or path to the features to calculate the chi squared values for.
-     * @param featureType The implementation class of the features at the provided path. this is necessary to get the
-     *            correct features from the provided instances' {@link FeatureVector}.
-     * @param instances The dataset to use to calculate chi squared values for. The instances should actually contain
-     *            the feature provided by {@code featurePath} and it needs to be of the correct type (i.e.
-     *            {@code featureType}).
-     * @return A mapping with the first key being a feature mapped to a map where the key is a target class from the
-     *         {@code instances} and the value is the chi squared score for the feature with that class.
+     * @param featureName
+     *            The name of or path to the features to calculate the chi
+     *            squared values for.
+     * @param featureType
+     *            The implementation class of the features at the provided path.
+     *            this is necessary to get the correct features from the
+     *            provided instances' {@link FeatureVector}.
+     * @param dataset
+     *            The dataset to use to calculate chi squared values for. The
+     *            instances should actually contain the feature provided by {@code featurePath} and it needs to be of
+     *            the correct type
+     *            (i.e. {@code featureType}).
+     * @return A mapping with the first key being a feature mapped to a map
+     *         where the key is a target class from the {@code instances} and
+     *         the value is the chi squared score for the feature with that
+     *         class.
      */
-    public static <T extends Feature<?>> Map<String, Map<String, Double>> calculateChiSquareValues(String featurePath,
-            Class<T> featureType, Collection<Instance> instances) {
+    public static <T extends Feature<?>> Map<String, Map<String, Double>> calculateChiSquareValues(
+            final String featureName, final Class<T> featureType, final Collection<Instance> dataset) {
         Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
         Map<String, Long> classCounts = new HashMap<String, Long>();
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
-        for (Instance instance : instances) {
-            Collection<T> features = FeatureUtils.convertToSet(instance.getFeatureVector(), featureType, featurePath);
+        for (Instance instance : dataset) {
+            Collection<T> features = convertToSet(instance.getFeatureVector(), featureType, featureName);
             for (T value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
             }
@@ -90,8 +102,9 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
         }
 
         for (Map.Entry<String, Map<String, Long>> termOccurence : termClassCorrelationMatrix.entrySet()) {
-            // The following variables are uppercase because that is the way they are used in the literature.
-            int N = instances.size();
+            // The following variables are uppercase because that is the way
+            // they are used in the literature.
+            int N = dataset.size();
             for (Map.Entry<String, Long> currentClassCount : classCounts.entrySet()) {
                 String className = currentClassCount.getKey();
                 Long classCount = currentClassCount.getValue();
@@ -131,10 +144,13 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
      * term but not of the specified class.
      * </p>
      * 
-     * @param rowValue The value of the row to create the sum for.
-     * @param exception The column to leave out of the summation.
-     * @param correlationMatrix A matrix where cells are the counts of
-     *            how often a the row value and the column value occur together.
+     * @param rowValue
+     *            The value of the row to create the sum for.
+     * @param exception
+     *            The column to leave out of the summation.
+     * @param correlationMatrix
+     *            A matrix where cells are the counts of how often a the row
+     *            value and the column value occur together.
      * @return The sum of the class occurrence without the term.
      */
     private static long sumOfRowExceptOne(String rowValue, String exception,

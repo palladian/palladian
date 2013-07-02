@@ -26,7 +26,7 @@ public final class AverageMergingStrategy implements SelectedFeatureMergingStrat
     public FeatureRanking merge(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
         for (FeatureDetails featureDetails : featuresToConsider) {
-            Map<String, Map<String, Double>> scoredFeature = ChiSquaredFeatureSelector.calculateChiSquareValues(
+            Map<String, Map<String, Double>> scoredFeature = ChiSquaredFeatureRanker.calculateChiSquareValues(
                     featureDetails.getPath(), featureDetails.getType(), dataset);
 
             Validate.isTrue((!featureDetails.isSparse() && scoredFeature.size() == 1) || (featureDetails.isSparse()));

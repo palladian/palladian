@@ -30,14 +30,14 @@ import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>
- * A {@link FeatureSelector} applying the information gain selection criterion.
+ * A {@link FeatureRanker} applying the information gain selection criterion.
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 1.0
+ * @version 2.0
  * @since 0.2.0
  */
-public final class InformationGainFeatureSelector implements FeatureSelector {
+public final class InformationGainFeatureSelector extends AbstractFeatureRanker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureSelector.class);
 
@@ -51,93 +51,63 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
      * @param dataset The collection of instances to select features for.
      * @return
      */
-    private Map<Feature<?>, Double> calculateInformationGain(FeatureDetails featureDetails, Collection<Instance> dataset) {
-        Validate.notNull(featureDetails);
+    private Map<Feature<?>, Double> calculateInformationGain(final Collection<Instance> dataset) {
         Validate.notNull(dataset);
+        Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
         if (dataset.isEmpty()) {
             LOGGER.warn("Dataset for feature selection is empty. No feature selection is carried out.");
+            return ret;
         }
-
-        Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
-        Map<String, Integer> classCounts = CollectionHelper.newHashMap();
+        
+        Collection<Pair<Set<Feature<?>>,String>> preparedData = prepare(dataset);
+        Map<String, Double> classPriors = calculateTargetClassPriors(dataset);
+     // All occurrences of feature in the dataset
+        Map<Feature<?>, Integer> absoluteOccurences = CollectionHelper.newHashMap();
+     // Occurrences of feature together with a certain target class.
+        Map<Feature<?>, Map<String, Integer>> absoluteConditionalOccurences = CollectionHelper.newHashMap();
+        // the following two lines: vocabulary size required for smoothing
         Map<String, Integer> featuresInClass = CollectionHelper.newHashMap();
         Integer sumOfFeaturesInAllClasses = 0;
-        Map<Feature<?>, Integer> absoluteOccurences = CollectionHelper.newHashMap();
-        Map<Feature<?>, Map<String, Integer>> absoluteConditionalOccurences = CollectionHelper.newHashMap();
-
-        // initialize binner if feature is numeric.
-        Map<List<FeatureDescriptor>, Binner> binner = new HashMap<List<FeatureDescriptor>, Binner>();
-        if (featureDetails.getType().equals(NumericFeature.class)) {
-            binner.putAll(discretize(featureDetails, dataset));
-        }
-
-        // count occurences in dataset
-        for (Instance instance : dataset) {
-
-            Integer targetClassCount = classCounts.get(instance.getTargetClass());
-            if (targetClassCount == null) {
-                classCounts.put(instance.getTargetClass(), 1);
-            } else {
-                classCounts.put(instance.getTargetClass(), ++targetClassCount);
-            }
-
-            // get all features of the current feature type from the feature vector.
-            // List<? extends Feature<?>> featuresList = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(),
-            // featureDetails.getType(), featureDetails.getPath());
-            // This is necessary to handle numeric features.
-
-            List<Pair<List<FeatureDescriptor>, Feature<?>>> identifiedFeaturesAtPath = FeatureUtils
-                    .getIdentifiedFeaturesAtPath(instance.getFeatureVector(), featureDetails.getPath(),
-                            new ArrayList<FeatureDescriptor>());
-            Set<Pair<List<FeatureDescriptor>, Feature<?>>> deduplicatedFeatures = new HashSet<Pair<List<FeatureDescriptor>, Feature<?>>>(
-                    identifiedFeaturesAtPath);
-            // Set<T> features = new HashSet<T>(binnedFeatureList); // remove duplicates
-
-            // count feature occurrences
-            for (Pair<List<FeatureDescriptor>, Feature<?>> identifiedFeature : deduplicatedFeatures) {
-                // for (T feature : features) {
-                Feature<?> feature = null;
-                Binner featureBinner = binner.get(identifiedFeature.getKey());
-                if (featureBinner != null) {
-                    feature = (Feature<?>)featureBinner.bin((NumericFeature)identifiedFeature.getValue());
-                } else {
-                    feature = identifiedFeature.getValue();
+        
+        for(Pair<Set<Feature<?>>, String> instance : preparedData) {
+            
+            for(Feature<?> feature:instance.getLeft()) {
+                
+                // count absolute occurrences
+                Integer absoluteOccurrencesOfFeature = absoluteOccurences.get(feature);
+                if(absoluteOccurrencesOfFeature==null) {
+                    absoluteOccurrencesOfFeature = 0;
                 }
-
-                // refresh the counter how often the feature occurs together with the class of the current instance.
+                absoluteOccurrencesOfFeature++;
+                absoluteOccurences.put(feature, absoluteOccurrencesOfFeature);
+                
+                // count conditional occurrences with all classes
+                Map<String, Integer> absoluteConditionalOccurence = absoluteConditionalOccurences.get(feature);
+                if (absoluteConditionalOccurence == null) {
+                    absoluteConditionalOccurence = CollectionHelper.newHashMap();
+                }
+                Integer occurrenceInTargetClass = absoluteConditionalOccurence.get(instance.getRight());
+                if(occurrenceInTargetClass==null) {
+                    occurrenceInTargetClass = 0;
+                }
+                occurrenceInTargetClass++;
+                absoluteConditionalOccurence.put(instance.getRight(), occurrenceInTargetClass);
+                absoluteConditionalOccurences.put(feature, absoluteConditionalOccurence);
+                
+                // calculate the vocabulary size for smoothing.
                 Integer countOfFeaturesInClass = featuresInClass.get(instance.getTargetClass());
                 if (countOfFeaturesInClass == null) {
                     countOfFeaturesInClass = 0;
                 }
-                featuresInClass.put(instance.getTargetClass(), ++countOfFeaturesInClass);
+                featuresInClass.put(instance.getRight(), ++countOfFeaturesInClass);
                 sumOfFeaturesInAllClasses++;
-
-                Integer absoluteOccurence = absoluteOccurences.get(feature);
-                if (absoluteOccurence == null) {
-                    absoluteOccurences.put(feature, 1);
-                } else {
-                    absoluteOccurences.put(feature, ++absoluteOccurence);
-                }
-
-                Map<String, Integer> absoluteConditionalOccurence = absoluteConditionalOccurences.get(feature);
-                if (absoluteConditionalOccurence == null) {
-                    absoluteConditionalOccurence = new HashMap<String, Integer>();
-                    absoluteConditionalOccurence.put(instance.getTargetClass(), 1);
-                } else {
-                    Integer occurenceInTargetClass = absoluteConditionalOccurence.get(instance.getTargetClass());
-                    if (occurenceInTargetClass == null) {
-                        absoluteConditionalOccurence.put(instance.getTargetClass(), 1);
-                    } else {
-                        absoluteConditionalOccurence.put(instance.getTargetClass(), ++occurenceInTargetClass);
-                    }
-                }
-                absoluteConditionalOccurences.put(feature, absoluteConditionalOccurence);
             }
         }
-
+        
+        // calculate dataset constant class probability (first summand)
         double classProb = 0.0d;
-        for (Entry<String, Integer> classCount : classCounts.entrySet()) {
-            double Prci = classCount.getValue().doubleValue() / dataset.size();
+        for (Entry<String, Double> classCount : classPriors.entrySet()) {
+            double Prci = classCount.getValue();
             classProb += Prci * Math.log(Prci);
         }
 
@@ -160,12 +130,12 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                 double Prcint = laplaceSmooth(absoluteOccurences.keySet().size(), sumOfFeaturesInAllClasses
                         - featuresInClass.get(absoluteConditionalOccurence.getKey()), dataset.size()
                         - absoluteConditionalOccurence.getValue());
-                termClassNonCoocurrence = Prcint * Math.log(Prcint);
+                termClassNonCoocurrence += Prcint * Math.log(Prcint);
             }
-            double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() + termClassCoocurrence;
+            double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() * termClassCoocurrence;
 
             double nonTermProb = (double)(dataset.size() - absoluteOccurence.getValue()) / dataset.size()
-                    + termClassNonCoocurrence;
+                    * termClassNonCoocurrence;
 
             G = -classProb + termProb + nonTermProb;
             ret.put(absoluteOccurence.getKey(), G);
@@ -175,125 +145,175 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
 
     /**
      * <p>
-     * Descretize {@link NumericFeature}s following the algorithm proposed by Fayyad and Irani in
-     * "Multi-Interval Discretization of Continuous-Valued Attributes for Classification Learning."
-     * </p>
      * 
-     * @param featurePath The path to the {@link NumericFeature} to discretize.
-     * @param dataset The dataset to base the discretization on. The provided {@link Instance}s should contain the
-     *            {@link Feature} for this algorithm to work.
-     * @return A {@link Binner} object capable of discretization of already encountered and unencountered values for the
-     *         provided {@link NumericFeature}.
+     * </p>
+     *
+     * @param dataset
+     * @return
      */
-    public static Map<List<FeatureDescriptor>, Binner> discretize(final FeatureDetails featureDetails,
-            Collection<Instance> dataset) {
-        Map<List<FeatureDescriptor>, List<Instance>> sortedInstances = new HashMap<List<FeatureDescriptor>, List<Instance>>();
-        for (Instance instance : dataset) {
-            List<Pair<List<FeatureDescriptor>, Feature<?>>> features = FeatureUtils.getIdentifiedFeaturesAtPath(
-                    instance.getFeatureVector(), featureDetails.getPath(), new ArrayList<FeatureDescriptor>());
-            for (Pair<List<FeatureDescriptor>, Feature<?>> feature : features) {
-                final List<FeatureDescriptor> featureIdentifier = feature.getKey();
+    private Collection<Pair<FeatureVector, String>> prepare(Collection<Instance> dataset) {
+        // discretize numeric features
+        Set<T> features = convertToSet(instance.getLeft());
+        return null;
+    }
 
-                List<Instance> sorted = sortedInstances.get(featureIdentifier);
-                if (sorted == null) {
-                    sorted = new ArrayList<Instance>();
-                }
-                sorted.add(instance);
-                Collections.sort(sorted, new Comparator<Instance>() {
-
-                    @Override
-                    public int compare(Instance o1, Instance o2) {
-                        NumericFeature o1Feature = FeatureUtils.getFeatureForIdentifier(o1.getFeatureVector(),
-                                NumericFeature.class, featureIdentifier);
-                        NumericFeature o2Feature = FeatureUtils.getFeatureForIdentifier(o2.getFeatureVector(),
-                                NumericFeature.class, featureIdentifier);
-                        return o1Feature.getValue().compareTo(o2Feature.getValue());
-                    }
-                });
-                sortedInstances.put(featureIdentifier, sorted);
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     * @param dataset The dataset to calculate the target class priors for.
+     * @return A mapping from target class to prior.
+     */
+    private Map<String, Double> calculateTargetClassPriors(final Collection<Instance> dataset) {
+        Map<String, Double> ret = CollectionHelper.newHashMap();
+        Map<String, Integer> absoluteOccurrences = CollectionHelper.newHashMap();
+        
+        for(Instance instance:dataset) {
+            Integer absoluteOccurrenceOfClass = absoluteOccurrences.get(instance.getTargetClass());
+            if(absoluteOccurrenceOfClass==null) {
+                absoluteOccurrenceOfClass = 0;
             }
+            absoluteOccurrenceOfClass++;
+            absoluteOccurrences.put(instance.getTargetClass(),absoluteOccurrenceOfClass);
         }
-
-        Map<List<FeatureDescriptor>, Binner> ret = new HashMap<List<FeatureDescriptor>, Binner>();
-        for (Entry<List<FeatureDescriptor>, List<Instance>> entry : sortedInstances.entrySet()) {
-            Binner binner = createBinner(entry.getValue(), entry.getKey());
-            ret.put(entry.getKey(), binner);
+        
+        for(Entry<String, Integer> absoluteOccurrenceOfClass:absoluteOccurrences.entrySet()) {
+            ret.put(absoluteOccurrenceOfClass.getKey(), absoluteOccurrenceOfClass.getValue().doubleValue()/dataset.size());
         }
+        
         return ret;
     }
 
-    private static Binner createBinner(List<Instance> sortedDataset, List<FeatureDescriptor> featureIdentifier) {
-        List<Integer> boundaryPoints = findBoundaryPoints(sortedDataset);
+//    /**
+//     * <p>
+//     * Descretize {@link NumericFeature}s following the algorithm proposed by Fayyad and Irani in
+//     * "Multi-Interval Discretization of Continuous-Valued Attributes for Classification Learning."
+//     * </p>
+//     * 
+//     * @param featurePath The path to the {@link NumericFeature} to discretize.
+//     * @param dataset The dataset to base the discretization on. The provided {@link Instance}s should contain the
+//     *            {@link Feature} for this algorithm to work.
+//     * @return A {@link Binner} object capable of discretization of already encountered and unencountered values for the
+//     *         provided {@link NumericFeature}.
+//     */
+//    public static Map<List<FeatureDescriptor>, Binner> discretize(final FeatureDetails featureDetails,
+//            Collection<Instance> dataset) {
+//        Map<List<FeatureDescriptor>, List<Instance>> sortedInstances = new HashMap<List<FeatureDescriptor>, List<Instance>>();
+//        for (Instance instance : dataset) {
+//            List<Pair<List<FeatureDescriptor>, Feature<?>>> features = FeatureUtils.getIdentifiedFeaturesAtPath(
+//                    instance.getFeatureVector(), featureDetails.getPath(), new ArrayList<FeatureDescriptor>());
+//            for (Pair<List<FeatureDescriptor>, Feature<?>> feature : features) {
+//                final List<FeatureDescriptor> featureIdentifier = feature.getKey();
+//
+//                List<Instance> sorted = sortedInstances.get(featureIdentifier);
+//                if (sorted == null) {
+//                    sorted = new ArrayList<Instance>();
+//                }
+//                sorted.add(instance);
+//                Collections.sort(sorted, new Comparator<Instance>() {
+//
+//                    @Override
+//                    public int compare(Instance o1, Instance o2) {
+//                        NumericFeature o1Feature = FeatureUtils.getFeatureForIdentifier(o1.getFeatureVector(),
+//                                NumericFeature.class, featureIdentifier);
+//                        NumericFeature o2Feature = FeatureUtils.getFeatureForIdentifier(o2.getFeatureVector(),
+//                                NumericFeature.class, featureIdentifier);
+//                        return o1Feature.getValue().compareTo(o2Feature.getValue());
+//                    }
+//                });
+//                sortedInstances.put(featureIdentifier, sorted);
+//            }
+//        }
+//
+//        Map<List<FeatureDescriptor>, Binner> ret = new HashMap<List<FeatureDescriptor>, Binner>();
+//        for (Entry<List<FeatureDescriptor>, List<Instance>> entry : sortedInstances.entrySet()) {
+//            Binner binner = createBinner(entry.getValue(), entry.getKey());
+//            ret.put(entry.getKey(), binner);
+//        }
+//        return ret;
+//    }
 
-        StringBuilder nameBuilder = new StringBuilder();
-        for (FeatureDescriptor descriptor : featureIdentifier) {
-            nameBuilder.append(descriptor.toString()).append("/");
-        }
+//    /**
+//     * <p>
+//     * Creates a new {@link Binner} for the {@link NumericFeature} identified by the provided {@code featureName}.
+//     * </p>
+//     *
+//     * @param dataset the dataset containing the provided feature.
+//     * @param featureName
+//     * @return
+//     */
+//    private static Binner createBinner(List<Instance> dataset, final String featureName) {
+//        List<Integer> boundaryPoints = findBoundaryPoints(dataset);
+//
+//        StringBuilder nameBuilder = new StringBuilder();
+////        for (FeatureDescriptor descriptor : featureName) {
+////            nameBuilder.append(descriptor.toString()).append("/");
+////        }
+//
+//        List<NumericFeature> features = new ArrayList<NumericFeature>();
+//        for (Instance instance : dataset) {
+//            NumericFeature feature = instance.getFeatureVector().get(NumericFeature.class, featureName);
+//            features.add(feature);
+//        }
+//        return new Binner(nameBuilder.toString(), boundaryPoints, features);
+//    }
 
-        List<NumericFeature> features = new ArrayList<NumericFeature>();
-        for (Instance instance : sortedDataset) {
-            NumericFeature feature = FeatureUtils.getFeatureForIdentifier(instance.getFeatureVector(),
-                    NumericFeature.class, featureIdentifier);
-            features.add(feature);
-        }
-        return new Binner(nameBuilder.toString(), boundaryPoints, features);
-    }
+//    private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
+//        List<Integer> boundaryPoints = new ArrayList<Integer>();
+//        int N = sortedDataset.size();
+//        List<Instance> s = sortedDataset;
+//        for (int t = 1; t < sortedDataset.size(); t++) {
+//            if (sortedDataset.get(t - 1).getTargetClass() != sortedDataset.get(t).getTargetClass()
+//                    && gain(t, s) > (Math.log(N - 1) / Math.log(2)) - N + delta(t, s) / N) {
+//                boundaryPoints.add(t);
+//            }
+//        }
+//        return boundaryPoints;
+//    }
 
-    private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
-        List<Integer> boundaryPoints = new ArrayList<Integer>();
-        int N = sortedDataset.size();
-        List<Instance> s = sortedDataset;
-        for (int t = 1; t < sortedDataset.size(); t++) {
-            if (sortedDataset.get(t - 1).getTargetClass() != sortedDataset.get(t).getTargetClass()
-                    && gain(t, s) > (Math.log(N - 1) / Math.log(2)) - N + delta(t, s) / N) {
-                boundaryPoints.add(t);
-            }
-        }
-        return boundaryPoints;
-    }
+//    private static double gain(int t, List<Instance> s) {
+//        List<Instance> s1 = s.subList(0, t);
+//        List<Instance> s2 = s.subList(t, s.size());
+//        return entropy(s) - (s1.size() * entropy(s1)) / s.size() - (s2.size() * entropy(s2)) / s.size();
+//    }
+//
+//    private static double delta(int t, List<Instance> s) {
+//        double k = calculateNumberOfClasses(s);
+//        List<Instance> s1 = s.subList(0, t);
+//        List<Instance> s2 = s.subList(t, s.size());
+//        double k1 = calculateNumberOfClasses(s1);
+//        double k2 = calculateNumberOfClasses(s2);
+//        return Math.log(Math.pow(3.0d, k) - 2) / Math.log(2.0d)
+//                - (k * entropy(s) - k1 * entropy(s1) - k2 * entropy(s2));
+//    }
 
-    private static double gain(int t, List<Instance> s) {
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
-        return entropy(s) - (s1.size() * entropy(s1)) / s.size() - (s2.size() * entropy(s2)) / s.size();
-    }
+//    private static double entropy(List<Instance> dataset) {
+//        double entropy = 0.0d;
+//        Map<String, Integer> absoluteOccurrences = new HashMap<String, Integer>();
+//        Set<String> targetClasses = new HashSet<String>();
+//        for (Instance instance : dataset) {
+//            targetClasses.add(instance.getTargetClass());
+//            Integer absoluteCount = absoluteOccurrences.get(instance.getTargetClass());
+//            if (absoluteCount == null) {
+//                absoluteCount = 0;
+//            }
+//            absoluteOccurrences.put(instance.getTargetClass(), ++absoluteCount);
+//        }
+//        for (String targetClass : targetClasses) {
+//            double probability = (double)absoluteOccurrences.get(targetClass) / dataset.size();
+//            entropy -= probability * Math.log(probability) / Math.log(2);
+//        }
+//        return entropy;
+//    }
 
-    private static double delta(int t, List<Instance> s) {
-        double k = calculateNumberOfClasses(s);
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
-        double k1 = calculateNumberOfClasses(s1);
-        double k2 = calculateNumberOfClasses(s2);
-        return Math.log(Math.pow(3.0d, k) - 2) / Math.log(2.0d)
-                - (k * entropy(s) - k1 * entropy(s1) - k2 * entropy(s2));
-    }
-
-    private static double entropy(List<Instance> dataset) {
-        double entropy = 0.0d;
-        Map<String, Integer> absoluteOccurrences = new HashMap<String, Integer>();
-        Set<String> targetClasses = new HashSet<String>();
-        for (Instance instance : dataset) {
-            targetClasses.add(instance.getTargetClass());
-            Integer absoluteCount = absoluteOccurrences.get(instance.getTargetClass());
-            if (absoluteCount == null) {
-                absoluteCount = 0;
-            }
-            absoluteOccurrences.put(instance.getTargetClass(), ++absoluteCount);
-        }
-        for (String targetClass : targetClasses) {
-            double probability = (double)absoluteOccurrences.get(targetClass) / dataset.size();
-            entropy -= probability * Math.log(probability) / Math.log(2);
-        }
-        return entropy;
-    }
-
-    private static double calculateNumberOfClasses(List<Instance> s) {
-        Set<String> possibleClasses = new HashSet<String>();
-        for (Instance instance : s) {
-            possibleClasses.add(instance.getTargetClass());
-        }
-        return possibleClasses.size();
-    }
+//    private static double calculateNumberOfClasses(List<Instance> s) {
+//        Set<String> possibleClasses = new HashSet<String>();
+//        for (Instance instance : s) {
+//            possibleClasses.add(instance.getTargetClass());
+//        }
+//        return possibleClasses.size();
+//    }
 
     private static double laplaceSmooth(int vocabularySize, int countOfFeature, int countOfCoocurence) {
         return (1.0d + countOfCoocurence) / (vocabularySize + countOfFeature);
@@ -303,8 +323,9 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
     public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
 
-        for (FeatureDetails featureDetails : featuresToConsider) {
-            Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(featureDetails, dataset);
+        List<String> featureNames = getDistinctFeatureNames(dataset);
+        for (String name : featureNames) {
+            Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(name, dataset);
 
             if (featureDetails.isSparse()) {
                 // add each entry
@@ -318,7 +339,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                     averageGain += value.getValue();
                 }
                 averageGain /= informationGainValues.size();
-                ranking.add(featureDetails.getPath(), averageGain);
+                ranking.add(name, averageGain);
             }
         }
         return ranking;
