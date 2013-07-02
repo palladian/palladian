@@ -400,7 +400,7 @@ public final class LocationExtractionEvaluator {
         return evaluationDetails.toString();
     }
 
-    static Map<String, SortedMap<Integer, GeoCoordinate>> readCoordinatesCsv(File coordinatesCsvFile) {
+    public static Map<String, SortedMap<Integer, GeoCoordinate>> readCoordinatesCsv(File coordinatesCsvFile) {
         final Map<String, SortedMap<Integer, GeoCoordinate>> coordinateMap = LazyMap
                 .create(new Factory<SortedMap<Integer, GeoCoordinate>>() {
                     @Override
