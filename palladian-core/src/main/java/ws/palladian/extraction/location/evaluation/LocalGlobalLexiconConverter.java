@@ -40,6 +40,11 @@ class LocalGlobalLexiconConverter {
             throw new IllegalArgumentException(outputDirectory + " is not a directory.");
         }
 
+        final File coordinateFile = new File(outputDirectory, "coordinates.csv");
+        if (coordinateFile.isFile()) {
+            coordinateFile.delete();
+        }
+
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
 
@@ -80,6 +85,7 @@ class LocalGlobalLexiconConverter {
                                 + annotations.size());
                     }
                     writeArticle(text, annotations, docId, outputDirectory);
+                    appendCoordinatesFile(annotations, docId, coordinateFile);
                     clearAll();
                 } else if (qName.equals("text")) {
                     text = getBuffer();
@@ -155,15 +161,38 @@ class LocalGlobalLexiconConverter {
 
     }
 
-    protected static void writeArticle(String text, List<LocationAnnotation> annotations, String docId,
+    private static void writeArticle(String text, List<LocationAnnotation> annotations, String docId,
             File outputDirectory) {
         String taggedText = NerHelper.tag(text, annotations, TaggingFormat.XML);
         File outputFile = new File(outputDirectory, "text_" + docId + ".txt");
         FileHelper.writeToFile(outputFile.getPath(), taggedText);
     }
 
+    private static void appendCoordinatesFile(List<LocationAnnotation> annotations, String docId, File coordinateFile) {
+        StringBuilder builder = new StringBuilder();
+        if (!coordinateFile.exists()) {
+            // write header first
+            builder.append("docId;idx;offset;latitude;longitude;sourceId\n");
+        }
+        int idx = 0;
+        for (LocationAnnotation annotation : annotations) {
+            Double lat = annotation.getLocation().getLatitude();
+            Double lng = annotation.getLocation().getLongitude();
+            int id = annotation.getLocation().getId();
+            String fileName = String.format("text_%s.txt", docId);
+            String sourceId = id != 0 ? "geonames:" + id : "";
+            builder.append(fileName).append(';');
+            builder.append(idx++).append(';');
+            builder.append(annotation.getStartPosition()).append(';');
+            builder.append(lat != null ? lat : "").append(';');
+            builder.append(lng != null ? lng : "").append(';');
+            builder.append(sourceId).append('\n');
+        }
+        FileHelper.appendFile(coordinateFile.getPath(), builder);
+    }
+
     public static void main(String[] args) throws Exception {
-        convert(new File("/Users/pk/Downloads/LGL/articles.xml"), new File("/Users/pk/Desktop/temp_lgl"));
+        convert(new File("/Users/pk/Desktop/LocationLab/LGL/articles.xml"), new File("/Users/pk/Desktop/LGL-converted"));
     }
 
 }
