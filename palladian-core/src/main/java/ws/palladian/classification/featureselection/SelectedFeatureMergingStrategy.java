@@ -6,7 +6,7 @@ package ws.palladian.classification.featureselection;
 import java.util.Collection;
 import java.util.Map;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -29,5 +29,5 @@ public interface SelectedFeatureMergingStrategy {
      *            {@link Map} of target class to score.
      * @return A merged ranking of the provided features.
      */
-    FeatureRanking merge(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider);
+    FeatureRanking merge(Collection<? extends Trainable> dataset, Collection<FeatureDetails> featuresToConsider);
 }

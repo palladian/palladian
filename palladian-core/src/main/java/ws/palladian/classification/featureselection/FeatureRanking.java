@@ -29,7 +29,7 @@ public final class FeatureRanking {
 
     private boolean isSorted;
 
-    private List<RankedFeature> rankedFeatures;
+    private final List<RankedFeature> rankedFeatures;
 
     public FeatureRanking() {
         this.rankedFeatures = new LinkedList<RankedFeature>();
@@ -39,7 +39,6 @@ public final class FeatureRanking {
     public void add(String featureIdentifier, double score) {
         rankedFeatures.add(new RankedFeature("feature", featureIdentifier, score));
         isSorted = false;
-
     }
 
     public void addSparse(String featureIdentifier, String featureValue, double score) {
@@ -73,7 +72,7 @@ public final class FeatureRanking {
      * @return The top percent of the ranked features.
      */
     public List<RankedFeature> getTopPercent(float percent) {
-        int n = Math.round((float)rankedFeatures.size() * percent / 100.0f);
+        int n = Math.round(rankedFeatures.size() * percent / 100.0f);
         return getTopN(n);
     }
 

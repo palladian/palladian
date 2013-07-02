@@ -10,7 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
@@ -71,15 +71,16 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
      * @return A mapping with the first key being a feature mapped to a map where the key is a target class from the
      *         {@code instances} and the value is the chi squared score for the feature with that class.
      */
-    public static <T extends Feature<?>> Map<String, Map<String, Double>> calculateChiSquareValues(String featurePath,
-            Class<T> featureType, Collection<Instance> instances) {
+    public static Map<String, Map<String, Double>> calculateChiSquareValues(String featurePath,
+            Class<? extends Feature<?>> featureType, Collection<? extends Trainable> instances) {
         Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
         Map<String, Long> classCounts = new HashMap<String, Long>();
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
-        for (Instance instance : instances) {
-            Collection<T> features = FeatureUtils.convertToSet(instance.getFeatureVector(), featureType, featurePath);
-            for (T value : features) {
+        for (Trainable instance : instances) {
+            Collection<? extends Feature<?>> features = FeatureUtils.convertToSet(instance.getFeatureVector(),
+                    featureType, featurePath);
+            for (Feature<?> value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
             }
             Long count = classCounts.get(instance.getTargetClass());
@@ -167,7 +168,8 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset,
+            Collection<FeatureDetails> featuresToConsider) {
         return mergingStrategy.merge(dataset, featuresToConsider);
     }
 }
