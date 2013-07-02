@@ -162,10 +162,10 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
                         - absoluteConditionalOccurence.getValue());
                 termClassNonCoocurrence += Prcint * Math.log(Prcint);
             }
-            double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() + termClassCoocurrence;
+            double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() * termClassCoocurrence;
 
             double nonTermProb = (double)(dataset.size() - absoluteOccurence.getValue()) / dataset.size()
-                    + termClassNonCoocurrence;
+                    * termClassNonCoocurrence;
 
             G = -classProb + termProb + nonTermProb;
             ret.put(absoluteOccurence.getKey(), G);
