@@ -37,22 +37,29 @@ public class FeatureBasedDisambiguationTrainer {
         Map<String, SortedMap<Integer, GeoCoordinate>> coordinates = LocationExtractionEvaluator
                 .readCoordinatesCsv(new File(goldStandardFileFolderPath, "coordinates.csv"));
 
+        // addFile(coordinates, new File(goldStandardFileFolderPath, "text36.txt"));
+        // System.exit(0);
+
         for (int i = 0; i < files.length; i++) {
-            ProgressHelper.printProgress(i, files.length, 1, stopWatch);
+            ProgressHelper.printProgress(i, files.length, 10, stopWatch);
             File file = files[i];
 
-            String rawText = FileHelper.readFileToString(file);
-            String cleanText = HtmlHelper.stripHtmlTags(rawText);
-            List<Annotated> taggedEntities = tagger.getAnnotations(cleanText);
-            taggedEntities = filter.filter(taggedEntities);
-            MultiMap<String, Location> locations = fetchLocations(taggedEntities);
-
-            SortedMap<Integer, GeoCoordinate> fileCoordinates = coordinates.get(file.getName());
-            Set<Location> positive = getPositiveLocations(rawText, fileCoordinates);
-            disambiguation.addTrainData(taggedEntities, locations, positive);
+            addFile(coordinates, file);
         }
 
         disambiguation.buildModel();
+    }
+
+    static void addFile(Map<String, SortedMap<Integer, GeoCoordinate>> coordinates, File file) {
+        String rawText = FileHelper.readFileToString(file);
+        String cleanText = HtmlHelper.stripHtmlTags(rawText);
+        List<Annotated> taggedEntities = tagger.getAnnotations(cleanText);
+        taggedEntities = filter.filter(taggedEntities);
+        MultiMap<String, Location> locations = fetchLocations(taggedEntities);
+
+        SortedMap<Integer, GeoCoordinate> fileCoordinates = coordinates.get(file.getName());
+        Set<Location> positive = getPositiveLocations(rawText, fileCoordinates);
+        disambiguation.addTrainData(taggedEntities, locations, positive, file.getName());
     }
 
     private static Set<Location> getPositiveLocations(String rawText, SortedMap<Integer, GeoCoordinate> coordinates) {

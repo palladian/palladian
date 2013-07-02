@@ -1,220 +1,191 @@
 package ws.palladian.extraction.location;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
+import ws.palladian.processing.TrainableWrap;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.BooleanFeature;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.NumericFeature;
 
 public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
-    private final Set<LocationInstance> instances = CollectionHelper.newHashSet();
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
+
+    private final Set<Trainable> trainInstanceCollection = CollectionHelper.newHashSet();
 
     @Override
     public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
 
-        Set<LocationInstance> instances = extractFeatures(annotations, locations);
+        Set<LocationInstance> instances = makeInstances(annotations, locations, "foo");
         CollectionHelper.print(instances);
 
         // TODO Auto-generated method stub
         return Collections.emptyList();
     }
 
-    public void addTrainData(List<Annotated> annotations, MultiMap<String, Location> locations, Set<Location> positive) {
-        Set<LocationInstance> instances = extractFeatures(annotations, locations);
-        int numPos = markPositiveInstances(instances, positive);
-        this.instances.addAll(instances);
-        System.out.println("Marked " + numPos + " of " + instances.size() + " as positive.");
-        // CollectionHelper.print(instances);
+    public void addTrainData(List<Annotated> annotations, MultiMap<String, Location> locations, Set<Location> positive,
+            String fileName) {
+        Set<LocationInstance> instances = makeInstances(annotations, locations, fileName);
+        Set<Trainable> trainInstances = markPositiveInstances(instances, positive);
+        trainInstanceCollection.addAll(trainInstances);
     }
 
-    private int markPositiveInstances(Set<LocationInstance> instances, Set<Location> positive) {
+    private static Set<Trainable> markPositiveInstances(Set<LocationInstance> instances, Set<Location> positive) {
+        Set<Trainable> result = CollectionHelper.newHashSet();
         int numPositive = 0;
         for (LocationInstance instance : instances) {
-            boolean isPositive = false;
-            for (Location positiveLocation : positive) {
-                if (instance.coordinates == null) {
+            boolean positiveClass = false;
+            for (Location location : positive) {
+                // we cannot determine the correct location, if the training data did not provide coordinates
+                if (instance.getLatitude() == null || instance.getLongitude() == null) {
                     continue;
                 }
-                double distance = GeoUtils.getDistance(instance.coordinates, positiveLocation);
-                boolean sameName = LocationExtractorUtils.normalizeName(instance.value).equalsIgnoreCase(
-                        positiveLocation.getPrimaryName());
-                if (distance < 50 && sameName) {
-                    isPositive = true;
+                boolean samePlace = GeoUtils.getDistance(instance, location) < 50;
+                boolean sameName = LocationExtractorUtils.commonName(instance, location);
+                if (samePlace && sameName) {
+                    numPositive++;
+                    positiveClass = true;
                     break;
                 }
             }
-            instance.positive = isPositive;
-            if (isPositive) {
-                numPositive++;
-            }
+            result.add(new TrainableWrap(instance, String.valueOf(positiveClass)));
         }
-        return numPositive;
+
+        double positivePercentage = MathHelper.round((float)numPositive / instances.size() * 100, 2);
+        LOGGER.info("{} positive instances in {} ({}%)", new Object[] {numPositive, instances.size(),
+                positivePercentage});
+        return result;
     }
 
     public void buildModel() {
-
-        System.out.println("... model should be built here ...");
-        System.out.println("# instances: " + instances.size());
-
-        int positive = 0;
-        // write CSV file
-        StringBuilder builder = new StringBuilder();
-        builder.append("type;population;populationMagnitude;numToken;numChars;ambiguity;acronym;count;parentOccurs;ancestorOccurs;locationsIn10;locationsIn50;locationsIn100;locationsIn250;"
-                + "distLoc1000000;distLoc100000;distLoc10000;distLoc1000;populationIn10;populationIn50;populationIn100;populationIn250;siblingCount;siblingOccurs;positive\n");
-        for (LocationInstance instance : instances) {
-            if (instance.positive) {
-                positive++;
-            }
-            builder.append(instance.type.toString()).append(';');
-            builder.append(instance.population).append(';');
-            builder.append(instance.populationOrderOfMagnitude).append(';');
-            builder.append(instance.numTokens).append(';');
-            builder.append(instance.numCharacters).append(';');
-            builder.append(instance.ambiguity).append(';');
-            builder.append(instance.acronym).append(';');
-            builder.append(instance.count).append(';');
-            builder.append(instance.parentOccurs).append(';');
-            builder.append(instance.ancestorOccurs).append(';');
-            builder.append(instance.numLocationsIn10).append(';');
-            builder.append(instance.numLocationsIn50).append(';');
-            builder.append(instance.numLocationsIn100).append(';');
-            builder.append(instance.numLocationsIn250).append(';');
-            builder.append(instance.distanceToLocationWith1000000).append(';');
-            builder.append(instance.distanceToLocationWith100000).append(';');
-            builder.append(instance.distanceToLocationWith10000).append(';');
-            builder.append(instance.distanceToLocationWith1000).append(';');
-            builder.append(instance.populationIn10).append(';');
-            builder.append(instance.populationIn50).append(';');
-            builder.append(instance.populationIn100).append(';');
-            builder.append(instance.populationIn250).append(';');
-            builder.append(instance.siblingCount).append(';');
-            builder.append(instance.siblingOccurs).append(';');
-            builder.append(instance.positive);
-            builder.append('\n');
-        }
-        FileHelper.writeToFile("instances.csv", builder);
-        System.out.println("# positive: " + positive);
+        ClassificationUtils.writeToCsv(trainInstanceCollection, new File("instancesNew2.csv"));
     }
 
-    private Set<LocationInstance> extractFeatures(List<Annotated> annotations, MultiMap<String, Location> locations) {
+    private static Set<LocationInstance> makeInstances(List<Annotated> annotations,
+            MultiMap<String, Location> locations, String fileName) {
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
+        Collection<Location> allLocations = locations.allValues();
+
         CountMap<String> counts = getCounts(annotations);
+        int annotationCount = annotations.size();
+
         for (Annotated annotation : annotations) {
             String value = annotation.getValue();
             Collection<Location> candidates = locations.get(LocationExtractorUtils.normalizeName(value));
             for (Location location : candidates) {
-                LocationInstance instance = new LocationInstance();
-                instance.value = value;
-                if (location.getLatitude() != null) {
-                    instance.coordinates = new ImmutableGeoCoordinate(location.getLatitude(), location.getLongitude());
-                }
-                instance.type = location.getType();
-                instance.population = location.getPopulation();
-                instance.populationOrderOfMagnitude = MathHelper.getOrderOfMagnitude(location.getPopulation());
-                instance.numTokens = value.split("\\s").length;
-                instance.numCharacters = value.length();
-                instance.ambiguity = 1. / candidates.size();
-                instance.acronym = isAcronym(annotation.getValue());
-                instance.count = counts.getCount(value);
-                instance.parentOccurs = parentOccurs(location, locations.allValues());
-                instance.ancestorOccurs = ancestorOccurs(location, locations.allValues());
-                instance.numLocationsIn10 = getNumLocationsInArea(10, location, locations.allValues());
-                instance.numLocationsIn50 = getNumLocationsInArea(50, location, locations.allValues());
-                instance.numLocationsIn100 = getNumLocationsInArea(100, location, locations.allValues());
-                instance.numLocationsIn250 = getNumLocationsInArea(250, location, locations.allValues());
-                instance.distanceToLocationWith1000000 = getDistanceToLocationWith(1000000, location,
-                        locations.allValues());
-                instance.distanceToLocationWith100000 = getDistanceToLocationWith(100000, location,
-                        locations.allValues());
-                instance.distanceToLocationWith10000 = getDistanceToLocationWith(10000, location, locations.allValues());
-                instance.distanceToLocationWith1000 = getDistanceToLocationWith(1000, location, locations.allValues());
-                instance.populationIn10 = getPopulationIn(10, location, locations.allValues());
-                instance.populationIn50 = getPopulationIn(50, location, locations.allValues());
-                instance.populationIn100 = getPopulationIn(100, location, locations.allValues());
-                instance.populationIn250 = getPopulationIn(250, location, locations.allValues());
-                instance.siblingCount = siblingCount(location, locations.allValues());
-                instance.siblingOccurs = instance.siblingCount > 0;
-                instances.add(instance);
+
+                Set<Location> others = new HashSet<Location>(allLocations);
+                others.remove(location);
+                Long population = location.getPopulation();
+
+                // extract features and add them to the feature vector
+                FeatureVector fv = new FeatureVector();
+                fv.add(new NominalFeature("locationType", location.getType().toString()));
+                fv.add(new NumericFeature("population", population));
+                fv.add(new NumericFeature("populationMagnitude", MathHelper.getOrderOfMagnitude(population)));
+                fv.add(new NumericFeature("numTokens", value.split("\\s").length));
+                fv.add(new NumericFeature("numCharacters", value.length()));
+                fv.add(new NumericFeature("ambiguity", 1. / candidates.size()));
+                fv.add(new BooleanFeature("acronym", isAcronym(annotation.getValue())));
+                fv.add(new NumericFeature("count", counts.getCount(value)));
+                fv.add(new NumericFeature("frequency", (double)counts.getCount(value) / annotationCount));
+                fv.add(new BooleanFeature("parentOccurs", parentOccurs(location, others)));
+                fv.add(new BooleanFeature("ancestorOccurs", ancestorOccurs(location, others)));
+                fv.add(new NumericFeature("numLocIn10", countLocationsInDistance(location, others, 10)));
+                fv.add(new NumericFeature("numLocIn50", countLocationsInDistance(location, others, 50)));
+                fv.add(new NumericFeature("numLocIn100", countLocationsInDistance(location, others, 100)));
+                fv.add(new NumericFeature("numLocIn250", countLocationsInDistance(location, others, 250)));
+                fv.add(new NumericFeature("distLoc1m", getDistanceToPopulation(location, others, 1000000)));
+                fv.add(new NumericFeature("distLoc100k", getDistanceToPopulation(location, others, 100000)));
+                fv.add(new NumericFeature("distLoc10k", getDistanceToPopulation(location, others, 10000)));
+                fv.add(new NumericFeature("distLoc1k", getDistanceToPopulation(location, others, 1000)));
+                fv.add(new NumericFeature("popIn10", getPopulationInRadius(location, others, 10)));
+                fv.add(new NumericFeature("popIn50", getPopulationInRadius(location, others, 50)));
+                fv.add(new NumericFeature("popIn100", getPopulationInRadius(location, others, 100)));
+                fv.add(new NumericFeature("popIn250", getPopulationInRadius(location, others, 250)));
+                fv.add(new NumericFeature("siblingCount", siblingCount(location, others)));
+                fv.add(new BooleanFeature("siblingOccurs", siblingCount(location, others) > 0));
+
+                // just for debuggging purposes
+                fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
+                fv.add(new NominalFeature("documentId", fileName));
+
+                instances.add(new LocationInstance(location, fv));
             }
         }
         return instances;
     }
 
-    private int getPopulationIn(int i, Location location, Collection<Location> allValues) {
+    private static int getPopulationInRadius(Location location, Collection<Location> others, double distance) {
         int population = 0;
-        for (Location locationToCheck : allValues) {
-            double currentDistance = GeoUtils.getDistance(locationToCheck, location);
-            if (currentDistance > i) {
-                continue;
+        for (Location other : others) {
+            if (GeoUtils.getDistance(location, other) <= distance) {
+                population += other.getPopulation();
             }
-            if (locationToCheck.getPrimaryName().equals(location.getPrimaryName())) {
-                continue;
-            }
-            population += locationToCheck.getPopulation();
         }
         return population;
     }
 
-    private int getDistanceToLocationWith(int i, Location location, Collection<Location> allValues) {
+    private static int getDistanceToPopulation(Location location, Collection<Location> others, int population) {
         int distance = Integer.MAX_VALUE;
-        for (Location locationToCheck : allValues) {
-            if (locationToCheck.getPopulation() < i) {
-                continue;
+        for (Location other : others) {
+            if (other.getPopulation() >= population) {
+                distance = (int)Math.min(distance, GeoUtils.getDistance(other, location));
             }
-            double currentDistance = GeoUtils.getDistance(locationToCheck, location);
-            if (currentDistance == 0 || locationToCheck.getPrimaryName().equals(location.getPrimaryName())) {
-                continue;
-            }
-            distance = (int)Math.min(distance, currentDistance);
         }
         return distance;
     }
 
-    private int getNumLocationsInArea(int i, Location location, Collection<Location> allValues) {
+    private static int countLocationsInDistance(Location location, Collection<Location> others, double distance) {
         int count = 0;
-        for (Location locationToCheck : allValues) {
-            double distance = GeoUtils.getDistance(locationToCheck, location);
-            if (distance < i) {
+        for (Location other : others) {
+            if (GeoUtils.getDistance(location, other) < distance) {
                 count++;
             }
         }
         return count;
     }
 
-    private boolean ancestorOccurs(Location location, Collection<Location> allValues) {
-        for (Location locationToCheck : allValues) {
-            boolean isChild = LocationExtractorUtils.isChildOf(location, locationToCheck);
-            if (isChild) {
+    private static boolean ancestorOccurs(Location location, Collection<Location> others) {
+        for (Location other : others) {
+            if (LocationExtractorUtils.isChildOf(location, other)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean parentOccurs(Location location, Collection<Location> allValues) {
-        for (Location locationToCheck : allValues) {
-            boolean isChild = LocationExtractorUtils.isDirectChildOf(location, locationToCheck);
-            if (isChild) {
+    private static boolean parentOccurs(Location location, Collection<Location> others) {
+        for (Location other : others) {
+            if (LocationExtractorUtils.isDirectChildOf(location, other)) {
                 return true;
             }
         }
         return false;
     }
 
-    private int siblingCount(Location location, Collection<Location> allValues) {
+    private static int siblingCount(Location location, Collection<Location> others) {
         int count = 0;
-        for (Location locationToCheck : allValues) {
-            if (locationToCheck.equals(location)) {
-                continue;
-            }
-            if (location.getAncestorIds().equals(locationToCheck.getAncestorIds())) {
+        for (Location other : others) {
+            if (location.getAncestorIds().equals(other.getAncestorIds())) {
                 count++;
             }
         }
@@ -233,78 +204,67 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         return value.matches("[A-Z]+|([A-Z]\\.)+");
     }
 
-    private static final class LocationInstance {
+    private static final class LocationInstance implements Location, Classifiable {
 
-        String value;
-        GeoCoordinate coordinates;
-        LocationType type;
-        long population;
-        long populationOrderOfMagnitude;
-        int numTokens;
-        int numCharacters;
-        double ambiguity;
-        boolean acronym;
-        int count;
-        boolean positive;
-        boolean parentOccurs;
-        boolean ancestorOccurs;
-        int numLocationsIn10;
-        int numLocationsIn50;
-        int numLocationsIn100;
-        int numLocationsIn250;
-        int distanceToLocationWith1000000;
-        int distanceToLocationWith100000;
-        int distanceToLocationWith10000;
-        int distanceToLocationWith1000;
-        int populationIn10;
-        int populationIn50;
-        int populationIn100;
-        int populationIn250;
-        int siblingCount;
-        boolean siblingOccurs;
+        private final Location location;
+        private final FeatureVector featureVector;
+
+        public LocationInstance(Location location, FeatureVector featureVector) {
+            this.location = location;
+            this.featureVector = featureVector;
+        }
 
         @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("LocationInstance [value=");
-            builder.append(value);
-            builder.append(", coordinates=");
-            builder.append(coordinates);
-            builder.append(", type=");
-            builder.append(type);
-            builder.append(", population=");
-            builder.append(population);
-            builder.append(", populationOrderOfMagnitude=");
-            builder.append(populationOrderOfMagnitude);
-            builder.append(", numTokens=");
-            builder.append(numTokens);
-            builder.append(", numCharacters=");
-            builder.append(numCharacters);
-            builder.append(", ambiguity=");
-            builder.append(ambiguity);
-            builder.append(", acronym=");
-            builder.append(acronym);
-            builder.append(", count=");
-            builder.append(count);
-            builder.append(", positive=");
-            builder.append(positive);
-            builder.append("]");
-            return builder.toString();
+        public Double getLatitude() {
+            return location.getLatitude();
+        }
+
+        @Override
+        public Double getLongitude() {
+            return location.getLongitude();
+        }
+
+        @Override
+        public int getId() {
+            return location.getId();
+        }
+
+        @Override
+        public String getPrimaryName() {
+            return location.getPrimaryName();
+        }
+
+        @Override
+        public Collection<AlternativeName> getAlternativeNames() {
+            return location.getAlternativeNames();
+        }
+
+        @Override
+        public LocationType getType() {
+            return location.getType();
+        }
+
+        @Override
+        public Long getPopulation() {
+            return location.getPopulation();
+        }
+
+        @Override
+        public List<Integer> getAncestorIds() {
+            return location.getAncestorIds();
+        }
+
+        @Override
+        public FeatureVector getFeatureVector() {
+            return featureVector;
         }
 
         @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + (acronym ? 1231 : 1237);
-            long temp;
-            temp = Double.doubleToLongBits(ambiguity);
-            result = prime * result + (int)(temp ^ (temp >>> 32));
-            result = prime * result + numCharacters;
-            result = prime * result + numTokens;
-            result = prime * result + (int)(population ^ (population >>> 32));
-            result = prime * result + (int)(populationOrderOfMagnitude ^ (populationOrderOfMagnitude >>> 32));
-            result = prime * result + ((type == null) ? 0 : type.hashCode());
+            result = prime * result + ((featureVector == null) ? 0 : featureVector.hashCode());
+            result = prime * result + ((location == null) ? 0 : location.hashCode());
             return result;
         }
 
@@ -317,21 +277,28 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             if (getClass() != obj.getClass())
                 return false;
             LocationInstance other = (LocationInstance)obj;
-            if (acronym != other.acronym)
+            if (featureVector == null) {
+                if (other.featureVector != null)
+                    return false;
+            } else if (!featureVector.equals(other.featureVector))
                 return false;
-            if (Double.doubleToLongBits(ambiguity) != Double.doubleToLongBits(other.ambiguity))
-                return false;
-            if (numCharacters != other.numCharacters)
-                return false;
-            if (numTokens != other.numTokens)
-                return false;
-            if (population != other.population)
-                return false;
-            if (populationOrderOfMagnitude != other.populationOrderOfMagnitude)
-                return false;
-            if (type != other.type)
+            if (location == null) {
+                if (other.location != null)
+                    return false;
+            } else if (!location.equals(other.location))
                 return false;
             return true;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("LocationInstance [location=");
+            builder.append(location);
+            builder.append(", featureVector=");
+            builder.append(featureVector);
+            builder.append("]");
+            return builder.toString();
         }
 
     }

@@ -7,11 +7,15 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -27,16 +31,14 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public final class ClassificationUtils {
 
-    private static final String SEPARATOR = ";";
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassificationUtils.class);
 
-    /**
-     * <p>
-     * Should not be instantiated.
-     * </p>
-     */
+    /** The default separator which is assumed for separating instance attributes when reading/writing to/from files. */
+    public static final String DEFAULT_SEPARATOR = ";";
+
     private ClassificationUtils() {
-        throw new UnsupportedOperationException(
-                "Unable to instantiate ClassificationUtils. This class is a utility class. It makes no sense to instantiate it.");
+        // Should not be instantiated.
     }
 
     /**
@@ -51,7 +53,7 @@ public final class ClassificationUtils {
      *            (column names are generated automatically).
      */
     public static List<Instance> createInstances(String filePath, boolean readHeader) {
-        return createInstances(filePath, readHeader, SEPARATOR);
+        return createInstances(filePath, readHeader, DEFAULT_SEPARATOR);
     }
 
     /**
@@ -119,29 +121,45 @@ public final class ClassificationUtils {
 
         return instances;
     }
-    
-    public static void writeInstances(List<Instance> instances, String filePath) {
-        System.out.println("# instances: " + instances.size());
+
+    /**
+     * <p>
+     * Write {@link Classifiable} instances to a CSV file. If the instances implement {@link Trainable} (i.e. they
+     * provide a target class), the target class is appended as last column after the features in the CSV.
+     * </p>
+     * 
+     * @param trainData The instances to write, not <code>null</code>.
+     * @param filePath The path specifying the CSV file, not <code>null</code>.
+     */
+    public static void writeToCsv(Iterable<? extends Classifiable> trainData, File outputFile) {
+        Validate.notNull(trainData, "trainData must not be null");
+        Validate.notNull(outputFile, "outputFile must not be null");
+
         StringBuilder builder = new StringBuilder();
-        
-        // create header
-        FeatureVector firstFv = instances.get(0).getFeatureVector();
-        for (Feature<?> feature: firstFv) {
-            builder.append(feature.getName());
-            builder.append(';');
-        }
-        builder.append("category").append('\n');
-        
-        for (Instance instance : instances) {
-            for (Feature<?> feature : instance.getFeatureVector()) {
-                builder.append(feature.getValue());
-                builder.append(";");
+        boolean writeHeader = true;
+        int count = 0;
+        for (Classifiable trainable : trainData) {
+            if (writeHeader) {
+                for (Feature<?> feature : trainable.getFeatureVector()) {
+                    builder.append(feature.getName()).append(DEFAULT_SEPARATOR);
+                }
+                if (trainable instanceof Trainable) {
+                    builder.append("targetClass");
+                }
+                builder.append(FileHelper.NEWLINE_CHARACTER);
+                writeHeader = false;
             }
-            builder.append(instance.getTargetClass());
-            builder.append('\n');
+            for (Feature<?> feature : trainable.getFeatureVector()) {
+                builder.append(feature.getValue()).append(DEFAULT_SEPARATOR);
+            }
+            if (trainable instanceof Trainable) {
+                builder.append(((Trainable)trainable).getTargetClass());
+            }
+            builder.append(FileHelper.NEWLINE_CHARACTER);
+            count++;
         }
-        
-        FileHelper.writeToFile(filePath, builder);
+        LOGGER.info("Wrote {} train instances.", count);
+        FileHelper.writeToFile(outputFile.getPath(), builder);
     }
 
     /**

@@ -71,6 +71,32 @@ final class LocationExtractorUtils {
         return temp.size() > 0 ? temp : new HashSet<T>(set);
     }
 
+    /**
+     * <p>
+     * Check, whether two {@link Location}s share a common name. Names are normalized according to the rules given in
+     * {@link #normalizeName(String)}.
+     * </p>
+     * 
+     * @param l1 First location, not <code>null</code>.
+     * @param l2 Second location, not <code>null</code>.
+     * @return <code>true</code>, if a common name exists, <code>false</code> otherwise.
+     */
+    public static boolean commonName(Location l1, Location l2) {
+        Set<String> names1 = collectNames(l1);
+        Set<String> names2 = collectNames(l2);
+        names1.retainAll(names2);
+        return names1.size() > 0;
+    }
+
+    private static Set<String> collectNames(Location location) {
+        Set<String> names = CollectionHelper.newHashSet();
+        names.add(normalizeName(location.getPrimaryName()));
+        for (AlternativeName alternativeName : location.getAlternativeNames()) {
+            names.add(normalizeName(alternativeName.getName()));
+        }
+        return names;
+    }
+
     public static class LocationTypeFilter implements Filter<Location> {
 
         private final LocationType type;
