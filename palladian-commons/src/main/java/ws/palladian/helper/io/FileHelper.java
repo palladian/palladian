@@ -76,7 +76,7 @@ public final class FileHelper {
     private static final String DEFAULT_ENCODING = "UTF-8";
 
     /** Constant for new line character. */
-    private static final String NEWLINE_CHARACTER = "\n";
+    public static final String NEWLINE_CHARACTER = "\n";
 
     /** Constant for image file extensions. */
     public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif");
