@@ -57,9 +57,9 @@ public final class Tokenizer {
             | Pattern.CASE_INSENSITIVE);
 
     private static final DateFormat[] ALL_DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM,
-            RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
-            RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
-            RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
+        RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
+        RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
+        RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
 
     private static final UrlTagger URL_TAGGER = new UrlTagger();
     private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger(ALL_DATES_WITH_DOTS);
@@ -181,11 +181,12 @@ public final class Tokenizer {
     public static Set<String> calculateCharNGrams(String string, int n) {
         Set<String> nGrams = new HashSet<String>();
 
-        if (string.length() < n) {
+        int sl = string.length();
+        if (sl < n) {
             return nGrams;
         }
 
-        for (int i = 0; i <= string.length() - n; i++) {
+        for (int i = 0; i <= sl - n; i++) {
 
             StringBuilder nGram = new StringBuilder();
             for (int j = i; j < i + n; j++) {
@@ -970,7 +971,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
