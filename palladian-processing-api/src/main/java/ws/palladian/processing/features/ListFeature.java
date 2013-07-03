@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * <p>
  * A {@code ListFeature} groups features belonging to the same type such as tokens from a document. {@code ListFeature}s
@@ -71,6 +73,7 @@ public final class ListFeature<T extends Feature<?>> extends AbstractFeature<Lis
 
     @Override
     public boolean add(T e) {
+        Validate.isTrue(!(e instanceof ListFeature), "You may not nest a list feature inside another list feature.");
         return getValue().add(e);
     }
 
@@ -117,11 +120,13 @@ public final class ListFeature<T extends Feature<?>> extends AbstractFeature<Lis
 
     @Override
     public T set(int index, T element) {
+        Validate.isTrue(!(element instanceof ListFeature), "You may not nest a list feature inside another list feature.");
         return getValue().set(index, element);
     }
 
     @Override
     public void add(int index, T element) {
+        Validate.isTrue(!(element instanceof ListFeature), "You may not nest a list feature inside another list feature.");
         getValue().add(index, element);
 
     }
@@ -154,5 +159,25 @@ public final class ListFeature<T extends Feature<?>> extends AbstractFeature<Lis
     @Override
     public List<T> subList(int fromIndex, int toIndex) {
         return getValue().subList(fromIndex, toIndex);
+    }
+
+    /**
+     * <p>
+     * Provides the feature with the specified name form this {@link ListFeature}.
+     * </p>
+     *
+     * @param name The name of the {@link Feature} to search for.
+     * @return The {@link Feature} with the specified name or {@code null} if no such {@link Feature} exists.
+     */
+    public T getFeatureWithName(String name) {
+        Validate.notEmpty(name);
+        
+        for(T feature:this) {
+            if(feature.getName().equals(name)) {
+                return feature;
+            }
+        }
+        
+        return null;
     }
 }
