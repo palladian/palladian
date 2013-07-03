@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -54,6 +57,9 @@ public class WikipediaPage {
         }
 
     }
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
 
     /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
     public static final int MAIN_NAMESPACE = 0;
@@ -102,7 +108,12 @@ public class WikipediaPage {
      * @return The markup of the infobox, if found, or <code>null</code>.
      */
     public String getInfoboxMarkup() {
-        return CollectionHelper.getFirst(WikipediaUtil.getNamedMarkup(text, "infobox"));
+        try {
+            return CollectionHelper.getFirst(WikipediaUtil.getNamedMarkup(text, "infobox"));
+        } catch (StringIndexOutOfBoundsException e) {
+            LOGGER.warn("{} when getting infobox markup; this is usually caused by invalid markup.", e.getMessage());
+            return null;
+        }
     }
 
     /**
