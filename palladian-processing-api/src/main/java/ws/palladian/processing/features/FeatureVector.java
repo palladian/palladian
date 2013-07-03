@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.processing.Classifiable;
 
 /**
@@ -61,6 +63,7 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      *            The actual {@code Feature} instance containing the value.
      */
     public void add(Feature<?> feature) {
+        Validate.isTrue(features.get(feature.getName())==null,"Please use a ListFeature to add multiple features with the same name.");
         features.put(feature.getName(), feature);
     }
 

@@ -9,14 +9,14 @@ import ws.palladian.classification.Instance;
 
 /**
  * <p>
- * Base interface for all feature selectors.
+ * Base interface for all feature rankers. A feature ranker provides a score for all features in a dataset on how valuable that feature is for classifying the dataset.
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 2.0
+ * @version 3.0
  * @since 0.1.8
  */
 public interface FeatureRanker {
 
-    FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider);
+    FeatureRanking rankFeatures(Collection<Instance> dataset);
 }
