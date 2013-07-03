@@ -32,4 +32,18 @@ public final class FeatureDetails {
     public boolean isSparse() {
         return isSparse;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("FeatureDetails [featurePath=");
+        builder.append(featurePath);
+        builder.append(", featureType=");
+        builder.append(featureType);
+        builder.append(", isSparse=");
+        builder.append(isSparse);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

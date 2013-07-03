@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.discretization.Binner;
+import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
@@ -306,7 +308,10 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
             Collection<FeatureDetails> featuresToConsider) {
         FeatureRanking ranking = new FeatureRanking();
 
+        int counter = 0;
+        StopWatch stopWatch = new StopWatch();
         for (FeatureDetails featureDetails : featuresToConsider) {
+            LOGGER.debug(ProgressHelper.getProgress(counter++, featuresToConsider.size(), 1, stopWatch));
             Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(featureDetails, dataset);
 
             if (featureDetails.isSparse()) {

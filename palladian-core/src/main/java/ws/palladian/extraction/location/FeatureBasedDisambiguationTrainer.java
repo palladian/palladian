@@ -1,12 +1,18 @@
 package ws.palladian.extraction.location;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
+import ws.palladian.classification.featureselection.FeatureDetails;
+import ws.palladian.classification.featureselection.FeatureRanking;
+import ws.palladian.classification.featureselection.FeatureSelector;
+import ws.palladian.classification.featureselection.InformationGainFeatureSelector;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -20,7 +26,9 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Feature;
 
 public class FeatureBasedDisambiguationTrainer {
 
@@ -85,6 +93,35 @@ public class FeatureBasedDisambiguationTrainer {
             valuesToRetrieve.add(entityValue);
         }
         return locationSource.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
+    }
+
+    static void performFeatureSelection() {
+        // SelectedFeatureMergingStrategy mergingStrategy = new AverageMergingStrategy();
+        // SelectedFeatureMergingStrategy mergingStrategy = new RoundRobinMergingStrategy();
+        // FeatureSelector fs = new ChiSquaredFeatureSelector(mergingStrategy);
+        FeatureSelector fs = new InformationGainFeatureSelector();
+
+        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1372780128745.csv";
+        List<Trainable> dataset = ClassificationUtils.createInstances(csvFilePath, true);
+        Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
+
+        FeatureRanking featureRanking = fs.rankFeatures(dataset, featuresToConsider);
+        System.out.println(featureRanking);
+    }
+
+    private static Collection<FeatureDetails> createAllFeaturesToConsider(List<Trainable> dataset) {
+        Trainable firstEntry = dataset.get(0);
+        Collection<FeatureDetails> result = CollectionHelper.newHashSet();
+
+        for (Feature<?> feature : firstEntry.getFeatureVector()) {
+            @SuppressWarnings("unchecked")
+            Class<? extends Feature<?>> featureType = (Class<? extends Feature<?>>)feature.getClass();
+            String featurePath = feature.getName();
+            result.add(new FeatureDetails(featurePath, featureType, false));
+        }
+
+        // CollectionHelper.print(result);
+        return result;
     }
 
 }
