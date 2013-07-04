@@ -38,7 +38,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * The logger for objects of this class. Configure it using <tt>/src/main/resources/log4j.properties</tt>
      * </p>
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureSelector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
 
     /**
      * <p>
@@ -83,15 +83,14 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      *         the value is the chi squared score for the feature with that
      *         class.
      */
-    public static <T extends Feature<?>> Map<String, Map<String, Double>> calculateChiSquareValues(
-            final String featureName, final Class<T> featureType, final Collection<Instance> dataset) {
+    public static Map<String, Map<String, Double>> calculateChiSquareValues(final Collection<Instance> dataset) {
         Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
         Map<String, Long> classCounts = new HashMap<String, Long>();
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
         for (Instance instance : dataset) {
-            Collection<T> features = convertToSet(instance.getFeatureVector(), featureType, featureName);
-            for (T value : features) {
+            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
+            for (Feature<?> value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
             }
             Long count = classCounts.get(instance.getTargetClass());
@@ -183,7 +182,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
-        return mergingStrategy.merge(dataset, featuresToConsider);
+    public FeatureRanking rankFeatures(Collection<Instance> dataset) {
+        return mergingStrategy.merge(dataset);
     }
 }

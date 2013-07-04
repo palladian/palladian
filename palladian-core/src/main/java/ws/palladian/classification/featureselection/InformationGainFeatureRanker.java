@@ -31,14 +31,14 @@ import ws.palladian.processing.features.FeatureVector;
  * @version 2.0
  * @since 0.2.0
  */
-public final class InformationGainFeatureSelector extends AbstractFeatureRanker {
+public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
 
     /**
      * <p>
      * The logger for objects of this class. Configure it using <code>/src/main/resources/log4j.properties</code>.
      * </p>
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureSelector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
 
     /**
      * <p>

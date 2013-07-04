@@ -149,7 +149,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
     private static Binner createBinner(List<Instance> dataset, final String featureName) {
         List<Integer> boundaryPoints = findBoundaryPoints(dataset);
 
-        StringBuilder nameBuilder = new StringBuilder();
+//        StringBuilder nameBuilder = new StringBuilder();
         // for (FeatureDescriptor descriptor : featureName) {
         // nameBuilder.append(descriptor.toString()).append("/");
         // }
@@ -159,7 +159,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
             NumericFeature feature = instance.getFeatureVector().get(NumericFeature.class, featureName);
             features.add(feature);
         }
-        return new Binner(nameBuilder.toString(), boundaryPoints, features);
+        return new Binner(featureName, boundaryPoints, features);
     }
 
     private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {

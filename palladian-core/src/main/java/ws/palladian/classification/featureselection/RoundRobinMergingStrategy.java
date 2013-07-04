@@ -25,36 +25,22 @@ import ws.palladian.classification.Instance;
 public final class RoundRobinMergingStrategy implements SelectedFeatureMergingStrategy {
 
     @Override
-    public FeatureRanking merge(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider) {
+    public FeatureRanking merge(Collection<Instance> dataset) {
         FeatureRanking ret = new FeatureRanking();
         Map<String, FeatureRanking> rankingsPerTargetClass = new HashMap<String, FeatureRanking>();
+        Map<String, Map<String, Double>> classRanking = ChiSquaredFeatureRanker.calculateChiSquareValues(dataset);
 
-        for (FeatureDetails featureDetails : featuresToConsider) {
-            Map<String, Map<String, Double>> classRanking = ChiSquaredFeatureRanker.calculateChiSquareValues(
-                    featureDetails.getPath(), featureDetails.getType(), dataset);
+        // this should usually only run once for non sparse features.
+        for (Entry<String, Map<String, Double>> scoredValue : classRanking.entrySet()) {
 
-            Validate.isTrue((!featureDetails.isSparse() && classRanking.size() == 1) || (featureDetails.isSparse()));
-
-            // this should usually only run once for non sparse features.
-            for (Entry<String, Map<String, Double>> scoredValue : classRanking.entrySet()) {
-
-                for (Entry<String, Double> entry : scoredValue.getValue().entrySet()) {
-                    FeatureRanking rankingPerTargetClass = rankingsPerTargetClass.get(entry.getKey());
-                    if (rankingPerTargetClass == null) {
-                        rankingPerTargetClass = new FeatureRanking();
-                    }
-
-                    if (featureDetails.isSparse()) {
-                        rankingPerTargetClass.addSparse(featureDetails.getPath(), scoredValue.getKey(),
-                                entry.getValue());
-                    } else {
-                        rankingPerTargetClass.add(scoredValue.getKey(), entry.getValue());
-                    }
-
-                    rankingsPerTargetClass.put(entry.getKey(), rankingPerTargetClass);
+            for (Entry<String, Double> entry : scoredValue.getValue().entrySet()) {
+                FeatureRanking rankingPerTargetClass = rankingsPerTargetClass.get(entry.getKey());
+                if (rankingPerTargetClass == null) {
+                    rankingPerTargetClass = new FeatureRanking();
                 }
+                rankingPerTargetClass.add(scoredValue.getKey(), entry.getValue());
+                rankingsPerTargetClass.put(entry.getKey(), rankingPerTargetClass);
             }
-
         }
 
         // do round robin ordering of features.

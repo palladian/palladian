@@ -47,4 +47,33 @@ public final class SparseFeature<T> implements Feature<T> {
                 "Cannot change the value of an existing sparse feature. Please create a new object if you have a sparse feature with another value.");
     }
 
+    @Override
+    public String toString() {
+        return "SparseFeature [value=" + value + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SparseFeature other = (SparseFeature)obj;
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (!value.equals(other.value))
+            return false;
+        return true;
+    }
 }
