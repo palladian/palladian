@@ -29,5 +29,5 @@ public interface SelectedFeatureMergingStrategy {
      *            {@link Map} of target class to score.
      * @return A merged ranking of the provided features.
      */
-    FeatureRanking merge(Collection<Instance> dataset, Collection<FeatureDetails> featuresToConsider);
+    FeatureRanking merge(Collection<Instance> dataset);
 }
