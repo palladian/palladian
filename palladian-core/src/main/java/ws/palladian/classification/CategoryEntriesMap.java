@@ -228,4 +228,29 @@ public final class CategoryEntriesMap implements CategoryEntries {
         entryMap = CollectionHelper.sortByValue(entryMap, false);
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((entryMap == null) ? 0 : entryMap.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CategoryEntriesMap other = (CategoryEntriesMap)obj;
+        if (entryMap == null) {
+            if (other.entryMap != null)
+                return false;
+        } else if (!entryMap.equals(other.entryMap))
+            return false;
+        return true;
+    }
+
 }
