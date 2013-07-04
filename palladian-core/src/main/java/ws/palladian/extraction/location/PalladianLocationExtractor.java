@@ -52,7 +52,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         Annotations<LocationAnnotation> result = new Annotations<LocationAnnotation>();
 
-        List<LocationAnnotation> locationEntities = disambiguation.disambiguate(taggedEntities, locations);
+        List<LocationAnnotation> locationEntities = disambiguation.disambiguate(text, taggedEntities, locations);
         result.addAll(locationEntities);
 
         // last step, recognize streets. For also extracting ZIP codes, this needs to be better integrated into above's

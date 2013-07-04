@@ -28,6 +28,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 
 public class FeatureBasedDisambiguationTrainer {
@@ -70,7 +71,7 @@ public class FeatureBasedDisambiguationTrainer {
 
         SortedMap<Integer, GeoCoordinate> fileCoordinates = coordinates.get(file.getName());
         Set<Location> positive = getPositiveLocations(rawText, fileCoordinates);
-        disambiguation.addTrainData(taggedEntities, locations, positive, file.getName());
+        disambiguation.addTrainData(cleanText, taggedEntities, locations, positive, file.getName());
     }
 
     private static Set<Location> getPositiveLocations(String rawText, SortedMap<Integer, GeoCoordinate> coordinates) {
@@ -104,10 +105,15 @@ public class FeatureBasedDisambiguationTrainer {
         // FeatureSelector fs = new ChiSquaredFeatureSelector(mergingStrategy);
         FeatureSelector fs = new InformationGainFeatureSelector();
 
-        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1372868106535.csv";
+        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1372939572501.csv";
         List<Trainable> dataset = ClassificationUtils.createInstances(csvFilePath, true);
-        Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
-
+        // Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
+        Collection<FeatureDetails> featuresToConsider = CollectionHelper.newHashSet();
+        featuresToConsider.add(new FeatureDetails("uniqueAndLong", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("uniqueLocIn10", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("uniqueLocIn50", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("uniqueLocIn100", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("uniqueLocIn250", BooleanFeature.class, false));
         FeatureRanking featureRanking = fs.rankFeatures(dataset, featuresToConsider);
         System.out.println(featureRanking);
     }

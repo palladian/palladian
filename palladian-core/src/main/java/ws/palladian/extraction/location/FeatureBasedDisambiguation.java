@@ -35,6 +35,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
 
+    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+
     private final Set<Trainable> trainInstanceCollection = CollectionHelper.newHashSet();
 
     private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
@@ -47,9 +49,11 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     }
 
     @Override
-    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, List<Annotated> annotations,
+            MultiMap<String, Location> locations) {
 
-        Set<LocationInstance> instances = makeInstances(annotations, locations, "foo");
+
+        Set<LocationInstance> instances = makeInstances(text, annotations, locations, "foo");
         Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
         for (LocationInstance instance : instances) {
@@ -84,9 +88,44 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         return result;
     }
 
-    public void addTrainData(List<Annotated> annotations, MultiMap<String, Location> locations, Set<Location> positive,
-            String fileName) {
-        Set<LocationInstance> instances = makeInstances(annotations, locations, fileName);
+    private Set<Annotated> getUnlikelyCandidates(String text, MultiMap<String, Location> locations) {
+
+        // get *all* annotations
+        List<Annotated> annotations = tagger.getAnnotations(text);
+
+        // the logic employed here is a bit weird,
+        // wouldn't it be better to check the MultiMap, take those candidates which have zero locations assigned,
+        // and take them as unlikely parts?
+
+        Set<String> unlikelyParts = CollectionHelper.newHashSet();
+        for (Annotated annotation : annotations) {
+            if (!locations.containsKey(LocationExtractorUtils.normalizeName(annotation.getValue()))) {
+                LOGGER.debug("[unlikely] {}", annotation);
+                String[] parts = annotation.getValue().split("\\s");
+                for (String part : parts) {
+                    unlikelyParts.add(part.toLowerCase());
+                }
+            }
+        }
+        LOGGER.debug("Unlikely parts: {}", unlikelyParts);
+
+        Set<Annotated> unlikelyCandidates = CollectionHelper.newHashSet();
+        for (Annotated annotation : annotations) {
+            String[] parts = annotation.getValue().split("\\s");
+            for (String part : parts) {
+                if (unlikelyParts.contains(part.toLowerCase())) {
+                    unlikelyCandidates.add(annotation);
+                }
+            }
+        }
+        LOGGER.debug("{} Unlikely candidates: {}", unlikelyCandidates.size(), unlikelyCandidates);
+
+        return unlikelyCandidates;
+    }
+
+    public void addTrainData(String text, List<Annotated> annotations, MultiMap<String, Location> locations,
+            Set<Location> positive, String fileName) {
+        Set<LocationInstance> instances = makeInstances(text, annotations, locations, fileName);
         Set<Trainable> trainInstances = markPositiveInstances(instances, positive);
         trainInstanceCollection.addAll(trainInstances);
     }
@@ -129,8 +168,11 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         LOGGER.info("Built and serialized model in {}.", stopWatch.getTotalElapsedTimeString());
     }
 
-    private static Set<LocationInstance> makeInstances(List<Annotated> annotations,
+    private Set<LocationInstance> makeInstances(String text, List<Annotated> annotations,
             MultiMap<String, Location> locations, String fileName) {
+
+        Set<Annotated> unlikelyCandidates = getUnlikelyCandidates(text, locations);
+
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
         Collection<Location> allLocations = locations.allValues();
 
@@ -144,7 +186,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
             long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
             boolean unique = isUnique(candidates);
+            boolean uniqueAndLong = unique && annotation.getValue().split("\\s").length > 2;
             int maxDepth = getMaxDepth(candidates);
+            boolean unlikelyCandidate = unlikelyCandidates.contains(annotation);
 
             for (Location location : candidates) {
 
@@ -186,6 +230,12 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new NumericFeature("hierarchyDepth", location.getAncestorIds().size()));
                 fv.add(new NumericFeature("hierarchyDepthNorm", (double)location.getAncestorIds().size() / maxDepth));
                 fv.add(new BooleanFeature("unique", unique));
+                fv.add(new BooleanFeature("uniqueAndLong", uniqueAndLong));
+                fv.add(new BooleanFeature("unlikelyCandidate", unlikelyCandidate));
+                fv.add(new BooleanFeature("uniqueLocIn10", uniqueLocationInDistance(location, locations, 10)));
+                fv.add(new BooleanFeature("uniqueLocIn50", uniqueLocationInDistance(location, locations, 50)));
+                fv.add(new BooleanFeature("uniqueLocIn100", uniqueLocationInDistance(location, locations, 100)));
+                fv.add(new BooleanFeature("uniqueLocIn250", uniqueLocationInDistance(location, locations, 250)));
 
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
@@ -195,6 +245,22 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             }
         }
         return instances;
+    }
+
+    private static boolean uniqueLocationInDistance(Location location, MultiMap<String, Location> locations,
+            int distance) {
+        Set<Location> uniqueLocations = CollectionHelper.newHashSet();
+        for (Collection<Location> group : locations.values()) {
+            if (isUnique(group)) {
+                uniqueLocations.addAll(group);
+            }
+        }
+        for (Location uniqueLocation : uniqueLocations) {
+            if (GeoUtils.getDistance(location, uniqueLocation) <= distance) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int getMaxDepth(Collection<Location> locations) {
