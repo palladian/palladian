@@ -8,6 +8,7 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 public class TermCorpusBuilder extends TextDocumentPipelineProcessor {
@@ -25,7 +26,7 @@ public class TermCorpusBuilder extends TextDocumentPipelineProcessor {
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
-        List<PositionAnnotation> annotations = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = featureVector.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
 //        if (annotationFeature == null) {
 //            throw new DocumentUnprocessableException("The required feature \""
 //                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing");

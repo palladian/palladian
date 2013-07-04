@@ -67,7 +67,7 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
     public OpenNlpSentenceDetector detect(String text) {
         Span[] sentenceBoundaries = model.sentPosDetect(text);
         PositionAnnotation[] sentenceAnnotations = new PositionAnnotation[sentenceBoundaries.length];
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(providedFeature, text);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {
             int start = sentenceBoundaries[i].getStart();
             int end = sentenceBoundaries[i].getEnd();

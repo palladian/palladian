@@ -148,10 +148,10 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
             }
 
             String[] arrayOfWholeSentencePattern = sequentialPattern.toArray(new String[sequentialPattern.size()]);
-            List<SequentialPattern> extractedPatterns = extractionStrategy.extract("lsp", arrayOfWholeSentencePattern,
+            List<SequentialPattern> extractedPatterns = extractionStrategy.extract(arrayOfWholeSentencePattern,
                     minSequentialPatternSize, maxSequentialPatternSize);
-            // ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>("lsp", extractedPatterns);
-            document.getFeatureVector().addAll(extractedPatterns);
+            ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>("lsp", extractedPatterns);
+            document.getFeatureVector().add(feature);
         }
     }
 

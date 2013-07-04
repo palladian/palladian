@@ -396,8 +396,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
             handleBooleanFeature((BooleanFeature)feature, newInstance);
         } else if (feature instanceof NominalFeature) {
             handleNominalFeature((NominalFeature)feature, newInstance);
-            // } else if (feature instanceof SequentialPattern) {
-            // handleSequentialPattern((SequentialPattern)feature, newInstance);
+        } else if (feature instanceof SequentialPattern) {
+            handleSequentialPattern((SequentialPattern)feature, newInstance);
         } else if (feature instanceof ListFeature)
             handleSparseFeature((ListFeature)feature, newInstance);
     }
@@ -413,7 +413,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            {@see #handleFeature(Feature, List)}
      */
     private void handleSequentialPattern(final SequentialPattern feature, final List<Pair<Integer, String>> newInstance) {
-        String featureType = "\"" + mask(feature.getStringValue()) + "\" numeric";
+        String featureType = "\"" + mask(SequentialPattern.getStringValue(feature.getValue())) + "\" numeric";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {

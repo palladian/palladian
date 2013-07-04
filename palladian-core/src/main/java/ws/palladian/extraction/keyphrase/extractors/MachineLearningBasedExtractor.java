@@ -47,6 +47,7 @@ import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -143,8 +144,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, RegExTokenizer.PROVIDED_FEATURE);
-        Set<String> terms = new HashSet<String>();
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, RegExTokenizer.PROVIDED_FEATURE);
+        Set<String> terms = CollectionHelper.newHashSet();
         for (PositionAnnotation annotation : annotations) {
             terms.add(annotation.getValue());
         }
@@ -173,8 +174,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             } catch (DocumentUnprocessableException e) {
                 throw new IllegalStateException(e);
             }
-            List<PositionAnnotation> annotationFeature = currentDoc.getFeatureVector().getAll(
-                    PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+            List<PositionAnnotation> annotationFeature = currentDoc.get(
+                    ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
             totalKeyphrases += keywords.size();
             totallyMarked += markCandidates(annotationFeature, keywords);
             annotations.addAll(annotationFeature);
@@ -188,7 +189,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         List<Instance> instances = new ArrayList<Instance>();
         for (PositionAnnotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();
-            String targetClass = featureVector.getFeature(NominalFeature.class, IS_KEYWORD).getValue();
+            String targetClass = featureVector.get(NominalFeature.class, IS_KEYWORD).getValue();
             FeatureVector cleanedFv = cleanFeatureVector(featureVector);
             if ("true".equals(targetClass)) {
                 posSamples++;
@@ -215,10 +216,10 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
      */
     private FeatureVector cleanFeatureVector(FeatureVector featureVector) {
         FeatureVector result = new FeatureVector(featureVector);
-        result.removeAll(IS_KEYWORD);
-        result.removeAll(StemmerAnnotator.UNSTEM);
-        result.removeAll(BaseTokenizer.PROVIDED_FEATURE); // XXX was duplicate token annotation
-        result.removeAll(AdditionalFeatureExtractor.CASE_SIGNATURE);
+        result.remove(IS_KEYWORD);
+        result.remove(StemmerAnnotator.UNSTEM);
+        result.remove(BaseTokenizer.PROVIDED_FEATURE); // XXX was duplicate token annotation
+        result.remove(AdditionalFeatureExtractor.CASE_SIGNATURE);
         return result;
     }
 
@@ -249,7 +250,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         }
         for (PositionAnnotation annotation : annotations) {
             String stemmedValue = annotation.getValue();
-            String unstemmedValue = annotation.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
+            String unstemmedValue = annotation.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
 
             boolean isKeyword = modifiedKeywords.contains(stemmedValue);
             isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase());
@@ -338,7 +339,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException();
         }
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (PositionAnnotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();

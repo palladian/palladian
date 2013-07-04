@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.AbstractFeatureProvider;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
@@ -60,13 +60,13 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
     protected void processDocument() throws DocumentUnprocessableException {
         TextDocument document = (TextDocument)getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+        List<PositionAnnotation> annotations = document.get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
         if (annotations.isEmpty()) {
             LOGGER.warn("No tokens found. Did you specify a Tokenizer before using the DictionaryAnnotator?");
         }
-        List<PositionAnnotation> matchingToken = CollectionHelper.newArrayList();
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(getCreatedFeatureName(), document);
+        ListFeature<PositionAnnotation> matchingToken = new ListFeature<PositionAnnotation>(getCreatedFeatureName());
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         for (PositionAnnotation tokenAnnotation : annotations) {
             String token = tokenAnnotation.getValue();
             if (dictionary.contains(token)) {
@@ -77,7 +77,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
             }
         }
 
-        document.getFeatureVector().addAll(matchingToken);
+        document.add(matchingToken);
 
         // document.addFeature(new TextAnnotationFeature(getDescriptor(), matchingToken));
         getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document);
