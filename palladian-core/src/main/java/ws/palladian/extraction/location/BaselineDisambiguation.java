@@ -21,7 +21,8 @@ public class BaselineDisambiguation implements LocationDisambiguation {
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
         for (Annotated annotation : annotations) {
-            Collection<Location> currentLocations = locations.get(annotation.getValue());
+            String normalizedName = LocationExtractorUtils.normalizeName(annotation.getValue());
+            Collection<Location> currentLocations = locations.get(normalizedName);
             Location selectedLocation = null;
             long maxPopulation = 0;
             for (Location location : currentLocations) {

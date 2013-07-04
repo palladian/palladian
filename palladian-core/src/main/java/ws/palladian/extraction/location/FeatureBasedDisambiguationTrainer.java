@@ -38,6 +38,9 @@ public class FeatureBasedDisambiguationTrainer {
     static FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
 
     public static void main(String[] args) {
+        performFeatureSelection();
+        System.exit(0);
+
         StopWatch stopWatch = new StopWatch();
         File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013_V2_train");
 
@@ -101,7 +104,7 @@ public class FeatureBasedDisambiguationTrainer {
         // FeatureSelector fs = new ChiSquaredFeatureSelector(mergingStrategy);
         FeatureSelector fs = new InformationGainFeatureSelector();
 
-        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1372780128745.csv";
+        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1372868106535.csv";
         List<Trainable> dataset = ClassificationUtils.createInstances(csvFilePath, true);
         Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
 
