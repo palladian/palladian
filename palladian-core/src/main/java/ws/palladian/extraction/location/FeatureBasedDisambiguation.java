@@ -179,6 +179,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         CountMap<String> counts = getCounts(annotations);
         int annotationCount = annotations.size();
 
+        Set<Location> uniqueLocations = getUniqueLocations(locations);
+
         for (Annotated annotation : annotations) {
 
             String value = annotation.getValue();
@@ -232,10 +234,10 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new BooleanFeature("unique", unique));
                 fv.add(new BooleanFeature("uniqueAndLong", uniqueAndLong));
                 fv.add(new BooleanFeature("unlikelyCandidate", unlikelyCandidate));
-                fv.add(new BooleanFeature("uniqueLocIn10", uniqueLocationInDistance(location, locations, 10)));
-                fv.add(new BooleanFeature("uniqueLocIn50", uniqueLocationInDistance(location, locations, 50)));
-                fv.add(new BooleanFeature("uniqueLocIn100", uniqueLocationInDistance(location, locations, 100)));
-                fv.add(new BooleanFeature("uniqueLocIn250", uniqueLocationInDistance(location, locations, 250)));
+                fv.add(new BooleanFeature("uniqLocIn10", countLocationsInDistance(location, uniqueLocations, 10) > 0));
+                fv.add(new BooleanFeature("uniqLocIn50", countLocationsInDistance(location, uniqueLocations, 50) > 0));
+                fv.add(new BooleanFeature("uniqLocIn100", countLocationsInDistance(location, uniqueLocations, 100) > 0));
+                fv.add(new BooleanFeature("uniqLocIn250", countLocationsInDistance(location, uniqueLocations, 250) > 0));
 
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
@@ -246,21 +248,15 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
         return instances;
     }
-
-    private static boolean uniqueLocationInDistance(Location location, MultiMap<String, Location> locations,
-            int distance) {
+    
+    private static Set<Location> getUniqueLocations(MultiMap<String, Location> locations) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();
         for (Collection<Location> group : locations.values()) {
             if (isUnique(group)) {
                 uniqueLocations.addAll(group);
             }
         }
-        for (Location uniqueLocation : uniqueLocations) {
-            if (GeoUtils.getDistance(location, uniqueLocation) <= distance) {
-                return true;
-            }
-        }
-        return false;
+        return uniqueLocations;
     }
 
     private static int getMaxDepth(Collection<Location> locations) {
