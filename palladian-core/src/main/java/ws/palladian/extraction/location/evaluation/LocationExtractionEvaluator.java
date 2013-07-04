@@ -452,8 +452,8 @@ public final class LocationExtractionEvaluator {
                 .deserialize("location_disambiguation_1372944832497.model"));
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
         // evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
-        evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
-        // evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
+        // evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
         // File pathToTexts = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");
         // File pathToJsonResults = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/UnlockTextResults");

@@ -88,7 +88,7 @@ final class LocationExtractorUtils {
         return names1.size() > 0;
     }
 
-    private static Set<String> collectNames(Location location) {
+    public static Set<String> collectNames(Location location) {
         Set<String> names = CollectionHelper.newHashSet();
         names.add(normalizeName(location.getPrimaryName()));
         for (AlternativeName alternativeName : location.getAlternativeNames()) {
