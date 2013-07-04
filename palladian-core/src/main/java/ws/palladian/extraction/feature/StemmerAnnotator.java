@@ -190,9 +190,11 @@ public final class StemmerAnnotator extends AbstractTokenProcessor {
      * @return The stemmed word.
      */
     public String stem(String word) {
-        stemmer.setCurrent(word);
-        stemmer.stem();
-        return stemmer.getCurrent().toLowerCase();
+        synchronized (stemmer) {
+            stemmer.setCurrent(word);
+            stemmer.stem();
+            return stemmer.getCurrent().toLowerCase();
+        }
     }
 
     /*

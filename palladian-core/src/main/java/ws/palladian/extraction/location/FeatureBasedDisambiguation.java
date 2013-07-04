@@ -15,9 +15,12 @@ import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
+import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -52,7 +55,6 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     public List<LocationAnnotation> disambiguate(String text, List<Annotated> annotations,
             MultiMap<String, Location> locations) {
 
-
         Set<LocationInstance> instances = makeInstances(text, annotations, locations, "foo");
         Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
@@ -60,15 +62,15 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             CategoryEntries classification = classifier.classify(instance, model);
             scoredLocations.put(instance.getId(), classification.getProbability("true"));
         }
-        
+
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
         for (Annotated annotation : annotations) {
             String value = LocationExtractorUtils.normalizeName(annotation.getValue());
             Collection<Location> candidates = locations.get(value);
-            
+
             double highestScore = 0;
             Location selectedLocation = null;
-            
+
             for (Location location : candidates) {
                 double score = scoredLocations.get(location.getId());
                 if (score > highestScore) {
@@ -76,13 +78,13 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                     selectedLocation = location;
                 }
             }
-            
+
             if (selectedLocation != null && highestScore >= 0.5) {
                 result.add(new LocationAnnotation(annotation, selectedLocation));
                 Object[] logArgs = new Object[] {annotation.getValue(), highestScore, selectedLocation};
-                LOGGER.debug("[+] '{}' was classfied as location with {}: {}", logArgs);
+                LOGGER.debug("[+] '{}' was classified as location with {}: {}", logArgs);
             } else {
-                LOGGER.debug("[-] '{}' was classfied as no location with {}", annotation.getValue(), highestScore);
+                LOGGER.debug("[-] '{}' was classified as no location with {}", annotation.getValue(), highestScore);
             }
         }
         return result;
@@ -100,14 +102,14 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         Set<String> unlikelyParts = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
             if (!locations.containsKey(LocationExtractorUtils.normalizeName(annotation.getValue()))) {
-                LOGGER.debug("[unlikely] {}", annotation);
+                LOGGER.trace("[unlikely] {}", annotation);
                 String[] parts = annotation.getValue().split("\\s");
                 for (String part : parts) {
                     unlikelyParts.add(part.toLowerCase());
                 }
             }
         }
-        LOGGER.debug("Unlikely parts: {}", unlikelyParts);
+        LOGGER.trace("Unlikely parts: {}", unlikelyParts);
 
         Set<Annotated> unlikelyCandidates = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
@@ -118,8 +120,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 }
             }
         }
-        LOGGER.debug("{} Unlikely candidates: {}", unlikelyCandidates.size(), unlikelyCandidates);
-
+        LOGGER.trace("{} Unlikely candidates: {}", unlikelyCandidates.size(), unlikelyCandidates);
         return unlikelyCandidates;
     }
 
@@ -180,6 +181,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         int annotationCount = annotations.size();
 
         Set<Location> uniqueLocations = getUniqueLocations(locations);
+        Map<Location, Double> sentenceProximities = buildSentenceProximityMap(text, annotations, locations);
 
         for (Annotated annotation : annotations) {
 
@@ -209,7 +211,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new NumericFeature("numTokens", value.split("\\s").length));
                 fv.add(new NumericFeature("numCharacters", value.length()));
                 fv.add(new NumericFeature("ambiguity", 1. / candidates.size()));
-                fv.add(new BooleanFeature("acronym", isAcronym(annotation.getValue())));
+                fv.add(new BooleanFeature("acronym", isAcronym(value, locations)));
                 fv.add(new NumericFeature("count", counts.getCount(value)));
                 fv.add(new NumericFeature("frequency", (double)counts.getCount(value) / annotationCount));
                 fv.add(new BooleanFeature("parentOccurs", parentOccurs(location, others)));
@@ -238,6 +240,10 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new BooleanFeature("uniqLocIn50", countLocationsInDistance(location, uniqueLocations, 50) > 0));
                 fv.add(new BooleanFeature("uniqLocIn100", countLocationsInDistance(location, uniqueLocations, 100) > 0));
                 fv.add(new BooleanFeature("uniqLocIn250", countLocationsInDistance(location, uniqueLocations, 250) > 0));
+                fv.add(new BooleanFeature("distLoc10Sentence", sentenceProximities.get(location) <= 10));
+                fv.add(new BooleanFeature("distLoc50Sentence", sentenceProximities.get(location) <= 50));
+                fv.add(new BooleanFeature("distLoc100Sentence", sentenceProximities.get(location) <= 100));
+                fv.add(new BooleanFeature("distLoc250Sentence", sentenceProximities.get(location) <= 250));
 
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
@@ -248,7 +254,50 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
         return instances;
     }
-    
+
+    private static Map<Location, Double> buildSentenceProximityMap(String text, List<Annotated> annotations,
+            MultiMap<String, Location> locations) {
+        Map<Location, Double> proximityMap = LazyMap.create(ConstantFactory.create(Double.MAX_VALUE));
+        List<String> sentences = Tokenizer.getSentences(text);
+        for (String sentence : sentences) {
+            int start = text.indexOf(sentence);
+            int end = start + sentence.length();
+            List<Annotated> currentAnnotations = getAnnotations(annotations, start, end);
+            Set<String> values = CollectionHelper.newHashSet();
+            for (Annotated annotated : currentAnnotations) {
+                values.add(LocationExtractorUtils.normalizeName(annotated.getValue()));
+            }
+            for (String value1 : values) {
+                Collection<Location> locations1 = locations.get(value1);
+                for (Location location1 : locations1) {
+                    for (String value2 : values) {
+                        if (!value1.equals(value2)) {
+                            Collection<Location> locations2 = locations.get(value2);
+                            for (Location location2 : locations2) {
+                                Double temp = proximityMap.get(location1);
+                                double distance = GeoUtils.getDistance(location1, location2);
+                                proximityMap.put(location1, Math.min(temp, distance));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        LOGGER.debug("Sentence proximity map contains {} entries", proximityMap.size());
+        return proximityMap;
+    }
+
+    // XXX move to some utility class
+    private static List<Annotated> getAnnotations(List<Annotated> annotations, int start, int end) {
+        List<Annotated> result = CollectionHelper.newArrayList();
+        for (Annotated annotation : annotations) {
+            if (annotation.getStartPosition() >= start && annotation.getEndPosition() <= end) {
+                result.add(annotation);
+            }
+        }
+        return result;
+    }
+
     private static Set<Location> getUniqueLocations(MultiMap<String, Location> locations) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();
         for (Collection<Location> group : locations.values()) {
@@ -340,11 +389,20 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         return frequencies;
     }
 
-    // XXX check, if it is really spelled capitalized by comparing to looked up locations
-    private static boolean isAcronym(String value) {
-        return value.matches("[A-Z]+|([A-Z]\\.)+");
+    private static boolean isAcronym(String value, MultiMap<String, Location> locations) {
+        for (Location location : locations.get(value)) {
+            Set<String> names = LocationExtractorUtils.collectNames(location);
+            for (String name : names) {
+                if (name.equals(value)) {
+                    if (name.matches("[A-Z]+|([A-Z]\\.)+")) {
+                        LOGGER.trace("{} is an acronym", value);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
-
 
     private static final class LocationInstance implements Location, Classifiable {
 
