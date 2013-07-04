@@ -5,14 +5,13 @@ package ws.palladian.extraction.feature;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
@@ -33,12 +32,12 @@ public final class ImperativeSentenceAnnotator extends TextDocumentPipelineProce
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> tokenAnnotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
-        List<PositionAnnotation> sentences = document.getFeatureVector().getAll(PositionAnnotation.class, AbstractSentenceDetector.PROVIDED_FEATURE);
-        List<PositionAnnotation> ret = new LinkedList<PositionAnnotation>();
+        ListFeature<PositionAnnotation> tokenAnnotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> sentences = document.get(ListFeature.class, AbstractSentenceDetector.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> ret = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
 
         Iterator<PositionAnnotation> posTagsIterator = tokenAnnotations.iterator();
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         for (Annotated sentence : sentences) {
             String firstTagInSentence = null;
             while (posTagsIterator.hasNext()) {
@@ -56,6 +55,6 @@ public final class ImperativeSentenceAnnotator extends TextDocumentPipelineProce
                 ret.add(annotationFactory.create(sentence.getStartPosition(), sentence.getEndPosition()));
             }
         }
-        document.getFeatureVector().addAll(ret);
+        document.add(ret);
     }
 }

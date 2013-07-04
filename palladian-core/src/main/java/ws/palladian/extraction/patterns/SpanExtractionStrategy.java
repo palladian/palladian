@@ -22,13 +22,11 @@ public interface SpanExtractionStrategy {
      * Extracts all {@link SequentialPattern}s from the provided list of token.
      * </p>
      * 
-     * @param featureIdentifier
-     * 
      * @param tokenList The tokens to extract patterns from.
      * @param minPatternSize The minimum size of the patterns.
      * @param maxPatternSize The maximum size of the pattern.
      * @return A {@code List} of the {@code SequentialPattern}s from the provided token.
      */
-    List<SequentialPattern> extract(final String featureIdentifier, final String[] tokenList,
+    List<SequentialPattern> extract(final String[] tokenList,
             final Integer minPatternSize, final Integer maxPatternSize);
 }

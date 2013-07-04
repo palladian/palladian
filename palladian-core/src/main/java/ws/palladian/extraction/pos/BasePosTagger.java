@@ -16,6 +16,7 @@ import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -70,12 +71,12 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().getAll(PositionAnnotation.class,
+        List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
         List<Annotated> ret = CollectionHelper.newArrayList();
         for (PositionAnnotation annotation : annotationFeatureList) {
             NominalFeature tagFeature = annotation.getFeatureVector()
-                    .getFeature(NominalFeature.class, PROVIDED_FEATURE);
+                    .get(NominalFeature.class, PROVIDED_FEATURE);
             String tag = tagFeature.getValue();
             ret.add(new Annotation(annotation.getStartPosition(), annotation.getValue(), tag));
         }
@@ -107,8 +108,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-        List<PositionAnnotation> annotationFeature = featureVector.getAll(PositionAnnotation.class,
+        List<PositionAnnotation> annotationFeature = document.get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
         tag(annotationFeature);
     }

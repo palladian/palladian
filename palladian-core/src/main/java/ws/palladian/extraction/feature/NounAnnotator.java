@@ -10,10 +10,10 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureProvider;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
@@ -58,12 +58,13 @@ public final class NounAnnotator extends TextDocumentPipelineProcessor implement
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> ret = CollectionHelper.newArrayList();
+        ListFeature<PositionAnnotation> ret = new ListFeature<PositionAnnotation>(featureName);
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(featureName, document);
-        for (PositionAnnotation token : document.getFeatureVector().getAll(PositionAnnotation.class,
-                BaseTokenizer.PROVIDED_FEATURE)) {
-            NominalFeature posTag = token.getFeatureVector().getFeature(NominalFeature.class,
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
+        ListFeature<PositionAnnotation> listFeature = document.get(ListFeature.class,
+                BaseTokenizer.PROVIDED_FEATURE);
+        for (PositionAnnotation token : listFeature) {
+            NominalFeature posTag = token.getFeatureVector().get(NominalFeature.class,
                     BasePosTagger.PROVIDED_FEATURE);
             if (posTag == null) {
                 throw new DocumentUnprocessableException(
@@ -72,7 +73,7 @@ public final class NounAnnotator extends TextDocumentPipelineProcessor implement
                 ret.add(annotationFactory.create(token.getStartPosition(), token.getEndPosition()));
             }
         }
-        document.getFeatureVector().addAll(ret);
+        document.add(ret);
     }
 
     @Override
