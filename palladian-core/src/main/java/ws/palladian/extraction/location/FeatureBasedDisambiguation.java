@@ -14,6 +14,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -137,8 +138,14 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         int annotationCount = annotations.size();
 
         for (Annotated annotation : annotations) {
+
             String value = annotation.getValue();
             Collection<Location> candidates = locations.get(LocationExtractorUtils.normalizeName(value));
+            Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
+            long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
+            boolean unique = isUnique(candidates);
+            int maxDepth = getMaxDepth(candidates);
+
             for (Location location : candidates) {
 
                 // all locations except the current one
@@ -152,6 +159,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new NominalFeature("locationType", location.getType().toString()));
                 fv.add(new NumericFeature("population", population));
                 fv.add(new NumericFeature("populationMagnitude", MathHelper.getOrderOfMagnitude(population)));
+                fv.add(new NumericFeature("populationNorm", (double)population / maxPopulation));
                 fv.add(new NumericFeature("numTokens", value.split("\\s").length));
                 fv.add(new NumericFeature("numCharacters", value.length()));
                 fv.add(new NumericFeature("ambiguity", 1. / candidates.size()));
@@ -159,7 +167,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new NumericFeature("count", counts.getCount(value)));
                 fv.add(new NumericFeature("frequency", (double)counts.getCount(value) / annotationCount));
                 fv.add(new BooleanFeature("parentOccurs", parentOccurs(location, others)));
-                fv.add(new BooleanFeature("ancestorOccurs", ancestorOccurs(location, others)));
+                fv.add(new NumericFeature("ancestorCount", ancestorCount(location, others)));
+                fv.add(new BooleanFeature("ancestorOccurs", ancestorCount(location, others) > 0));
                 fv.add(new NumericFeature("numLocIn10", countLocationsInDistance(location, others, 10)));
                 fv.add(new NumericFeature("numLocIn50", countLocationsInDistance(location, others, 50)));
                 fv.add(new NumericFeature("numLocIn100", countLocationsInDistance(location, others, 100)));
@@ -174,6 +183,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new NumericFeature("popIn250", getPopulationInRadius(location, others, 250)));
                 fv.add(new NumericFeature("siblingCount", siblingCount(location, others)));
                 fv.add(new BooleanFeature("siblingOccurs", siblingCount(location, others) > 0));
+                fv.add(new NumericFeature("hierarchyDepth", location.getAncestorIds().size()));
+                fv.add(new NumericFeature("hierarchyDepthNorm", (double)location.getAncestorIds().size() / maxDepth));
+                fv.add(new BooleanFeature("unique", unique));
 
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
@@ -183,6 +195,20 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             }
         }
         return instances;
+    }
+
+    private static int getMaxDepth(Collection<Location> locations) {
+        int maxDepth = 1;
+        for (Location location : locations) {
+            maxDepth = Math.max(maxDepth, location.getAncestorIds().size());
+        }
+        return maxDepth;
+    }
+
+    private static boolean isUnique(Collection<Location> locations) {
+        // XXX maybe use token count also
+        Set<Location> group = LocationExtractorUtils.filterConditionally(locations, new CoordinateFilter());
+        return LocationExtractorUtils.getLargestDistance(group) < 50;
     }
 
     private static int getPopulationInRadius(Location location, Collection<Location> others, double distance) {
@@ -215,13 +241,14 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         return count;
     }
 
-    private static boolean ancestorOccurs(Location location, Collection<Location> others) {
+    private static int ancestorCount(Location location, Collection<Location> others) {
+        int count = 0;
         for (Location other : others) {
             if (LocationExtractorUtils.isChildOf(location, other)) {
-                return true;
+                count++;
             }
         }
-        return false;
+        return count;
     }
 
     private static boolean parentOccurs(Location location, Collection<Location> others) {
@@ -251,9 +278,11 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         return frequencies;
     }
 
+    // XXX check, if it is really spelled capitalized by comparing to looked up locations
     private static boolean isAcronym(String value) {
         return value.matches("[A-Z]+|([A-Z]\\.)+");
     }
+
 
     private static final class LocationInstance implements Location, Classifiable {
 
