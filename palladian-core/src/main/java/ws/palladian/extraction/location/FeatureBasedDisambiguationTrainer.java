@@ -39,8 +39,8 @@ public class FeatureBasedDisambiguationTrainer {
     static FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
 
     public static void main(String[] args) {
-        performFeatureSelection();
-        System.exit(0);
+        // performFeatureSelection();
+        // System.exit(0);
 
         StopWatch stopWatch = new StopWatch();
         File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013_V2_train");
