@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
+import org.tartarus.snowball.ext.germanStemmer;
 
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.helper.StopWatch;
@@ -34,6 +35,9 @@ public class WordTransformer {
 
     /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
     private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
+
+    private static final SnowballStemmer GERMAN_STEMMER = new germanStemmer();
+    private static final SnowballStemmer ENGLISH_STEMMER = new englishStemmer();
 
     static {
 
@@ -419,11 +423,15 @@ public class WordTransformer {
     // return singularForm;
     // }
 
+    public static String stemGermanWord(String word) {
+        GERMAN_STEMMER.setCurrent(word);
+        GERMAN_STEMMER.stem();
+        return GERMAN_STEMMER.getCurrent();
+    }
     public static String stemEnglishWord(String word) {
-        SnowballStemmer snowballStemmer = new englishStemmer();
-        snowballStemmer.setCurrent(word);
-        snowballStemmer.stem();
-        return snowballStemmer.getCurrent();
+        ENGLISH_STEMMER.setCurrent(word);
+        ENGLISH_STEMMER.stem();
+        return ENGLISH_STEMMER.getCurrent();
     }
 
     /**
