@@ -311,7 +311,7 @@ public final class InformationGainFeatureSelector implements FeatureSelector {
         int counter = 0;
         StopWatch stopWatch = new StopWatch();
         for (FeatureDetails featureDetails : featuresToConsider) {
-            LOGGER.debug(ProgressHelper.getProgress(counter++, featuresToConsider.size(), 1, stopWatch));
+            ProgressHelper.printProgress(counter++, featuresToConsider.size(), 1, stopWatch);
             Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(featureDetails, dataset);
 
             if (featureDetails.isSparse()) {

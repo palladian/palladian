@@ -51,13 +51,6 @@ public final class WekaModel implements Model {
         return classifier;
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @return
-     */
     public Map<String, Attribute> getSchema() {
         return schema;
     }
@@ -69,13 +62,6 @@ public final class WekaModel implements Model {
         return dataset;
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @return
-     */
     public List<String> getNormalFeaturePaths() {
         return Collections.unmodifiableList(normalFeaturePaths);
     }
