@@ -24,8 +24,11 @@ import ws.palladian.processing.features.PositionAnnotation;
  * </p>
  * 
  * @author Philipp Katz
+ * @author Klemens Muthmann
  */
 public final class DuplicateTokenConsolidator extends TextDocumentPipelineProcessor {
+    
+    public static final String PROVIDED_FEATURE = "duplicatetoken";
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
@@ -37,7 +40,13 @@ public final class DuplicateTokenConsolidator extends TextDocumentPipelineProces
             if (valueMap.containsKey(tokenValue)) {
                 PositionAnnotation existingAnnotation = valueMap.get(tokenValue);
                 
-                existingAnnotation.getFeatureVector().add(currentAnnotation);
+                ListFeature<PositionAnnotation> duplicates = existingAnnotation.getFeatureVector().get(ListFeature.class,PROVIDED_FEATURE);
+                if(duplicates==null) {
+                    duplicates = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
+                }
+                duplicates.add(currentAnnotation);
+                existingAnnotation.getFeatureVector().remove(PROVIDED_FEATURE);
+                existingAnnotation.getFeatureVector().add(duplicates);
             } else {
                 valueMap.put(tokenValue, currentAnnotation);
                 resultTokens.add(currentAnnotation);
@@ -59,7 +68,7 @@ public final class DuplicateTokenConsolidator extends TextDocumentPipelineProces
      */
     public static List<PositionAnnotation> getDuplicateAnnotations(PositionAnnotation annotation) {
         Validate.notNull(annotation, "annotation must not be null.");
-        List<PositionAnnotation> duplicateTokens = annotation.getFeatureVector().get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> duplicateTokens = annotation.getFeatureVector().get(ListFeature.class, PROVIDED_FEATURE);
 //        List<Annotation<String>> ret = Collections.emptyList();
 //        if (duplicateFeature != null) {
 //            ret = duplicateFeature.getValue();

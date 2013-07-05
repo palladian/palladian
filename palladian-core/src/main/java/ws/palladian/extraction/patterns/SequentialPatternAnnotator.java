@@ -14,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.pos.BasePosTagger;
@@ -56,6 +58,8 @@ import ws.palladian.processing.features.SequentialPattern;
  */
 public final class SequentialPatternAnnotator extends TextDocumentPipelineProcessor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequentialPatternAnnotator.class);
+
     private Set<String> keywords;
 
     public static final String PROVIDED_FEATURE = "lsp";
@@ -96,6 +100,8 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
 
     @Override
     public void processDocument(TextDocument document) {
+        // LOGGER.debug(document.toString());
+
         List<PositionAnnotation> posTags = new ArrayList<PositionAnnotation>(document.get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE));
         List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>(document.get(ListFeature.class,
@@ -112,6 +118,7 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
         PositionAnnotation currentMarkedKeyword = markedKeywordsIterator.hasNext() ? markedKeywordsIterator.next()
                 : null;
         PositionAnnotation currentPosTag = posTagsIterator.hasNext() ? posTagsIterator.next() : null;
+        ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>(PROVIDED_FEATURE);
 
         // create one LSP per sentence in the document.
         for (PositionAnnotation sentence : sentences) {
@@ -126,11 +133,11 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
                     sequentialPattern.add(currentMarkedKeyword.getValue());
                     i = currentMarkedKeyword.getEndPosition();
                 } else if (currentPosTag != null && Integer.valueOf(currentPosTag.getStartPosition()).equals(i)) {
-                    List<NominalFeature> posTagFeatures = currentPosTag.getFeatureVector().get(ListFeature.class,
+                    NominalFeature posTagFeature = currentPosTag.getFeatureVector().get(NominalFeature.class,
                             BasePosTagger.PROVIDED_FEATURE);
-                    for (NominalFeature posTagFeature : posTagFeatures) {
-                        sequentialPattern.add(posTagFeature.getValue());
-                    }
+                    // LOGGER.trace("currentPosTag: "+ currentPosTag.toString());
+                    // LOGGER.trace("posTagFeature: "+posTagFeature);
+                    sequentialPattern.add(posTagFeature.getValue());
                     i = currentPosTag.getEndPosition();
                 } else {
                     i++;
@@ -150,9 +157,10 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
             String[] arrayOfWholeSentencePattern = sequentialPattern.toArray(new String[sequentialPattern.size()]);
             List<SequentialPattern> extractedPatterns = extractionStrategy.extract(arrayOfWholeSentencePattern,
                     minSequentialPatternSize, maxSequentialPatternSize);
-            ListFeature<SequentialPattern> feature = new ListFeature<SequentialPattern>("lsp", extractedPatterns);
-            document.getFeatureVector().add(feature);
+            feature.addAll(extractedPatterns);
+
         }
+        document.add(feature);
     }
 
     /**
