@@ -449,11 +449,11 @@ public final class LocationExtractionEvaluator {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
         disambiguation.setModel((BaggedDecisionTreeModel)FileHelper
-                .deserialize("location_disambiguation_1372944832497.model"));
+                .deserialize("location_disambiguation_1373036932435.model"));
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
         // evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
-        // evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
-        evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
         // File pathToTexts = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");
         // File pathToJsonResults = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/UnlockTextResults");

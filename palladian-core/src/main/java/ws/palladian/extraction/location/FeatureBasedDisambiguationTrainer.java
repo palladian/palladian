@@ -28,7 +28,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotated;
-import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
 
 public class FeatureBasedDisambiguationTrainer {
@@ -39,8 +38,8 @@ public class FeatureBasedDisambiguationTrainer {
     static FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
 
     public static void main(String[] args) {
-        // performFeatureSelection();
-        // System.exit(0);
+        performFeatureSelection();
+        System.exit(0);
 
         StopWatch stopWatch = new StopWatch();
         File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013_V2_train");
@@ -49,8 +48,8 @@ public class FeatureBasedDisambiguationTrainer {
         Map<String, SortedMap<Integer, GeoCoordinate>> coordinates = LocationExtractionEvaluator
                 .readCoordinatesCsv(new File(goldStandardFileFolderPath, "coordinates.csv"));
 
-        addFile(coordinates, new File(goldStandardFileFolderPath, "text36.txt"));
-        System.exit(0);
+        // addFile(coordinates, new File(goldStandardFileFolderPath, "text7.txt"));
+        // System.exit(0);
 
         for (int i = 0; i < files.length; i++) {
             ProgressHelper.printProgress(i, files.length, 10, stopWatch);
@@ -105,14 +104,15 @@ public class FeatureBasedDisambiguationTrainer {
         // FeatureSelector fs = new ChiSquaredFeatureSelector(mergingStrategy);
         FeatureSelector fs = new InformationGainFeatureSelector();
 
-        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1372954180264.csv";
+        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1373036932435.csv";
         List<Trainable> dataset = ClassificationUtils.createInstances(csvFilePath, true);
-        // Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
-        Collection<FeatureDetails> featuresToConsider = CollectionHelper.newHashSet();
-        featuresToConsider.add(new FeatureDetails("distLoc10Sentence", BooleanFeature.class, false));
-        featuresToConsider.add(new FeatureDetails("distLoc50Sentence", BooleanFeature.class, false));
-        featuresToConsider.add(new FeatureDetails("distLoc100Sentence", BooleanFeature.class, false));
-        featuresToConsider.add(new FeatureDetails("distLoc250Sentence", BooleanFeature.class, false));
+        Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
+        // Collection<FeatureDetails> featuresToConsider = CollectionHelper.newHashSet();
+        // featuresToConsider.add(new FeatureDetails("marker=river", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("distLoc10Sentence", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("distLoc50Sentence", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("distLoc100Sentence", BooleanFeature.class, false));
+        // featuresToConsider.add(new FeatureDetails("distLoc250Sentence", BooleanFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("uniqueAndLong", BooleanFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("uniqueLocIn10", BooleanFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("uniqueLocIn50", BooleanFeature.class, false));

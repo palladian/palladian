@@ -11,9 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
@@ -22,8 +24,10 @@ import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.TrainableWrap;
@@ -43,6 +47,13 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     private final Set<Trainable> trainInstanceCollection = CollectionHelper.newHashSet();
 
     private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+
+    private final ContextClassifier contextClassifier = new ContextClassifier();
+
+    private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
+
+    private final Set<String> locationMarkers = new HashSet<String>(
+            FileHelper.readFileToArray(FeatureBasedDisambiguation.class.getResourceAsStream("/locationMarkers.txt")));
 
     private BaggedDecisionTreeModel model;
 
@@ -173,26 +184,28 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             MultiMap<String, Location> locations, String fileName) {
 
         Set<Annotated> unlikelyCandidates = getUnlikelyCandidates(text, locations);
-
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
         Collection<Location> allLocations = locations.allValues();
-
         CountMap<String> counts = getCounts(annotations);
         int annotationCount = annotations.size();
-
         Set<Location> uniqueLocations = getUniqueLocations(locations);
         Map<Location, Double> sentenceProximities = buildSentenceProximityMap(text, annotations, locations);
+        Map<String, CategoryEntries> contextClassification = createContextClassification(text, annotations);
 
         for (Annotated annotation : annotations) {
 
             String value = annotation.getValue();
-            Collection<Location> candidates = locations.get(LocationExtractorUtils.normalizeName(value));
+            String normalizedValue = LocationExtractorUtils.normalizeName(value);
+            Collection<Location> candidates = locations.get(normalizedValue);
             Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
             long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
             boolean unique = isUnique(candidates);
             boolean uniqueAndLong = unique && annotation.getValue().split("\\s").length > 2;
             int maxDepth = getMaxDepth(candidates);
             boolean unlikelyCandidate = unlikelyCandidates.contains(annotation);
+            CategoryEntries temp = contextClassification.get(normalizedValue);
+            double locContextProbability = temp != null ? temp.getProbability("LOC") : 0;
+            boolean stopword = stopTokenRemover.isStopword(value);
 
             for (Location location : candidates) {
 
@@ -205,6 +218,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 // extract features and add them to the feature vector
                 FeatureVector fv = new FeatureVector();
                 fv.add(new NominalFeature("locationType", location.getType().toString()));
+                fv.add(new BooleanFeature("country", location.getType() == LocationType.COUNTRY));
+                fv.add(new BooleanFeature("continent", location.getType() == LocationType.CONTINENT));
+                fv.add(new BooleanFeature("city", location.getType() == LocationType.CITY));
                 fv.add(new NumericFeature("population", population));
                 fv.add(new NumericFeature("populationMagnitude", MathHelper.getOrderOfMagnitude(population)));
                 fv.add(new NumericFeature("populationNorm", (double)population / maxPopulation));
@@ -244,6 +260,11 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new BooleanFeature("distLoc50Sentence", sentenceProximities.get(location) <= 50));
                 fv.add(new BooleanFeature("distLoc100Sentence", sentenceProximities.get(location) <= 100));
                 fv.add(new BooleanFeature("distLoc250Sentence", sentenceProximities.get(location) <= 250));
+                fv.add(new NumericFeature("context", locContextProbability));
+                fv.add(new BooleanFeature("stopword", stopword));
+                fv.add(new NominalFeature("caseSignature", StringHelper.getCaseSignature(normalizedValue)));
+
+                createMarkerFeatures(value, fv);
 
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
@@ -253,6 +274,28 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             }
         }
         return instances;
+    }
+
+    private void createMarkerFeatures(String value, FeatureVector featureVector) {
+        for (String marker : locationMarkers) {
+            boolean containsWord = StringHelper.containsWord(marker, value);
+            featureVector.add(new BooleanFeature("marker=" + marker.toLowerCase(), containsWord));
+        }
+    }
+
+    private Map<String, CategoryEntries> createContextClassification(String text, List<Annotated> annotations) {
+        Map<String, CategoryEntries> result = CollectionHelper.newHashMap();
+        for (Annotated annotation : annotations) {
+            CategoryEntries classification = contextClassifier.classify(text, annotation);
+            String value = LocationExtractorUtils.normalizeName(annotation.getValue());
+            CategoryEntries existing = result.get(value);
+            if (existing == null) {
+                result.put(value, classification);
+            } else {
+                result.put(value, CategoryEntriesMap.merge(classification, existing));
+            }
+        }
+        return result;
     }
 
     private static Map<Location, Double> buildSentenceProximityMap(String text, List<Annotated> annotations,
