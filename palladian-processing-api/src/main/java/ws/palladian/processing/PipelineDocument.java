@@ -64,11 +64,7 @@ public abstract class PipelineDocument<T> extends FeatureVector {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("PipelineDocument [content=");
-        builder.append(getContent());
-        builder.append("]");
-        return builder.toString();
+        return "PipelineDocument [content=" + content + ", getAll()=" + getAll() + "]";
     }
 
     // Adapted method. Do not change if you don't know what you are doing.

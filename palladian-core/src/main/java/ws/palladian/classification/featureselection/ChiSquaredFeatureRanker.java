@@ -165,6 +165,15 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         return ret;
     }
 
+    /**
+     * <p>
+     * Increases the coocurrence of the row value and the column value in the provided correlation matrix by one.
+     * </p>
+     *
+     * @param row The value of the row of the matrix.
+     * @param column The value of the column of the matrix.
+     * @param correlationMatrix The correlation matrix to add the correlation to.
+     */
     private static void addCooccurence(String row, String column, Map<String, Map<String, Long>> correlationMatrix) {
 
         Map<String, Long> correlations = correlationMatrix.get(row);

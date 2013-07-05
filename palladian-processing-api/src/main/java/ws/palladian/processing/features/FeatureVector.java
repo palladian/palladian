@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.processing.Classifiable;
 
@@ -20,9 +21,16 @@ import ws.palladian.processing.Classifiable;
  * @author Klemens Muthmann
  * @author David Urbansky
  * @author Philipp Katz
- * @version 2.0
+ * @version 2.5
  */
 public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
+
+    /**
+     * <p>
+     * The logger for objects of this class. Configure it using <code>/src/main/resources/log4j.properties</code>.
+     * </p>
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureVector.class);
 
     /**
      * <p>
@@ -63,7 +71,9 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      *            The actual {@code Feature} instance containing the value.
      */
     public void add(Feature<?> feature) {
-        Validate.isTrue(features.get(feature.getName())==null,"Please use a ListFeature to add multiple features with the same name.");
+        if (features.get(feature.getName())!=null) {
+            LOGGER.warn("Please use a ListFeature to add multiple features with the same name.");
+        }
         features.put(feature.getName(), feature);
     }
 
@@ -177,7 +187,6 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
 
     @Override
     public Iterator<Feature<?>> iterator() {
-        // return getFlat().iterator();
         return getAll().iterator();
     }
 

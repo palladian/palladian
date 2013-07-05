@@ -61,8 +61,10 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
         @SuppressWarnings("unchecked")
         ListFeature<PositionAnnotation> annotations = trainable.getFeatureVector().get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
-        for (PositionAnnotation annotation : annotations) {
-            model.updateTerm(annotation.getValue(), targetClass);
+        if (annotations != null) {
+            for (PositionAnnotation annotation : annotations) {
+                model.updateTerm(annotation.getValue(), targetClass);
+            }
         }
         model.addCategory(targetClass);
         return model;
@@ -80,13 +82,16 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
         @SuppressWarnings("unchecked")
         ListFeature<PositionAnnotation> annotations = classifiable.getFeatureVector().get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
-        for (PositionAnnotation annotation : annotations) {
-            CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
-            for (String category : categoryFrequencies) {
-                double categoryFrequency = categoryFrequencies.getProbability(category);
-                if (categoryFrequency > 0) {
-                    double weight = categoryFrequency * categoryFrequency;
-                    probabilities.put(category, probabilities.get(category) + weight);
+
+        if (annotations != null) {
+            for (PositionAnnotation annotation : annotations) {
+                CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
+                for (String category : categoryFrequencies) {
+                    double categoryFrequency = categoryFrequencies.getProbability(category);
+                    if (categoryFrequency > 0) {
+                        double weight = categoryFrequency * categoryFrequency;
+                        probabilities.put(category, probabilities.get(category) + weight);
+                    }
                 }
             }
         }

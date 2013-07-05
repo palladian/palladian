@@ -17,6 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.patterns.LabeledSequentialPatternExtractionStrategy;
 import ws.palladian.extraction.patterns.NGramPatternExtractionStrategy;
@@ -43,6 +45,8 @@ import ws.palladian.processing.features.utils.FeatureUtils;
  */
 @RunWith(Parameterized.class)
 public class SequentialPatternAnnotatorTest {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequentialPatternAnnotatorTest.class);
 
     private final String inputText;
     private final String[] keywords;
@@ -215,6 +219,7 @@ public class SequentialPatternAnnotatorTest {
         TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
+        LOGGER.debug(document.toString());
 
         List<SequentialPattern> extractedPatterns = document.get(ListFeature.class, "lsp");
         Assert.assertThat(extractedPatterns,
