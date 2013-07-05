@@ -36,6 +36,9 @@ import ws.palladian.processing.features.utils.FeatureUtils;
  * @since 0.2.2
  */
 public abstract class AbstractFeatureRanker implements FeatureRanker {
+
+    private final Map<String, Binner> binnerCache = CollectionHelper.newHashMap();
+
     /**
      * <p>
      * Converts all features within a {@link FeatureVector} to a {@link Set}. For dense {@link Feature}s the set is
@@ -50,16 +53,15 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
      * @param featureVector The {@link FeatureVector} containing the dense {@link Feature} or sparse {@link Feature}s
      * @return the {@link Feature} or {@link Feature}s as a {@link Set}.
      */
-    protected static Set<Feature<?>> convertToSet(final FeatureVector featureVector, final Collection<Instance> dataset) {
+    protected Set<Feature<?>> convertToSet(final FeatureVector featureVector, final Collection<Instance> dataset) {
         Set<Feature<?>> ret = CollectionHelper.newHashSet();
-        Map<String, Binner> binners = CollectionHelper.newHashMap();
 
         for (final Feature<?> feature : featureVector) {
             if (feature instanceof ListFeature<?>) {
                 ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
                 for (final Feature<?> element : listFeature) {
                     if (element instanceof NumericFeature) {
-                        Binner binner = binners.get(element.getName());
+                        Binner binner = binnerCache.get(element.getName());
                         if (binner == null) {
                             binner = discretize(element.getName(), dataset, new Comparator<Instance>() {
 
@@ -77,7 +79,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                                     return i1FeatureValue.compareTo(i2FeatureValue);
                                 }
                             });
-                            binners.put(element.getName(), binner);
+                            binnerCache.put(element.getName(), binner);
                         }
                         ret.add(binner.bin((NumericFeature)element));
                     } else {
@@ -85,7 +87,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                     }
                 }
             } else if (feature instanceof NumericFeature) {
-                Binner binner = binners.get(feature.getName());
+                Binner binner = binnerCache.get(feature.getName());
                 if (binner == null) {
                     binner = discretize(feature.getName(), dataset, new Comparator<Instance>() {
 
@@ -100,7 +102,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                             return i1FeatureValue.compareTo(i2FeatureValue);
                         }
                     });
-                    binners.put(feature.getName(), binner);
+                    binnerCache.put(feature.getName(), binner);
                 }
 
                 ret.add(binner.bin((NumericFeature)feature));
@@ -149,7 +151,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
     private static Binner createBinner(List<Instance> dataset, final String featureName) {
         List<Integer> boundaryPoints = findBoundaryPoints(dataset);
 
-//        StringBuilder nameBuilder = new StringBuilder();
+        // StringBuilder nameBuilder = new StringBuilder();
         // for (FeatureDescriptor descriptor : featureName) {
         // nameBuilder.append(descriptor.toString()).append("/");
         // }
@@ -162,6 +164,18 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
         return new Binner(featureName, boundaryPoints, features);
     }
 
+    /**
+     * <p>
+     * Find all the boundary points within the provided dataset. The dataset needs to be sorted based on the
+     * {@link NumericFeature} the boundary points are searched for.
+     * </p>
+     * 
+     * @param sortedDataset The dataset sorted by the values of the searched {@link NumericFeature}.
+     * @return The boundary points as a set of indices into the sorted dataset. Each element marks the location of one
+     *         boundary point. Each boundary point as such lies between the index provided by an element of the return
+     *         value and the previous index. So a value of 1 means there is a boundary point between the 0th and the 1st
+     *         instance.
+     */
     private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
         List<Integer> boundaryPoints = new ArrayList<Integer>();
         int N = sortedDataset.size();
@@ -210,6 +224,14 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
         return entropy;
     }
 
+    /**
+     * <p>
+     * Calculates the number of target classes from a list of {@link Instance}s.
+     * </p>
+     * 
+     * @param s The set of instances to calculate the target classes for.
+     * @return the number of target classes the provided dataset contains.
+     */
     private static double calculateNumberOfClasses(List<Instance> s) {
         Set<String> possibleClasses = new HashSet<String>();
         for (Instance instance : s) {

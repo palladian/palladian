@@ -30,7 +30,7 @@ import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
- * Tests whether the {@link FeatureRanker} works correctly or nor.
+ * Tests whether the {@link FeatureRanker} works correctly or not.
  * </p>
  * 
  * @author Klemens Muthmann

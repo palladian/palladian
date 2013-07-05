@@ -24,12 +24,11 @@ import ws.palladian.classification.Instance;
 public final class AverageMergingStrategy implements SelectedFeatureMergingStrategy {
 
     @Override
-    public FeatureRanking merge(Collection<Instance> dataset) {
+    public FeatureRanking merge(Collection<Instance> dataset, Map<String, Map<String, Double>> chiSquaredValues) {
         FeatureRanking ranking = new FeatureRanking();
-        Map<String, Map<String, Double>> scoredFeature = ChiSquaredFeatureRanker.calculateChiSquareValues(dataset);
 
         // this should usually only run once for non sparse features.
-        for (Entry<String, Map<String, Double>> scoredValue : scoredFeature.entrySet()) {
+        for (Entry<String, Map<String, Double>> scoredValue : chiSquaredValues.entrySet()) {
             double averageScore = 0.0d;
 
             for (Double value : scoredValue.getValue().values()) {
