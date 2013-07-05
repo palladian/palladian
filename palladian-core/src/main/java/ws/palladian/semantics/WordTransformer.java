@@ -423,15 +423,46 @@ public class WordTransformer {
     // return singularForm;
     // }
 
-    public static String stemGermanWord(String word) {
-        GERMAN_STEMMER.setCurrent(word);
-        GERMAN_STEMMER.stem();
-        return GERMAN_STEMMER.getCurrent();
+    public static String stemGermanWords(String words) {
+        return stemWords(words, Language.GERMAN);
     }
+
+    public static String stemEnglishWords(String words) {
+        return stemWords(words, Language.ENGLISH);
+    }
+
+    public static String stemWords(String words, Language language) {
+        StringBuilder stemmedString = new StringBuilder();
+        String[] split = words.split(" ");
+
+        for (int i = 0; i < split.length; i++) {
+            if (language == Language.GERMAN) {
+                stemmedString.append(stemGermanWord(split[i]));
+            } else if (language == Language.ENGLISH) {
+                stemmedString.append(stemEnglishWord(split[i]));
+            }
+            stemmedString.append(" ");
+        }
+
+        return stemmedString.toString().trim();
+    }
+
+    public static String stemGermanWord(String word) {
+        synchronized (GERMAN_STEMMER) {
+            GERMAN_STEMMER.setCurrent(word);
+            GERMAN_STEMMER.stem();
+            word = GERMAN_STEMMER.getCurrent();
+        }
+        return word;
+    }
+
     public static String stemEnglishWord(String word) {
-        ENGLISH_STEMMER.setCurrent(word);
-        ENGLISH_STEMMER.stem();
-        return ENGLISH_STEMMER.getCurrent();
+        synchronized (ENGLISH_STEMMER) {
+            ENGLISH_STEMMER.setCurrent(word);
+            ENGLISH_STEMMER.stem();
+            word = ENGLISH_STEMMER.getCurrent();
+        }
+        return word;
     }
 
     /**
