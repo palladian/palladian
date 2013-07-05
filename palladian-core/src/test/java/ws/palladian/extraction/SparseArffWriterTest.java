@@ -24,6 +24,7 @@ import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
@@ -62,12 +63,12 @@ public class SparseArffWriterTest {
         FeatureVector featureVector = document.getFeatureVector();
 
         // la should be only once in the result ARFF.
-        List<String> listFeatureValue = new ArrayList<String>();
-        listFeatureValue.add("la");
-        listFeatureValue.add("blah");
-        listFeatureValue.add("da");
-        listFeatureValue.add("la");
-        ListFeature<String> listFeature = new ListFeature<String>(listFeatureName, listFeatureValue);
+        List<SparseFeature<String>> listFeatureValue = new ArrayList<SparseFeature<String>>();
+        listFeatureValue.add(new SparseFeature<String>("la"));
+        listFeatureValue.add(new SparseFeature<String>("blah"));
+        listFeatureValue.add(new SparseFeature<String>("da"));
+        listFeatureValue.add(new SparseFeature<String>("la"));
+        ListFeature<SparseFeature<String>> listFeature = new ListFeature<SparseFeature<String>>(listFeatureName, listFeatureValue);
         featureVector.add(listFeature);
 
         List<NumericFeature> numericListFeatureValue = new ArrayList<NumericFeature>();

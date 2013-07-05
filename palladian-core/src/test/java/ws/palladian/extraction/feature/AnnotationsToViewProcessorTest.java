@@ -10,6 +10,7 @@ import org.junit.Test;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -27,8 +28,9 @@ public class AnnotationsToViewProcessorTest {
     public void test() throws DocumentUnprocessableException {
         AnnotationsToViewProcessor objectOfClassUnderTest = new AnnotationsToViewProcessor("annotation");
         TextDocument testDocument = new TextDocument("test");
-        testDocument.getFeatureVector().add(new PositionAnnotation("annotation", 0, 3, "The"));
-        testDocument.getFeatureVector().add(new PositionAnnotation("annotation", 5, 8, "Fox"));
+        ListFeature<PositionAnnotation> feature = new ListFeature<PositionAnnotation>("annotation");
+        testDocument.add(new PositionAnnotation("The", 0, 3));
+        testDocument.add(new PositionAnnotation("Fox", 5, 8));
 
         objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(testDocument);
         objectOfClassUnderTest.process();

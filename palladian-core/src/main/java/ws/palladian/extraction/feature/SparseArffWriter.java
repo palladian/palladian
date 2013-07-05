@@ -39,6 +39,7 @@ import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.SequentialPattern;
+import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
@@ -398,8 +399,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
             handleNominalFeature((NominalFeature)feature, newInstance);
         } else if (feature instanceof SequentialPattern) {
             handleSequentialPattern((SequentialPattern)feature, newInstance);
-        } else if (feature instanceof ListFeature)
+        } else if (feature instanceof ListFeature) {
             handleSparseFeature((ListFeature)feature, newInstance);
+        }
     }
 
     /**
@@ -499,25 +501,25 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            from the index of the attribute in the ARFF file schema to the attributes name. An attribute is a
      *            synonym for a feature in Weka.
      */
-    private void handleSparseFeature(ListFeature<?> feature, List<Pair<Integer, String>> newInstance) {
-        for (Object value : feature.getValue()) {
-            if (value instanceof Feature) {
-                handleFeature((Feature<?>)value, newInstance);
-            } else {
-                String featureType = "\"" + mask(value.toString()) + "\" numeric";
-
+    private void handleSparseFeature(ListFeature<Feature<?>> feature, List<Pair<Integer, String>> newInstance) {
+        for (Feature<?> value : feature.getValue()) {
+            if (value instanceof SparseFeature) {
+                String featureType = "\"" + mask(value.getName()) + "\" numeric";
+                
                 Integer featureTypeIndex = featureTypes.get(featureType);
                 if (featureTypeIndex == null) {
                     featureTypes.put(featureType, featuresAdded);
                     featureTypeIndex = featuresAdded;
                     featuresAdded++;
                 }
-
+                
                 ImmutablePair<Integer, String> featureValue = new ImmutablePair<Integer, String>(featureTypeIndex,
                         "1.0");
                 if (!newInstance.contains(featureValue)) {
                     newInstance.add(featureValue);
                 }
+            } else {
+                handleFeature((Feature<?>)value, newInstance);
             }
         }
     }
