@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.Instance;
 
 /**
@@ -25,13 +23,12 @@ import ws.palladian.classification.Instance;
 public final class RoundRobinMergingStrategy implements SelectedFeatureMergingStrategy {
 
     @Override
-    public FeatureRanking merge(Collection<Instance> dataset) {
+    public FeatureRanking merge(Collection<Instance> dataset, Map<String,Map<String,Double>> chiSquaredValues) {
         FeatureRanking ret = new FeatureRanking();
         Map<String, FeatureRanking> rankingsPerTargetClass = new HashMap<String, FeatureRanking>();
-        Map<String, Map<String, Double>> classRanking = ChiSquaredFeatureRanker.calculateChiSquareValues(dataset);
 
         // this should usually only run once for non sparse features.
-        for (Entry<String, Map<String, Double>> scoredValue : classRanking.entrySet()) {
+        for (Entry<String, Map<String, Double>> scoredValue : chiSquaredValues.entrySet()) {
 
             for (Entry<String, Double> entry : scoredValue.getValue().entrySet()) {
                 FeatureRanking rankingPerTargetClass = rankingsPerTargetClass.get(entry.getKey());

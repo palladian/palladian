@@ -180,9 +180,9 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
      */
     private void applyWhiteList(final FeatureVector featureVector) {
         List<Feature<?>> copy = featureVector.getAll();
-        for (Feature feature : copy) {
+        for (Feature<?> feature : copy) {
             if (feature instanceof ListFeature) {
-                if (!handleListFeature((ListFeature<?>)feature)) {
+                if (!handleListFeature((ListFeature<Feature<?>>)feature)) {
                     featureVector.remove(feature);
                 }
             } else {
@@ -199,7 +199,7 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
      * 
      * @param feature
      */
-    private boolean handleListFeature(ListFeature<?> feature) {
+    private boolean handleListFeature(ListFeature<Feature<?>> feature) {
         boolean ret = false;
 
         List<Object> copy = new ArrayList<Object>(feature.getValue());
@@ -207,7 +207,7 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
             boolean isOnList = false;
             for (SparseFilter filter : sparseWhiteList) {
                 String name = filter.getFeatureName();
-                if ((value instanceof Feature && ((Feature)value).getName().equals(name))
+                if ((value instanceof Feature && ((Feature<?>)value).getName().equals(name))
                         || value.toString().equals(name)) {
                     isOnList = true;
                     ret = true;
@@ -229,7 +229,7 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
      * @param feature
      * @param featureVector
      */
-    private void handleFeature(Feature feature, FeatureVector featureVector) {
+    private void handleFeature(Feature<?> feature, FeatureVector featureVector) {
         boolean isOnList = false;
         for (DenseFilter filter : whiteList) {
             if (filter.getFeatureName().equals(feature.getName())) {

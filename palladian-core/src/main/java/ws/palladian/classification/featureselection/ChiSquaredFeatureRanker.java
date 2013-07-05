@@ -83,7 +83,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      *         the value is the chi squared score for the feature with that
      *         class.
      */
-    public static Map<String, Map<String, Double>> calculateChiSquareValues(final Collection<Instance> dataset) {
+    public Map<String, Map<String, Double>> calculateChiSquareValues(final Collection<Instance> dataset) {
         Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
         Map<String, Long> classCounts = new HashMap<String, Long>();
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
@@ -192,6 +192,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
 
     @Override
     public FeatureRanking rankFeatures(Collection<Instance> dataset) {
-        return mergingStrategy.merge(dataset);
+        Map<String,Map<String,Double>> scoredFeatures = calculateChiSquareValues(dataset);
+        return mergingStrategy.merge(dataset,scoredFeatures);
     }
 }

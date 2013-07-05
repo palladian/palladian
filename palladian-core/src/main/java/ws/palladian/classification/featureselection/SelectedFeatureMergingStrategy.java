@@ -10,9 +10,9 @@ import ws.palladian.classification.Instance;
 
 /**
  * <p>
- * Strategy for merging the features selected by the {@link ChiSquaredFeatureRanker} for each class. If you find it
- * hard to decide which implementation to use, you probably would want to try the {@link AverageMergingStrategy}, which
- * just computes the final ranking based on the arithmetic mean of the per class scores for each feature.
+ * Strategy for merging the features selected by the {@link ChiSquaredFeatureRanker} for each class. If you find it hard
+ * to decide which implementation to use, you probably would want to try the {@link AverageMergingStrategy}, which just
+ * computes the final ranking based on the arithmetic mean of the per class scores for each feature.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -27,7 +27,8 @@ public interface SelectedFeatureMergingStrategy {
      * 
      * @param rankedFeaturesPerClass The ranked features per target class. The first key is the feature mapped to a
      *            {@link Map} of target class to score.
+     * @param chiSquaredScores The chi-squared scores to merge with this merging strategy.
      * @return A merged ranking of the provided features.
      */
-    FeatureRanking merge(Collection<Instance> dataset);
+    FeatureRanking merge(Collection<Instance> dataset, Map<String, Map<String, Double>> chiSquaredScores);
 }
