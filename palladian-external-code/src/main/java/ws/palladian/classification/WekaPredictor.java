@@ -42,7 +42,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 3.0
  * @since 0.1.7
  */
-public final class WekaPredictor implements Learner, Classifier<WekaModel> {
+public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaModel> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(WekaPredictor.class);
 

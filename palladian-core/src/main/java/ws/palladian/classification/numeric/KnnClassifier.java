@@ -31,7 +31,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class KnnClassifier implements Learner, Classifier<KnnModel> {
+public final class KnnClassifier implements Learner<KnnModel>, Classifier<KnnModel> {
 
     /**
      * <p>

@@ -25,7 +25,7 @@ import ws.palladian.processing.features.Feature;
  * 
  * @author Philipp Katz
  */
-public final class DecisionTreeClassifier implements Learner, Classifier<DecisionTreeModel> {
+public final class DecisionTreeClassifier implements Learner<DecisionTreeModel>, Classifier<DecisionTreeModel> {
 
     private final int maxDepth;
 
