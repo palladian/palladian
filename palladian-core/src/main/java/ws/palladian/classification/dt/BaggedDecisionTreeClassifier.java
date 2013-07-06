@@ -22,7 +22,8 @@ import ws.palladian.processing.Trainable;
  * 
  * @author Philipp Katz
  */
-public final class BaggedDecisionTreeClassifier implements Learner, Classifier<BaggedDecisionTreeModel> {
+public final class BaggedDecisionTreeClassifier implements Learner<BaggedDecisionTreeModel>,
+        Classifier<BaggedDecisionTreeModel> {
 
     /** The default number of classifiers to create, in case it is not specified explicitly. */
     public static final int DEFAULT_NUM_CLASSIFIERS = 10;
