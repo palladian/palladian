@@ -6,12 +6,12 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;

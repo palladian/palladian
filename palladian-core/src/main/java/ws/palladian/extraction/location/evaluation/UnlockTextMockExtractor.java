@@ -90,7 +90,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
             // List<Integer> indices = StringHelper.getOccurrenceIndices(text, name);
             List<Integer> indices = NerHelper.getEntityOffsets(text, name);
             for (Integer idx : indices) {
-                annotations.add(new LocationAnnotation(idx, idx + name.length(), name, location));
+                annotations.add(new LocationAnnotation(idx, name, location));
             }
         }
         annotations.sort();

@@ -76,7 +76,6 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
             for (int i = 0; i < resultArray.length(); i++) {
                 JSONObject currentResult = resultArray.getJSONObject(i);
                 int startPos = currentResult.getInt("startPosition");
-                int endPos = currentResult.getInt("endPosition");
                 String name = currentResult.getString("value");
 
                 JSONObject locationJson = currentResult.getJSONObject("location");
@@ -102,7 +101,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
 
                 Location location = new ImmutableLocation(locationId, primaryName, alternativeNames, type, lat, lng,
                         population, ancestorIds);
-                annotations.add(new LocationAnnotation(startPos, endPos, name, location));
+                annotations.add(new LocationAnnotation(startPos, name, location));
 
             }
             return annotations;

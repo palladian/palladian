@@ -1,52 +1,20 @@
 package ws.palladian.extraction.location;
 
-import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
-public class LocationAnnotation implements Annotated {
+public class LocationAnnotation extends Annotation {
 
-    private final int startPosition;
-    private final int endPosition;
-    private final String value;
     private final Location location;
-
-    public LocationAnnotation(int startPosition, int endPosition, String value, Location location) {
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
-        this.value = value;
+    
+    public LocationAnnotation(int startPosition, String value, Location location) {
+        super(startPosition, value, location.getType().toString());
         this.location = location;
     }
 
     public LocationAnnotation(Annotated annotation, Location location) {
-        this.startPosition = annotation.getStartPosition();
-        this.endPosition = annotation.getEndPosition();
-        this.value = annotation.getValue();
+        super(annotation);
         this.location = location;
-    }
-
-    @Override
-    public int getStartPosition() {
-        return startPosition;
-    }
-
-    @Override
-    public int getEndPosition() {
-        return endPosition;
-    }
-
-    @Override
-    public String getTag() {
-        return location.getType().toString();
-    }
-
-    @Override
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public int compareTo(Annotated o) {
-        return this.startPosition - o.getStartPosition();
     }
 
     public Location getLocation() {
@@ -54,20 +22,14 @@ public class LocationAnnotation implements Annotated {
     }
 
     @Override
-    public boolean overlaps(Annotated annotated) {
-        // FIXME this needs to go in parent -> duplicate of NerHelper
-        return NerHelper.overlaps(this, annotated);
-    }
-
-    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("LocationAnnotation [startPosition=");
-        builder.append(startPosition);
+        builder.append(getStartPosition());
         builder.append(", endPosition=");
-        builder.append(endPosition);
+        builder.append(getEndPosition());
         builder.append(", value=");
-        builder.append(value);
+        builder.append(getValue());
         builder.append(", location=");
         builder.append(location);
         builder.append("]");
@@ -78,10 +40,10 @@ public class LocationAnnotation implements Annotated {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + endPosition;
+        result = prime * result + getEndPosition();
         result = prime * result + ((location == null) ? 0 : location.getId());
-        result = prime * result + startPosition;
-        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + getStartPosition();
+        result = prime * result + ((getValue() == null) ? 0 : getValue().hashCode());
         return result;
     }
 
@@ -94,19 +56,19 @@ public class LocationAnnotation implements Annotated {
         if (getClass() != obj.getClass())
             return false;
         LocationAnnotation other = (LocationAnnotation)obj;
-        if (endPosition != other.endPosition)
+        if (getEndPosition() != other.getEndPosition())
             return false;
         if (location == null) {
             if (other.location != null)
                 return false;
         } else if (location.getId() != other.location.getId())
             return false;
-        if (startPosition != other.startPosition)
+        if (getStartPosition() != other.getStartPosition())
             return false;
-        if (value == null) {
-            if (other.value != null)
+        if (getValue() == null) {
+            if (other.getValue() != null)
                 return false;
-        } else if (!value.equals(other.value))
+        } else if (!getValue().equals(other.getValue()))
             return false;
         return true;
     }

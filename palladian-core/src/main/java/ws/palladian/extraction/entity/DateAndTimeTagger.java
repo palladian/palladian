@@ -12,6 +12,7 @@ import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

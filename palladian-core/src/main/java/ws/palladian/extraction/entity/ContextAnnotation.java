@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotated;
 
-public class ContextAnnotation extends Annotation {
+public class ContextAnnotation extends NerAnnotation {
 
     /** The left context of the annotation */
     private final String leftContext;

@@ -10,9 +10,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
+import ws.palladian.extraction.entity.NerAnnotation;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -469,7 +469,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     
                     List<Integer> entityOffsets = NerHelper.getEntityOffsets(inputText, entityName);
                     for (Integer offset : entityOffsets) {
-                        Annotation annotation = new Annotation(offset, entityName, entityType);
+                        NerAnnotation annotation = new NerAnnotation(offset, entityName, entityType);
                         annotation.addSubTypes(subTypeList);
                         annotations.add(annotation);
                     }

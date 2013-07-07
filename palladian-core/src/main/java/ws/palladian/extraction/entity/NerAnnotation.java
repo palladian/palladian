@@ -13,7 +13,9 @@ import ws.palladian.processing.features.Annotated;
  * @author David Urbansky
  * 
  */
-public class Annotation implements Annotated {
+public class NerAnnotation implements Annotated {
+
+    // XXX this should inherit from Annotation, but it has this stupid setters.
 
     /** The category of the instance, null if not classified. */
     private CategoryEntriesMap tags = new CategoryEntriesMap();
@@ -29,7 +31,7 @@ public class Annotation implements Annotated {
 
     private List<String> subTypes = null;
 
-    public Annotation(int offset, String entityName, String tagName) {
+    public NerAnnotation(int offset, String entityName, String tagName) {
         this.offset = offset;
         this.length = entityName.length();
         entity = entityName;
@@ -133,7 +135,7 @@ public class Annotation implements Annotated {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Annotation other = (Annotation)obj;
+        NerAnnotation other = (NerAnnotation)obj;
         if (entity == null) {
             if (other.entity != null)
                 return false;

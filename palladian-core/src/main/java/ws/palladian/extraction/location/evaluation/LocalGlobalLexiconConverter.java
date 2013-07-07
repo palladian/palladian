@@ -113,7 +113,7 @@ class LocalGlobalLexiconConverter {
                     }
                     Location location = new ImmutableLocation(geonameId, topName, type, lat, lng, null);
                     String value = text.substring(topStart, topEnd);
-                    annotations.add(new LocationAnnotation(topStart, topEnd, value, location));
+                    annotations.add(new LocationAnnotation(topStart, value, location));
                     clearToponym();
                 }
             }
