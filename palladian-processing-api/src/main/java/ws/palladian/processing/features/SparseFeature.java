@@ -41,11 +41,11 @@ public final class SparseFeature<T> implements Feature<T> {
         return value;
     }
 
-    @Override
-    public void setValue(T value) {
-        throw new UnsupportedOperationException(
-                "Cannot change the value of an existing sparse feature. Please create a new object if you have a sparse feature with another value.");
-    }
+    // @Override
+    // public void setValue(T value) {
+    // throw new UnsupportedOperationException(
+    // "Cannot change the value of an existing sparse feature. Please create a new object if you have a sparse feature with another value.");
+    // }
 
     @Override
     public String toString() {

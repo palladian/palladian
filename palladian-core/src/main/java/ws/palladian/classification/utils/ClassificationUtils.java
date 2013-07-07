@@ -183,7 +183,7 @@ public final class ClassificationUtils {
      * @return A {@link MinMaxNormalization} instance carrying information to normalize {@link Instance}s based on the
      *         calculated normalization information.
      */
-    public static MinMaxNormalization calculateMinMaxNormalization(List<Instance> instances) {
+    public static MinMaxNormalization calculateMinMaxNormalization(List<? extends Classifiable> instances) {
         Validate.notNull(instances, "instances must not be null");
 
         // hold the min value of each feature <featureName, minValue>
@@ -193,7 +193,7 @@ public final class ClassificationUtils {
         Map<String, Double> maxValues = CollectionHelper.newHashMap();
 
         // find the min and max values
-        for (Instance instance : instances) {
+        for (Classifiable instance : instances) {
 
             List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
 

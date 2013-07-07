@@ -19,7 +19,7 @@ public interface Feature<T> {
      * Provides the {@link FeatureVector} wide unique identifier of this {@code Feature}.
      * </p>
      * 
-     * @return The string representing this {@code Feature}s identifier.
+     * @return The string representing this {@code Feature}'s identifier.
      */
     String getName();
 
@@ -32,14 +32,4 @@ public interface Feature<T> {
      */
     T getValue();
 
-    /**
-     * <p>
-     * Resets and overwrites the {@code Feature}'s value.
-     * </p>
-     * 
-     * @param value
-     *            The {@code Feature}'s value containing concrete extracted data
-     *            from a document.
-     */
-    void setValue(T value);
 }

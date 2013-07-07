@@ -364,7 +364,6 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     }
 
     private static boolean isUnique(Collection<Location> locations) {
-        // XXX maybe use token count also
         Set<Location> group = LocationExtractorUtils.filterConditionally(locations, new CoordinateFilter());
         return LocationExtractorUtils.getLargestDistance(group) < 50;
     }
