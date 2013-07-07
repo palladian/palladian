@@ -18,7 +18,7 @@ public final class SparseFeature<T> implements Feature<T> {
      * The value of this feature.
      * </p>
      */
-    private T value;
+    private final T value;
     
     /**
      * <p>
@@ -68,7 +68,7 @@ public final class SparseFeature<T> implements Feature<T> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SparseFeature other = (SparseFeature)obj;
+        SparseFeature<?> other = (SparseFeature<?>)obj;
         if (value == null) {
             if (other.value != null)
                 return false;
