@@ -154,8 +154,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 }
                 boolean samePlace = GeoUtils.getDistance(instance, location) < 50;
                 boolean sameName = LocationExtractorUtils.commonName(instance, location);
+                boolean sameType = instance.getType().equals(location.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
-                if (samePlace && sameName) {
+                if (samePlace && sameName && sameType) {
                     numPositive++;
                     positiveClass = true;
                     break;
@@ -165,8 +166,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
 
         double positivePercentage = MathHelper.round((float)numPositive / instances.size() * 100, 2);
-        LOGGER.debug("{} positive instances in {} ({}%)", new Object[] {numPositive, instances.size(),
-                positivePercentage});
+        LOGGER.debug("{} positive instances in {} ({}%)", numPositive, instances.size(), positivePercentage);
         return result;
     }
 
