@@ -17,7 +17,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.TrainableWrap;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -98,6 +97,7 @@ public final class ClassificationUtils {
                     expectedColumns = parts.length;
                     if (readHeader) {
                         headNames = parts;
+                        return;
                     }
                 } else {
                     if (expectedColumns != parts.length) {
@@ -298,7 +298,7 @@ public final class ClassificationUtils {
         List<Trainable> result = CollectionHelper.newArrayList();
         for (Trainable instance : instances) {
             FeatureVector featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
-            result.add(new TrainableWrap(featureVector, instance.getTargetClass()));
+            result.add(new Instance(instance.getTargetClass(), featureVector));
         }
         return result;
     }

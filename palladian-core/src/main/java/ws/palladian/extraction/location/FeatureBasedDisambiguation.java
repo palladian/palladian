@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
@@ -30,7 +31,6 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.TrainableWrap;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.FeatureVector;
@@ -162,7 +162,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                     break;
                 }
             }
-            result.add(new TrainableWrap(instance, String.valueOf(positiveClass)));
+            result.add(new Instance(String.valueOf(positiveClass), instance));
         }
 
         double positivePercentage = MathHelper.round((float)numPositive / instances.size() * 100, 2);
@@ -171,7 +171,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     }
 
     public void buildModel() {
-        String baseFileName = String.format("location_disambiguation_%s", System.currentTimeMillis());
+        String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
         ClassificationUtils.writeCsv(trainInstanceCollection, new File(baseFileName + ".csv"));
 
         StopWatch stopWatch = new StopWatch();
