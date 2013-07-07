@@ -28,7 +28,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.NumericFeature;
 
 public class FeatureBasedDisambiguationTrainer {
 
@@ -104,10 +106,13 @@ public class FeatureBasedDisambiguationTrainer {
         // FeatureSelector fs = new ChiSquaredFeatureSelector(mergingStrategy);
         FeatureSelector fs = new InformationGainFeatureSelector();
 
-        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1373036932435.csv";
+        String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1373097352488.csv";
         List<Trainable> dataset = ClassificationUtils.createInstances(csvFilePath, true);
-        Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
-        // Collection<FeatureDetails> featuresToConsider = CollectionHelper.newHashSet();
+        // Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
+        Collection<FeatureDetails> featuresToConsider = CollectionHelper.newHashSet();
+        featuresToConsider.add(new FeatureDetails("leaf", BooleanFeature.class, false));
+        featuresToConsider.add(new FeatureDetails("nameDiversity", NumericFeature.class, false));
+        featuresToConsider.add(new FeatureDetails("geoDiversity", NumericFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("marker=river", BooleanFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("distLoc10Sentence", BooleanFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("distLoc50Sentence", BooleanFeature.class, false));

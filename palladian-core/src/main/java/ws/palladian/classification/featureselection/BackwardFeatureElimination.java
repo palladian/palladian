@@ -53,13 +53,6 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         }
     };
 
-    public static final Function<ConfusionMatrix, Double> F1_SCORER = new Function<ConfusionMatrix, Double>() {
-        @Override
-        public Double compute(ConfusionMatrix input) {
-            return input.getAverageF(1., true);
-        }
-    };
-
     /**
      * <p>
      * Create a new {@link BackwardFeatureElimination} with the given learner and classifier.
@@ -74,16 +67,17 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
     /**
      * <p>
-     * Create a new {@link BackwardFeatureElimination} with the given learner and classifier. The scoring can be parameterized
-     * through the {@link Function} argument; it must return a ranking value which is used to for deciding which feature
-     * to eliminate.
+     * Create a new {@link BackwardFeatureElimination} with the given learner and classifier. The scoring can be
+     * parameterized through the {@link Function} argument; it must return a ranking value which is used to for deciding
+     * which feature to eliminate.
      * </p>
      * 
-     * @param learner
-     * @param classifier
-     * @param scorer
+     * @param learner The learner, not <code>null</code>.
+     * @param classifier The classifier, not <code>null</code>.
+     * @param scorer The function for determining the score, not <code>null</code>.
      */
-    public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier, Function<ConfusionMatrix, Double> scorer) {
+    public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier,
+            Function<ConfusionMatrix, Double> scorer) {
         Validate.notNull(learner, "learner must not be null");
         Validate.notNull(classifier, "classifier must not be null");
         Validate.notNull(scorer, "scorer must not be null");
