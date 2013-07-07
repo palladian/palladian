@@ -1,7 +1,5 @@
 package ws.palladian.extraction.entity;
 
-import java.util.List;
-
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.entity.tagger.NerHelper;
@@ -29,8 +27,6 @@ public class NerAnnotation implements Annotated {
     /** The annotated entity. */
     private String entity;
 
-    private List<String> subTypes = null;
-
     public NerAnnotation(int offset, String entityName, String tagName) {
         this.offset = offset;
         this.length = entityName.length();
@@ -40,18 +36,6 @@ public class NerAnnotation implements Annotated {
 
     public CategoryEntries getTags() {
         return tags;
-    }
-
-    public void addSubTypes(List<String> subTypes) {
-        if (this.subTypes == null) {
-            this.subTypes = subTypes;
-        } else {
-            this.subTypes.addAll(subTypes);
-        }
-    }
-
-    public List<String> getSubTypes() {
-        return subTypes;
     }
 
     public void setEntity(String entity) {
