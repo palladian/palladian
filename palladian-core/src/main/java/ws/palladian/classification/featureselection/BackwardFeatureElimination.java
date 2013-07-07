@@ -94,7 +94,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
         final Set<String> allFeatures = getFeatureNames(dataset);
         final Set<String> eliminatedFeatures = CollectionHelper.newTreeSet();
-        final int iterations = allFeatures.size() * (allFeatures.size() - 1) / 2;
+        final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
         final StopWatch stopWatch = new StopWatch();
         int count = 0;
         int featureIndex = 0;
@@ -115,7 +115,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 List<Trainable> eliminatedDataset = removeFeature(instances, featuresToEliminate);
                 double score = testRun(eliminatedDataset);
                 // LOGGER.debug("Eliminating {} gives {}", currentFeature, score);
-                if (score > highestScore) {
+                if (score >= highestScore) {
                     highestScore = score;
                     selectedFeature = currentFeature;
                 }

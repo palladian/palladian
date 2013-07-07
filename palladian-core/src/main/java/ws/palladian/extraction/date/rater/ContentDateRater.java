@@ -108,7 +108,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      * @param outputPath The path and filename for the model file.
      */
     private static void buildModel(String inputCsv, String outputPath) {
-        List<Trainable> instances = ClassificationUtils.createInstances(inputCsv, true);
+        List<Trainable> instances = ClassificationUtils.readCsv(inputCsv, true);
         BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
         BaggedDecisionTreeModel model = classifier.train(instances);
         FileHelper.serialize(model, outputPath);

@@ -12,10 +12,12 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
+import ws.palladian.processing.TrainableWrap;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -52,8 +54,8 @@ public final class ClassificationUtils {
      * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
      *            (column names are generated automatically).
      */
-    public static List<Trainable> createInstances(String filePath, boolean readHeader) {
-        return createInstances(filePath, readHeader, DEFAULT_SEPARATOR);
+    public static List<Trainable> readCsv(String filePath, boolean readHeader) {
+        return readCsv(filePath, readHeader, DEFAULT_SEPARATOR);
     }
 
     /**
@@ -71,8 +73,7 @@ public final class ClassificationUtils {
      *            (column names are generated automatically).
      * @param fieldSeparator The separator {@code String} for individual fields.
      */
-    public static List<Trainable> createInstances(String filePath, final boolean readHeader,
-            final String fieldSeparator) {
+    public static List<Trainable> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
         if (!new File(filePath).canRead()) {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
@@ -82,14 +83,27 @@ public final class ClassificationUtils {
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
 
             String[] headNames;
+            int expectedColumns;
 
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split(fieldSeparator);
 
-                if (readHeader && lineNumber == 0) {
-                    headNames = parts;
-                    return;
+                if (parts.length < 2) {
+                    throw new IllegalStateException("Separator '" + fieldSeparator
+                            + "'was not found, lines cannot be split ('" + line + "').");
+                }
+
+                if (lineNumber == 0) {
+                    expectedColumns = parts.length;
+                    if (readHeader) {
+                        headNames = parts;
+                    }
+                } else {
+                    if (expectedColumns != parts.length) {
+                        throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
+                                + parts.length + ", but should be " + expectedColumns + ")");
+                    }
                 }
 
                 FeatureVector featureVector = new FeatureVector();
@@ -109,15 +123,10 @@ public final class ClassificationUtils {
                     } catch (NumberFormatException e) {
                         featureVector.add(new NominalFeature(name, value));
                     }
-
                 }
-
                 String targetClass = parts[parts.length - 1];
-                Instance instance = new Instance(targetClass, featureVector);
-
-                instances.add(instance);
+                instances.add(new Instance(targetClass, featureVector));
             }
-
         });
 
         return instances;
@@ -132,7 +141,7 @@ public final class ClassificationUtils {
      * @param trainData The instances to write, not <code>null</code>.
      * @param filePath The path specifying the CSV file, not <code>null</code>.
      */
-    public static void writeToCsv(Iterable<? extends Classifiable> trainData, File outputFile) {
+    public static void writeCsv(Iterable<? extends Classifiable> trainData, File outputFile) {
         Validate.notNull(trainData, "trainData must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
 
@@ -251,6 +260,47 @@ public final class ClassificationUtils {
             result.set(k, tmp);
         }
         return new ArrayList<T>(list.subList(0, count));
+    }
+
+    /**
+     * <p>
+     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accpted features
+     * is returned.
+     * </p>
+     * 
+     * @param classifiable The {@link Classifiable} to filter, not <code>null</code>.
+     * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
+     * @return The FeatureVector without the features filtered out by the nameFilter.
+     */
+    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
+        Validate.notNull(classifiable, "classifiable must not be null");
+        Validate.notNull(nameFilter, "nameFilter must not be null");
+        FeatureVector newFeatureVector = new FeatureVector();
+        for (Feature<?> feature : classifiable.getFeatureVector()) {
+            if (nameFilter.accept(feature.getName())) {
+                newFeatureVector.add(feature);
+            }
+        }
+        LOGGER.trace("Reduced from {} to {}", classifiable.getFeatureVector().size(), newFeatureVector.size());
+        return newFeatureVector;
+    }
+
+    /**
+     * <p>
+     * Filter features for a list of instances by names. See {@link #filterFeatures(Classifiable, Filter)}.
+     * </p>
+     * 
+     * @param instances The instances to process, not <code>null</code>.
+     * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
+     * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link FeatureVector}.
+     */
+    public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances, Filter<String> nameFilter) {
+        List<Trainable> result = CollectionHelper.newArrayList();
+        for (Trainable instance : instances) {
+            FeatureVector featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
+            result.add(new TrainableWrap(featureVector, instance.getTargetClass()));
+        }
+        return result;
     }
 
 }

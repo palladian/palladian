@@ -37,7 +37,7 @@ public class UniversalClassifierTest {
     @Test
     public void test() throws FileNotFoundException {
 
-        List<Trainable> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/saheart.csv"), true, ",");
 
         List<Trainable> trainingSet = ClassificationUtils.drawRandomSubset(instances, 60);
