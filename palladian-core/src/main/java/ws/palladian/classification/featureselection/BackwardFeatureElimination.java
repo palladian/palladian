@@ -12,18 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.Model;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.EqualsFilter;
+import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -112,7 +114,9 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 ProgressHelper.printProgress(count++, iterations, 0, stopWatch);
                 Set<String> featuresToEliminate = new HashSet<String>(eliminatedFeatures);
                 featuresToEliminate.add(currentFeature);
-                List<Trainable> eliminatedDataset = removeFeature(instances, featuresToEliminate);
+//                List<Trainable> eliminatedDataset = removeFeature(instances, featuresToEliminate);
+                Filter<String> filter = InverseFilter.create(EqualsFilter.create(featuresToEliminate));
+                List<Trainable> eliminatedDataset = ClassificationUtils.filterFeatures(instances, filter);
                 double score = testRun(eliminatedDataset);
                 // LOGGER.debug("Eliminating {} gives {}", currentFeature, score);
                 if (score >= highestScore) {
@@ -127,24 +131,24 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         return result;
     }
 
-    private List<Trainable> removeFeature(List<Trainable> dataset, Set<String> featuresToEliminate) {
-        List<Trainable> result = CollectionHelper.newArrayList();
-        for (Trainable instance : dataset) {
-            Trainable newInstance = removeFeature(instance, featuresToEliminate);
-            result.add(newInstance);
-        }
-        return result;
-    }
-
-    private Trainable removeFeature(Trainable instance, Set<String> featuresToEliminate) {
-        FeatureVector newFeatureVector = new FeatureVector();
-        for (Feature<?> feature : instance.getFeatureVector()) {
-            if (!featuresToEliminate.contains(feature.getName())) {
-                newFeatureVector.add(feature);
-            }
-        }
-        return new Instance(instance.getTargetClass(), newFeatureVector);
-    }
+//    private List<Trainable> removeFeature(List<Trainable> dataset, Set<String> featuresToEliminate) {
+//        List<Trainable> result = CollectionHelper.newArrayList();
+//        for (Trainable instance : dataset) {
+//            Trainable newInstance = removeFeature(instance, featuresToEliminate);
+//            result.add(newInstance);
+//        }
+//        return result;
+//    }
+//
+//    private Trainable removeFeature(Trainable instance, Set<String> featuresToEliminate) {
+//        FeatureVector newFeatureVector = new FeatureVector();
+//        for (Feature<?> feature : instance.getFeatureVector()) {
+//            if (!featuresToEliminate.contains(feature.getName())) {
+//                newFeatureVector.add(feature);
+//            }
+//        }
+//        return new Instance(instance.getTargetClass(), newFeatureVector);
+//    }
 
     private Set<String> getFeatureNames(Collection<? extends Trainable> dataset) {
         Set<String> featureNames = CollectionHelper.newTreeSet();
