@@ -23,6 +23,8 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -36,7 +38,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class StemmerAnnotator extends AbstractTokenProcessor {
+public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
 
     /**
      * <p>
@@ -165,21 +167,57 @@ public final class StemmerAnnotator extends AbstractTokenProcessor {
         }
         throw new IllegalArgumentException("No stemmer for language " + language.toString() + " available.");
     }
-
+    
     @Override
-    protected void processToken(PositionAnnotation annotation) throws DocumentUnprocessableException {
-        String unstem = annotation.getValue();
-        String stem = stem(unstem);
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         switch (mode) {
             case ANNOTATE:
-                annotation.getFeatureVector().add(new NominalFeature(STEM, stem));
+                stemByAnnotating(document);
                 break;
             case MODIFY:
-                annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
-                annotation.setValue(stem);
+                stemByModifying(document);
                 break;
+            default:
+                throw new UnsupportedOperationException("Unimplemented mode '" + mode + "'.");
         }
     }
+
+    private void stemByAnnotating(TextDocument document) {
+        @SuppressWarnings("unchecked")
+        ListFeature<PositionAnnotation> tokenList = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        for (PositionAnnotation token : tokenList) {
+            token.getFeatureVector().add(new NominalFeature(STEM, stem(token.getValue())));
+        }
+    }
+
+    private void stemByModifying(TextDocument document) {
+        @SuppressWarnings("unchecked")
+        ListFeature<PositionAnnotation> tokenList = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> newList = new ListFeature<PositionAnnotation>(BaseTokenizer.PROVIDED_FEATURE);
+        for (PositionAnnotation token : tokenList) {
+            String unstemmedValue = token.getValue();
+            String stemmedValue = stem(unstemmedValue);
+            PositionAnnotation stemmedAnnotation = new PositionAnnotation(stemmedValue, token.getStartPosition());
+            stemmedAnnotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstemmedValue));
+            newList.add(stemmedAnnotation);
+        }
+        document.getFeatureVector().add(newList);
+    }
+
+//    @Override
+//    protected void processToken(PositionAnnotation annotation) throws DocumentUnprocessableException {
+//        String unstem = annotation.getValue();
+//        String stem = stem(unstem);
+//        switch (mode) {
+//            case ANNOTATE:
+//                annotation.getFeatureVector().add(new NominalFeature(STEM, stem));
+//                break;
+//            case MODIFY:
+//                annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
+//                annotation.setValue(stem);
+//                break;
+//        }
+//    }
 
     /**
      * <p>

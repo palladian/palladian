@@ -1,8 +1,5 @@
 package ws.palladian.processing.features;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ws.palladian.processing.Classifiable;
 
 /**
@@ -19,15 +16,10 @@ import ws.palladian.processing.Classifiable;
 // FIXME rename to TextAnnotation
 public class PositionAnnotation extends Annotation implements Classifiable, Feature<String> {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(PositionAnnotation.class);
-
-    // lazy-initialized field
     /**
-     * <p>
      * A {@link FeatureVector} for this annotation. Annotations may have {@link FeatureVector}s, so it is possible to
-     * classify them as well. This is for example important for named entity recognition or part of speech tagging.
-     * </p>
+     * classify them as well. This is for example important for named entity recognition or part of speech tagging. This
+     * field is lazy-initialized to save some memory.
      */
     private FeatureVector featureVector;
 
@@ -37,13 +29,15 @@ public class PositionAnnotation extends Annotation implements Classifiable, Feat
      * using the {@link PositionAnnotationFactory}.
      * </p>
      * 
-     * @param startPosition The position of the first character of this {@link PositionAnnotation}.
-     * @param endPosition The position of the first character after the end of this {@link PositionAnnotation}.
-     * @param index The running index of this {@link PositionAnnotation}.
      * @param value The text value of this {@link PositionAnnotation}.
+     * @param startPosition The position of the first character of this {@link PositionAnnotation}.
      */
     public PositionAnnotation(String value, int startPosition) {
-        super(startPosition, value, value + startPosition);
+        super(startPosition, value, createIdentifier(value, startPosition));
+    }
+
+    private static String createIdentifier(String value, int startPosition) {
+        return String.format("%s:%s", value, startPosition);
     }
 
     @Override
@@ -74,12 +68,6 @@ public class PositionAnnotation extends Annotation implements Classifiable, Feat
     @Override
     public String getName() {
         return getTag();
-    }
-
-    @Override
-    public void setValue(String value) {
-        // throw new UnsupportedOperationException("Don't do that!");
-        LOGGER.warn("Modifications are not allowed and will be ignored.");
     }
 
 }
