@@ -105,7 +105,7 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
                 long N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
                 long N_01 = classCount - termClassCoocurrence;
                 long N_00 = N - (N_10 + N_01 + N_11);
-                LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", new Long[] {N_11, N_10, N_01, N_00});
+                LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
 
                 double numerator = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
                 long denominatorInt = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
@@ -141,7 +141,7 @@ public final class ChiSquaredFeatureSelector implements FeatureSelector {
     private static long sumOfRowExceptOne(String rowValue, String exception,
             Map<String, Map<String, Long>> correlationMatrix) {
         Map<String, Long> occurencesOfClass = correlationMatrix.get(rowValue);
-        // add up all occurences of the current class
+        // add up all occurrences of the current class
         long ret = 0;
         for (Map.Entry<String, Long> occurence : occurencesOfClass.entrySet()) {
             if (!occurence.getKey().equals(exception)) {

@@ -191,6 +191,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         Set<Location> uniqueLocations = getUniqueLocations(locations);
         Map<Location, Double> sentenceProximities = buildSentenceProximityMap(text, annotations, locations);
         Map<String, CategoryEntries> contextClassification = createContextClassification(text, annotations);
+        double largestDistance = LocationExtractorUtils.getLargestDistance(allLocations);
 
         for (Annotated annotation : annotations) {
 
@@ -263,6 +264,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new NumericFeature("context", locContextProbability));
                 fv.add(new BooleanFeature("stopword", stopword));
                 fv.add(new NominalFeature("caseSignature", StringHelper.getCaseSignature(normalizedValue)));
+                fv.add(new BooleanFeature("leaf", isLeaf(location, candidates)));
+                fv.add(new NumericFeature("nameDiversity", getNameDiversity(location)));
+                fv.add(new NumericFeature("geoDiversity", getGeoDiversity(candidates, largestDistance)));
 
                 createMarkerFeatures(value, fv);
 
@@ -445,6 +449,26 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             }
         }
         return false;
+    }
+
+    private static boolean isLeaf(Location location, Collection<Location> others) {
+        for (Location other : others) {
+            if (LocationExtractorUtils.isChildOf(other, location)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static double getNameDiversity(Location location) {
+        return 1. / LocationExtractorUtils.collectNames(location).size();
+    }
+
+    private static double getGeoDiversity(Collection<Location> locations, double normalization) {
+        if (normalization == 0) {
+            return 0.;
+        }
+        return LocationExtractorUtils.getLargestDistance(locations) / normalization;
     }
 
     private static final class LocationInstance implements Location, Classifiable {
