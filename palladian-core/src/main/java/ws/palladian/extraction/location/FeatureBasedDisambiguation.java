@@ -166,7 +166,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
 
         double positivePercentage = MathHelper.round((float)numPositive / instances.size() * 100, 2);
-        LOGGER.debug("{} positive instances in {} ({}%)", numPositive, instances.size(), positivePercentage);
+        LOGGER.info("{} positive instances in {} ({}%)", numPositive, instances.size(), positivePercentage);
         return result;
     }
 
@@ -176,8 +176,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
         StopWatch stopWatch = new StopWatch();
         model = classifier.train(trainInstanceCollection);
-        FileHelper.serialize(model, baseFileName + ".model");
-        LOGGER.info("Built and serialized model in {}.", stopWatch.getTotalElapsedTimeString());
+        String modelFileName = baseFileName + ".model";
+        FileHelper.serialize(model, modelFileName);
+        LOGGER.info("Built and serialized model to {} in {}.", modelFileName, stopWatch.getTotalElapsedTimeString());
     }
 
     private Set<LocationInstance> makeInstances(String text, List<Annotated> annotations,

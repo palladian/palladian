@@ -37,20 +37,6 @@ public class Annotation implements Annotated {
         this.tag = tag;
     }
 
-    /**
-     * <p>
-     * Create a new {@link Annotation} by copying.
-     * </p>
-     * 
-     * @param annotated The {@link Annotated} to copy, not <code>null</code>.
-     */
-    protected Annotation(Annotated annotated) {
-        Validate.notNull(annotated, "annotated must not be null");
-        this.startPosition = annotated.getStartPosition();
-        this.value = annotated.getValue();
-        this.tag = annotated.getTag();
-    }
-
     @Override
     public final int compareTo(Annotated other) {
         return Integer.valueOf(this.startPosition).compareTo(other.getStartPosition());

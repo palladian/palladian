@@ -3,6 +3,15 @@ package ws.palladian.extraction.location;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
 
+/**
+ * <p>
+ * An {@link Annotation} in a text associated with geographic locations. The value for {@link #getTag()} is the string
+ * value of the associated {@link LocationType}. More information about the specific disambiguated location can be
+ * retrieved using {@link #getLocation()}.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class LocationAnnotation extends Annotation {
 
     private final Location location;
@@ -13,8 +22,7 @@ public class LocationAnnotation extends Annotation {
     }
 
     public LocationAnnotation(Annotated annotation, Location location) {
-        super(annotation);
-        this.location = location;
+        this(annotation.getStartPosition(), annotation.getValue(), location);
     }
 
     public Location getLocation() {
