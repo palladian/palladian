@@ -92,7 +92,7 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesWithAdultIncomeData() throws FileNotFoundException {
-        List<Trainable> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/adultData.txt"), false);
         double accuracy = testWithSplit(instances);
         assertTrue(accuracy > 0.77);
@@ -100,7 +100,7 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/diabetesData.txt"), false);
         double accuracy = testWithSplit(instances);
         assertTrue(accuracy > 0.77);

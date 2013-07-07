@@ -172,7 +172,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
     public void buildModel() {
         String baseFileName = String.format("location_disambiguation_%s", System.currentTimeMillis());
-        ClassificationUtils.writeToCsv(trainInstanceCollection, new File(baseFileName + ".csv"));
+        ClassificationUtils.writeCsv(trainInstanceCollection, new File(baseFileName + ".csv"));
 
         StopWatch stopWatch = new StopWatch();
         model = classifier.train(trainInstanceCollection);

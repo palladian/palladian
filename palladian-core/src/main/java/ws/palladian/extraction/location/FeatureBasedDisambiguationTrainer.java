@@ -1,14 +1,15 @@
 package ws.palladian.extraction.location;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-import ws.palladian.classification.featureselection.FeatureDetails;
+import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.featureselection.BackwardFeatureElimination;
 import ws.palladian.classification.featureselection.FeatureRanker;
 import ws.palladian.classification.featureselection.FeatureRanking;
 import ws.palladian.classification.featureselection.InformationGainFeatureRanker;
@@ -21,15 +22,17 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.collection.RegexFilter;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotated;
-import ws.palladian.processing.features.BooleanFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 public class FeatureBasedDisambiguationTrainer {
 
@@ -39,8 +42,8 @@ public class FeatureBasedDisambiguationTrainer {
     static FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
 
     public static void main(String[] args) {
-        performFeatureSelection();
-        System.exit(0);
+        // performFeatureSelection();
+        // System.exit(0);
 
         StopWatch stopWatch = new StopWatch();
         File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013_V2_train");
@@ -100,45 +103,28 @@ public class FeatureBasedDisambiguationTrainer {
     }
 
     static void performFeatureSelection() {
-        // SelectedFeatureMergingStrategy mergingStrategy = new AverageMergingStrategy();
-        // SelectedFeatureMergingStrategy mergingStrategy = new RoundRobinMergingStrategy();
-        // FeatureSelector fs = new ChiSquaredFeatureSelector(mergingStrategy);
-        FeatureRanker fs = new InformationGainFeatureRanker();
-
+        FeatureRanker ranker = new InformationGainFeatureRanker();
         String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1373097352488.csv";
-        List<Trainable> dataset = ClassificationUtils.createInstances(csvFilePath, true);
-        // Collection<FeatureDetails> featuresToConsider = createAllFeaturesToConsider(dataset);
-        Collection<FeatureDetails> featuresToConsider = CollectionHelper.newHashSet();
-        featuresToConsider.add(new FeatureDetails("leaf", BooleanFeature.class, false));
-        featuresToConsider.add(new FeatureDetails("nameDiversity", NumericFeature.class, false));
-        featuresToConsider.add(new FeatureDetails("geoDiversity", NumericFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("marker=river", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("distLoc10Sentence", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("distLoc50Sentence", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("distLoc100Sentence", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("distLoc250Sentence", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("uniqueAndLong", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("uniqueLocIn10", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("uniqueLocIn50", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("uniqueLocIn100", BooleanFeature.class, false));
-        // featuresToConsider.add(new FeatureDetails("uniqueLocIn250", BooleanFeature.class, false));
-        FeatureRanking featureRanking = fs.rankFeatures(dataset);
+        List<Trainable> dataset = ClassificationUtils.readCsv(csvFilePath, true);
+        FeatureRanking featureRanking = ranker.rankFeatures(dataset);
         System.out.println(featureRanking);
     }
+    
+    static void performBackwardElimination() {
+        List<Trainable> instances = ClassificationUtils.readCsv("location_disambiguation_1373097352488.csv", true);
+        instances = ClassificationUtils.filterFeatures(instances, InverseFilter.create(new RegexFilter("marker=.*")));
 
-    // private static Collection<FeatureDetails> createAllFeaturesToConsider(List<Trainable> dataset) {
-    // Trainable firstEntry = dataset.get(0);
-    // Collection<FeatureDetails> result = CollectionHelper.newHashSet();
-    //
-    // for (Feature<?> feature : firstEntry.getFeatureVector()) {
-    // @SuppressWarnings("unchecked")
-    // Class<? extends Feature<?>> featureType = (Class<? extends Feature<?>>)feature.getClass();
-    // String featurePath = feature.getName();
-    // result.add(new FeatureDetails(featurePath, featureType, false));
-    // }
-    //
-    // // CollectionHelper.print(result);
-    // return result;
-    // }
+        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+        Function<ConfusionMatrix, Double> scorer = new Function<ConfusionMatrix, Double>() {
+            @Override
+            public Double compute(ConfusionMatrix input) {
+                return input.getF(1.0, "true");
+            }
+        };
+        BackwardFeatureElimination<BaggedDecisionTreeModel> elimination = new BackwardFeatureElimination<BaggedDecisionTreeModel>(
+                classifier, classifier, scorer);
+
+        elimination.rankFeatures(instances);
+    }
 
 }
