@@ -17,10 +17,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.patterns.LabeledSequentialPatternExtractionStrategy;
 import ws.palladian.extraction.patterns.NGramPatternExtractionStrategy;
-import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.extraction.patterns.SequentialPatternAnnotator;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
@@ -29,7 +30,9 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureUtils;
+import ws.palladian.processing.features.ListFeature;
+import ws.palladian.processing.features.SequentialPattern;
+import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>
@@ -42,6 +45,8 @@ import ws.palladian.processing.features.FeatureUtils;
  */
 @RunWith(Parameterized.class)
 public class SequentialPatternAnnotatorTest {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequentialPatternAnnotatorTest.class);
 
     private final String inputText;
     private final String[] keywords;
@@ -75,86 +80,63 @@ public class SequentialPatternAnnotatorTest {
         fourthPattern.addAll(Arrays.asList(new String[] {"PRP", "MD", "VB", "TO"}));
         fifthPattern.addAll(Arrays.asList(new String[] {"JJ", "NN", "VBZ", "DT"}));
 
-        firstExtractedPatterns.add(new SequentialPattern("firstPattern", firstPattern));
-        secondExtractedPatterns.add(new SequentialPattern("secondPattern", secondPattern));
-        secondExtractedPatterns.add(new SequentialPattern("thirdPattern", thirdPattern));
-        secondExtractedPatterns.add(new SequentialPattern("fourthPattern", fourthPattern));
-        thirdExtractedPatterns.add(new SequentialPattern("fifthPattern", fifthPattern));
+        firstExtractedPatterns.add(new SequentialPattern(firstPattern));
+        secondExtractedPatterns.add(new SequentialPattern(secondPattern));
+        secondExtractedPatterns.add(new SequentialPattern(thirdPattern));
+        secondExtractedPatterns.add(new SequentialPattern(fourthPattern));
+        thirdExtractedPatterns.add(new SequentialPattern(fifthPattern));
 
-        SequentialPattern firstRunNGram1 = new SequentialPattern("firstRunNGram1", Arrays.asList(new String[] {"this",
-                "VBZ", "DT"}));
-        SequentialPattern firstRunNGram2 = new SequentialPattern("firstRunNGram2", Arrays.asList(new String[] {"VBZ",
-                "DT", "test"}));
-        SequentialPattern firstRunNGram3 = new SequentialPattern("firstRunNGram3", Arrays.asList(new String[] {"this",
-                "VBZ", "DT", "test"}));
+        SequentialPattern firstRunNGram1 = new SequentialPattern(Arrays.asList(new String[] {"this", "VBZ", "DT"}));
+        SequentialPattern firstRunNGram2 = new SequentialPattern(Arrays.asList(new String[] {"VBZ", "DT", "test"}));
+        SequentialPattern firstRunNGram3 = new SequentialPattern(Arrays.asList(new String[] {"this", "VBZ", "DT",
+                "test"}));
 
         List<SequentialPattern> firstRunNGrams = new ArrayList<SequentialPattern>(3);
         firstRunNGrams.add(firstRunNGram1);
         firstRunNGrams.add(firstRunNGram2);
         firstRunNGrams.add(firstRunNGram3);
 
-        SequentialPattern secondRunNGram1 = new SequentialPattern("secondRunNGram1", Arrays.asList(new String[] {"RB",
-                ",", "this"}));
-        SequentialPattern secondRunNGram2 = new SequentialPattern("secondRunNGram2", Arrays.asList(new String[] {",",
-                "this", "VBZ"}));
-        SequentialPattern secondRunNGram3 = new SequentialPattern("secondRunNGram3", Arrays.asList(new String[] {
-                "this", "VBZ", "the"}));
-        SequentialPattern secondRunNGram4 = new SequentialPattern("secondRunNGram4", Arrays.asList(new String[] {"VBZ",
-                "the", "RBS"}));
-        SequentialPattern secondRunNGram5 = new SequentialPattern("secondRunNGram5", Arrays.asList(new String[] {"the",
-                "RBS", "JJ"}));
-        SequentialPattern secondRunNGram6 = new SequentialPattern("secondRunNGram6", Arrays.asList(new String[] {"RBS",
-                "JJ", "NN"}));
-        SequentialPattern secondRunNGram7 = new SequentialPattern("secondRunNGram7", Arrays.asList(new String[] {"JJ",
-                "NN", "IN"}));
-        SequentialPattern secondRunNGram8 = new SequentialPattern("secondRunNGram8", Arrays.asList(new String[] {"NN",
-                "IN", "DT"}));
-        SequentialPattern secondRunNGram9 = new SequentialPattern("secondRunNGram9", Arrays.asList(new String[] {"IN",
-                "DT", "JJ"}));
-        SequentialPattern secondRunNGram10 = new SequentialPattern("secondRunNGram10", Arrays.asList(new String[] {
-                "DT", "JJ", "NN"}));
-        SequentialPattern secondRunNGram11 = new SequentialPattern("secondRunNGram11", Arrays.asList(new String[] {
-                "JJ", "NN", "CC"}));
-        SequentialPattern secondRunNGram12 = new SequentialPattern("secondRunNGram12", Arrays.asList(new String[] {
-                "NN", "CC", "POS"}));
-        SequentialPattern secondRunNGram13 = new SequentialPattern("secondRunNGram13", Arrays.asList(new String[] {
-                "CC", "POS", "NN"}));
-        SequentialPattern secondRunNGram14 = new SequentialPattern("secondRunNGram14", Arrays.asList(new String[] {
-                "POS", "NN", "RB"}));
-        SequentialPattern secondRunNGram15 = new SequentialPattern("secondRunNGram15", Arrays.asList(new String[] {
-                "NN", "RB", "VBN"}));
-        SequentialPattern secondRunNGram16 = new SequentialPattern("secondRunNGram16", Arrays.asList(new String[] {
-                "RB", "VBN", "."}));
-        SequentialPattern secondRunNGram17 = new SequentialPattern("secondRunNGram17", Arrays.asList(new String[] {
-                "RB", ",", "this", "VBZ"}));
-        SequentialPattern secondRunNGram18 = new SequentialPattern("secondRunNGram18", Arrays.asList(new String[] {",",
-                "this", "VBZ", "the"}));
-        SequentialPattern secondRunNGram19 = new SequentialPattern("secondRunNGram19", Arrays.asList(new String[] {
-                "this", "VBZ", "the", "RBS"}));
-        SequentialPattern secondRunNGram20 = new SequentialPattern("secondRunNGram20", Arrays.asList(new String[] {
-                "VBZ", "the", "RBS", "JJ"}));
-        SequentialPattern secondRunNGram21 = new SequentialPattern("secondRunNGram21", Arrays.asList(new String[] {
-                "the", "RBS", "JJ", "NN"}));
-        SequentialPattern secondRunNGram22 = new SequentialPattern("secondRunNGram22", Arrays.asList(new String[] {
-                "RBS", "JJ", "NN", "IN"}));
-        SequentialPattern secondRunNGram23 = new SequentialPattern("secondRunNGram23", Arrays.asList(new String[] {
-                "JJ", "NN", "IN", "DT"}));
-        SequentialPattern secondRunNGram24 = new SequentialPattern("secondRunNGram24", Arrays.asList(new String[] {
-                "NN", "IN", "DT", "JJ"}));
-        SequentialPattern secondRunNGram25 = new SequentialPattern("secondRunNGram25", Arrays.asList(new String[] {
-                "IN", "DT", "JJ", "NN"}));
-        SequentialPattern secondRunNGram26 = new SequentialPattern("secondRunNGram26", Arrays.asList(new String[] {
-                "DT", "JJ", "NN", "CC"}));
-        SequentialPattern secondRunNGram27 = new SequentialPattern("secondRunNGram27", Arrays.asList(new String[] {
-                "JJ", "NN", "CC", "POS"}));
-        SequentialPattern secondRunNGram28 = new SequentialPattern("secondRunNGram28", Arrays.asList(new String[] {
-                "NN", "CC", "POS", "NN"}));
-        SequentialPattern secondRunNGram29 = new SequentialPattern("seconRunNGram29", Arrays.asList(new String[] {"CC",
-                "POS", "NN", "RB"}));
-        SequentialPattern secondRunNGram30 = new SequentialPattern("secondRunNGram30", Arrays.asList(new String[] {
-                "POS", "NN", "RB", "VBN"}));
-        SequentialPattern secondRunNGram31 = new SequentialPattern("secondRunNGram31", Arrays.asList(new String[] {
-                "NN", "RB", "VBN", "."}));
+        SequentialPattern secondRunNGram1 = new SequentialPattern(Arrays.asList(new String[] {"RB", ",", "this"}));
+        SequentialPattern secondRunNGram2 = new SequentialPattern(Arrays.asList(new String[] {",", "this", "VBZ"}));
+        SequentialPattern secondRunNGram3 = new SequentialPattern(Arrays.asList(new String[] {"this", "VBZ", "the"}));
+        SequentialPattern secondRunNGram4 = new SequentialPattern(Arrays.asList(new String[] {"VBZ", "the", "RBS"}));
+        SequentialPattern secondRunNGram5 = new SequentialPattern(Arrays.asList(new String[] {"the", "RBS", "JJ"}));
+        SequentialPattern secondRunNGram6 = new SequentialPattern(Arrays.asList(new String[] {"RBS", "JJ", "NN"}));
+        SequentialPattern secondRunNGram7 = new SequentialPattern(Arrays.asList(new String[] {"JJ", "NN", "IN"}));
+        SequentialPattern secondRunNGram8 = new SequentialPattern(Arrays.asList(new String[] {"NN", "IN", "DT"}));
+        SequentialPattern secondRunNGram9 = new SequentialPattern(Arrays.asList(new String[] {"IN", "DT", "JJ"}));
+        SequentialPattern secondRunNGram10 = new SequentialPattern(Arrays.asList(new String[] {"DT", "JJ", "NN"}));
+        SequentialPattern secondRunNGram11 = new SequentialPattern(Arrays.asList(new String[] {"JJ", "NN", "CC"}));
+        SequentialPattern secondRunNGram12 = new SequentialPattern(Arrays.asList(new String[] {"NN", "CC", "POS"}));
+        SequentialPattern secondRunNGram13 = new SequentialPattern(Arrays.asList(new String[] {"CC", "POS", "NN"}));
+        SequentialPattern secondRunNGram14 = new SequentialPattern(Arrays.asList(new String[] {"POS", "NN", "RB"}));
+        SequentialPattern secondRunNGram15 = new SequentialPattern(Arrays.asList(new String[] {"NN", "RB", "VBN"}));
+        SequentialPattern secondRunNGram16 = new SequentialPattern(Arrays.asList(new String[] {"RB", "VBN", "."}));
+        SequentialPattern secondRunNGram17 = new SequentialPattern(
+                Arrays.asList(new String[] {"RB", ",", "this", "VBZ"}));
+        SequentialPattern secondRunNGram18 = new SequentialPattern(Arrays.asList(new String[] {",", "this", "VBZ",
+                "the"}));
+        SequentialPattern secondRunNGram19 = new SequentialPattern(Arrays.asList(new String[] {"this", "VBZ", "the",
+                "RBS"}));
+        SequentialPattern secondRunNGram20 = new SequentialPattern(Arrays.asList(new String[] {"VBZ", "the", "RBS",
+                "JJ"}));
+        SequentialPattern secondRunNGram21 = new SequentialPattern(
+                Arrays.asList(new String[] {"the", "RBS", "JJ", "NN"}));
+        SequentialPattern secondRunNGram22 = new SequentialPattern(
+                Arrays.asList(new String[] {"RBS", "JJ", "NN", "IN"}));
+        SequentialPattern secondRunNGram23 = new SequentialPattern(Arrays.asList(new String[] {"JJ", "NN", "IN", "DT"}));
+        SequentialPattern secondRunNGram24 = new SequentialPattern(Arrays.asList(new String[] {"NN", "IN", "DT", "JJ"}));
+        SequentialPattern secondRunNGram25 = new SequentialPattern(Arrays.asList(new String[] {"IN", "DT", "JJ", "NN"}));
+        SequentialPattern secondRunNGram26 = new SequentialPattern(Arrays.asList(new String[] {"DT", "JJ", "NN", "CC"}));
+        SequentialPattern secondRunNGram27 = new SequentialPattern(
+                Arrays.asList(new String[] {"JJ", "NN", "CC", "POS"}));
+        SequentialPattern secondRunNGram28 = new SequentialPattern(
+                Arrays.asList(new String[] {"NN", "CC", "POS", "NN"}));
+        SequentialPattern secondRunNGram29 = new SequentialPattern(
+                Arrays.asList(new String[] {"CC", "POS", "NN", "RB"}));
+        SequentialPattern secondRunNGram30 = new SequentialPattern(
+                Arrays.asList(new String[] {"POS", "NN", "RB", "VBN"}));
+        SequentialPattern secondRunNGram31 = new SequentialPattern(Arrays.asList(new String[] {"NN", "RB", "VBN", "."}));
 
         List<SequentialPattern> secondRunNGrams = new ArrayList<SequentialPattern>();
         secondRunNGrams.add(secondRunNGram1);
@@ -217,8 +199,7 @@ public class SequentialPatternAnnotatorTest {
         TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
-        List<SequentialPattern> patterns = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(),
-                SequentialPattern.class, "ws.palladian.features.sentence/lsp");
+        List<SequentialPattern> patterns = document.get(ListFeature.class, "lsp");
         for (SequentialPattern pattern : expectedPatterns) {
             Assert.assertThat(pattern, Matchers.isIn(patterns));
         }
@@ -238,9 +219,9 @@ public class SequentialPatternAnnotatorTest {
         TextDocument document = new TextDocument(inputText);
 
         processingPipeline.process(document);
+        LOGGER.debug(document.toString());
 
-        List<SequentialPattern> extractedPatterns = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(),
-                SequentialPattern.class, "ws.palladian.features.sentence/lsp");
+        List<SequentialPattern> extractedPatterns = document.get(ListFeature.class, "lsp");
         Assert.assertThat(extractedPatterns,
                 Matchers.hasItems(expectedNGramPatterns.toArray(new SequentialPattern[expectedNGramPatterns.size()])));
     }

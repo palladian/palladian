@@ -35,7 +35,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @author Philipp Katz
  * @param <M> Type of the model.
  */
-public final class BackwardFeatureElimination<M extends Model> implements FeatureSelector {
+public final class BackwardFeatureElimination<M extends Model> implements FeatureRanker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BackwardFeatureElimination.class);
@@ -87,7 +87,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset, Collection<FeatureDetails> ignore) {
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
         final FeatureRanking result = new FeatureRanking();
         final List<Trainable> instances = new ArrayList<Trainable>(dataset);
         Collections.shuffle(instances);

@@ -1,6 +1,5 @@
 package ws.palladian.processing.features;
 
-
 /**
  * <p>
  * Interface defining some annotated entity in a text. The annotation is characterized by its start and end position,

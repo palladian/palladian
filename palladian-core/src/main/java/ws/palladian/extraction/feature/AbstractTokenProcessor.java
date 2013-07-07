@@ -8,6 +8,7 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -24,12 +25,7 @@ public abstract class AbstractTokenProcessor extends TextDocumentPipelineProcess
 
     @Override
     public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-//        if (annotationFeature == null) {
-//            throw new DocumentUnprocessableException("The required feature \""
-//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + " \" is missing.");
-//        }
-        List<PositionAnnotation> tokenList = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> tokenList = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         for (PositionAnnotation annotation : tokenList) {
             processToken(annotation);
         }

@@ -1,7 +1,7 @@
 /**
  * Created on: 12.03.2013 17:18:43
  */
-package ws.palladian.processing.features;
+package ws.palladian.processing.features.utils;
 
 public class FeatureDescriptor {
     private final String qualifier;
@@ -12,7 +12,7 @@ public class FeatureDescriptor {
         this.identifier = identifier;
     }
 
-    public String getQualifier() {
+    public String getName() {
         return qualifier;
     }
 

@@ -38,34 +38,34 @@ public class OpenNlpPosTaggerTest {
 
         assertEquals(10, annotations.size());
         assertEquals("DT",
-                annotations.get(0).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(0).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("JJ",
-                annotations.get(1).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(1).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("JJ",
-                annotations.get(2).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(2).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("NN",
-                annotations.get(3).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(3).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("NNS",
-                annotations.get(4).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(4).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("IN",
-                annotations.get(5).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(5).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("DT",
-                annotations.get(6).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(6).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("JJ",
-                annotations.get(7).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(7).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals("NN",
-                annotations.get(8).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(8).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
         assertEquals(".",
-                annotations.get(9).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(9).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue());
     }
 

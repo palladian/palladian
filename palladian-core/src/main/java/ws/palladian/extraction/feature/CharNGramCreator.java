@@ -9,6 +9,7 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
@@ -66,9 +67,9 @@ public class CharNGramCreator extends TextDocumentPipelineProcessor {
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
 
-        PositionAnnotationFactory factory = new PositionAnnotationFactory(BaseTokenizer.PROVIDED_FEATURE, document);
+        PositionAnnotationFactory factory = new PositionAnnotationFactory(document);
 
-        List<PositionAnnotation> gramTokens = CollectionHelper.newArrayList();
+        ListFeature<PositionAnnotation> gramTokens = new ListFeature<PositionAnnotation>(BaseTokenizer.PROVIDED_FEATURE);
 
         Set<String> uniqueTokens = CollectionHelper.newHashSet();
 
@@ -88,7 +89,7 @@ public class CharNGramCreator extends TextDocumentPipelineProcessor {
                 }
             }
         }
-        document.getFeatureVector().addAll(gramTokens);
+        document.add(gramTokens);
     }
 
 //    /**

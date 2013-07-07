@@ -27,13 +27,13 @@ public class ClassificationUtilsTest {
 
         minMaxNormalize.normalize(instances);
 
-        assertEquals(1., instance1.getFeatureVector().getFeature(NumericFeature.class, "v1").getValue(), 0.);
-        assertEquals(0.1111, instance2.getFeatureVector().getFeature(NumericFeature.class, "v1").getValue(), 0.001);
-        assertEquals(0., instance3.getFeatureVector().getFeature(NumericFeature.class, "v1").getValue(), 0.);
+        assertEquals(1., instance1.getFeatureVector().get(NumericFeature.class, "v1").getValue(), 0.);
+        assertEquals(0.1111, instance2.getFeatureVector().get(NumericFeature.class, "v1").getValue(), 0.001);
+        assertEquals(0., instance3.getFeatureVector().get(NumericFeature.class, "v1").getValue(), 0.);
 
-        assertEquals(0.0999, instance1.getFeatureVector().getFeature(NumericFeature.class, "v2").getValue(), 0.001);
-        assertEquals(1, instance2.getFeatureVector().getFeature(NumericFeature.class, "v2").getValue(), 0.001);
-        assertEquals(0, instance3.getFeatureVector().getFeature(NumericFeature.class, "v2").getValue(), 0.001);
+        assertEquals(0.0999, instance1.getFeatureVector().get(NumericFeature.class, "v2").getValue(), 0.001);
+        assertEquals(1, instance2.getFeatureVector().get(NumericFeature.class, "v2").getValue(), 0.001);
+        assertEquals(0, instance3.getFeatureVector().get(NumericFeature.class, "v2").getValue(), 0.001);
 
     }
 

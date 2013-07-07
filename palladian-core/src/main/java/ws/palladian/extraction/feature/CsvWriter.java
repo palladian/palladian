@@ -37,14 +37,6 @@ public final class CsvWriter extends AbstractPipelineProcessor {
     private final List<String> featurePaths;
     private final String csvFilePath;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @throws IOException
-     * 
-     */
     public CsvWriter(String csvFilePath, Collection<String> featurePaths) {
         super(new InputPort[] {new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER)}, new OutputPort[0]);
 
@@ -71,14 +63,14 @@ public final class CsvWriter extends AbstractPipelineProcessor {
         StringBuffer dataLine = new StringBuffer("");
         PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
         for (String featurePath : featurePaths) {
-            List<Feature<?>> features = document.getFeatureVector().getAll(featurePath);
-            if (features.isEmpty()) {
+            Feature<?> feature = document.getFeatureVector().get(featurePath);
+            if (feature == null) {
                 // if (feature == null) {
                 LOGGER.warn("Unable to find feature for feature path: " + featurePath);
                 dataLine.append("?,");
             } else {
                 // XXX only take the first feature currently
-                Object featureValue = features.get(0).getValue();
+                Object featureValue = feature.getValue();
                 dataLine.append(featureValue + ",");
             }
         }

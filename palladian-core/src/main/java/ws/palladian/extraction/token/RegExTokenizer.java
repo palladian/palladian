@@ -9,6 +9,8 @@ import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
+import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
@@ -80,12 +82,13 @@ public final class RegExTokenizer extends BaseTokenizer implements FeatureProvid
         Validate.notNull(document, "document must not be null");
 
         String text = document.getContent();
-        FeatureVector featureVector = document.getFeatureVector();
         Matcher matcher = pattern.matcher(text);
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(featureName, document);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
+        ListFeature<PositionAnnotation> annotations = new ListFeature<PositionAnnotation>(featureName);
         while (matcher.find()) {
-            featureVector.add(annotationFactory.create(matcher.start(), matcher.end()));
+            annotations.add(annotationFactory.create(matcher.start(), matcher.end()));
         }
+        document.add(annotations);
     }
 
     @Override

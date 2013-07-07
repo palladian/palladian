@@ -13,45 +13,51 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import weka.classifiers.bayes.NaiveBayes;
-import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.SequentialPattern;
+import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
- * 
+ * Tests whether the Weka predictor works correctly with different feature sets.
  * </p>
  * 
  * @author Klemens Muthmann
  * @version 1.0
- * @since
+ * @since 0.1.7
  */
 public class WekaPredictorTest {
 
     @Test
     public void test() {
-        List<String> normalFeatures = new ArrayList<String>();
-        normalFeatures.add("a");
-        normalFeatures.add("b");
-        List<String> sparseFeatures = new ArrayList<String>();
-        sparseFeatures.add("c");
-
-        WekaPredictor objectOfClassUnderTest = new WekaPredictor(new NaiveBayes(), normalFeatures, sparseFeatures);
+        WekaPredictor objectOfClassUnderTest = new WekaPredictor(new NaiveBayes());
 
         List<Instance> trainingInstances = new ArrayList<Instance>();
         FeatureVector v1 = new FeatureVector();
         v1.add(new NumericFeature("a", 2.3));
         v1.add(new NominalFeature("b", "value1"));
-        v1.add(new NominalFeature("c", "v1"));
+        List<SparseFeature<String>> v1ListFeatureList = new ArrayList<SparseFeature<String>>();
+        v1ListFeatureList.add(new SparseFeature<String>("v1"));
+        ListFeature<SparseFeature<String>> v1ListFeature = new ListFeature<SparseFeature<String>>("c",
+                v1ListFeatureList);
+        v1.add(v1ListFeature);
+
         Instance trainingInstance1 = new Instance("c1", v1);
+
         FeatureVector v2 = new FeatureVector();
         v2.add(new NumericFeature("a", 1.1));
         v2.add(new NominalFeature("b", "value2"));
-        v2.add(new NominalFeature("c", "v1"));
-        v2.add(new NominalFeature("c", "v2"));
+        ListFeature<SparseFeature<String>> v2ListFeature = new ListFeature<SparseFeature<String>>("c");
+        v2ListFeature.add(new SparseFeature<String>("v1"));
+        v2ListFeature.add(new SparseFeature<String>("v2"));
+        v2.add(v2ListFeature);
+
         Instance trainingInstance2 = new Instance("c2", v2);
+
         trainingInstances.add(trainingInstance1);
         trainingInstances.add(trainingInstance2);
         WekaModel model = objectOfClassUnderTest.train(trainingInstances);
@@ -59,8 +65,10 @@ public class WekaPredictorTest {
         FeatureVector testVector = new FeatureVector();
         testVector.add(new NumericFeature("a", 1.5));
         testVector.add(new NominalFeature("b", "value2"));
-        testVector.add(new NominalFeature("c", "v1"));
-        testVector.add(new NominalFeature("c", "v2"));
+        ListFeature<SparseFeature<String>> testListFeature = new ListFeature<SparseFeature<String>>("c");
+        testListFeature.add(new SparseFeature<String>("v1"));
+        testListFeature.add(new SparseFeature<String>("v2"));
+        testVector.add(testListFeature);
         CategoryEntries result = objectOfClassUnderTest.classify(testVector, model);
 
         assertThat(result.getMostLikelyCategory(), Matchers.isOneOf("c1", "c2"));
@@ -68,26 +76,37 @@ public class WekaPredictorTest {
 
     @Test
     public void testWithPositionalData() {
-        PositionAnnotation annotation1 = new PositionAnnotation("token", 0, 3, "abc");
-        PositionAnnotation annotation2 = new PositionAnnotation("token", 4, 6, "de");
-        annotation1.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"a"})));
-        annotation1.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"b"})));
+        // Feature Vector 1
+        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3);
+        PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6);
+        ListFeature<PositionAnnotation> annotationListFeature = new ListFeature<PositionAnnotation>("token");
+        annotationListFeature.add(annotation1);
+        annotationListFeature.add(annotation2);
 
-        annotation2.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"d"})));
+        ListFeature<SequentialPattern> pattern1ListFeature1 = new ListFeature<SequentialPattern>("tokenabcpattern");
+
+        pattern1ListFeature1.add(new SequentialPattern(Arrays.asList(new String[] {"a"})));
+        pattern1ListFeature1.add(new SequentialPattern(Arrays.asList(new String[] {"b"})));
+
+        ListFeature<SequentialPattern> pattern2ListFeature1 = new ListFeature<SequentialPattern>("tokendepattern");
+        pattern2ListFeature1.add(new SequentialPattern(Arrays.asList(new String[] {"d"})));
+
         FeatureVector featureVector1 = new FeatureVector();
-        featureVector1.add(annotation1);
-        featureVector1.add(annotation2);
+        featureVector1.add(annotationListFeature);
+        featureVector1.add(pattern1ListFeature1);
+        featureVector1.add(pattern2ListFeature1);
 
-        PositionAnnotation annotation3 = new PositionAnnotation("token", 0, 2, "de");
-        annotation3.getFeatureVector().add(new SequentialPattern("pattern", Arrays.asList(new String[] {"d"})));
+        // Feature Vector 2
+        ListFeature<PositionAnnotation> annotationListFeature2 = new ListFeature<PositionAnnotation>("token");
+        annotationListFeature2.add(new PositionAnnotation("de", 0, 2));
+        ListFeature<SequentialPattern> pattern1ListFeature2 = new ListFeature<SequentialPattern>("tokendepattern");
+        pattern1ListFeature2.add(new SequentialPattern(Arrays.asList(new String[] {"d"})));
+
         FeatureVector featureVector2 = new FeatureVector();
-        featureVector2.add(annotation3);
+        featureVector2.add(annotationListFeature2);
+        featureVector2.add(pattern1ListFeature2);
 
-        List<String> normalFeatures = new ArrayList<String>();
-        List<String> sparseFeatures = new ArrayList<String>();
-        sparseFeatures.add("token/pattern");
-
-        WekaPredictor objectOfClassUnderTest = new WekaPredictor(new NaiveBayes(), normalFeatures, sparseFeatures);
+        WekaPredictor objectOfClassUnderTest = new WekaPredictor(new NaiveBayes());
 
         List<Instance> instances = new ArrayList<Instance>();
         Instance instance1 = new Instance("c1", featureVector1);

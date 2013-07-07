@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import ws.palladian.classification.featureselection.FeatureDetails;
+import ws.palladian.classification.featureselection.FeatureRanker;
 import ws.palladian.classification.featureselection.FeatureRanking;
-import ws.palladian.classification.featureselection.FeatureSelector;
-import ws.palladian.classification.featureselection.InformationGainFeatureSelector;
+import ws.palladian.classification.featureselection.InformationGainFeatureRanker;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
@@ -29,7 +29,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.BooleanFeature;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.NumericFeature;
 
 public class FeatureBasedDisambiguationTrainer {
@@ -104,7 +103,7 @@ public class FeatureBasedDisambiguationTrainer {
         // SelectedFeatureMergingStrategy mergingStrategy = new AverageMergingStrategy();
         // SelectedFeatureMergingStrategy mergingStrategy = new RoundRobinMergingStrategy();
         // FeatureSelector fs = new ChiSquaredFeatureSelector(mergingStrategy);
-        FeatureSelector fs = new InformationGainFeatureSelector();
+        FeatureRanker fs = new InformationGainFeatureRanker();
 
         String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1373097352488.csv";
         List<Trainable> dataset = ClassificationUtils.createInstances(csvFilePath, true);
@@ -123,23 +122,23 @@ public class FeatureBasedDisambiguationTrainer {
         // featuresToConsider.add(new FeatureDetails("uniqueLocIn50", BooleanFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("uniqueLocIn100", BooleanFeature.class, false));
         // featuresToConsider.add(new FeatureDetails("uniqueLocIn250", BooleanFeature.class, false));
-        FeatureRanking featureRanking = fs.rankFeatures(dataset, featuresToConsider);
+        FeatureRanking featureRanking = fs.rankFeatures(dataset);
         System.out.println(featureRanking);
     }
 
-    private static Collection<FeatureDetails> createAllFeaturesToConsider(List<Trainable> dataset) {
-        Trainable firstEntry = dataset.get(0);
-        Collection<FeatureDetails> result = CollectionHelper.newHashSet();
-
-        for (Feature<?> feature : firstEntry.getFeatureVector()) {
-            @SuppressWarnings("unchecked")
-            Class<? extends Feature<?>> featureType = (Class<? extends Feature<?>>)feature.getClass();
-            String featurePath = feature.getName();
-            result.add(new FeatureDetails(featurePath, featureType, false));
-        }
-
-        // CollectionHelper.print(result);
-        return result;
-    }
+    // private static Collection<FeatureDetails> createAllFeaturesToConsider(List<Trainable> dataset) {
+    // Trainable firstEntry = dataset.get(0);
+    // Collection<FeatureDetails> result = CollectionHelper.newHashSet();
+    //
+    // for (Feature<?> feature : firstEntry.getFeatureVector()) {
+    // @SuppressWarnings("unchecked")
+    // Class<? extends Feature<?>> featureType = (Class<? extends Feature<?>>)feature.getClass();
+    // String featurePath = feature.getName();
+    // result.add(new FeatureDetails(featurePath, featureType, false));
+    // }
+    //
+    // // CollectionHelper.print(result);
+    // return result;
+    // }
 
 }
