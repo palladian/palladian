@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.Factory;
@@ -511,7 +510,7 @@ public class EvaluationResult {
     /**
      * <p>
      * Add data to this evaluation result, consisting of a {@link ResultType}, the real annotation from the gold
-     * standard, and the assigned {@link Annotation} from an NER.
+     * standard, and the assigned {@link Annotated} from an NER.
      * </p>
      * 
      * @param resultType The type of the result, not <code>null</code>.

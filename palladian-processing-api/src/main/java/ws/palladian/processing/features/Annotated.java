@@ -19,7 +19,7 @@ public interface Annotated extends Comparable<Annotated> {
 
     String getValue();
 
-    boolean overlaps(Annotated annotated);
+    boolean overlaps(Annotated other);
 
     // XXX add commented methods below, but introduce common base class first
 

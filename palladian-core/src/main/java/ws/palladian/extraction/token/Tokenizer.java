@@ -661,8 +661,8 @@ public final class Tokenizer {
             String value = StringHelper.rtrim(leftTrimmedValue);
 
             int leftIndex = lastIndex + leftOffset;
-            int rightIndex = leftIndex + value.length();
-            PositionAnnotation sentence = new PositionAnnotation(value, leftIndex, rightIndex);
+//            int rightIndex = leftIndex + value.length();
+            PositionAnnotation sentence = new PositionAnnotation(value, leftIndex);
             sentences.add(sentence);
             lastIndex = endPosition;
         }
@@ -679,8 +679,8 @@ public final class Tokenizer {
             // Since there often is a line break at the end of a file this should not be added here.
             if (!value.isEmpty()) {
                 int leftIndex = lastIndex + leftOffset;
-                int rightIndex = leftIndex + value.length();
-                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex, rightIndex);
+//                int rightIndex = leftIndex + value.length();
+                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex);
                 sentences.add(lastSentenceAnnotation);
             }
         }
@@ -750,8 +750,7 @@ public final class Tokenizer {
 
             String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
                     originalEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation(transformedValue, originalStartPosition,
-                    originalEndPosition);
+            PositionAnnotation transformedSentence = new PositionAnnotation(transformedValue, originalStartPosition);
             ret.add(transformedSentence);
             lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
@@ -776,10 +775,10 @@ public final class Tokenizer {
         for (Annotated annotation : annotations) {
             String value = annotation.getValue();
             int startPosition = annotation.getStartPosition();
-            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
+//            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
 //            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
 //                    value);
-            PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition, endPosition);
+            PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition);
 
             ret.add(positionAnnotation);
         }
