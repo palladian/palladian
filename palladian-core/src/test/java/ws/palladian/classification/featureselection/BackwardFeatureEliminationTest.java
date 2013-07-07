@@ -28,11 +28,11 @@ public class BackwardFeatureEliminationTest {
         BackwardFeatureElimination<NaiveBayesModel> elimination = new BackwardFeatureElimination<NaiveBayesModel>(
                 classifier, classifier);
         FeatureRanking ranking = elimination.rankFeatures(instances);
-        RankedFeature bestFeature = ranking.getAll().get(0);
+        String bestFeatureValue = ranking.getAll().get(0).getValue();
 
         // this is not really a good test, as the BackwardFeatureElimination shuffles the dataset; the top ranked
         // features are as below, but I cannot exclude the case, the in one of 349834983 cases this might fail.
-        assertTrue(Arrays.asList("plasma", "bmi", "bloodPressure").contains(bestFeature.getValue()));
+        assertTrue(Arrays.asList("plasma", "bmi", "bloodPressure", "triceps", "pedigree").contains(bestFeatureValue));
     }
 
 }

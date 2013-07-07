@@ -449,7 +449,7 @@ public final class LocationExtractionEvaluator {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
         disambiguation.setModel((BaggedDecisionTreeModel)FileHelper
-                .deserialize("location_disambiguation_1373036932435.model"));
+                .deserialize("location_disambiguation_1373204356826.model"));
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
         // evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
         evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);

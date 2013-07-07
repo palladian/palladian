@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Classifier;
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.utils.ClassifierEvaluation;
@@ -21,7 +22,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.TrainableWrap;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -143,7 +143,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 newFeatureVector.add(feature);
             }
         }
-        return new TrainableWrap(newFeatureVector, instance.getTargetClass());
+        return new Instance(instance.getTargetClass(), newFeatureVector);
     }
 
     private Set<String> getFeatureNames(Collection<? extends Trainable> dataset) {
