@@ -6,10 +6,9 @@ package ws.palladian.classification;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.isOneOf;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import org.hamcrest.Matchers;
@@ -19,26 +18,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.classification.featureselection.AverageMergingStrategy;
-import ws.palladian.classification.featureselection.ChiSquaredFeatureSelector;
-import ws.palladian.classification.featureselection.FeatureDetails;
+import ws.palladian.classification.featureselection.ChiSquaredFeatureRanker;
+import ws.palladian.classification.featureselection.FeatureRanker;
 import ws.palladian.classification.featureselection.FeatureRanking;
-import ws.palladian.classification.featureselection.FeatureSelector;
-import ws.palladian.classification.featureselection.InformationGainFeatureSelector;
+import ws.palladian.classification.featureselection.InformationGainFeatureRanker;
 import ws.palladian.classification.featureselection.RoundRobinMergingStrategy;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
- * Tests whether the {@link FeatureSelector} works correctly or nor.
+ * Tests whether the {@link FeatureRanker} works correctly or not.
  * </p>
  * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
  */
-public class FeatureSelectorTest {
+public class FeatureRankingTest {
     private List<Instance> fixture;
 
     @Before
@@ -47,19 +46,25 @@ public class FeatureSelectorTest {
         FeatureVector fv2 = new FeatureVector();
         FeatureVector fv3 = new FeatureVector();
 
-        fv1.add(new NominalFeature("testfeature", "a"));
-        fv1.add(new NominalFeature("testfeature", "b"));
-        fv1.add(new NominalFeature("testfeature", "c"));
-        fv1.add(new NominalFeature("testfeature", "a"));
-        fv1.add(new NominalFeature("testfeature", "d"));
+        ListFeature<SparseFeature<String>> listFeature1 = new ListFeature<SparseFeature<String>>("testfeature");
+        listFeature1.add(new SparseFeature<String>("a"));
+        listFeature1.add(new SparseFeature<String>("b"));
+        listFeature1.add(new SparseFeature<String>("c"));
+        listFeature1.add(new SparseFeature<String>("a"));
+        listFeature1.add(new SparseFeature<String>("d"));
+        fv1.add(listFeature1);
 
-        fv2.add(new NominalFeature("testfeature", "a"));
-        fv2.add(new NominalFeature("testfeature", "b"));
-        fv2.add(new NominalFeature("testfeature", "c"));
+        ListFeature<SparseFeature<String>> listFeature2 = new ListFeature<SparseFeature<String>>("testfeature");
+        listFeature2.add(new SparseFeature<String>("a"));
+        listFeature2.add(new SparseFeature<String>("b"));
+        listFeature2.add(new SparseFeature<String>("c"));
+        fv2.add(listFeature2);
 
-        fv3.add(new NominalFeature("testfeature", "d"));
-        fv3.add(new NominalFeature("testfeature", "e"));
-        fv3.add(new NominalFeature("testfeature", "f"));
+        ListFeature<SparseFeature<String>> listFeature3 = new ListFeature<SparseFeature<String>>("testfeature");
+        listFeature3.add(new SparseFeature<String>("d"));
+        listFeature3.add(new SparseFeature<String>("e"));
+        listFeature3.add(new SparseFeature<String>("f"));
+        fv3.add(listFeature3);
 
         Instance instance1 = new Instance("c1", fv1);
         Instance instance2 = new Instance("c1", fv2);
@@ -78,13 +83,10 @@ public class FeatureSelectorTest {
 
     @Test
     public void testChiSquareFeatureSelection() {
-        FeatureSelector featureSelector = new ChiSquaredFeatureSelector(new AverageMergingStrategy());
+        FeatureRanker featureSelector = new ChiSquaredFeatureRanker(new AverageMergingStrategy());
 
-        Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
-        featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
-
-        FeatureRanking ranking = featureSelector.rankFeatures(fixture, featuresToConsider);
-        // System.out.println(ranking);
+        FeatureRanking ranking = featureSelector.rankFeatures(fixture);
+//        System.out.println(ranking);
 
         assertThat(ranking.getAll().get(5).getValue(), is("d"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(0.75, 0.0001)));
@@ -102,50 +104,44 @@ public class FeatureSelectorTest {
 
     @Test
     public void testChiSquaredRoundRobinMerge() throws Exception {
-        FeatureSelector featureSelector = new ChiSquaredFeatureSelector(new RoundRobinMergingStrategy());
+        FeatureRanker featureSelector = new ChiSquaredFeatureRanker(new RoundRobinMergingStrategy());
 
-        Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
-        featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
-
-        FeatureRanking ranking = featureSelector.rankFeatures(fixture, featuresToConsider);
-        // System.out.println(ranking);
+        FeatureRanking ranking = featureSelector.rankFeatures(fixture);
+//        System.out.println(ranking);
 
         assertThat(ranking.getAll().get(5).getValue(), is("d"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.0, 0.0001)));
-        assertThat(ranking.getAll().get(4).getValue(), is("a"));
+        assertThat(ranking.getAll().get(4).getValue(), isOneOf("c","b","e","f","a"));
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.0, 0.0001)));
-        assertThat(ranking.getAll().get(3).getValue(), is("c"));
+        assertThat(ranking.getAll().get(3).getValue(), isOneOf("c","b","e","f","a"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), is("b"));
+        assertThat(ranking.getAll().get(2).getValue(), isOneOf("c","b","e","f","a"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(4.0, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), is("e"));
+        assertThat(ranking.getAll().get(1).getValue(), isOneOf("c","b","e","f","a"));
         assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(0).getValue(), is("f"));
+        assertThat(ranking.getAll().get(0).getValue(), isOneOf("c","b","e","f","a"));
         assertThat(ranking.getAll().get(0).getScore(), is(closeTo(6.0, 0.0001)));
     }
 
     @Test
-    public void testInformationGainFeatureRanking() throws Exception {
-        FeatureSelector featureSelector = new InformationGainFeatureSelector();
+    public void testInformationGainFeatureExtraction() throws Exception {
+        FeatureRanker featureSelector = new InformationGainFeatureRanker();
 
-        Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
-        featuresToConsider.add(new FeatureDetails("testfeature", NominalFeature.class, true));
-
-        FeatureRanking ranking = featureSelector.rankFeatures(fixture, featuresToConsider);
-        // System.out.println(ranking);
+        FeatureRanking ranking = featureSelector.rankFeatures(fixture);
+//        System.out.println(ranking);
 
         assertThat(ranking.getAll().get(5).getValue(), is("d"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(-0.013155014372715268, 0.0001)));
-        assertThat(ranking.getAll().get(4).getValue(), is("e"));
+        assertThat(ranking.getAll().get(4).getValue(), isOneOf("a","b","c","e","f"));
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
-        assertThat(ranking.getAll().get(3).getValue(), is("f"));
+        assertThat(ranking.getAll().get(3).getValue(), isOneOf("a","b","c","e","f"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), is("a"));
-        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), is("c"));
-        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
-        assertThat(ranking.getAll().get(0).getValue(), is("b"));
-        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(0.2995107095169547, 0.0001)));
+        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a","b","c","e","f"));
+        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(0.29951070951695474, 0.0001)));
+        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a","b","c","e","f"));
+        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(0.29951070951695474, 0.0001)));
+        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a","b","c","e","f"));
+        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(0.29951070951695474, 0.0001)));
     }
 
     @Test
@@ -164,16 +160,14 @@ public class FeatureSelectorTest {
         Instance instance3 = new Instance("a", fV3);
         dataset.add(instance3);
 
-        FeatureSelector featureSelector = new InformationGainFeatureSelector();
+        FeatureRanker featureSelector = new InformationGainFeatureRanker();
 
-        Collection<FeatureDetails> featuresToConsider = new HashSet<FeatureDetails>();
-        featuresToConsider.add(new FeatureDetails("numeric", NumericFeature.class, false));
-
-        FeatureRanking ranking = featureSelector.rankFeatures(dataset, featuresToConsider);
-        System.out.println(ranking);
+        FeatureRanking ranking = featureSelector.rankFeatures(dataset);
+        // System.out.println(ranking);
 
         Assert.assertThat(ranking.getAll().get(0).getValue(), Matchers.is("numeric"));
         Assert.assertThat(ranking.getAll().get(0).getIdentifier(), Matchers.is("feature"));
-        Assert.assertThat(ranking.getAll().get(0).getScore(), Matchers.is(Matchers.closeTo(0.35255381922216517, 0.0001)));
+        Assert.assertThat(ranking.getAll().get(0).getScore(),
+                Matchers.is(Matchers.closeTo(0.35255381922216517, 0.0001)));
     }
 }

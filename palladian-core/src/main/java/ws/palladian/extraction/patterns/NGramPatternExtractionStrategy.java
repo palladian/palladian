@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.processing.features.SequentialPattern;
 
 /**
  * <p>
@@ -20,12 +21,12 @@ import ws.palladian.extraction.token.Tokenizer;
 public final class NGramPatternExtractionStrategy implements SpanExtractionStrategy {
 
     @Override
-    public List<SequentialPattern> extract(String featureIdentifier, String[] tokenList, Integer minPatternSize,
+    public List<SequentialPattern> extract(String[] tokenList, Integer minPatternSize,
             Integer maxPatternSize) {
         List<SequentialPattern> ret = new ArrayList<SequentialPattern>();
         List<List<String>> patterns = Tokenizer.calculateAllNGrams(tokenList, minPatternSize, maxPatternSize);
         for (List<String> pattern : patterns) {
-            ret.add(new SequentialPattern(featureIdentifier, pattern));
+            ret.add(new SequentialPattern(pattern));
         }
         return ret;
     }

@@ -38,11 +38,13 @@ public abstract class AbstractTagFilter implements TagFilter {
     @Override
     public List<String> filter(String tag) {
         List<String> ret = new LinkedList<String>();
-        ret.addAll(internalFilter(tag));
+        List<String> filterResult = internalFilter(tag);
+        ret.addAll(filterResult);
         if (filter != null) {
             List<String> postFilterResult = new LinkedList<String>();
             for (String filteredTag : ret) {
-                postFilterResult.addAll(filter.filter(filteredTag));
+                List<String> postFilteredTag = filter.filter(filteredTag);
+                postFilterResult.addAll(postFilteredTag);
             }
             return postFilterResult;
         } else {

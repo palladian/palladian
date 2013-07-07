@@ -15,7 +15,7 @@ public class FeatureVectorTest {
         FeatureVector featureVector = new FeatureVector();
         featureVector.add(new NominalFeature("testFeature", "test"));
 
-        NominalFeature retrievedFeature = featureVector.getFeature(NominalFeature.class, "testFeature");
+        NominalFeature retrievedFeature = featureVector.get(NominalFeature.class, "testFeature");
         assertEquals(NominalFeature.class, retrievedFeature.getClass());
         assertEquals("test", retrievedFeature.getValue());
     }
@@ -45,7 +45,7 @@ public class FeatureVectorTest {
         assertTrue(numericFeatures.contains(f4));
 
         // try to retrieve a NumericFeature, which is actually a NominalFeature
-        assertNull(featureVector.getFeature(NominalFeature.class, "numericFeature1"));
+        assertNull(featureVector.get(NominalFeature.class, "numericFeature1"));
     }
 
     @Test

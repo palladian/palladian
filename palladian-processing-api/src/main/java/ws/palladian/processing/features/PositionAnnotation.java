@@ -16,7 +16,7 @@ import ws.palladian.processing.Classifiable;
  * @author David Urbansky
  */
 // FIXME rename to TextAnnotation
-public class PositionAnnotation extends NominalFeature implements Classifiable, Annotated {
+public class PositionAnnotation implements Classifiable, Annotated, Feature<String> {
 
     /**
      * <p>
@@ -32,7 +32,20 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
     private final int endPosition;
 
     // lazy-initialized field
+    /**
+     * <p>
+     * A {@link FeatureVector} for this annotation. Annotations may have {@link FeatureVector}s, so it is possible to
+     * classify them as well. This is for example important for named entity recognition or part of speech tagging.
+     * </p>
+     */
     private FeatureVector featureVector;
+
+    /**
+     * <p>
+     * The {@link String} value marked by this annotation.
+     * </p>
+     */
+    private String value;
 
     /**
      * <p>
@@ -40,31 +53,30 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
      * using the {@link PositionAnnotationFactory}.
      * </p>
      * 
-     * @param name A unique identifier for this {@link PositionAnnotation}, e.g. "token".
      * @param startPosition The position of the first character of this {@link PositionAnnotation}.
      * @param endPosition The position of the first character after the end of this {@link PositionAnnotation}.
      * @param index The running index of this {@link PositionAnnotation}.
      * @param value The text value of this {@link PositionAnnotation}.
      */
-    public PositionAnnotation(String name, int startPosition, int endPosition, String value) {
-        super(name, value);
+    public PositionAnnotation(String value, int startPosition, int endPosition) {
         Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
         Validate.isTrue(endPosition > startPosition, "endPosition must be greater than startPosition.");
+        Validate.notEmpty(value, "value must not be empty");
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.featureVector = null;
+        this.value = value;
     }
-    
+
     /**
      * <p>
      * Create a new {@link PositionAnnotation} by copying an existing one.
      * </p>
      * 
-     * @param annotation
+     * @param annotation The {@link PositionAnnotation} to copy.
      */
     public PositionAnnotation(PositionAnnotation annotation) {
-        super(annotation.getName(), annotation.getValue());
         Validate.isTrue(annotation.getStartPosition() >= 0, "startPosition cannot be negative.");
         Validate.isTrue(annotation.getEndPosition() > annotation.getStartPosition(),
                 "endPosition must be greater than startPosition.");
@@ -72,6 +84,7 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         this.startPosition = annotation.getStartPosition();
         this.endPosition = annotation.getEndPosition();
         this.featureVector = null;
+        this.value = annotation.value;
     }
 
     @Override
@@ -84,16 +97,10 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
         return endPosition;
     }
 
-    // @Override
-    // public int getIndex() {
-    // return index;
-    // }
-    
     @Override
     public String getTag() {
         return getName();
     }
-
 
     @Override
     public FeatureVector getFeatureVector() {
@@ -163,6 +170,21 @@ public class PositionAnnotation extends NominalFeature implements Classifiable, 
     @Override
     public int compareTo(Annotated o) {
         return Integer.valueOf(this.startPosition).compareTo(o.getStartPosition());
+    }
+
+    @Override
+    public String getName() {
+        return value + startPosition + endPosition;
+    }
+
+    @Override
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String getValue() {
+        return value;
     }
 
 }
