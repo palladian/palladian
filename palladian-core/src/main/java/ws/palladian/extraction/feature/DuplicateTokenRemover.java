@@ -1,6 +1,5 @@
 package ws.palladian.extraction.feature;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,7 +9,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -26,25 +25,18 @@ public final class DuplicateTokenRemover extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-//        TextAnnotationFeature annotationFeature = document.getFeatureVector().get(
-//                BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-//        if (annotationFeature == null) {
-//            throw new DocumentUnprocessableException("The required feature \""
-//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing.");
-//        }
-        Set<String> tokenValues = new HashSet<String>();
-        FeatureVector featureVector = document.getFeatureVector();
-        List<PositionAnnotation> inputTokens = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
-        List<PositionAnnotation> resultTokens = CollectionHelper.newArrayList();
+        Set<String> tokenValues = CollectionHelper.newHashSet();
+        @SuppressWarnings("unchecked")
+        List<PositionAnnotation> inputTokens = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> resultTokens = new ListFeature<PositionAnnotation>(BaseTokenizer.PROVIDED_FEATURE);
         for (PositionAnnotation annotation : inputTokens) {
             String tokenValue = annotation.getValue().toLowerCase();
             if (tokenValues.add(tokenValue)) {
                 resultTokens.add(annotation);
             }
         }
-        featureVector.removeAll(BaseTokenizer.PROVIDED_FEATURE);
-        featureVector.addAll(resultTokens);
-//        annotationFeature.setValue(resultTokens);
+        document.remove(BaseTokenizer.PROVIDED_FEATURE);
+        document.add(resultTokens);
     }
 
 }

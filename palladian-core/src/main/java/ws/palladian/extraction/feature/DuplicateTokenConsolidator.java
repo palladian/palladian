@@ -7,11 +7,11 @@ import java.util.TreeMap;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -24,43 +24,36 @@ import ws.palladian.processing.features.PositionAnnotation;
  * </p>
  * 
  * @author Philipp Katz
+ * @author Klemens Muthmann
  */
 public final class DuplicateTokenConsolidator extends TextDocumentPipelineProcessor {
-
-//    public final static String DUPLICATES = "ws.palladian.features.tokens.duplicates";
+    
+    public static final String PROVIDED_FEATURE = "duplicatetoken";
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-//        TextAnnotationFeature annotationFeature = document.getFeatureVector()
-//                .get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-//        if (annotationFeature == null) {
-//            throw new DocumentUnprocessableException("The required feature \""
-//                    + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR + "\" is missing.");
-//        }
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         SortedMap<String, PositionAnnotation> valueMap = new TreeMap<String, PositionAnnotation>();
-        List<PositionAnnotation> resultTokens = CollectionHelper.newArrayList();
+        ListFeature<PositionAnnotation> resultTokens = new ListFeature<PositionAnnotation>(BaseTokenizer.PROVIDED_FEATURE);
         for (PositionAnnotation currentAnnotation : annotations) {
             String tokenValue = currentAnnotation.getValue().toLowerCase();
             if (valueMap.containsKey(tokenValue)) {
                 PositionAnnotation existingAnnotation = valueMap.get(tokenValue);
-//                TextAnnotationFeature duplicateAnnotationFeature = existingAnnotation.getFeature(DUPLICATES);
-//                if (duplicateAnnotationFeature == null) {
-//                    duplicateAnnotationFeature = new TextAnnotationFeature(DUPLICATES);
-//                    existingAnnotation.addFeature(duplicateAnnotationFeature);
-//                }
-//                duplicateAnnotationFeature.add(currentAnnotation);
                 
-                existingAnnotation.getFeatureVector().add(currentAnnotation);
+                ListFeature<PositionAnnotation> duplicates = existingAnnotation.getFeatureVector().get(ListFeature.class,PROVIDED_FEATURE);
+                if(duplicates==null) {
+                    duplicates = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
+                }
+                duplicates.add(currentAnnotation);
+                existingAnnotation.getFeatureVector().remove(PROVIDED_FEATURE);
+                existingAnnotation.getFeatureVector().add(duplicates);
             } else {
                 valueMap.put(tokenValue, currentAnnotation);
                 resultTokens.add(currentAnnotation);
             }
         }
-        document.getFeatureVector().removeAll(BaseTokenizer.PROVIDED_FEATURE);
-        document.getFeatureVector().addAll(resultTokens);
-        
-//        annotationFeature.setValue(new ArrayList<Annotation<String>>(resultTokens));
+        document.remove(BaseTokenizer.PROVIDED_FEATURE);
+        document.add(resultTokens);
     }
 
     /**
@@ -75,7 +68,7 @@ public final class DuplicateTokenConsolidator extends TextDocumentPipelineProces
      */
     public static List<PositionAnnotation> getDuplicateAnnotations(PositionAnnotation annotation) {
         Validate.notNull(annotation, "annotation must not be null.");
-        List<PositionAnnotation> duplicateTokens = annotation.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> duplicateTokens = annotation.getFeatureVector().get(ListFeature.class, PROVIDED_FEATURE);
 //        List<Annotation<String>> ret = Collections.emptyList();
 //        if (duplicateFeature != null) {
 //            ret = duplicateFeature.getValue();

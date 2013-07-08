@@ -31,6 +31,7 @@ import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -68,7 +69,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         Set<String> terms = new HashSet<String>();
         for (PositionAnnotation annotation : annotations) {
             // FeatureVector featureVector = annotation.getFeatureVector();
@@ -103,11 +104,11 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     private List<Keyphrase> extract(PipelineDocument<String> document) {
         List<Keyphrase> ret = new ArrayList<Keyphrase>();
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Pair<String, Double>> keywords = new ArrayList<Pair<String,Double>>();
         for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();
-            double tfidf = annotation.getFeatureVector().getFeature(NumericFeature.class, TfIdfAnnotator.PROVIDED_FEATURE).getValue();
+            double tfidf = annotation.getFeatureVector().get(NumericFeature.class, TfIdfAnnotator.PROVIDED_FEATURE).getValue();
             keywords.add(new ImmutablePair<String, Double>(value, tfidf));
         }
         Collections.sort(keywords, new Comparator<Pair<String, Double>>() {

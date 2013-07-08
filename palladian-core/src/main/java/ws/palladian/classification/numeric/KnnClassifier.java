@@ -157,7 +157,7 @@ public final class KnnClassifier implements Learner, Classifier<KnnModel> {
         for (NumericFeature instanceFeature : instanceFeatures) {
             squaredSum += Math.pow(
                     instanceFeature.getValue()
-                            - featureVector.getFeature(NumericFeature.class, instanceFeature.getName()).getValue(), 2);
+                            - featureVector.get(NumericFeature.class, instanceFeature.getName()).getValue(), 2);
         }
 
         return Math.sqrt(squaredSum);

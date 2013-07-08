@@ -15,6 +15,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -57,10 +58,13 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
     public DictionaryModel updateModel(Trainable trainable, DictionaryModel model) {
         process(trainable);
         String targetClass = trainable.getTargetClass();
-        List<PositionAnnotation> annotations = trainable.getFeatureVector().getAll(PositionAnnotation.class,
+        @SuppressWarnings("unchecked")
+        ListFeature<PositionAnnotation> annotations = trainable.getFeatureVector().get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
-        for (PositionAnnotation annotation : annotations) {
-            model.updateTerm(annotation.getValue(), targetClass);
+        if (annotations != null) {
+            for (PositionAnnotation annotation : annotations) {
+                model.updateTerm(annotation.getValue(), targetClass);
+            }
         }
         model.addCategory(targetClass);
         return model;
@@ -75,14 +79,19 @@ public class PalladianTextClassifier implements Learner, Classifier<DictionaryMo
         Map<String, Double> probabilities = LazyMap.create(ConstantFactory.create(0.));
 
         // iterate through all terms in the document
-        for (PositionAnnotation annotation : classifiable.getFeatureVector().getAll(PositionAnnotation.class,
-                BaseTokenizer.PROVIDED_FEATURE)) {
-            CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
-            for (String category : categoryFrequencies) {
-                double categoryFrequency = categoryFrequencies.getProbability(category);
-                if (categoryFrequency > 0) {
-                    double weight = categoryFrequency * categoryFrequency;
-                    probabilities.put(category, probabilities.get(category) + weight);
+        @SuppressWarnings("unchecked")
+        ListFeature<PositionAnnotation> annotations = classifiable.getFeatureVector().get(ListFeature.class,
+                BaseTokenizer.PROVIDED_FEATURE);
+
+        if (annotations != null) {
+            for (PositionAnnotation annotation : annotations) {
+                CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
+                for (String category : categoryFrequencies) {
+                    double categoryFrequency = categoryFrequencies.getProbability(category);
+                    if (categoryFrequency > 0) {
+                        double weight = categoryFrequency * categoryFrequency;
+                        probabilities.put(category, probabilities.get(category) + weight);
+                    }
                 }
             }
         }

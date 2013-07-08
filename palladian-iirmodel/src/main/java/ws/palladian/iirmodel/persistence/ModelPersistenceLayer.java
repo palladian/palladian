@@ -907,7 +907,7 @@ public final class ModelPersistenceLayer extends AbstractPersistenceLayer implem
      * @param labeler The {@code Labeler} providing the {@code Label}s for that {@code Item}.
      * @return All the {@code Label}s created by {@code Labeler} for {@code item}.
      */
-    public Collection<Label> loadLabelsForItem(Item item, Labeler labeler) {
+    public List<Label> loadLabelsForItem(Item item, Labeler labeler) {
         TypedQuery<Label> query = getManager().createQuery(
                 "SELECT l FROM Labeler lr JOIN lr.labels l JOIN l.labeledItem i WHERE i=:item AND lr=:labeler",
                 Label.class);

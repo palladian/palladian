@@ -22,7 +22,6 @@ import ws.palladian.processing.Port;
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
- * @param <T> Type of default in- and output.
  */
 public abstract class AbstractFeatureProvider extends AbstractPipelineProcessor implements FeatureProvider {
 

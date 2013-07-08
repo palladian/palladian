@@ -74,7 +74,7 @@ public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
         Chunking chunking = sentenceChunker.chunk(text);
         PositionAnnotation[] sentences = new PositionAnnotation[chunking.chunkSet().size()];
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(providedFeature, text);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(text);
         int ite = 0;
         for (Chunk chunk : chunking.chunkSet()) {
             sentences[ite] = annotationFactory.create(chunk.start(), chunk.end());

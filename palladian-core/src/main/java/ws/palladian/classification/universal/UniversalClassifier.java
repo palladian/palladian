@@ -125,7 +125,7 @@ public class UniversalClassifier implements Learner, Classifier<UniversalClassif
         CategoryEntries nominal = null;
 
         FeatureVector featureVectorWithoutTerms = new FeatureVector(classifiable.getFeatureVector());
-        featureVectorWithoutTerms.removeAll(BaseTokenizer.PROVIDED_FEATURE);
+        featureVectorWithoutTerms.remove(BaseTokenizer.PROVIDED_FEATURE);
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
@@ -214,7 +214,7 @@ public class UniversalClassifier implements Learner, Classifier<UniversalClassif
         // XXX thats not really nice because we alter the original feature vector,
         // better would be to supply a filter or view on the existing one.
         for (Trainable trainable : trainables) {
-            trainable.getFeatureVector().removeAll(BaseTokenizer.PROVIDED_FEATURE);
+            trainable.getFeatureVector().remove(BaseTokenizer.PROVIDED_FEATURE);
         }
 
         // train the numeric classifier

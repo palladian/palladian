@@ -8,13 +8,14 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
  * Base class for token remover implementations. The {@link AbstractTokenRemover} operates on the
- * {@link AnnotationFeature} provided by {@link BaseTokenizer}s. Subclasses implement {@link #remove(PositionAnnotation)} to
- * determine, whether to remove a {@link PositionAnnotation}.
+ * {@link AnnotationFeature} provided by {@link BaseTokenizer}s. Subclasses implement
+ * {@link #remove(PositionAnnotation)} to determine, whether to remove a {@link PositionAnnotation}.
  * </p>
  * 
  * @author Philipp Katz
@@ -34,25 +35,20 @@ public abstract class AbstractTokenRemover extends TextDocumentPipelineProcessor
 
     @Override
     public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-//        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-//        if (annotationFeature == null) {
-//            throw new DocumentUnprocessableException("Required feature \"" + BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR
-//                    + "\" is missing");
-//        }
-        List<PositionAnnotation> annotations = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        @SuppressWarnings("unchecked")
+        ListFeature<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
 
         // create a new List, as removing many items from an existing one is terribly expensive
         // (unless we were using a LinkedList, what we do not want)
-        List<PositionAnnotation> resultTokens = CollectionHelper.newArrayList();
+        ListFeature<PositionAnnotation> resultTokens = new ListFeature<PositionAnnotation>(BaseTokenizer.PROVIDED_FEATURE);
         for (Iterator<PositionAnnotation> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
             PositionAnnotation annotation = tokenIterator.next();
             if (!remove(annotation)) {
                 resultTokens.add(annotation);
             }
         }
-        featureVector.removeAll(BaseTokenizer.PROVIDED_FEATURE);
-        featureVector.addAll(resultTokens);
+        document.remove(BaseTokenizer.PROVIDED_FEATURE);
+        document.add(resultTokens);
     }
 
 }

@@ -15,6 +15,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -59,10 +60,10 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         for (int i = 0; i < annotations.size(); i++) {
             PositionAnnotation annotation = annotations.get(i);
-            String unstemValue = annotation.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
+            String unstemValue = annotation.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
             if (unstemValue == null) {
                 throw new DocumentUnprocessableException("The necessary feature \"" + StemmerAnnotator.UNSTEM
                         + "\" is missing for Annotation \"" + annotation.getValue() + "\"");
@@ -132,7 +133,7 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
 
         double completeUppercaseCount = 0;
         for (PositionAnnotation current : allAnnotations) {
-            if (StringUtils.isAllUpperCase(current.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
+            if (StringUtils.isAllUpperCase(current.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
                 completeUppercaseCount++;
             }
         }
@@ -148,7 +149,7 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
         CountMap<String> signatures = CountMap.create();
         for (PositionAnnotation current : allAnnotations) {
             String caseSignature = StringHelper.getCaseSignature(current.getFeatureVector()
-                    .getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue());
+                    .get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue());
             signatures.add(caseSignature);
         }
         return signatures.getHighest();
@@ -161,7 +162,7 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
 
         double uppercaseCount = 0;
         for (PositionAnnotation current : allAnnotations) {
-            if (StringHelper.startsUppercase(current.getFeatureVector().getFeature(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
+            if (StringHelper.startsUppercase(current.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
                 uppercaseCount++;
             }
         }

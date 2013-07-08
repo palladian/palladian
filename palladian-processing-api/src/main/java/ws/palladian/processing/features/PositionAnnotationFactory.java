@@ -13,22 +13,19 @@ import ws.palladian.processing.TextDocument;
  */
 public final class PositionAnnotationFactory {
 
-    private final String annotationName;
     private final String text;
 
-    public PositionAnnotationFactory(String annotationName, TextDocument document) {
-        this.annotationName = annotationName;
+    public PositionAnnotationFactory(TextDocument document) {
         this.text = document.getContent();
     }
 
-    public PositionAnnotationFactory(String annotationName, String text) {
-        this.annotationName = annotationName;
+    public PositionAnnotationFactory(String text) {
         this.text = text;
     }
 
     public PositionAnnotation create(int startPosition, int endPosition) {
         String value = text.substring(startPosition, endPosition);
-        return new PositionAnnotation(annotationName, startPosition, endPosition, value);
+        return new PositionAnnotation(value, startPosition, endPosition);
     }
 
 }

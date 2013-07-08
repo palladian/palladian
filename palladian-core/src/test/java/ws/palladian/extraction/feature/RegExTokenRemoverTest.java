@@ -12,6 +12,7 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -33,7 +34,7 @@ public class RegExTokenRemoverTest {
     public void testRegExTokenRemover() throws DocumentUnprocessableException {
         pipeline.connectToPreviousProcessor(new RegExTokenRemover("[A-Za-z0-9-]+"));
         pipeline.process(document);
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+        List<PositionAnnotation> annotations = document.get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
         assertEquals(2, annotations.size());
         assertEquals("test", annotations.get(0).getValue());
@@ -45,7 +46,7 @@ public class RegExTokenRemoverTest {
     public void testRegExTokenRemoverInverse() throws DocumentUnprocessableException {
         pipeline.connectToPreviousProcessor(new RegExTokenRemover("\\d+", true));
         document = (TextDocument)pipeline.process(document);
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+        List<PositionAnnotation> annotations = document.get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
         assertEquals(4, annotations.size());
     }
