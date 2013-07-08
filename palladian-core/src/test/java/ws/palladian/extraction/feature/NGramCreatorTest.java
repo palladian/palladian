@@ -20,6 +20,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -56,7 +57,7 @@ public class NGramCreatorTest {
         pipeline.connectToPreviousProcessor(new NGramCreator(2));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+        List<PositionAnnotation> annotations = document.get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
 
         assertEquals(10, annotations.size());
@@ -81,7 +82,7 @@ public class NGramCreatorTest {
         pipeline.connectToPreviousProcessor(new NGramCreator(BasePosTagger.PROVIDED_FEATURE));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class,
+        List<PositionAnnotation> annotations = document.get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
 
         assertEquals(annotations.size(), 17);
@@ -91,19 +92,19 @@ public class NGramCreatorTest {
         assertEquals("fox jumps", annotations.get(12).getValue());
 
         assertThat(
-                annotations.get(9).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(9).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue(), is("ATJJ"));
         assertThat(
-                annotations.get(10).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(10).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue(), is("JJJJ"));
         assertThat(
-                annotations.get(11).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(11).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue(), is("JJNN"));
         assertThat(
-                annotations.get(12).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(12).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue(), is("NNNNS"));
         assertThat(
-                annotations.get(13).getFeatureVector().getFeature(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+                annotations.get(13).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
                         .getValue(), is("NNSIN"));
     }
 

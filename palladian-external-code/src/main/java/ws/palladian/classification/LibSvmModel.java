@@ -21,8 +21,8 @@ import org.apache.commons.lang3.Validate;
 public final class LibSvmModel implements Model {
     private static final long serialVersionUID = 9087669834591504394L;
     private final svm_model model;
-    private final List<String> normalFeaturePaths;
-    private final List<String> sparseFeaturePaths;
+    // private final List<String> normalFeaturePaths;
+    // private final List<String> sparseFeaturePaths;
     /**
      * <p>
      * A mapping of features to indices as used within the training set. This is necessary to assign the correct indices
@@ -33,18 +33,18 @@ public final class LibSvmModel implements Model {
     private final List<String> classes;
     private final Map<String, Normalization> normalizations;
 
-    public LibSvmModel(svm_model model, List<String> normalFeaturePaths, List<String> sparseFeaturePaths,
-            Map<String, Integer> schema, List<String> classes, Map<String, Normalization> normalizations) {
+    public LibSvmModel(svm_model model, Map<String, Integer> schema, List<String> classes,
+            Map<String, Normalization> normalizations) {
         Validate.notNull(model);
-        Validate.notNull(normalFeaturePaths);
-        Validate.notNull(sparseFeaturePaths);
+        // Validate.notNull(normalFeaturePaths);
+        // Validate.notNull(sparseFeaturePaths);
         Validate.notNull(schema);
         Validate.notNull(classes);
         Validate.notNull(normalizations);
 
         this.model = model;
-        this.normalFeaturePaths = new ArrayList<String>(normalFeaturePaths);
-        this.sparseFeaturePaths = new ArrayList<String>(sparseFeaturePaths);
+        // this.normalFeaturePaths = new ArrayList<String>(normalFeaturePaths);
+        // this.sparseFeaturePaths = new ArrayList<String>(sparseFeaturePaths);
         this.schema = new HashMap<String, Integer>();
         this.schema.putAll(schema);
         this.classes = new ArrayList<String>(classes);
@@ -55,13 +55,13 @@ public final class LibSvmModel implements Model {
         return model;
     }
 
-    public List<String> getNormalFeaturePaths() {
-        return Collections.unmodifiableList(normalFeaturePaths);
-    }
-
-    public List<String> getSparseFeaturePaths() {
-        return Collections.unmodifiableList(sparseFeaturePaths);
-    }
+    // public List<String> getNormalFeaturePaths() {
+    // return Collections.unmodifiableList(normalFeaturePaths);
+    // }
+    //
+    // public List<String> getSparseFeaturePaths() {
+    // return Collections.unmodifiableList(sparseFeaturePaths);
+    // }
 
     public Map<String, Integer> getSchema() {
         return Collections.unmodifiableMap(schema);

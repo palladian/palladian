@@ -25,7 +25,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.patterns.SequentialPattern;
 import ws.palladian.helper.collection.BidiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
@@ -35,10 +34,12 @@ import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.SequentialPattern;
+import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
@@ -68,12 +69,6 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * </p>
      */
     private final File targetFile;
-    /**
-     * <p>
-     * The identifiers of the {@link Feature} the writer should consider when saving.
-     * </p>
-     */
-    private final List<String> featurePaths;
 
     /**
      * <p>
@@ -103,7 +98,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * A counter of how many features were already added used to assign a correct index to new {@link #featureTypes}.
      * </p>
      */
-    private Integer featuresAdded;
+    private int featuresAdded;
 
     /**
      * <p>
@@ -114,8 +109,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * @param fileName The name of the target ARFF file this writer should write to.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final String... featurePaths) throws IOException {
-        this(fileName, true, 1, featurePaths);
+    public SparseArffWriter(final String fileName) throws IOException {
+        this(fileName, true, 1);
     }
 
     /**
@@ -130,9 +125,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            new data to the created ARFF file if it already exists.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final Boolean overwrite, final String... featurePaths)
-            throws IOException {
-        this(fileName, overwrite, 1, featurePaths);
+    public SparseArffWriter(final String fileName, final boolean overwrite) throws IOException {
+        this(fileName, overwrite, 1);
     }
 
     /**
@@ -150,9 +144,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            and thus improves performance but requires more memory.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final Integer batchSize, final String... featurePaths)
-            throws IOException {
-        this(fileName, true, batchSize, featurePaths);
+    public SparseArffWriter(final String fileName, final int batchSize) throws IOException {
+        this(fileName, true, batchSize);
     }
 
     /**
@@ -173,9 +166,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            and thus improves performance but requires more memory.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final String fileName, final Boolean overwrite, final Integer batchSize,
-            final String... featurePaths) throws IOException {
-        this(new File(fileName), overwrite, batchSize, featurePaths);
+    public SparseArffWriter(final String fileName, final boolean overwrite, final int batchSize) throws IOException {
+        this(new File(fileName), overwrite, batchSize);
     }
 
     /**
@@ -196,12 +188,9 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            and thus improves performance but requires more memory.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final Integer batchSize,
-            String[] featurePaths) throws IOException {
+    public SparseArffWriter(final File modelArffFile, final boolean overwrite, final int batchSize) throws IOException {
         super(new InputPort[] {new InputPort(DEFAULT_INPUT_PORT_IDENTIFIER)}, new OutputPort[0]);
-
         Validate.notNull(modelArffFile, "fileName must not be null");
-        Validate.notEmpty(featurePaths, "featureDescriptors must not be empty");
 
         featureTypes = new BidiMap<String, Integer>();
         instances = new LinkedList<List<Pair<Integer, String>>>();
@@ -216,7 +205,6 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
                 readExistingArffFile();
             }
         }
-        this.featurePaths = Arrays.asList(featurePaths);
     }
 
     /**
@@ -231,9 +219,8 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            new data to the created ARFF file if it already exists.
      * @throws IOException If the target file could not be initialized successfully.
      */
-    public SparseArffWriter(final File modelArffFile, final Boolean overwrite, final String... featurePaths)
-            throws IOException {
-        this(modelArffFile, overwrite, 1, featurePaths);
+    public SparseArffWriter(final File modelArffFile, final Boolean overwrite) throws IOException {
+        this(modelArffFile, overwrite, 1);
     }
 
     /**
@@ -301,10 +288,24 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
     @Override
     protected void processDocument() throws DocumentUnprocessableException {
         PipelineDocument<?> document = getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
+        addFeatureVectorToOutput(document.getFeatureVector());
+    }
+
+    /**
+     * <p>
+     * Adds the provided {@link FeatureVector} to the schema this ARFF writer is currently creating. After you have
+     * added als {@link FeatureVector}s you wish please call {@link #saveModel()} to write the created schema to an
+     * actual ARFF file.
+     * </p>
+     * 
+     * @param vector The {@link FeatureVector} to add to the ARFF File.
+     */
+    public void addFeatureVectorToOutput(final FeatureVector vector) {
+        Validate.notNull(vector);
+
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
-        for (String featurePath : featurePaths) {
-            List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(document.getFeatureVector(), featurePath);
-            handleFeature(features, newInstance);
+        for (Feature<?> feature : vector) {
+            handleFeature(feature, newInstance);
         }
         instances.add(newInstance);
     }
@@ -317,10 +318,10 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * @throws IOException If the ARFF file is not accessible.
      */
     public void saveModel() throws IOException {
-        LOGGER.info("Saving attributes:");
+        LOGGER.trace("Saving attributes");
         FileOutputStream arffFileStream = new FileOutputStream(targetFile);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(arffFileStream));
-        writer.write("@relation model\n\n ");
+        writer.write("@relation model\n\n");
         try {
             for (Integer i = 0; i < featuresAdded; i++) {
                 String featureType = featureTypes.getKey(i);
@@ -342,13 +343,12 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
                 writer.write("@attribute " + featureTypeBuilder.toString() + "\n");
 
-                LOGGER.debug("Saved {}% of schema to ARFF file.",
-                        i.doubleValue() * 100.0d / featuresAdded.doubleValue());
+                LOGGER.debug("Saved {}% of schema to ARFF file.", i.doubleValue() * 100.0d / (double)featuresAdded);
             }
 
             writer.write("\n@data\n");
 
-            LOGGER.info("Saving instances:");
+            LOGGER.trace("Saving instances");
             Integer instanceCounter = 0;
             for (List<Pair<Integer, String>> instance : instances) {
                 StringBuilder instanceBuilder = new StringBuilder("{");
@@ -383,31 +383,30 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * 
      * @param feature The {@code Feature} to handle.
      * @param newInstance The instance the feature should be handled for. This is basically a {@code List} of already
-     *            handled {@code Feature}s to which the current {@code Feature} is added.
+     *            handled {@code Feature}s to which the current {@code Feature} is added. The mapping is from the
+     *            attributes index in the ARFF file to the feature's name. An attribute is a synonym for a feature in
+     *            Weka.
      */
-    private void handleFeature(final List<? extends Feature<?>> features, final List<Pair<Integer, String>> newInstance) {
-        if (features.size() == 1) {
-            Feature<?> feature = features.get(0);
-            if (feature instanceof NumericFeature) {
-                handleNumericFeature((NumericFeature)feature, newInstance);
-                // } else if (feature instanceof AnnotationFeature) {
-                // AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)feature;
-                // handleAnnotationFeature(annotationFeature, newInstance);
-            } else if (feature instanceof BooleanFeature) {
-                handleBooleanFeature((BooleanFeature)feature, newInstance);
-            } else if (feature instanceof NominalFeature) {
-                handleNominalFeature((NominalFeature)feature, newInstance);
-            } else if (feature instanceof SequentialPattern) {
-                handleSequentialPattern((SequentialPattern)feature, newInstance);
-            }
-        } else {
-            handleAnnotationFeature(features, newInstance);
+    private void handleFeature(final Feature<?> feature, final List<Pair<Integer, String>> newInstance) {
+        if (feature instanceof NumericFeature) {
+            handleNumericFeature((NumericFeature)feature, newInstance);
+            // } else if (feature instanceof AnnotationFeature) {
+            // AnnotationFeature<?> annotationFeature = (AnnotationFeature<?>)feature;
+            // handleAnnotationFeature(annotationFeature, newInstance);
+        } else if (feature instanceof BooleanFeature) {
+            handleBooleanFeature((BooleanFeature)feature, newInstance);
+        } else if (feature instanceof NominalFeature) {
+            handleNominalFeature((NominalFeature)feature, newInstance);
+        } else if (feature instanceof SequentialPattern) {
+            handleSequentialPattern((SequentialPattern)feature, newInstance);
+        } else if (feature instanceof ListFeature) {
+            handleSparseFeature((ListFeature)feature, newInstance);
         }
     }
 
     /**
      * <p>
-     * Adds all sequential patterns from a {@code SequentialPatternsFeature} to the created Arff file.
+     * Adds all sequential patterns from a {@code SequentialPatternsFeature} to the created ARFF file.
      * </p>
      * 
      * @param feature
@@ -416,7 +415,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      *            {@see #handleFeature(Feature, List)}
      */
     private void handleSequentialPattern(final SequentialPattern feature, final List<Pair<Integer, String>> newInstance) {
-        String featureType = "\"" + feature.getStringValue() + "\" numeric";
+        String featureType = "\"" + mask(SequentialPattern.getStringValue(feature.getValue())) + "\" numeric";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
@@ -440,15 +439,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      * @param newInstance {@see #handleFeature(Feature, List)}
      */
     private void handleNominalFeature(final NominalFeature feature, final List<Pair<Integer, String>> newInstance) {
-        // StringBuilder featureTypeBuilder = new StringBuilder("\"" + feature.getName() + "\" {dummy");
-
-        // for (String value : feature.getPossibleValues()) {
-        // featureTypeBuilder.append(",");
-        // featureTypeBuilder.append(value);
-        // }
-        // featureTypeBuilder.append("}");
-        // String featureType = featureTypeBuilder.toString();
-        String featureType = "\"" + feature.getName() + "\"";
+        String featureType = "\"" + mask(feature.getName()) + "\"";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
@@ -473,15 +464,17 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * 
+     * Write the provided {@link BooleanFeature} to the ARFF file. This method adds the {@link NumericFeature} to the
+     * ARFF files schema if it was not added yet and also to the {@code newInstance}
      * </p>
      * 
-     * @param feature
-     * @param newInstance
-     * @param schema
+     * @param feature the feature to add to the instance and the ARFF file if necessary.
+     * @param newInstance Saves the information to write the currently handled instance to the ARFF file. The mapping is
+     *            from the index of the attribute in the ARFF file schema to the attributes name. An attribute is a
+     *            synonym for a feature in Weka.
      */
     private void handleBooleanFeature(BooleanFeature feature, List<Pair<Integer, String>> newInstance) {
-        String featureType = "\"" + feature.getName() + "\" {dummy,true,false}";
+        String featureType = "\"" + mask(feature.getName()) + "\" {dummy,true,false}";
 
         Integer featureTypeIndex = featureTypes.get(featureType);
         if (featureTypeIndex == null) {
@@ -499,39 +492,62 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * 
+     * Write the provided {@link ListFeature} to the ARFF file. This method adds the {@link NumericFeature} to the ARFF
+     * files schema if it was not added yet and also to the {@code newInstance}
      * </p>
      * 
-     * @param feature
-     * @param model
-     * @param schema
+     * @param feature the feature to add to the instance and the ARFF file if necessary.
+     * @param newInstance Saves the information to write the currently handled instance to the ARFF file. The mapping is
+     *            from the index of the attribute in the ARFF file schema to the attributes name. An attribute is a
+     *            synonym for a feature in Weka.
      */
-    private void handleAnnotationFeature(List<? extends Feature<?>> features, List<Pair<Integer, String>> newInstance) {
-        for (Feature<?> feature : features) {
-            String featureType = "\"" + feature.getValue() + "\" numeric";
-
-            Integer featureTypeIndex = featureTypes.get(featureType);
-            if (featureTypeIndex == null) {
-                featureTypes.put(featureType, featuresAdded);
-                featureTypeIndex = featuresAdded;
-                featuresAdded++;
-            }
-
-            ImmutablePair<Integer, String> featureValue = new ImmutablePair<Integer, String>(featureTypeIndex, "1.0");
-            if (!newInstance.contains(featureValue)) {
-                newInstance.add(featureValue);
+    private void handleSparseFeature(ListFeature<Feature<?>> feature, List<Pair<Integer, String>> newInstance) {
+        for (Feature<?> value : feature.getValue()) {
+            if (value instanceof SparseFeature) {
+                String featureType = "\"" + mask(value.getName()) + "\" numeric";
+                
+                Integer featureTypeIndex = featureTypes.get(featureType);
+                if (featureTypeIndex == null) {
+                    featureTypes.put(featureType, featuresAdded);
+                    featureTypeIndex = featuresAdded;
+                    featuresAdded++;
+                }
+                
+                ImmutablePair<Integer, String> featureValue = new ImmutablePair<Integer, String>(featureTypeIndex,
+                        "1.0");
+                if (!newInstance.contains(featureValue)) {
+                    newInstance.add(featureValue);
+                }
+            } else {
+                handleFeature((Feature<?>)value, newInstance);
             }
         }
     }
 
     /**
      * <p>
-     * 
+     * Masks special characters in an attributes name, that are required by Weka.
      * </p>
      * 
-     * @param feature
-     * @param model
-     * @param schema
+     * @param string The {@link String} to mask.
+     * @return The new masked {@link String}.
+     */
+    private String mask(String string) {
+        String maskedString = string.replace("\\", "\\\\");
+        maskedString = maskedString.replace("\"", "\\\"");
+        return maskedString;
+    }
+
+    /**
+     * <p>
+     * Write the provided {@link NumericFeature} to the ARFF file. This method adds the {@link NumericFeature} to the
+     * ARFF files schema if it was not added yet and also to the {@code newInstance}
+     * </p>
+     * 
+     * @param feature the feature to add to the instance and the ARFF file if necessary.
+     * @param newInstance Saves the information to write the currently handled instance to the ARFF file. The mapping is
+     *            from the index of the attribute in the ARFF file schema to the attributes name. An attribute is a
+     *            synonym for a feature in Weka.
      */
     private void handleNumericFeature(NumericFeature feature, List<Pair<Integer, String>> newInstance) {
         String featureType = "\"" + feature.getName() + "\" numeric";

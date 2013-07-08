@@ -10,6 +10,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -36,7 +37,7 @@ public final class TokenMetricsCalculator extends TextDocumentPipelineProcessor 
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.getFeatureVector().get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         CountMap<String> occurrences = CountMap.create();
         Map<String, Integer> firstOccurrences = new HashMap<String, Integer>();
         Map<String, Integer> lastOccurrences = new HashMap<String, Integer>();
