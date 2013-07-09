@@ -69,4 +69,19 @@ public class FeatureVectorTest {
         assertTrue(numericFeatures.contains(f3));
     }
 
+    @Test
+    public void testEquality() {
+        FeatureVector featureVector1 = new FeatureVector();
+        FeatureVector featureVector2 = new FeatureVector();
+        featureVector1.add(new NominalFeature("nominalFeature1", "test"));
+        featureVector1.add(new NominalFeature("nominalFeature3", "test"));
+        featureVector1.add(new NumericFeature("numericFeature1", 2.));
+        featureVector1.add(new NumericFeature("numericFeature2", 3.));
+        featureVector2.add(new NominalFeature("nominalFeature1", "test"));
+        featureVector2.add(new NominalFeature("nominalFeature3", "test"));
+        featureVector2.add(new NumericFeature("numericFeature1", 2.));
+        featureVector2.add(new NumericFeature("numericFeature2", 3.));
+        assertTrue(featureVector1.equals(featureVector2));
+    }
+
 }

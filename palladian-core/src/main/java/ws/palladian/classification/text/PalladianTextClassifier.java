@@ -26,7 +26,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class PalladianTextClassifier implements Learner, Classifier<DictionaryModel> {
+public class PalladianTextClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
 
     private final ProcessingPipeline pipeline;
 

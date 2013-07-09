@@ -7,11 +7,11 @@ import java.util.List;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public final class OpenNlpPhraseChunker implements PhraseChunker {
     

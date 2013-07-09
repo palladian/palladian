@@ -7,9 +7,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -24,7 +22,8 @@ import ws.palladian.classification.Instance;
 public final class AverageMergingStrategy implements SelectedFeatureMergingStrategy {
 
     @Override
-    public FeatureRanking merge(Collection<Instance> dataset, Map<String, Map<String, Double>> chiSquaredValues) {
+    public FeatureRanking merge(Collection<? extends Trainable> dataset,
+            Map<String, Map<String, Double>> chiSquaredValues) {
         FeatureRanking ranking = new FeatureRanking();
 
         // this should usually only run once for non sparse features.

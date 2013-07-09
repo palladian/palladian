@@ -15,8 +15,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -59,7 +59,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      *         mean the {@link Feature} provides much information about the distribution of the target classes and about
      *         which target class an instance belongs to.
      */
-    private Map<Feature<?>, Double> calculateInformationGain(final Collection<Instance> dataset) {
+    private Map<Feature<?>, Double> calculateInformationGain(final Collection<? extends Trainable> dataset) {
         Validate.notNull(dataset);
         Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
         if (dataset.isEmpty()) {
@@ -160,10 +160,10 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      * @return The prepared dataset. Each entry corresponds to one instance from the dataset and contains the prepared
      *         {@link Feature}s from that instance's {@link FeatureVector} and the instance's target class.
      */
-    private Collection<Pair<Set<Feature<?>>, String>> prepare(Collection<Instance> dataset) {
+    private Collection<Pair<Set<Feature<?>>, String>> prepare(Collection<? extends Trainable> dataset) {
         Collection<Pair<Set<Feature<?>>, String>> ret = CollectionHelper.newHashSet();
 
-        for (Instance instance : dataset) {
+        for (Trainable instance : dataset) {
             // deduplicate // TODO is this necessary? Is it possible to include a duplicate feature in the feature
             // vector? is the same word at different positions the same feature?
             Set<Feature<?>> features = convertToSet(instance.getFeatureVector(),dataset);
@@ -182,11 +182,11 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      * @param dataset The dataset to calculate the target class priors for.
      * @return A mapping from target class to prior.
      */
-    private Map<String, Double> calculateTargetClassPriors(final Collection<Instance> dataset) {
+    private Map<String, Double> calculateTargetClassPriors(final Collection<? extends Trainable> dataset) {
         Map<String, Double> ret = CollectionHelper.newHashMap();
         Map<String, Integer> absoluteOccurrences = CollectionHelper.newHashMap();
 
-        for (Instance instance : dataset) {
+        for (Trainable instance : dataset) {
             Integer absoluteOccurrenceOfClass = absoluteOccurrences.get(instance.getTargetClass());
             if (absoluteOccurrenceOfClass == null) {
                 absoluteOccurrenceOfClass = 0;
@@ -208,7 +208,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<Instance> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
         FeatureRanking ranking = new FeatureRanking();
         Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(dataset);
         

@@ -1,7 +1,7 @@
 /**
  * Created on: 20.11.2012 08:33:41
  */
-package ws.palladian.classification;
+package ws.palladian.classification.featureselection;
 
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.classification.Instance;
 import ws.palladian.classification.featureselection.AverageMergingStrategy;
 import ws.palladian.classification.featureselection.ChiSquaredFeatureRanker;
 import ws.palladian.classification.featureselection.FeatureRanker;

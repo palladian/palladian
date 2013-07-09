@@ -11,11 +11,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
@@ -83,12 +81,12 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      *         the value is the chi squared score for the feature with that
      *         class.
      */
-    public Map<String, Map<String, Double>> calculateChiSquareValues(final Collection<Instance> dataset) {
+    public Map<String, Map<String, Double>> calculateChiSquareValues(final Collection<? extends Trainable> dataset) {
         Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
         Map<String, Long> classCounts = new HashMap<String, Long>();
         Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
 
-        for (Instance instance : dataset) {
+        for (Trainable instance : dataset) {
             Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
             for (Feature<?> value : features) {
                 addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
@@ -116,7 +114,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 long N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
                 long N_01 = classCount - termClassCoocurrence;
                 long N_00 = N - (N_10 + N_01 + N_11);
-                LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", new Long[] {N_11, N_10, N_01, N_00});
+                LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
 
                 double numerator = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
                 long denominatorInt = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
@@ -155,7 +153,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     private static long sumOfRowExceptOne(String rowValue, String exception,
             Map<String, Map<String, Long>> correlationMatrix) {
         Map<String, Long> occurencesOfClass = correlationMatrix.get(rowValue);
-        // add up all occurences of the current class
+        // add up all occurrences of the current class
         long ret = 0;
         for (Map.Entry<String, Long> occurence : occurencesOfClass.entrySet()) {
             if (!occurence.getKey().equals(exception)) {
@@ -191,7 +189,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<Instance> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
         Map<String,Map<String,Double>> scoredFeatures = calculateChiSquareValues(dataset);
         return mergingStrategy.merge(dataset,scoredFeatures);
     }

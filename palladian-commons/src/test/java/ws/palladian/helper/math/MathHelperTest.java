@@ -233,4 +233,13 @@ public class MathHelperTest {
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
     }
 
+    @Test
+    public void testGetOrderOfMagnitude() {
+        assertEquals(0, MathHelper.getOrderOfMagnitude(1));
+        assertEquals(1, MathHelper.getOrderOfMagnitude(10));
+        assertEquals(2, MathHelper.getOrderOfMagnitude(100));
+        // assertEquals(-1, MathHelper.getOrderOfMagnitude(0.1));
+        // assertEquals(-2, MathHelper.getOrderOfMagnitude(0.01));
+    }
+
 }

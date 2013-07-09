@@ -31,13 +31,19 @@ import ws.palladian.processing.features.ListFeature;
  */
 public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
 
+    // XXX note to Klemens: I have implemented something somilar as utility method, see
+    // ws.palladian.classification.utils.ClassificationUtils.filterFeatures(Classifiable, Filter<String>); we should
+    // merge this, however, I would prefer having the ability to use this without the Pipeline (like in the given method
+    // above). Also, we should use the common ws.palladian.helper.collection.Filter<T> interface, which is used
+    // throughout Palladian.
+
     /**
      * <p>
      * The white list containing the {@link FeatureDescriptor}s to pass to keep.
      * </p>
      */
-    private List<DenseFilter> whiteList;
-    private List<SparseFilter> sparseWhiteList;
+    private final List<DenseFilter> whiteList;
+    private final List<SparseFilter> sparseWhiteList;
 
     // /**
     // * <p>
@@ -274,7 +280,7 @@ interface Filter {
 }
 
 class DenseFilter implements Filter {
-    private String featureName;
+    private final String featureName;
 
     public DenseFilter(final String featureName) {
         this.featureName = featureName;
@@ -287,6 +293,7 @@ class DenseFilter implements Filter {
      * 
      * @return
      */
+    @Override
     public String getFeatureName() {
         return this.featureName;
     }
@@ -302,8 +309,8 @@ class DenseFilter implements Filter {
 }
 
 class SparseFilter implements Filter {
-    private String listFeatureName;
-    private String featureName;
+    private final String listFeatureName;
+    private final String featureName;
 
     public SparseFilter(final String listFeatureName, final String featureName) {
         this.featureName = featureName;

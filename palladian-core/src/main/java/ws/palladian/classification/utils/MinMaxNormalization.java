@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -46,19 +48,14 @@ public class MinMaxNormalization implements Serializable {
      * 
      * @param instances The List of Instances, not <code>null</code>.
      */
-    public void normalize(List<Instance> instances) {
+    public void normalize(List<? extends Classifiable> instances) {
         Validate.notNull(instances, "instances must not be null");
-
-        for (Instance instance : instances) {
-            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-
-            for (NumericFeature numericFeature : numericFeatures) {
-                normalize(numericFeature);
-            }
+        for (Classifiable instance : instances) {
+            normalize(instance);
         }
     }
 
-    private void normalize(NumericFeature numericFeature) {
+    private NumericFeature normalize(NumericFeature numericFeature) {
         String featureName = numericFeature.getName();
         double featureValue = numericFeature.getValue();
 
@@ -67,7 +64,7 @@ public class MinMaxNormalization implements Serializable {
         double maxMinDifference = maxValue - minValue;
         double normalizedValue = (featureValue - minValue) / maxMinDifference;
 
-        numericFeature.setValue(normalizedValue);
+        return new NumericFeature(featureName, normalizedValue);
     }
 
     /**
@@ -77,11 +74,17 @@ public class MinMaxNormalization implements Serializable {
      * </p>
      * 
      * @param featureVector The FeatureVector to normalize, not <code>null</code>.
+     * @return
      */
-    public void normalize(FeatureVector featureVector) {
-        Validate.notNull(featureVector, "featureVector must not be null");
-        for (NumericFeature feature : featureVector.getAll(NumericFeature.class)) {
-            normalize(feature);
+    public void normalize(Classifiable classifiable) {
+        Validate.notNull(classifiable, "classifiable must not be null");
+        FeatureVector featureVector = classifiable.getFeatureVector();
+        for (Feature<?> feature : featureVector) {
+            if (feature instanceof NumericFeature) {
+                NumericFeature numericFeature = (NumericFeature)feature;
+                // replace value.
+                featureVector.add(normalize(numericFeature));
+            }
         }
     }
 

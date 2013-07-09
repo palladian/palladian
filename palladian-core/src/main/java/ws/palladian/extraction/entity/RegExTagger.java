@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public class RegExTagger implements Tagger {
 

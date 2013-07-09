@@ -8,7 +8,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.ContextTagger;
 import ws.palladian.extraction.entity.StringTagger;
@@ -19,6 +18,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
@@ -21,6 +20,7 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -108,7 +108,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      * @param outputPath The path and filename for the model file.
      */
     private static void buildModel(String inputCsv, String outputPath) {
-        List<Instance> instances = ClassificationUtils.createInstances(inputCsv, true);
+        List<Trainable> instances = ClassificationUtils.readCsv(inputCsv, true);
         BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
         BaggedDecisionTreeModel model = classifier.train(instances);
         FileHelper.serialize(model, outputPath);

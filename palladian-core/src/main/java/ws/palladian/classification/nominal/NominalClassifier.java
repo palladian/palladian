@@ -19,7 +19,7 @@ import ws.palladian.processing.features.NominalFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NominalClassifier implements Learner, Classifier<NominalClassifierModel> {
+public final class NominalClassifier implements Learner<NominalClassifierModel>, Classifier<NominalClassifierModel> {
 
     @Override
     public NominalClassifierModel train(Iterable<? extends Trainable> trainables) {

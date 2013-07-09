@@ -994,4 +994,14 @@ public final class MathHelper {
         return value;
     }
 
+    public static int getOrderOfMagnitude(long number) {
+        int orderOfMagnitude = 0;
+        long temp = number;
+        while (temp >= 10) {
+            temp /= 10;
+            orderOfMagnitude++;
+        }
+        return orderOfMagnitude;
+    }
+
 }

@@ -47,7 +47,8 @@ public class ProximityDisambiguation implements LocationDisambiguation {
     private static final int SAME_DISTANCE_THRESHOLD = 50;
 
     @Override
-    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, List<Annotated> annotations,
+            MultiMap<String, Location> locations) {
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
