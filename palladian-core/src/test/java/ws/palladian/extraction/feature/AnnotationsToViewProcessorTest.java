@@ -29,8 +29,8 @@ public class AnnotationsToViewProcessorTest {
         AnnotationsToViewProcessor objectOfClassUnderTest = new AnnotationsToViewProcessor("annotation");
         TextDocument testDocument = new TextDocument("test");
         ListFeature<PositionAnnotation> feature = new ListFeature<PositionAnnotation>("annotation");
-        feature.add(new PositionAnnotation("The", 0, 3));
-        feature.add(new PositionAnnotation("Fox", 5, 8));
+        feature.add(new PositionAnnotation("The", 0));
+        feature.add(new PositionAnnotation("Fox", 5));
         testDocument.add(feature);
 
         objectOfClassUnderTest.getInputPort(PipelineProcessor.DEFAULT_INPUT_PORT_IDENTIFIER).put(testDocument);

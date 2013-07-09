@@ -22,10 +22,11 @@ public interface LocationDisambiguation {
      * Disambiguate annotated location candidates.
      * </p>
      * 
+     * @param text The text.
      * @param annotations The identified location candidates.
      * @param locations The retrieved locations for the candidates from the database.
      * @return A list of {@link LocationAnnotation}s, or empty list, but not <code>null</code>.
      */
-    List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations);
+    List<LocationAnnotation> disambiguate(String text, List<Annotated> annotations, MultiMap<String, Location> locations);
 
 }

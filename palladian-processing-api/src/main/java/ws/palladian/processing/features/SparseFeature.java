@@ -18,7 +18,7 @@ public final class SparseFeature<T> implements Feature<T> {
      * The value of this feature.
      * </p>
      */
-    private T value;
+    private final T value;
     
     /**
      * <p>
@@ -41,11 +41,11 @@ public final class SparseFeature<T> implements Feature<T> {
         return value;
     }
 
-    @Override
-    public void setValue(T value) {
-        throw new UnsupportedOperationException(
-                "Cannot change the value of an existing sparse feature. Please create a new object if you have a sparse feature with another value.");
-    }
+    // @Override
+    // public void setValue(T value) {
+    // throw new UnsupportedOperationException(
+    // "Cannot change the value of an existing sparse feature. Please create a new object if you have a sparse feature with another value.");
+    // }
 
     @Override
     public String toString() {
@@ -68,7 +68,7 @@ public final class SparseFeature<T> implements Feature<T> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        SparseFeature other = (SparseFeature)obj;
+        SparseFeature<?> other = (SparseFeature<?>)obj;
         if (value == null) {
             if (other.value != null)
                 return false;

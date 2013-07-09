@@ -1,5 +1,7 @@
 package ws.palladian.processing;
 
+import ws.palladian.classification.Classifier;
+
 
 /**
  * <p>
@@ -11,6 +13,8 @@ package ws.palladian.processing;
  * @since 0.1.8
  */
 public class ClassifiedTextDocument extends TextDocument implements Trainable {
+
+    // XXX replace by TrainableWrap
 
     /**
      * <p>

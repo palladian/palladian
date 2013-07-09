@@ -32,7 +32,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NaiveBayesClassifier implements Learner, Classifier<NaiveBayesModel> {
+public final class NaiveBayesClassifier implements Learner<NaiveBayesModel>, Classifier<NaiveBayesModel> {
 
     /** The default value for the Laplace smoothing. */
     private static final double DEFAULT_LAPLACE_CORRECTOR = 0.00001;

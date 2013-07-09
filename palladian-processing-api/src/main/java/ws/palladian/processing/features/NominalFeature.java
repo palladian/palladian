@@ -20,20 +20,9 @@ public class NominalFeature extends AbstractFeature<String> {
      * 
      * @param name The {@code FeatureVector} wide unique identifier of this {@code Feature}.
      * @param value The {@code String} value of this {@code Feature}.
-     * @param possibleValues The values this {@code NominalFeature} can take on.
      */
-    public NominalFeature(final String name, final String value) {
+    public NominalFeature(String name, String value) {
         super(name, value);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
     }
 
 }

@@ -33,7 +33,7 @@ public class WikimetaNerTest {
         InputSource inputSource = new InputSource(new FileInputStream(XML_FILE));
         List<Annotated> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
 
-        assertEquals(134, annotations.size());
+        assertEquals(133, annotations.size());
         assertEquals("eastern United States", annotations.get(2).getValue());
 
         assertEquals("LOC", annotations.get(2).getTag());

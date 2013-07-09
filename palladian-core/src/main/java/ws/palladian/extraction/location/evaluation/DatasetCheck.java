@@ -129,8 +129,8 @@ final class DatasetCheck {
                     System.out.println("[warn] '" + content + "' ends with white space in " + fileName);
                 }
 
-                valueTags.get(content.toLowerCase()).add(openingTag);
-                assignedTagCounts.get(openingTag).add(content.toLowerCase());
+                valueTags.get(content/* .toLowerCase() */).add(openingTag);
+                assignedTagCounts.get(openingTag).add(content/* .toLowerCase() */);
             }
 
             // check, whether all annotations with a specific value in the text have the same tag; if not, this is not
@@ -139,6 +139,23 @@ final class DatasetCheck {
                 if (valueTags.get(value).size() > 1) {
                     System.out.println("[warn] ambiguous annotations for " + value + ": " + valueTags.get(value)
                             + " in " + fileName);
+                }
+            }
+
+            // check for potentially missed annotations
+            for (String value : valueTags.keySet()) {
+                for (String tag : valueTags.get(value)) {
+                    Pattern pattern = Pattern.compile(String.format("(?<!<%s>)(?<=[\\s\"])%s(?!</%s>)(?=[\\s.,:;?!])",
+                            tag, Pattern.quote(value), tag));
+                    Matcher matcher2 = pattern.matcher(stringContent);
+                    while (matcher2.find()) {
+                        int start = matcher2.start();
+                        int end = matcher2.end();
+                        String context = stringContent.substring(Math.max(0, start - 15),
+                                Math.min(stringContent.length(), end + 15)).replace('\n', ' ');
+                        System.out.println("[warn] potentially missed annotation for '" + value + "' (context '"
+                                + context + "' in " + fileName);
+                    }
                 }
             }
 
@@ -208,8 +225,8 @@ final class DatasetCheck {
 
     public static void main(String[] args) {
         File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2");
-        getNonDisambiguatedStatistics(datasetPath);
-        // performCheck(datasetPath);
+        // getNonDisambiguatedStatistics(datasetPath);
+        performCheck(datasetPath);
     }
 
 }

@@ -31,7 +31,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class KnnClassifier implements Learner, Classifier<KnnModel> {
+public final class KnnClassifier implements Learner<KnnModel>, Classifier<KnnModel> {
 
     /**
      * <p>
@@ -85,20 +85,20 @@ public final class KnnClassifier implements Learner, Classifier<KnnModel> {
         }
 
         // find k nearest neighbors, compare instance to every known instance
-        List<Pair<Instance, Double>> neighbors = CollectionHelper.newArrayList();
-        for (Instance example : model.getTrainingExamples()) {
+        List<Pair<Trainable, Double>> neighbors = CollectionHelper.newArrayList();
+        for (Trainable example : model.getTrainingExamples()) {
             double distance = getDistanceBetween(classifiable.getFeatureVector(), example.getFeatureVector());
             neighbors.add(Pair.of(example, distance));
         }
 
         // sort near neighbor map by distance
-        Collections.sort(neighbors, EntryValueComparator.<Instance, Double> ascending());
+        Collections.sort(neighbors, EntryValueComparator.<Trainable, Double> ascending());
 
         // if there are several instances at the same distance we take all of them into the voting, k might get bigger
         // in those cases
         double lastDistance = -1;
         int ck = 0;
-        for (Pair<Instance, Double> neighbor : neighbors) {
+        for (Pair<Trainable, Double> neighbor : neighbors) {
 
             if (ck >= k && neighbor.getValue() != lastDistance) {
                 break;
@@ -128,9 +128,9 @@ public final class KnnClassifier implements Learner, Classifier<KnnModel> {
      * 
      * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
      */
-    private Set<String> getPossibleCategories(List<Instance> instances) {
+    private Set<String> getPossibleCategories(List<Trainable> instances) {
         Set<String> categories = CollectionHelper.newHashSet();
-        for (Instance instance : instances) {
+        for (Trainable instance : instances) {
             categories.add(instance.getTargetClass());
         }
         return categories;

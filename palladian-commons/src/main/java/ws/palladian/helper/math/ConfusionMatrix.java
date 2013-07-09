@@ -234,7 +234,7 @@ public class ConfusionMatrix {
      *            F2 score and 0.5 for F0.5 score and so on.
      * @return The F measure for a given category.
      */
-    public double getF(String category, double alpha) {
+    public double getF(double alpha, String category) {
         double precision = getPrecision(category);
         double recall = getRecall(category);
         if (precision < 0 || recall < 0) {
@@ -396,15 +396,16 @@ public class ConfusionMatrix {
      * Get the average F measure of all categories.
      * </p>
      * 
-     * @param beta To weight precision and recall (1.0 for F1 measure).
+     * @param alpha A value between 0 and 1 to weight precision and recall (1.0 for F1). Use values of 2.0 for
+     *            F2 score and 0.5 for F0.5 score and so on.
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
      *            each category equally.
      * @return The average F of all categories.
      */
-    public double getAverageF(double beta, boolean weighted) {
+    public double getAverageF(double alpha, boolean weighted) {
         double f = 0.0;
         for (String category : getCategories()) {
-            double fForCategory = getF(category, beta);
+            double fForCategory = getF(alpha, category);
             if (fForCategory < 0.0) {
                 continue;
             }
@@ -557,7 +558,7 @@ public class ConfusionMatrix {
             double precision = MathHelper.round(getPrecision(clazz), 4);
             double recall = MathHelper.round(getRecall(clazz), 4);
             double accuracy = MathHelper.round(getAccuracy(clazz), 4);
-            double f1measure = MathHelper.round(getF(clazz, 1.0), 4);
+            double f1measure = MathHelper.round(getF(1.0, clazz), 4);
             out.append(prior);
             int precisionSpaces = "prior  ".length() - String.valueOf(prior).length();
             out.append(CharBuffer.allocate(Math.max(precisionSpaces, 0)).toString().replace('\0', ' ')).append(

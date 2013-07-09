@@ -9,13 +9,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -139,7 +139,11 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             Integer tokenCharIndex = tokenPositions.get(tokenIndex);
             // the actual character index might be later
             tokenCharIndex = inputText.indexOf(value, tokenCharIndex);
-            annotations.add(new Annotation(tokenCharIndex, value, type));
+            if (tokenCharIndex >= 0) {
+                annotations.add(new Annotation(tokenCharIndex, value, type));
+            } else {
+                LOGGER.warn("Could not find {}/{} (idx:{},char:{})", value, type, tokenIndex, tokenCharIndex);
+            }
         }
 
         return annotations;
@@ -157,7 +161,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
      */
     private List<String> getCdataContent(Document document) {
         String stringRepresentation = HtmlHelper.xmlToString(document);
-        LOGGER.debug("xml data:\n" + stringRepresentation);
+        LOGGER.trace("xml data:\n" + stringRepresentation);
         String[] lines = stringRepresentation.split("\n");
         List<String> items = new ArrayList<String>();
         int index;

@@ -30,12 +30,17 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final LocationSource locationSource;
 
-    private final LocationDisambiguation disambiguation = new ProximityDisambiguation();
+    private final LocationDisambiguation disambiguation;
 
     private final AddressTagger addressTagger = new AddressTagger();
 
-    public PalladianLocationExtractor(LocationSource locationSource) {
+    public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;
+        this.disambiguation = disambiguation;
+    }
+
+    public PalladianLocationExtractor(LocationSource locationSource) {
+        this(locationSource, new ProximityDisambiguation());
     }
 
     @Override
@@ -47,7 +52,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         Annotations<LocationAnnotation> result = new Annotations<LocationAnnotation>();
 
-        List<LocationAnnotation> locationEntities = disambiguation.disambiguate(taggedEntities, locations);
+        List<LocationAnnotation> locationEntities = disambiguation.disambiguate(text, taggedEntities, locations);
         result.addAll(locationEntities);
 
         // last step, recognize streets. For also extracting ZIP codes, this needs to be better integrated into above's
@@ -76,8 +81,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2/text2.txt");
+        PalladianLocationExtractor extractor = new PalladianLocationExtractor(database,
+                new FeatureBasedDisambiguation());
+        String rawText = FileHelper
+                .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/text1.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38822240.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38765806.txt");
         // .readFileToString("/Users/pk/Desktop/LocationLab/LGL-converted/text_38812825.txt");

@@ -77,8 +77,8 @@ public class WekaPredictorTest {
     @Test
     public void testWithPositionalData() {
         // Feature Vector 1
-        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3);
-        PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6);
+        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0);
+        PositionAnnotation annotation2 = new PositionAnnotation("de", 4);
         ListFeature<PositionAnnotation> annotationListFeature = new ListFeature<PositionAnnotation>("token");
         annotationListFeature.add(annotation1);
         annotationListFeature.add(annotation2);
@@ -98,7 +98,7 @@ public class WekaPredictorTest {
 
         // Feature Vector 2
         ListFeature<PositionAnnotation> annotationListFeature2 = new ListFeature<PositionAnnotation>("token");
-        annotationListFeature2.add(new PositionAnnotation("de", 0, 2));
+        annotationListFeature2.add(new PositionAnnotation("de", 0));
         ListFeature<SequentialPattern> pattern1ListFeature2 = new ListFeature<SequentialPattern>("tokendepattern");
         pattern1ListFeature2.add(new SequentialPattern(Arrays.asList(new String[] {"d"})));
 

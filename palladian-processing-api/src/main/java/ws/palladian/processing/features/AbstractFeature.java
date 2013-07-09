@@ -28,7 +28,7 @@ abstract class AbstractFeature<T> implements Feature<T> {
      * The {@code Feature}'s value containing concrete extracted data from a document.
      * </p>
      */
-    private T value;
+    private final T value;
 
     /**
      * <p>
@@ -60,17 +60,8 @@ abstract class AbstractFeature<T> implements Feature<T> {
     }
 
     @Override
-    public final void setValue(T value) {
-        this.value = value;
-    }
-
-    @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(name);
-        builder.append("=");
-        builder.append(value);
-        return builder.toString();
+        return String.format("%s=%s", name, value);
     }
 
     @Override
