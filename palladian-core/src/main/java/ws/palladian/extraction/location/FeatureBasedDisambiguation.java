@@ -142,6 +142,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         trainInstanceCollection.addAll(trainInstances);
     }
 
+    // XXX offsets are not considered here; necessary?
     private static Set<Trainable> markPositiveInstances(Set<LocationInstance> instances, Set<Location> positive) {
         Set<Trainable> result = CollectionHelper.newHashSet();
         int numPositive = 0;

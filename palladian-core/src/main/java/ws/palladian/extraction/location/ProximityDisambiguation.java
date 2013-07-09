@@ -82,6 +82,7 @@ public class ProximityDisambiguation implements LocationDisambiguation {
                     if (distance < DISTANCE_THRESHOLD) {
                         LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
                         preselection.add(candidate);
+                        // XXX anchor type checking does not seem to be necessary.
                     } else if (anchorType == CITY || anchorType == UNIT || anchorType == COUNTRY) {
                         if (LocationExtractorUtils.isChildOf(candidate, anchor)
                                 && candidate.getPopulation() > LOWER_POPULATION_THRESHOLD) {
