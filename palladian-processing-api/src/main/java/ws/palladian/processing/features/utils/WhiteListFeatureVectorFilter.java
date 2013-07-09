@@ -6,6 +6,8 @@ package ws.palladian.processing.features.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
@@ -245,6 +247,21 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
 
     public void removeWhiteListFeature(FeatureDescriptor descriptor) {
         whiteList.remove(descriptor);
+    }
+
+    /**
+     * <p>
+     * Adds a variable length list of entries to this filter.
+     * </p>
+     *
+     * @param featureNames The names of the features to add to this filter.
+     */
+    public void addEntries(String... featureNames) {
+        Validate.notEmpty(featureNames, "featureNames must not be empty");
+        
+        for(String featureName:featureNames) {
+            addEntry(featureName);
+        }
     }
 }
 
