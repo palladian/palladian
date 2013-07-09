@@ -11,6 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
@@ -36,7 +37,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * The logger for objects of this class. Configure it using <tt>/src/main/resources/log4j.properties</tt>
      * </p>
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChiSquaredFeatureRanker.class);
 
     /**
      * <p>
@@ -82,14 +83,15 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      *         class.
      */
     public Map<String, Map<String, Double>> calculateChiSquareValues(final Collection<? extends Trainable> dataset) {
-        Map<String, Map<String, Long>> termClassCorrelationMatrix = new HashMap<String, Map<String, Long>>();
-        Map<String, Long> classCounts = new HashMap<String, Long>();
-        Map<String, Map<String, Double>> ret = new HashMap<String, Map<String, Double>>();
+        Map<Feature<?>, Map<String, Long>> termClassCorrelationMatrix = CollectionHelper.newHashMap();
+        Map<String, Long> classCounts = CollectionHelper.newHashMap();
+        Map<String, Map<String, Double>> ret = CollectionHelper.newHashMap();
 
         for (Trainable instance : dataset) {
             Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
+            LOGGER.trace(features.toString());
             for (Feature<?> value : features) {
-                addCooccurence(value.getValue().toString(), instance.getTargetClass(), termClassCorrelationMatrix);
+                addCooccurence(value, instance.getTargetClass(), termClassCorrelationMatrix);
             }
             Long count = classCounts.get(instance.getTargetClass());
             if (count == null) {
@@ -98,7 +100,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
             classCounts.put(instance.getTargetClass(), ++count);
         }
 
-        for (Map.Entry<String, Map<String, Long>> termOccurence : termClassCorrelationMatrix.entrySet()) {
+        for (Map.Entry<Feature<?>, Map<String, Long>> termOccurence : termClassCorrelationMatrix.entrySet()) {
             // The following variables are uppercase because that is the way
             // they are used in the literature.
             int N = dataset.size();
@@ -109,25 +111,25 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 if (termClassCoocurrence == null) {
                     termClassCoocurrence = 0L;
                 }
-                LOGGER.trace("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
+                //LOGGER.trace("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
                 long N_11 = termClassCoocurrence;
                 long N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
                 long N_01 = classCount - termClassCoocurrence;
                 long N_00 = N - (N_10 + N_01 + N_11);
-                LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
+                //LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
 
                 double numerator = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
                 long denominatorInt = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
                 double denominator = Double.valueOf(denominatorInt);
                 double chiSquare = numerator / denominator;
 
-                LOGGER.trace("Chi² value is {}", chiSquare);
+                //LOGGER.trace("Chi² value is {}", chiSquare);
                 Map<String, Double> chiSquaresForCurrentTerm = ret.get(termOccurence.getKey());
                 if (chiSquaresForCurrentTerm == null) {
                     chiSquaresForCurrentTerm = new HashMap<String, Double>();
                 }
                 chiSquaresForCurrentTerm.put(className, chiSquare);
-                ret.put(termOccurence.getKey(), chiSquaresForCurrentTerm);
+                ret.put(termOccurence.getKey().getName(), chiSquaresForCurrentTerm);
             }
         }
 
@@ -150,8 +152,8 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      *            value and the column value occur together.
      * @return The sum of the class occurrence without the term.
      */
-    private static long sumOfRowExceptOne(String rowValue, String exception,
-            Map<String, Map<String, Long>> correlationMatrix) {
+    private static long sumOfRowExceptOne(Feature<?> rowValue, String exception,
+            Map<Feature<?>, Map<String, Long>> correlationMatrix) {
         Map<String, Long> occurencesOfClass = correlationMatrix.get(rowValue);
         // add up all occurrences of the current class
         long ret = 0;
@@ -172,7 +174,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * @param column The value of the column of the matrix.
      * @param correlationMatrix The correlation matrix to add the correlation to.
      */
-    private static void addCooccurence(String row, String column, Map<String, Map<String, Long>> correlationMatrix) {
+    private static void addCooccurence(Feature<?> row, String column, Map<Feature<?>, Map<String, Long>> correlationMatrix) {
 
         Map<String, Long> correlations = correlationMatrix.get(row);
         if (correlations == null) {

@@ -14,7 +14,6 @@ public class MicrosoftTranslatorLangDetectIT {
     private static final String TEST_CLIENT_SECRET = "w9oWOWg1ZyGw4nvRKGutpx5WpxS+IAsMPudXBvBRN2o";
 
     @Test
-    @Category(ws.palladian.TestCategories.SlowTest.class)
     public void testMicrosoftTranslator() {
         LanguageClassifier langDetect = new MicrosoftTranslatorLangDetect(TEST_CLIENT_ID, TEST_CLIENT_SECRET);
         assertEquals(Language.ENGLISH, langDetect.classify("The quick brown fox jumps over the lazy dog."));
