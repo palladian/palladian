@@ -119,7 +119,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 List<Trainable> eliminatedDataset = ClassificationUtils.filterFeatures(instances, filter);
                 double score = testRun(eliminatedDataset);
                 // LOGGER.debug("Eliminating {} gives {}", currentFeature, score);
-                if (score >= highestScore) {
+                if (score >= highestScore || selectedFeature == null) {
                     highestScore = score;
                     selectedFeature = currentFeature;
                 }
