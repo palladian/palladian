@@ -161,12 +161,16 @@ public class ProximityDisambiguation implements LocationDisambiguation {
             group = LocationExtractorUtils.filterConditionally(group, new CoordinateFilter());
 
             if (LocationExtractorUtils.getLargestDistance(group) < SAME_DISTANCE_THRESHOLD) {
-                for (Location location : group) {
-                    long population = location.getPopulation() != null ? location.getPopulation() : 0;
-                    if (population > LOWER_POPULATION_THRESHOLD || name.split("\\s").length > 2) {
-                        LOGGER.debug("Unambiguous anchor location: {}", location);
-                        anchorLocations.add(location);
-                    }
+//                for (Location location : group) {
+//                    long population = location.getPopulation() != null ? location.getPopulation() : 0;
+//                    if (population > LOWER_POPULATION_THRESHOLD || name.split("\\s").length > 2) {
+//                        LOGGER.debug("Unambiguous anchor location: {}", location);
+//                        anchorLocations.add(location);
+//                    }
+//                }
+                Location location = LocationExtractorUtils.getBiggest(group);
+                if (location.getPopulation() > LOWER_POPULATION_THRESHOLD || name.split("\\s").length > 2) {
+                    anchorLocations.add(location);
                 }
             } else {
                 LOGGER.debug("Ambiguous location: {} ({} candidates)", name, group.size());
