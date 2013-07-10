@@ -3,9 +3,7 @@ package ws.palladian.classification.language;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import ws.palladian.TestCategories.SlowTest;
 import ws.palladian.helper.constants.Language;
 
 public class MicrosoftTranslatorLangDetectIT {
