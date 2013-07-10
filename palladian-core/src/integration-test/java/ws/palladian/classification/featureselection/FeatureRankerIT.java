@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.helper.collection.InverseFilter;
+import ws.palladian.helper.collection.RegexFilter;
 import ws.palladian.processing.Trainable;
 
 /**
@@ -32,6 +34,7 @@ public class FeatureRankerIT {
     public void setUp() throws Exception {
         String csvFilePath = this.getClass().getResource(DATASET_SAMPLE).getFile();
         dataset = ClassificationUtils.readCsv(csvFilePath, true);
+        dataset = ClassificationUtils.filterFeatures(dataset, InverseFilter.create(new RegexFilter("marker=.*")));
         
 //        List<Trainable> filteredDataset = CollectionHelper.newArrayList();
 //        for(Trainable trainable:dataset) {
