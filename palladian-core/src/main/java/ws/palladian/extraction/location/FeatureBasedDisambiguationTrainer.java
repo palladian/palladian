@@ -9,10 +9,12 @@ import java.util.SortedMap;
 
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.featureselection.AverageMergingStrategy;
 import ws.palladian.classification.featureselection.BackwardFeatureElimination;
+import ws.palladian.classification.featureselection.ChiSquaredFeatureRanker;
 import ws.palladian.classification.featureselection.FeatureRanker;
 import ws.palladian.classification.featureselection.FeatureRanking;
-import ws.palladian.classification.featureselection.InformationGainFeatureRanker;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -22,7 +24,9 @@ import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.collection.RegexFilter;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -39,11 +43,12 @@ public class FeatureBasedDisambiguationTrainer {
     static FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
 
     public static void main(String[] args) {
-        // String csvFilePath = "/Users/pk/Code/palladian/palladian-core/location_disambiguation_1373097352488.csv";
-        // List<Trainable> dataset = ClassificationUtils.readCsv(csvFilePath, true);
-        // dataset = ClassificationUtils.filterFeatures(dataset, InverseFilter.create(new RegexFilter("marker=.*")));
-        // performFeatureSelection(dataset);
+        String csvFilePath = "data/temp/location_disambiguation_1373234035433.csv";
+        List<Trainable> dataset = ClassificationUtils.readCsv(csvFilePath, true);
+        dataset = ClassificationUtils.filterFeatures(dataset, InverseFilter.create(new RegexFilter("marker=.*")));
+        performFeatureSelection(dataset);
         // performBackwardElimination(dataset);
+        System.exit(0);
 
         StopWatch stopWatch = new StopWatch();
         File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013_V2_train");
@@ -103,7 +108,8 @@ public class FeatureBasedDisambiguationTrainer {
     }
 
     static void performFeatureSelection(List<Trainable> dataset) {
-        FeatureRanker ranker = new InformationGainFeatureRanker();
+        // FeatureRanker ranker = new InformationGainFeatureRanker();
+        FeatureRanker ranker = new ChiSquaredFeatureRanker(new AverageMergingStrategy());
         FeatureRanking featureRanking = ranker.rankFeatures(dataset);
         System.out.println(featureRanking);
     }
