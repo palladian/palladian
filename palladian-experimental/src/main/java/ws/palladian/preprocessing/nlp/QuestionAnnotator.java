@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.processing.PipelineProcessor;
@@ -36,7 +35,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * </p>
  * <p>
  * Questions are extracted as a {@link TextAnnotationFeature}. You may retrieve your extracted questions as a
- * {@code List} of {@link Annotation}s using the {@link Feature#getValue()} method.
+ * {@code List} of {@link PositionAnnotation}s using the {@link Feature#getValue()} method.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -68,8 +67,6 @@ public final class QuestionAnnotator extends TextDocumentPipelineProcessor imple
      * @param featureName The name used to identify the provided {@code Feature}.
      */
     public QuestionAnnotator(final String featureName) {
-        super();
-
         Validate.notNull(featureName, "featureDescriptor must not be null");
 
         this.featureName = featureName;
@@ -83,8 +80,6 @@ public final class QuestionAnnotator extends TextDocumentPipelineProcessor imple
      */
     @Deprecated
     public QuestionAnnotator() {
-        super();
-
         this.featureName = FEATURE_IDENTIFIER;
     }
 
