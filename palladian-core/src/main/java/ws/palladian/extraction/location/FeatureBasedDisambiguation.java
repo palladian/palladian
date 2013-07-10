@@ -42,6 +42,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
 
+    private static final double PROBABILITY_THRESHOLD = 0.5;
+
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
 
     private final Set<Trainable> trainInstanceCollection = CollectionHelper.newHashSet();
@@ -90,7 +92,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 }
             }
 
-            if (selectedLocation != null && highestScore >= 0.5) {
+            if (selectedLocation != null && highestScore >= PROBABILITY_THRESHOLD) {
                 result.add(new LocationAnnotation(annotation, selectedLocation));
                 Object[] logArgs = new Object[] {annotation.getValue(), highestScore, selectedLocation};
                 LOGGER.debug("[+] '{}' was classified as location with {}: {}", logArgs);
@@ -236,6 +238,10 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 fv.add(new BooleanFeature("parentOccurs", parentOccurs(location, others)));
                 fv.add(new NumericFeature("ancestorCount", ancestorCount(location, others)));
                 fv.add(new BooleanFeature("ancestorOccurs", ancestorCount(location, others) > 0));
+                fv.add(new BooleanFeature("childOccurs", childCount(location, others) > 0));
+                fv.add(new NumericFeature("childCount", childCount(location, others)));
+                fv.add(new BooleanFeature("descendantOccurs", descendantCount(location, others) > 0));
+                fv.add(new NumericFeature("descendantCount", descendantCount(location, others)));
                 fv.add(new NumericFeature("numLocIn10", countLocationsInDistance(location, others, 10)));
                 fv.add(new NumericFeature("numLocIn50", countLocationsInDistance(location, others, 50)));
                 fv.add(new NumericFeature("numLocIn100", countLocationsInDistance(location, others, 100)));
@@ -394,6 +400,26 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         int count = 0;
         for (Location other : others) {
             if (GeoUtils.getDistance(location, other) < distance) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int childCount(Location location, Collection<Location> others) {
+        int count = 0;
+        for (Location other : others) {
+            if (LocationExtractorUtils.isDirectChildOf(other, location)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int descendantCount(Location location, Collection<Location> others) {
+        int count = 0;
+        for (Location other : others) {
+            if (LocationExtractorUtils.isChildOf(other, location)) {
                 count++;
             }
         }
