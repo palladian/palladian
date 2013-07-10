@@ -90,11 +90,27 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
-        final FeatureRanking result = new FeatureRanking();
-        final List<Trainable> instances = new ArrayList<Trainable>(dataset);
+        List<Trainable> instances = new ArrayList<Trainable>(dataset);
         Collections.shuffle(instances);
+        List<Trainable> trainData = instances.subList(0, instances.size() / 2);
+        List<Trainable> testData = instances.subList(instances.size() / 2, instances.size());
+        return rankFeatures(trainData, testData);
+    }
 
-        final Set<String> allFeatures = getFeatureNames(dataset);
+    /**
+     * <p>
+     * Perform the backward feature elimination for the two specified training and validation set.
+     * </p>
+     * 
+     * @param trainSet The training set, not <code>null</code>.
+     * @param validationSet The validation/testing set, not <code>null</code>.
+     * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
+     */
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> trainSet,
+            Collection<? extends Trainable> validationSet) {
+        final FeatureRanking result = new FeatureRanking();
+
+        final Set<String> allFeatures = getFeatureNames(trainSet);
         final Set<String> eliminatedFeatures = CollectionHelper.newTreeSet();
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
         final StopWatch stopWatch = new StopWatch();
@@ -114,10 +130,10 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 ProgressHelper.printProgress(count++, iterations, 0, stopWatch);
                 Set<String> featuresToEliminate = new HashSet<String>(eliminatedFeatures);
                 featuresToEliminate.add(currentFeature);
-//                List<Trainable> eliminatedDataset = removeFeature(instances, featuresToEliminate);
                 Filter<String> filter = InverseFilter.create(EqualsFilter.create(featuresToEliminate));
-                List<Trainable> eliminatedDataset = ClassificationUtils.filterFeatures(instances, filter);
-                double score = testRun(eliminatedDataset);
+                List<Trainable> eliminatedTrainData = ClassificationUtils.filterFeatures(trainSet, filter);
+                List<Trainable> eliminatedTestData = ClassificationUtils.filterFeatures(validationSet, filter);
+                double score = testRun(eliminatedTrainData, eliminatedTestData);
                 // LOGGER.debug("Eliminating {} gives {}", currentFeature, score);
                 if (score >= highestScore || selectedFeature == null) {
                     highestScore = score;
@@ -131,25 +147,6 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         return result;
     }
 
-//    private List<Trainable> removeFeature(List<Trainable> dataset, Set<String> featuresToEliminate) {
-//        List<Trainable> result = CollectionHelper.newArrayList();
-//        for (Trainable instance : dataset) {
-//            Trainable newInstance = removeFeature(instance, featuresToEliminate);
-//            result.add(newInstance);
-//        }
-//        return result;
-//    }
-//
-//    private Trainable removeFeature(Trainable instance, Set<String> featuresToEliminate) {
-//        FeatureVector newFeatureVector = new FeatureVector();
-//        for (Feature<?> feature : instance.getFeatureVector()) {
-//            if (!featuresToEliminate.contains(feature.getName())) {
-//                newFeatureVector.add(feature);
-//            }
-//        }
-//        return new Instance(instance.getTargetClass(), newFeatureVector);
-//    }
-
     private Set<String> getFeatureNames(Collection<? extends Trainable> dataset) {
         Set<String> featureNames = CollectionHelper.newTreeSet();
         Trainable instance = CollectionHelper.getFirst(dataset);
@@ -159,9 +156,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         return featureNames;
     }
 
-    private double testRun(List<Trainable> instances) {
-        List<Trainable> trainData = instances.subList(0, instances.size() / 2);
-        List<Trainable> testData = instances.subList(instances.size() / 2, instances.size());
+    private double testRun(List<Trainable> trainData, List<Trainable> testData) {
         M model = learner.train(trainData);
         ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, model, testData);
         return scorer.compute(confusionMatrix);

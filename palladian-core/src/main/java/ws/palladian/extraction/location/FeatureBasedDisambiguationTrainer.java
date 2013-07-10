@@ -24,9 +24,7 @@ import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Function;
-import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.helper.collection.RegexFilter;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -43,15 +41,17 @@ public class FeatureBasedDisambiguationTrainer {
     static FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
 
     public static void main(String[] args) {
-        String csvFilePath = "data/temp/location_disambiguation_1373234035433.csv";
-        List<Trainable> dataset = ClassificationUtils.readCsv(csvFilePath, true);
-        dataset = ClassificationUtils.filterFeatures(dataset, InverseFilter.create(new RegexFilter("marker=.*")));
-        performFeatureSelection(dataset);
+        // performBackwardElimination();
+        // System.exit(0);
+        // String csvFilePath = "data/temp/location_disambiguation_1373234035433.csv";
+        // List<Trainable> dataset = ClassificationUtils.readCsv(csvFilePath, true);
+        // dataset = ClassificationUtils.filterFeatures(dataset, InverseFilter.create(new RegexFilter("marker=.*")));
+        // performFeatureSelection(dataset);
         // performBackwardElimination(dataset);
-        System.exit(0);
+        // System.exit(0);
 
         StopWatch stopWatch = new StopWatch();
-        File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013_V2_train");
+        File goldStandardFileFolderPath = new File("/Users/pk/Desktop/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath.getPath(), "text");
         Map<String, SortedMap<Integer, GeoCoordinate>> coordinates = LocationExtractionEvaluator
@@ -114,7 +114,12 @@ public class FeatureBasedDisambiguationTrainer {
         System.out.println(featureRanking);
     }
     
-    static void performBackwardElimination(List<Trainable> dataset) {
+    static void performBackwardElimination() {
+        String trainFilePath = "data/temp/ld_features_training_1373470997471.csv";
+        String validationFilePath = "data/temp/ld_features_validation_1373479728807.csv";
+        List<Trainable> trainSet = ClassificationUtils.readCsv(trainFilePath, true);
+        List<Trainable> validationSet = ClassificationUtils.readCsv(validationFilePath, true);
+
         BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
         Function<ConfusionMatrix, Double> scorer = new Function<ConfusionMatrix, Double>() {
             @Override
@@ -122,9 +127,10 @@ public class FeatureBasedDisambiguationTrainer {
                 return input.getF(1.0, "true");
             }
         };
+
         BackwardFeatureElimination<BaggedDecisionTreeModel> elimination = new BackwardFeatureElimination<BaggedDecisionTreeModel>(
                 classifier, classifier, scorer);
-        FeatureRanking featureRanking = elimination.rankFeatures(dataset);
+        FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet);
         System.out.println(featureRanking);
     }
 

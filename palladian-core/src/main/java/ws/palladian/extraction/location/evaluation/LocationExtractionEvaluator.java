@@ -24,6 +24,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -31,14 +32,13 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
+import ws.palladian.extraction.location.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationDisambiguation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.ProximityDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -437,7 +437,8 @@ public final class LocationExtractionEvaluator {
 
     public static void main(String[] args) {
         // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted";
-        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V1";
+        String DATASET_LOCATION = "/Users/pk/Desktop/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation";
+        // String DATASET_LOCATION = "/Users/pk/Desktop/TUD-Loc-2013/TUD-Loc-2013_V2/3-test";
         // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2";
         // String DATASET_LOCATION = "/Users/pk/Desktop/TUD-Loc-2013_V2_test";
         // String DATASET_LOCATION = "C:\\Users\\Sky\\Desktop\\LocationExtractionDatasetSmall";
@@ -453,14 +454,13 @@ public final class LocationExtractionEvaluator {
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
 
         // ///////////////////// anchor heuristic //////////////////////
-        LocationDisambiguation disambiguation = new ProximityDisambiguation();
+        // LocationDisambiguation disambiguation = new ProximityDisambiguation();
 
         // ///////////////////// feature based //////////////////////
-        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
-        // String modelFilePath = "data/temp/location_disambiguation_1373234035433.model";
-        // disambiguation.setModel(FileHelper.<BaggedDecisionTreeModel> deserialize(modelFilePath));
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation();
+        String modelFilePath = "data/temp/location_disambiguation_1373470997471.model";
+        disambiguation.setModel(FileHelper.<BaggedDecisionTreeModel> deserialize(modelFilePath));
 
-        // evaluate(new PalladianLocationExtractor(database), DATASET_LOCATION);
         evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
