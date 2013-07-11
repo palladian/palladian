@@ -11,7 +11,7 @@ package ws.palladian.processing.features;
  * @version 2.0
  * @since 0.1.7
  */
-public class NominalFeature extends Feature<String> {
+public class NominalFeature extends AbstractFeature<String> {
 
     /**
      * <p>
@@ -24,6 +24,16 @@ public class NominalFeature extends Feature<String> {
      */
     public NominalFeature(final String name, final String value) {
         super(name, value);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
 
 }

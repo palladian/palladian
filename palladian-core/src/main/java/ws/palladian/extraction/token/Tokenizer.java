@@ -57,9 +57,9 @@ public final class Tokenizer {
             | Pattern.CASE_INSENSITIVE);
 
     private static final DateFormat[] ALL_DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM,
-            RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
-            RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
-            RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
+        RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
+        RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
+        RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
 
     private static final UrlTagger URL_TAGGER = new UrlTagger();
     private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger(ALL_DATES_WITH_DOTS);
@@ -181,11 +181,12 @@ public final class Tokenizer {
     public static Set<String> calculateCharNGrams(String string, int n) {
         Set<String> nGrams = new HashSet<String>();
 
-        if (string.length() < n) {
+        int sl = string.length();
+        if (sl < n) {
             return nGrams;
         }
 
-        for (int i = 0; i <= string.length() - n; i++) {
+        for (int i = 0; i <= sl - n; i++) {
 
             StringBuilder nGram = new StringBuilder();
             for (int j = i; j < i + n; j++) {
@@ -661,7 +662,7 @@ public final class Tokenizer {
 
             int leftIndex = lastIndex + leftOffset;
             int rightIndex = leftIndex + value.length();
-            PositionAnnotation sentence = new PositionAnnotation(featureName, leftIndex, rightIndex, value);
+            PositionAnnotation sentence = new PositionAnnotation(value, leftIndex, rightIndex);
             sentences.add(sentence);
             lastIndex = endPosition;
         }
@@ -679,8 +680,7 @@ public final class Tokenizer {
             if (!value.isEmpty()) {
                 int leftIndex = lastIndex + leftOffset;
                 int rightIndex = leftIndex + value.length();
-                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(featureName, leftIndex, rightIndex,
-                        value);
+                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex, rightIndex);
                 sentences.add(lastSentenceAnnotation);
             }
         }
@@ -750,8 +750,8 @@ public final class Tokenizer {
 
             String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
                     originalEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, originalStartPosition,
-                    originalEndPosition, transformedValue);
+            PositionAnnotation transformedSentence = new PositionAnnotation(transformedValue, originalStartPosition,
+                    originalEndPosition);
             ret.add(transformedSentence);
             lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
@@ -777,8 +777,9 @@ public final class Tokenizer {
             String value = annotation.getValue();
             int startPosition = annotation.getStartPosition();
             int endPosition = annotation.getStartPosition() + annotation.getValue().length();
-            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
-                    value);
+//            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
+//                    value);
+            PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition, endPosition);
 
             ret.add(positionAnnotation);
         }
@@ -970,7 +971,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 

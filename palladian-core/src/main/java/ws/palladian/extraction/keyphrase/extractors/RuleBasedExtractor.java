@@ -36,6 +36,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 public final class RuleBasedExtractor extends KeyphraseExtractor {
@@ -93,7 +94,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        List<PositionAnnotation> annotations = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         Set<String> terms = new HashSet<String>();
         for (PositionAnnotation annotation : annotations) {
             terms.add(annotation.getValue());
@@ -141,22 +142,22 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
     }
 
     private List<Keyphrase> extract(PipelineDocument<String> document) {
-        List<PositionAnnotation> annotations =  document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations =  document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();
             FeatureVector annotationFeatureVector = annotation.getFeatureVector();
-            double frequency = annotationFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FREQUENCY).getValue();
+            double frequency = annotationFeatureVector.get(NumericFeature.class, TokenMetricsCalculator.FREQUENCY).getValue();
 //            double phraseness = annotationFeatureVector.get(PhrasenessAnnotator.GENERALIZED_DICE).getValue();
             double prior = (double)(keyphraseCorpus.getCount(value) + 1) / keyphraseCorpus.getNumTerms();
-            double posPenalty = annotationFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.FIRST).getValue() > 0.1 ? 0 : 1;
-            double spreadPenalty = annotationFeatureVector.getFeature(NumericFeature.class, TokenMetricsCalculator.SPREAD).getValue() < 0.25 ? 0 : 1;
+            double posPenalty = annotationFeatureVector.get(NumericFeature.class, TokenMetricsCalculator.FIRST).getValue() > 0.1 ? 0 : 1;
+            double spreadPenalty = annotationFeatureVector.get(NumericFeature.class, TokenMetricsCalculator.SPREAD).getValue() < 0.25 ? 0 : 1;
             double termLength = value.split(" ").length;
             double idf;
 //            if (annotation instanceof AnnotationGroup) {
 //                idf = Math.log10(termCorpus.getNumDocs());
 //            } else {
-                idf = annotationFeatureVector.getFeature(NumericFeature.class, IdfAnnotator.PROVIDED_FEATURE).getValue();
+                idf = annotationFeatureVector.get(NumericFeature.class, IdfAnnotator.PROVIDED_FEATURE).getValue();
 //            }
             double score = frequency * idf /* phraseness */ * prior * posPenalty * spreadPenalty * Math.pow(termLength, 2);
             keywords.add(new Keyphrase(value, score));

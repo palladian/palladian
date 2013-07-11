@@ -3,11 +3,15 @@ package ws.palladian.extraction.location.evaluation;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -15,6 +19,7 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -38,7 +43,7 @@ final class DatasetCheck {
         }
     }
 
-    private static void performCheck(File datasetDirectory) {
+    static void performCheck(File datasetDirectory) {
         if (!datasetDirectory.isDirectory()) {
             throw new IllegalStateException("Specified path '" + datasetDirectory
                     + "' does not exist or is no directory.");
@@ -162,8 +167,49 @@ final class DatasetCheck {
         System.out.println("# texts: " + datasetFiles.length);
     }
 
+    /**
+     * Get statistics about non/disambiguated annotations in the dataset.
+     * 
+     * @param datasetPath
+     */
+    static void getNonDisambiguatedStatistics(File datasetPath) {
+        File coordinatesFile = new File(datasetPath, "coordinates.csv");
+        Map<String, SortedMap<Integer, GeoCoordinate>> coordinates = LocationExtractionEvaluator
+                .readCoordinatesCsv(coordinatesFile);
+        CountMap<String> totalTypeCounts = CountMap.create();
+        CountMap<String> disambiguatedTypeCounts = CountMap.create();
+
+        File[] files = FileHelper.getFiles(datasetPath.getPath(), "text");
+        for (File file : files) {
+            String inputText = FileHelper.readFileToString(file);
+            inputText = inputText.replace(" role=\"main\"", "");
+            Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(inputText);
+            for (ContextAnnotation annotation : annotations) {
+                totalTypeCounts.add(annotation.getTag());
+                GeoCoordinate coordinate = coordinates.get(file.getName()).get(annotation.getStartPosition());
+                if (coordinate != null) {
+                    disambiguatedTypeCounts.add(annotation.getTag());
+                }
+            }
+        }
+        for (String tag : disambiguatedTypeCounts.keySet()) {
+            int count = totalTypeCounts.getCount(tag);
+            int disambiguatedCount = disambiguatedTypeCounts.getCount(tag);
+            float disambiguatedPercentage = (float)disambiguatedCount / count * 100;
+            System.out.println(tag + " total: " + count + ", disambiguated: " + disambiguatedCount + ", percentage: "
+                    + MathHelper.round(disambiguatedPercentage, 2));
+        }
+        System.out.println();
+        System.out.println("# total disambiguated: " + disambiguatedTypeCounts.totalSize());
+        System.out.println("% total disambiguated: "
+                + MathHelper.round((float)disambiguatedTypeCounts.totalSize() / totalTypeCounts.totalSize() * 100, 2));
+    }
+
+
     public static void main(String[] args) {
-        performCheck(new File("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V2"));
+        File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2");
+        getNonDisambiguatedStatistics(datasetPath);
+        // performCheck(datasetPath);
     }
 
 }

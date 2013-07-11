@@ -21,6 +21,7 @@ import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
@@ -207,15 +208,15 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         // TODO merge annotation classes
         List<? extends Annotated> annotations = getAnnotations(content);
 
-        FeatureVector featureVector = document.getFeatureVector();
-
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
+        ListFeature<PositionAnnotation> processedAnnotations = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
         for (Annotated nerAnnotation : annotations) {
             PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getStartPosition(),
                     nerAnnotation.getEndPosition());
-            featureVector.add(procAnnotation);
+            processedAnnotations.add(procAnnotation);
 
         }
+        document.add(processedAnnotations);
     }
 
     public abstract String getName();

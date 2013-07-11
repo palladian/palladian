@@ -30,11 +30,8 @@ public final class WekaModel implements Model {
     private final Classifier classifier;
     private final Map<String, Attribute> schema;
     private final Instances dataset;
-    private final List<String> normalFeaturePaths;
-    private final List<String> sparseFeaturePaths;
 
-    public WekaModel(Classifier classifier, Instances data, List<String> normalFeaturePaths,
-            List<String> sparseFeaturePaths) {
+    public WekaModel(Classifier classifier, Instances data) {
         this.classifier = classifier;
         Enumeration<?> schema = data.enumerateAttributes();
         this.schema = new HashMap<String, Attribute>();
@@ -43,8 +40,6 @@ public final class WekaModel implements Model {
             this.schema.put(attribute.name(), attribute);
         }
         this.dataset = data;
-        this.normalFeaturePaths = new ArrayList<String>(normalFeaturePaths);
-        this.sparseFeaturePaths = new ArrayList<String>(sparseFeaturePaths);
     }
 
     public Classifier getClassifier() {
@@ -68,20 +63,4 @@ public final class WekaModel implements Model {
     public Instances getDataset() {
         return dataset;
     }
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @return
-     */
-    public List<String> getNormalFeaturePaths() {
-        return Collections.unmodifiableList(normalFeaturePaths);
-    }
-
-    public List<String> getSparseFeaturePaths() {
-        return Collections.unmodifiableList(sparseFeaturePaths);
-    }
-
 }

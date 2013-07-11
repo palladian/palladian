@@ -9,6 +9,7 @@ import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -37,10 +38,10 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor {
      * @return List of token annotations.
      * @throws IllegalStateException In case the document does not provide any token annotations.
      */
-    public static List<PositionAnnotation> getTokenAnnotations(TextDocument document) {
+    @SuppressWarnings("unchecked")
+    public static ListFeature<PositionAnnotation> getTokenAnnotations(TextDocument document) {
         Validate.notNull(document, "document must not be null");
-        FeatureVector featureVector = document.getFeatureVector();
-        return featureVector.getAll(PositionAnnotation.class, PROVIDED_FEATURE);
+        return document.get(ListFeature.class, PROVIDED_FEATURE);
     }
 
     /**

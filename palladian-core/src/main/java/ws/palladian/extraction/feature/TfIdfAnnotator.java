@@ -22,12 +22,12 @@ public final class TfIdfAnnotator extends AbstractTokenProcessor {
 
     @Override
     protected void processToken(PositionAnnotation annotation) throws DocumentUnprocessableException {
-        NumericFeature tfFeature = annotation.getFeatureVector().getFeature(NumericFeature.class, TokenMetricsCalculator.FREQUENCY);
+        NumericFeature tfFeature = annotation.getFeatureVector().get(NumericFeature.class, TokenMetricsCalculator.FREQUENCY);
         if (tfFeature == null) {
             throw new DocumentUnprocessableException("The required feature \"" + TokenMetricsCalculator.FREQUENCY
                     + "\" is missing.");
         }
-        NumericFeature idfFeature = annotation.getFeatureVector().getFeature(NumericFeature.class, IdfAnnotator.PROVIDED_FEATURE);
+        NumericFeature idfFeature = annotation.getFeatureVector().get(NumericFeature.class, IdfAnnotator.PROVIDED_FEATURE);
         if (idfFeature == null) {
             throw new DocumentUnprocessableException("The required feature \"" + IdfAnnotator.PROVIDED_FEATURE
                     + "\" is missing.");
