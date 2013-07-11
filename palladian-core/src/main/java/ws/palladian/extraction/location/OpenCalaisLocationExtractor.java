@@ -7,6 +7,10 @@ import java.util.Map;
 import ws.palladian.extraction.entity.tagger.OpenCalaisNer;
 import ws.palladian.helper.collection.CollectionHelper;
 
+/**
+ * @deprecated Use {@link OpenCalaisLocationExtractor2}, which provides coordinates.
+ */
+@Deprecated
 public class OpenCalaisLocationExtractor extends MappingLocationExtractor {
 
     private static final Map<String, LocationType> LOCATION_MAPPING;

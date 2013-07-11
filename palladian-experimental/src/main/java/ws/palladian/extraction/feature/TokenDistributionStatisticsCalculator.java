@@ -17,6 +17,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -53,7 +54,7 @@ public final class TokenDistributionStatisticsCalculator extends TextDocumentPip
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> tokens = document.getFeatureVector().getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> tokens = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
 //        if (tokenAnnotations == null) {
 //            throw new DocumentUnprocessableException(
 //                    "Token annotations are missing, document needs to be processed by a Tokenizer in advance.");
@@ -72,7 +73,7 @@ public final class TokenDistributionStatisticsCalculator extends TextDocumentPip
         // calculate level statistics for all token values
         for (PositionAnnotation token : tokens) {
 
-            NumericFeature countFeature = token.getFeatureVector().getFeature(NumericFeature.class, TokenMetricsCalculator.COUNT);
+            NumericFeature countFeature = token.getFeatureVector().get(NumericFeature.class, TokenMetricsCalculator.COUNT);
             if (countFeature == null) {
                 throw new DocumentUnprocessableException("Necessary token count feature (\""
                         + TokenMetricsCalculator.COUNT + "\") is missing. Please use "
@@ -105,7 +106,6 @@ public final class TokenDistributionStatisticsCalculator extends TextDocumentPip
 
     }
 
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.add(new RegExTokenizer());
@@ -124,7 +124,7 @@ public final class TokenDistributionStatisticsCalculator extends TextDocumentPip
 
         List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(doc);
         for (PositionAnnotation annotation : tokenAnnotations) {
-            NumericFeature levelStats = annotation.getFeatureVector().getFeature(NumericFeature.class, LEVEL_STATISTICS);
+            NumericFeature levelStats = annotation.getFeatureVector().get(NumericFeature.class, LEVEL_STATISTICS);
             if (levelStats.getValue() > 6) {
                 System.out.println(annotation.getValue() + " / " + levelStats);
             }

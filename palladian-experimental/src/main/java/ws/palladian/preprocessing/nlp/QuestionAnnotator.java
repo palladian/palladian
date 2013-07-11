@@ -9,6 +9,7 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
@@ -45,10 +46,10 @@ public final class QuestionAnnotator extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) {
-        List<PositionAnnotation> sentences = document.getFeatureVector().getAll(PositionAnnotation.class,
+        List<PositionAnnotation> sentences = document.get(ListFeature.class,
                 AbstractSentenceDetector.PROVIDED_FEATURE);
-        List<PositionAnnotation> questions = CollectionHelper.newArrayList();
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(FEATURE_IDENTIFIER, document);
+        ListFeature<PositionAnnotation> questions = new ListFeature<PositionAnnotation>(FEATURE_IDENTIFIER);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         for (PositionAnnotation sentence : sentences) {
             String coveredText = sentence.getValue();
             if (coveredText.endsWith("?") || coveredText.toLowerCase().startsWith("what")

@@ -11,7 +11,7 @@ public class PositionAnnotationTest {
 
     @Test
     public void testPositionAnnotationCreation() {
-        PositionAnnotationFactory factory = new PositionAnnotationFactory("term", "The quick brown fox");
+        PositionAnnotationFactory factory = new PositionAnnotationFactory("The quick brown fox");
         List<PositionAnnotation> annotations = new ArrayList<PositionAnnotation>();
         annotations.add(factory.create(0, 3));
         annotations.add(factory.create(4, 9));

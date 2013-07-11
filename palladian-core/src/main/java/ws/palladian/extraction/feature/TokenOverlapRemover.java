@@ -6,19 +6,14 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 public final class TokenOverlapRemover extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        FeatureVector featureVector = document.getFeatureVector();
-//        TextAnnotationFeature annotationFeature = featureVector.get(BaseTokenizer.PROVIDED_FEATURE_DESCRIPTOR);
-//        if (annotationFeature == null) {
-//            throw new DocumentUnprocessableException("The required feature \"" + BaseTokenizer.PROVIDED_FEATURE + "\" is missing");
-//        }
-        List<PositionAnnotation> annotations = featureVector.getAll(PositionAnnotation.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         Annotated[] tokensArray = annotations.toArray(new PositionAnnotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length; i++) {
             for (int j = i + 1; j < tokensArray.length; j++) {

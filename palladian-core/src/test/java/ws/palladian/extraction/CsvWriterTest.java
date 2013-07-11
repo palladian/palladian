@@ -32,7 +32,7 @@ public class CsvWriterTest {
 
     @Test
     public void test() throws IOException, DocumentUnprocessableException {
-        String expectedResult = "\"test1\",\"test2\",\"test3\"\ntest1-1,test2,?\n";
+        String expectedResult = "\"test1\",\"test2\",\"test3\"\n12.0,test2,?\n";
 
         File csvFile = File.createTempFile("csvwritertest", "csv");
         CsvWriter objectOfClassUnderTest = new CsvWriter(csvFile.getCanonicalPath(), "test1", "test2", "test3");
