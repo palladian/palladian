@@ -99,7 +99,6 @@ public final class MathHelper {
         union.addAll(setA);
         union.addAll(setB);
 
-
         return (double)intersection.size() / union.size();
     }
 
@@ -622,7 +621,8 @@ public final class MathHelper {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
-            LOGGER.warn("the range between min ({}) and max ({}) is not enough to create enough random numbers", min, max);
+            LOGGER.warn("the range between min ({}) and max ({}) is not enough to create enough random numbers", min,
+                    max);
             return randomNumbers;
         }
         Random random = new Random();
@@ -795,19 +795,45 @@ public final class MathHelper {
      * @return The distance between the points in kilometers.
      */
     public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-        double earthRadius = 6384;
-        double lat1Rad = Math.toRadians(lat1);
-        double lat2Rad = Math.toRadians(lat2);
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lng2 - lng1);
-        double sindLat = Math.sin(dLat / 2);
-        double sindLng = Math.sin(dLng / 2);
-        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = earthRadius * c;
-
-        return distance;
+        double earthRadius = 6371;
+        return 2
+                * earthRadius
+                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
+                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
     }
+
+    // public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
+    // double earthRadius = 6371;
+    // double lat1Rad = Math.toRadians(lat1);
+    // double lat2Rad = Math.toRadians(lat2);
+    // double dLat = Math.toRadians(lat2 - lat1);
+    // double dLng = Math.toRadians(lng2 - lng1);
+    // double sindLat = Math.sin(dLat / 2);
+    // double sindLng = Math.sin(dLng / 2);
+    // double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
+    // double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    // double distance = earthRadius * c;
+    //
+    // return distance;
+    // }
+    //
+    // public static double _computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2)
+    // {
+    // double earthRadius = 6371;
+    // double lat1Rad = Math.toRadians(lat1);
+    // double lat2Rad = Math.toRadians(lat2);
+    // double lng1Rad = Math.toRadians(lng1);
+    // double lng2Rad = Math.toRadians(lng2);
+    // // double dLat = Math.toRadians(lat2 - lat1);
+    // // double dLng = Math.toRadians(lng2 - lng1);
+    //
+    // double distance = Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad)
+    // * Math.cos(lng2Rad - lng1Rad))
+    // * earthRadius;
+    //
+    // return distance;
+    // }
 
     /**
      * <p>
