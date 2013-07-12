@@ -361,8 +361,30 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Get certain object elements from a collection of objects. E.g. get a collection of String names from a collection
+     * of NameObjects. {@link CollectionHelperTest#testFieldFilter}.
+     * </p>
+     * 
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param fieldFilter The field filter to apply, not <code>null</code>.
+     * @return A collection with the field elements from the given objects.
+     */
+    public static <S, T> Collection<S> getFields(Iterable<T> iterable, FieldFilter<T, S> fieldFilter) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(fieldFilter, "filter must not be null");
+
+        Collection<S> resultCollection = newHashSet();
+        for (T t : iterable) {
+            resultCollection.add(fieldFilter.getField(t));
+        }
+
+        return resultCollection;
+    }
+
+    /**
+     * <p>
      * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}. In
-     * contrast to {@link #filter(Iterable, Filter)}, this does not modify the supplied Iterabel.
+     * contrast to {@link #filter(Iterable, Filter)}, this does not modify the supplied Iterable.
      * </p>
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
