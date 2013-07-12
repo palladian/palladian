@@ -5,7 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,6 +47,43 @@ public class CollectionHelperTest {
         assertEquals((Integer)3, iterator.next().getValue());
         assertEquals((Integer)4, iterator.next().getKey());
         assertEquals((Integer)5, iterator.next().getKey());
+
+    }
+
+    @Test
+    public void testFieldFilter() {
+
+        // strings
+        Collection<NameObject> set = new HashSet<NameObject>();
+        set.add(new NameObject("A"));
+        set.add(new NameObject("B"));
+
+        Collection<String> names = CollectionHelper.getFields(set, new FieldFilter<NameObject, String>() {
+            @Override
+            public String getField(NameObject item) {
+                return item.getName();
+            }
+        });
+        // CollectionHelper.print(names);
+        assertTrue(names.contains("A"));
+        assertTrue(names.contains("B"));
+        assertEquals(2, names.size());
+
+        // integers
+        set = new HashSet<NameObject>();
+        set.add(new NameObject(1));
+        set.add(new NameObject(2));
+
+        Collection<Integer> ages = CollectionHelper.getFields(set, new FieldFilter<NameObject, Integer>() {
+            @Override
+            public Integer getField(NameObject item) {
+                return item.getAge();
+            }
+        });
+        // CollectionHelper.print(ages);
+        assertTrue(ages.contains(1));
+        assertTrue(ages.contains(2));
+        assertEquals(2, names.size());
 
     }
 
@@ -102,4 +141,27 @@ public class CollectionHelperTest {
         assertTrue(groupedResult.get(5).containsAll(Arrays.asList("three")));
     }
 
+    private class NameObject {
+        private String name;
+        private int age;
+
+        public NameObject(String name) {
+            super();
+            this.name = name;
+        }
+
+        public NameObject(int age) {
+            super();
+            this.age = age;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+    }
 }
