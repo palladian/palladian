@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.Model;
+import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.ProgressHelper;
@@ -160,6 +162,28 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         M model = learner.train(trainData);
         ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, model, testData);
         return scorer.compute(confusionMatrix);
+    }
+
+    public static void main(String[] args) {
+        List<Trainable> trainSet = ClassificationUtils.readCsv("data/temp/ld_features_training.csv", true);
+        List<Trainable> validationSet = ClassificationUtils.readCsv("data/temp/ld_features_validation.csv", true);
+
+        // the classifier to use
+        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+
+        // scoring function used for deciding which feature to eliminate; we use the F1 measure here, but in general all
+        // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
+        Function<ConfusionMatrix, Double> scorer = new Function<ConfusionMatrix, Double>() {
+            @Override
+            public Double compute(ConfusionMatrix input) {
+                return input.getF(1.0, "true");
+            }
+        };
+
+        BackwardFeatureElimination<BaggedDecisionTreeModel> elimination = new BackwardFeatureElimination<BaggedDecisionTreeModel>(
+                classifier, classifier, scorer);
+        FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet);
+        CollectionHelper.print(featureRanking.getAll());
     }
 
 }
