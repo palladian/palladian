@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -325,25 +326,20 @@ public final class CollectionHelper {
      */
     public static <T> boolean removeNulls(Iterable<T> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
-        return filter(iterable, new Filter<T>() {
-            @Override
-            public boolean accept(T item) {
-                return item != null;
-            }
-        });
+        return remove(iterable, Filter.NULL_FILTER);
     }
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable}; after applying this method, the Iterable only contains the items
-     * which matched the filter, i.e. the filtering is done in place, modifying the Iterable.
+     * Apply a {@link Filter} to an {@link Iterable} and remove non-matching items; after applying this method, the
+     * Iterable only contains the items which matched the filter.
      * </p>
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
      * @param filter The Filter to apply, not <code>null</code>.
      * @return <code>true</code> if any items were removed, else <code>false</code>.
      */
-    public static <T> boolean filter(Iterable<T> iterable, Filter<T> filter) {
+    public static <T> boolean remove(Iterable<T> iterable, Filter<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
 
@@ -361,28 +357,6 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Get certain object elements from a collection of objects. E.g. get a collection of String names from a collection
-     * of NameObjects. {@link CollectionHelperTest#testFieldFilter}.
-     * </p>
-     * 
-     * @param iterable The Iterable to filter, not <code>null</code>.
-     * @param fieldFilter The field filter to apply, not <code>null</code>.
-     * @return A collection with the field elements from the given objects.
-     */
-    public static <S, T> Collection<S> getFields(Iterable<T> iterable, FieldFilter<T, S> fieldFilter) {
-        Validate.notNull(iterable, "iterable must not be null");
-        Validate.notNull(fieldFilter, "filter must not be null");
-
-        Collection<S> resultCollection = newHashSet();
-        for (T t : iterable) {
-            resultCollection.add(fieldFilter.getField(t));
-        }
-
-        return resultCollection;
-    }
-
-    /**
-     * <p>
      * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}. In
      * contrast to {@link #filter(Iterable, Filter)}, this does not modify the supplied Iterable.
      * </p>
@@ -393,7 +367,7 @@ public final class CollectionHelper {
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the filter.
      */
-    public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Filter<T> filter, C output) {
+    public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Filter<? super T> filter, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
         Validate.notNull(output, "output must not be null");
@@ -472,7 +446,7 @@ public final class CollectionHelper {
      * @param function The Function which returns the value which is used for grouping, not <code>null</code>.
      * @return A MultiMap representing the groups.
      */
-    public static <I, V> MultiMap<V, I> groupBy(Iterable<I> iterable, Function<I, V> function) {
+    public static <I, V> MultiMap<V, I> groupBy(Iterable<I> iterable, Function<? super I, V> function) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
 
@@ -491,13 +465,28 @@ public final class CollectionHelper {
      * ).
      * </p>
      * 
+     * <pre>
+     * // list with numbers
+     * List&lt;Integer&gt; numbers = Arrays.asList(0, 1, 1, 2, 3, 5);
+     * // convert them to strings using the specified Function
+     * List&lt;String&gt; strings = convert(numbers, new Function&lt;Number, String&gt;() {
+     *     &#064;Override
+     *     public String compute(Number input) {
+     *         return input.toString();
+     *     }
+     * }, new ArrayList&lt;String&gt;());
+     * </pre>
+     * 
      * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
      * @param function The Function which converts the values in the iterable, not <code>null</code>.
      * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the converted items.
+     * @see #convertList(Iterable, Function)
+     * @see #convertSet(Iterable, Function)
      */
-    public static <I, O, C extends Collection<O>> C convert(Iterable<I> iterable, Function<I, O> function, C output) {
+    public static <I, O, C extends Collection<O>> C convert(Iterable<I> iterable, Function<? super I, O> function,
+            C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
         Validate.notNull(output, "output must not be null");
@@ -506,6 +495,42 @@ public final class CollectionHelper {
             output.add(function.compute(item));
         }
         return output;
+    }
+
+    /**
+     * <p>
+     * Convert contents of {@link Iterable}s to a different type and put them into a {@link Set}. For example if, you
+     * have a {@link List} of Numbers and want to convert them to Strings, supply a {@link Function} which applies the
+     * <code>toString()</code> method to the Numbers (a predefined Function for this specific use case is available as
+     * {@link Function#TO_STRING_FUNCTION}).
+     * </p>
+     * 
+     * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
+     * @param function The Function which converts the values in the iterable, not <code>null</code>.
+     * @return A {@link Set} with the field elements from the given objects.
+     */
+    public static <I, O> Set<O> convertSet(Iterable<I> iterable, Function<? super I, O> function) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+        return convert(iterable, function, new HashSet<O>());
+    }
+
+    /**
+     * <p>
+     * Convert contents of {@link Iterable}s to a different type and put them into a {@link List}. For example if, you
+     * have a {@link List} of Numbers and want to convert them to Strings, supply a {@link Function} which applies the
+     * <code>toString()</code> method to the Numbers (a predefined Function for this specific use case is available as
+     * {@link Function#TO_STRING_FUNCTION}).
+     * </p>
+     * 
+     * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
+     * @param function The Function which converts the values in the iterable, not <code>null</code>.
+     * @return A {@link List} with the field elements from the given objects.
+     */
+    public static <I, O> List<O> convertList(Iterable<I> iterable, Function<? super I, O> function) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+        return convert(iterable, function, new ArrayList<O>());
     }
 
 }
