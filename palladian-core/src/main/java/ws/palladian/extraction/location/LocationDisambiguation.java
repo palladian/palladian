@@ -29,4 +29,6 @@ public interface LocationDisambiguation {
      */
     List<LocationAnnotation> disambiguate(String text, List<Annotated> annotations, MultiMap<String, Location> locations);
 
+    // XXX List<Annotated> and MultiMap<String, Location> could be consolidated to MultiMap<Annotated, Location>
+
 }
