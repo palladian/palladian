@@ -58,7 +58,9 @@ class LocationFeatureExtractor {
     private final Set<String> locationMarkers = new HashSet<String>(
             FileHelper.readFileToArray(FeatureBasedDisambiguation.class.getResourceAsStream("/locationMarkers.txt")));
 
-    private Set<Annotated> getUnlikelyCandidates(String text, MultiMap<String, Location> locations) {
+    public static boolean debug = false;
+
+    private Set<Annotated> getUnlikelyCandidates(String text, MultiMap<Annotated, Location> locations) {
 
         // get *all* annotations
         List<Annotated> annotations = tagger.getAnnotations(text);
@@ -69,7 +71,7 @@ class LocationFeatureExtractor {
 
         Set<String> unlikelyParts = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
-            if (!locations.containsKey(LocationExtractorUtils.normalizeName(annotation.getValue()))) {
+            if (!locations.containsKey(annotation)) {
                 LOGGER.trace("[unlikely] {}", annotation);
                 String[] parts = annotation.getValue().split("\\s");
                 for (String part : parts) {
@@ -92,24 +94,23 @@ class LocationFeatureExtractor {
         return unlikelyCandidates;
     }
 
-    public Set<LocationInstance> makeInstances(String text, List<Annotated> annotations,
-            MultiMap<String, Location> locations) {
+    public Set<LocationInstance> makeInstances(String text, MultiMap<Annotated, Location> locations) {
 
         Set<Annotated> unlikelyCandidates = getUnlikelyCandidates(text, locations);
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
         Collection<Location> allLocations = locations.allValues();
-        CountMap<String> counts = getCounts(annotations);
-        int annotationCount = annotations.size();
+        CountMap<String> counts = getCounts(locations.keySet());
+        int annotationCount = locations.keySet().size();
         Set<Location> uniqueLocations = getUniqueLocations(locations);
-        Map<Location, Double> sentenceProximities = buildSentenceProximityMap(text, annotations, locations);
-        Map<String, CategoryEntries> contextClassification = createContextClassification(text, annotations);
+        Map<Location, Double> sentenceProximities = buildSentenceProximityMap(text, locations);
+        Map<String, CategoryEntries> contextClassification = createContextClassification(text, locations.keySet());
         double largestDistance = LocationExtractorUtils.getLargestDistance(allLocations);
 
-        for (Annotated annotation : annotations) {
+        for (Annotated annotation : locations.keySet()) {
 
             String value = annotation.getValue();
             String normalizedValue = LocationExtractorUtils.normalizeName(value);
-            Collection<Location> candidates = locations.get(normalizedValue);
+            Collection<Location> candidates = locations.get(annotation);
             Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
             long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
             boolean unique = isUnique(candidates);
@@ -140,8 +141,9 @@ class LocationFeatureExtractor {
                 fv.add(new NumericFeature("numTokens", value.split("\\s").length));
                 fv.add(new NumericFeature("numCharacters", value.length()));
                 fv.add(new NumericFeature("ambiguity", 1. / candidates.size()));
-                fv.add(new BooleanFeature("acronym", isAcronym(value, locations)));
+                fv.add(new BooleanFeature("acronym", isAcronym(annotation, locations)));
                 fv.add(new NumericFeature("count", counts.getCount(value)));
+                // XXX different now, as it is only the frequency of the annotations where locations were found.
                 fv.add(new NumericFeature("frequency", (double)counts.getCount(value) / annotationCount));
                 fv.add(new BooleanFeature("parentOccurs", parentOccurs(location, others)));
                 fv.add(new NumericFeature("ancestorCount", ancestorCount(location, others)));
@@ -189,6 +191,12 @@ class LocationFeatureExtractor {
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
                 // fv.add(new NominalFeature("documentId", fileName));
+                if (debug) {
+                    String tempIdentifier = annotation.getValue() + annotation.getStartPosition()
+                            + annotation.getEndPosition() + location.getId();
+                    String hash = String.valueOf(tempIdentifier.hashCode());
+                    fv.add(new NominalFeature("identifier", hash));
+                }
 
                 instances.add(new LocationInstance(location, fv));
             }
@@ -203,7 +211,7 @@ class LocationFeatureExtractor {
         }
     }
 
-    private Map<String, CategoryEntries> createContextClassification(String text, List<Annotated> annotations) {
+    private Map<String, CategoryEntries> createContextClassification(String text, Collection<Annotated> annotations) {
         Map<String, CategoryEntries> result = CollectionHelper.newHashMap();
         for (Annotated annotation : annotations) {
             CategoryEntries classification = contextClassifier.classify(text, annotation);
@@ -218,28 +226,26 @@ class LocationFeatureExtractor {
         return result;
     }
 
-    private static Map<Location, Double> buildSentenceProximityMap(String text, List<Annotated> annotations,
-            MultiMap<String, Location> locations) {
+    private static Map<Location, Double> buildSentenceProximityMap(String text, MultiMap<Annotated, Location> locations) {
         Map<Location, Double> proximityMap = LazyMap.create(ConstantFactory.create(Double.MAX_VALUE));
         List<String> sentences = Tokenizer.getSentences(text);
         for (String sentence : sentences) {
             int start = text.indexOf(sentence);
             int end = start + sentence.length();
-            List<Annotated> currentAnnotations = getAnnotations(annotations, start, end);
-            Set<String> values = CollectionHelper.newHashSet();
-            for (Annotated annotated : currentAnnotations) {
-                values.add(LocationExtractorUtils.normalizeName(annotated.getValue()));
-            }
-            for (String value1 : values) {
+            List<Annotated> currentAnnotations = getAnnotations(locations.keySet(), start, end);
+            for (Annotated value1 : currentAnnotations) {
                 Collection<Location> locations1 = locations.get(value1);
                 for (Location location1 : locations1) {
-                    for (String value2 : values) {
-                        if (!value1.equals(value2)) {
+                    for (Annotated value2 : currentAnnotations) {
+                        if (!value1.getValue().equals(value2.getValue())) {
+                            // XXX to make this even more secure, we might use #normalizeName
                             Collection<Location> locations2 = locations.get(value2);
                             for (Location location2 : locations2) {
-                                Double temp = proximityMap.get(location1);
-                                double distance = GeoUtils.getDistance(location1, location2);
-                                proximityMap.put(location1, Math.min(temp, distance));
+                                if (!location1.equals(location2)) {
+                                    Double temp = proximityMap.get(location1);
+                                    double distance = GeoUtils.getDistance(location1, location2);
+                                    proximityMap.put(location1, Math.min(temp, distance));
+                                }
                             }
                         }
                     }
@@ -251,7 +257,17 @@ class LocationFeatureExtractor {
     }
 
     // XXX move to some utility class
-    private static List<Annotated> getAnnotations(List<Annotated> annotations, int start, int end) {
+    /**
+     * <p>
+     * Get annotations in the specified span.
+     * </p>
+     * 
+     * @param annotations {@link Collection} of annotations.
+     * @param start The start offset.
+     * @param end The end offset.
+     * @return All annotations between (including) start/end.
+     */
+    private static List<Annotated> getAnnotations(Collection<Annotated> annotations, int start, int end) {
         List<Annotated> result = CollectionHelper.newArrayList();
         for (Annotated annotation : annotations) {
             if (annotation.getStartPosition() >= start && annotation.getEndPosition() <= end) {
@@ -261,7 +277,7 @@ class LocationFeatureExtractor {
         return result;
     }
 
-    private static Set<Location> getUniqueLocations(MultiMap<String, Location> locations) {
+    private static Set<Location> getUniqueLocations(MultiMap<Annotated, Location> locations) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();
         for (Collection<Location> group : locations.values()) {
             if (isUnique(group)) {
@@ -363,7 +379,7 @@ class LocationFeatureExtractor {
         return count;
     }
 
-    private static CountMap<String> getCounts(List<Annotated> annotations) {
+    private static CountMap<String> getCounts(Collection<Annotated> annotations) {
         CountMap<String> frequencies = CountMap.create();
         for (Annotated annotation : annotations) {
             frequencies.add(LocationExtractorUtils.normalizeName(annotation.getValue()));
@@ -371,13 +387,13 @@ class LocationFeatureExtractor {
         return frequencies;
     }
 
-    private static boolean isAcronym(String value, MultiMap<String, Location> locations) {
-        for (Location location : locations.get(value)) {
+    private static boolean isAcronym(Annotated annotated, MultiMap<Annotated, Location> locations) {
+        for (Location location : locations.get(annotated)) {
             Set<String> names = LocationExtractorUtils.collectNames(location);
             for (String name : names) {
-                if (name.equals(value)) {
+                if (name.equals(LocationExtractorUtils.normalizeName(annotated.getValue()))) {
                     if (name.matches("[A-Z]+|([A-Z]\\.)+")) {
-                        LOGGER.trace("{} is an acronym", value);
+                        LOGGER.trace("{} is an acronym", annotated.getValue());
                         return true;
                     }
                 }

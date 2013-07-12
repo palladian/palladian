@@ -52,16 +52,14 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private static final int SAME_DISTANCE_THRESHOLD = 50;
 
     @Override
-    public List<LocationAnnotation> disambiguate(String text, List<Annotated> annotations,
-            MultiMap<String, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
         Set<Location> anchors = getAnchors(locations);
 
-        for (Annotated annotation : annotations) {
-            String value = LocationExtractorUtils.normalizeName(annotation.getValue());
-            Collection<Location> candidates = locations.get(value);
+        for (Annotated annotation : locations.keySet()) {
+            Collection<Location> candidates = locations.get(annotation);
             if (candidates.isEmpty()) {
                 LOGGER.debug("'{}' could not be found and will be dropped", annotation.getValue());
                 continue;
@@ -143,7 +141,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return CollectionHelper.getFirst(temp);
     }
 
-    private static Set<Location> getAnchors(MultiMap<String, Location> locations) {
+    private static Set<Location> getAnchors(MultiMap<Annotated, Location> locations) {
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
         // get prominent anchor locations; continents, countries and locations with very high population
@@ -158,8 +156,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
         // get unique and unambiguous locations; location whose name only occurs once, or which are very closely
         // together (because we might have multiple entries in the database with the same name which lie on a cluster)
-        for (String name : locations.keySet()) {
-            Collection<Location> group = locations.get(name);
+        for (Annotated annotation : locations.keySet()) {
+            Collection<Location> group = locations.get(annotation);
+            String name = annotation.getValue();
 
             // in case we have locations with same name, but once with and without coordinates in the DB, we drop those
             // without coordinates
