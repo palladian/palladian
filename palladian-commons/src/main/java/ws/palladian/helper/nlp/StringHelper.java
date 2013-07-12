@@ -433,7 +433,7 @@ public final class StringHelper {
         String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
                 + allowedNeighbors + word + "$)|(^" + word + "$)";
 
-        word = escapeForRegularExpression(word);
+        word = Pattern.quote(word);
 
         Pattern pat = null;
         try {

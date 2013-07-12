@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
 /**
@@ -947,8 +946,7 @@ public final class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(StringHelper.escapeForRegularExpression(oldName) + "\\.",
-                StringHelper.escapeForRegularExpression(newName) + ".");
+        String newPath = fullPath.replaceAll(Pattern.quote(oldName) + "\\.", Pattern.quote(newName) + ".");
 
         return newPath;
     }
