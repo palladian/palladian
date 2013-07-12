@@ -59,7 +59,7 @@ public class HttpCrawler {
                     Document document = htmlParser.parse(result);
                     Set<String> links = HtmlHelper.getLinks(document, true, true);
                     int retrievedLinks = links.size();
-                    CollectionHelper.filter(links, urlFilter);
+                    CollectionHelper.remove(links, urlFilter);
                     int addedLinks = add(links);
                     LOGGER.debug("Extracted {} new, filtered {}, added {} URLs from {}", new Object[] {retrievedLinks,
                             links.size(), addedLinks, url});

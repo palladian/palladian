@@ -36,10 +36,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRouteParams;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DecompressingHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -153,6 +150,9 @@ public class HttpRetriever {
     /** Password for authentication, or <code>null</code> if no authentication necessary. */
     private String password;
 
+    /** A map for cookie store. **/
+    private Map<String, String> cookieStore = new HashMap<String, String>();
+
     // ///////////// Misc. ////////
 
     /** Hook for http* methods. */
@@ -194,6 +194,20 @@ public class HttpRetriever {
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+    }
+
+
+     /**
+       * <p>
+       * Add a cookie to the header.
+       * </p>
+       *
+       * @param key The name of the cookie.
+       * @param value The value of the cookie.
+      *
+      */
+    public void addCookie(String key, String value) {
+        cookieStore.put(key, value);
     }
 
 
@@ -458,11 +472,20 @@ public class HttpRetriever {
         InputStream in = null;
 
         AbstractHttpClient backend = createHttpClient();
+
         setProxy(url, request, backend);
 
         try {
 
             HttpContext context = new BasicHttpContext();
+            StringBuilder cookieText = new StringBuilder();
+            for (Entry<String, String> cookie: cookieStore.entrySet()) {
+                cookieText.append(cookie.getKey()).append("=").append(cookie.getValue()).append(";");
+            }
+            if(!cookieStore.isEmpty()){
+                request.addHeader("Cookie", cookieText.toString());
+            }
+
             DecompressingHttpClient client = new DecompressingHttpClient(backend);
             HttpResponse response = client.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
@@ -691,7 +714,7 @@ public class HttpRetriever {
      * attribute after initialization is {@value #DEFAULT_SOCKET_TIMEOUT}.
      * </p>
      * 
-     * @param socket timeout The new socket timeout time in milliseconds
+     * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(long socketTimeout) {
         HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
