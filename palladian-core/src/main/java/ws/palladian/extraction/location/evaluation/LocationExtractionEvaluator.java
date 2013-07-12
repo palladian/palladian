@@ -28,7 +28,6 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
-import ws.palladian.extraction.location.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -36,6 +35,7 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -374,35 +374,6 @@ public final class LocationExtractionEvaluator {
 
         return evaluationDetails.toString();
     }
-
-//    public static Map<String, SortedMap<Integer, GeoCoordinate>> readCoordinatesCsv(File coordinatesCsvFile) {
-//        final Map<String, SortedMap<Integer, GeoCoordinate>> coordinateMap = LazyMap
-//                .create(new Factory<SortedMap<Integer, GeoCoordinate>>() {
-//                    @Override
-//                    public SortedMap<Integer, GeoCoordinate> create() {
-//                        return CollectionHelper.newTreeMap();
-//                    }
-//                });
-//        FileHelper.performActionOnEveryLine(coordinatesCsvFile, new LineAction() {
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//                if (lineNumber == 0) {
-//                    return;
-//                }
-//                String[] split = StringUtils.splitPreserveAllTokens(line, ";");
-//                String documentName = split[0];
-//                int offset = Integer.valueOf(split[2]);
-//                GeoCoordinate coordinate = null;
-//                if (!split[3].isEmpty() && !split[4].isEmpty()) {
-//                    double lat = Double.valueOf(split[3]);
-//                    double lng = Double.valueOf(split[4]);
-//                    coordinate = new ImmutableGeoCoordinate(lat, lng);
-//                }
-//                coordinateMap.get(documentName).put(offset, coordinate);
-//            }
-//        });
-//        return coordinateMap;
-//    }
 
     private LocationExtractionEvaluator() {
         // utility class.

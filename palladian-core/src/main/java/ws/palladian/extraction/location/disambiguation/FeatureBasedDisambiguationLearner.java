@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.disambiguation;
 
 import java.io.File;
 import java.util.EnumSet;
@@ -14,8 +14,15 @@ import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.extraction.location.AnnotationFilter;
+import ws.palladian.extraction.location.EntityPreprocessingTagger;
+import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractorUtils;
+import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
-import ws.palladian.extraction.location.LocationFeatureExtraction.LocationInstance;
+import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
@@ -33,7 +40,7 @@ public class FeatureBasedDisambiguationLearner {
 
     private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
 
-    private final LocationFeatureExtraction featureExtraction = new LocationFeatureExtraction();
+    private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor();
 
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
 

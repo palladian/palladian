@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
+import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
@@ -40,7 +42,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
-        this(locationSource, new ProximityDisambiguation());
+        this(locationSource, new HeuristicDisambiguation());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.disambiguation;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,7 +12,14 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.feature.StopTokenRemover;
+import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.ContextClassifier;
+import ws.palladian.extraction.location.EntityPreprocessingTagger;
+import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
@@ -30,10 +37,17 @@ import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
-class LocationFeatureExtraction {
+/**
+ * <p>
+ * Extracts features used by the {@link FeatureBasedDisambiguation} and {@link FeatureBasedDisambiguationLearner}.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
+class LocationFeatureExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocationFeatureExtraction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocationFeatureExtractor.class);
 
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
 
