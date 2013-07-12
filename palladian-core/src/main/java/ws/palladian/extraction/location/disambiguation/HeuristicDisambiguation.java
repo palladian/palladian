@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.disambiguation;
 
 import static ws.palladian.extraction.location.LocationType.CITY;
 import static ws.palladian.extraction.location.LocationType.CONTINENT;
@@ -16,23 +16,28 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilter;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
- * Disambiguation strategy based on anchor locations, and proximities.
+ * Heuristic disambiguation strategy based on anchor locations, and proximities.
  * </p>
  * 
  * @author Philipp Katz
  */
-public class ProximityDisambiguation implements LocationDisambiguation {
+public class HeuristicDisambiguation implements LocationDisambiguation {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProximityDisambiguation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicDisambiguation.class);
 
     /** Maximum distance for anchoring. */
     private static final int DISTANCE_THRESHOLD = 150;
@@ -162,13 +167,6 @@ public class ProximityDisambiguation implements LocationDisambiguation {
             group = LocationExtractorUtils.filterConditionally(group, new CoordinateFilter());
 
             if (LocationExtractorUtils.getLargestDistance(group) < SAME_DISTANCE_THRESHOLD) {
-//                for (Location location : group) {
-//                    long population = location.getPopulation() != null ? location.getPopulation() : 0;
-//                    if (population > LOWER_POPULATION_THRESHOLD || name.split("\\s").length > 2) {
-//                        LOGGER.debug("Unambiguous anchor location: {}", location);
-//                        anchorLocations.add(location);
-//                    }
-//                }
                 Location location = LocationExtractorUtils.getBiggest(group);
                 if (location.getPopulation() > LOWER_POPULATION_THRESHOLD || name.split("\\s").length > 2) {
                     anchorLocations.add(location);
