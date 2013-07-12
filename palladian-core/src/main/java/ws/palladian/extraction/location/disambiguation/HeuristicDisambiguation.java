@@ -87,7 +87,6 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                     if (distance < DISTANCE_THRESHOLD) {
                         LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
                         preselection.add(candidate);
-                        // XXX anchor type checking does not seem to be necessary.
                     } else if (anchorType == CITY || anchorType == UNIT || anchorType == COUNTRY) {
                         if (LocationExtractorUtils.isChildOf(candidate, anchor)
                                 && candidate.getPopulation() > LOWER_POPULATION_THRESHOLD) {
@@ -119,9 +118,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             public int compare(Location l1, Location l2) {
 
                 // if locations are nested, take the "deepest" one
-                if (LocationExtractorUtils.isDirectChildOf(l2, l1)) {
+                if (LocationExtractorUtils.isChildOf(l2, l1)) {
                     return 1;
-                } else if (LocationExtractorUtils.isDirectChildOf(l1, l2)) {
+                } else if (LocationExtractorUtils.isChildOf(l1, l2)) {
                     return -1;
                 }
 
