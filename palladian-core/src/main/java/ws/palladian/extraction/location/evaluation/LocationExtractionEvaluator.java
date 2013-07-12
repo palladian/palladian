@@ -23,7 +23,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -34,8 +33,6 @@ import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
-import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -170,6 +167,18 @@ public final class LocationExtractionEvaluator {
         }
 
         FileHelper.writeToFile("data/temp/" + System.currentTimeMillis() + "_allErrors.csv", detailedOutput);
+
+        // write summary to summary.csv
+        StringBuilder summaryCsv = new StringBuilder();
+        summaryCsv.append(extractor.getName()).append(';');
+        summaryCsv.append(micro.getPrecision(EvaluationMode.EXACT_MATCH)).append(';');
+        summaryCsv.append(micro.getRecall(EvaluationMode.EXACT_MATCH)).append(';');
+        summaryCsv.append(micro.getF1(EvaluationMode.EXACT_MATCH)).append(';');
+        summaryCsv.append(micro.getPrecision(EvaluationMode.MUC)).append(';');
+        summaryCsv.append(micro.getRecall(EvaluationMode.MUC)).append(';');
+        summaryCsv.append(micro.getF1(EvaluationMode.MUC)).append(';').append('\n');
+        FileHelper.appendFile("data/temp/locationsSummary.csv", summaryCsv);
+
         System.out.println(summary);
     }
 
@@ -401,11 +410,22 @@ public final class LocationExtractionEvaluator {
         // LocationDisambiguation disambiguation = new HeuristicDisambiguation();
 
         // ///////////////////// feature based //////////////////////
-        String modelFilePath = "data/temp/location_disambiguation_1373659810968.model";
-        BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
-        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
+        // String modelFilePath = "data/temp/location_disambiguation_1373659810968.model";
+        // BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
+        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
 
-        evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        // evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+
+        // parameter tuning for heuristic; vary one parameter at once ////////////////////////////
+        // for (int sameDistanceThreshold : Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 60, 70, 80,
+        // 90, 100, 200, 300, 400, 500)) {
+        // LocationDisambiguation disambiguation = new HeuristicDisambiguation(
+        // HeuristicDisambiguation.ANCHOR_DISTANCE_THRESHOLD,
+        // HeuristicDisambiguation.LOWER_POPULATION_THRESHOLD,
+        // HeuristicDisambiguation.ANCHOR_POPULATION_THRESHOLD, sameDistanceThreshold);
+        // evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        // }
+
         // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
         // File pathToTexts = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");

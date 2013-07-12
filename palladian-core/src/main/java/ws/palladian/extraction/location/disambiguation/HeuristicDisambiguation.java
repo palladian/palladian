@@ -39,17 +39,49 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicDisambiguation.class);
 
+    public static final int ANCHOR_DISTANCE_THRESHOLD = 150;
+
+    public static final int LOWER_POPULATION_THRESHOLD = 5000;
+
+    public static final int ANCHOR_POPULATION_THRESHOLD = 1000000;
+
+    public static final int SAME_DISTANCE_THRESHOLD = 50;
+
     /** Maximum distance for anchoring. */
-    private static final int DISTANCE_THRESHOLD = 150;
+    private final int anchorDistanceThreshold;
 
     /** Minimum population for anchoring. */
-    private static final int LOWER_POPULATION_THRESHOLD = 5000;
+    private final int lowerPopulationThreshold;
 
     /** Minimum population for a location to become anchor. */
-    private static final int ANCHOR_POPULATION_THRESHOLD = 1000000;
+    private final int anchorPopulationThreshold;
 
     /** Maximum distance between two locations with equal name, to assume they are the same. */
-    private static final int SAME_DISTANCE_THRESHOLD = 50;
+    private final int sameDistanceThreshold;
+
+    public HeuristicDisambiguation() {
+        this(ANCHOR_DISTANCE_THRESHOLD, LOWER_POPULATION_THRESHOLD, ANCHOR_POPULATION_THRESHOLD,
+                SAME_DISTANCE_THRESHOLD);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link HeuristicDisambiguation} with the specified settings.
+     * </p>
+     * 
+     * @param anchorDistanceThreshold The maximum distance for a location to be "catched" by an anchor.
+     * @param lowerPopulationThreshold The minimum population threshold to be "catched " as child of an anchor.
+     * @param anchorPopulationThreshold The minimum population threshold for a location to become an anchor.
+     * @param sameDistanceThreshold The maximum distance between two locations with the same names to assume, that they
+     *            are actually the same.
+     */
+    public HeuristicDisambiguation(int anchorDistanceThreshold, int lowerPopulationThreshold,
+            int anchorPopulationThreshold, int sameDistanceThreshold) {
+        this.anchorDistanceThreshold = anchorDistanceThreshold;
+        this.lowerPopulationThreshold = lowerPopulationThreshold;
+        this.anchorPopulationThreshold = anchorPopulationThreshold;
+        this.sameDistanceThreshold = sameDistanceThreshold;
+    }
 
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
@@ -82,12 +114,12 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                 for (Location anchor : currentAnchors) {
                     double distance = GeoUtils.getDistance(candidate, anchor);
                     LocationType anchorType = anchor.getType();
-                    if (distance < DISTANCE_THRESHOLD) {
+                    if (distance < anchorDistanceThreshold) {
                         LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
                         preselection.add(candidate);
                     } else if (anchorType == CITY || anchorType == UNIT || anchorType == COUNTRY) {
                         if (LocationExtractorUtils.isChildOf(candidate, anchor)
-                                && candidate.getPopulation() > LOWER_POPULATION_THRESHOLD) {
+                                && candidate.getPopulation() > lowerPopulationThreshold) {
                             LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
                             preselection.add(candidate);
                         }
@@ -141,14 +173,14 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return CollectionHelper.getFirst(temp);
     }
 
-    private static Set<Location> getAnchors(MultiMap<Annotated, Location> locations) {
+    private Set<Location> getAnchors(MultiMap<Annotated, Location> locations) {
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
             LocationType type = location.getType();
             long population = location.getPopulation() != null ? location.getPopulation() : 0;
-            if (type == CONTINENT || type == COUNTRY || population > ANCHOR_POPULATION_THRESHOLD) {
+            if (type == CONTINENT || type == COUNTRY || population > anchorPopulationThreshold) {
                 LOGGER.debug("Prominent anchor location: {}", location);
                 anchorLocations.add(location);
             }
@@ -164,9 +196,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             // without coordinates
             group = LocationExtractorUtils.filterConditionally(group, new CoordinateFilter());
 
-            if (LocationExtractorUtils.getLargestDistance(group) < SAME_DISTANCE_THRESHOLD) {
+            if (LocationExtractorUtils.getLargestDistance(group) < sameDistanceThreshold) {
                 Location location = LocationExtractorUtils.getBiggest(group);
-                if (location.getPopulation() > LOWER_POPULATION_THRESHOLD || name.split("\\s").length > 2) {
+                if (location.getPopulation() > lowerPopulationThreshold || name.split("\\s").length > 2) {
                     anchorLocations.add(location);
                 }
             } else {
@@ -183,6 +215,21 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             }
         }
         return anchorLocations;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("HeuristicDisambiguation [anchorDistanceThreshold=");
+        builder.append(anchorDistanceThreshold);
+        builder.append(", lowerPopulationThreshold=");
+        builder.append(lowerPopulationThreshold);
+        builder.append(", anchorPopulationThreshold=");
+        builder.append(anchorPopulationThreshold);
+        builder.append(", sameDistanceThreshold=");
+        builder.append(sameDistanceThreshold);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
