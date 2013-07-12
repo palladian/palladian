@@ -58,9 +58,9 @@ public class CollectionHelperTest {
         set.add(new NameObject("A"));
         set.add(new NameObject("B"));
 
-        Collection<String> names = CollectionHelper.getFields(set, new FieldFilter<NameObject, String>() {
+        Collection<String> names = CollectionHelper.convertSet(set, new Function<NameObject, String>() {
             @Override
-            public String getField(NameObject item) {
+            public String compute(NameObject item) {
                 return item.getName();
             }
         });
@@ -74,9 +74,9 @@ public class CollectionHelperTest {
         set.add(new NameObject(1));
         set.add(new NameObject(2));
 
-        Collection<Integer> ages = CollectionHelper.getFields(set, new FieldFilter<NameObject, Integer>() {
+        Collection<Integer> ages = CollectionHelper.convertSet(set, new Function<NameObject, Integer>() {
             @Override
-            public Integer getField(NameObject item) {
+            public Integer compute(NameObject item) {
                 return item.getAge();
             }
         });
@@ -114,9 +114,9 @@ public class CollectionHelperTest {
     }
 
     @Test
-    public void testFilter() {
+    public void testRemove() {
         List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
-        boolean filtered = CollectionHelper.filter(items, new Filter<String>() {
+        boolean filtered = CollectionHelper.remove(items, new Filter<String>() {
             @Override
             public boolean accept(String item) {
                 return item.equals("a") || item.equals("b");
