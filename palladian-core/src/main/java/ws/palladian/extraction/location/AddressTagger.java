@@ -10,7 +10,6 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
 
@@ -24,7 +23,7 @@ import ws.palladian.processing.features.Annotated;
 public final class AddressTagger implements Tagger {
 
     public static final Pattern STREET_PATTERN = Pattern.compile(
-                    ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
+            ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
             Pattern.CASE_INSENSITIVE);
 
     @Override
@@ -50,7 +49,7 @@ public final class AddressTagger implements Tagger {
         // step two: look for street numbers before or after
         List<LocationAnnotation> streetNumbers = CollectionHelper.newArrayList();
         for (Annotated annotation : ret) {
-            String regEx = StringHelper.escapeForRegularExpression(annotation.getValue());
+            String regEx = Pattern.quote(annotation.getValue());
 
             // try number as suffix
             Pattern suffixRegEx = Pattern.compile(regEx + "\\s(\\d+)");
@@ -78,7 +77,7 @@ public final class AddressTagger implements Tagger {
         // TODO ZIP codes ...
 
         ret.addAll(streetNumbers);
-        
+
         // sort by offset
         Collections.sort(ret);
 
