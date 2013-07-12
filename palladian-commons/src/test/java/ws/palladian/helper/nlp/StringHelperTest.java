@@ -192,6 +192,7 @@ public class StringHelperTest {
         // assertEquals(StringHelper.trim("2\""),"2\"");
     }
 
+    @Deprecated
     @Test
     public void testEscapeForRegularExpression() {
         assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));

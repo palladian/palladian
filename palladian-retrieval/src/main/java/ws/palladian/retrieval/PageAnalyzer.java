@@ -363,7 +363,7 @@ public final class PageAnalyzer {
 
                     if (wordMatch && nodeValue != null) {
                         Pattern pattern = Pattern.compile(
-                                "(?<![A-Za-z_])" + StringHelper.escapeForRegularExpression(keyword) + "(?![A-Za-z_])",
+"(?<![A-Za-z_])" + Pattern.quote(keyword) + "(?![A-Za-z_])",
                                 Pattern.CASE_INSENSITIVE);
                         Matcher m = pattern.matcher(nodeValue);
                         if (m.find()) {
