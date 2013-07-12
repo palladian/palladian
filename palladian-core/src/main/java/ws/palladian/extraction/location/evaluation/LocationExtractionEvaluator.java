@@ -398,10 +398,10 @@ public final class LocationExtractionEvaluator {
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
 
         // ///////////////////// anchor heuristic //////////////////////
-        // LocationDisambiguation disambiguation = new ProximityDisambiguation();
+        // LocationDisambiguation disambiguation = new HeuristicDisambiguation();
 
         // ///////////////////// feature based //////////////////////
-        String modelFilePath = "data/temp/location_disambiguation_1373568203702.model";
+        String modelFilePath = "data/temp/location_disambiguation_1373659810968.model";
         BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
         FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
 

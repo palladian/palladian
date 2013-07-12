@@ -14,7 +14,6 @@ import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
@@ -39,10 +38,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     }
 
     @Override
-    public List<LocationAnnotation> disambiguate(String text, List<Annotated> annotations,
-            MultiMap<String, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
 
-        Set<LocationInstance> instances = featureExtractor.makeInstances(text, annotations, locations);
+        Set<LocationInstance> instances = featureExtractor.makeInstances(text, locations);
         Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
         for (LocationInstance instance : instances) {
@@ -51,9 +49,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
-        for (Annotated annotation : annotations) {
-            String value = LocationExtractorUtils.normalizeName(annotation.getValue());
-            Collection<Location> candidates = locations.get(value);
+        for (Annotated annotation : locations.keySet()) {
+            Collection<Location> candidates = locations.get(annotation);
 
             double highestScore = 0;
             Location selectedLocation = null;

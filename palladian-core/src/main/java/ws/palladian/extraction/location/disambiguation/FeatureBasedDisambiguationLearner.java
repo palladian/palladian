@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.disambiguation;
 
 import java.io.File;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -20,13 +19,13 @@ import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
+import ws.palladian.extraction.location.LocationSource;
+import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -75,22 +74,13 @@ public class FeatureBasedDisambiguationLearner {
 
             List<Annotated> taggedEntities = tagger.getAnnotations(text);
             taggedEntities = filter.filter(taggedEntities);
-            MultiMap<String, Location> locations = fetchLocations(taggedEntities);
+            MultiMap<Annotated, Location> locations = PalladianLocationExtractor.fetchLocations(locationSource, taggedEntities);
 
-            Set<LocationInstance> instances = featureExtraction.makeInstances(text, taggedEntities, locations);
+            Set<LocationInstance> instances = featureExtraction.makeInstances(text, locations);
             Set<Trainable> trainInstances = createTrainData(instances, trainAnnotations);
             trainingData.addAll(trainInstances);
         }
         return trainingData;
-    }
-
-    private MultiMap<String, Location> fetchLocations(List<Annotated> annotations) {
-        Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
-        for (Annotated annotation : annotations) {
-            String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue());
-            valuesToRetrieve.add(entityValue);
-        }
-        return locationSource.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
     }
 
     private Set<Trainable> createTrainData(Set<LocationInstance> instances, List<LocationAnnotation> positiveLocations) {
@@ -115,7 +105,7 @@ public class FeatureBasedDisambiguationLearner {
                     break;
                 }
             }
-            result.add(new Instance(String.valueOf(positiveClass), instance));
+            result.add(new Instance(positiveClass, instance));
         }
         double positivePercentage = MathHelper.round((float)numPositive / instances.size() * 100, 2);
         LOGGER.info("{} positive instances in {} ({}%)", numPositive, instances.size(), positivePercentage);

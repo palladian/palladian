@@ -41,6 +41,20 @@ public final class Instance implements Trainable {
 
     /**
      * <p>
+     * Creates a new completely initialized {@code Instance} for binary classification.
+     * </p>
+     * 
+     * @param targetClass The target class this {@code Instance} belongs to.
+     * @param featureVector The {@link FeatureVector} used by a processing classifier to train new {@link Model}.
+     */
+    public Instance(boolean targetClass, Classifiable classifiable) {
+        Validate.notNull(classifiable, "classifiable must not be null");
+        this.targetClass = String.valueOf(targetClass);
+        this.classifiable = classifiable;
+    }
+
+    /**
+     * <p>
      * Creates a new completely initialized {@link Instance} with an empty {@link FeatureVector}.
      * </p>
      * 
