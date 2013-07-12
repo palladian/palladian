@@ -611,10 +611,11 @@ public final class FileHelper {
      * 
      * @param filePath The file path where the contents should be saved to.
      * @param string The string to save.
+     * @param encoding The encoding in which the file should be written.
      * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
      *         {@link filePath}. See error log for details (Exceptions).
      */
-    public static boolean writeToFile(String filePath, CharSequence string) {
+    public static boolean writeToFile(String filePath, CharSequence string, String encoding) {
 
         String fileType = getFileType(filePath);
         if (fileType.equalsIgnoreCase("gz") || fileType.equalsIgnoreCase("gzip")) {
@@ -630,7 +631,7 @@ public final class FileHelper {
         Writer writer = null;
 
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), DEFAULT_ENCODING));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
             writer.write(string.toString());
             success = true;
         } catch (IOException e) {
@@ -640,6 +641,10 @@ public final class FileHelper {
         }
 
         return success;
+    }
+
+    public static boolean writeToFile(String filePath, CharSequence string) {
+        return writeToFile(filePath, string, DEFAULT_ENCODING);
     }
 
     public static void writeToFile(InputStream inputStream, String fileTargetLocation) {
