@@ -333,7 +333,7 @@ class LocationFeatureExtractor {
     private static int childCount(Location location, Collection<Location> others) {
         int count = 0;
         for (Location other : others) {
-            if (LocationExtractorUtils.isDirectChildOf(other, location)) {
+            if (LocationExtractorUtils.isChildOf(other, location)) {
                 count++;
             }
         }
@@ -343,7 +343,7 @@ class LocationFeatureExtractor {
     private static int descendantCount(Location location, Collection<Location> others) {
         int count = 0;
         for (Location other : others) {
-            if (LocationExtractorUtils.isChildOf(other, location)) {
+            if (LocationExtractorUtils.isDescendantOf(other, location)) {
                 count++;
             }
         }
@@ -353,7 +353,7 @@ class LocationFeatureExtractor {
     private static int ancestorCount(Location location, Collection<Location> others) {
         int count = 0;
         for (Location other : others) {
-            if (LocationExtractorUtils.isChildOf(location, other)) {
+            if (LocationExtractorUtils.isDescendantOf(location, other)) {
                 count++;
             }
         }
@@ -362,7 +362,7 @@ class LocationFeatureExtractor {
 
     private static boolean parentOccurs(Location location, Collection<Location> others) {
         for (Location other : others) {
-            if (LocationExtractorUtils.isDirectChildOf(location, other)) {
+            if (LocationExtractorUtils.isChildOf(location, other)) {
                 return true;
             }
         }
@@ -404,7 +404,7 @@ class LocationFeatureExtractor {
 
     private static boolean isLeaf(Location location, Collection<Location> others) {
         for (Location other : others) {
-            if (LocationExtractorUtils.isChildOf(other, location)) {
+            if (LocationExtractorUtils.isDescendantOf(other, location)) {
                 return false;
             }
         }

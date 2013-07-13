@@ -42,11 +42,11 @@ public final class LocationExtractorUtils {
         return value;
     }
 
-    public static boolean isChildOf(Location child, Location parent) {
+    public static boolean isDescendantOf(Location child, Location parent) {
         return child.getAncestorIds().contains(parent.getId());
     }
 
-    public static boolean isDirectChildOf(Location child, Location parent) {
+    public static boolean isChildOf(Location child, Location parent) {
         Integer firstId = CollectionHelper.getFirst(child.getAncestorIds());
         if (firstId == null) {
             return false;
