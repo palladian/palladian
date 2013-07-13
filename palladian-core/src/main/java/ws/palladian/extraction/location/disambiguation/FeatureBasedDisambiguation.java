@@ -19,12 +19,22 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotated;
 
+/**
+ * <p>
+ * A disambiguation approach using machine learning. The required models can be created using the
+ * {@link FeatureBasedDisambiguationLearner}.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
 
-    private static final double PROBABILITY_THRESHOLD = 0.5;
+    public static final double PROBABILITY_THRESHOLD = 0.5;
+
+    private final double probabilityThreshold;
 
     private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
 
@@ -33,8 +43,15 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     private final BaggedDecisionTreeModel model;
 
     public FeatureBasedDisambiguation(BaggedDecisionTreeModel model) {
+        this(model, PROBABILITY_THRESHOLD);
+    }
+
+    public FeatureBasedDisambiguation(BaggedDecisionTreeModel model, double probabilityThreshold) {
         Validate.notNull(model, "model must not be null");
+        Validate.inclusiveBetween(0., 1., probabilityThreshold,
+                "probabilityThreshold must be between inclusive 0 and 1.");
         this.model = model;
+        this.probabilityThreshold = probabilityThreshold;
     }
 
     @Override
@@ -63,7 +80,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 }
             }
 
-            if (selectedLocation != null && highestScore >= PROBABILITY_THRESHOLD) {
+            if (selectedLocation != null && highestScore >= probabilityThreshold) {
                 result.add(new LocationAnnotation(annotation, selectedLocation));
                 Object[] logArgs = new Object[] {annotation.getValue(), highestScore, selectedLocation};
                 LOGGER.debug("[+] '{}' was classified as location with {}: {}", logArgs);
@@ -72,6 +89,15 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
             }
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("FeatureBasedDisambiguation [probabilityThreshold=");
+        builder.append(probabilityThreshold);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

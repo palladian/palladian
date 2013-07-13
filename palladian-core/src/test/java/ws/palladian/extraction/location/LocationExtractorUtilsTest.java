@@ -21,14 +21,14 @@ public class LocationExtractorUtilsTest {
                 Arrays.asList(2028461, 2029969, 6255147, 6295630));
         Location l3 = new ImmutableLocation(6295630, "Earth", null, REGION, 0., 0., 6814400000l, Collections.<Integer>emptyList());
         
+        assertFalse(LocationExtractorUtils.isDescendantOf(l1, l2));
         assertFalse(LocationExtractorUtils.isChildOf(l1, l2));
-        assertFalse(LocationExtractorUtils.isDirectChildOf(l1, l2));
+        assertTrue(LocationExtractorUtils.isDescendantOf(l2, l1));
         assertTrue(LocationExtractorUtils.isChildOf(l2, l1));
-        assertTrue(LocationExtractorUtils.isDirectChildOf(l2, l1));
         
-        assertTrue(LocationExtractorUtils.isChildOf(l1, l3));
-        assertFalse(LocationExtractorUtils.isChildOf(l3, l1));
-        assertFalse(LocationExtractorUtils.isDirectChildOf(l1, l3));
+        assertTrue(LocationExtractorUtils.isDescendantOf(l1, l3));
+        assertFalse(LocationExtractorUtils.isDescendantOf(l3, l1));
+        assertFalse(LocationExtractorUtils.isChildOf(l1, l3));
     }
 
 }

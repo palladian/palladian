@@ -119,6 +119,11 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         int count = 0;
         int featureIndex = 0;
 
+        // run with all features
+        double startScore = testRun(trainSet, validationSet);
+        LOGGER.info("Score with all features {}", startScore);
+
+        // stepwise elimination
         for (;;) {
             Set<String> featuresToCheck = new HashSet<String>(allFeatures);
             featuresToCheck.removeAll(eliminatedFeatures);
@@ -158,7 +163,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         return featureNames;
     }
 
-    private double testRun(List<Trainable> trainData, List<Trainable> testData) {
+    private double testRun(Collection<? extends Trainable> trainData, Collection<? extends Trainable> testData) {
         M model = learner.train(trainData);
         ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, model, testData);
         return scorer.compute(confusionMatrix);

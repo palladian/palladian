@@ -20,9 +20,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -33,6 +32,8 @@ import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
+import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -42,9 +43,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.features.Annotated;
 
 public final class LocationExtractionEvaluator {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocationExtractionEvaluator.class);
 
     public static void evaluate(LocationExtractor extractor, String goldStandardFileFolderPath) {
         Validate.notNull(extractor, "extractor must not be null");
@@ -255,7 +253,6 @@ public final class LocationExtractionEvaluator {
 
         Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(new File(
                 goldStandardFileFolderPath));
-        StopWatch stopWatch = new StopWatch();
         StringBuilder evaluationDetails = new StringBuilder();
 
         evaluationDetails.append("# Result for:").append(extractor.getName()).append('\n');
@@ -410,11 +407,17 @@ public final class LocationExtractionEvaluator {
         // LocationDisambiguation disambiguation = new HeuristicDisambiguation();
 
         // ///////////////////// feature based //////////////////////
-        // String modelFilePath = "data/temp/location_disambiguation_1373659810968.model";
-        // BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
-        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
+        String modelFilePath = "data/temp/location_disambiguation_1373659810968.model";
+        BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
+        evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
 
+        // perform threshold analysis ////////////////////////////////
+        // for (double t = 0.; t <= 1.; t += 0.02) {
+        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, t);
         // evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        // }
+
 
         // parameter tuning for heuristic; vary one parameter at once ////////////////////////////
         // for (int sameDistanceThreshold : Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 60, 70, 80,
