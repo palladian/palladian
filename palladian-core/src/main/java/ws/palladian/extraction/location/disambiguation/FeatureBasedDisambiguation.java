@@ -32,7 +32,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
 
-    public static final double PROBABILITY_THRESHOLD = 0.5;
+    public static final double PROBABILITY_THRESHOLD = 0.15;
 
     private final double probabilityThreshold;
 

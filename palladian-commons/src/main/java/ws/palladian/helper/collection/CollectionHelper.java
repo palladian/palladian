@@ -393,12 +393,12 @@ public final class CollectionHelper {
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the type filter.
      */
-    public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
+    public static <O, C extends Collection<O>> C filter(Iterable<?> iterable, Class<O> type, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(type, "type must not be null");
         Validate.notNull(output, "output must not be null");
 
-        for (I item : iterable) {
+        for (Object item : iterable) {
             if (type.isInstance(item)) {
                 output.add(type.cast(item));
             }
