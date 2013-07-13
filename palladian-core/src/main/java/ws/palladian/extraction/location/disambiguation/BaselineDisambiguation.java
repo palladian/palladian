@@ -44,4 +44,9 @@ public class BaselineDisambiguation implements LocationDisambiguation {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "BaselineDisambiguation";
+    }
+
 }
