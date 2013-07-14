@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 /**
@@ -51,7 +52,14 @@ public class CollectionHelperTest {
     }
 
     @Test
-    public void testFieldFilter() {
+    public void testJoinReadable() {
+        assertEquals("a", CollectionHelper.joinReadable(Arrays.asList("a")));
+        assertEquals("a and b", CollectionHelper.joinReadable(Arrays.asList("a", "b")));
+        assertEquals("a, b, and c", CollectionHelper.joinReadable(Arrays.asList("a", "b", "c")));
+    }
+
+    @Test
+    public void testFunction() {
 
         // strings
         Collection<NameObject> set = new HashSet<NameObject>();
@@ -111,6 +119,15 @@ public class CollectionHelperTest {
                 .getKey());
         assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, true).entrySet().iterator().next().getKey());
 
+    }
+
+    @Test
+    public void testGetFirst() {
+        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c"));
+
+        assertEquals("a", CollectionHelper.getFirst(items));
+        assertEquals("a,b", StringUtils.join(CollectionHelper.getFirst(items, 2), ","));
+        assertEquals("a,b,c", StringUtils.join(CollectionHelper.getFirst(items, 4), ","));
     }
 
     @Test
