@@ -951,7 +951,7 @@ public final class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(Pattern.quote(oldName) + "\\.", Pattern.quote(newName) + ".");
+        String newPath = fullPath.replaceAll(Pattern.quote(oldName) + "\\.", newName + ".");
 
         return newPath;
     }
