@@ -44,6 +44,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
     private static final Pattern PATTERN_STRING = Pattern.compile(RegExp.STRING);
     private static final Pattern PATTERN_NUMBER = Pattern.compile(RegExp.NUMBER);
+    private static final Pattern PATTERN_EXPONENTIAL_NUMBER = Pattern.compile("^\\d+\\.\\d+E\\d+$");
     private static final Pattern PATTERN_STARTS_WITH_NUMBER = Pattern.compile("^" + RegExp.NUMBER);
     private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
     private static final Pattern PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
@@ -691,7 +692,9 @@ public final class StringHelper {
     }
 
     /**
-     * Checks if is number.
+     * <p>
+     * Checks if the input string is a number.
+     * </p>
      * 
      * @param string The string to check.
      * @return true, if is number
@@ -700,6 +703,12 @@ public final class StringHelper {
         if (string.length() == 0) {
             return false;
         }
+
+        // consider negation
+        if (string.startsWith("-")) {
+            string = string.substring(1);
+        }
+
 
         boolean isNumber = true;
         for (int i = 0, l = string.length(); i < l; ++i) {
@@ -711,6 +720,11 @@ public final class StringHelper {
 
         if (string.startsWith(".") || string.endsWith(".")) {
             return false;
+        }
+
+        // consider exponential format
+        if (!isNumber && PATTERN_EXPONENTIAL_NUMBER.matcher(string).matches()) {
+            isNumber = true;
         }
 
         return isNumber;

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -422,6 +423,32 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Get the first X elements in an {@link Iterable}.
+     * </p>
+     * 
+     * @param list The Iterable from which to get the element, not <code>null</code>.
+     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @return The first element, or <code>null</code> if the iterable was empty.
+     */
+    public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
+        List<T> result = CollectionHelper.newArrayList();
+
+        int c = 0;
+        for (T t : iterable) {
+
+            result.add(t);
+
+            c++;
+            if (c == num) {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * <p>
      * Get the last element in a {@link List}.
      * </p>
      * 
@@ -531,6 +558,20 @@ public final class CollectionHelper {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
         return convert(iterable, function, new ArrayList<O>());
+    }
+
+    public static String joinReadable(Collection<String> entries) {
+        String joinedText = StringUtils.join(entries, ", ");
+        int lastIndex = joinedText.lastIndexOf(",");
+        if (lastIndex > -1) {
+            String joinedTextNew = joinedText.substring(0, lastIndex);
+            if (entries.size() > 2) {
+                joinedTextNew += ",";
+            }
+            joinedTextNew += " and" + joinedText.substring(lastIndex + 1);
+            joinedText = joinedTextNew;
+        }
+        return joinedText;
     }
 
 }
