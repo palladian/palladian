@@ -439,10 +439,12 @@ public class AlchemyNer extends NamedEntityRecognizer {
         Set<String> checkedEntities = new HashSet<String>();
         for (String textChunk : textChunks) {
 
+            String response = null;
+
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
+                response = HttpHelper.getStringContent(httpResult);
 
                 if (response.contains("daily-transaction-limit-exceeded")) {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");
@@ -476,16 +478,16 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
                     // get locations of named entity
                     List<Integer> entityOffsets = NerHelper.getEntityOffsets(inputText, entityName);
-                    
+
                     for (Integer offset : entityOffsets) {
                         annotations.add(new AlchemyAnnotation(offset, entityName, entityType, subTypeList));
                     }
 
                 }
-            } catch (JSONException e) {
-                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             } catch (HttpException e) {
                 LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.error(getName() + " could not parse JSON '" + response + "':" + e.getMessage());
             }
         }
 

@@ -619,3 +619,7 @@ North
 East
 South
 West
+Northeast
+Southeast
+Southwest
+Northwest
