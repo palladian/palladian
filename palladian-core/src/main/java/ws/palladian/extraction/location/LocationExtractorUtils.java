@@ -68,6 +68,16 @@ public final class LocationExtractorUtils {
         return biggest;
     }
 
+    /**
+     * <p>
+     * For each pair in the given Collection of {@link Location}s determine the distance, and return the highest
+     * distance.
+     * </p>
+     * 
+     * @param locations {@link Collection} of {@link Location}s, not <code>null</code>.
+     * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection wsa
+     *         empty.
+     */
     public static double getLargestDistance(Collection<Location> locations) {
         double largestDistance = 0;
         List<Location> temp = new ArrayList<Location>(locations);
