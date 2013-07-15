@@ -29,7 +29,9 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
+ * <p>
  * The PageAnalyzer's responsibility is it to perform generic tasks on the DOM tree.
+ * </p>
  * 
  * @author David Urbansky
  */
@@ -66,7 +68,9 @@ public final class PageAnalyzer {
     }
 
     /**
+     * <p>
      * Try to find a table with at least 4 facts.
+     * </p>
      * 
      * @return A string array with 0: the xpath to the table row, 1: the first td index and 2: the number of rows.
      */
@@ -100,7 +104,9 @@ public final class PageAnalyzer {
     }
 
     /**
+     * <p>
      * Get a set of xPaths.
+     * </p>
      * 
      * @return A set of xPaths.
      */
@@ -126,7 +132,9 @@ public final class PageAnalyzer {
     }
 
     /**
+     * <p>
      * Get all xPaths to the specified keyword in the specified document. The function does not return duplicates.
+     * </p>
      * 
      * @param document The document.
      * @param keyword The keyword.
@@ -192,8 +200,10 @@ public final class PageAnalyzer {
     }
 
     /**
+     * <p>
      * Keep only xPaths that point to one of the specified elements. For example: [/HTML, /HTML/BODY/P] and [P] =>
      * [/HTML/BODY/P]
+     * </p>
      * 
      * @param xPaths
      * @param targetNodes
@@ -219,9 +229,10 @@ public final class PageAnalyzer {
     }
 
     /**
+     * <p>
      * Find a single xPath that is generalized and works for many xPaths from the xPathSet. If several generalized
-     * xPaths are found, take the one with the
-     * highest count.
+     * xPaths are found, take the one with the highest count.
+     * </p>
      * 
      * @param xPathSet A set of xPaths.
      * @return A string representing the mutual xPath.
@@ -324,7 +335,9 @@ public final class PageAnalyzer {
     }
 
     /**
+     * <p>
      * Recursive visit all nodes and check for a given keyword and create add the xPath if found.
+     * </p>
      * 
      * @param node The start node.
      * @param keyword The keyword that needs to be found.
@@ -362,8 +375,7 @@ public final class PageAnalyzer {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch && nodeValue != null) {
-                        Pattern pattern = Pattern.compile(
-"(?<![A-Za-z_])" + Pattern.quote(keyword) + "(?![A-Za-z_])",
+                        Pattern pattern = Pattern.compile("(?<![A-Za-z_])" + Pattern.quote(keyword) + "(?![A-Za-z_])",
                                 Pattern.CASE_INSENSITIVE);
                         Matcher m = pattern.matcher(nodeValue);
                         if (m.find()) {
@@ -379,10 +391,6 @@ public final class PageAnalyzer {
                         }
                     }
 
-                    // makePattern(t);
-                    // System.out.println(t);
-                    // System.out.println("found "+nl.item(i).getNodeType()+nl.item(i).getNodeName()+nl.item(i).getNodeValue());
-                    // break;
                 }
 
                 // if (depth == 200) return xpaths;
