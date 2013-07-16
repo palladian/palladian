@@ -1,7 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -239,7 +239,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
 
         // CollectionHelper.print(annotations);
 
-        return Collections.<Annotated> unmodifiableList(annotations);
+        return new ArrayList<Annotated>(annotations);
     }
 
     @Override

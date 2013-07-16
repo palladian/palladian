@@ -20,7 +20,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.BooleanFeature;
@@ -49,18 +48,20 @@ class LocationFeatureExtractor {
 //    private final Set<String> locationMarkers = new HashSet<String>(
 //            FileHelper.readFileToArray(FeatureBasedDisambiguation.class.getResourceAsStream("/locationMarkers.txt")));
     
-    private static final Set<String> locationMarkers;
-    
-    static {
-        locationMarkers = CollectionHelper.newHashSet();
-        locationMarkers.add("Gmina");
-        locationMarkers.add("Park");
-        locationMarkers.add("Highway");
-        locationMarkers.add("Peak");
-        locationMarkers.add("Muncipality");
-    }
+//    private static final Set<String> locationMarkers;
+//    
+//    static {
+//        locationMarkers = CollectionHelper.newHashSet();
+//        locationMarkers.add("Gmina");
+//        locationMarkers.add("Park");
+//        locationMarkers.add("Highway");
+//        locationMarkers.add("Peak");
+//        locationMarkers.add("Muncipality");
+//    }
 
     public static boolean debug = false;
+
+//    private final ContextClassifier2 contextClassifier2 = new ContextClassifier2();
 
 //    private Set<Annotated> getUnlikelyCandidates(String text, MultiMap<Annotated, Location> locations) {
 //
@@ -110,7 +111,7 @@ class LocationFeatureExtractor {
 
         for (Annotated annotation : locations.keySet()) {
 
-            String value = annotation.getValue();
+//            String value = annotation.getValue();
 //            String normalizedValue = LocationExtractorUtils.normalizeName(value);
             Collection<Location> candidates = locations.get(annotation);
             Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
@@ -122,6 +123,11 @@ class LocationFeatureExtractor {
 //            CategoryEntries temp = contextClassification.get(normalizedValue);
 //            double locContextProbability = temp != null ? temp.getProbability("LOC") : 0;
 //            boolean stopword = stopTokenRemover.isStopword(value);
+
+//            Map<String, CategoryEntries> contextClassification = contextClassifier2.classify(text, annotation);
+
+//            int firstOccurence = getFirstOccurence(annotation, locations.keySet());
+//            double firstOccurenceRelative = (double)firstOccurence / text.length();
 
             for (Location location : candidates) {
 
@@ -186,8 +192,19 @@ class LocationFeatureExtractor {
                 fv.add(new BooleanFeature("leaf", isLeaf(location, candidates)));
                 fv.add(new NumericFeature("nameDiversity", getNameDiversity(location)));
                 // fv.add(new NumericFeature("geoDiversity", getGeoDiversity(candidates, largestDistance)));
+//                fv.add(new NumericFeature("leftContext1Loc", contextClassification.get("l1").getProbability("LOC")));
+//                fv.add(new NumericFeature("leftContext2Loc", contextClassification.get("l2").getProbability("LOC")));
+//                fv.add(new NumericFeature("rightContext1Loc", contextClassification.get("l1").getProbability("LOC")));
+//                fv.add(new NumericFeature("rightContext2Loc", contextClassification.get("l2").getProbability("LOC")));
+//                fv.add(new NumericFeature("leftContext1Per", contextClassification.get("l1").getProbability("PER")));
+//                fv.add(new NumericFeature("leftContext2Per", contextClassification.get("l2").getProbability("PER")));
+//                fv.add(new NumericFeature("rightContext1Per", contextClassification.get("l1").getProbability("PER")));
+//                fv.add(new NumericFeature("rightContext2Per", contextClassification.get("l2").getProbability("PER")));
+                // fv.add(new NumericFeature("firstOccurence", firstOccurence));
+                // fv.add(new NumericFeature("firstOccurenceRelative", firstOccurenceRelative));
+//                fv.add(new BooleanFeature("primaryName", annotation.getValue().equals(location.getPrimaryName())));
 
-                createMarkerFeatures(value, fv);
+//                createMarkerFeatures(value, fv);
 
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
@@ -205,12 +222,22 @@ class LocationFeatureExtractor {
         return instances;
     }
 
-    private void createMarkerFeatures(String value, FeatureVector featureVector) {
-        for (String marker : locationMarkers) {
-            boolean containsWord = StringHelper.containsWord(marker, value);
-            featureVector.add(new BooleanFeature("marker=" + marker.toLowerCase(), containsWord));
-        }
-    }
+//    private int getFirstOccurence(Annotated annotation, Collection<Annotated> all) {
+//        int firstOccurence = annotation.getStartPosition();
+//        for (Annotated other : all) {
+//            if (other.getValue().equals(annotation.getValue())) {
+//                firstOccurence = Math.min(other.getStartPosition(), firstOccurence);
+//            }
+//        }
+//        return firstOccurence;
+//    }
+
+//    private void createMarkerFeatures(String value, FeatureVector featureVector) {
+//        for (String marker : locationMarkers) {
+//            boolean containsWord = StringHelper.containsWord(marker, value);
+//            featureVector.add(new BooleanFeature("marker=" + marker.toLowerCase(), containsWord));
+//        }
+//    }
 
 //    private Map<String, CategoryEntries> createContextClassification(String text, Collection<Annotated> annotations) {
 //        Map<String, CategoryEntries> result = CollectionHelper.newHashMap();

@@ -210,8 +210,10 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         if (anchorLocations.isEmpty()) {
             Location biggest = LocationExtractorUtils.getBiggest(locations.allValues());
             if (biggest != null) {
-                LOGGER.debug("Biggest anchor location: {}", biggest);
+                LOGGER.warn("No anchor found, took biggest location: {}", biggest);
                 anchorLocations.add(biggest);
+            } else {
+                LOGGER.warn("No anchor found.");
             }
         }
         return anchorLocations;

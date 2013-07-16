@@ -16,6 +16,7 @@ import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
+import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
@@ -47,12 +48,12 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final AddressTagger addressTagger = new AddressTagger();
 
-
     private final static boolean greedyRetrieval = false;
 
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;
         this.disambiguation = disambiguation;
+
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
@@ -63,6 +64,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public List<LocationAnnotation> getAnnotations(String text) {
         List<Annotated> taggedEntities = tagger.getAnnotations(text);
         taggedEntities = filter.filter(taggedEntities);
+
+        CollectionHelper.remove(taggedEntities, new Filter<Annotated>() {
+            @Override
+            public boolean accept(Annotated item) {
+                String value = item.getValue();
+                return value.equals("US") || value.equals("UK") || !value.matches("[A-Z]{2}");
+            }
+        });
 
         MultiMap<Annotated, Location> locations = fetchLocations(locationSource, taggedEntities);
 
@@ -84,13 +93,13 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public static MultiMap<Annotated, Location> fetchLocations(LocationSource source, List<Annotated> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
-            String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue());
+            String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             valuesToRetrieve.add(entityValue);
         }
         MultiMap<String, Location> lookup = source.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
         MultiMap<Annotated, Location> result = DefaultMultiMap.createWithSet();
         for (Annotated annotation : annotations) {
-            String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue());
+            String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             Collection<Location> locations = lookup.get(entityValue);
             if (locations.size() > 0) {
                 result.addAll(annotation, locations);
@@ -154,7 +163,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
         String rawText = FileHelper
-        // .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text70.txt");
+                .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text90.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38822240.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38765806.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38812825.txt");
@@ -166,7 +175,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41205662.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38543581.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41840564.txt");
-                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41840564.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_34647085.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41298996.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38551711.txt");
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
         List<LocationAnnotation> locations = extractor.getAnnotations(cleanText);

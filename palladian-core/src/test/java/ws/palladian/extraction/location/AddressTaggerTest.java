@@ -49,6 +49,15 @@ public class AddressTaggerTest {
         assertEquals("Golden Gate Ave.", locationAnnotations.get(1).getValue());
         assertEquals(LocationType.STREET, locationAnnotations.get(1).getLocation().getType());
 
+        locationAnnotations = addressTagger
+                .getAnnotations("According to court documents, Welch went to a residence in the 300 block of East Elm Street about 1:45 a.m.");
+        assertEquals(1, locationAnnotations.size());
+        assertEquals("East Elm Street", locationAnnotations.get(0).getValue());
+
+        locationAnnotations = addressTagger
+                .getAnnotations("Welch and Gillen’s mother, who had accompanied him to the residence, then left in a pickup truck but pulled over near Interstate 435 and 23rd Street and called 911.");
+        // assertEquals("Interstate 435", locationAnnotations.get(0).getValue());
+        // assertEquals("23rd Street", locationAnnotations.get(1).getValue());
     }
 
 }

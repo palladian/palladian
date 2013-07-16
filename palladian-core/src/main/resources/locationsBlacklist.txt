@@ -5,24 +5,234 @@
 * Corp.
 
 # person titles
-Mrs. *
-Mrs *
-Mr. *
-Mr *
-Ms. *
-Ms *
-Sir *
-Lady *
-Dr. *
 Dr *
-Professor *
-Prof. *
+Dr. *
+Lady *
+Mr *
+Mr. *
+Mrs *
+Mrs. *
+Ms *
+Ms. *
 Prof *
+Prof. *
+Professor *
+Sir *
+
+# additional prefixes (taken from http://en.wikipedia.org/wiki/Title )
+Abbess *
+Abbot *
+Admiral *
+Admiralty Judge *
+Advocate *
+Agent *
+Alderman *
+Ambassador *
+Archbishop *
+Archdruid *
+Archduchess *
+Archduke *
+Attaché *
+Attorney *
+Auntie *
+Ayatollah *
+Bailiff *
+Baron *
+Baroness *
+Barrister *
+Bishop *
+Bodhisattva *
+Brigadier *
+Brother *
+Buddha *
+Burgess *
+Canon *
+Captain *
+Cardinal *
+Catholicos *
+Chairman *
+Chancellor *
+Chaplain *
+Chargé d'affaires *
+Chevalier *
+Chief *
+Chief Scout *
+Chieftain *
+Citizen *
+Coach *
+Colonel *
+Commander *
+Commander-in-Chief *
+Commodore *
+Comrade *
+Constable *
+Corporal *
+Councillor *
+Count *
+Countess *
+Dalai Lama *
+Dame *
+Delegate *
+Docent *
+Dom *
+Druid *
+Duchess *
+Duke *
+Eagle Scout *
+Earl *
+Elder *
+Emir *
+Emira *
+Emperor *
+Empress *
+Envoy *
+Eze *
+Father *
+First Citizen *
+Frau *
+Friar *
+General *
+Generalissimo *
+Grand Mufti *
+Grand Vizier *
+Herr *
+High Priest *
+Hon. *
+Honourable *
+Imam *
+Judge *
+Justice *
+Kim Jong-il *
+King *
+King's Counsel *
+Kohen *
+Lama *
+Leader *
+Lictor *
+Lieutenant *
+Lord *
+Lord Archbishop *
+Madame *
+Mademoiselle *
+Magistrate *
+Maharajah *
+Maharani *
+Mahatma *
+Mahdi *
+Maid *
+Major *
+Marquess *
+Marquis *
+Master *
+Master of the Rolls *
+Mate *
+Mayor *
+Member *
+Meneer *
+Mevrouw *
+Miss *
+Mlle *
+Mme *
+Monsieur *
+Mother *
+Mufti *
+Mullah *
+Mwami *
+Nanny *
+Nath *
+Nizam *
+Nurse *
+Oba *
+Obi *
+Officer *
+Panchen Lama *
+Pandit *
+Pastor *
+Patriarch *
+Pharaoh *
+Pope *
+Popess *
+Prefect *
+Prelate *
+Premier *
+Presbyter *
 President *
+Priest *
+Priestess *
+Primate *
+Prince *
+Princess *
+Principal *
+Private *
+Privy Councillor *
+Privy Counsellor *
+Promagistrate *
+Provost *
+Queen *
+Queen's Counsel *
+Queen's Guide *
+Queen's Scout *
+Rabbi *
+Rebbe *
+Reeve *
+Representative *
+Reverend Mother *
+Right Honourable *
+Rosh HaYeshiva *
+Rt. Hon. *
+Saoshyant *
+Scout *
+Secretary *
+Senator *
+Seneschal *
+Sergeant *
+Sheikh *
+Sister *
+Solicitor *
+Speaker *
+Sultan *
+Sultana *
+Swami *
+Ter *
+The Reverend *
+Tirthankar *
+Tribune *
+Tsar *
+Tsarina *
+Uncle *
+Ustad *
+Vardapet *
+Vicar *
+Vice-Chancellor *
+Vicereine *
+Viceroy *
+Viscount *
+Vizier *
+Wizard *
+
 
 # person titles which may occur within annotation 
-# (e.g. German President Angela Merkel)
+# (e.g. German Chancellor Angela Merkel)
+* Admiral *
+* Bishop *
+* Captain *
+* Chancellor *
+* Chief *
+* Commander *
+* Commodore *
+* Constable *
+* Corporal *
+* Duchess *
+* Duke *
+* General *
+* Governor *
+* Lady *
+* Lieutenant *
+* Lord *
+* Mate *
+* Officer *
 * President *
+* Secretary *
 
 # adjectives and demonyms for continents
 African
@@ -591,6 +801,17 @@ September
 October
 November
 December
+Jan
+Feb
+Mar
+Apr
+Jun
+Jul
+Aug
+Sep
+Oct
+Nov
+Dec
 
 # religions
 Christian
