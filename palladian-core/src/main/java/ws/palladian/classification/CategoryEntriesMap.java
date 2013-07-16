@@ -1,5 +1,6 @@
 package ws.palladian.classification;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -90,6 +91,10 @@ public final class CategoryEntriesMap implements CategoryEntries {
             result.set(category, valueMap.get(category));
         }
         return result;
+    }
+
+    public static CategoryEntriesMap merge(Collection<CategoryEntries> categoryEntries) {
+        return merge(categoryEntries.toArray(new CategoryEntries[categoryEntries.size()]));
     }
 
     @Override
