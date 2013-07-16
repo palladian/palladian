@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.TemperatureUnit;
@@ -260,6 +261,42 @@ public class UnitNormalizer {
         }
 
         return null;
+    }
+
+    /**
+     * <p>
+     * Return a collection of units that are of the same type, e.g. if "cm" is given, all other length units are
+     * returned.
+     * </p>
+     * 
+     * @param unit The input unit.
+     * @return A collection of units of the same type.
+     */
+    public static Set<String> getAllUnitsOfSameType(String unit) {
+
+        if (isDigitalUnit(unit)) {
+            return DIGITAL_UNITS;
+        }
+        if (isTimeUnit(unit)) {
+            return TIME_UNITS;
+        }
+        if (isFrequencyUnit(unit)) {
+            return FREQUENCY_UNITS;
+        }
+        if (isLengthUnit(unit)) {
+            return LENGTH_UNITS;
+        }
+        if (isWeightUnit(unit)) {
+            return WEIGHT_UNITS;
+        }
+        if (isVolumeUnit(unit)) {
+            return VOLUME_UNITS;
+        }
+        if (isTemperatureUnit(unit)) {
+            return TEMPERATURE_UNITS;
+        }
+
+        return CollectionHelper.newHashSet();
     }
 
     /**
