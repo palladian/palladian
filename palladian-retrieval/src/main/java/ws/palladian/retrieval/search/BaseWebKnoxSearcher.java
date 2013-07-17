@@ -138,7 +138,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
     protected abstract String buildRequestUrl(String query, Language language, int offset, int count);
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Getting the total result count is not supported in the new WebKnox API.");
     }
 

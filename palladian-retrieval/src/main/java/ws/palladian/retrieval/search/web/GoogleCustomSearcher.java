@@ -158,7 +158,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         String requestUrl = createRequestUrl(query, 1, 1, language);
         HttpResult httpResult;
         try {
@@ -177,9 +177,9 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     }
 
     /** default visibility for unit testing. */
-    static int parseResultCount(String jsonString) throws JSONException {
+    static long parseResultCount(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
-        return jsonObject.getJSONObject("searchInformation").getInt("totalResults");
+        return jsonObject.getJSONObject("searchInformation").getLong("totalResults");
     }
 
 }
