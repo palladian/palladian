@@ -92,7 +92,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             Double latitude = SqlHelper.getDouble(resultSet, "latitude");
             Double longitude = SqlHelper.getDouble(resultSet, "longitude");
             Long population = resultSet.getLong("population");
-            List<Integer> ancestorIds = splitHierarchyPath(SqlHelper.getString(resultSet, "ancestorIds"));
+            List<Integer> ancestorIds = splitHierarchyPath(resultSet.getString("ancestorIds"));
             return new ImmutableLocation(id, name, altNames, locationType, latitude, longitude, population, ancestorIds);
         }
     };
