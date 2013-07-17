@@ -101,13 +101,13 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         String baseUrl = getBaseUrl(language);
         JSONObject jsonResult = fetchJsonResponse(query, baseUrl, 0, 1);
         try {
             JSONObject jsonQuery = jsonResult.getJSONObject("query");
             JSONObject jsonInfo = jsonQuery.getJSONObject("searchinfo");
-            return jsonInfo.getInt("totalhits");
+            return jsonInfo.getLong("totalhits");
         } catch (JSONException e) {
             throw new SearcherException("JSON parse error: " + e.getMessage(), e);
         }

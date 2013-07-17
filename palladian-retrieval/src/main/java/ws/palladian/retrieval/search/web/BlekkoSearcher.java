@@ -156,8 +156,8 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
-        int totalResults = 0;
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
+        long totalResults = 0;
 
         String requestUrl = getRequestUrl(query, 1, 0);
         THROTTLE.hold();
@@ -177,7 +177,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
                 string = string.replace("K", "000");
                 string = string.replace("M", "000000");
                 try {
-                    totalResults = Integer.parseInt(string);
+                    totalResults = Long.parseLong(string);
                 } catch (Exception e) {
                     // ccl pattern in action
                 }
