@@ -462,7 +462,10 @@ public class ImageHandler {
         return bufferedImage;
     }
 
-    public static void downloadAndSave(String url, String savePath) {
+    public static boolean downloadAndSave(String url, String savePath) {
+
+        boolean success = false;
+
         try {
 
             BufferedImage bi = load(url);
@@ -482,6 +485,7 @@ public class ImageHandler {
             FileHelper.createDirectoriesAndFile(savePath);
             ImageIO.write(bi, fileExtension, new File(savePath));
 
+            success = true;
         } catch (MalformedURLException e) {
             LOGGER.error(url, e);
         } catch (IOException e) {
@@ -491,6 +495,8 @@ public class ImageHandler {
         } catch (IllegalArgumentException e) {
             LOGGER.error(url, e);
         }
+
+        return success;
     }
 
     private static BufferedImage substractImages(BufferedImage image1, BufferedImage image2) {
