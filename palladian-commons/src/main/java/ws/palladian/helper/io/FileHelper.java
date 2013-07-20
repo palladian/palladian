@@ -1508,28 +1508,35 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Check whether a file exists.
+     * </p>
      * 
      * @param filePath The path to the file to check.
-     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
+     * @return <code>true</code> if the given path points to a file, <code>false</code> otherwise or in case path was
+     *         <code>null</code>.
      */
     public static boolean fileExists(String filePath) {
-        File file = new File(filePath);
-        if (file.exists() && !file.isDirectory()) {
-            return true;
+        if (filePath == null) {
+            return false;
         }
-        return false;
+        return new File(filePath).isFile();
     }
 
     /**
-     * Check if specified directory exists.
+     * <p>
+     * Check whether a directory exists.
+     * </p>
      * 
-     * @param directoryPath The path to the directory.
-     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
+     * @param filePath The path to the directory to check.
+     * @return <code>true</code> if the given path points to a directory, <code>false</code> otherwise or in case path
+     *         was <code>null</code>.
      */
     public static boolean directoryExists(String directoryPath) {
-        File file = new File(directoryPath);
-        return file.exists() && file.isDirectory();
+        if (directoryPath == null) {
+            return false;
+        }
+        return new File(directoryPath).isDirectory();
     }
 
     /**
