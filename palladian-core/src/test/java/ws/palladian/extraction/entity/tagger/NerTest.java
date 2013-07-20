@@ -62,17 +62,17 @@ public class NerTest {
         assertEquals(0, caseDictionary.getNumCategories());
         assertEquals(1103, tagger.getLeftContextMap().size());
         assertEquals(0, tagger.getRemoveAnnotations().size());
-        assertEquals(89639, contextClassifier.getNumTerms());
+        assertEquals(89603, contextClassifier.getNumTerms());
         assertEquals(4, contextClassifier.getNumCategories());
-        assertEquals(54040, annotationDictionary.getNumTerms());
+        assertEquals(53949, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
-        // precision MUC: 63.07%, recall MUC: 75.17%, F1 MUC: 68.59%
-        // precision exact: 48.89%, recall exact: 58.26%, F1 exact: 53.17%
+        // precision MUC: 62.71%, recall MUC: 75.17%, F1 MUC: 68.38%
+        // precision exact: 48.6%, recall exact: 58.26%, F1 exact: 53.0%
         EvaluationResult er = tagger.evaluate(trainingFile, TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-        
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
+
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.68);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.52);
 
@@ -119,17 +119,17 @@ public class NerTest {
         assertEquals(3, caseDictionary.getNumCategories());
         assertEquals(1103, tagger.getLeftContextMap().size());
         assertEquals(1109, tagger.getRemoveAnnotations().size());
-        assertEquals(89639, contextDictionary.getNumTerms());
+        assertEquals(89603, contextDictionary.getNumTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(59597, annotationDictionary.getNumTerms());
+        assertEquals(59587, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
-        // precision MUC: 94.18%, recall MUC: 94.92%, F1 MUC: 94.55%
-        // precision exact: 90.53%, recall exact: 91.24%, F1 exact: 90.88%
+        // precision MUC: 94.25%, recall MUC: 94.91%, F1 MUC: 94.58%
+        // precision exact: 90.58%, recall exact: 91.21%, F1 exact: 90.9%
         EvaluationResult er = tagger.evaluate(trainingFile, TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-        
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
+
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.94);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.90);
 

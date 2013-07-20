@@ -206,10 +206,12 @@ public final class FileHelper {
     }
 
     /**
-     * Gets the file type.
+     * <p>
+     * Gets the file type of a URI.
+     * </p>
      * 
-     * @param path the path
-     * @return the file type
+     * @param path The path of the file
+     * @return The file type without the period. E.g. abc.jpg => "jpg".
      */
     public static String getFileType(String path) {
         String fileType = "";
