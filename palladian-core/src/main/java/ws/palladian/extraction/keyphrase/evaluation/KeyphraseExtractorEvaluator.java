@@ -9,8 +9,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
+import org.tartarus.snowball.SnowballProgram;
+import org.tartarus.snowball.ext.EnglishStemmer;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
@@ -30,11 +30,11 @@ public class KeyphraseExtractorEvaluator {
     private final List<KeyphraseExtractor> extractors;
 
     /** The stemmer is needed to compare the assigned tags to the existing ones. */
-    private final SnowballStemmer stemmer;
+    private final SnowballProgram stemmer;
 
     public KeyphraseExtractorEvaluator() {
         this.extractors = new ArrayList<KeyphraseExtractor>();
-        this.stemmer = new englishStemmer();
+        this.stemmer = new EnglishStemmer();
     }
 
     public void addExtractor(KeyphraseExtractor extractor) {

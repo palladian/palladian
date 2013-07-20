@@ -1,23 +1,23 @@
 package ws.palladian.extraction.feature;
 
 import org.apache.commons.lang3.Validate;
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.danishStemmer;
-import org.tartarus.snowball.ext.dutchStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
-import org.tartarus.snowball.ext.finnishStemmer;
-import org.tartarus.snowball.ext.frenchStemmer;
-import org.tartarus.snowball.ext.germanStemmer;
-import org.tartarus.snowball.ext.hungarianStemmer;
-import org.tartarus.snowball.ext.italianStemmer;
-import org.tartarus.snowball.ext.norwegianStemmer;
-import org.tartarus.snowball.ext.porterStemmer;
-import org.tartarus.snowball.ext.portugueseStemmer;
-import org.tartarus.snowball.ext.romanianStemmer;
-import org.tartarus.snowball.ext.russianStemmer;
-import org.tartarus.snowball.ext.spanishStemmer;
-import org.tartarus.snowball.ext.swedishStemmer;
-import org.tartarus.snowball.ext.turkishStemmer;
+import org.tartarus.snowball.SnowballProgram;
+import org.tartarus.snowball.ext.DanishStemmer;
+import org.tartarus.snowball.ext.DutchStemmer;
+import org.tartarus.snowball.ext.EnglishStemmer;
+import org.tartarus.snowball.ext.FinnishStemmer;
+import org.tartarus.snowball.ext.FrenchStemmer;
+import org.tartarus.snowball.ext.GermanStemmer;
+import org.tartarus.snowball.ext.HungarianStemmer;
+import org.tartarus.snowball.ext.ItalianStemmer;
+import org.tartarus.snowball.ext.NorwegianStemmer;
+import org.tartarus.snowball.ext.PorterStemmer;
+import org.tartarus.snowball.ext.PortugueseStemmer;
+import org.tartarus.snowball.ext.RomanianStemmer;
+import org.tartarus.snowball.ext.RussianStemmer;
+import org.tartarus.snowball.ext.SpanishStemmer;
+import org.tartarus.snowball.ext.SwedishStemmer;
+import org.tartarus.snowball.ext.TurkishStemmer;
 
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.constants.Language;
@@ -71,7 +71,7 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
     public static final String UNSTEM = "ws.palladian.features.unstem";
 
     private final Mode mode;
-    private final SnowballStemmer stemmer;
+    private final SnowballProgram stemmer;
 
     /**
      * <p>
@@ -79,7 +79,7 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
      * </p>
      */
     public StemmerAnnotator() {
-        this(new porterStemmer(), Mode.ANNOTATE);
+        this(new PorterStemmer(), Mode.ANNOTATE);
     }
 
     /**
@@ -90,7 +90,7 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
      * @param stemmer
      * @param mode
      */
-    public StemmerAnnotator(SnowballStemmer stemmer, Mode mode) {
+    public StemmerAnnotator(SnowballProgram stemmer, Mode mode) {
         Validate.notNull(stemmer, "stemmer must not be null");
         Validate.notNull(mode, "mode must not be null");
         this.stemmer = stemmer;
@@ -132,38 +132,38 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
      * @param language
      * @return
      */
-    private static final SnowballStemmer createStemmer(Language language) {
+    private static final SnowballProgram createStemmer(Language language) {
         switch (language) {
             case DANISH:
-                return new danishStemmer();
+                return new DanishStemmer();
             case DUTCH:
-                return new dutchStemmer();
+                return new DutchStemmer();
             case ENGLISH:
-                return new englishStemmer();
+                return new EnglishStemmer();
             case FINNISH:
-                return new finnishStemmer();
+                return new FinnishStemmer();
             case FRENCH:
-                return new frenchStemmer();
+                return new FrenchStemmer();
             case GERMAN:
-                return new germanStemmer();
+                return new GermanStemmer();
             case HUNGARIAN:
-                return new hungarianStemmer();
+                return new HungarianStemmer();
             case ITALIAN:
-                return new italianStemmer();
+                return new ItalianStemmer();
             case NORWEGIAN:
-                return new norwegianStemmer();
+                return new NorwegianStemmer();
             case PORTUGUESE:
-                return new portugueseStemmer();
+                return new PortugueseStemmer();
             case ROMANIAN:
-                return new romanianStemmer();
+                return new RomanianStemmer();
             case RUSSIAN:
-                return new russianStemmer();
+                return new RussianStemmer();
             case SPANISH:
-                return new spanishStemmer();
+                return new SpanishStemmer();
             case SWEDISH:
-                return new swedishStemmer();
+                return new SwedishStemmer();
             case TURKISH:
-                return new turkishStemmer();
+                return new TurkishStemmer();
         }
         throw new IllegalArgumentException("No stemmer for language " + language.toString() + " available.");
     }
