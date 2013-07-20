@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
-import org.tartarus.snowball.ext.germanStemmer;
-
+import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -36,8 +33,8 @@ public class WordTransformer {
     /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
     private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
 
-    private static final SnowballStemmer GERMAN_STEMMER = new germanStemmer();
-    private static final SnowballStemmer ENGLISH_STEMMER = new englishStemmer();
+    private static final StemmerAnnotator GERMAN_STEMMER = new StemmerAnnotator(Language.GERMAN);
+    private static final StemmerAnnotator ENGLISH_STEMMER = new StemmerAnnotator(Language.ENGLISH);
 
     static {
 
@@ -448,21 +445,11 @@ public class WordTransformer {
     }
 
     public static String stemGermanWord(String word) {
-        synchronized (GERMAN_STEMMER) {
-            GERMAN_STEMMER.setCurrent(word);
-            GERMAN_STEMMER.stem();
-            word = GERMAN_STEMMER.getCurrent();
-        }
-        return word;
+        return GERMAN_STEMMER.stem(word);
     }
 
     public static String stemEnglishWord(String word) {
-        synchronized (ENGLISH_STEMMER) {
-            ENGLISH_STEMMER.setCurrent(word);
-            ENGLISH_STEMMER.stem();
-            word = ENGLISH_STEMMER.getCurrent();
-        }
-        return word;
+        return ENGLISH_STEMMER.stem(word);
     }
 
     /**
