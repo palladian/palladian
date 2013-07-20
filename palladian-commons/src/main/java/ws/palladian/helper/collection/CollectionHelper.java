@@ -560,6 +560,8 @@ public final class CollectionHelper {
         return convert(iterable, function, new ArrayList<O>());
     }
 
+    // XXX document me
+    // XXX should go to StringHelper
     public static String joinReadable(Collection<String> entries) {
         String joinedText = StringUtils.join(entries, ", ");
         int lastIndex = joinedText.lastIndexOf(",");
