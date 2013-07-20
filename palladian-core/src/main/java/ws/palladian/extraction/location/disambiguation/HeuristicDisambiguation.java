@@ -16,6 +16,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -47,6 +48,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
     public static final int SAME_DISTANCE_THRESHOLD = 50;
 
+    public static final int LASSO_DISTANCE_THRESHOLD = 100;
+
     /** Maximum distance for anchoring. */
     private final int anchorDistanceThreshold;
 
@@ -59,9 +62,12 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     /** Maximum distance between two locations with equal name, to assume they are the same. */
     private final int sameDistanceThreshold;
 
+    /** Distance threshold when lasso heuristic stops. */
+    private final int lassoDistanceThreshold;
+
     public HeuristicDisambiguation() {
         this(ANCHOR_DISTANCE_THRESHOLD, LOWER_POPULATION_THRESHOLD, ANCHOR_POPULATION_THRESHOLD,
-                SAME_DISTANCE_THRESHOLD);
+                SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD);
     }
 
     /**
@@ -74,13 +80,15 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
      * @param anchorPopulationThreshold The minimum population threshold for a location to become an anchor.
      * @param sameDistanceThreshold The maximum distance between two locations with the same names to assume, that they
      *            are actually the same.
+     * @param lassoDistanceThreshold The distance threshold, when the lasso heuristic stops.
      */
     public HeuristicDisambiguation(int anchorDistanceThreshold, int lowerPopulationThreshold,
-            int anchorPopulationThreshold, int sameDistanceThreshold) {
+            int anchorPopulationThreshold, int sameDistanceThreshold, int lassoDistanceThreshold) {
         this.anchorDistanceThreshold = anchorDistanceThreshold;
         this.lowerPopulationThreshold = lowerPopulationThreshold;
         this.anchorPopulationThreshold = anchorPopulationThreshold;
         this.sameDistanceThreshold = sameDistanceThreshold;
+        this.lassoDistanceThreshold = lassoDistanceThreshold;
     }
 
     @Override
@@ -206,17 +214,57 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             }
         }
 
+        // try the "lasso trick"; continuously remove locations which are over a specified threshold away from the
+        // center of all locations; if at least two unique locations are left after this procedure, they serve as
+        // anchors. This idea has been adopted from "Disambiguating Geographic Names in a Historical Digital Library" --
+        // David A. Smith and Gregory Crane, 2001. They do not have such a cool name for it though.
+        if (anchorLocations.isEmpty()) {
+            anchorLocations.addAll(getLassoLocations(locations));
+        }
+
         // if we could not get any anchor locations, just take the biggest one from the given candidates
         if (anchorLocations.isEmpty()) {
             Location biggest = LocationExtractorUtils.getBiggest(locations.allValues());
             if (biggest != null) {
                 LOGGER.warn("No anchor found, took biggest location: {}", biggest);
                 anchorLocations.add(biggest);
-            } else {
-                LOGGER.warn("No anchor found.");
             }
         }
+
+        if (anchorLocations.isEmpty()) {
+            LOGGER.warn("No anchor found.");
+        }
         return anchorLocations;
+    }
+
+    private Collection<Location> getLassoLocations(MultiMap<Annotated, Location> locations) {
+        Set<Location> uniqueLocations = new HashSet<Location>(locations.allValues());
+        while (uniqueLocations.size() > 1) {
+            double maxDistance = Double.MIN_VALUE;
+            Location farthestLocation = null;
+            for (Location location : uniqueLocations) {
+                GeoCoordinate midpoint = GeoUtils.getMidpoint(uniqueLocations);
+                double distance = GeoUtils.getDistance(location, midpoint);
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                    farthestLocation = location;
+                }
+            }
+            if (maxDistance < lassoDistanceThreshold) {
+                break;
+            }
+            uniqueLocations.remove(farthestLocation);
+            if (LOGGER.isTraceEnabled()) {
+                Object[] logArgs = new Object[] {farthestLocation, maxDistance, uniqueLocations.size()};
+                LOGGER.trace("Removed {}, distance to center: {}, {} items left", logArgs);
+            }
+        }
+        if (uniqueLocations.size() < 2 || LocationExtractorUtils.sameNames(uniqueLocations)) {
+            LOGGER.debug("Could not identify lasso locations");
+            return Collections.emptySet();
+        }
+        LOGGER.debug("Identified {} locations via lasso trick", uniqueLocations.size());
+        return uniqueLocations;
     }
 
     @Override
@@ -230,6 +278,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         builder.append(anchorPopulationThreshold);
         builder.append(", sameDistanceThreshold=");
         builder.append(sameDistanceThreshold);
+        builder.append(", lassoDistanceThreshold=");
+        builder.append(lassoDistanceThreshold);
         builder.append("]");
         return builder.toString();
     }

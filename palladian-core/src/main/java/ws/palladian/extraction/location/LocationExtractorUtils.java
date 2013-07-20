@@ -54,6 +54,15 @@ public final class LocationExtractorUtils {
         return firstId == parent.getId();
     }
 
+    /**
+     * <p>
+     * Get the biggest {@link Location} from the given {@link Collection}.
+     * </p>
+     * 
+     * @param locations The locations.
+     * @return The {@link Location} with the highest population, or <code>null</code> in case the collection was empty,
+     *         or none of the locations has a population specified.
+     */
     public static Location getBiggest(Collection<Location> locations) {
         Location biggest = null;
         for (Location location : locations) {
@@ -225,6 +234,58 @@ public final class LocationExtractorUtils {
             annotations.add(new LocationAnnotation(xmlAnnotation, location));
         }
         return annotations;
+    }
+
+    /**
+     * <p>
+     * Check, whether the given {@link Collection} contains a {@link Location} of one of the specified
+     * {@link LocationType}s.
+     * </p>
+     * 
+     * @param locations The locations, not <code>null</code>.
+     * @param types The {@link LocationType}s for which to check.
+     * @return <code>true</code> in case there is at least one location of the specified types, <code>false</code>
+     *         otherwise.
+     */
+    public static boolean containsType(Collection<Location> locations, LocationType... types) {
+        for (LocationType type : types) {
+            for (Location location : locations) {
+                if (location.getType() == type) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * <p>
+     * Check, whether at least two of the given locations in the {@link Collection} have different names (i.e. the
+     * intersection of all names of each {@link Location} is empty).
+     * </p>
+     * 
+     * @param locations The locations, not <code>null</code>.
+     * @return <code>true</code> in case there is at least one pair in the given collection which does not share at
+     *         least one name.
+     */
+    public static boolean differentNames(Collection<Location> locations) {
+        Set<String> allNames = CollectionHelper.newHashSet();
+        for (Location location : locations) {
+            Set<String> currentNames = collectNames(location);
+            if (allNames.size() > 0) {
+                Set<String> tempIntersection = new HashSet<String>(allNames);
+                tempIntersection.retainAll(currentNames);
+                if (tempIntersection.isEmpty()) {
+                    return true;
+                }
+            }
+            allNames.addAll(currentNames);
+        }
+        return false;
+    }
+
+    public static boolean sameNames(Collection<Location> locations) {
+        return !differentNames(locations);
     }
 
     public static class LocationTypeFilter implements Filter<Location> {

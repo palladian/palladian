@@ -31,4 +31,13 @@ public class LocationExtractorUtilsTest {
         assertFalse(LocationExtractorUtils.isChildOf(l1, l3));
     }
 
+    @Test
+    public void testDifferentNames() {
+        Location l1 = new ImmutableLocation(4653031, "Richmond", CITY, 35.38563, -86.59194, 0l);
+        Location l2 = new ImmutableLocation(4074277, "Madison County", UNIT, 34.73342, -86.56666, 0l);
+        Location l3 = new ImmutableLocation(100080784, "Madison County", UNIT, 34.76583, -86.55778, null);
+        assertTrue(LocationExtractorUtils.differentNames(Arrays.asList(l1, l2, l3)));
+        assertFalse(LocationExtractorUtils.differentNames(Arrays.asList(l2, l3)));
+    }
+
 }
