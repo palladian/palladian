@@ -278,6 +278,8 @@ public class DatasetCreator {
      */
     private void createDatasetForConcept(String seedFileName, File seedFile) {
 
+        LOGGER.info("Creating dataset for {}", seedFileName);
+
         StopWatch stopWatch = new StopWatch();
 
         DocumentRetriever urlDownloader = new DocumentRetriever();
@@ -296,13 +298,12 @@ public class DatasetCreator {
         StringBuilder seedFileCopy = new StringBuilder();
 
         int entityCount = 0;
-        final int totalUrls = seedEntities.size() * mentionsPerSeed;
-        int totalCount = 0;
 
         for (String seedEntity : seedEntities) {
 
             StopWatch sw = new StopWatch();
 
+            ProgressHelper.printProgress(entityCount, seedEntities.size(), 1, stopWatch);
             LOGGER.info("start processing seed entity {} ({})", seedEntity, seedFileName);
 
             seedFileCopy.append(seedEntity).append("###")
@@ -317,7 +318,6 @@ public class DatasetCreator {
             int urlCount = 0;
 
             for (Document document : documents) {
-                ProgressHelper.printProgress(totalCount++, totalUrls, 1, stopWatch);
 
                 if (document == null) {
                     continue;
@@ -337,7 +337,8 @@ public class DatasetCreator {
         // write the seed file into a special folder
         FileHelper.writeToFile(new File(datasetLocation, seedFileName + "/seeds/seeds.txt").getPath(), seedFileCopy);
 
-        LOGGER.info("created dataset for concept {} with {} seeds in {}", seedFileName, seedEntities.size(), stopWatch);
+        LOGGER.info("created dataset for concept {} with {} seeds in {}", seedFileName, seedEntities.size(),
+                stopWatch.getTotalElapsedTime());
     }
 
     /**
@@ -348,7 +349,7 @@ public class DatasetCreator {
      * @return A list of URLs containing the seed entity.
      */
     private List<String> getWebPages(String seedEntity, String conceptName) {
-        LOGGER.info("get web pages for seed: {}", seedEntity);
+        LOGGER.info("get web pages for seed '{}' with {}", seedEntity, searcher);
 
         String query = "\"" + seedEntity + "\"";
         if (queryWithConceptName) {
@@ -473,7 +474,8 @@ public class DatasetCreator {
 
             if (seedFileName.length() > 1) {
 
-                File[] taggedFiles = FileHelper.getFiles(new File(datasetLocation, seedFileName).getPath());
+                File entityDirectory = new File(datasetLocation, seedFileName);
+                File[] taggedFiles = FileHelper.getFiles(entityDirectory.getPath());
 
                 // iterate over all text files
                 for (File taggedFile : taggedFiles) {
@@ -488,7 +490,7 @@ public class DatasetCreator {
 
                     if (cleansedText.length() > 10) {
 
-                        File filePath = new File(targetLocation, FileHelper.getFileName(taggedFile.getPath()) + ".xml");
+                        File filePath = new File(entityDirectory, FileHelper.getFileName(taggedFile.getPath()) + ".xml");
                         FileHelper.writeToFile(filePath.getPath(), cleansedText);
 
                         FileHelper.removeDuplicateLines(filePath.getPath(), filePath.getPath());
@@ -545,7 +547,7 @@ public class DatasetCreator {
             // text = text.replaceAll("^\n", "");
 
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage());
+            LOGGER.error("Encountered {}", t);
             text = "";
         }
 
