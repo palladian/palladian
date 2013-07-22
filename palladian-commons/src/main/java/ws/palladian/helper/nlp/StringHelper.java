@@ -753,13 +753,15 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
      * Checks if is numeric expression.
+     * </p>
      * 
      * @param string the string
      * @return <code>true</code>, if is numeric expression, <code>false</code> otherwise.
      */
     public static boolean isNumericExpression(String string) {
-        if (string.length() == 0) {
+        if (string.isEmpty()) {
             return false;
         }
 
