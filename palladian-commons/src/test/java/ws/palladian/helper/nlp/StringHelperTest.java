@@ -294,12 +294,19 @@ public class StringHelperTest {
 
     @Test
     public void testIsNumber() {
+        assertEquals(true, StringHelper.isNumber("-2,3"));
+        assertEquals(true, StringHelper.isNumber("100"));
+        assertEquals(false, StringHelper.isNumber("100.000.00"));
         assertEquals(false, StringHelper.isNumber("44.000."));
         assertEquals(false, StringHelper.isNumber("44 000"));
         assertEquals(true, StringHelper.isNumber("44.000"));
         assertEquals(true, StringHelper.isNumber("41"));
         assertEquals(true, StringHelper.isNumber("-1"));
         assertEquals(true, StringHelper.isNumber("-1.3"));
+        assertEquals(true, StringHelper.isNumber("-8787545,3"));
+        assertEquals(true, StringHelper.isNumber("-8787545.3"));
+        assertEquals(true, StringHelper.isNumber("-8787545,798435"));
+        assertEquals(true, StringHelper.isNumber("-8787545.798435"));
         assertEquals(true, StringHelper.isNumber("3.4359738368E11"));
         assertEquals(true, StringHelper.isNumberOrNumberWord("45"));
         assertEquals(true, StringHelper.isNumberOrNumberWord("one"));
