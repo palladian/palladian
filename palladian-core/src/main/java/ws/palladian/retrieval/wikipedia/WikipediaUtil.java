@@ -29,6 +29,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaInfobox;
 import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaLink;
 
 /**
@@ -397,21 +398,27 @@ public final class WikipediaUtil {
      *         <code>null</code>.
      * @see #extractTemplate(String)
      */
-    public static Set<GeoCoordinate> extractCoordinatesFromInfobox(Map<String, String> parsedTemplate) {
-        Validate.notNull(parsedTemplate, "parsedTemplate must not be null");
+    public static Set<GeoCoordinate> extractCoordinatesFromInfobox(WikipediaInfobox infobox) {
+        Validate.notNull(infobox, "parsedTemplate must not be null");
         Set<GeoCoordinate> coordinates = CollectionHelper.newHashSet();
 
         // try lat/long_deg/min_sec
         try {
-            String latDeg = getAnyOf(parsedTemplate, "lat_deg", "latd");
-            String lngDeg = getAnyOf(parsedTemplate, "lon_deg", "longd");
+            String latDeg = infobox.getEntry("lat_deg", "latd", "lat_d", "lat_degrees", "source_lat_d", "mouth_lat_d");
+            String lngDeg = infobox.getEntry("lon_deg", "longd", "long_d", "long_degrees", "source_long_d",
+                    "mouth_long_d");
             if (latDeg != null && lngDeg != null) {
-                String latMin = getAnyOf(parsedTemplate, "lat_min", "latm");
-                String latSec = getAnyOf(parsedTemplate, "lat_sec", "lats");
-                String lngMin = getAnyOf(parsedTemplate, "lon_min", "longm");
-                String lngSec = getAnyOf(parsedTemplate, "lon_sec", "longs");
-                String latNS = getAnyOf(parsedTemplate, "latNS");
-                String lngEW = getAnyOf(parsedTemplate, "longEW");
+                String latMin = infobox.getEntry("lat_min", "latm", "lat_m", "lat_minutes", "source_lat_m",
+                        "mouth_lat_m");
+                String latSec = infobox.getEntry("lat_sec", "lats", "lat_s", "lat_seconds", "source_lat_s",
+                        "mouth_lat_s");
+                String lngMin = infobox.getEntry("lon_min", "longm", "long_m", "long_minutes", "source_long_m",
+                        "mouth_long_m");
+                String lngSec = infobox.getEntry("lon_sec", "longs", "long_s", "long_seconds", "source_long_s",
+                        "mouth_long_s");
+                String latNS = infobox.getEntry("latNS", "lat_direction", "lat_NS", "source_lat_NS", "mouth_lat_NS");
+                String lngEW = infobox.getEntry("longEW", "long_direction", "long_EW", "source_long_EW",
+                        "mouth_long_EW");
                 double lat = parseComponents(latDeg, latMin, latSec, latNS);
                 double lng = parseComponents(lngDeg, lngMin, lngSec, lngEW);
                 coordinates.add(new ImmutableGeoCoordinate(lat, lng));
@@ -422,8 +429,8 @@ public final class WikipediaUtil {
 
         // try decimal format
         try {
-            String lat = getAnyOf(parsedTemplate, "latitude");
-            String lng = getAnyOf(parsedTemplate, "longitude");
+            String lat = infobox.getEntry("latitude");
+            String lng = infobox.getEntry("longitude");
             if (lat != null && lng != null) {
                 coordinates.add(new ImmutableGeoCoordinate(Double.valueOf(lat), Double.valueOf(lng)));
             }
@@ -432,16 +439,6 @@ public final class WikipediaUtil {
         }
 
         return coordinates;
-    }
-
-    private static String getAnyOf(Map<String, String> parsedTemplate, String... keys) {
-        for (String key : keys) {
-            String value = parsedTemplate.get(key);
-            if (value != null) {
-                return value;
-            }
-        }
-        return null;
     }
 
     private static Long getNumberInBrackets(String string) {
@@ -533,16 +530,16 @@ public final class WikipediaUtil {
      * 
      * @param markup The media wiki markup, not <code>null</code>.
      * @param name The name, like infobox, quote, etc.
-     * @return The content in the markup, or <code>null</code> if not found.
+     * @return The content in the markup, or an empty list of not found, never <code>null</code>.
      */
-    public static List<String> getNamedMarkup(String markup, String name) {
+    static List<String> getNamedMarkup(String markup, String... names) {
         List<String> result = CollectionHelper.newArrayList();
         int startIdx = 0;
-        for (;;) {
-            startIdx = markup.toLowerCase().indexOf("{{" + name.toLowerCase(), startIdx);
-            if (startIdx == -1) {
-                break;
-            }
+        String namesSeparated = StringUtils.join(names, "|").toLowerCase();
+        Pattern pattern = Pattern.compile("\\{\\{(?:" + namesSeparated + ")(?:\\s|\\|)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(markup);
+        while (matcher.find()) {
+            startIdx = matcher.start();
             int brackets = 0;
             int endIdx;
             for (endIdx = startIdx; startIdx < markup.length(); endIdx++) {
@@ -603,8 +600,8 @@ public final class WikipediaUtil {
         // System.out.println(text);
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
-        WikipediaPage page = retrieveArticle("Wild Dunes", Language.ENGLISH);
-        Map<String, String> infoboxData = extractTemplate(page.getInfoboxMarkup());
+        WikipediaPage page = retrieveArticle("Charles River", Language.ENGLISH);
+        Map<String, String> infoboxData = extractTemplate(getNamedMarkup(page.getText(), "geobox").get(0));
         CollectionHelper.print(infoboxData);
         System.out.println(page);
 

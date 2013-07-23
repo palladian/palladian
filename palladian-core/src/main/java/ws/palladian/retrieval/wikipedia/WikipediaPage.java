@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.wikipedia;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +59,46 @@ public class WikipediaPage {
 
     }
     
+    /**
+     * <p>
+     * Infobox (or similar like geobox) on a Wikipedia page.
+     * </p>
+     */
+    public static class WikipediaInfobox {
+
+        private final String name;
+        private final Map<String, String> content;
+
+        public WikipediaInfobox(String name, Map<String, String> content) {
+            this.name = name;
+            this.content = content;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getEntry(String key) {
+            return content.get(key);
+        }
+
+        public String getEntry(String... keys) {
+            return CollectionHelper.getTrying(content, keys);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("WikipediaInfobox [name=");
+            builder.append(name);
+            builder.append(", content=");
+            builder.append(content);
+            builder.append("]");
+            return builder.toString();
+        }
+
+    }
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
 
@@ -106,7 +147,9 @@ public class WikipediaPage {
      * </p>
      * 
      * @return The markup of the infobox, if found, or <code>null</code>.
+     * @deprecated Use {@link #getInfoboxes()} instead.
      */
+    @Deprecated
     public String getInfoboxMarkup() {
         try {
             return CollectionHelper.getFirst(WikipediaUtil.getNamedMarkup(text, "infobox"));
@@ -123,19 +166,40 @@ public class WikipediaPage {
      * 
      * @return The type of the infobox, or <code>null</code> if the infobox has no type assigned, or the page contains
      *         no infobox at all.
+     * @deprecated Use {@link #getInfoboxes()} instead.
      */
+    @Deprecated
     public String getInfoboxType() {
         String infoboxMarkup = getInfoboxMarkup();
         if (infoboxMarkup == null) {
             return null;
         }
         // Pattern pattern = Pattern.compile("infobox\\s(\\w+)");
-        Pattern pattern = Pattern.compile("infobox\\s([^|<}]+)");
+        return getInfoboxType(infoboxMarkup);
+    }
+
+    private static final String getInfoboxType(String infoboxMarkup) {
+        Pattern pattern = Pattern.compile("(?:infobox|geobox)[\\s|]([^|<}]+)");
         Matcher matcher = pattern.matcher(infoboxMarkup.toLowerCase());
         if (matcher.find()) {
             return matcher.group(1).trim();
         }
         return null;
+    }
+
+    /**
+     * @return A list of {@link WikipediaInfobox}es on the page, or an empty list in case no such exist, never
+     *         <code>null</code>.
+     */
+    public List<WikipediaInfobox> getInfoboxes() {
+        List<WikipediaInfobox> infoboxes = CollectionHelper.newArrayList();
+        List<String> infoboxesMarkup = WikipediaUtil.getNamedMarkup(text, "infobox", "geobox");
+        for (String infoboxMarkup : infoboxesMarkup) {
+            Map<String, String> infoboxData = WikipediaUtil.extractTemplate(infoboxMarkup);
+            String infoboxType = getInfoboxType(infoboxMarkup);
+            infoboxes.add(new WikipediaInfobox(infoboxType, infoboxData));
+        }
+        return infoboxes;
     }
 
     /**

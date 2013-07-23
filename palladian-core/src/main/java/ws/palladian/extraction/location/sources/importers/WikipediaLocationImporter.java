@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -32,6 +34,7 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
+import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaInfobox;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
@@ -49,43 +52,11 @@ import ws.palladian.retrieval.wikipedia.WikipediaUtil.MarkupLocation;
  */
 public class WikipediaLocationImporter {
 
-    // TODO extract information from infoboxes like:
-    // http://en.wikipedia.org/wiki/Muskingum_University
-    // http://en.wikipedia.org/wiki/University_of_Pennsylvania
-    // TODO extract information from geoboxes like here: http://en.wikipedia.org/wiki/Charles_River
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
 
     /** Pages with those titles will be ignored. */
     private static final Pattern IGNORED_PAGES = Pattern.compile("(?:Geography|Battle) of .*");
-
-//    /** The mapping between Wikipedia types and Palladian {@link LocationType}. Values mapped to null will be dropped. */
-//    private static final Map<String, LocationType> TYPE_MAPPING = getTypeMapping();
-//
-//    private static Map<String, LocationType> getTypeMapping() {
-//        Map<String, LocationType> map = CollectionHelper.newHashMap();
-//        map.put("adm1st", LocationType.UNIT);
-//        map.put("adm2nd", LocationType.UNIT);
-//        map.put("adm3rd", LocationType.UNIT);
-//        map.put("airport", LocationType.POI);
-//        map.put("city", LocationType.CITY);
-//        map.put("country", LocationType.COUNTRY);
-//        map.put("edu", LocationType.POI);
-//        map.put("event", null);
-//        map.put("forest", LocationType.LANDMARK);
-//        map.put("glacier", LocationType.LANDMARK);
-//        map.put("isle", LocationType.LANDMARK);
-//        map.put("landmark", LocationType.POI); // XXX not sure, whether this is accurate
-//        map.put("mountain", LocationType.LANDMARK);
-//        map.put("pass", LocationType.LANDMARK);
-//        map.put("railwaystation", LocationType.POI);
-//        map.put("river", LocationType.LANDMARK);
-//        map.put("satellite", null);
-//        map.put("waterbody", LocationType.LANDMARK);
-//        map.put("camera", null);
-//        return Collections.unmodifiableMap(map);
-//    }
     
     private static final Map<String, LocationType> INFOBOX_MAPPING = loadMapping();
 
@@ -97,6 +68,9 @@ public class WikipediaLocationImporter {
             FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
+                    if (line.isEmpty() || line.startsWith("#")) {
+                        return;
+                    }
                     String[] split = line.split("\\t");
                     String infoboxType = split[0];
                     LocationType locationType = LocationType.map(split[1]);
@@ -197,48 +171,57 @@ public class WikipediaLocationImporter {
                 }
 
                 String text = page.getText();
-                List<MarkupLocation> locations = WikipediaUtil.extractCoordinateTag(text);
                 
-                String infoboxType = page.getInfoboxType();
-                if (infoboxType == null) {
+                List<WikipediaInfobox> infoboxes = page.getInfoboxes();
+                if (infoboxes.isEmpty()) {
                     LOGGER.debug("Page '{}' has no infobox; skip", page.getTitle());
                     return;
                 }
-                LocationType type = INFOBOX_MAPPING.get(infoboxType);
+                LocationType type = null;
+                for (WikipediaInfobox infobox : infoboxes) {
+                    type = INFOBOX_MAPPING.get(infobox.getName());
+                    if (type != null) {
+                        break;
+                    }
+                }
                 if (type == null) {
                     LOGGER.debug("Unmapped type for '{}'; ignore", page.getTitle());
                     return;
                 }
 
+                // first, try to extract coordinates from {{coord|...|display=title}} tags
+                List<MarkupLocation> locations = WikipediaUtil.extractCoordinateTag(text);
+                GeoCoordinate coordinate = null;
+                Long population = null;
                 for (MarkupLocation location : locations) {
                     String display = location.getDisplay();
                     if (display != null && (display.contains("title") || display.equals("t"))) {
-                        String name = page.getCleanTitle();
-
-//                        LocationType type = LocationType.UNDETERMINED;
-//                        if (location.type != null) {
-//                            type = TYPE_MAPPING.get(location.type);
-//                            if (type == null) { // explicit 'null' mapping -> ignore
-//                                LOGGER.warn("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
-//                                continue;
-//                            }
-//                        }
-                        
-//                        if (type == null) {
-//                            type = TYPE_MAPPING.get(location.type);
-//                            if (type == null) { // explicit 'null' mapping -> ignore
-//                                LOGGER.debug("Unmapped type '{}' for '{}'; ignore", location.type, page.getTitle());
-//                                continue;
-//                            }
-//                        }
-
-                        locationStore.save(new ImmutableLocation(page.getPageId() + idOffset, name, type, location
-                                .getLatitude(), location.getLongitude(), location.getPopulation()));
-                        LOGGER.trace("Saved location with ID {}, name {}", page.getPageId(), name);
-                        locationNamesIds.put(page.getTitle(), page.getPageId());
-                        counter[0]++;
+                        coordinate = location;
+                        population = location.getPopulation();
                     }
                 }
+
+                // fallback, use infobox/geobox:
+                if (coordinate == null) {
+                    for (WikipediaInfobox infobox : infoboxes) {
+                        Set<GeoCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(infobox);
+                        // XXX we might also want to extract population information here in the future
+                        if (coordinates.size() > 0) {
+                            coordinate = CollectionHelper.getFirst(coordinates);
+                        }
+                    }
+                }
+
+                // save:
+                if (coordinate != null) {
+                    String name = page.getCleanTitle();
+                    locationStore.save(new ImmutableLocation(page.getPageId() + idOffset, name, type, coordinate
+                            .getLatitude(), coordinate.getLongitude(), population));
+                    LOGGER.trace("Saved location with ID {}, name {}", page.getPageId(), name);
+                    locationNamesIds.put(page.getTitle(), page.getPageId());
+                    counter[0]++;
+                }
+
             }
         }));
         LOGGER.info("Finished importing {} locations", counter[0]);
@@ -289,14 +272,6 @@ public class WikipediaLocationImporter {
         }));
         LOGGER.info("Finished importing {} alternative names", counter[0]);
     }
-
-
-
-
-
-
-
-
 
     public static void main(String[] args) throws Exception {
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations2");
