@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -368,20 +370,78 @@ public final class WikipediaUtil {
             coordMarkup.lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
 
             // get coordinate parameters
-            String type = getCoordinateParam(m.group(9), "type");
+            String data = m.group(9);
+            String type = getCoordinateParam(data, "type");
             if (type != null) {
                 coordMarkup.population = getNumberInBrackets(type);
                 type = type.replaceAll("\\(.*\\)", ""); // remove population
             }
             coordMarkup.type = type;
-            coordMarkup.region = getCoordinateParam(m.group(9), "region");
+            coordMarkup.region = getCoordinateParam(data, "region");
             // get other parameters
-            coordMarkup.display = getOtherParam(m.group(9), "display");
-            coordMarkup.name = getOtherParam(m.group(9), "name");
+            coordMarkup.display = getOtherParam(data, "display");
+            coordMarkup.name = getOtherParam(data, "name");
 
             result.add(coordMarkup);
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Try to parse {@link GeoCoordinate}s in a given info box.
+     * </p>
+     * 
+     * @param parsedTemplate The parsed template, not <code>null</code>.
+     * @return Set with extracted {@link GeoCoordinate}s, or an empty list in case nothing could be extracted, never
+     *         <code>null</code>.
+     * @see #extractTemplate(String)
+     */
+    public static Set<GeoCoordinate> extractCoordinatesFromInfobox(Map<String, String> parsedTemplate) {
+        Validate.notNull(parsedTemplate, "parsedTemplate must not be null");
+        Set<GeoCoordinate> coordinates = CollectionHelper.newHashSet();
+
+        // try lat/long_deg/min_sec
+        try {
+            String latDeg = getAnyOf(parsedTemplate, "lat_deg", "latd");
+            String lngDeg = getAnyOf(parsedTemplate, "lon_deg", "longd");
+            if (latDeg != null && lngDeg != null) {
+                String latMin = getAnyOf(parsedTemplate, "lat_min", "latm");
+                String latSec = getAnyOf(parsedTemplate, "lat_sec", "lats");
+                String lngMin = getAnyOf(parsedTemplate, "lon_min", "longm");
+                String lngSec = getAnyOf(parsedTemplate, "lon_sec", "longs");
+                String latNS = getAnyOf(parsedTemplate, "latNS");
+                String lngEW = getAnyOf(parsedTemplate, "longEW");
+                double lat = parseComponents(latDeg, latMin, latSec, latNS);
+                double lng = parseComponents(lngDeg, lngMin, lngSec, lngEW);
+                coordinates.add(new ImmutableGeoCoordinate(lat, lng));
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Error while parsing: {}", e.getMessage());
+        }
+
+        // try decimal format
+        try {
+            String lat = getAnyOf(parsedTemplate, "latitude");
+            String lng = getAnyOf(parsedTemplate, "longitude");
+            if (lat != null && lng != null) {
+                coordinates.add(new ImmutableGeoCoordinate(Double.valueOf(lat), Double.valueOf(lng)));
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Error while parsing: {}", e.getMessage());
+        }
+
+        return coordinates;
+    }
+
+    private static String getAnyOf(Map<String, String> parsedTemplate, String... keys) {
+        for (String key : keys) {
+            String value = parsedTemplate.get(key);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private static Long getNumberInBrackets(String string) {

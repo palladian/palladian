@@ -62,6 +62,27 @@ public class AddressTaggerTest {
         locationAnnotations = addressTagger
                 .getAnnotations("Actress and model Elizabeth Hurley will be at Bicester Village, in Pingle Drive, on Thursday to open her new beach boutique at the designer outlet shopping centre.");
         assertEquals("Pingle Drive", locationAnnotations.get(0).getValue());
+
+        locationAnnotations = addressTagger
+                .getAnnotations("Nikki Lynn Barlow, 18, of 208 Routon St. was arrested by PPD Patrolman Amanda Forrest.");
+        assertEquals("208", locationAnnotations.get(0).getValue());
+        assertEquals(LocationType.STREETNR, locationAnnotations.get(0).getLocation().getType());
+        assertEquals("Routon St.", locationAnnotations.get(1).getValue());
+        assertEquals(LocationType.STREET, locationAnnotations.get(1).getLocation().getType());
+
+        locationAnnotations = addressTagger
+                .getAnnotations("The incident occurred Sunday in the parking lot of the Price Chopper at Vivion Road and North Oak Trafficway.");
+        assertEquals("Vivion Road", locationAnnotations.get(0).getValue());
+        assertEquals("North Oak Trafficway", locationAnnotations.get(1).getValue());
+
+        locationAnnotations = addressTagger
+                .getAnnotations("An attempt is being made to clean and maintain the trail that circles the reservoir on Shadyside Drive.");
+        assertEquals("Shadyside Drive", locationAnnotations.get(0).getValue());
+
+        locationAnnotations = addressTagger
+                .getAnnotations("Board and commission members will have an orientation and training session at 6:30 p.m. Monday, March 30 in Talla 2 at the Dublin Community Recreation Center, 5600 Post Road, Chinnici-Zuercher said.");
+        assertEquals("5600", locationAnnotations.get(0).getValue());
+        assertEquals("Post Road", locationAnnotations.get(1).getValue());
     }
 
 }

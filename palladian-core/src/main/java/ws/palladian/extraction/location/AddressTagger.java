@@ -22,9 +22,10 @@ import ws.palladian.processing.features.Annotation;
  */
 public final class AddressTagger implements Tagger {
 
-    public static final Pattern STREET_PATTERN = Pattern.compile(
-                    ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat|.*drive",
-            Pattern.CASE_INSENSITIVE);
+    public static final Pattern STREET_PATTERN = Pattern
+            .compile(
+                    ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat|.*drive|.*\\sst\\.|.*\\strafficway",
+                    Pattern.CASE_INSENSITIVE);
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
@@ -33,16 +34,26 @@ public final class AddressTagger implements Tagger {
         // TODO StringTagger is too strict here, e.g. the following candidate is not recognized:
         // Viale di Porta Ardeatine -- use dedicted regex here?
         Annotations<ContextAnnotation> annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         // step one: match tagged annotations using street pattern
         for (Annotated annotation : annotations) {
-            Matcher matcher = STREET_PATTERN.matcher(annotation.getValue());
+            String value = annotation.getValue();
+
+            // XXX ugly; in case of "Bla St", check, if following character is a . and extend annotation, as the . was
+            // swallowed by StringTagger
+            if (value.endsWith(" St") && text.length() >= annotation.getEndPosition()
+                    && text.charAt(annotation.getEndPosition()) == '.') {
+                value += ".";
+            }
+
+            Matcher matcher = STREET_PATTERN.matcher(value);
             if (matcher.matches()) {
                 // System.out.println("street : " + annotation.getEntity());
-                Annotated annotated = new Annotation(annotation.getStartPosition(), annotation.getValue(),
+                Annotated annotated = new Annotation(annotation.getStartPosition(), value,
                         LocationType.STREET.toString());
-                ret.add(new LocationAnnotation(annotated, new ImmutableLocation(0, annotated.getValue(),
-                        LocationType.STREET, null, null, null)));
+                ret.add(new LocationAnnotation(annotated, new ImmutableLocation(0, value, LocationType.STREET, null,
+                        null, null)));
             }
         }
 
