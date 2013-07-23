@@ -252,15 +252,13 @@ public class DateHelper {
             }
         }
 
-        if (millis > 0) {
-            if (compact) {
-                sb.append(millis).append("ms");
-            } else {
-                if (millis > 1) {
-                    sb.append(millis).append(" milliseconds");
-                } else if (millis == 1) {
-                    sb.append(millis).append(" millisecond");
-                }
+        if (compact) {
+            sb.append(millis).append("ms");
+        } else {
+            if (millis > 1) {
+                sb.append(millis).append(" milliseconds");
+            } else if (millis == 1) {
+                sb.append(millis).append(" millisecond");
             }
         }
 
