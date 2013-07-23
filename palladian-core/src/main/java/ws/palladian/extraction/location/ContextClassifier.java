@@ -32,14 +32,14 @@ public class ContextClassifier {
 
     public ContextClassifier() {
         File patternDirectory = new File("/Users/pk/Desktop/contextPatterns");
-        load(leftContexts, new File(patternDirectory, "location_left_prox_4.csv"), "LOCATION");
-        load(rightContexts, new File(patternDirectory, "location_right_prox_4.csv"), "LOCATION");
-        load(leftContexts, new File(patternDirectory, "person_left_prox_4.csv"), "PERSON");
-        load(rightContexts, new File(patternDirectory, "person_right_prox_4.csv"), "PERSON");
-        // load(leftContexts, new File(patternDirectory, "location_left_1.csv"), "LOCATION");
-        // load(rightContexts, new File(patternDirectory, "location_right_1.csv"), "LOCATION");
-        // load(leftContexts, new File(patternDirectory, "person_left_1.csv"), "PERSON");
-        // load(rightContexts, new File(patternDirectory, "person_right_1.csv"), "PERSON");
+        // load(leftContexts, new File(patternDirectory, "location_left_prox_4.csv"), "LOCATION");
+        // load(rightContexts, new File(patternDirectory, "location_right_prox_4.csv"), "LOCATION");
+        // load(leftContexts, new File(patternDirectory, "person_left_prox_4.csv"), "PERSON");
+        // load(rightContexts, new File(patternDirectory, "person_right_prox_4.csv"), "PERSON");
+        load(leftContexts, new File(patternDirectory, "location_left_1.csv"), "LOCATION");
+        load(rightContexts, new File(patternDirectory, "location_right_1.csv"), "LOCATION");
+        load(leftContexts, new File(patternDirectory, "person_left_1.csv"), "PERSON");
+        load(rightContexts, new File(patternDirectory, "person_right_1.csv"), "PERSON");
     }
 
     private static void load(final CountMatrix<String> countMatrix, File file, final String type) {

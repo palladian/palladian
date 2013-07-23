@@ -5,9 +5,12 @@ import static org.junit.Assert.assertEquals;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil.MarkupLocation;
@@ -161,6 +164,104 @@ public class WikipediaUtilTest {
         assertEquals(1, locations.size());
         assertEquals("landmark", locations.get(0).type);
         assertEquals("t", locations.get(0).display);
+
+        locations = WikipediaUtil
+                .extractCoordinateTag("{{Coord|display=title|41.5|N|100|W|region:US-NE_type:adm1st_scale:3000000}}");
+        // FIXME assertEquals(1, locations.size());
+
+        locations = WikipediaUtil
+                .extractCoordinateTag("{{Coord|40|N|86|W|display=title|region:US-IN_type:adm1st_scale:3000000}}");
+        assertEquals(1, locations.size());
+        assertEquals(40., locations.get(0).getLatitude(), 0.00001);
+        assertEquals(-86., locations.get(0).getLongitude(), 0.00001);
+    }
+
+    @Test
+    public void testExtractCoordinateMarkupFromPages() throws FileNotFoundException {
+        String markup = FileHelper.readFileToString(ResourceHelper
+                .getResourceFile("/wikipedia/San_Francisco_Bay_Area.wikipedia"));
+        WikipediaPage page = new WikipediaPage(0, 0, "San Francisco Bay Area", markup);
+        List<MarkupLocation> markupLocations = WikipediaUtil.extractCoordinateTag(page.getText());
+        assertEquals(1, markupLocations.size());
+        assertEquals(37.75, CollectionHelper.getFirst(markupLocations).getLatitude(), 0.000001);
+        assertEquals(-122.283333, CollectionHelper.getFirst(markupLocations).getLongitude(), 0.000001);
+
+        // markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Nebraska.wikipedia"));
+        // page = new WikipediaPage(0, 0, "Nebraska", markup);
+        // markupLocations = WikipediaUtil.extractCoordinateTag(page.getText());
+        // assertEquals(1, markupLocations.size());
+        // assertEquals(41.5, CollectionHelper.getFirst(markupLocations).getLatitude(), 0.000001);
+        // assertEquals(-100, CollectionHelper.getFirst(markupLocations).getLongitude(), 0.000001);
+
+    }
+
+    @Test
+    public void testExtractCoordinatesFromInfobox() throws FileNotFoundException {
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
+        Map<String, String> data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        Set<GeoCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        assertEquals(1, coordinates.size());
+        assertEquals(51.033333, CollectionHelper.getFirst(coordinates).getLatitude(), 0.000001);
+        assertEquals(13.733333, CollectionHelper.getFirst(coordinates).getLongitude(), 0.000001);
+
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Metro_Vancouver.wikipedia"));
+        page = new WikipediaPage(0, 0, "Metro Vancouver", markup);
+        data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        assertEquals(1, coordinates.size());
+        assertEquals(49.249444, CollectionHelper.getFirst(coordinates).getLatitude(), 0.000001);
+        assertEquals(-122.979722, CollectionHelper.getFirst(coordinates).getLongitude(), 0.000001);
+
+        markup = FileHelper.readFileToString(ResourceHelper
+                .getResourceFile("/wikipedia/Lancaster_Girls'_Grammar_School.wikipedia"));
+        page = new WikipediaPage(0, 0, "Lancaster Girls' Grammar School", markup);
+        data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        assertEquals(1, coordinates.size());
+        assertEquals(54.04573, CollectionHelper.getFirst(coordinates).getLatitude(), 0.000001);
+        assertEquals(-2.80332, CollectionHelper.getFirst(coordinates).getLongitude(), 0.000001);
+
+        markup = FileHelper.readFileToString(ResourceHelper
+                .getResourceFile("/wikipedia/Saint_Kitts_and_Nevis.wikipedia"));
+        page = new WikipediaPage(0, 0, "Saint Kitts and Nevis", markup);
+        data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        assertEquals(1, coordinates.size());
+        assertEquals(17.3, CollectionHelper.getFirst(coordinates).getLatitude(), 0.000001);
+        assertEquals(-62.733333, CollectionHelper.getFirst(coordinates).getLongitude(), 0.000001);
+
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Wild_Dunes.wikipedia"));
+        page = new WikipediaPage(0, 0, "Wild Dunes", markup);
+        data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        assertEquals(1, coordinates.size());
+        assertEquals(32.796389, CollectionHelper.getFirst(coordinates).getLatitude(), 0.000001);
+        assertEquals(-79.765, CollectionHelper.getFirst(coordinates).getLongitude(), 0.000001);
+
+        // FIXME geobox!
+        // markup = FileHelper.readFileToString(ResourceHelper
+        // .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
+        // page = new WikipediaPage(0, 0, "Dry Fork (Cheat River)", markup);
+        // data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        // coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        // assertEquals(1, coordinates.size());
+
+        // FIXME geobox!
+        // markup = FileHelper.readFileToString(ResourceHelper
+        // .getResourceFile("/wikipedia/Spice_Run_Wilderness.wikipedia"));
+        // page = new WikipediaPage(0, 0, "Spice Run Wilderness", markup);
+        // data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        // coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        // assertEquals(1, coordinates.size());
+
+        // no infobox/geobox
+        // markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/West_Virginia.wikipedia"));
+        // page = new WikipediaPage(0, 0, "West Virginia", markup);
+        // data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
+        // coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
+        // assertEquals(1, coordinates.size());
+
     }
 
     @Test
