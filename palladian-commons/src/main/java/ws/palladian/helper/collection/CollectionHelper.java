@@ -432,18 +432,12 @@ public final class CollectionHelper {
      */
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
         List<T> result = CollectionHelper.newArrayList();
-
-        int c = 0;
         for (T t : iterable) {
-
             result.add(t);
-
-            c++;
-            if (c == num) {
+            if (result.size() == num) {
                 break;
             }
         }
-
         return result;
     }
 
@@ -574,6 +568,27 @@ public final class CollectionHelper {
             joinedText = joinedTextNew;
         }
         return joinedText;
+    }
+
+    /**
+     * <p>
+     * Get a value from a {@link Map} by trying multiple keys.
+     * </p>
+     * 
+     * @param map The map, not <code>null</code>.
+     * @param keys The keys.
+     * @return The value if any of the keys matches, or <code>null</code>.
+     */
+    public static <K, V> V getTrying(Map<K, V> map, K... keys) {
+        Validate.notNull(map, "map must not be null");
+        Validate.notNull(keys, "keys must not be null");
+        for (K key : keys) {
+            V value = map.get(key);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 
 }

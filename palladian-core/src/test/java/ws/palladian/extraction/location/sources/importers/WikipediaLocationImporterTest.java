@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import org.junit.Test;
 
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.CollectionLocationStore;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.io.ResourceHelper;
@@ -36,6 +37,23 @@ public class WikipediaLocationImporterTest {
 
         location = locationStore.getLocation(27394805);
         assertEquals("Heir Island", location.getPrimaryName());
+        assertEquals(51.5, location.getLatitude(), 0.0001);
+        assertEquals(-9.433333, location.getLongitude(), 0.0001);
+        assertEquals(LocationType.LANDMARK, location.getType());
+
+        location = locationStore.getLocation(146280);
+        assertEquals("Charles River", location.getPrimaryName());
+        // assertEquals(42.370556, location.getLatitude(), 0.0001);
+        // assertEquals(-71.053611, location.getLongitude(), 0.0001);
+        assertEquals(42.192778, location.getLatitude(), 0.0001);
+        assertEquals(-71.511944, location.getLongitude(), 0.0001);
+        assertEquals(LocationType.LANDMARK, location.getType());
+
+        location = locationStore.getLocation(828347);
+        assertEquals("Muskingum University", location.getPrimaryName());
+        assertEquals(39.995278, location.getLatitude(), 0.0001);
+        assertEquals(-81.734444, location.getLongitude(), 0.0001);
+        assertEquals(LocationType.POI, location.getType());
 
     }
 
