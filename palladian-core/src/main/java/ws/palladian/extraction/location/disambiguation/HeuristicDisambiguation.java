@@ -65,6 +65,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     /** Distance threshold when lasso heuristic stops. */
     private final int lassoDistanceThreshold;
 
+//    private final CachingSearcher<ClueWebResult> searcher = new CachingSearcher<ClueWebSearcher.ClueWebResult>(10000,
+//            new ClueWebSearcher(new File("/Volumes/SAMSUNG/ClueWeb09")));
+
     public HeuristicDisambiguation() {
         this(ANCHOR_DISTANCE_THRESHOLD, LOWER_POPULATION_THRESHOLD, ANCHOR_POPULATION_THRESHOLD,
                 SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD);
@@ -91,8 +94,51 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         this.lassoDistanceThreshold = lassoDistanceThreshold;
     }
 
+    private boolean containsType(Collection<Location> locations, LocationType... types) {
+        for (LocationType type : types) {
+            for (Location location : locations) {
+                if (location.getType() == type) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static final long getMaxPopulation(Collection<Location> collection) {
+        long maxPopulation = 0;
+        for (Location location : collection) {
+            Long population = location.getPopulation();
+            if (population != null) {
+                maxPopulation = Math.max(maxPopulation, population);
+            }
+        }
+        return maxPopulation;
+    }
+
+
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
+
+//        Set<Annotated> toRemove = CollectionHelper.newHashSet();
+//
+//        for (Annotated annotation : locations.keySet()) {
+//            try {
+//                long population = getMaxPopulation(locations.get(annotation));
+//                long count = searcher.getTotalResultCount(String.format("\"%s\"", annotation.getValue()));
+//                double score = (double)(population + 1000) / (count + 1);
+//                System.out.println("ClueWeb counts: " + annotation + ", score=" + score);
+//                if (score < 100 && !containsType(locations.get(annotation), COUNTRY, CONTINENT)) {
+//                    // System.out.println("Removing by ClueWeb counts: " + annotation + ", score=" + score);
+//                    toRemove.add(annotation);
+//                }
+//            } catch (SearcherException e) {
+//                throw new IllegalStateException(e);
+//            }
+//        }
+//        LOGGER.info("Before {}", locations.size());
+//        locations.keySet().removeAll(toRemove);
+//        LOGGER.info("After {}", locations.size());
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
@@ -237,13 +283,26 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return anchorLocations;
     }
 
-    private Collection<Location> getLassoLocations(MultiMap<Annotated, Location> locations) {
-        Set<Location> uniqueLocations = new HashSet<Location>(locations.allValues());
-        while (uniqueLocations.size() > 1) {
+    private double getCoverage(Collection<Location> selected, MultiMap<Annotated, Location> all) {
+        int matches = 0;
+        for (Annotated annotation : all.keySet()) {
+            for (Location location : selected) {
+                if (all.get(annotation).contains(location)) {
+                    matches++;
+                    break;
+                }
+            }
+        }
+        return (double)matches / all.size();
+    }
+
+    private Set<Location> getLassoLocations(MultiMap<Annotated, Location> locations) {
+        Set<Location> lassoLocations = new HashSet<Location>(locations.allValues());
+        while (lassoLocations.size() > 1) {
             double maxDistance = Double.MIN_VALUE;
             Location farthestLocation = null;
-            for (Location location : uniqueLocations) {
-                GeoCoordinate midpoint = GeoUtils.getMidpoint(uniqueLocations);
+            for (Location location : lassoLocations) {
+                GeoCoordinate midpoint = GeoUtils.getMidpoint(lassoLocations);
                 double distance = GeoUtils.getDistance(location, midpoint);
                 if (distance > maxDistance) {
                     maxDistance = distance;
@@ -253,18 +312,32 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             if (maxDistance < lassoDistanceThreshold) {
                 break;
             }
-            uniqueLocations.remove(farthestLocation);
-            if (LOGGER.isTraceEnabled()) {
-                Object[] logArgs = new Object[] {farthestLocation, maxDistance, uniqueLocations.size()};
-                LOGGER.trace("Removed {}, distance to center: {}, {} items left", logArgs);
+            lassoLocations.remove(farthestLocation);
+            if (LOGGER.isDebugEnabled()) {
+                Object[] logArgs = new Object[] {farthestLocation, maxDistance, lassoLocations.size()};
+                LOGGER.debug("Removed {}, distance to center: {}, {} items left", logArgs);
             }
         }
-        if (uniqueLocations.size() < 2 || LocationExtractorUtils.sameNames(uniqueLocations)) {
+        if (lassoLocations.size() < 2 || LocationExtractorUtils.sameNames(lassoLocations)) {
             LOGGER.debug("Could not identify lasso locations");
             return Collections.emptySet();
         }
-        LOGGER.debug("Identified {} locations via lasso trick", uniqueLocations.size());
-        return uniqueLocations;
+        LOGGER.debug("Identified {} locations via lasso trick", lassoLocations.size());
+
+        // add parents of the given locations
+        Set<Location> parents = CollectionHelper.newHashSet();
+        for (Location location : lassoLocations) {
+            for (Location other : locations.allValues()) {
+                if (LocationExtractorUtils.isDescendantOf(location, other)) {
+                    if (parents.add(other)) {
+                        LOGGER.debug("Added {} to lassos because it is parent of {}", other, location);
+                    }
+                }
+            }
+        }
+        LOGGER.debug("Adding {} parents of lasso locations", parents.size());
+        lassoLocations.addAll(parents);
+        return lassoLocations;
     }
 
     @Override

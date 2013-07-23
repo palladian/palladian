@@ -58,6 +58,10 @@ public class AddressTaggerTest {
                 .getAnnotations("Welch and Gillen’s mother, who had accompanied him to the residence, then left in a pickup truck but pulled over near Interstate 435 and 23rd Street and called 911.");
         // assertEquals("Interstate 435", locationAnnotations.get(0).getValue());
         // assertEquals("23rd Street", locationAnnotations.get(1).getValue());
+
+        locationAnnotations = addressTagger
+                .getAnnotations("Actress and model Elizabeth Hurley will be at Bicester Village, in Pingle Drive, on Thursday to open her new beach boutique at the designer outlet shopping centre.");
+        assertEquals("Pingle Drive", locationAnnotations.get(0).getValue());
     }
 
 }

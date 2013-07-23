@@ -23,7 +23,7 @@ import ws.palladian.processing.features.Annotation;
 public final class AddressTagger implements Tagger {
 
     public static final Pattern STREET_PATTERN = Pattern.compile(
-            ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
+                    ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat|.*drive",
             Pattern.CASE_INSENSITIVE);
 
     @Override

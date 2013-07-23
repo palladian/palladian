@@ -49,7 +49,9 @@ import ws.palladian.retrieval.wikipedia.WikipediaUtil.MarkupLocation;
  */
 public class WikipediaLocationImporter {
 
-    // TODO extract information from infoboxes
+    // TODO extract information from infoboxes like:
+    // http://en.wikipedia.org/wiki/Muskingum_University
+    // http://en.wikipedia.org/wiki/University_of_Pennsylvania
     // TODO extract information from geoboxes like here: http://en.wikipedia.org/wiki/Charles_River
 
     /** The logger for this class. */

@@ -1,100 +1,204 @@
 package ws.palladian.extraction.location;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
-import ws.palladian.extraction.entity.StringTagger;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
 
 public class ContextClassifier {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContextClassifier.class);
+
+    public static enum Mode {
+        BOW, NGRAM
+    }
 
     private final CountMatrix<String> leftContexts = CountMatrix.create();
     private final CountMatrix<String> rightContexts = CountMatrix.create();
 
     public ContextClassifier() {
-        load(leftContexts, "/Users/pk/Desktop/WikipediaContextsPruned/leftContexts_1.csv");
-        load(leftContexts, "/Users/pk/Desktop/WikipediaContextsPruned/leftContexts_2.csv");
-        load(leftContexts, "/Users/pk/Desktop/WikipediaContextsPruned/leftContexts_3.csv");
-        load(leftContexts, "/Users/pk/Desktop/WikipediaContextsPruned/leftContexts_4.csv");
-        load(rightContexts, "/Users/pk/Desktop/WikipediaContextsPruned/rightContexts_1.csv");
-        load(rightContexts, "/Users/pk/Desktop/WikipediaContextsPruned/rightContexts_2.csv");
-        load(rightContexts, "/Users/pk/Desktop/WikipediaContextsPruned/rightContexts_3.csv");
-        load(rightContexts, "/Users/pk/Desktop/WikipediaContextsPruned/rightContexts_4.csv");
+        File patternDirectory = new File("/Users/pk/Desktop/contextPatterns");
+        load(leftContexts, new File(patternDirectory, "location_left_prox_4.csv"), "LOCATION");
+        load(rightContexts, new File(patternDirectory, "location_right_prox_4.csv"), "LOCATION");
+        load(leftContexts, new File(patternDirectory, "person_left_prox_4.csv"), "PERSON");
+        load(rightContexts, new File(patternDirectory, "person_right_prox_4.csv"), "PERSON");
+        // load(leftContexts, new File(patternDirectory, "location_left_1.csv"), "LOCATION");
+        // load(rightContexts, new File(patternDirectory, "location_right_1.csv"), "LOCATION");
+        // load(leftContexts, new File(patternDirectory, "person_left_1.csv"), "PERSON");
+        // load(rightContexts, new File(patternDirectory, "person_right_1.csv"), "PERSON");
     }
 
-    private static void load(final CountMatrix<String> countMap, String filePath) {
-        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+    private static void load(final CountMatrix<String> countMatrix, File file, final String type) {
+        FileHelper.performActionOnEveryLine(file, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String[] split = line.split("###");
-                String value = split[0];
-                countMap.set(value, "LOC", Integer.valueOf(split[1]));
-                countMap.set(value, "MISC", Integer.valueOf(split[2]));
-                countMap.set(value, "ORG", Integer.valueOf(split[3]));
-                countMap.set(value, "PER", Integer.valueOf(split[4]));
+                countMatrix.add(type, line);
             }
         });
     }
 
     public CategoryEntries classify(String text, Annotated annotation) {
         CategoryEntriesMap result = new CategoryEntriesMap();
-        for (int i = 1; i <= 4; i++) {
-            String left = getLeftContext(annotation, text, i).toLowerCase().trim();
-            if (!left.contains(".")) {
-                List<Pair<String, Integer>> probabilities = leftContexts.getColumn(left);
-                for (Pair<String, Integer> probability : probabilities) {
-                    result.add(probability.getKey(), probability.getValue());
-                }
+        String left = getLeftContext(annotation, text, 1).toLowerCase().trim();
+        if (left != null) {
+            if (leftContexts.getCount("PERSON", left) > 0) {
+                LOGGER.info(annotation + " is a person!" + "(" + left + ")");
+                result.add("PERSON", 1.);
             }
-            String right = getRightContext(annotation, text, i).toLowerCase().trim();
-            if (!right.contains(".")) {
-                List<Pair<String, Integer>> probabilities = rightContexts.getColumn(right);
-                for (Pair<String, Integer> probability : probabilities) {
-                    result.add(probability.getKey(), probability.getValue());
-                }
+            if (leftContexts.getCount("LOCATION", left) > 0) {
+                LOGGER.info(annotation + " is a location!" + "(" + left + ")");
+                result.add("LOCATION", 1.);
             }
         }
-        result.sort();
+        String right = getRightContext(annotation, text, 1).toLowerCase().trim();
+        if (right != null) {
+            if (rightContexts.getCount("PERSON", right) > 0) {
+                LOGGER.info(annotation + " is a person!" + "(" + right + ")");
+                result.add("PERSON", 1.);
+            }
+            if (rightContexts.getCount("LOCATION", right) > 0) {
+                LOGGER.info(annotation + " is a location!" + "(" + right + ")");
+                result.add("LOCATION", 1.);
+            }
+        }
         result.computeProbabilities();
+        result.sort();
         return result;
     }
 
-    private static String getLeftContext(Annotated annotation, String text, int numWords) {
-        String temp = text.substring(0, annotation.getStartPosition());
-        Pattern leftPattern = Pattern.compile(String.format("(\\w+[^\\w]{1,5}){0,%s}$", numWords));
-        return StringHelper.getRegexpMatch(leftPattern, temp);
+    public CategoryEntries classifyBow(String text, Annotated annotation) {
+        CategoryEntriesMap result = new CategoryEntriesMap();
+        List<String> left = getLeftContexts(annotation, text, 4);
+        for (String leftToken : left) {
+            if (leftContexts.getCount("PERSON", leftToken.toLowerCase().trim()) > 0) {
+                LOGGER.debug(annotation + " is a person!" + "(" + left + ")");
+                result.add("PERSON", 1.);
+            }
+            if (leftContexts.getCount("LOCATION", leftToken.toLowerCase().trim()) > 0) {
+                LOGGER.debug(annotation + " is a location!" + "(" + left + ")");
+                result.add("LOCATION", 1.);
+            }
+        }
+        List<String> right = getRightContexts(annotation, text, 4);
+        for (String rightToken : right) {
+
+            if (rightContexts.getCount("PERSON", rightToken.toLowerCase().trim()) > 0) {
+                LOGGER.debug(annotation + " is a person!" + "(" + right + ")");
+                result.add("PERSON", 1.);
+            }
+            if (rightContexts.getCount("LOCATION", rightToken.toLowerCase().trim()) > 0) {
+                LOGGER.debug(annotation + " is a location!" + "(" + right + ")");
+                result.add("LOCATION", 1.);
+            }
+        }
+        result.computeProbabilities();
+        result.sort();
+        return result;
     }
 
-    private static String getRightContext(Annotated annotation, String text, int numWords) {
-        String temp = text.substring(annotation.getEndPosition());
-        Pattern rightPattern = Pattern.compile(String.format("^([^\\w]{1,5}\\w+){0,%s}", numWords));
-        return StringHelper.getRegexpMatch(rightPattern, temp);
+    public List<Annotated> filter(List<Annotated> annotations, String text) {
+        List<Annotated> result = CollectionHelper.newArrayList();
+        for (Annotated annotation : annotations) {
+            CategoryEntries classification = classify(text, annotation);
+            LOGGER.info("Classification for {}: {}", annotation.getValue(), classification);
+            boolean remove = classification.getProbability("PERSON") > 0.5;
+            if (!remove) {
+                result.add(annotation);
+            } else {
+                // LOGGER.info("Remove {}", annotation);
+            }
+        }
+        LOGGER.info("Context classification reduced from {} to {}", annotations.size(), result.size());
+        return result;
+    }
+
+    public static String getLeftContext(Annotated annotation, String text, int numWords) {
+        try {
+            StringBuilder builder = new StringBuilder();
+            int wordCounter = 0;
+            int start = annotation.getStartPosition() - 1;
+            for (int i = start; i >= 0; i--) {
+                char current = text.charAt(i);
+                if (current == ' ' && i < start) {
+                    wordCounter++;
+                }
+                if (wordCounter >= numWords || current == '\n' || current == '.') {
+                    break;
+                }
+                builder.append(current);
+            }
+            return StringHelper.reverseString(builder.toString()).trim();
+        } catch (Exception e) {
+            // this exception is only caused by nested annotations as far as i can see
+            // System.out.println("Exception for:");
+            // System.out.println("Text:\n");
+            // System.out.println(text);
+            // System.out.println(annotation);
+            // throw new IllegalStateException(e);
+        }
+        return null;
+    }
+
+    public static String getRightContext(Annotated annotation, String text, int numWords) {
+        try {
+            StringBuilder builder = new StringBuilder();
+            int wordCounter = 0;
+            int start = annotation.getEndPosition();
+            for (int i = start; i < text.length(); i++) {
+                char current = text.charAt(i);
+                if (current == ' ' && i > start) {
+                    wordCounter++;
+                }
+                if (wordCounter >= numWords || current == '\n' || current == '.') {
+                    break;
+                }
+                builder.append(current);
+            }
+            return builder.toString().trim();
+        } catch (Exception e) {
+            // see above.
+        }
+        return null;
+    }
+
+    public static List<String> getLeftContexts(Annotated annotated, String text, int numWords) {
+        return Arrays.asList(getLeftContext(annotated, text, numWords).split("\\s"));
+    }
+
+    public static List<String> getRightContexts(Annotated annotated, String text, int numWords) {
+        return Arrays.asList(getRightContext(annotated, text, numWords).split("\\s"));
     }
 
     public static void main(String[] args) {
-        String text = FileHelper.readFileToString("src/test/resources/testTextAddresses.txt");
+        String text = FileHelper
+                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation/text_41515177.txt");
         // String text = FileHelper.readFileToString("src/test/resources/Dresden.wikipedia");
         // text = WikipediaUtil.stripMediaWikiMarkup(text);
         // String text = "ruler of Saxony Frederick Augustus I became King";
         text = HtmlHelper.stripHtmlTags(text);
 
-        StringTagger tagger = new StringTagger();
-        List<Annotated> annotations = tagger.getAnnotations(text);
+        // Tagger tagger = new StringTagger();
+        Tagger tagger = new EntityPreprocessingTagger();
+        List<? extends Annotated> annotations = tagger.getAnnotations(text);
         ContextClassifier classifier = new ContextClassifier();
         for (Annotated annotation : annotations) {
-            CategoryEntries result = classifier.classify(text, annotation);
-            if (result != null) {
-                System.out.println(annotation.getValue() + " : " + result.getProbability("LOC"));
-            }
+            CategoryEntries result = classifier.classifyBow(text, annotation);
+            // CategoryEntries result = classifier.classify(text, annotation);
+            System.out.println(annotation.getValue() + " : " + result);
         }
     }
 
