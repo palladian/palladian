@@ -48,6 +48,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final AddressTagger addressTagger = new AddressTagger();
 
+    private final ContextClassifier contextClassifier = new ContextClassifier();
+
     private final static boolean greedyRetrieval = false;
 
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
@@ -64,6 +66,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public List<LocationAnnotation> getAnnotations(String text) {
         List<Annotated> taggedEntities = tagger.getAnnotations(text);
         taggedEntities = filter.filter(taggedEntities);
+        taggedEntities = contextClassifier.filter(taggedEntities, text);
 
         CollectionHelper.remove(taggedEntities, new Filter<Annotated>() {
             @Override
@@ -163,14 +166,14 @@ public class PalladianLocationExtractor extends LocationExtractor {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
         String rawText = FileHelper
-                .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text90.txt");
-        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38822240.txt");
-        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38765806.txt");
-        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38812825.txt");
-        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38543488.txt");
-        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38543534.txt");
-        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38543581.txt");
-        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_40996796.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text90.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38822240.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38765806.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38812825.txt");
+                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_42258350.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38543534.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38543581.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_40996796.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_43664193.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41205662.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38543581.txt");

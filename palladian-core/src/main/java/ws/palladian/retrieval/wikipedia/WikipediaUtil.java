@@ -543,7 +543,7 @@ public final class WikipediaUtil {
         // System.out.println(text);
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
-        WikipediaPage page = retrieveArticle("Nokia_Lumia_920", Language.GERMAN);
+        WikipediaPage page = retrieveArticle("Wild Dunes", Language.ENGLISH);
         Map<String, String> infoboxData = extractTemplate(page.getInfoboxMarkup());
         CollectionHelper.print(infoboxData);
         System.out.println(page);

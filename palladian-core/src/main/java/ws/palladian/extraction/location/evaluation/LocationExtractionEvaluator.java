@@ -21,7 +21,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -33,7 +32,8 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
+import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
+import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
@@ -386,8 +386,8 @@ public final class LocationExtractionEvaluator {
     }
 
     public static void main(String[] args) {
-        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation";
-        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test";
+        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation";
+        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test";
         // String DATASET_LOCATION = "/Users/pk/Desktop/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation";
         // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
         // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
@@ -401,12 +401,12 @@ public final class LocationExtractionEvaluator {
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
 
         // ///////////////////// anchor heuristic //////////////////////
-        // LocationDisambiguation disambiguation = new HeuristicDisambiguation();
+        LocationDisambiguation disambiguation = new HeuristicDisambiguation();
 
         // ///////////////////// feature based //////////////////////
-        String modelFilePath = "data/temp/location_disambiguation_1373878078855.model";
-        BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
-        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
+        // String modelFilePath = "data/temp/location_disambiguation_1373878078855.model";
+        // BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
+        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
 
         evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
