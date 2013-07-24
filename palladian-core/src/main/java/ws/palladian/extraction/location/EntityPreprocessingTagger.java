@@ -181,6 +181,28 @@ public class EntityPreprocessingTagger implements Tagger {
         return ratio == null ? 0 : ratio;
     }
 
+    // XXX experimental
+    public String correctCapitalization(String sentence) {
+        String[] split = sentence.split("\\s");
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < split.length; i++) {
+            String part = split[i];
+            if (i > 0) {
+                result.append(" ");
+            }
+            String temp = part;
+            // last part of sentence
+            if (i == split.length - 1 && part.endsWith(".")) {
+                temp = part.substring(0, part.length() - 1);
+            }
+            if (i > 0 && getLowercaseRatio(temp) > LOWERCASE_THRESHOLD) {
+                part = part.toLowerCase();
+            }
+            result.append(part);
+        }
+        return result.toString();
+    }
+
     public static void main(String[] args) {
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
         List<Annotated> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper

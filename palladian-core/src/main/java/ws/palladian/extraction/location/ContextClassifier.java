@@ -22,6 +22,14 @@ import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
 
+/**
+ * <p>
+ * The {@link ContextClassifier} is used for classifying {@link Annotated} items by its text context. The contexts are
+ * to be defined manually as rule set and are then evaluated. The result is a {@link ClassifiedAnnotation}.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class ContextClassifier {
 
     /** The logger for this class. */
