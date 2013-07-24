@@ -33,14 +33,18 @@ public final class StringTagger extends RegExTagger {
 
         // names
         regexp += "|";
+        // A. Anderson
         regexp += "([A-Z]\\.)( )?[A-Z]{1}[['’]A-Za-z\\p{Ll}]{1,100}";
         regexp += "|";
-        regexp += "[A-Z][a-z\\p{Ll}]+ [A-Z]{1}\\. [A-Za-z\\p{Ll}]{1,100}";
+        // Alexander A. Anderson, Mayor Bobby E. Horton
+        regexp += "([A-Z][a-z\\p{Ll}]+ ){1,2}[A-Z]{1}\\. [A-Za-z\\p{Ll}]{1,100}";
         regexp += "|";
+        // Dr. Anderson Emeraldy
         regexp += "([A-Z][a-z\\p{Ll}]{0,2}\\.) [A-Z]{1}[A-Za-z\\p{Ll}]{1,100}( [A-Z]{1}[A-Za-z\\p{Ll}]{1,100})?";
         regexp += "|";
         // regexp +=
         // "([A-Z]\\.)+ (([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})";
+        // A.B.C. Anderson00 Anderson12 Emeraldy
         regexp += "([A-Z]\\.)+( ([A-Z]{1}([A-Za-z-\\p{Ll}0-9&]+))+(([ ])*[A-Z]+([A-Za-z-\\p{Ll}0-9]*)){0,10})*";
         // regexp += "|";
         // regexp +=
