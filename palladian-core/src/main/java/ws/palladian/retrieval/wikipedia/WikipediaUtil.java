@@ -456,7 +456,7 @@ public final class WikipediaUtil {
                         double lngDec = WikipediaUtil.parseDecDeg(lng);
                         coordinates.add(new ImmutableGeoCoordinate(latDec, lngDec));
                     } catch (Exception e2) {
-                        LOGGER.warn("Error while parsing: {}", e.getMessage());
+                        LOGGER.warn("Error while parsing: {} and/or {}: {}", lat, lng, e.getMessage());
                     }
                 }
             }

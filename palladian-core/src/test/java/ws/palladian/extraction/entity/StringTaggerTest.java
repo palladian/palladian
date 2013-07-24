@@ -183,6 +183,10 @@ public class StringTaggerTest {
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
 
+        text = "ST. PARIS, Ohio";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+
     }
 
 }

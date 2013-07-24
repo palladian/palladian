@@ -2,6 +2,7 @@ package ws.palladian.extraction.location;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.StringTagger;
+import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -48,7 +51,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final AddressTagger addressTagger = new AddressTagger();
 
-    private final ContextClassifier contextClassifier = new ContextClassifier();
+    private final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
 
     private final static boolean greedyRetrieval = false;
 
@@ -66,9 +69,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public List<LocationAnnotation> getAnnotations(String text) {
         List<Annotated> taggedEntities = tagger.getAnnotations(text);
         taggedEntities = filter.filter(taggedEntities);
-        taggedEntities = contextClassifier.filter(taggedEntities, text);
+        List<ClassifiedAnnotation> classifiedEntities = contextClassifier.classify(taggedEntities, text);
 
-        CollectionHelper.remove(taggedEntities, new Filter<Annotated>() {
+        CollectionHelper.remove(classifiedEntities, new Filter<Annotated>() {
             @Override
             public boolean accept(Annotated item) {
                 String value = item.getValue();
@@ -76,7 +79,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
         });
 
-        MultiMap<Annotated, Location> locations = fetchLocations(locationSource, taggedEntities);
+        MultiMap<Annotated, Location> locations = fetchLocations(locationSource, classifiedEntities);
 
         Annotations<LocationAnnotation> result = new Annotations<LocationAnnotation>();
 
@@ -93,7 +96,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return result;
     }
 
-    public static MultiMap<Annotated, Location> fetchLocations(LocationSource source, List<Annotated> annotations) {
+    public static MultiMap<Annotated, Location> fetchLocations(LocationSource source,
+            List<? extends Annotated> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
@@ -108,6 +112,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
                 result.addAll(annotation, locations);
             } else if (greedyRetrieval) {
                 greedyRetrieve(source, annotation, result);
+            } else {
+                result.addAll(annotation, Collections.<Location> emptySet());
             }
         }
         return result;
@@ -166,11 +172,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
         String rawText = FileHelper
-        // .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text90.txt");
+                .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text74.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38822240.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38765806.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38812825.txt");
-                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41377321.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41521706.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38543534.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38543581.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_40996796.txt");

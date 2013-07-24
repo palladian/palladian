@@ -64,6 +64,7 @@ public final class LocationExtractorUtils {
      *         or none of the locations has a population specified.
      */
     public static Location getBiggest(Collection<Location> locations) {
+        Validate.notNull(locations, "locations must not be null");
         Location biggest = null;
         for (Location location : locations) {
             Long population = location.getPopulation();
@@ -75,6 +76,24 @@ public final class LocationExtractorUtils {
             }
         }
         return biggest;
+    }
+
+    /**
+     * <p>
+     * Get the highest population from the given {@link Collection} of {@link Location}s.
+     * </p>
+     * 
+     * @param locations The locations, not <code>null</code>.
+     * @return The count of the highest population, or zero, in case the collection was empty or non of the locations
+     *         had a population value.
+     */
+    public static long getHighestPopulation(Collection<Location> locations) {
+        Validate.notNull(locations, "locations must not be null");
+        Location biggestLocation = getBiggest(locations);
+        if (biggestLocation == null || biggestLocation.getPopulation() == null) {
+            return 0;
+        }
+        return biggestLocation.getPopulation();
     }
 
     /**

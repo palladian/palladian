@@ -16,6 +16,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
@@ -50,6 +51,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
     public static final int LASSO_DISTANCE_THRESHOLD = 100;
 
+    public static final int LOWER_UNLIKELY_POPULATION_THRESHOLD = 100000;
+
     /** Maximum distance for anchoring. */
     private final int anchorDistanceThreshold;
 
@@ -65,12 +68,12 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     /** Distance threshold when lasso heuristic stops. */
     private final int lassoDistanceThreshold;
 
-//    private final CachingSearcher<ClueWebResult> searcher = new CachingSearcher<ClueWebSearcher.ClueWebResult>(10000,
-//            new ClueWebSearcher(new File("/Volumes/SAMSUNG/ClueWeb09")));
+    /** Threshold for population under which locations which are unlikely to be a location will be removed. */
+    private final int lowerUnlikelyPopulationThreshold;
 
     public HeuristicDisambiguation() {
         this(ANCHOR_DISTANCE_THRESHOLD, LOWER_POPULATION_THRESHOLD, ANCHOR_POPULATION_THRESHOLD,
-                SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD);
+                SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD, LOWER_UNLIKELY_POPULATION_THRESHOLD);
     }
 
     /**
@@ -84,61 +87,25 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
      * @param sameDistanceThreshold The maximum distance between two locations with the same names to assume, that they
      *            are actually the same.
      * @param lassoDistanceThreshold The distance threshold, when the lasso heuristic stops.
+     * @param lowerUnlikelyPopulationThreshold The threshold below which locations will be removed, which have been
+     *            classified as "unlikely" anyways (like person names, ...)
      */
     public HeuristicDisambiguation(int anchorDistanceThreshold, int lowerPopulationThreshold,
-            int anchorPopulationThreshold, int sameDistanceThreshold, int lassoDistanceThreshold) {
+            int anchorPopulationThreshold, int sameDistanceThreshold, int lassoDistanceThreshold,
+            int lowerUnlikelyPopulationThreshold) {
         this.anchorDistanceThreshold = anchorDistanceThreshold;
         this.lowerPopulationThreshold = lowerPopulationThreshold;
         this.anchorPopulationThreshold = anchorPopulationThreshold;
         this.sameDistanceThreshold = sameDistanceThreshold;
         this.lassoDistanceThreshold = lassoDistanceThreshold;
+        this.lowerUnlikelyPopulationThreshold = lowerUnlikelyPopulationThreshold;
     }
-
-    private boolean containsType(Collection<Location> locations, LocationType... types) {
-        for (LocationType type : types) {
-            for (Location location : locations) {
-                if (location.getType() == type) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static final long getMaxPopulation(Collection<Location> collection) {
-        long maxPopulation = 0;
-        for (Location location : collection) {
-            Long population = location.getPopulation();
-            if (population != null) {
-                maxPopulation = Math.max(maxPopulation, population);
-            }
-        }
-        return maxPopulation;
-    }
-
 
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
 
-//        Set<Annotated> toRemove = CollectionHelper.newHashSet();
-//
-//        for (Annotated annotation : locations.keySet()) {
-//            try {
-//                long population = getMaxPopulation(locations.get(annotation));
-//                long count = searcher.getTotalResultCount(String.format("\"%s\"", annotation.getValue()));
-//                double score = (double)(population + 1000) / (count + 1);
-//                System.out.println("ClueWeb counts: " + annotation + ", score=" + score);
-//                if (score < 100 && !containsType(locations.get(annotation), COUNTRY, CONTINENT)) {
-//                    // System.out.println("Removing by ClueWeb counts: " + annotation + ", score=" + score);
-//                    toRemove.add(annotation);
-//                }
-//            } catch (SearcherException e) {
-//                throw new IllegalStateException(e);
-//            }
-//        }
-//        LOGGER.info("Before {}", locations.size());
-//        locations.keySet().removeAll(toRemove);
-//        LOGGER.info("After {}", locations.size());
+        Set<Annotated> unlikelyLocations = getUnlikelyLocations(locations);
+        locations.keySet().removeAll(unlikelyLocations);
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
@@ -186,6 +153,27 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             }
         }
         return result;
+    }
+
+    private Set<Annotated> getUnlikelyLocations(MultiMap<Annotated, Location> locations) {
+        Set<Annotated> unlikelyLocations = CollectionHelper.newHashSet();
+        for (Annotated annotation : locations.keySet()) {
+            Collection<Location> group = locations.get(annotation);
+            if (LocationExtractorUtils.containsType(group, COUNTRY, CONTINENT)) {
+                continue;
+            }
+            if (LocationExtractorUtils.getHighestPopulation(group) > lowerUnlikelyPopulationThreshold) {
+                continue;
+            }
+            ClassifiedAnnotation classifiedAnnotation = (ClassifiedAnnotation)annotation;
+            double personProbability = classifiedAnnotation.getCategoryEntries().getProbability("PER");
+            if (personProbability == 1) {
+                LOGGER.debug("{} does not seem to be a location and will be dropped", annotation);
+                unlikelyLocations.add(annotation);
+            }
+        }
+        LOGGER.debug("Spotted {} unlikely locations", unlikelyLocations.size());
+        return unlikelyLocations;
     }
 
     private static Location selectLocation(Collection<Location> selection) {
@@ -244,6 +232,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         // together (because we might have multiple entries in the database with the same name which lie on a cluster)
         for (Annotated annotation : locations.keySet()) {
             Collection<Location> group = locations.get(annotation);
+            if (group.isEmpty()) {
+                continue;
+            }
             String name = annotation.getValue();
 
             // in case we have locations with same name, but once with and without coordinates in the DB, we drop those
@@ -281,19 +272,6 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             LOGGER.warn("No anchor found.");
         }
         return anchorLocations;
-    }
-
-    private double getCoverage(Collection<Location> selected, MultiMap<Annotated, Location> all) {
-        int matches = 0;
-        for (Annotated annotation : all.keySet()) {
-            for (Location location : selected) {
-                if (all.get(annotation).contains(location)) {
-                    matches++;
-                    break;
-                }
-            }
-        }
-        return (double)matches / all.size();
     }
 
     private Set<Location> getLassoLocations(MultiMap<Annotated, Location> locations) {
@@ -353,6 +331,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         builder.append(sameDistanceThreshold);
         builder.append(", lassoDistanceThreshold=");
         builder.append(lassoDistanceThreshold);
+        builder.append(", lowerUnlikelyPopulationThreshold=");
+        builder.append(lowerUnlikelyPopulationThreshold);
         builder.append("]");
         return builder.toString();
     }
