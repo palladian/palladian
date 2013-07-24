@@ -55,6 +55,17 @@ public class WikipediaLocationImporterTest {
         assertEquals(-81.734444, location.getLongitude(), 0.0001);
         assertEquals(LocationType.POI, location.getType());
 
+        location = locationStore.getLocation(112141);
+        assertEquals("Whitestown", location.getPrimaryName());
+        assertEquals(39.996111, location.getLatitude(), 0.0001);
+        assertEquals(-86.344722, location.getLongitude(), 0.0001);
+        assertEquals(LocationType.CITY, location.getType());
+
+        location = locationStore.getLocation(27198);
+        assertEquals("Saint Kitts and Nevis", location.getPrimaryName());
+        assertEquals(17.3, location.getLatitude(), 0.0001);
+        assertEquals(-62.733333, location.getLongitude(), 0.0001);
+        assertEquals(LocationType.COUNTRY, location.getType());
     }
 
 }

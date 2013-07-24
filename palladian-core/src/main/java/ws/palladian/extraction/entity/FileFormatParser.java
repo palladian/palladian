@@ -589,9 +589,9 @@ public final class FileFormatParser {
         // get locations of annotations
         Pattern pattern = Pattern.compile("\\<([A-Z]+)\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL
                 | Pattern.CASE_INSENSITIVE);
-        // FIXME below is too slow, above is more strict
-//        Pattern pattern = Pattern.compile("\\<(.*?)(?:\\s.*?)?\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL
-//                | Pattern.CASE_INSENSITIVE);
+        // below is the original version, which was less strict, but slow as hell:
+        // Pattern pattern = Pattern.compile("\\<(.*?)(?:\\s.*?)?\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL
+        // | Pattern.CASE_INSENSITIVE);
         // Pattern pattern = Pattern.compile("\\<(.*?)(\\s.*?)\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL
         // | Pattern.CASE_INSENSITIVE);
         // Pattern pattern = Pattern.compile("(?<=[.?!]\\s?)([A-Z][A-Za-z]*)", Pattern.DOTALL |

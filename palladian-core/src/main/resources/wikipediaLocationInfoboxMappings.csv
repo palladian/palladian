@@ -102,6 +102,7 @@ uk feature	UNDETERMINED
 cemetery	POI
 amusement park	POI
 u.s. state	UNIT
+country	COUNTRY
 
 ### geobox types
 monument	POI

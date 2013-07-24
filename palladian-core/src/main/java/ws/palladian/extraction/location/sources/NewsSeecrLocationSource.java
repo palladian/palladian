@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +39,7 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NewsSeecrLocationSource implements LocationSource {
+public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsSeecrLocationSource.class);
@@ -75,16 +74,6 @@ public final class NewsSeecrLocationSource implements LocationSource {
     public NewsSeecrLocationSource(String mashapeKey) {
         Validate.notEmpty(mashapeKey, "mashapeKey must not be empty");
         this.mashapeKey = mashapeKey;
-    }
-
-    @Override
-    public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        return getLocations(Collections.singletonList(locationName), languages).get(locationName);
-    }
-
-    @Override
-    public Location getLocation(int locationId) {
-        return CollectionHelper.getFirst(getLocations(Collections.singletonList(locationId)));
     }
 
     private String retrieveResult(HttpRequest request) {
