@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.disambiguation;
 
 import java.util.List;
 
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.helper.collection.MultiMap;
@@ -28,6 +29,6 @@ public interface LocationDisambiguation {
      * @param locations The identified location candidates with the retrieved locations from the database.
      * @return A list of {@link LocationAnnotation}s, or empty list, but not <code>null</code>.
      */
-    List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations);
+    List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations);
 
 }

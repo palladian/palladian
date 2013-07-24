@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.disambiguation;
 import java.util.Collection;
 import java.util.List;
 
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
@@ -20,7 +21,7 @@ import ws.palladian.processing.features.Annotated;
 public class BaselineDisambiguation implements LocationDisambiguation {
 
     @Override
-    public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
         for (Annotated annotation : locations.keySet()) {

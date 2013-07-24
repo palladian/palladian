@@ -102,7 +102,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     }
 
     @Override
-    public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
         Set<Annotated> unlikelyLocations = getUnlikelyLocations(locations);
         locations.keySet().removeAll(unlikelyLocations);
@@ -155,18 +155,16 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return result;
     }
 
-    private Set<Annotated> getUnlikelyLocations(MultiMap<Annotated, Location> locations) {
+    private Set<Annotated> getUnlikelyLocations(MultiMap<ClassifiedAnnotation, Location> locations) {
         Set<Annotated> unlikelyLocations = CollectionHelper.newHashSet();
-        for (Annotated annotation : locations.keySet()) {
+        for (ClassifiedAnnotation annotation : locations.keySet()) {
             Collection<Location> group = locations.get(annotation);
-            if (LocationExtractorUtils.containsType(group, COUNTRY, CONTINENT)) {
+            boolean likelyLocation = LocationExtractorUtils.containsType(group, COUNTRY, CONTINENT);
+            boolean bigLocation = LocationExtractorUtils.getHighestPopulation(group) > lowerUnlikelyPopulationThreshold;
+            if (likelyLocation || bigLocation) {
                 continue;
             }
-            if (LocationExtractorUtils.getHighestPopulation(group) > lowerUnlikelyPopulationThreshold) {
-                continue;
-            }
-            ClassifiedAnnotation classifiedAnnotation = (ClassifiedAnnotation)annotation;
-            double personProbability = classifiedAnnotation.getCategoryEntries().getProbability("PER");
+            double personProbability = annotation.getCategoryEntries().getProbability("PER");
             if (personProbability == 1) {
                 LOGGER.debug("{} does not seem to be a location and will be dropped", annotation);
                 unlikelyLocations.add(annotation);
@@ -215,7 +213,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return CollectionHelper.getFirst(temp);
     }
 
-    private Set<Location> getAnchors(MultiMap<Annotated, Location> locations) {
+    private Set<Location> getAnchors(MultiMap<? extends Annotated, Location> locations) {
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
         // get prominent anchor locations; continents, countries and locations with very high population
@@ -274,7 +272,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return anchorLocations;
     }
 
-    private Set<Location> getLassoLocations(MultiMap<Annotated, Location> locations) {
+    private Set<Location> getLassoLocations(MultiMap<? extends Annotated, Location> locations) {
         Set<Location> lassoLocations = new HashSet<Location>(locations.allValues());
         while (lassoLocations.size() > 1) {
             double maxDistance = Double.MIN_VALUE;
