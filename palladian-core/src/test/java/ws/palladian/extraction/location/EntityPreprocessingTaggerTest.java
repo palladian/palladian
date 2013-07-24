@@ -27,4 +27,20 @@ public class EntityPreprocessingTaggerTest {
         assertEquals("Bill Ruckelshaus", annotations.get(33).getValue());
     }
 
+    @Test
+    public void testCorrectCapitalization() {
+        EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+        String corrected = tagger.correctCapitalization("Senior U.S. Military Official Visits Georgia.");
+        assertEquals("Senior U.S. military official visits Georgia.", corrected);
+
+        assertEquals("BY RACHEL E. SHEELEY staff writer",
+                tagger.correctCapitalization("BY RACHEL E. SHEELEY STAFF WRITER"));
+
+        assertEquals("OSCE envoy condemns Dvani attack that killed one policeman.",
+                tagger.correctCapitalization("OSCE Envoy Condemns Dvani Attack that Killed One Policeman."));
+        assertEquals(
+                "Competitive growth on imposition of special duties on importation of passenger cars.",
+                tagger.correctCapitalization("Competitive Growth On Imposition Of Special Duties On Importation Of Passenger Cars."));
+    }
+
 }

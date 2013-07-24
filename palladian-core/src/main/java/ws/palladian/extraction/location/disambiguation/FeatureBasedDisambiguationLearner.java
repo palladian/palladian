@@ -14,6 +14,9 @@ import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.location.AnnotationFilter;
+import ws.palladian.extraction.location.ContextClassifier;
+import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.EntityPreprocessingTagger;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
@@ -45,6 +48,8 @@ public class FeatureBasedDisambiguationLearner {
 
     private final AnnotationFilter filter = new AnnotationFilter();
 
+    private final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
+
     private final LocationSource locationSource;
 
     public FeatureBasedDisambiguationLearner(LocationSource locationSource) {
@@ -74,7 +79,9 @@ public class FeatureBasedDisambiguationLearner {
 
             List<Annotated> taggedEntities = tagger.getAnnotations(text);
             taggedEntities = filter.filter(taggedEntities);
-            MultiMap<Annotated, Location> locations = PalladianLocationExtractor.fetchLocations(locationSource, taggedEntities);
+            List<ClassifiedAnnotation> classifiedEntities = contextClassifier.classify(taggedEntities, text);
+            MultiMap<ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(
+                    locationSource, classifiedEntities);
 
             Set<LocationInstance> instances = featureExtraction.makeInstances(text, locations);
             Set<Trainable> trainInstances = createTrainData(instances, trainAnnotations);
@@ -115,8 +122,8 @@ public class FeatureBasedDisambiguationLearner {
     public static void main(String[] args) {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
-        // File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
-        File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
+        File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
+        // File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
         learner.learn(dataset);
     }
 

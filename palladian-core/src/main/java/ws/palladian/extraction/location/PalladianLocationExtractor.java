@@ -58,7 +58,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;
         this.disambiguation = disambiguation;
-
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
@@ -75,7 +74,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
             @Override
             public boolean accept(Annotated item) {
                 String value = item.getValue();
-                return value.equals("US") || value.equals("UK") || !value.matches("[A-Z]{2}");
+                // the probability, that we are wrong when tagging one or two-letter abbreviations is very high, so we
+                // discard them here, except for "US" and "UK".
+                return value.equals("US") || value.equals("UK") || !value.matches("[A-Z]{1,2}|[A-Z]\\.");
             }
         });
 
@@ -172,7 +173,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
         String rawText = FileHelper
         // .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text74.txt");
-                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41521706.txt");
+                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_40866507.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38765806.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38812825.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41521706.txt");

@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
@@ -20,7 +20,6 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.collection.MruMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Annotated;
@@ -28,8 +27,6 @@ import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
-import ws.palladian.retrieval.search.ClueWebSearcher;
-import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -101,9 +98,9 @@ class LocationFeatureExtractor {
 //        return unlikelyCandidates;
 //    }
 
-    private final ClueWebSearcher clueWebSearcher = new ClueWebSearcher(new File("/Volumes/SAMSUNG/ClueWeb09"));
+//    private final ClueWebSearcher clueWebSearcher = new ClueWebSearcher(new File("/Volumes/SAMSUNG/ClueWeb09"));
 
-    public Set<LocationInstance> makeInstances(String text, MultiMap<? extends Annotated, Location> locations) {
+    public Set<LocationInstance> makeInstances(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
 //        Set<Annotated> unlikelyCandidates = getUnlikelyCandidates(text, locations);
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
@@ -116,8 +113,8 @@ class LocationFeatureExtractor {
 //        double largestDistance = LocationExtractorUtils.getLargestDistance(allLocations);
 
 
-        for (Annotated annotation : locations.keySet()) {
-            double indexScore = getIndexScore(locations, annotation);
+        for (ClassifiedAnnotation annotation : locations.keySet()) {
+//            double indexScore = getIndexScore(locations, annotation);
 
 //            String value = annotation.getValue();
 //            String normalizedValue = LocationExtractorUtils.normalizeName(value);
@@ -136,6 +133,7 @@ class LocationFeatureExtractor {
 
 //            int firstOccurence = getFirstOccurence(annotation, locations.keySet());
 //            double firstOccurenceRelative = (double)firstOccurence / text.length();
+            boolean unlikelyCandidate = isUnlikelyCandidate(annotation, candidates);
 
             for (Location location : candidates) {
 
@@ -211,7 +209,8 @@ class LocationFeatureExtractor {
                 // fv.add(new NumericFeature("firstOccurence", firstOccurence));
                 // fv.add(new NumericFeature("firstOccurenceRelative", firstOccurenceRelative));
 //                fv.add(new BooleanFeature("primaryName", annotation.getValue().equals(location.getPrimaryName())));
-                fv.add(new NumericFeature("indexScore", indexScore));
+//                fv.add(new NumericFeature("indexScore", indexScore));
+                fv.add(new BooleanFeature("unlikelyCandidate", unlikelyCandidate));
 
                 // TODO type equivalence relations of "neightbours"; e.g. for phrases like "Germany, France and Italy".#
                 // TODO potential place is mentioned by two/more alternative names
@@ -235,28 +234,32 @@ class LocationFeatureExtractor {
         return instances;
     }
 
-    private double getIndexScore(MultiMap<? extends Annotated, Location> locations, Annotated annotation) {
-        double indexScore;
-        try {
-            long population = getMaxPopulation(locations.get(annotation));
-            long count = getIndexCount(annotation.getValue());
-            indexScore = (double)(population + 1000) / (count + 1);
-        } catch (SearcherException e) {
-            throw new IllegalStateException(e);
-        }
-        return indexScore;
+    private static boolean isUnlikelyCandidate(ClassifiedAnnotation annotation, Collection<Location> candidates) {
+        return annotation.getCategoryEntries().getProbability("PER") == 1;
     }
 
-    private final Map<String, Long> indexCountCache = new MruMap<String, Long>(1000);
+//    private double getIndexScore(MultiMap<? extends Annotated, Location> locations, Annotated annotation) {
+//        double indexScore;
+//        try {
+//            long population = getMaxPopulation(locations.get(annotation));
+//            long count = getIndexCount(annotation.getValue());
+//            indexScore = (double)(population + 1000) / (count + 1);
+//        } catch (SearcherException e) {
+//            throw new IllegalStateException(e);
+//        }
+//        return indexScore;
+//    }
 
-    private long getIndexCount(String value) throws SearcherException {
-        Long count = indexCountCache.get(value);
-        if (count == null) {
-            count = clueWebSearcher.getTotalResultCount(String.format("\"%s\"", value));
-            indexCountCache.put(value, count);
-        }
-        return count;
-    }
+//    private final Map<String, Long> indexCountCache = new MruMap<String, Long>(1000);
+//
+//    private long getIndexCount(String value) throws SearcherException {
+//        Long count = indexCountCache.get(value);
+//        if (count == null) {
+//            count = clueWebSearcher.getTotalResultCount(String.format("\"%s\"", value));
+//            indexCountCache.put(value, count);
+//        }
+//        return count;
+//    }
 
 //    private int getFirstOccurence(Annotated annotation, Collection<Annotated> all) {
 //        int firstOccurence = annotation.getStartPosition();
@@ -342,16 +345,16 @@ class LocationFeatureExtractor {
         return result;
     }
 
-    private static final long getMaxPopulation(Collection<Location> collection) {
-        long maxPopulation = 0;
-        for (Location location : collection) {
-            Long population = location.getPopulation();
-            if (population != null) {
-                maxPopulation = Math.max(maxPopulation, population);
-            }
-        }
-        return maxPopulation;
-    }
+//    private static final long getMaxPopulation(Collection<Location> collection) {
+//        long maxPopulation = 0;
+//        for (Location location : collection) {
+//            Long population = location.getPopulation();
+//            if (population != null) {
+//                maxPopulation = Math.max(maxPopulation, population);
+//            }
+//        }
+//        return maxPopulation;
+//    }
 
     private static Set<Location> getUniqueLocations(MultiMap<? extends Annotated, Location> locations) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();

@@ -404,7 +404,7 @@ public final class LocationExtractionEvaluator {
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
 
         // ///////////////////// feature based //////////////////////
-        // String modelFilePath = "data/temp/location_disambiguation_1373878078855.model";
+        // String modelFilePath = "data/temp/location_disambiguation_1374689868458.model";
         // BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
         // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
 
