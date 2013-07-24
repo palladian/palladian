@@ -86,6 +86,10 @@ public class WikipediaPage {
             return CollectionHelper.getTrying(content, keys);
         }
 
+        public int size() {
+            return content.size();
+        }
+
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
@@ -193,11 +197,15 @@ public class WikipediaPage {
      */
     public List<WikipediaInfobox> getInfoboxes() {
         List<WikipediaInfobox> infoboxes = CollectionHelper.newArrayList();
-        List<String> infoboxesMarkup = WikipediaUtil.getNamedMarkup(text, "infobox", "geobox");
-        for (String infoboxMarkup : infoboxesMarkup) {
-            Map<String, String> infoboxData = WikipediaUtil.extractTemplate(infoboxMarkup);
-            String infoboxType = getInfoboxType(infoboxMarkup);
-            infoboxes.add(new WikipediaInfobox(infoboxType, infoboxData));
+        try {
+            List<String> infoboxesMarkup = WikipediaUtil.getNamedMarkup(text, "infobox", "geobox");
+            for (String infoboxMarkup : infoboxesMarkup) {
+                Map<String, String> infoboxData = WikipediaUtil.extractTemplate(infoboxMarkup);
+                String infoboxType = getInfoboxType(infoboxMarkup);
+                infoboxes.add(new WikipediaInfobox(infoboxType, infoboxData));
+            }
+        } catch (StringIndexOutOfBoundsException e) {
+            LOGGER.warn("{} when getting infobox markup; this is usually caused by invalid markup.", e.getMessage());
         }
         return infoboxes;
     }

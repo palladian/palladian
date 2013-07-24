@@ -13,7 +13,6 @@ import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaInfobox;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil.MarkupLocation;
 
 public class WikipediaUtilTest {
@@ -31,44 +30,6 @@ public class WikipediaUtilTest {
     @Test
     public void testGetRedirect() {
         assertEquals("Los Angeles", WikipediaUtil.getRedirect("#REDIRECT [[Los Angeles]]"));
-    }
-
-    @Test
-    public void testInfoboxExtraction() throws FileNotFoundException {
-        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
-        WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
-        Map<String, String> data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
-        // CollectionHelper.print(data);
-        assertEquals(34, data.size());
-        assertEquals("Dresden", data.get("Name"));
-        assertEquals("City", data.get("Art"));
-        assertEquals("Dresden-Altstadt von der Marienbruecke-II.jpg", data.get("image_photo"));
-        assertEquals("300px", data.get("imagesize"));
-        assertEquals("", data.get("image_caption"));
-        // ...
-        assertEquals("1206", data.get("year"));
-
-        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Stack_Overflow.wikipedia"));
-        page = new WikipediaPage(0, 0, "Stack Overflow", markup);
-        data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
-        // CollectionHelper.print(data);
-        assertEquals(17, data.size());
-        assertEquals(
-                "84 ({{as of|2013|02|15|alt=February 2013}})<ref name=\"alexa\">{{cite web|url= http://www.alexa.com/siteinfo/stackoverflow.com |title= Stackoverflow.com Site Info | publisher= [[Alexa Internet]] |accessdate= 2013-02-15 }}</ref><!--Updated monthly by OKBot.-->",
-                data.get("alexa"));
-
-        // test get named markup
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
-        page = new WikipediaPage(0, 0, "Dry Fork (Cheat River)", markup);
-        List<String> geoboxes = WikipediaUtil.getNamedMarkup(page.getText(), "geobox");
-        assertEquals(1, geoboxes.size());
-
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Muskingum_University.wikipedia"));
-        page = new WikipediaPage(0, 0, "Muskingum University", markup);
-        List<WikipediaInfobox> infoboxes = page.getInfoboxes();
-        assertEquals(2, infoboxes.size());
     }
 
     @Test
@@ -295,5 +256,24 @@ public class WikipediaUtilTest {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         List<String> sections = WikipediaUtil.getSections(markup);
         assertEquals(46, sections.size());
+    }
+
+    @Test
+    public void testExtractDecDeg() {
+        // tests taken from http://en.wikipedia.org/wiki/Template:Decdeg/sandbox
+        assertEquals(37.85, WikipediaUtil.parseDecDeg("{{decdeg|deg=37|min=51|sec=00|hem=N}}"), 0.05);
+        assertEquals(-119.5677778, WikipediaUtil.parseDecDeg("{{decdeg|deg=119|min=34|sec=04|hem=W}}"), 0.05);
+        assertEquals(37.85, WikipediaUtil.parseDecDeg("{{decdeg|37|51||N}}"), 0.05);
+        assertEquals(-119.5666667, WikipediaUtil.parseDecDeg("{{decdeg|119|34||W}}"), 0.05);
+        assertEquals(37.85, WikipediaUtil.parseDecDeg("{{decdeg|37.85|||N}}"), 0.05);
+        assertEquals(-119.5666667, WikipediaUtil.parseDecDeg("{{decdeg|119.5666667|||W}}"), 0.05);
+        assertEquals(37.85, WikipediaUtil.parseDecDeg("{{decdeg|37.85}}"), 0.05);
+        assertEquals(-119.5666667, WikipediaUtil.parseDecDeg("{{decdeg|-119.5666667}}"), 0.05);
+        assertEquals(37.9, WikipediaUtil.parseDecDeg("{{decdeg|37.85||||1}}"), 0.05);
+        assertEquals(-119.6, WikipediaUtil.parseDecDeg("{{decdeg|-119.5666667||||1}}"), 0.05);
+        assertEquals(0.85, WikipediaUtil.parseDecDeg("{{decdeg||51||N}}"), 0.05);
+        assertEquals(-0.5666667, WikipediaUtil.parseDecDeg("{{decdeg||34||W}}"), 0.05);
+        assertEquals(0.85, WikipediaUtil.parseDecDeg("{{decdeg|0|51}}"), 0.05);
+        assertEquals(-0.5666667, WikipediaUtil.parseDecDeg("{{decdeg|-0|34}}"), 0.05);
     }
 }

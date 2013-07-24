@@ -18,11 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -294,11 +297,17 @@ public final class WikipediaUtil {
      * @return A {@link Map} containing extracted key-value pairs from the template, entries in the map have the same
      *         order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
      */
-    public static Map<String, String> extractTemplate(String markup) {
+    static Map<String, String> extractTemplate(String markup) {
         Validate.notNull(markup, "markup must not be null");
         Map<String, String> properties = new LinkedHashMap<String, String>();
         // trim surrounding {{ and }}
         String content = markup.substring(2, markup.length() - 2);
+
+        // in case of geobox, we must remove the first | character
+        if (markup.toLowerCase().startsWith("{{geobox")) {
+            content = markup.substring(markup.indexOf('|') + 1, markup.length() - 2);
+        }
+
         int i = 0;
         for (String part : splitTemplateMarkup(content)) {
             String key = String.valueOf(i++);
@@ -407,7 +416,7 @@ public final class WikipediaUtil {
             String latDeg = infobox.getEntry("lat_deg", "latd", "lat_d", "lat_degrees", "source_lat_d", "mouth_lat_d");
             String lngDeg = infobox.getEntry("lon_deg", "longd", "long_d", "long_degrees", "source_long_d",
                     "mouth_long_d");
-            if (latDeg != null && lngDeg != null) {
+            if (StringUtils.isNotBlank(latDeg) && StringUtils.isNotBlank(lngDeg)) {
                 String latMin = infobox.getEntry("lat_min", "latm", "lat_m", "lat_minutes", "source_lat_m",
                         "mouth_lat_m");
                 String latSec = infobox.getEntry("lat_sec", "lats", "lat_s", "lat_seconds", "source_lat_s",
@@ -427,17 +436,31 @@ public final class WikipediaUtil {
             LOGGER.warn("Error while parsing: {}", e.getMessage());
         }
 
-        // try decimal format
-        try {
-            String lat = infobox.getEntry("latitude");
-            String lng = infobox.getEntry("longitude");
-            if (lat != null && lng != null) {
+        // try all-in-one format
+        String lat = infobox.getEntry("latitude");
+        String lng = infobox.getEntry("longitude");
+        if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lng)) {
+            try {
+                // try decimal format
                 coordinates.add(new ImmutableGeoCoordinate(Double.valueOf(lat), Double.valueOf(lng)));
+            } catch (Exception e) {
+                try {
+                    // try DMS format
+                    double latDec = GeoUtils.parseDms(lat);
+                    double lngDec = GeoUtils.parseDms(lng);
+                    coordinates.add(new ImmutableGeoCoordinate(latDec, lngDec));
+                } catch (Exception e1) {
+                    // try decdeg markup
+                    try {
+                        double latDec = WikipediaUtil.parseDecDeg(lat);
+                        double lngDec = WikipediaUtil.parseDecDeg(lng);
+                        coordinates.add(new ImmutableGeoCoordinate(latDec, lngDec));
+                    } catch (Exception e2) {
+                        LOGGER.warn("Error while parsing: {}", e.getMessage());
+                    }
+                }
             }
-        } catch (Exception e) {
-            LOGGER.warn("Error while parsing: {}", e.getMessage());
         }
-
         return coordinates;
     }
 
@@ -481,17 +504,17 @@ public final class WikipediaUtil {
     /**
      * Parse DMS components. The only part which must not be <code>null</code> is deg.
      * 
-     * @param deg Degree part, not <code>null</code>.
+     * @param deg Degree part, not <code>null</code> or empty.
      * @param min Minute part, may be <code>null</code>.
      * @param sec Second part, may be <code>null</code>.
      * @param nsew NSEW modifier, should be in [NSEW], may be <code>null</code>.
      * @return Parsed double value.
      */
     private static double parseComponents(String deg, String min, String sec, String nsew) {
-        Validate.notNull(deg, "deg must not be null");
+        Validate.notEmpty(deg, "deg must not be null or empty");
         double parsedDeg = Double.valueOf(deg);
-        double parsedMin = min != null ? Double.valueOf(min) : 0;
-        double parsedSec = sec != null ? Double.valueOf(sec) : 0;
+        double parsedMin = StringUtils.isNotBlank(min) ? Double.valueOf(min) : 0;
+        double parsedSec = StringUtils.isNotBlank(sec) ? Double.valueOf(sec) : 0;
         int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
         return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
     }
@@ -501,7 +524,7 @@ public final class WikipediaUtil {
      * @return A {@link List} with all internal links on the page (sans "category:" links; they can be retrieved using
      *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
      */
-    public static final List<WikipediaLink> getLinks(String markup) {
+    static final List<WikipediaLink> getLinks(String markup) {
         Validate.notNull(markup, "markup must not be null");
         List<WikipediaLink> result = CollectionHelper.newArrayList();
         Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(markup);
@@ -535,15 +558,16 @@ public final class WikipediaUtil {
     static List<String> getNamedMarkup(String markup, String... names) {
         List<String> result = CollectionHelper.newArrayList();
         int startIdx = 0;
+        String cleanMarkup = HtmlHelper.stripHtmlTags(markup, HtmlElement.COMMENTS);
         String namesSeparated = StringUtils.join(names, "|").toLowerCase();
         Pattern pattern = Pattern.compile("\\{\\{(?:" + namesSeparated + ")(?:\\s|\\|)", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(markup);
+        Matcher matcher = pattern.matcher(cleanMarkup);
         while (matcher.find()) {
             startIdx = matcher.start();
             int brackets = 0;
             int endIdx;
-            for (endIdx = startIdx; startIdx < markup.length(); endIdx++) {
-                char current = markup.charAt(endIdx);
+            for (endIdx = startIdx; startIdx < cleanMarkup.length(); endIdx++) {
+                char current = cleanMarkup.charAt(endIdx);
                 if (current == '{') {
                     brackets++;
                 } else if (current == '}') {
@@ -554,7 +578,7 @@ public final class WikipediaUtil {
                 }
             }
             try {
-                result.add(markup.substring(startIdx, endIdx + 1));
+                result.add(cleanMarkup.substring(startIdx, endIdx + 1));
             } catch (StringIndexOutOfBoundsException e) {
                 LOGGER.warn("Encountered {}, potentially caused by invalid markup.");
             }
@@ -585,6 +609,45 @@ public final class WikipediaUtil {
         }
         result.add(markup.substring(start));
         return result;
+    }
+
+    /**
+     * <p>
+     * Parse markup in {{decdeg|...}} element (decimal degrees for geographic coordinates). See <a
+     * href="http://en.wikipedia.org/wiki/Template:Decdeg/sandbox">here</a> for more details.
+     * </p>
+     * 
+     * @param docDegMarkup The markup, not <code>null</code>.
+     * @return The double value with the coordinates.
+     * @throws NumberFormatException in case the string could not be parsed.
+     */
+    public static double parseDecDeg(String docDegMarkup) {
+        Validate.notNull(docDegMarkup, "string must not be null");
+        Map<String, String> templateData = extractTemplate(docDegMarkup);
+        String degStr = CollectionHelper.getTrying(templateData, "deg", "0");
+        String minStr = CollectionHelper.getTrying(templateData, "min", "1");
+        String secStr = CollectionHelper.getTrying(templateData, "sec", "2");
+        String hem = CollectionHelper.getTrying(templateData, "hem", "3");
+        try {
+            double deg = StringUtils.isNotBlank(degStr) ? Double.valueOf(degStr) : 0;
+            double min = StringUtils.isNotBlank(minStr) ? Double.valueOf(minStr) : 0;
+            double sec = StringUtils.isNotBlank(secStr) ? Double.valueOf(secStr) : 0;
+            int sgn;
+            if (StringUtils.isNotBlank(hem)) {
+                sgn = "W".equals(hem) || "S".equals(hem) ? -1 : 1;
+            } else {
+                sgn = degStr.startsWith("-") ? -1 : 1;
+            }
+            double result = sgn * (Math.abs(deg) + min / 60. + sec / 3600.);
+            String rndStr = CollectionHelper.getTrying(templateData, "rnd", "4");
+            if (StringUtils.isNotBlank(rndStr)) {
+                int rnd = Integer.valueOf(rndStr);
+                result = MathHelper.round(result, rnd);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new NumberFormatException("The coordinate data from \"" + docDegMarkup + "\" could not be parsed.");
+        }
     }
 
     private WikipediaUtil() {
