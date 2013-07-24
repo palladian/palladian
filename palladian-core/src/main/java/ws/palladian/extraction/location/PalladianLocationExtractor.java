@@ -79,7 +79,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             }
         });
 
-        MultiMap<Annotated, Location> locations = fetchLocations(locationSource, classifiedEntities);
+        MultiMap<ClassifiedAnnotation, Location> locations = fetchLocations(locationSource, classifiedEntities);
 
         Annotations<LocationAnnotation> result = new Annotations<LocationAnnotation>();
 
@@ -96,22 +96,21 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return result;
     }
 
-    public static MultiMap<Annotated, Location> fetchLocations(LocationSource source,
-            List<? extends Annotated> annotations) {
+    public static <A extends Annotated> MultiMap<A, Location> fetchLocations(LocationSource source, List<A> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
         for (Annotated annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             valuesToRetrieve.add(entityValue);
         }
         MultiMap<String, Location> lookup = source.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
-        MultiMap<Annotated, Location> result = DefaultMultiMap.createWithSet();
-        for (Annotated annotation : annotations) {
+        MultiMap<A, Location> result = DefaultMultiMap.createWithSet();
+        for (A annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             Collection<Location> locations = lookup.get(entityValue);
             if (locations.size() > 0) {
                 result.addAll(annotation, locations);
-            } else if (greedyRetrieval) {
-                greedyRetrieve(source, annotation, result);
+//            } else if (greedyRetrieval) {
+//                greedyRetrieve(source, annotation, result);
             } else {
                 result.addAll(annotation, Collections.<Location> emptySet());
             }

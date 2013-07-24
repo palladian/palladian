@@ -103,7 +103,7 @@ class LocationFeatureExtractor {
 
     private final ClueWebSearcher clueWebSearcher = new ClueWebSearcher(new File("/Volumes/SAMSUNG/ClueWeb09"));
 
-    public Set<LocationInstance> makeInstances(String text, MultiMap<Annotated, Location> locations) {
+    public Set<LocationInstance> makeInstances(String text, MultiMap<? extends Annotated, Location> locations) {
 
 //        Set<Annotated> unlikelyCandidates = getUnlikelyCandidates(text, locations);
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
@@ -235,7 +235,7 @@ class LocationFeatureExtractor {
         return instances;
     }
 
-    private double getIndexScore(MultiMap<Annotated, Location> locations, Annotated annotation) {
+    private double getIndexScore(MultiMap<? extends Annotated, Location> locations, Annotated annotation) {
         double indexScore;
         try {
             long population = getMaxPopulation(locations.get(annotation));
@@ -290,13 +290,14 @@ class LocationFeatureExtractor {
 //        return result;
 //    }
 
-    private static Map<Location, Double> buildSentenceProximityMap(String text, MultiMap<Annotated, Location> locations) {
+    private static Map<Location, Double> buildSentenceProximityMap(String text,
+            MultiMap<? extends Annotated, Location> locations) {
         Map<Location, Double> proximityMap = LazyMap.create(ConstantFactory.create(Double.MAX_VALUE));
         List<String> sentences = Tokenizer.getSentences(text);
         for (String sentence : sentences) {
             int start = text.indexOf(sentence);
             int end = start + sentence.length();
-            List<Annotated> currentAnnotations = getAnnotations(locations.keySet(), start, end);
+            List<? extends Annotated> currentAnnotations = getAnnotations(locations.keySet(), start, end);
             for (Annotated value1 : currentAnnotations) {
                 Collection<Location> locations1 = locations.get(value1);
                 for (Location location1 : locations1) {
@@ -331,9 +332,9 @@ class LocationFeatureExtractor {
      * @param end The end offset.
      * @return All annotations between (including) start/end.
      */
-    private static List<Annotated> getAnnotations(Collection<Annotated> annotations, int start, int end) {
-        List<Annotated> result = CollectionHelper.newArrayList();
-        for (Annotated annotation : annotations) {
+    private static <A extends Annotated> List<A> getAnnotations(Collection<A> annotations, int start, int end) {
+        List<A> result = CollectionHelper.newArrayList();
+        for (A annotation : annotations) {
             if (annotation.getStartPosition() >= start && annotation.getEndPosition() <= end) {
                 result.add(annotation);
             }
@@ -352,7 +353,7 @@ class LocationFeatureExtractor {
         return maxPopulation;
     }
 
-    private static Set<Location> getUniqueLocations(MultiMap<Annotated, Location> locations) {
+    private static Set<Location> getUniqueLocations(MultiMap<? extends Annotated, Location> locations) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();
         for (Collection<Location> group : locations.values()) {
             if (isUnique(group)) {
@@ -462,7 +463,7 @@ class LocationFeatureExtractor {
 //        return frequencies;
 //    }
 
-    private static boolean isAcronym(Annotated annotated, MultiMap<Annotated, Location> locations) {
+    private static boolean isAcronym(Annotated annotated, MultiMap<? extends Annotated, Location> locations) {
         for (Location location : locations.get(annotated)) {
             Set<String> names = LocationExtractorUtils.collectNames(location);
             for (String name : names) {

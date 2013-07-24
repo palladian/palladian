@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
@@ -55,7 +56,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     }
 
     @Override
-    public List<LocationAnnotation> disambiguate(String text, MultiMap<Annotated, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
         Set<LocationInstance> instances = featureExtractor.makeInstances(text, locations);
         Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
