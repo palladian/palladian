@@ -198,6 +198,10 @@ public class StringTaggerTest {
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
 
+        text = "3 Ind. fugitives transferred to another Neb. jail.";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+
     }
 
 }
