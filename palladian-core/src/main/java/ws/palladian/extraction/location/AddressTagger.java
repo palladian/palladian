@@ -24,7 +24,7 @@ public final class AddressTagger implements Tagger {
 
     public static final Pattern STREET_PATTERN = Pattern
             .compile(
-                    ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat|.*drive|.*\\sst\\.|.*\\strafficway",
+                    ".+street$|.+road$|.+avenue$|.+ave\\.|.+boulevard$|.+straße$|.+strasse$|.+gasse$|^rue\\s.+|via\\s.+|viale\\s.+|.+straat|.+drive|.+\\sst\\.|.+\\strafficway",
                     Pattern.CASE_INSENSITIVE);
 
     @Override

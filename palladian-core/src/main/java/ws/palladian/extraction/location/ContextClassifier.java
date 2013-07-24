@@ -2,8 +2,12 @@ package ws.palladian.extraction.location;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
@@ -19,6 +23,9 @@ import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
 
 public class ContextClassifier {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContextClassifier.class);
 
     // TODO create dedicated rule class with apply logic
     private static final Map<String, String> rules = readRules(ContextClassifier.class
@@ -76,60 +83,73 @@ public class ContextClassifier {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] split = line.split("\t");
+                if (line.startsWith("#") || split.length != 2) {
+                    return;
+                }
                 rules.put(split[0], split[1]);
             }
         });
+        LOGGER.debug("Loaded {} context rules", rules.size());
         return rules;
     }
 
     public CategoryEntries classify(String text, Annotated annotation) {
         CategoryEntriesMap result = new CategoryEntriesMap();
         for (String rule : rules.keySet()) {
-            if (rule.startsWith("*")) {
+            if (rule.startsWith("* ")) { // note the space
                 // suffix rules
                 String token = rule.substring(2);
-                String context = getRightContext(annotation, text, 1);
+                int windowSize = token.split("\\s").length;
+                String context = getRightContext(annotation, text, windowSize);
                 if (token.equalsIgnoreCase(context)) {
+                    result.add(rules.get(rule), 1);
+                }
+            } else if (rule.endsWith("* ")) {
+                // prefix rules
+                String token = rule.substring(0, rule.length() - 2);
+                int windowSize = token.split("\\s").length;
+                String context = getLeftContext(annotation, text, windowSize);
+                if (token.equalsIgnoreCase(context)) {
+                    result.add(rules.get(rule), 1);
+                }
+            } else if (rule.startsWith("*")) {
+                // suffix proximity rules
+                int windowSize = countAsteriscs(rule);
+                String token = rule.replaceAll("\\**\\s", "");
+                List<String> contextTokens = getRightContexts(annotation, text, windowSize);
+                if (containsIgnoreCase(contextTokens, token)) {
                     result.add(rules.get(rule), 1);
                 }
             } else if (rule.endsWith("*")) {
-                // prefix rules
-                String token = rule.substring(0, rule.length() - 2);
-                String context = getLeftContext(annotation, text, 1);
-                if (token.equalsIgnoreCase(context)) {
+                // prefix proximity rules
+                int windowSize = countAsteriscs(rule);
+                String token = rule.replaceAll("\\s\\**", "");
+                List<String> contextTokens = getLeftContexts(annotation, text, windowSize);
+                if (containsIgnoreCase(contextTokens, token)) {
                     result.add(rules.get(rule), 1);
                 }
             } else {
-                System.out.println("[warn] rule " + rule + " cannot be interpreted.");
                 // unknown rule
+                LOGGER.warn("rule " + rule + " cannot be interpreted.");
             }
         }
         result.computeProbabilities();
         result.sort();
         return result;
     }
-    
-//    public List<Annotated> filter(List<? extends Annotated> annotations, String text) {
-//        Set<String> toRemove = CollectionHelper.newHashSet();
-//        for (Annotated annotation : annotations) {
-//            CategoryEntries classification = classify(text, annotation);
-//            if (classification.getProbability("PER") == 1) {
-//                toRemove.add(annotation.getValue());
-//            }
-//            if (classification.getProbability("LOC") == 1) {
-//                toRemove.remove(annotation.getValue());
-//            }
-//        }
-//        List<Annotated> result = CollectionHelper.newArrayList();
-//        for (Annotated annotation : annotations) {
-//            if (toRemove.contains(annotation.getValue())) {
-//                System.out.println("Removing " + annotation);
-//                continue;
-//            }
-//            result.add(annotation);
-//        }
-//        return result;
-//    }
+
+    private boolean containsIgnoreCase(Collection<String> collection, String string) {
+        for (String item : collection) {
+            if (item.equalsIgnoreCase(string)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int countAsteriscs(String rule) {
+        return rule.length() - rule.replace("*", "").length();
+    }
 
     public List<ClassifiedAnnotation> classify(List<? extends Annotated> annotations, String text) {
         List<ClassifiedAnnotation> result = CollectionHelper.newArrayList();

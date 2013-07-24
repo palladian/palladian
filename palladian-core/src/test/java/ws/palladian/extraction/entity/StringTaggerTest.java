@@ -187,6 +187,10 @@ public class StringTaggerTest {
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
 
+        text = "McDonald's, McDonald’s, Kentucky Fried Chicken and a Pizza Hut!";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+
     }
 
 }
