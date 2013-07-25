@@ -55,6 +55,13 @@ public class StringTaggerTest {
         assertEquals("Dr. Mark Litwin", annotations.get(13).getValue());
         // assertEquals("Google Inc.", annotations.get(12).getValue());
 
+        // long names
+        text = "Mayor Bobby E. Horton called the Special Council Meeting of the West Columbia Council to order on Monday, March 16, 2009 at 6 pm.";
+        annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
+        assertEquals(5, annotations.size());
+        assertEquals("Mayor Bobby E. Horton", annotations.get(0).getValue());
+
         // composites
         text = "Dolce & Gabana as well as S&P are companies.";
 
