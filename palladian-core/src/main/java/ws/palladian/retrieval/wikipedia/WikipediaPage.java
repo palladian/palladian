@@ -137,6 +137,19 @@ public class WikipediaPage {
         return text;
     }
 
+    /**
+     * <p>
+     * Get the individual sections from the page. The beginning of the article is also added to the result, even if it
+     * does not start with a section heading.
+     * </p>
+     * 
+     * @return List with sections, starting with the original section headings, or empty list if no sections were found,
+     *         never <code>null</code> however.
+     */
+    public List<String> getSections() {
+        return WikipediaUtil.getSections(text);
+    }
+
     public boolean isRedirect() {
         return getRedirectTitle() != null;
     }
