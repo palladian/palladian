@@ -220,7 +220,7 @@ public final class WikipediaUtil {
         return clean;
     }
 
-    public static String getRedirect(String text) {
+    static String getRedirect(String text) {
         Matcher matcher = REDIRECT_PATTERN.matcher(text);
         if (matcher.find()) {
             return matcher.group(1);
@@ -597,7 +597,7 @@ public final class WikipediaUtil {
      * @return List with sections, starting with the original section headings, or empty list if no sections were found,
      *         never <code>null</code> however.
      */
-    public static List<String> getSections(String markup) {
+    static List<String> getSections(String markup) {
         Validate.notNull(markup, "markup must not be null");
         List<String> result = CollectionHelper.newArrayList();
         Matcher matcher = HEADING_PATTERN.matcher(markup);

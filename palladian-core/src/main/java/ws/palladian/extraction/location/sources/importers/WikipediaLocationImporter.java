@@ -1,15 +1,21 @@
 package ws.palladian.extraction.location.sources.importers;
 
+import static ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter.AlternativeNameExtraction.PAGE;
+import static ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter.AlternativeNameExtraction.REDIRECTS;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -55,6 +61,18 @@ public class WikipediaLocationImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaLocationImporter.class);
 
+    /**
+     * <p>
+     * Flags to determine from where to extract alternative location names.
+     * </p>
+     */
+    public static enum AlternativeNameExtraction {
+        /** Extract alternative location names from redirects in the Wikipedia. */
+        REDIRECTS,
+        /** Extract alternative location names from the first paragraph of the articles. */
+        PAGE
+    }
+
     /** Pages with those titles will be ignored. */
     private static final Pattern IGNORED_PAGES = Pattern.compile("(?:Geography|Battle) of .*");
     
@@ -91,18 +109,24 @@ public class WikipediaLocationImporter {
 
     private final int idOffset;
 
+    private final Set<AlternativeNameExtraction> nameExtraction;
+
     /**
      * @param locationStore The {@link LocationStore} where to store the imported data.
      * @param idOffset The offset for the inserted IDs. This way, ID clashes with existing data can be avoided. Zero for
      *            no offset (keep original IDs).
+     * @param nameExtraction Specify from where to extract alternative location names (see
+     *            {@link AlternativeNameExtraction}).
      */
-    public WikipediaLocationImporter(LocationStore locationStore, int idOffset) {
+    public WikipediaLocationImporter(LocationStore locationStore, int idOffset,
+            AlternativeNameExtraction... nameExtraction) {
         Validate.notNull(locationStore, "locationStore must not be null");
         Validate.isTrue(idOffset >= 0);
         this.locationStore = locationStore;
         this.idOffset = idOffset;
         this.saxParserFactory = SAXParserFactory.newInstance();
         this.locationNamesIds = CollectionHelper.newHashMap();
+        this.nameExtraction = new HashSet<AlternativeNameExtraction>(Arrays.asList(nameExtraction));
     }
 
     /**
@@ -134,9 +158,13 @@ public class WikipediaLocationImporter {
             LOGGER.info("Reading location data from {}", dumpXml);
             importLocationPages(in);
 
-            in2 = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
-            LOGGER.info("Reading location alternative names from {}", dumpXml);
-            importAlternativeNames(in2);
+            if (nameExtraction.contains(REDIRECTS)) {
+                in2 = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
+                LOGGER.info("Reading location alternative names from redirects in {}", dumpXml);
+                importAlternativeNames(in2);
+            } else {
+                LOGGER.info("Skip reading location alternative names from redirects.");
+            }
 
         } catch (FileNotFoundException e) {
             throw new IllegalStateException(e);
@@ -214,14 +242,30 @@ public class WikipediaLocationImporter {
 
                 // save:
                 if (coordinate != null) {
-                    String name = page.getCleanTitle();
-                    locationStore.save(new ImmutableLocation(page.getPageId() + idOffset, name, type, coordinate
+                    String cleanArticleName = page.getCleanTitle();
+                    int locationId = page.getPageId() + idOffset;
+                    locationStore.save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate
                             .getLatitude(), coordinate.getLongitude(), population));
-                    LOGGER.trace("Saved location with ID {}, name {}", page.getPageId(), name);
+                    LOGGER.trace("Saved location with ID {}, name {}", page.getPageId(), cleanArticleName);
                     locationNamesIds.put(page.getTitle(), page.getPageId());
                     counter[0]++;
-                }
 
+                    // extract and save alternative names if requested
+                    if (nameExtraction.contains(PAGE)) {
+                        List<String> sections = page.getSections();
+                        if (sections.size() > 0) {
+                            List<String> extractedAlternativeNames = getStringsInBold(sections.get(0));
+                            Set<AlternativeName> alternativeNames = CollectionHelper.newHashSet();
+                            for (String name : extractedAlternativeNames) {
+                                if (!name.equals(cleanArticleName)) {
+                                    alternativeNames.add(new AlternativeName(name));
+                                }
+                            }
+                            locationStore.addAlternativeNames(locationId, alternativeNames);
+                            LOGGER.debug("Extracted {} alternative names from page", alternativeNames.size());
+                        }
+                    }
+                }
             }
         }));
         LOGGER.info("Finished importing {} locations", counter[0]);
@@ -264,7 +308,7 @@ public class WikipediaLocationImporter {
                     LOGGER.debug("Skip redirect from '{}' to '{}'", name, redirectTo);
                     return;
                 }
-                AlternativeName alternativeName = new AlternativeName(name, null);
+                AlternativeName alternativeName = new AlternativeName(name);
                 locationStore.addAlternativeNames(id + idOffset, Collections.singleton(alternativeName));
                 LOGGER.debug("Save alternative name {} for location with ID {}", name, id);
                 counter[0]++;
@@ -273,11 +317,21 @@ public class WikipediaLocationImporter {
         LOGGER.info("Finished importing {} alternative names", counter[0]);
     }
 
+    private static final List<String> getStringsInBold(String text) {
+        Pattern pattern = Pattern.compile("'''([^']+)'''");
+        Matcher matcher = pattern.matcher(text);
+        List<String> result = CollectionHelper.newArrayList();
+        while (matcher.find()) {
+            result.add(matcher.group(1));
+        }
+        return result;
+    }
+
     public static void main(String[] args) throws Exception {
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations2");
         locationStore.truncate();
 
-        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore, 100000000);
+        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore, 100000000, PAGE);
         File dumpXml = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
         importer.importDumpBz2(dumpXml);
     }
