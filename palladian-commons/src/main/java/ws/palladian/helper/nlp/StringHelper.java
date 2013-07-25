@@ -702,6 +702,7 @@ public final class StringHelper {
      * @return true, if is number
      */
     public static boolean isNumber(String string) {
+
         if (string.length() == 0) {
             return false;
         }
