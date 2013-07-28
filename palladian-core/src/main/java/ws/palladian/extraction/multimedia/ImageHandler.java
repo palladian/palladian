@@ -104,6 +104,7 @@ public class ImageHandler {
             url = url.trim();
             if (url.startsWith("http:") || url.startsWith("https:")) {
                 HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
+                url = url.replace(" ", "%20");
                 HttpResult httpResult = retriever.httpGet(url);
                 bufferedImage = ImageIO.read(new ByteArrayInputStream(httpResult.getContent()));
             } else {
