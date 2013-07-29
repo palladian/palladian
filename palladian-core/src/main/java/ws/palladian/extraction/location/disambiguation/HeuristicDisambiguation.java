@@ -275,10 +275,10 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private Set<Location> getLassoLocations(MultiMap<? extends Annotated, Location> locations) {
         Set<Location> lassoLocations = new HashSet<Location>(locations.allValues());
         while (lassoLocations.size() > 1) {
+            GeoCoordinate midpoint = GeoUtils.getMidpoint(lassoLocations);
             double maxDistance = Double.MIN_VALUE;
             Location farthestLocation = null;
             for (Location location : lassoLocations) {
-                GeoCoordinate midpoint = GeoUtils.getMidpoint(lassoLocations);
                 double distance = GeoUtils.getDistance(location, midpoint);
                 if (distance > maxDistance) {
                     maxDistance = distance;
