@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,6 +28,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
@@ -35,9 +37,12 @@ import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.extraction.location.sources.CombinedLocationSource;
+import ws.palladian.extraction.location.sources.CombinedLocationSource.QueryMode;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.features.Annotated;
@@ -378,6 +383,14 @@ public final class LocationExtractionEvaluator {
         FileHelper.writeToFile("data/temp/" + System.currentTimeMillis() + "_distances.csv",
                 evaluationDetails.toString());
 
+        // write summary to summary_distances.csv
+        StringBuilder summaryCsv = new StringBuilder();
+        summaryCsv.append(extractor.getName()).append(';');
+        summaryCsv.append(precision).append(';');
+        summaryCsv.append(recall).append(';');
+        summaryCsv.append(f1).append(';').append('\n');
+        FileHelper.appendFile("data/temp/locationsSummary_distances.csv", summaryCsv);
+
         return evaluationDetails.toString();
     }
 
@@ -386,9 +399,9 @@ public final class LocationExtractionEvaluator {
     }
 
     public static void main(String[] args) {
-        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation";
+        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation";
         // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test";
-        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation";
+        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation";
         // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
         // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
         // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
@@ -396,19 +409,30 @@ public final class LocationExtractionEvaluator {
         // evaluate(new ExtractivLocationExtractor(), DATASET_LOCATION);
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        Collection<Location> locations = database.getLocations("Armstrong Atlantic State University",
+                EnumSet.of(Language.ENGLISH));
+        locations = LocationExtractorUtils
+                .filterConditionally(locations, new LocationExtractorUtils.CoordinateFilter());
+        CollectionHelper.print(locations);
+        System.out.println(LocationExtractorUtils.getLargestDistance(locations));
+        System.exit(0);
 
+        LocationDatabase wikipediaDatabase = DatabaseManagerFactory.create(LocationDatabase.class, "locations2");
+        CombinedLocationSource source = new CombinedLocationSource(QueryMode.COMBINE, database, wikipediaDatabase);
+        // System.out.println(source.getLocations("Ind.", EnumSet.of(ws.palladian.helper.constants.Language.ENGLISH)));
+        // System.exit(0);
         // ///////////////////// baseline //////////////////////
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
 
         // ///////////////////// anchor heuristic //////////////////////
-        LocationDisambiguation disambiguation = new HeuristicDisambiguation();
+        // LocationDisambiguation disambiguation = new HeuristicDisambiguation();
 
         // ///////////////////// feature based //////////////////////
         // String modelFilePath = "data/temp/location_disambiguation_1374689868458.model";
         // BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
         // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
 
-        evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        // evaluate(new PalladianLocationExtractor(source, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
 
         // perform threshold analysis ////////////////////////////////
@@ -418,20 +442,34 @@ public final class LocationExtractionEvaluator {
         // }
 
         // parameter tuning for heuristic; vary one parameter at once ////////////////////////////
-        // for (int anchorDistanceThreshold : Arrays.asList(25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 300, 350,
-        // 400, 450, 500, 600, 700, 800, 900, 1000)) {
-        // for (int lowerPopulationThreshold : Arrays.asList(0, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000,
-        // 9000, 10000, 15000, 20000, 25000, 50000)) {
-        // for (int anchorPopulationThreshold : Arrays.asList(1000, 10000, 50000, 100000, 200000, 300000, 400000,
-        // 500000, 600000, 700000, 800000, 900000, 1000000)) {
-        // for (int sameDistanceThreshold : Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 60, 70, 80,
-        // 90, 100, 200, 300, 400, 500)) {
-        // LocationDisambiguation disambiguation = new HeuristicDisambiguation(
-        // HeuristicDisambiguation.ANCHOR_DISTANCE_THRESHOLD,
-        // HeuristicDisambiguation.LOWER_POPULATION_THRESHOLD,
-        // HeuristicDisambiguation.ANCHOR_POPULATION_THRESHOLD, sameDistanceThreshold);
-        // evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
-        // }
+        // for (int anchorDistanceThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000)) {
+            // for (int lowerPopulationThreshold : Arrays.asList(0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000,
+            // 9000,
+            // 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000)) {
+        // for (int anchorPopulationThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
+        // 100000000, 1000000000)) {
+            // for (int sameDistanceThreshold : Arrays.asList(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130,
+            // 140,
+            // 150, 160, 170, 180, 190, 200)) {
+            // for (int lassoDistanceThreshold : Arrays.asList(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120,
+            // 130,
+            // 140,
+            // 150, 160, 170, 180, 190, 200)) {
+        for (int unlikelyPopulationThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
+                100000000, 1000000000)) {
+            // for (int tokenThreshold : Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)) {
+            LocationDisambiguation disambiguation = new HeuristicDisambiguation(//
+                    HeuristicDisambiguation.ANCHOR_DISTANCE_THRESHOLD, //
+                    HeuristicDisambiguation.LOWER_POPULATION_THRESHOLD, //
+                    HeuristicDisambiguation.ANCHOR_POPULATION_THRESHOLD, //
+                    HeuristicDisambiguation.SAME_DISTANCE_THRESHOLD, //
+                    HeuristicDisambiguation.LASSO_DISTANCE_THRESHOLD, //
+                    unlikelyPopulationThreshold, // HeuristicDisambiguation.LOWER_UNLIKELY_POPULATION_THRESHOLD, //
+                    HeuristicDisambiguation.TOKEN_THRESHOLD);
+            PalladianLocationExtractor extractor = new PalladianLocationExtractor(source, disambiguation);
+            evaluate(extractor, DATASET_LOCATION);
+            evaluateCoordinates(extractor, DATASET_LOCATION);
+        }
 
         // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
