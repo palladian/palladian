@@ -53,6 +53,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
     public static final int LOWER_UNLIKELY_POPULATION_THRESHOLD = 100000;
 
+    public static final int TOKEN_THRESHOLD = 2;
+
     /** Maximum distance for anchoring. */
     private final int anchorDistanceThreshold;
 
@@ -71,9 +73,11 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     /** Threshold for population under which locations which are unlikely to be a location will be removed. */
     private final int lowerUnlikelyPopulationThreshold;
 
+    private final int tokenThreshold;
+
     public HeuristicDisambiguation() {
         this(ANCHOR_DISTANCE_THRESHOLD, LOWER_POPULATION_THRESHOLD, ANCHOR_POPULATION_THRESHOLD,
-                SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD, LOWER_UNLIKELY_POPULATION_THRESHOLD);
+                SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD, LOWER_UNLIKELY_POPULATION_THRESHOLD, TOKEN_THRESHOLD);
     }
 
     /**
@@ -89,16 +93,18 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
      * @param lassoDistanceThreshold The distance threshold, when the lasso heuristic stops.
      * @param lowerUnlikelyPopulationThreshold The threshold below which locations will be removed, which have been
      *            classified as "unlikely" anyways (like person names, ...)
+     * @param tokenThreshold
      */
     public HeuristicDisambiguation(int anchorDistanceThreshold, int lowerPopulationThreshold,
             int anchorPopulationThreshold, int sameDistanceThreshold, int lassoDistanceThreshold,
-            int lowerUnlikelyPopulationThreshold) {
+            int lowerUnlikelyPopulationThreshold, int tokenThreshold) {
         this.anchorDistanceThreshold = anchorDistanceThreshold;
         this.lowerPopulationThreshold = lowerPopulationThreshold;
         this.anchorPopulationThreshold = anchorPopulationThreshold;
         this.sameDistanceThreshold = sameDistanceThreshold;
         this.lassoDistanceThreshold = lassoDistanceThreshold;
         this.lowerUnlikelyPopulationThreshold = lowerUnlikelyPopulationThreshold;
+        this.tokenThreshold = tokenThreshold;
     }
 
     @Override
@@ -241,7 +247,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
             if (LocationExtractorUtils.getLargestDistance(group) < sameDistanceThreshold) {
                 Location location = LocationExtractorUtils.getBiggest(group);
-                if (location.getPopulation() > lowerPopulationThreshold || name.split("\\s").length > 2) {
+                if (location.getPopulation() > lowerPopulationThreshold || name.split("\\s").length >= tokenThreshold) {
                     anchorLocations.add(location);
                 }
             } else {
@@ -331,6 +337,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         builder.append(lassoDistanceThreshold);
         builder.append(", lowerUnlikelyPopulationThreshold=");
         builder.append(lowerUnlikelyPopulationThreshold);
+        builder.append(", tokenThreshold=");
+        builder.append(tokenThreshold);
         builder.append("]");
         return builder.toString();
     }
