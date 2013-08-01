@@ -60,11 +60,11 @@ public class NerTest {
         assertEquals(2185, tagger.getEntityDictionary().getNumTerms());
         assertEquals(0, caseDictionary.getNumTerms());
         assertEquals(0, caseDictionary.getNumCategories());
-        assertEquals(1103, tagger.getLeftContextMap().size());
+        assertEquals(1109, tagger.getLeftContextMap().size());
         assertEquals(0, tagger.getRemoveAnnotations().size());
-        assertEquals(89603, contextClassifier.getNumTerms());
+        assertEquals(89415, contextClassifier.getNumTerms());
         assertEquals(4, contextClassifier.getNumCategories());
-        assertEquals(53949, annotationDictionary.getNumTerms());
+        assertEquals(53513, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // precision MUC: 62.71%, recall MUC: 75.17%, F1 MUC: 68.38%
@@ -117,15 +117,15 @@ public class NerTest {
         assertEquals(4, entityDictionary.getNumCategories());
         assertEquals(5818, caseDictionary.getNumTerms());
         assertEquals(3, caseDictionary.getNumCategories());
-        assertEquals(1103, tagger.getLeftContextMap().size());
+        assertEquals(1109, tagger.getLeftContextMap().size());
         assertEquals(1109, tagger.getRemoveAnnotations().size());
-        assertEquals(89603, contextDictionary.getNumTerms());
+        assertEquals(89415, contextDictionary.getNumTerms());
         assertEquals(4, contextDictionary.getNumCategories());
         assertEquals(59587, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
-        // precision MUC: 94.25%, recall MUC: 94.91%, F1 MUC: 94.58%
-        // precision exact: 90.58%, recall exact: 91.21%, F1 exact: 90.9%
+        // precision MUC: 94.23%, recall MUC: 94.89%, F1 MUC: 94.56%
+        // precision exact: 90.56%, recall exact: 91.19%, F1 exact: 90.88%
         EvaluationResult er = tagger.evaluate(trainingFile, TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
@@ -143,7 +143,7 @@ public class NerTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2218, annotations.size());
+        assertEquals(2217, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 

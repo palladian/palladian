@@ -1079,7 +1079,7 @@ public final class FileHelper {
         File f = new File(filename);
 
         if (!f.exists()) {
-            LOGGER.error("file can not be deleted because it does not exist");
+            LOGGER.warn("file can not be deleted because it does not exist");
             return false;
         }
 
@@ -1108,7 +1108,9 @@ public final class FileHelper {
     }
 
     /**
-     * Delete.
+     * <p>
+     * Delete a file.
+     * </p>
      * 
      * @param filename The filename.
      * @return <tt>True</tt> if the deletion was successful, <tt>false</tt> otherwise.
@@ -1557,7 +1559,9 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Creates the file and its directories if do not exist yet.
+     * </p>
      * 
      * @param filePath The file to create.
      * @return <code>true</code> if file and directories have been created, <code>false</code> otherwise or on every
@@ -1565,32 +1569,42 @@ public final class FileHelper {
      */
     public static boolean createDirectoriesAndFile(String filePath) {
         boolean success = false;
+
+        if (filePath.endsWith("/")) {
+            filePath += "del.del";
+        }
+
         File newFile = new File(filePath);
         if (!newFile.exists()) {
 
-            // FIXME fails with NPE if no parent directory is given (filePath = just the file name).
-            File directories = new File(newFile.getParent());
             boolean directoriesExists = false;
 
-            try {
-                if (directories.exists()) {
-                    directoriesExists = true;
-                } else {
-                    directoriesExists = directories.mkdirs();
-                }
+            String parent = newFile.getParent();
+            if (parent != null) {
+                File directories = new File(parent);
 
-                if (directoriesExists) {
-                    success = newFile.createNewFile();
-                } else {
-                    LOGGER.error("could not create the directories " + filePath);
+                try {
+                    if (directories.exists()) {
+                        directoriesExists = true;
+                    } else {
+                        directoriesExists = directories.mkdirs();
+                    }
+
+                    if (directoriesExists) {
+                        if (!filePath.endsWith("del.del")) {
+                            success = newFile.createNewFile();
+                        }
+                    } else {
+                        LOGGER.error("could not create the directories " + filePath);
+                        success = false;
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
+                    success = false;
+                } catch (SecurityException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
                     success = false;
                 }
-            } catch (IOException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
-            } catch (SecurityException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
             }
         }
         return success;
