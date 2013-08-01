@@ -118,7 +118,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
     private CountMatrix<String> patternProbabilityMatrix = CountMatrix.create();
 
-    private List<String> removeAnnotations = CollectionHelper.newArrayList();
+    private Set<String> removeAnnotations = CollectionHelper.newHashSet();
 
     // learning features
     private boolean removeDates = true;
@@ -1401,7 +1401,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         return leftContextMap;
     }
 
-    List<String> getRemoveAnnotations() {
+    Set<String> getRemoveAnnotations() {
         return removeAnnotations;
     }
 
