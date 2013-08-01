@@ -33,7 +33,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public class FeatureBasedDisambiguationLearner {
 
@@ -77,7 +77,7 @@ public class FeatureBasedDisambiguationLearner {
             String text = trainDocument.getText();
             List<LocationAnnotation> trainAnnotations = trainDocument.getAnnotations();
 
-            List<Annotated> taggedEntities = tagger.getAnnotations(text);
+            List<Annotation> taggedEntities = tagger.getAnnotations(text);
             taggedEntities = filter.filter(taggedEntities);
             List<ClassifiedAnnotation> classifiedEntities = contextClassifier.classify(taggedEntities, text);
             MultiMap<ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(

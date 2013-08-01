@@ -7,8 +7,8 @@ import opennlp.tools.parser.Parse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * This is the AbstractParser.
@@ -35,7 +35,7 @@ public abstract class AbstractParser {
     /**
      * Tagged Annotaions.
      */
-    private List<Annotated> tagAnnotations;
+    private List<Annotation> tagAnnotations;
 
     /**
      * @return the model
@@ -54,7 +54,7 @@ public abstract class AbstractParser {
     /**
      * @return the tagAnnotations
      */
-    public final List<Annotated> getTagAnnotations() {
+    public final List<Annotation> getTagAnnotations() {
         return tagAnnotations;
     }
 
@@ -91,12 +91,12 @@ public abstract class AbstractParser {
      * @param parse
      * @param tagAnnotations
      */
-    public final void parse2Annotations(Parse parse, List<Annotated> tagAnnotations) {
+    public final void parse2Annotations(Parse parse, List<Annotation> tagAnnotations) {
         if (parse.getChildCount() > 0) {
             for (int i = 0; i < parse.getChildCount(); i++) {
                 final Parse child = parse.getChildren()[i];
                 if (!child.getType().equals("TK")) {
-                    tagAnnotations.add(new Annotation(0, child.getText().substring(child.getSpan().getStart(),
+                    tagAnnotations.add(new ImmutableAnnotation(0, child.getText().substring(child.getSpan().getStart(),
                             child.getSpan().getEnd()), child.getType()));
                     parse2Annotations(child, tagAnnotations);
                 }
@@ -143,7 +143,7 @@ public abstract class AbstractParser {
      * @param tagAnnotations
      *            the tagAnnotations to set
      */
-    public final void setTagAnnotations(final List<Annotated> tagAnnotations) {
+    public final void setTagAnnotations(final List<Annotation> tagAnnotations) {
         this.tagAnnotations = tagAnnotations;
     }
     

@@ -6,11 +6,11 @@ import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
- * Strategy interface for location disambiguation implementations. Disambiguations receive a list of {@link Annotated}
+ * Strategy interface for location disambiguation implementations. Disambiguations receive a list of {@link Annotation}
  * items, which were identified as being locations very likely and potential {@link Location}s for those annotations.
  * The strategy must decide about the correct {@link Location} for each annotation, it can also filter out annotations
  * if the strategy believes that they are no location.

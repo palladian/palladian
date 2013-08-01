@@ -32,7 +32,7 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -213,7 +213,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
         if (finders == null || tags == null) {
             throw new IllegalStateException("No model available; make sure to load an existing model.");
         }
@@ -231,7 +231,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
         // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
         // FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        return Collections.<Annotated> unmodifiableList(annotations);
+        return Collections.<Annotation> unmodifiableList(annotations);
     }
 
     @Override

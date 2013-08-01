@@ -9,7 +9,7 @@ import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -24,7 +24,7 @@ public class BaselineDisambiguation implements LocationDisambiguation {
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
-        for (Annotated annotation : locations.keySet()) {
+        for (Annotation annotation : locations.keySet()) {
             Collection<Location> currentLocations = locations.get(annotation);
             Location selectedLocation = null;
             long maxPopulation = 0;

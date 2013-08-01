@@ -18,7 +18,7 @@ import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -67,7 +67,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
-        for (Annotated annotation : locations.keySet()) {
+        for (Annotation annotation : locations.keySet()) {
             Collection<Location> candidates = locations.get(annotation);
 
             double highestScore = 0;

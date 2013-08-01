@@ -33,7 +33,7 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.HttpRetriever;
@@ -656,7 +656,7 @@ public class DatasetCreator {
      * 
      * @param annotations The annotations with value/tag type.
      */
-    public void generateDataset(Collection<? extends Annotated> annotations) {
+    public void generateDataset(Collection<? extends Annotation> annotations) {
         Validate.notNull(annotations, "annotations must not be null");
 
         StopWatch stopWatch = new StopWatch();
@@ -667,7 +667,7 @@ public class DatasetCreator {
 
         // write the seeds to files
         Map<String, StringBuilder> fileMap = new HashMap<String, StringBuilder>();
-        for (Annotated annotation : annotations) {
+        for (Annotation annotation : annotations) {
             StringBuilder seedFileContent = fileMap.get(annotation.getTag());
             if (seedFileContent == null) {
                 seedFileContent = new StringBuilder();

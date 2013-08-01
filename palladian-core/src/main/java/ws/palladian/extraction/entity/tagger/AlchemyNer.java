@@ -16,7 +16,7 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -370,7 +370,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
      * Specific {@link Annotation}, which provides access to the sub types delivered from Alchemy.
      * </p>
      */
-    public static final class AlchemyAnnotation extends Annotation {
+    public static final class AlchemyAnnotation extends ImmutableAnnotation {
 
         private final List<String> subtypes;
 

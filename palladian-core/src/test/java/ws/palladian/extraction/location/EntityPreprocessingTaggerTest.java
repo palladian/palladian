@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public class EntityPreprocessingTaggerTest {
 
@@ -17,7 +17,7 @@ public class EntityPreprocessingTaggerTest {
     public void testEntityPreprocessor() throws FileNotFoundException {
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("testText.txt"));
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
-        List<Annotated> annotations = tagger.getAnnotations(text);
+        List<Annotation> annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
         assertEquals(41, annotations.size());
         assertEquals("Clean Water Act", annotations.get(0).getValue());

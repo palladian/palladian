@@ -8,8 +8,8 @@ import org.json.JSONObject;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -51,8 +51,8 @@ public class FiseNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
-        Annotations<Annotated> annotations = new Annotations<Annotated>();
+    public List<Annotation> getAnnotations(String inputText) {
+        Annotations<Annotation> annotations = new Annotations<Annotation>();
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
         LOGGER.debug("Sending {} text chunks, total text length {}", textChunks.size(), inputText.length());
 
@@ -61,7 +61,7 @@ public class FiseNer extends NamedEntityRecognizer {
             try {
                 httpResult = getHttpResult(textChunk.toString());
                 String response = HttpHelper.getStringContent(httpResult);
-                List<Annotated> annotationsChunk = parseJson(inputText, response);
+                List<Annotation> annotationsChunk = parseJson(inputText, response);
                 annotations.addAll(annotationsChunk);
             } catch (HttpException e) {
                 throw new IllegalStateException("Error while performing HTTP request: " + e.getMessage(), e);
@@ -76,8 +76,8 @@ public class FiseNer extends NamedEntityRecognizer {
     }
 
     /** package-private for unit-testing. */
-    static List<Annotated> parseJson(String text, String json) throws JSONException {
-        Annotations<Annotated> annotations = new Annotations<Annotated>();
+    static List<Annotation> parseJson(String text, String json) throws JSONException {
+        Annotations<Annotation> annotations = new Annotations<Annotation>();
         JSONObject jsonObject = new JSONObject(json);
 
         @SuppressWarnings("unchecked")
@@ -114,7 +114,7 @@ public class FiseNer extends NamedEntityRecognizer {
                 LOGGER.warn("Could not find position for entity {} in text", entityName);
             }
             for (Integer offset : entityOffsets) {
-                annotations.add(new Annotation(offset, entityName, type));
+                annotations.add(new ImmutableAnnotation(offset, entityName, type));
             }
         }
         return annotations;

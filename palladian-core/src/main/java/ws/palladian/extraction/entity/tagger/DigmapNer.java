@@ -10,8 +10,8 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -78,9 +78,9 @@ public class DigmapNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations<Annotated> getAnnotations(String inputText) {
+    public Annotations<Annotation> getAnnotations(String inputText) {
 
-        Annotations<Annotated> annotations = new Annotations<Annotated>();
+        Annotations<Annotation> annotations = new Annotations<Annotation>();
 
         // Digmap throws internal error, when text includes "&"
         String replacedInputText = inputText.replace("&", "+");
@@ -101,7 +101,7 @@ public class DigmapNer extends NamedEntityRecognizer {
                     int start = Integer.valueOf(startNode.getTextContent());
                     int end = Integer.valueOf(endNode.getTextContent());
                     String entityName = textChunk.substring(start, end);
-                    annotations.add(new Annotation(start, entityName, tag));
+                    annotations.add(new ImmutableAnnotation(start, entityName, tag));
                 }
             } catch (HttpException e) {
                 throw new IllegalStateException("Error while performing HTTP request: " + e.getMessage(), e);

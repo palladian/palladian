@@ -19,12 +19,12 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
- * The {@link ContextClassifier} is used for classifying {@link Annotated} items by its text context. The contexts are
+ * The {@link ContextClassifier} is used for classifying {@link Annotation} items by its text context. The contexts are
  * to be defined manually as rule set and are then evaluated. The result is a {@link ClassifiedAnnotation}.
  * </p>
  * 
@@ -51,11 +51,11 @@ public class ContextClassifier {
         PROPAGATION
     }
 
-    public static class ClassifiedAnnotation extends Annotation {
+    public static class ClassifiedAnnotation extends ImmutableAnnotation {
 
         private final CategoryEntries categoryEntries;
 
-        public ClassifiedAnnotation(Annotated annotation, CategoryEntries categoryEntries) {
+        public ClassifiedAnnotation(Annotation annotation, CategoryEntries categoryEntries) {
             super(annotation.getStartPosition(), annotation.getValue(), annotation.getTag());
             this.categoryEntries = categoryEntries;
         }
@@ -101,7 +101,7 @@ public class ContextClassifier {
         return rules;
     }
 
-    public CategoryEntries classify(String text, Annotated annotation) {
+    public CategoryEntries classify(String text, Annotation annotation) {
         CategoryEntriesMap result = new CategoryEntriesMap();
         for (String rule : rules.keySet()) {
             if (rule.startsWith("* ")) { // note the space
@@ -159,10 +159,10 @@ public class ContextClassifier {
         return rule.length() - rule.replace("*", "").length();
     }
 
-    public List<ClassifiedAnnotation> classify(List<? extends Annotated> annotations, String text) {
+    public List<ClassifiedAnnotation> classify(List<? extends Annotation> annotations, String text) {
         List<ClassifiedAnnotation> result = CollectionHelper.newArrayList();
         if (mode == ClassificationMode.ISOLATED) {
-            for (Annotated annotation : annotations) {
+            for (Annotation annotation : annotations) {
                 CategoryEntries classification = classify(text, annotation);
                 result.add(new ClassifiedAnnotation(annotation, classification));
             }
@@ -173,7 +173,7 @@ public class ContextClassifier {
                     return new CategoryEntriesMap();
                 }
             });
-            for (Annotated annotation : annotations) {
+            for (Annotation annotation : annotations) {
                 CategoryEntries classification = classify(text, annotation);
                 CategoryEntries existingClassification = collectedProbabilities.get(annotation.getValue());
                 CategoryEntriesMap newClassification = CategoryEntriesMap.merge(existingClassification, classification);
@@ -183,7 +183,7 @@ public class ContextClassifier {
                 categoryEntry.computeProbabilities();
                 categoryEntry.sort();
             }
-            for (Annotated annotation : annotations) {
+            for (Annotation annotation : annotations) {
                 CategoryEntriesMap classification = collectedProbabilities.get(annotation.getValue());
                 result.add(new ClassifiedAnnotation(annotation, classification));
             }
@@ -191,7 +191,7 @@ public class ContextClassifier {
         return result;
     }
 
-    public static String getLeftContext(Annotated annotation, String text, int numWords) {
+    public static String getLeftContext(Annotation annotation, String text, int numWords) {
         try {
             StringBuilder builder = new StringBuilder();
             int wordCounter = 0;
@@ -218,7 +218,7 @@ public class ContextClassifier {
         return null;
     }
 
-    public static String getRightContext(Annotated annotation, String text, int numWords) {
+    public static String getRightContext(Annotation annotation, String text, int numWords) {
         try {
             StringBuilder builder = new StringBuilder();
             int wordCounter = 0;
@@ -240,12 +240,12 @@ public class ContextClassifier {
         return null;
     }
 
-    public static List<String> getLeftContexts(Annotated annotated, String text, int numWords) {
-        return Arrays.asList(getLeftContext(annotated, text, numWords).split("\\s"));
+    public static List<String> getLeftContexts(Annotation annotation, String text, int numWords) {
+        return Arrays.asList(getLeftContext(annotation, text, numWords).split("\\s"));
     }
 
-    public static List<String> getRightContexts(Annotated annotated, String text, int numWords) {
-        return Arrays.asList(getRightContext(annotated, text, numWords).split("\\s"));
+    public static List<String> getRightContexts(Annotation annotation, String text, int numWords) {
+        return Arrays.asList(getRightContext(annotation, text, numWords).split("\\s"));
     }
 
     public static void main(String[] args) {
@@ -258,7 +258,7 @@ public class ContextClassifier {
 
         // Tagger tagger = new StringTagger();
         Tagger tagger = new EntityPreprocessingTagger();
-        List<? extends Annotated> annotations = tagger.getAnnotations(text);
+        List<? extends Annotation> annotations = tagger.getAnnotations(text);
         ContextClassifier classifier = new ContextClassifier(ClassificationMode.PROPAGATION);
         // classifier.filter(annotations, text);
         List<ClassifiedAnnotation> classification = classifier.classify(annotations, text);

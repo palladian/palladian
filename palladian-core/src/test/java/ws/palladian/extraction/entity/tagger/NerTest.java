@@ -19,7 +19,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -79,7 +79,7 @@ public class NerTest {
         tagger.loadModel(tudnerLiModel);
         tagger.setTagUrls(false);
         tagger.setTagDates(false);
-        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
         // annotations.removeNestedAnnotations();
         // annotations.sort();
 
@@ -136,7 +136,7 @@ public class NerTest {
         tagger.loadModel(tudnerEnModel);
         tagger.setTagUrls(false);
         tagger.setTagDates(false);
-        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -171,7 +171,7 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.84);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.75);
 
-        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -205,7 +205,7 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.69);
 
         tagger.loadModel(lingpipeNerModelFile);
-        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -239,7 +239,7 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.57);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.49);
 
-        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -271,7 +271,7 @@ public class NerTest {
         // System.out.println(er.getExactMatchResultsReadable());
 
         tagger.loadModel(julieNerModelFile);
-        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));

@@ -1,14 +1,13 @@
 package ws.palladian.extraction.entity;
 
-import org.apache.commons.lang3.StringUtils;
-
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
-import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.BaseAnnotation;
 
-public class ContextAnnotation implements Annotated {
+public class ContextAnnotation extends BaseAnnotation {
 
     /** The category of the instance, null if not classified. */
     private CategoryEntriesMap tags = new CategoryEntriesMap();
@@ -17,7 +16,7 @@ public class ContextAnnotation implements Annotated {
     private int offset;
 
     /** The annotated entity. */
-    private String entity;
+    private String value;
 
     /** The left context of the annotation */
     private final String leftContext;
@@ -25,50 +24,20 @@ public class ContextAnnotation implements Annotated {
     /** The right context of the annotation */
     private final String rightContext;
 
-    public ContextAnnotation(int offset, String entityName, String tagName, String leftContext, String rightContext) {
+    public ContextAnnotation(int offset, String value, String tag, String leftContext, String rightContext) {
         this.offset = offset;
-        this.entity = entityName;
-        tags.set(tagName, 1);
+        this.value = value;
+        tags.set(tag, 1);
         this.leftContext = leftContext;
         this.rightContext = rightContext;
     }
 
     public ContextAnnotation(int offset, String entityName, String tagName) {
-        this(offset, entityName, tagName, StringUtils.EMPTY, StringUtils.EMPTY);
+        this(offset, entityName, tagName, EMPTY, EMPTY);
     }
 
-    public ContextAnnotation(Annotated annotated) {
-        this(annotated.getStartPosition(), annotated.getValue(), annotated.getTag(), StringUtils.EMPTY,
-                StringUtils.EMPTY);
-    }
-
-    public CategoryEntries getTags() {
-        return tags;
-    }
-
-    public void setEntity(String entity) {
-        this.entity = entity;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public void setTags(CategoryEntries tags) {
-        this.tags = new CategoryEntriesMap(tags);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Annotation [offset=");
-        builder.append(offset);
-        builder.append(", entity=");
-        builder.append(entity);
-        builder.append(", tag=");
-        builder.append(getTag());
-        builder.append("]");
-        return builder.toString();
+    public ContextAnnotation(Annotation annotation) {
+        this(annotation.getStartPosition(), annotation.getValue(), annotation.getTag(), EMPTY, EMPTY);
     }
 
     @Override
@@ -76,30 +45,30 @@ public class ContextAnnotation implements Annotated {
         return offset;
     }
 
-    @Override
-    public int getEndPosition() {
-        return offset + entity.length();
+    public void setStartPosition(int offset) {
+        this.offset = offset;
     }
 
     @Override
     public String getValue() {
-        return entity;
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
     public String getTag() {
-        return getTags().getMostLikelyCategory();
+        return tags.getMostLikelyCategory();
     }
 
-    @Override
-    public int compareTo(Annotated other) {
-        return this.getStartPosition() - other.getStartPosition();
+    public CategoryEntries getTags() {
+        return tags;
     }
 
-    @Override
-    // FIXME this needs to go in parent
-    public boolean overlaps(Annotated annotated) {
-        return NerHelper.overlaps(this, annotated);
+    public void setTags(CategoryEntries tags) {
+        this.tags = new CategoryEntriesMap(tags);
     }
 
     public String getLeftContext() {
@@ -208,40 +177,6 @@ public class ContextAnnotation implements Annotated {
         }
 
         return contexts;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((entity == null) ? 0 : entity.hashCode());
-        result = prime * result + offset;
-        result = prime * result + ((tags == null) ? 0 : tags.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ContextAnnotation other = (ContextAnnotation)obj;
-        if (entity == null) {
-            if (other.entity != null)
-                return false;
-        } else if (!entity.equals(other.entity))
-            return false;
-        if (offset != other.offset)
-            return false;
-        if (tags == null) {
-            if (other.tags != null)
-                return false;
-        } else if (!tags.equals(other.tags))
-            return false;
-        return true;
     }
 
 }

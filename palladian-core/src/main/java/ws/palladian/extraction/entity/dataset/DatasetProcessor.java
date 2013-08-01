@@ -12,7 +12,7 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public class DatasetProcessor {
 
@@ -164,7 +164,7 @@ public class DatasetProcessor {
 
                 document = HtmlHelper.stripHtmlTags(document);
 
-                for (Annotated annotation : annotations) {
+                for (Annotation annotation : annotations) {
                     String tagName = annotation.getTag().toUpperCase();
                     document = document.replace(annotation.getValue(), "<" + tagName + ">" + annotation.getValue()
                             + "</" + tagName + ">");

@@ -22,7 +22,7 @@ import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -294,17 +294,17 @@ class LocationFeatureExtractor {
 //    }
 
     private static Map<Location, Double> buildSentenceProximityMap(String text,
-            MultiMap<? extends Annotated, Location> locations) {
+            MultiMap<? extends Annotation, Location> locations) {
         Map<Location, Double> proximityMap = LazyMap.create(ConstantFactory.create(Double.MAX_VALUE));
         List<String> sentences = Tokenizer.getSentences(text);
         for (String sentence : sentences) {
             int start = text.indexOf(sentence);
             int end = start + sentence.length();
-            List<? extends Annotated> currentAnnotations = getAnnotations(locations.keySet(), start, end);
-            for (Annotated value1 : currentAnnotations) {
+            List<? extends Annotation> currentAnnotations = getAnnotations(locations.keySet(), start, end);
+            for (Annotation value1 : currentAnnotations) {
                 Collection<Location> locations1 = locations.get(value1);
                 for (Location location1 : locations1) {
-                    for (Annotated value2 : currentAnnotations) {
+                    for (Annotation value2 : currentAnnotations) {
                         if (!value1.getValue().equals(value2.getValue())) {
                             // XXX to make this even more secure, we might use #normalizeName
                             Collection<Location> locations2 = locations.get(value2);
@@ -335,7 +335,7 @@ class LocationFeatureExtractor {
      * @param end The end offset.
      * @return All annotations between (including) start/end.
      */
-    private static <A extends Annotated> List<A> getAnnotations(Collection<A> annotations, int start, int end) {
+    private static <A extends Annotation> List<A> getAnnotations(Collection<A> annotations, int start, int end) {
         List<A> result = CollectionHelper.newArrayList();
         for (A annotation : annotations) {
             if (annotation.getStartPosition() >= start && annotation.getEndPosition() <= end) {
@@ -356,7 +356,7 @@ class LocationFeatureExtractor {
 //        return maxPopulation;
 //    }
 
-    private static Set<Location> getUniqueLocations(MultiMap<? extends Annotated, Location> locations) {
+    private static Set<Location> getUniqueLocations(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();
         for (Collection<Location> group : locations.values()) {
             if (isUnique(group)) {
@@ -466,13 +466,13 @@ class LocationFeatureExtractor {
 //        return frequencies;
 //    }
 
-    private static boolean isAcronym(Annotated annotated, MultiMap<? extends Annotated, Location> locations) {
-        for (Location location : locations.get(annotated)) {
+    private static boolean isAcronym(Annotation annotation, MultiMap<? extends Annotation, Location> locations) {
+        for (Location location : locations.get(annotation)) {
             Set<String> names = LocationExtractorUtils.collectNames(location);
             for (String name : names) {
-                if (name.equals(LocationExtractorUtils.normalizeName(annotated.getValue()))) {
+                if (name.equals(LocationExtractorUtils.normalizeName(annotation.getValue()))) {
                     if (name.matches("[A-Z]+|([A-Z]\\.)+")) {
-                        LOGGER.trace("{} is an acronym", annotated.getValue());
+                        LOGGER.trace("{} is an acronym", annotation.getValue());
                         return true;
                     }
                 }
