@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.ClassifiedTextDocument;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
 
 /**
@@ -334,7 +334,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * 
      * @param annotation The complete annotation from the training data.
      */
-    private void addToEntityDictionary(Annotated annotation) {
+    private void addToEntityDictionary(Annotation annotation) {
         addToEntityDictionary(annotation.getValue(), annotation.getTag());
     }
 
@@ -377,12 +377,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param modelFilePath The path where the model should be saved to.
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    public boolean train(String trainingFilePath, List<? extends Annotated> annotations, String modelFilePath) {
+    public boolean train(String trainingFilePath, List<? extends Annotation> annotations, String modelFilePath) {
 
         LOGGER.info("Start creating {} annotations for training", annotations.size());
 
         // save training entities in a dedicated dictionary
-        for (Annotated annotation : annotations) {
+        for (Annotation annotation : annotations) {
             addToEntityDictionary(annotation);
         }
 
@@ -469,13 +469,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("Start creating {} annotations for training", annotations.size());
-        for (Annotated annotation : annotations) {
+        for (Annotation annotation : annotations) {
             ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
             textInstances.add(document);
         }
 
         // save training entities in a dedicated dictionary
-        for (Annotated annotation : combinedAnnotations) {
+        for (Annotation annotation : combinedAnnotations) {
             addToEntityDictionary(annotation);
         }
 
@@ -537,7 +537,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
     private boolean trainEnglish(String trainingFilePath, String modelFilePath,
-            List<? extends Annotated> additionalTrainingAnnotations) {
+            List<? extends Annotation> additionalTrainingAnnotations) {
 
         // get all training annotations
         LOGGER.info("get annotations from column-formatted training file");
@@ -545,8 +545,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
         // add the additional training annotations, they will be used for the context analysis too
         // annotations.addAll(additionalTrainingAnnotations);
-        for (Annotated annotated : additionalTrainingAnnotations) {
-            annotations.add(new ContextAnnotation(annotated));
+        for (Annotation annotation : additionalTrainingAnnotations) {
+            annotations.add(new ContextAnnotation(annotation));
         }
 
         // create instances with nominal and numeric features
@@ -584,7 +584,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
-            for (Annotated wrongAnnotation : evaluationResult.getAnnotations(ResultType.ERROR1)) {
+            for (Annotation wrongAnnotation : evaluationResult.getAnnotations(ResultType.ERROR1)) {
 
                 // for the numeric classifier it is better if only annotations are removed that never appeared in the
                 // gold standard for the text classifier it is better to remove annotations that are just wrong even
@@ -593,7 +593,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
                 // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
                 String wrongName = wrongAnnotation.getValue().toLowerCase();
-                for (Annotated gsAnnotation : goldStandard) {
+                for (Annotation gsAnnotation : goldStandard) {
                     if (wrongName.equals(gsAnnotation.getValue().toLowerCase())) {
                         addAnnotation = false;
                         break;
@@ -691,10 +691,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
         StopWatch stopWatch = new StopWatch();
 
-        Annotations<Annotated> annotations = new Annotations<Annotated>();
+        Annotations<Annotation> annotations = new Annotations<Annotation>();
 
         if (languageMode.equals(LanguageMode.English)) {
             annotations.addAll(getAnnotationsEnglish(inputText));
@@ -762,13 +762,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             int c = 0;
             for (ContextAnnotation annotation : annotations) {
 
-                Object[] result = removeDateFragment(annotation.getValue());
-                String entity = (String)result[0];
+                Pair<String, Integer> result = removeDateFragment(annotation.getValue());
+                String entity = result.getLeft();
 
-                annotation.setEntity(entity);
-                annotation.setOffset(annotation.getStartPosition() + (Integer)result[1]);
+                annotation.setValue(entity);
+                annotation.setStartPosition(annotation.getStartPosition() + result.getRight());
 
-                if ((Integer)result[1] > 0) {
+                if (result.getRight() > 0) {
                     c++;
                 }
             }
@@ -799,11 +799,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
             for (ContextAnnotation annotation : annotations) {
 
-                if (/*
-                     * // if the annotation is at the start of a sentence
-                     * Boolean.valueOf(annotation.getNominalFeatures().get(0))
-                     * &&
-                     */annotation.getValue().indexOf(" ") == -1) {
+                if (annotation.getValue().indexOf(" ") == -1) {
 
                     double upperCaseToLowerCaseRatio = 2;
 
@@ -1059,10 +1055,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Annotations<ContextAnnotation> combinedAnnotations = new Annotations<ContextAnnotation>();
         annotations.sort();
         // Annotated lastAnnotation = new Annotation(-2, "", "");
-        Annotated lastAnnotation = null;
+        Annotation lastAnnotation = null;
         int lastAnnotationEndPosition = -2;
         String lastAnnotationTag = "";
-        Annotated lastCombinedAnnotation = null;
+        Annotation lastCombinedAnnotation = null;
 
         for (ContextAnnotation annotation : annotations) {
             if (!annotation.getTag().equalsIgnoreCase("o") && annotation.getTag().equalsIgnoreCase(lastAnnotationTag)
@@ -1184,11 +1180,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @return <tt>True</tt>, if the text contains a date fragment, <tt>false</tt> otherwise.
      */
     private boolean containsDateFragment(String text) {
-        text = text.toLowerCase();
-        String[] regExps = RegExp.DATE_FRAGMENTS;
-
-        for (String regExp : regExps) {
-            if (text.replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
+        for (String regExp : RegExp.DATE_FRAGMENTS) {
+            if (text.toLowerCase().replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
                 return true;
             }
         }
@@ -1204,10 +1197,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @return An object array containing the new cleased text on position 0 and the offset which was caused by the
      *         removal on position 1.
      */
-    private Object[] removeDateFragment(String text) {
+    private Pair<String, Integer> removeDateFragment(String text) {
         String[] regExps = RegExp.DATE_FRAGMENTS;
 
-        Object[] result = new Object[2];
         int offsetChange = 0;
 
         for (String regExp : regExps) {
@@ -1232,10 +1224,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             }
         }
 
-        result[0] = text;
-        result[1] = offsetChange;
-
-        return result;
+        return Pair.of(text, offsetChange);
     }
 
     /**
@@ -1247,7 +1236,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param trainingFilePath The path to the training data.
      * @param trainingAnnotations The training annotations.
      */
-    private void analyzeContexts(String trainingFilePath, List<? extends Annotated> trainingAnnotations) {
+    private void analyzeContexts(String trainingFilePath, List<? extends Annotation> trainingAnnotations) {
 
         LOGGER.debug("start analyzing contexts");
 
@@ -1439,7 +1428,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param annotations The annotations we are searching for in this entity.
      * @return A set of annotations found in this annotation.
      */
-    private Annotations<ContextAnnotation> unwrapAnnotations(Annotated annotation, List<ContextAnnotation> annotations) {
+    private Annotations<ContextAnnotation> unwrapAnnotations(Annotation annotation, List<ContextAnnotation> annotations) {
         Annotations<ContextAnnotation> unwrappedAnnotations = new Annotations<ContextAnnotation>();
 
         boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
@@ -1451,7 +1440,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         String entityName = annotation.getValue().toLowerCase();
         int length = entityName.length();
 
-        for (Annotated currentAnnotation : annotations) {
+        for (Annotation currentAnnotation : annotations) {
             if (currentAnnotation.getValue().length() < length) {
                 int index = entityName.indexOf(" " + currentAnnotation.getValue().toLowerCase() + " ");
                 if (index > -1 && currentAnnotation.getValue().length() > 2) {

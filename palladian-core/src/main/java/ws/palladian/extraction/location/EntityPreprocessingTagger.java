@@ -17,8 +17,8 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -75,9 +75,9 @@ public class EntityPreprocessingTagger implements Tagger {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String text) {
+    public List<Annotation> getAnnotations(String text) {
         List<ContextAnnotation> annotations = tagger.getAnnotations(text);
-        List<Annotated> fixedAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> fixedAnnotations = CollectionHelper.newArrayList();
 
         Set<String> inSentence = getInSentenceCandidates(annotations);
 
@@ -131,7 +131,7 @@ public class EntityPreprocessingTagger implements Tagger {
                 } else if (offsetCut > 0) { // annotation start was corrected
                     LOGGER.debug("Correct '{}' to '{}' because of lc/uc ratios", value, newValue);
                     int newStart = annotation.getStartPosition() + offsetCut;
-                    fixedAnnotations.add(new Annotation(newStart, newValue, annotation.getTag()));
+                    fixedAnnotations.add(new ImmutableAnnotation(newStart, newValue, annotation.getTag()));
                     continue;
                 }
             }
@@ -205,7 +205,7 @@ public class EntityPreprocessingTagger implements Tagger {
 
     public static void main(String[] args) {
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
-        List<Annotated> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
+        List<Annotation> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
                 .readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text27.txt")));
         CollectionHelper.print(annotations);
     }

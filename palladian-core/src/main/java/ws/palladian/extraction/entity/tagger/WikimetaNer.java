@@ -14,8 +14,8 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -70,8 +70,8 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
-        List<Annotated> annotations;
+    public List<Annotation> getAnnotations(String inputText) {
+        List<Annotation> annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
             String resultString = HttpHelper.getStringContent(httpResult);
@@ -98,9 +98,9 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     /** Package-private for unit-testing. */
-    List<Annotated> parseXml(InputSource inputSource, String inputText) throws ParserException {
+    List<Annotation> parseXml(InputSource inputSource, String inputText) throws ParserException {
 
-        Annotations<Annotated> annotations = new Annotations<Annotated>();
+        Annotations<Annotation> annotations = new Annotations<Annotation>();
         Document doc = xmlParser.parse(inputSource);
 
         List<String> tokens = getCdataContent(doc);
@@ -140,7 +140,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             // the actual character index might be later
             tokenCharIndex = inputText.indexOf(value, tokenCharIndex);
             if (tokenCharIndex >= 0) {
-                annotations.add(new Annotation(tokenCharIndex, value, type));
+                annotations.add(new ImmutableAnnotation(tokenCharIndex, value, type));
             } else {
                 LOGGER.warn("Could not find {}/{} (idx:{},char:{})", value, type, tokenIndex, tokenCharIndex);
             }
@@ -182,7 +182,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
 
     /** Overridden, intended for unit-testing only. */
     @Override
-    protected String tagText(String inputText, List<? extends Annotated> annotations) {
+    protected String tagText(String inputText, List<? extends Annotation> annotations) {
         return super.tagText(inputText, annotations);
     }
 

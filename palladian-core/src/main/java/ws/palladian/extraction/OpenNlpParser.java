@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * OpenNLP Parser
@@ -197,7 +197,7 @@ public class OpenNlpParser extends AbstractParser {
 
         openNLPParse = getFullParse(sentence)[index];
 
-        List<Annotated> tagAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
 
         parse2Annotations(openNLPParse, tagAnnotations);
 

@@ -1,116 +1,66 @@
 package ws.palladian.processing.features;
 
-import org.apache.commons.lang3.Validate;
-
 /**
  * <p>
- * Default implementation for {@link Annotated} interface.
+ * Interface defining some annotated entity in a text. The annotation is characterized by its start and end position,
+ * provides a tag (e.g. a POS tag, entity tag, etc.) and its value. <b>Important:</b> Implementations of this interface
+ * should be providing suitable {@link #hashCode()} and {@link #equals(Object)} methods. Usually, you want to resort to
+ * {@link BaseAnnotation} which already provides common functionality.
  * </p>
  * 
  * @author Philipp Katz
  */
-public class Annotation implements Annotated {
+public interface Annotation extends Comparable<Annotation> {
 
-    /** The position of the first character of this {@code Annotation}. */
-    private final int startPosition;
+    /**
+     * @return The start offset of this annotation in the text (first character in text is zero).
+     */
+    int getStartPosition();
 
-    /** The {@link String} value marked by this annotation. */
-    private final String value;
+    /**
+     * @return The end offset of this annotation in the text (this is startPosition + value.length()).
+     */
+    int getEndPosition();
 
-    /** The tag assigned to this annotation. */
-    private final String tag;
+    /**
+     * @return The tag assigned to this annotation (like POS, entity, etc.).
+     */
+    String getTag();
+
+    /**
+     * @return The string value of this annotation.
+     */
+    String getValue();
 
     /**
      * <p>
-     * Create a new {@link Annotation} at the given position, with the specified value and tag.
+     * Determine, whether this annotation overlaps another given annotation (i.e. start/end boundaries are within/on the
+     * on the other annotation).
      * </p>
      * 
-     * @param startPosition The start offset in the text, greater or equal zero.
-     * @param value The value of the annotation, not <code>null</code> or empty.
-     * @param tag An (optional) tag.
+     * @param other The other annotation, not <code>null</code>.
+     * @return <code>true</code> in case this annotation overlaps the given one, <code>false</code> otherwise.
      */
-    public Annotation(int startPosition, String value, String tag) {
-        Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
-        Validate.notEmpty(value, "value must not be empty");
-        this.startPosition = startPosition;
-        this.value = value;
-        this.tag = tag;
-    }
+    boolean overlaps(Annotation other);
 
-    @Override
-    public final int compareTo(Annotated other) {
-        return Integer.valueOf(this.startPosition).compareTo(other.getStartPosition());
-    }
+    /**
+     * <p>
+     * Determine, whether this and the given annotation are congruent (i.e. start and end position are the same).
+     * <p>
+     * 
+     * @param other The other annotation, not <code>null</code>.
+     * @return <code>true</code> in case this annotation and the given are congruent, <code>false</code> otherwise.
+     */
+    boolean congruent(Annotation other);
 
-    @Override
-    public final int getStartPosition() {
-        return startPosition;
-    }
-
-    @Override
-    public final int getEndPosition() {
-        return startPosition + value.length();
-    }
-
-    @Override
-    public final String getTag() {
-        return tag;
-    }
-
-    @Override
-    public final String getValue() {
-        return value;
-    }
-
-    @Override
-    public final boolean overlaps(Annotated other) {
-        boolean overlaps = false;
-        overlaps |= startPosition <= other.getStartPosition() && getEndPosition() >= other.getStartPosition();
-        overlaps |= startPosition <= other.getEndPosition() && getEndPosition() >= other.getStartPosition();
-        return overlaps;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + getEndPosition();
-        result = prime * result + startPosition;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Annotated other = (Annotated)obj;
-        if (getEndPosition() != other.getEndPosition()) {
-            return false;
-        }
-        if (startPosition != other.getStartPosition()) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Annotation [value=");
-        builder.append(getValue());
-        builder.append(", startPosition=");
-        builder.append(getStartPosition());
-        builder.append(", endPosition=");
-        builder.append(getEndPosition());
-        builder.append("]");
-        return builder.toString();
-    }
+    /**
+     * <p>
+     * Determine, whether this and the given annotation have the same tags. Tags are compared case insensitively.
+     * </p>
+     * 
+     * @param other The other annotation, not <code>null</code>.
+     * @return <code>true</code> in case tags are equal, <code>false</code> otherwise.
+     */
+    boolean sameTag(Annotation other);
 
 }

@@ -45,7 +45,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public final class LocationExtractionEvaluator {
 
@@ -58,13 +58,13 @@ public final class LocationExtractionEvaluator {
                     + "' does not exist or is no directory.");
         }
 
-        Map<ResultType, Map<String, Collection<Annotated>>> errors = new LinkedHashMap<ResultType, Map<String, Collection<Annotated>>>();
-        errors.put(CORRECT, new HashMap<String, Collection<Annotated>>());
-        errors.put(ERROR1, new HashMap<String, Collection<Annotated>>());
-        errors.put(ERROR2, new HashMap<String, Collection<Annotated>>());
-        errors.put(ERROR3, new HashMap<String, Collection<Annotated>>());
-        errors.put(ERROR4, new HashMap<String, Collection<Annotated>>());
-        errors.put(ERROR5, new HashMap<String, Collection<Annotated>>());
+        Map<ResultType, Map<String, Collection<Annotation>>> errors = new LinkedHashMap<ResultType, Map<String, Collection<Annotation>>>();
+        errors.put(CORRECT, new HashMap<String, Collection<Annotation>>());
+        errors.put(ERROR1, new HashMap<String, Collection<Annotation>>());
+        errors.put(ERROR2, new HashMap<String, Collection<Annotation>>());
+        errors.put(ERROR3, new HashMap<String, Collection<Annotation>>());
+        errors.put(ERROR4, new HashMap<String, Collection<Annotation>>());
+        errors.put(ERROR5, new HashMap<String, Collection<Annotation>>());
 
         File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
 
@@ -74,7 +74,7 @@ public final class LocationExtractionEvaluator {
         double recallMuc = 0;
         double recallExact = 0;
 
-        EvaluationResult micro = new EvaluationResult(Collections.<Annotated> emptyList());
+        EvaluationResult micro = new EvaluationResult(Collections.<Annotation> emptyList());
 
         StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < files.length; i++) {
@@ -153,15 +153,15 @@ public final class LocationExtractionEvaluator {
         detailedOutput.append("\n\n\n");
 
         // detailed error stats
-        for (Entry<ResultType, Map<String, Collection<Annotated>>> entry : errors.entrySet()) {
+        for (Entry<ResultType, Map<String, Collection<Annotation>>> entry : errors.entrySet()) {
             ResultType resultType = entry.getKey();
             int errorTypeCount = 0;
-            for (Collection<Annotated> errorEntry : entry.getValue().values()) {
+            for (Collection<Annotation> errorEntry : entry.getValue().values()) {
                 errorTypeCount += errorEntry.size();
             }
             detailedOutput.append(resultType.getDescription()).append(";").append(errorTypeCount).append("\n");
-            for (Entry<String, Collection<Annotated>> errorEntry : entry.getValue().entrySet()) {
-                for (Annotated annotation : errorEntry.getValue()) {
+            for (Entry<String, Collection<Annotation>> errorEntry : entry.getValue().entrySet()) {
+                for (Annotation annotation : errorEntry.getValue()) {
                     String fileName = errorEntry.getKey();
                     detailedOutput.append("\t").append(annotation).append(";").append(fileName).append("\n");
                 }
@@ -187,7 +187,7 @@ public final class LocationExtractionEvaluator {
 
     private static final class EvaluationItem implements Comparable<EvaluationItem> {
 
-        public EvaluationItem(String file, Annotated annotation, ResultType resultType, GeoCoordinate goldCoordinate,
+        public EvaluationItem(String file, Annotation annotation, ResultType resultType, GeoCoordinate goldCoordinate,
                 GeoCoordinate taggedCoordinate) {
             this.file = file;
             this.annotation = annotation;
@@ -197,7 +197,7 @@ public final class LocationExtractionEvaluator {
         }
 
         String file;
-        Annotated annotation;
+        Annotation annotation;
         ResultType resultType;
         GeoCoordinate goldCoord;
         GeoCoordinate taggedCoord;
@@ -276,7 +276,7 @@ public final class LocationExtractionEvaluator {
             List<LocationAnnotation> annotationResult = extractor.getAnnotations(goldStandardDocument.getText());
 
             List<EvaluationItem> evaluationList = CollectionHelper.newArrayList();
-            Set<Annotated> taggedAnnotations = CollectionHelper.newHashSet();
+            Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
 
             // evaluate
             for (LocationAnnotation assignedAnnotation : annotationResult) {
@@ -289,17 +289,13 @@ public final class LocationExtractionEvaluator {
 
                     GeoCoordinate goldCoordinate = goldAnnotation.getLocation();
 
-                    boolean congruent = assignedAnnotation.getStartPosition() == goldAnnotation.getStartPosition()
-                            && assignedAnnotation.getEndPosition() == goldAnnotation.getEndPosition();
-                    boolean overlaps = assignedAnnotation.overlaps(goldAnnotation);
-
-                    if (congruent) {
+                    if (assignedAnnotation.congruent(goldAnnotation)) {
                         // same start and end
                         taggedAnnotations.add(goldAnnotation);
                         evaluationList.add(new EvaluationItem(fileName, goldAnnotation, CORRECT, goldCoordinate,
                                 assignedAnnotation.getLocation()));
                         break;
-                    } else if (overlaps) {
+                    } else if (assignedAnnotation.overlaps(goldAnnotation)) {
                         // overlap
                         taggedOverlap = true;
                         taggedAnnotations.add(goldAnnotation);

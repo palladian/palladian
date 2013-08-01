@@ -25,8 +25,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -66,13 +66,13 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
-        List<Annotated> taggedEntities = tagger.getAnnotations(text);
+        List<Annotation> taggedEntities = tagger.getAnnotations(text);
         taggedEntities = filter.filter(taggedEntities);
         List<ClassifiedAnnotation> classifiedEntities = contextClassifier.classify(taggedEntities, text);
 
-        CollectionHelper.remove(classifiedEntities, new Filter<Annotated>() {
+        CollectionHelper.remove(classifiedEntities, new Filter<Annotation>() {
             @Override
-            public boolean accept(Annotated item) {
+            public boolean accept(Annotation item) {
                 String value = item.getValue();
                 // the probability, that we are wrong when tagging one or two-letter abbreviations is very high, so we
                 // discard them here, except for "US" and "UK".
@@ -97,9 +97,9 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return result;
     }
 
-    public static <A extends Annotated> MultiMap<A, Location> fetchLocations(LocationSource source, List<A> annotations) {
+    public static <A extends Annotation> MultiMap<A, Location> fetchLocations(LocationSource source, List<A> annotations) {
         Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
-        for (Annotated annotation : annotations) {
+        for (Annotation annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             valuesToRetrieve.add(entityValue);
         }
@@ -123,7 +123,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private static final AnnotationFilter filterCached = new AnnotationFilter();
 
-    private static void greedyRetrieve(LocationSource source, Annotated annotation, MultiMap<Annotated, Location> result) {
+    private static void greedyRetrieve(LocationSource source, Annotation annotation, MultiMap<Annotation, Location> result) {
         String[] parts = annotation.getValue().split("\\s");
         if (parts.length == 1) {
             return;
@@ -139,7 +139,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 //                result.addAll(newAnnotation, lookup);
 //            }
 //        }
-        MultiMap<Annotated, Location> additionalLocations = DefaultMultiMap.createWithSet();
+        MultiMap<Annotation, Location> additionalLocations = DefaultMultiMap.createWithSet();
         String trimmedValue = annotation.getValue();
         for (;;) {
             int idx = trimmedValue.lastIndexOf(' ');
@@ -152,13 +152,13 @@ public class PalladianLocationExtractor extends LocationExtractor {
             if (lookup.size() > 0) {
                 LOGGER.debug("Deep retrieval for {} found {} locations for part {}.", annotation.getValue(),
                         lookup.size(), trimmedValue);
-                Annotated newAnnotation = new Annotation(annotation.getStartPosition(), trimmedValue,
+                Annotation newAnnotation = new ImmutableAnnotation(annotation.getStartPosition(), trimmedValue,
                         StringTagger.CANDIDATE_TAG);
                 additionalLocations.addAll(newAnnotation, lookup);
                 break;
             }
         }
-        List<Annotated> filtered = filterCached.filter(new ArrayList<Annotated>(additionalLocations.keySet()));
+        List<Annotation> filtered = filterCached.filter(new ArrayList<Annotation>(additionalLocations.keySet()));
         additionalLocations.keySet().retainAll(filtered);
         result.addAll(additionalLocations);
     }

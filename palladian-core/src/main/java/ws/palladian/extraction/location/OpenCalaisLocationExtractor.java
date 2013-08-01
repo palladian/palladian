@@ -15,6 +15,7 @@ import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.collection.CaseInsensitiveMap;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -132,7 +133,8 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
                                 // co-reference resolution instances
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
-                                    Annotation annotation = new Annotation(cumulatedOffset + offset, entityName,
+                                    Annotation annotation = new ImmutableAnnotation(cumulatedOffset + offset,
+                                            entityName,
                                             entityTag);
                                     Location location = new ImmutableLocation(id, name, type, latitude,
                                             longitude, null);

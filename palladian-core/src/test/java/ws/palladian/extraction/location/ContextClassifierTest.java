@@ -10,7 +10,7 @@ import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public class ContextClassifierTest {
 
@@ -20,7 +20,7 @@ public class ContextClassifierTest {
         ContextClassifier classifier = new ContextClassifier(ClassificationMode.ISOLATED);
 
         String text = "The coast of east Sri Lanka is nice. I have been in Sri Lanka.";
-        List<? extends Annotated> annotations = tagger.getAnnotations(text);
+        List<? extends Annotation> annotations = tagger.getAnnotations(text);
         List<ClassifiedAnnotation> classifiedAnnotations = classifier.classify(annotations, text);
         assertEquals("LOC", classifiedAnnotations.get(1).getCategoryEntries().getMostLikelyCategory());
         assertEquals("LOC", classifiedAnnotations.get(2).getCategoryEntries().getMostLikelyCategory());

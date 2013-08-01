@@ -27,7 +27,7 @@ import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilte
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -110,14 +110,14 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
-        Set<Annotated> unlikelyLocations = getUnlikelyLocations(locations);
+        Set<Annotation> unlikelyLocations = getUnlikelyLocations(locations);
         locations.keySet().removeAll(unlikelyLocations);
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
         Set<Location> anchors = getAnchors(locations);
 
-        for (Annotated annotation : locations.keySet()) {
+        for (Annotation annotation : locations.keySet()) {
             Collection<Location> candidates = locations.get(annotation);
             if (candidates.isEmpty()) {
                 LOGGER.debug("'{}' could not be found and will be dropped", annotation.getValue());
@@ -161,8 +161,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return result;
     }
 
-    private Set<Annotated> getUnlikelyLocations(MultiMap<ClassifiedAnnotation, Location> locations) {
-        Set<Annotated> unlikelyLocations = CollectionHelper.newHashSet();
+    private Set<Annotation> getUnlikelyLocations(MultiMap<ClassifiedAnnotation, Location> locations) {
+        Set<Annotation> unlikelyLocations = CollectionHelper.newHashSet();
         for (ClassifiedAnnotation annotation : locations.keySet()) {
             Collection<Location> group = locations.get(annotation);
             boolean likelyLocation = LocationExtractorUtils.containsType(group, COUNTRY, CONTINENT);
@@ -219,7 +219,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return CollectionHelper.getFirst(temp);
     }
 
-    private Set<Location> getAnchors(MultiMap<? extends Annotated, Location> locations) {
+    private Set<Location> getAnchors(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> anchorLocations = CollectionHelper.newHashSet();
 
         // get prominent anchor locations; continents, countries and locations with very high population
@@ -234,7 +234,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
         // get unique and unambiguous locations; location whose name only occurs once, or which are very closely
         // together (because we might have multiple entries in the database with the same name which lie on a cluster)
-        for (Annotated annotation : locations.keySet()) {
+        for (Annotation annotation : locations.keySet()) {
             Collection<Location> group = locations.get(annotation);
             if (group.isEmpty()) {
                 continue;
@@ -278,7 +278,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return anchorLocations;
     }
 
-    private Set<Location> getLassoLocations(MultiMap<? extends Annotated, Location> locations) {
+    private Set<Location> getLassoLocations(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> lassoLocations = new HashSet<Location>(locations.allValues());
         while (lassoLocations.size() > 1) {
             GeoCoordinate midpoint = GeoUtils.getMidpoint(lassoLocations);

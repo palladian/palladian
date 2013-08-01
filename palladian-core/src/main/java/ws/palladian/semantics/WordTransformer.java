@@ -15,7 +15,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -597,7 +597,7 @@ public class WordTransformer {
         return getTense(string, posTagger.getAnnotations(string));
     }
 
-    public static EnglishTense getTense(String string, List<Annotated> annotations) {
+    public static EnglishTense getTense(String string, List<Annotation> annotations) {
 
         string = string.toLowerCase();
 
@@ -615,7 +615,7 @@ public class WordTransformer {
         boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
 
         Set<String> posTags = CollectionHelper.newHashSet();
-        for (Annotated a : annotations) {
+        for (Annotation a : annotations) {
             posTags.add(a.getTag());
         }
 
