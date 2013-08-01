@@ -16,7 +16,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.Filter;
@@ -169,7 +169,7 @@ public final class LocationExtractorUtils {
         final int numFiles = files.size();
 
         return new Iterator<LocationDocument>() {
-            int counter = 0;
+            ProgressMonitor monitor = new ProgressMonitor(numFiles, 0);
             @Override
             public boolean hasNext() {
                 return fileIterator.hasNext();
@@ -177,7 +177,7 @@ public final class LocationExtractorUtils {
 
             @Override
             public LocationDocument next() {
-                ProgressHelper.printProgress(counter++, numFiles, 0);
+                monitor.incrementAndPrintProgress();
                 File currentFile = fileIterator.next();
                 String rawText = FileHelper.readFileToString(currentFile).replace(" role=\"main\"", "");
                 String cleanText = HtmlHelper.stripHtmlTags(rawText);
