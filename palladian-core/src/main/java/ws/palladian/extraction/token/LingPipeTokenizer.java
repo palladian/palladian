@@ -1,7 +1,6 @@
 package ws.palladian.extraction.token;
 
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;

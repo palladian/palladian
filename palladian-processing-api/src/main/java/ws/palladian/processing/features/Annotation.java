@@ -8,6 +8,11 @@ package ws.palladian.processing.features;
  * {@link BaseAnnotation} which already provides common functionality.
  * </p>
  * 
+ * <p>
+ * The {@link Comparable} interface should be implemented, such that {@link Annotation}s are sorted by the their start
+ * offset, and in case start offsets are equal, to put longer annotations first.
+ * </p>
+ * 
  * @author Philipp Katz
  */
 public interface Annotation extends Comparable<Annotation> {

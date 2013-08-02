@@ -1,17 +1,12 @@
 package ws.palladian.extraction.location;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
@@ -26,7 +21,6 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -38,10 +32,10 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  */
 public class PalladianLocationExtractor extends LocationExtractor {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLocationExtractor.class);
+    /** Long annotations exceeding the specified token count, are split up and parts of them are treated as candidates. */
+    private final static int LONG_ANNOTATION_SPLIT = 3;
 
-    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
     private final AnnotationFilter filter = new AnnotationFilter();
 
@@ -52,8 +46,6 @@ public class PalladianLocationExtractor extends LocationExtractor {
     private final AddressTagger addressTagger = new AddressTagger();
 
     private final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
-
-    private final static boolean greedyRetrieval = false;
 
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;
@@ -93,6 +85,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         result.addAll(annotatedStreets);
 
         result.sort();
+        result.removeNested();
 
         return result;
     }
@@ -110,57 +103,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
             Collection<Location> locations = lookup.get(entityValue);
             if (locations.size() > 0) {
                 result.addAll(annotation, locations);
-//            } else if (greedyRetrieval) {
-//                greedyRetrieve(source, annotation, result);
             } else {
                 result.addAll(annotation, Collections.<Location> emptySet());
             }
         }
         return result;
-    }
-
-    // XXX experimental; commit to history and delete again.
-
-    private static final AnnotationFilter filterCached = new AnnotationFilter();
-
-    private static void greedyRetrieve(LocationSource source, Annotation annotation, MultiMap<Annotation, Location> result) {
-        String[] parts = annotation.getValue().split("\\s");
-        if (parts.length == 1) {
-            return;
-        }
-//        for (String part : parts) {
-//            String entityValue = LocationExtractorUtils.normalizeName(part);
-//            int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(part);
-//            Annotated newAnnotation = new Annotation(startPosition, part, "DEEP");
-//            Collection<Location> lookup = source.getLocations(entityValue, EnumSet.of(Language.ENGLISH));
-//            if (lookup.size() > 0) {
-//                System.out.println("Deep retrieval for " + annotation.getValue() + " found " + lookup.size()
-//                        + " locations for part " + part + ".");
-//                result.addAll(newAnnotation, lookup);
-//            }
-//        }
-        MultiMap<Annotation, Location> additionalLocations = DefaultMultiMap.createWithSet();
-        String trimmedValue = annotation.getValue();
-        for (;;) {
-            int idx = trimmedValue.lastIndexOf(' ');
-            if (idx == -1) {
-                break;
-            }
-            trimmedValue = trimmedValue.substring(0, idx);
-            String entityValue = LocationExtractorUtils.normalizeName(trimmedValue);
-            Collection<Location> lookup = source.getLocations(entityValue, EnumSet.of(Language.ENGLISH));
-            if (lookup.size() > 0) {
-                LOGGER.debug("Deep retrieval for {} found {} locations for part {}.", annotation.getValue(),
-                        lookup.size(), trimmedValue);
-                Annotation newAnnotation = new ImmutableAnnotation(annotation.getStartPosition(), trimmedValue,
-                        StringTagger.CANDIDATE_TAG);
-                additionalLocations.addAll(newAnnotation, lookup);
-                break;
-            }
-        }
-        List<Annotation> filtered = filterCached.filter(new ArrayList<Annotation>(additionalLocations.keySet()));
-        additionalLocations.keySet().retainAll(filtered);
-        result.addAll(additionalLocations);
     }
 
     @Override

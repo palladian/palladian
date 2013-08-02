@@ -11,7 +11,12 @@ public abstract class BaseAnnotation implements Annotation {
 
     @Override
     public final int compareTo(Annotation other) {
-        return Integer.valueOf(this.getStartPosition()).compareTo(other.getStartPosition());
+        // return Integer.valueOf(this.getStartPosition()).compareTo(other.getStartPosition());
+        int result = Integer.valueOf(getStartPosition()).compareTo(other.getStartPosition());
+        if (result == 0) {
+            result = Integer.valueOf(other.getEndPosition()).compareTo(getEndPosition());
+        }
+        return result;
     }
 
     @Override

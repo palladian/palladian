@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.features.Annotation;
@@ -41,6 +42,24 @@ public class EntityPreprocessingTaggerTest {
         assertEquals(
                 "Competitive growth on imposition of special duties on importation of passenger cars.",
                 tagger.correctCapitalization("Competitive Growth On Imposition Of Special Duties On Importation Of Passenger Cars."));
+    }
+
+    @Test
+    public void testLongAnnotationSplit() {
+        StringTagger tagger = new StringTagger();
+        List<Annotation> annotations = tagger
+                .getAnnotations("Rocky Hill Tax Credits Available. Jordan Elementary School Principal Stacy DeCorsey shows her students an oversized check made out to the school for $1,825.40. Former Bloomfield Town Councilman Richard Days Dead At 79. Platte County Attorney Sandra Allen Calls Tourism Australia Managing Director Andrew McEvoy.");
+        EntityPreprocessingTagger preprocessingTagger = new EntityPreprocessingTagger();
+        List<Annotation> splitAnnotations = preprocessingTagger.getLongAnnotationSplit(annotations, 3);
+
+        assertEquals(9, splitAnnotations.size());
+        assertEquals("Rocky Hill", splitAnnotations.get(0).getValue());
+        assertEquals(0, splitAnnotations.get(0).getStartPosition());
+        assertEquals(10, splitAnnotations.get(0).getEndPosition());
+
+        assertEquals("Sandra Allen", splitAnnotations.get(6).getValue());
+        assertEquals(242, splitAnnotations.get(6).getStartPosition());
+        assertEquals(254, splitAnnotations.get(6).getEndPosition());
     }
 
 }

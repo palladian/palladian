@@ -8,7 +8,6 @@ import org.apache.commons.lang.Validate;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
