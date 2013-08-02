@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,22 @@ public class EntityPreprocessingTagger implements Tagger {
     /** The case dictionary which contains the lowercase ratio for tokens. */
     private final Map<String, Double> caseDictionary;
 
+    private final int longAnnotationSplit;
+
     public EntityPreprocessingTagger() {
+        this(0);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link EntityPreprocessingTagger}.
+     * </p>
+     * 
+     * @param longAnnotationSplit Annotations exceeding this amount of tokens, are <i>additionally</i> split up. This
+     *            means, for long annotations, additional sub-annotations are created using the case dictionary. Set to
+     *            zero to disable spitting.
+     */
+    public EntityPreprocessingTagger(int longAnnotationSplit) {
         tagger = new WindowSizeContextTagger(StringTagger.PATTERN, StringTagger.CANDIDATE_TAG, CONTEXT_LENGTH);
         InputStream inputStream = null;
         try {
@@ -53,6 +69,7 @@ public class EntityPreprocessingTagger implements Tagger {
         } finally {
             FileHelper.close(inputStream);
         }
+        this.longAnnotationSplit = longAnnotationSplit;
     }
 
     /**
@@ -138,7 +155,49 @@ public class EntityPreprocessingTagger implements Tagger {
             fixedAnnotations.add(annotation);
         }
         LOGGER.debug("Reduced from {} to {} with with case dictionary", annotations.size(), fixedAnnotations.size());
+
+        if (longAnnotationSplit > 0) {
+            List<Annotation> additionalAnnotations = getLongAnnotationSplit(fixedAnnotations, longAnnotationSplit);
+            LOGGER.debug("Extracted additional {} annotations by splitting", additionalAnnotations.size());
+            fixedAnnotations.addAll(additionalAnnotations);
+        }
+
         return fixedAnnotations;
+    }
+
+    /**
+     * Split-up long annotations, with exceed a specified length of tokens. Therefore, also the case dictionary is
+     * employed; we split on lowercased words from the case dictionary.
+     * 
+     * @param annotations
+     * @param length
+     * @return List with all additionally created annotations.
+     */
+    List<Annotation> getLongAnnotationSplit(List<Annotation> annotations, int length) {
+        List<Annotation> splitAnnotations = CollectionHelper.newArrayList();
+        for (Annotation annotation : annotations) {
+            String[] parts = annotation.getValue().split("\\s");
+            if (parts.length >= length) {
+                List<String> cumulatedTokens = CollectionHelper.newArrayList();
+                for (String token : parts) {
+                    double lcRatio = getLowercaseRatio(token);
+                    if (lcRatio < LOWERCASE_THRESHOLD) {
+                        cumulatedTokens.add(token);
+                    } else if (cumulatedTokens.size() > 0) {
+                        String value = StringUtils.join(cumulatedTokens, " ");
+                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
+                        splitAnnotations.add(new ImmutableAnnotation(startPosition, value, annotation.getTag()));
+                        cumulatedTokens.clear();
+                    }
+                }
+                if (cumulatedTokens.size() > 0) {
+                    String value = StringUtils.join(cumulatedTokens, " ");
+                    int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
+                    splitAnnotations.add(new ImmutableAnnotation(startPosition, value, annotation.getTag()));
+                }
+            }
+        }
+        return splitAnnotations;
     }
 
     /**

@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.discretization.Binner;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.Trainable;
@@ -60,13 +59,10 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
     @SuppressWarnings("unchecked")
     protected Set<Feature<?>> convertToSet(FeatureVector featureVector, Collection<? extends Trainable> dataset) {
         Set<Feature<?>> ret = CollectionHelper.newHashSet();
-        boolean firstRun = false;
         if (binnerCache.isEmpty()) {
             LOGGER.info("Converting {} features to set", featureVector.size());
-            firstRun = true;
         }
-        StopWatch stopWatch = new StopWatch();
-        int counter = 0;
+        ProgressMonitor progressMonitor = new ProgressMonitor(featureVector.size(), 1);
 
         for (final Feature<?> feature : featureVector) {
             if (feature instanceof ListFeature<?>) {
@@ -75,7 +71,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                     if (element instanceof NumericFeature) {
                         Binner binner = binnerCache.get(element.getName());
                         if (binner == null) {
-                            LOGGER.info(ProgressHelper.getProgress(counter++, featureVector.size(), 1, stopWatch));
+                            progressMonitor.incrementAndPrintProgress();
                             binner = discretize(element.getName(), dataset, new Comparator<Trainable>() {
 
                                 @Override
@@ -102,7 +98,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
             } else if (feature instanceof NumericFeature) {
                 Binner binner = binnerCache.get(feature.getName());
                 if (binner == null) {
-                    LOGGER.info(ProgressHelper.getProgress(counter++, featureVector.size(), 1, stopWatch));
+                    progressMonitor.incrementAndPrintProgress();
                     binner = discretize(feature.getName(), dataset, new Comparator<Trainable>() {
 
                         @Override
@@ -121,11 +117,8 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                 ret.add(binner.bin((NumericFeature)feature));
             } else {
                 ret.add(feature);
-                counter++;
+                progressMonitor.incrementAndPrintProgress();
             }
-        }
-        if (firstRun) {
-            LOGGER.info("Finished converting in {}", stopWatch);
         }
         return ret;
     }

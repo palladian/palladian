@@ -18,8 +18,7 @@ import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
 import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Filter;
@@ -115,8 +114,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         final Set<String> allFeatures = getFeatureNames(trainSet);
         final Set<String> eliminatedFeatures = CollectionHelper.newTreeSet();
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
-        final StopWatch stopWatch = new StopWatch();
-        int count = 0;
+        final ProgressMonitor progressMonitor = new ProgressMonitor(iterations, 0);
         int featureIndex = 0;
 
         // run with all features
@@ -134,7 +132,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             double highestScore = 0;
 
             for (String currentFeature : featuresToCheck) {
-                ProgressHelper.printProgress(count++, iterations, 0, stopWatch);
+                progressMonitor.incrementAndPrintProgress();
                 Set<String> featuresToEliminate = new HashSet<String>(eliminatedFeatures);
                 featuresToEliminate.add(currentFeature);
                 Filter<String> filter = InverseFilter.create(EqualsFilter.create(featuresToEliminate));
