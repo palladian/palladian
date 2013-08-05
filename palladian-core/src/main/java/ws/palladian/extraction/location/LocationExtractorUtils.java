@@ -218,7 +218,7 @@ public final class LocationExtractorUtils {
                         return CollectionHelper.newTreeMap();
                     }
                 });
-        FileHelper.performActionOnEveryLine(coordinateFile, new LineAction() {
+        int lines = FileHelper.performActionOnEveryLine(coordinateFile, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 if (lineNumber == 0) {
@@ -236,6 +236,9 @@ public final class LocationExtractorUtils {
                 coordinateMap.get(documentName).put(offset, coordinate);
             }
         });
+        if (lines == -1) {
+            throw new IllegalStateException("Could not read " + coordinateFile);
+        }
         return coordinateMap;
     }
 

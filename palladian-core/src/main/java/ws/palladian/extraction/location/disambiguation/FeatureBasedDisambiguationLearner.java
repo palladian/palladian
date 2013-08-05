@@ -124,8 +124,10 @@ public class FeatureBasedDisambiguationLearner {
     public static void main(String[] args) {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
-        File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
-        // File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
+        // File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
+        File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
+        learner.learn(dataset);
+        dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
         learner.learn(dataset);
     }
 
