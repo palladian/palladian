@@ -33,7 +33,7 @@ import ws.palladian.processing.features.Annotation;
 public class PalladianLocationExtractor extends LocationExtractor {
 
     /** Long annotations exceeding the specified token count, are split up and parts of them are treated as candidates. */
-    private final static int LONG_ANNOTATION_SPLIT = 3;
+    public final static int LONG_ANNOTATION_SPLIT = 3;
 
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 

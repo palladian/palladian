@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import static ws.palladian.extraction.location.PalladianLocationExtractor.LONG_ANNOTATION_SPLIT;
+
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +46,7 @@ public class FeatureBasedDisambiguationLearner {
 
     private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor();
 
-    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
     private final AnnotationFilter filter = new AnnotationFilter();
 
