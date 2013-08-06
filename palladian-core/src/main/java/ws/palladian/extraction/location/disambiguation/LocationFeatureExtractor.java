@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.EntityPreprocessingTagger;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
@@ -209,7 +210,7 @@ class LocationFeatureExtractor {
      */
     private static boolean isMentionedAlt(Annotation annotation, Location location,
             MultiMap<? extends Annotation, Location> locations) {
-        Set<String> altNames = LocationExtractorUtils.collectNames(location);
+        Set<String> altNames = location.collectAlternativeNames();
         for (Annotation temp : locations.keySet()) {
             String tempValue = temp.getValue();
             if (!tempValue.equalsIgnoreCase(annotation.getValue()) && locations.get(temp).contains(location)) {
@@ -373,7 +374,7 @@ class LocationFeatureExtractor {
     private static int childCount(Location location, Collection<Location> others) {
         int count = 0;
         for (Location other : others) {
-            if (LocationExtractorUtils.isChildOf(other, location)) {
+            if (other.childOf(location)) {
                 count++;
             }
         }
@@ -383,7 +384,7 @@ class LocationFeatureExtractor {
     private static int descendantCount(Location location, Collection<Location> others) {
         int count = 0;
         for (Location other : others) {
-            if (LocationExtractorUtils.isDescendantOf(other, location)) {
+            if (other.descendantOf(location)) {
                 count++;
             }
         }
@@ -393,7 +394,7 @@ class LocationFeatureExtractor {
     private static int ancestorCount(Location location, Collection<Location> others) {
         int count = 0;
         for (Location other : others) {
-            if (LocationExtractorUtils.isDescendantOf(location, other)) {
+            if (location.descendantOf(other)) {
                 count++;
             }
         }
@@ -402,7 +403,7 @@ class LocationFeatureExtractor {
 
     private static boolean parentOccurs(Location location, Collection<Location> others) {
         for (Location other : others) {
-            if (LocationExtractorUtils.isChildOf(location, other)) {
+            if (location.childOf(other)) {
                 return true;
             }
         }
@@ -429,7 +430,7 @@ class LocationFeatureExtractor {
 
     private static boolean isAcronym(Annotation annotation, MultiMap<? extends Annotation, Location> locations) {
         for (Location location : locations.get(annotation)) {
-            Set<String> names = LocationExtractorUtils.collectNames(location);
+            Set<String> names = location.collectAlternativeNames();
             for (String name : names) {
                 if (name.equals(LocationExtractorUtils.normalizeName(annotation.getValue()))) {
                     if (name.matches("[A-Z]+|([A-Z]\\.)+")) {
@@ -444,7 +445,7 @@ class LocationFeatureExtractor {
 
     private static boolean isLeaf(Location location, Collection<Location> others) {
         for (Location other : others) {
-            if (LocationExtractorUtils.isDescendantOf(other, location)) {
+            if (other.descendantOf(location)) {
                 return false;
             }
         }
@@ -452,7 +453,7 @@ class LocationFeatureExtractor {
     }
 
     private static double getNameDiversity(Location location) {
-        return 1. / LocationExtractorUtils.collectNames(location).size();
+        return 1. / location.collectAlternativeNames().size();
     }
 
     private static double getGeoDiversity(Collection<Location> locations, double normalization) {
@@ -462,7 +463,7 @@ class LocationFeatureExtractor {
         return LocationExtractorUtils.getLargestDistance(locations) / normalization;
     }
 
-    static final class LocationInstance implements Location, Classifiable {
+    static final class LocationInstance extends AbstractLocation implements Classifiable {
 
         private final Location location;
         private final FeatureVector featureVector;

@@ -105,7 +105,7 @@ public class FeatureBasedDisambiguationLearner {
                 Location trainLocation = trainAnnotation.getLocation();
                 // XXX offsets are not considered here; necessary?
                 boolean samePlace = GeoUtils.getDistance(instance, trainLocation) < 50;
-                boolean sameName = LocationExtractorUtils.commonName(instance, trainLocation);
+                boolean sameName = instance.commonName(trainLocation);
                 boolean sameType = instance.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
                 if (samePlace && sameName && sameType) {
@@ -127,8 +127,8 @@ public class FeatureBasedDisambiguationLearner {
         // File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
         File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
         learner.learn(dataset);
-        dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
-        learner.learn(dataset);
+        // dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
+        // learner.learn(dataset);
     }
 
 }

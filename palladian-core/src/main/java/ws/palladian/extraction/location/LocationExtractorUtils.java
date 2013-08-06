@@ -42,18 +42,6 @@ public final class LocationExtractorUtils {
         return value;
     }
 
-    public static boolean isDescendantOf(Location child, Location parent) {
-        return child.getAncestorIds().contains(parent.getId());
-    }
-
-    public static boolean isChildOf(Location child, Location parent) {
-        Integer firstId = CollectionHelper.getFirst(child.getAncestorIds());
-        if (firstId == null) {
-            return false;
-        }
-        return firstId == parent.getId();
-    }
-
     /**
      * <p>
      * Get the biggest {@link Location} from the given {@link Collection}.
@@ -123,32 +111,6 @@ public final class LocationExtractorUtils {
         Set<T> temp = new HashSet<T>(set);
         CollectionHelper.remove(temp, filter);
         return temp.size() > 0 ? temp : new HashSet<T>(set);
-    }
-
-    /**
-     * <p>
-     * Check, whether two {@link Location}s share a common name. Names are normalized according to the rules given in
-     * {@link #normalizeName(String)}.
-     * </p>
-     * 
-     * @param l1 First location, not <code>null</code>.
-     * @param l2 Second location, not <code>null</code>.
-     * @return <code>true</code>, if a common name exists, <code>false</code> otherwise.
-     */
-    public static boolean commonName(Location l1, Location l2) {
-        Set<String> names1 = collectNames(l1);
-        Set<String> names2 = collectNames(l2);
-        names1.retainAll(names2);
-        return names1.size() > 0;
-    }
-
-    public static Set<String> collectNames(Location location) {
-        Set<String> names = CollectionHelper.newHashSet();
-        names.add(normalizeName(location.getPrimaryName()));
-        for (AlternativeName alternativeName : location.getAlternativeNames()) {
-            names.add(normalizeName(alternativeName.getName()));
-        }
-        return names;
     }
 
     /**
@@ -293,7 +255,7 @@ public final class LocationExtractorUtils {
     public static boolean differentNames(Collection<Location> locations) {
         Set<String> allNames = CollectionHelper.newHashSet();
         for (Location location : locations) {
-            Set<String> currentNames = collectNames(location);
+            Set<String> currentNames = location.collectAlternativeNames();
             if (allNames.size() > 0) {
                 Set<String> tempIntersection = new HashSet<String>(allNames);
                 tempIntersection.retainAll(currentNames);

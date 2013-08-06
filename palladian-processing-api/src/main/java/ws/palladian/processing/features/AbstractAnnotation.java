@@ -7,7 +7,7 @@ package ws.palladian.processing.features;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseAnnotation implements Annotation {
+public abstract class AbstractAnnotation implements Annotation {
 
     @Override
     public final int compareTo(Annotation other) {
@@ -33,7 +33,7 @@ public abstract class BaseAnnotation implements Annotation {
     }
 
     @Override
-    public boolean congruent(Annotation other) {
+    public final boolean congruent(Annotation other) {
         boolean congruent = true;
         congruent &= getStartPosition() == other.getStartPosition();
         congruent &= getEndPosition() == other.getEndPosition();
@@ -41,7 +41,7 @@ public abstract class BaseAnnotation implements Annotation {
     }
 
     @Override
-    public boolean sameTag(Annotation other) {
+    public final boolean sameTag(Annotation other) {
         return getTag().equalsIgnoreCase(other.getTag());
     }
 
