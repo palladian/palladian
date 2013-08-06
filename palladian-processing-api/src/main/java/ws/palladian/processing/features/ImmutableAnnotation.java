@@ -11,7 +11,7 @@ import org.apache.commons.lang3.Validate;
  * 
  * @author Philipp Katz
  */
-public class ImmutableAnnotation extends BaseAnnotation {
+public class ImmutableAnnotation extends AbstractAnnotation {
 
     /** The position of the first character of this {@code Annotation}. */
     private final int startPosition;
