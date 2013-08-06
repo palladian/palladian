@@ -34,7 +34,6 @@ import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
 
 /**
  * <p>
@@ -174,7 +173,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             Collection<? extends Trainable> validationSet) {
         final FeatureRanking result = new FeatureRanking();
 
-        final Set<String> allFeatures = getFeatureNames(trainSet);
+        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainSet);
         final List<String> eliminatedFeatures = CollectionHelper.newArrayList();
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
         final ProgressMonitor progressMonitor = new ProgressMonitor(iterations, 0);
@@ -227,15 +226,6 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             throw new IllegalStateException(e);
         }
         return result;
-    }
-
-    private Set<String> getFeatureNames(Collection<? extends Trainable> dataset) {
-        Set<String> featureNames = CollectionHelper.newTreeSet();
-        Trainable instance = CollectionHelper.getFirst(dataset);
-        for (Feature<?> feature : instance.getFeatureVector()) {
-            featureNames.add(feature.getName());
-        }
-        return featureNames;
     }
 
     public static void main(String[] args) {

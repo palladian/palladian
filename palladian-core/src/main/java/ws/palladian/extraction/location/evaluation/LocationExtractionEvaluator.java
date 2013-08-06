@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.entity.TaggingFormat;
+import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
@@ -35,9 +35,6 @@ import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.extraction.location.sources.CombinedLocationSource;
-import ws.palladian.extraction.location.sources.CombinedLocationSource.QueryMode;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -63,7 +60,8 @@ public final class LocationExtractionEvaluator {
         errors.put(ERROR4, new HashMap<String, Collection<Annotation>>());
         errors.put(ERROR5, new HashMap<String, Collection<Annotation>>());
 
-        File[] files = FileHelper.getFiles(goldStandardFileFolderPath, "text");
+        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(new File(
+                goldStandardFileFolderPath));
 
         // for macro averaging
         double precisionMuc = 0;
@@ -72,24 +70,25 @@ public final class LocationExtractionEvaluator {
         double recallExact = 0;
 
         EvaluationResult micro = new EvaluationResult(Collections.<Annotation> emptyList());
-        ProgressMonitor monitor = new ProgressMonitor(files.length, 1);
+
+        List<EvaluationItem> completeEvaluationList = CollectionHelper.newArrayList();
 
         StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < files.length; i++) {
-            monitor.incrementAndPrintProgress();
+        int count = 0;
+        while (goldStandard.hasNext()) {
+            LocationDocument locationDocument = goldStandard.next();
 
-            File file = files[i];
-            File file1 = new File(FileHelper.getTempDir(), file.getName());
-            FileHelper.writeToFile(file1.getPath(), FileHelper.readFileToString(file).replace(" role=\"main\"", ""));
-            EvaluationResult result = extractor.evaluate(file1.getAbsolutePath(), TaggingFormat.XML);
+            List<LocationAnnotation> extractionResult = extractor.getAnnotations(locationDocument.getText());
+            EvaluationResult result = NamedEntityRecognizer.evaluate(locationDocument.getAnnotations(),
+                    extractionResult, Collections.<String> emptySet());
 
             // write major error log
-            errors.get(CORRECT).put(file.getName(), result.getAnnotations(CORRECT));
-            errors.get(ERROR1).put(file.getName(), result.getAnnotations(ERROR1));
-            errors.get(ERROR2).put(file.getName(), result.getAnnotations(ERROR2));
-            errors.get(ERROR3).put(file.getName(), result.getAnnotations(ERROR3));
-            errors.get(ERROR4).put(file.getName(), result.getAnnotations(ERROR4));
-            errors.get(ERROR5).put(file.getName(), result.getAnnotations(ERROR5));
+            errors.get(CORRECT).put(locationDocument.getFileName(), result.getAnnotations(CORRECT));
+            errors.get(ERROR1).put(locationDocument.getFileName(), result.getAnnotations(ERROR1));
+            errors.get(ERROR2).put(locationDocument.getFileName(), result.getAnnotations(ERROR2));
+            errors.get(ERROR3).put(locationDocument.getFileName(), result.getAnnotations(ERROR3));
+            errors.get(ERROR4).put(locationDocument.getFileName(), result.getAnnotations(ERROR4));
+            errors.get(ERROR5).put(locationDocument.getFileName(), result.getAnnotations(ERROR5));
 
             Double precision = result.getPrecision(EvaluationMode.MUC);
             if (!precision.equals(Double.NaN)) {
@@ -109,13 +108,17 @@ public final class LocationExtractionEvaluator {
             }
 
             micro.merge(result);
+            count++;
 
+            // coordinates
+            List<EvaluationItem> evaluationList = evaluateCoordinates(locationDocument, extractionResult);
+            completeEvaluationList.addAll(evaluationList);
         }
 
-        precisionExact /= files.length;
-        recallExact /= files.length;
-        precisionMuc /= files.length;
-        recallMuc /= files.length;
+        precisionExact /= count;
+        recallExact /= count;
+        precisionMuc /= count;
+        recallMuc /= count;
 
         // summary
         StringBuilder summary = new StringBuilder();
@@ -144,6 +147,24 @@ public final class LocationExtractionEvaluator {
         summary.append("Recall-MUC:").append(micro.getRecall(EvaluationMode.MUC)).append('\n');
         summary.append("F1-MUC:").append(micro.getF1(EvaluationMode.MUC)).append("\n\n");
 
+        // "recognition only" evaluates whether we recognized a toponym as such, but does not evaluate whether we tagged
+        // it correctly (i.e. tagging "New York" as COUNTRY is still correct) in this case.
+        summary.append("============ recognition only ============\n\n");
+
+        int correctlyRecognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size();
+        int recognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+                + micro.getAnnotations(ERROR1).size() + micro.getAnnotations(ERROR4).size()
+                + micro.getAnnotations(ERROR5).size();
+        int relevant = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+                + micro.getAnnotations(ERROR2).size();
+        double recognitionPrecision = (double)correctlyRecognized / recognized;
+        double recognitionRecall = (double)correctlyRecognized / relevant;
+        summary.append("Precision:").append(recognitionPrecision).append('\n');
+        summary.append("Recall:").append(recognitionRecall).append('\n');
+        double recognitionF1 = 2 * recognitionPrecision * recognitionRecall
+                / (recognitionPrecision + recognitionRecall);
+        summary.append("F1:").append(recognitionF1).append("\n\n");
+
         summary.append("Elapsed time:").append(stopWatch.getTotalElapsedTimeString()).append('\n');
 
         StringBuilder detailedOutput = new StringBuilder();
@@ -171,16 +192,23 @@ public final class LocationExtractionEvaluator {
 
         // write summary to summary.csv
         StringBuilder summaryCsv = new StringBuilder();
+        summaryCsv.append(goldStandardFileFolderPath).append(';');
         summaryCsv.append(extractor.getName()).append(';');
         summaryCsv.append(micro.getPrecision(EvaluationMode.EXACT_MATCH)).append(';');
         summaryCsv.append(micro.getRecall(EvaluationMode.EXACT_MATCH)).append(';');
         summaryCsv.append(micro.getF1(EvaluationMode.EXACT_MATCH)).append(';');
         summaryCsv.append(micro.getPrecision(EvaluationMode.MUC)).append(';');
         summaryCsv.append(micro.getRecall(EvaluationMode.MUC)).append(';');
-        summaryCsv.append(micro.getF1(EvaluationMode.MUC)).append(';').append('\n');
+        summaryCsv.append(micro.getF1(EvaluationMode.MUC)).append(';');
+        summaryCsv.append(recognitionPrecision).append(';');
+        summaryCsv.append(recognitionRecall).append(';');
+        summaryCsv.append(recognitionF1).append(';').append('\n');
         FileHelper.appendFile("data/temp/locationsSummary.csv", summaryCsv);
 
         System.out.println(summary);
+
+        // write coordinates results
+        createCoordinateResults(extractor, goldStandardFileFolderPath, completeEvaluationList);
     }
 
     private static final class EvaluationItem implements Comparable<EvaluationItem> {
@@ -236,93 +264,52 @@ public final class LocationExtractionEvaluator {
         }
     }
 
-    /**
-     * Evaluate the location disambiguation. This step considers locations of type CITY and POI and evaluates, whether
-     * the coordinates from the gold standard match the extracted coordinates within a given threshold (100 km).
-     * Locations without coordinates in the gold standard are skipped.
-     * 
-     * @param extractor
-     * @param goldStandardFileFolderPath
-     * @return
-     */
-    public static String evaluateCoordinates(LocationExtractor extractor, String goldStandardFileFolderPath) {
-        Validate.notNull(extractor, "extractor must not be null");
-        Validate.notEmpty(goldStandardFileFolderPath, "goldStandardFileFolderPath must not be empty");
+//    /**
+//     * Evaluate the location disambiguation. This step considers locations of type CITY and POI and evaluates, whether
+//     * the coordinates from the gold standard match the extracted coordinates within a given threshold (100 km).
+//     * Locations without coordinates in the gold standard are skipped.
+//     * 
+//     * @param extractor
+//     * @param goldStandardFileFolderPath
+//     * @return
+//     * @deprecated Integrated in {@link LocationExtractionEvaluator#evaluate(LocationExtractor, String)}.
+//     */
+//    @Deprecated
+//    public static String evaluateCoordinates(LocationExtractor extractor, String goldStandardFileFolderPath) {
+//        Validate.notNull(extractor, "extractor must not be null");
+//        Validate.notEmpty(goldStandardFileFolderPath, "goldStandardFileFolderPath must not be empty");
+//
+//        if (!new File(goldStandardFileFolderPath).isDirectory()) {
+//            throw new IllegalArgumentException("The provided path to the gold standard '" + goldStandardFileFolderPath
+//                    + "' does not exist or is no directory.");
+//        }
+//
+//        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(new File(
+//                goldStandardFileFolderPath));
+//
+//        List<EvaluationItem> completeEvaluationList = CollectionHelper.newArrayList();
+//
+//        while (goldStandard.hasNext()) {
+//
+//            LocationDocument goldStandardDocument = goldStandard.next();
+//
+//            // annotate the document using the LocationExtractor
+//            List<LocationAnnotation> annotationResult = extractor.getAnnotations(goldStandardDocument.getText());
+//
+//            List<EvaluationItem> evaluationList = evaluateCoordinates(goldStandardDocument, annotationResult);
+//
+//            completeEvaluationList.addAll(evaluationList);
+//        }
+//
+//        return createCoordinateResults(extractor, goldStandardFileFolderPath, completeEvaluationList);
+//    }
 
-        if (!new File(goldStandardFileFolderPath).isDirectory()) {
-            throw new IllegalArgumentException("The provided path to the gold standard '" + goldStandardFileFolderPath
-                    + "' does not exist or is no directory.");
-        }
-
-        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(new File(
-                goldStandardFileFolderPath));
+    private static String createCoordinateResults(LocationExtractor extractor, String goldStandardFileFolderPath,
+            List<EvaluationItem> completeEvaluationList) {
         StringBuilder evaluationDetails = new StringBuilder();
 
         evaluationDetails.append("# Result for:").append(extractor.getName()).append('\n');
         evaluationDetails.append("# Using dataset:").append(goldStandardFileFolderPath).append('\n');
-
-        List<EvaluationItem> completeEvaluationList = CollectionHelper.newArrayList();
-
-        while (goldStandard.hasNext()) {
-
-            LocationDocument goldStandardDocument = goldStandard.next();
-            String fileName = goldStandardDocument.getFileName();
-
-            // ProgressHelper.printProgress(i, files.length, 1, stopWatch);
-
-            // annotate the document using the LocationExtractor
-            List<LocationAnnotation> annotationResult = extractor.getAnnotations(goldStandardDocument.getText());
-
-            List<EvaluationItem> evaluationList = CollectionHelper.newArrayList();
-            Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
-
-            // evaluate
-            for (LocationAnnotation assignedAnnotation : annotationResult) {
-
-                boolean taggedOverlap = false;
-                int counter = 0;
-
-                for (LocationAnnotation goldAnnotation : goldStandardDocument.getAnnotations()) {
-                    counter++;
-
-                    GeoCoordinate goldCoordinate = goldAnnotation.getLocation();
-
-                    if (assignedAnnotation.congruent(goldAnnotation)) {
-                        // same start and end
-                        taggedAnnotations.add(goldAnnotation);
-                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, CORRECT, goldCoordinate,
-                                assignedAnnotation.getLocation()));
-                        break;
-                    } else if (assignedAnnotation.overlaps(goldAnnotation)) {
-                        // overlap
-                        taggedOverlap = true;
-                        taggedAnnotations.add(goldAnnotation);
-                        evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate,
-                                assignedAnnotation.getLocation()));
-                    } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
-                            || counter == goldStandardDocument.getAnnotations().size()) {
-                        if (!taggedOverlap) {
-                            // false alarm
-                            evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null,
-                                    assignedAnnotation.getLocation()));
-                        }
-                        break;
-                    } else {
-                        continue;
-                    }
-                }
-            }
-
-            // check which gold standard annotations have not been found by the NER (error2)
-            for (LocationAnnotation goldAnnotation : goldStandardDocument.getAnnotations()) {
-                if (!taggedAnnotations.contains(goldAnnotation)) {
-                    GeoCoordinate goldCooardinate = goldAnnotation.getLocation();
-                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR2, goldCooardinate, null));
-                }
-            }
-            completeEvaluationList.addAll(evaluationList);
-        }
-
 
         int correct = 0;
         int retrieved = 0;
@@ -384,8 +371,60 @@ public final class LocationExtractionEvaluator {
         summaryCsv.append(recall).append(';');
         summaryCsv.append(f1).append(';').append('\n');
         FileHelper.appendFile("data/temp/locationsSummary_distances.csv", summaryCsv);
-
         return evaluationDetails.toString();
+    }
+
+    private static List<EvaluationItem> evaluateCoordinates(LocationDocument document,
+            List<LocationAnnotation> annotationResult) {
+        List<EvaluationItem> evaluationList = CollectionHelper.newArrayList();
+        Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
+        String fileName = document.getFileName();
+
+        // evaluate
+        for (LocationAnnotation assignedAnnotation : annotationResult) {
+
+            boolean taggedOverlap = false;
+            int counter = 0;
+
+            for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
+                counter++;
+
+                GeoCoordinate goldCoordinate = goldAnnotation.getLocation();
+
+                if (assignedAnnotation.congruent(goldAnnotation)) {
+                    // same start and end
+                    taggedAnnotations.add(goldAnnotation);
+                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, CORRECT, goldCoordinate,
+                            assignedAnnotation.getLocation()));
+                    break;
+                } else if (assignedAnnotation.overlaps(goldAnnotation)) {
+                    // overlap
+                    taggedOverlap = true;
+                    taggedAnnotations.add(goldAnnotation);
+                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate,
+                            assignedAnnotation.getLocation()));
+                } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
+                        || counter == document.getAnnotations().size()) {
+                    if (!taggedOverlap) {
+                        // false alarm
+                        evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null,
+                                assignedAnnotation.getLocation()));
+                    }
+                    break;
+                } else {
+                    continue;
+                }
+            }
+        }
+
+        // check which gold standard annotations have not been found by the NER (error2)
+        for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
+            if (!taggedAnnotations.contains(goldAnnotation)) {
+                GeoCoordinate goldCooardinate = goldAnnotation.getLocation();
+                evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR2, goldCooardinate, null));
+            }
+        }
+        return evaluationList;
     }
 
     private LocationExtractionEvaluator() {
@@ -395,18 +434,17 @@ public final class LocationExtractionEvaluator {
     public static void main(String[] args) {
         // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation";
         // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test";
-        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation";
+        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation";
+        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/2-validation";
         // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
         // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
         // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
         // evaluateCoordinates(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
         // evaluate(new ExtractivLocationExtractor(), DATASET_LOCATION);
+        // System.exit(0);
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        LocationDatabase wikipediaDatabase = DatabaseManagerFactory.create(LocationDatabase.class, "locations2");
-        CombinedLocationSource source = new CombinedLocationSource(QueryMode.COMBINE, database, wikipediaDatabase);
-        // System.out.println(source.getLocations("Ind.", EnumSet.of(ws.palladian.helper.constants.Language.ENGLISH)));
-        // System.exit(0);
+
         // ///////////////////// baseline //////////////////////
         // LocationDisambiguation disambiguation = new BaselineDisambiguation();
 
@@ -414,11 +452,11 @@ public final class LocationExtractionEvaluator {
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
 
         // ///////////////////// feature based //////////////////////
-        // String modelFilePath = "data/temp/location_disambiguation_1374689868458.model";
+        // String modelFilePath = "data/temp/location_disambiguation_1375713579496.model";
         // BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
-        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
+        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0);
 
-        evaluate(new PalladianLocationExtractor(source, disambiguation), DATASET_LOCATION);
+        evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
         // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
 
         // perform threshold analysis ////////////////////////////////

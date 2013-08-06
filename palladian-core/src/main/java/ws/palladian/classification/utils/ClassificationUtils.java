@@ -2,9 +2,11 @@ package ws.palladian.classification.utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -301,6 +303,25 @@ public final class ClassificationUtils {
             result.add(new Instance(instance.getTargetClass(), featureVector));
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Get the names of all features.
+     * </p>
+     * 
+     * @param dataset
+     * @return
+     */
+    // XXX currently, only get from first item in the dataset
+    public static Set<String> getFeatureNames(Collection<? extends Trainable> dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
+        Set<String> featureNames = CollectionHelper.newTreeSet();
+        Trainable instance = CollectionHelper.getFirst(dataset);
+        for (Feature<?> feature : instance.getFeatureVector()) {
+            featureNames.add(feature.getName());
+        }
+        return featureNames;
     }
 
 }
