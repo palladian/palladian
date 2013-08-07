@@ -30,6 +30,7 @@ import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CompositeIterator;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -37,6 +38,13 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotation;
 
+/**
+ * <p>
+ * This class is responsible for training models which can be used by the {@link FeatureBasedDisambiguation}.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public class FeatureBasedDisambiguationLearner {
 
     /** The logger for this class. */
@@ -61,6 +69,22 @@ public class FeatureBasedDisambiguationLearner {
 
     public void learn(File datasetDirectory) {
         learn(LocationExtractorUtils.iterateDataset(datasetDirectory));
+    }
+
+    /**
+     * <p>
+     * Learn from multiple data sets.
+     * </p>
+     * 
+     * @param datasetDirectories The directories to the training data sets, not <code>null</code>.
+     */
+    public void learn(File... datasetDirectories) {
+        Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
+        List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
+        for (File datasetDirectory : datasetDirectories) {
+            datasetIterators.add(LocationExtractorUtils.iterateDataset(datasetDirectory));
+        }
+        learn(new CompositeIterator<LocationDocument>(datasetIterators));
     }
 
     public void learn(Iterator<LocationDocument> trainDocuments) {
@@ -124,9 +148,13 @@ public class FeatureBasedDisambiguationLearner {
     public static void main(String[] args) {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
-        // File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
-        File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
-        learner.learn(dataset);
+        File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
+        File datasetLgl = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
+        File datasetClust = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/1-train");
+        learner.learn(datasetTud);
+        learner.learn(datasetLgl);
+        learner.learn(datasetClust);
+        learner.learn(datasetTud, datasetLgl, datasetClust);
         // dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
         // learner.learn(dataset);
     }

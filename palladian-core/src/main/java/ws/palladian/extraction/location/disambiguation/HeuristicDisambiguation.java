@@ -41,7 +41,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicDisambiguation.class);
 
-    public static final int ANCHOR_DISTANCE_THRESHOLD = 150;
+    public static final int ANCHOR_DISTANCE_THRESHOLD = 100;
 
     public static final int LOWER_POPULATION_THRESHOLD = 5000;
 

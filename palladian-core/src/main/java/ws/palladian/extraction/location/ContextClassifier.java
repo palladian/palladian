@@ -69,11 +69,11 @@ public class ContextClassifier {
             StringBuilder builder = new StringBuilder();
             builder.append("ClassifiedAnnotation [classification=");
             builder.append(categoryEntries);
-            builder.append(", getStartPosition()=");
+            builder.append(", startPosition");
             builder.append(getStartPosition());
-            builder.append(", getTag()=");
+            builder.append(", tag=");
             builder.append(getTag());
-            builder.append(", getValue()=");
+            builder.append(", value=");
             builder.append(getValue());
             builder.append("]");
             return builder.toString();
