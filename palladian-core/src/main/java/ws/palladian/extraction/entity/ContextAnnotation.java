@@ -5,9 +5,9 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.BaseAnnotation;
+import ws.palladian.processing.features.AbstractAnnotation;
 
-public class ContextAnnotation extends BaseAnnotation {
+public class ContextAnnotation extends AbstractAnnotation {
 
     /** The category of the instance, null if not classified. */
     private CategoryEntriesMap tags = new CategoryEntriesMap();

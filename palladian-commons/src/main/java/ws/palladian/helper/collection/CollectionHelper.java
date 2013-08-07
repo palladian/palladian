@@ -591,4 +591,22 @@ public final class CollectionHelper {
         return null;
     }
 
+    /**
+     * <p>
+     * Get the first non-null value from the given items.
+     * </p>
+     * 
+     * @param items The items.
+     * @return The first non-null item from the given, or <code>null</code> in case the only <code>null</code> or no
+     *         values were given.
+     */
+    public static <T> T coalesce(T... items) {
+        for (T item : items) {
+            if (item != null) {
+                return item;
+            }
+        }
+        return null;
+    }
+
 }

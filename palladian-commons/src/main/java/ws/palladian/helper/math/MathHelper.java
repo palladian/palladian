@@ -178,6 +178,9 @@ public final class MathHelper {
     }
 
     public static double round(double number, int digits) {
+        if (Double.isNaN(number)) {
+            return Double.NaN;
+        }
         double numberFactor = Math.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;
     }

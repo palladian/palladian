@@ -59,7 +59,8 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
     @SuppressWarnings("unchecked")
     protected Set<Feature<?>> convertToSet(FeatureVector featureVector, Collection<? extends Trainable> dataset) {
         Set<Feature<?>> ret = CollectionHelper.newHashSet();
-        if (binnerCache.isEmpty()) {
+        boolean firstRun = binnerCache.isEmpty();
+        if (firstRun) {
             LOGGER.info("Converting {} features to set", featureVector.size());
         }
         ProgressMonitor progressMonitor = new ProgressMonitor(featureVector.size(), 1);
@@ -71,7 +72,9 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                     if (element instanceof NumericFeature) {
                         Binner binner = binnerCache.get(element.getName());
                         if (binner == null) {
-                            progressMonitor.incrementAndPrintProgress();
+                            if (firstRun) {
+                                progressMonitor.incrementAndPrintProgress();
+                            }
                             binner = discretize(element.getName(), dataset, new Comparator<Trainable>() {
 
                                 @Override
@@ -98,7 +101,9 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
             } else if (feature instanceof NumericFeature) {
                 Binner binner = binnerCache.get(feature.getName());
                 if (binner == null) {
-                    progressMonitor.incrementAndPrintProgress();
+                    if (firstRun) {
+                        progressMonitor.incrementAndPrintProgress();
+                    }
                     binner = discretize(feature.getName(), dataset, new Comparator<Trainable>() {
 
                         @Override
@@ -117,7 +122,9 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                 ret.add(binner.bin((NumericFeature)feature));
             } else {
                 ret.add(feature);
-                progressMonitor.incrementAndPrintProgress();
+                if (firstRun) {
+                    progressMonitor.incrementAndPrintProgress();
+                }
             }
         }
         return ret;

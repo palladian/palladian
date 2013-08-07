@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
@@ -554,7 +554,7 @@ public final class GeonamesImporter {
     /**
      * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
      */
-    private static final class GeonameLocation implements Location {
+    private static final class GeonameLocation extends AbstractLocation {
         int geonamesId;
         double longitude;
         double latitude;
