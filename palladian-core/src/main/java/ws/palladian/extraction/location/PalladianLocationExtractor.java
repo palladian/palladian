@@ -35,17 +35,17 @@ public class PalladianLocationExtractor extends LocationExtractor {
     /** Long annotations exceeding the specified token count, are split up and parts of them are treated as candidates. */
     public final static int LONG_ANNOTATION_SPLIT = 3;
 
-    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
+    private static final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
-    private final AnnotationFilter filter = new AnnotationFilter();
+    private static final AnnotationFilter filter = new AnnotationFilter();
 
     private final LocationSource locationSource;
 
     private final LocationDisambiguation disambiguation;
 
-    private final AddressTagger addressTagger = new AddressTagger();
+    private static final AddressTagger addressTagger = new AddressTagger();
 
-    private final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
+    private static final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
 
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;

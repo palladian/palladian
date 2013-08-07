@@ -7,6 +7,7 @@ import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultT
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -179,6 +180,7 @@ class GeoEvaluationResult {
             }
         }
 
+        Collections.sort(evaluationList);
         add(evaluationList);
     }
 

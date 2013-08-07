@@ -150,10 +150,12 @@ public final class ClassificationUtils {
         StringBuilder builder = new StringBuilder();
         boolean writeHeader = true;
         int count = 0;
+        int featureCount = 0;
         for (Classifiable trainable : trainData) {
             if (writeHeader) {
                 for (Feature<?> feature : trainable.getFeatureVector()) {
                     builder.append(feature.getName()).append(DEFAULT_SEPARATOR);
+                    featureCount++;
                 }
                 if (trainable instanceof Trainable) {
                     builder.append("targetClass");
@@ -170,7 +172,7 @@ public final class ClassificationUtils {
             builder.append(FileHelper.NEWLINE_CHARACTER);
             count++;
         }
-        LOGGER.info("Wrote {} train instances.", count);
+        LOGGER.info("Wrote {} train instances with {} features.", count, featureCount);
         FileHelper.writeToFile(outputFile.getPath(), builder);
     }
 

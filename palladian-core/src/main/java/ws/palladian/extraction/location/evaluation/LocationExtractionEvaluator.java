@@ -6,8 +6,16 @@ import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultT
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR3;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR4;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR5;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.ANCHOR_DISTANCE_THRESHOLD;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.ANCHOR_POPULATION_THRESHOLD;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.LASSO_DISTANCE_THRESHOLD;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.LOWER_POPULATION_THRESHOLD;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.LOWER_UNLIKELY_POPULATION_THRESHOLD;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.SAME_DISTANCE_THRESHOLD;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.TOKEN_THRESHOLD;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +27,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -28,22 +37,70 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
-import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.processing.features.Annotation;
 
+/**
+ * <p>
+ * Evaluation script for {@link LocationExtractor}s.
+ * </p>
+ * 
+ * @author Philipp Katz
+ */
 public final class LocationExtractionEvaluator {
 
-    public static void evaluate(LocationExtractor extractor, String goldStandardFileFolderPath) {
-        Validate.notNull(extractor, "extractor must not be null");
-        Validate.notEmpty(goldStandardFileFolderPath, "goldStandardFileFolderPath must not be empty");
+    private final List<File> datasetPaths = CollectionHelper.newArrayList();
 
-        if (!new File(goldStandardFileFolderPath).isDirectory()) {
-            throw new IllegalArgumentException("The provided path to the gold standard '" + goldStandardFileFolderPath
+    private final List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+
+    /**
+     * <p>
+     * Add a dataset for evaluation. The dataset must conform to the TUD-Loc scheme, i.e. tagged files plus coordinates
+     * file (see {@link LocationExtractorUtils#readCoordinates(File)} for an explanation about the format).
+     * </p>
+     * 
+     * @param datasetPath Path to the directory with the dataset.
+     */
+    public void addDataset(String datasetPath) {
+        File temp = new File(datasetPath);
+        if (!temp.isDirectory()) {
+            throw new IllegalArgumentException(datasetPath + " is not a directory.");
+        }
+        datasetPaths.add(temp);
+    }
+
+    public void addExtractor(LocationExtractor extractor) {
+        extractors.add(extractor);
+    }
+
+    public void addExtractors(Collection<? extends LocationExtractor> e) {
+        extractors.addAll(e);
+    }
+
+    public void runAll() {
+        int numIterations = datasetPaths.size() * extractors.size();
+        ProgressMonitor monitor = new ProgressMonitor(numIterations, 0, "LocationExtractionEvaluation");
+        for (File datasetPath : datasetPaths) {
+            for (LocationExtractor extractor : extractors) {
+                run(extractor, datasetPath);
+                monitor.incrementAndPrintProgress();
+            }
+        }
+    }
+
+    public static void run(LocationExtractor extractor, File datasetDirectory) {
+        Validate.notNull(extractor, "extractor must not be null");
+        Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
+
+        if (!datasetDirectory.isDirectory()) {
+            throw new IllegalArgumentException("The provided path to the gold standard '" + datasetDirectory
                     + "' does not exist or is no directory.");
         }
 
@@ -55,8 +112,7 @@ public final class LocationExtractionEvaluator {
         errors.put(ERROR4, new HashMap<String, Collection<Annotation>>());
         errors.put(ERROR5, new HashMap<String, Collection<Annotation>>());
 
-        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(new File(
-                goldStandardFileFolderPath));
+        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(datasetDirectory);
 
         // for macro averaging
         double precisionMuc = 0;
@@ -65,7 +121,7 @@ public final class LocationExtractionEvaluator {
         double recallExact = 0;
 
         EvaluationResult micro = new EvaluationResult(Collections.<Annotation> emptyList());
-        GeoEvaluationResult geoResult = new GeoEvaluationResult(extractor.getName(), goldStandardFileFolderPath);
+        GeoEvaluationResult geoResult = new GeoEvaluationResult(extractor.getName(), datasetDirectory.getPath());
 
         StopWatch stopWatch = new StopWatch();
         int count = 0;
@@ -117,7 +173,7 @@ public final class LocationExtractionEvaluator {
         StringBuilder summary = new StringBuilder();
 
         summary.append("Result for:").append(extractor.getName()).append("\n\n");
-        summary.append("Using dataset:").append(goldStandardFileFolderPath).append("\n\n");
+        summary.append("Using dataset:").append(datasetDirectory.getPath()).append("\n\n");
 
         summary.append("============ macro average ============\n\n");
 
@@ -181,11 +237,20 @@ public final class LocationExtractionEvaluator {
             detailedOutput.append("\n\n");
         }
 
-        FileHelper.writeToFile("data/temp/" + System.currentTimeMillis() + "_allErrors.csv", detailedOutput);
+        long timestamp = System.currentTimeMillis();
+        FileHelper.writeToFile("data/temp/" + timestamp + "_allErrors.csv", detailedOutput);
 
         // write summary to summary.csv
         StringBuilder summaryCsv = new StringBuilder();
-        summaryCsv.append(goldStandardFileFolderPath).append(';');
+
+        File summaryFile = new File("data/temp/_locationsSummary.csv");
+        if (!summaryFile.exists()) {
+            // write header
+            summaryCsv
+                    .append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo\n");
+        }
+        summaryCsv.append(timestamp).append(';');
+        summaryCsv.append(datasetDirectory.getPath()).append(';');
         summaryCsv.append(extractor.getName()).append(';');
         summaryCsv.append(micro.getPrecision(EvaluationMode.EXACT_MATCH)).append(';');
         summaryCsv.append(micro.getRecall(EvaluationMode.EXACT_MATCH)).append(';');
@@ -201,92 +266,142 @@ public final class LocationExtractionEvaluator {
         summaryCsv.append(geoResult.getRecall()).append(';');
         summaryCsv.append(geoResult.getF1()).append(';').append('\n');
 
-        FileHelper.appendFile("data/temp/locationsSummary.csv", summaryCsv);
+        FileHelper.appendFile(summaryFile.getPath(), summaryCsv);
 
         System.out.println(summary);
         System.out.println("======= geo =========");
         System.out.println(geoResult.getSummary());
 
         // write coordinates results
-        geoResult.writeDetailedReport(new File("data/temp/" + System.currentTimeMillis() + "_distances.csv"));
+        geoResult.writeDetailedReport(new File("data/temp/" + timestamp + "_distances.csv"));
+    }
+    
+    @SuppressWarnings("unused")
+    private static List<LocationExtractor> createForParameterOptimization(LocationDatabase database) {
+        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        for (int anchorDistanceThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000)) {
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
+                    anchorDistanceThreshold, //
+                    LOWER_POPULATION_THRESHOLD, //
+                    ANCHOR_POPULATION_THRESHOLD, //
+                    SAME_DISTANCE_THRESHOLD, //
+                    LASSO_DISTANCE_THRESHOLD, //
+                    LOWER_UNLIKELY_POPULATION_THRESHOLD, //
+                    TOKEN_THRESHOLD)));
+        }
+        for (int lowerPopulationThreshold = 0; lowerPopulationThreshold <= 20000; lowerPopulationThreshold += 1000) {
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
+                    ANCHOR_DISTANCE_THRESHOLD, //
+                    lowerPopulationThreshold, //
+                    ANCHOR_POPULATION_THRESHOLD, //
+                    SAME_DISTANCE_THRESHOLD, //
+                    LASSO_DISTANCE_THRESHOLD, //
+                    LOWER_UNLIKELY_POPULATION_THRESHOLD, //
+                    TOKEN_THRESHOLD)));
+        }
+        for (int anchorPopulationThreshold = 0; anchorPopulationThreshold <= 9; anchorPopulationThreshold++) {
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
+                    ANCHOR_DISTANCE_THRESHOLD, //
+                    LOWER_POPULATION_THRESHOLD, //
+                    (int)Math.pow(10, anchorPopulationThreshold), //
+                    SAME_DISTANCE_THRESHOLD, //
+                    LASSO_DISTANCE_THRESHOLD, //
+                    LOWER_UNLIKELY_POPULATION_THRESHOLD, //
+                    TOKEN_THRESHOLD)));
+        }
+        for (int sameDistanceThreshold = 0; sameDistanceThreshold <= 200; sameDistanceThreshold += 10) {
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
+                    ANCHOR_DISTANCE_THRESHOLD, //
+                    LOWER_POPULATION_THRESHOLD, //
+                    ANCHOR_POPULATION_THRESHOLD, //
+                    sameDistanceThreshold, //
+                    LASSO_DISTANCE_THRESHOLD, //
+                    LOWER_UNLIKELY_POPULATION_THRESHOLD, //
+                    TOKEN_THRESHOLD)));
+        }
+        for (int lassoDistanceThreshold = 0; lassoDistanceThreshold <= 200; lassoDistanceThreshold += 10) {
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
+                    ANCHOR_DISTANCE_THRESHOLD, //
+                    LOWER_POPULATION_THRESHOLD, //
+                    ANCHOR_POPULATION_THRESHOLD, //
+                    SAME_DISTANCE_THRESHOLD, //
+                    lassoDistanceThreshold, //
+                    LOWER_UNLIKELY_POPULATION_THRESHOLD, //
+                    TOKEN_THRESHOLD)));
+        }
+        for (int lowerUnlikelyPopulationThreshold = 0; lowerUnlikelyPopulationThreshold <= 9; lowerUnlikelyPopulationThreshold++) {
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
+                    ANCHOR_DISTANCE_THRESHOLD, //
+                    LOWER_POPULATION_THRESHOLD, //
+                    ANCHOR_POPULATION_THRESHOLD, //
+                    SAME_DISTANCE_THRESHOLD, //
+                    LASSO_DISTANCE_THRESHOLD, //
+                    (int)Math.pow(10, lowerUnlikelyPopulationThreshold), //
+                    TOKEN_THRESHOLD)));
+        }
+        for (int tokenThreshold = 0; tokenThreshold <= 10; tokenThreshold++) {
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
+                    ANCHOR_DISTANCE_THRESHOLD, //
+                    LOWER_POPULATION_THRESHOLD, //
+                    ANCHOR_POPULATION_THRESHOLD, //
+                    SAME_DISTANCE_THRESHOLD, //
+                    LASSO_DISTANCE_THRESHOLD, //
+                    LOWER_UNLIKELY_POPULATION_THRESHOLD, //
+                    tokenThreshold)));
+        }
+        return extractors;
     }
 
-    private LocationExtractionEvaluator() {
-        // utility class.
+    @SuppressWarnings("unused")
+    private static List<LocationExtractor> createForThresholdAnalysis(LocationDatabase database,
+            BaggedDecisionTreeModel model) {
+        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        for (int i = 0; i <= 10; i++) {
+            double threshold = i / 10.;
+            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold);
+            extractors.add(new PalladianLocationExtractor(database, disambiguation));
+        }
+        return extractors;
     }
 
     public static void main(String[] args) {
-        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation";
-        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test";
-        // String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation";
-        String DATASET_LOCATION = "/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/2-validation";
-        // evaluate(new YahooLocationExtractor(), DATASET_LOCATION);
-        // evaluate(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"), DATASET_LOCATION);
-        // evaluate(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
-        // evaluateCoordinates(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
-        // evaluate(new ExtractivLocationExtractor(), DATASET_LOCATION);
-        // System.exit(0);
+
+        LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
+        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
+        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation");
+        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/2-validation");
+
+        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/3-test");
+        evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test");
+        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/3-test");
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-
-        // ///////////////////// baseline //////////////////////
-        // LocationDisambiguation disambiguation = new BaselineDisambiguation();
-
-        // ///////////////////// anchor heuristic //////////////////////
-        LocationDisambiguation disambiguation = new HeuristicDisambiguation();
-
-        // ///////////////////// feature based //////////////////////
-        // String modelFilePath = "data/temp/location_disambiguation_1375713579496.model";
-        // BaggedDecisionTreeModel model = FileHelper.deserialize(modelFilePath);
-        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0);
-
-        evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
-        // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new BaselineDisambiguation()));
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new HeuristicDisambiguation()));
+        // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_tud_train_1375884663191.model");
+        // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_lgl_train_1375884760443.model");
+        // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_clust_train_1375885091622.model");
+        BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_all_train_1375885612531.model");
+        evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
 
         // perform threshold analysis ////////////////////////////////
-        // for (double t = 0.; t <= 1.02; t += 0.02) {
-        // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, t);
-        // evaluate(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
-        // }
+        // List<LocationExtractor> extractors = createForThresholdAnalysis(database, model);
+        // evaluator.addExtractors(extractors);
 
         // parameter tuning for heuristic; vary one parameter at once ////////////////////////////
-        // for (int anchorDistanceThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000)) {
-            // for (int lowerPopulationThreshold : Arrays.asList(0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000,
-            // 9000,
-            // 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000)) {
-        // for (int anchorPopulationThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
-        // 100000000, 1000000000)) {
-            // for (int sameDistanceThreshold : Arrays.asList(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130,
-            // 140,
-            // 150, 160, 170, 180, 190, 200)) {
-            // for (int lassoDistanceThreshold : Arrays.asList(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120,
-            // 130,
-            // 140,
-            // 150, 160, 170, 180, 190, 200)) {
-        // for (int unlikelyPopulationThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
-        // 100000000, 1000000000)) {
-        // // for (int tokenThreshold : Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)) {
-        // LocationDisambiguation disambiguation = new HeuristicDisambiguation(//
-        // HeuristicDisambiguation.ANCHOR_DISTANCE_THRESHOLD, //
-        // HeuristicDisambiguation.LOWER_POPULATION_THRESHOLD, //
-        // HeuristicDisambiguation.ANCHOR_POPULATION_THRESHOLD, //
-        // HeuristicDisambiguation.SAME_DISTANCE_THRESHOLD, //
-        // HeuristicDisambiguation.LASSO_DISTANCE_THRESHOLD, //
-        // unlikelyPopulationThreshold, // HeuristicDisambiguation.LOWER_UNLIKELY_POPULATION_THRESHOLD, //
-        // HeuristicDisambiguation.TOKEN_THRESHOLD);
-        // PalladianLocationExtractor extractor = new PalladianLocationExtractor(source, disambiguation);
-        // evaluate(extractor, DATASET_LOCATION);
-        // evaluateCoordinates(extractor, DATASET_LOCATION);
-        // }
+        // List<LocationExtractor> extractors = createForParameterOptimization(database);
+        // evaluator.addExtractors(extractors);
 
-        // evaluateCoordinates(new PalladianLocationExtractor(database, disambiguation), DATASET_LOCATION);
-        // evaluateCoordinates(new YahooLocationExtractor(), DATASET_LOCATION);
+        // comparison with others /////////////////////////////
+        // evaluator.addExtractor(new YahooLocationExtractor());
+        // evaluator.addExtractor(new AlchemyLocationExtractor("b0ec6f30acfb22472f458eec1d1acf7f8e8da4f5"));
+        // evaluator.addExtractor(new OpenCalaisLocationExtractor("mx2g74ej2qd4xpqdkrmnyny5"));
+        // evaluator.addExtractor(new ExtractivLocationExtractor());
         // File pathToTexts = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2-cleanTexts");
         // File pathToJsonResults = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/UnlockTextResults");
-        // evaluate(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
-        // evaluateCoordinates(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults), DATASET_LOCATION);
-        // evaluateCoordinates(new PalladianLocationExtractor(database), DATASET_LOCATION);
-        // evaluateCoordinates(new OpenCalaisLocationExtractor2("mx2g74ej2qd4xpqdkrmnyny5"), DATASET_LOCATION);
+        // evaluator.addExtractor(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults));
+
+        evaluator.runAll();
     }
 
 }
