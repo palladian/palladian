@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -88,6 +89,28 @@ public class ConfusionMatrixTest {
 
         assertEquals(0.8, confusionMatrix.getPrior("c1"), DELTA);
         assertEquals(0.2, confusionMatrix.getPrior("c2"), DELTA);
+
+        // System.out.println(confusionMatrix);
+    }
+
+    @Test
+    public void testConfusionMatrix_issue125() {
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("false", "true");
+        assertEquals(1.0, confusionMatrix.getRecall("true"), DELTA);
+        assertEquals(0.75, confusionMatrix.getPrecision("true"), DELTA);
+        assertEquals(1.0, confusionMatrix.getSensitivity("true"), DELTA);
+        assertEquals(0.0, confusionMatrix.getSpecificity("true"), DELTA);
+        assertEquals(0.8571428, confusionMatrix.getF(1.0, "true"), DELTA);
+
+        assertEquals(0, confusionMatrix.getRecall("false"), DELTA);
+        assertTrue(Double.isNaN(confusionMatrix.getPrecision("false")));
+        assertEquals(0.0, confusionMatrix.getSensitivity("false"), DELTA);
+        assertEquals(1.0, confusionMatrix.getSpecificity("false"), DELTA);
+        assertTrue(Double.isNaN(confusionMatrix.getF(1.0, "false")));
 
         // System.out.println(confusionMatrix);
     }

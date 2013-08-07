@@ -975,36 +975,65 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Copy a file.
+     * </p>
      * 
-     * @param sourceFile The file to copy.
-     * @param destinationFile The destination of the file.
+     * @param sourceFile Path to the file to copy.
+     * @param destinationFile The destination path of the file.
      */
-    public static void copyFile(String sourceFile, String destinationFile) {
+    public static boolean copyFile(String sourceFile, String destinationFile) {
         InputStream in = null;
         OutputStream out = null;
+        boolean success = false;
         try {
-
             File outputFile = new File(FileHelper.getFilePath(destinationFile));
             if (!outputFile.exists()) {
                 outputFile.mkdirs();
             }
-
             in = new FileInputStream(new File(sourceFile));
             out = new FileOutputStream(new File(destinationFile));
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-        } catch (FileNotFoundException ex) {
-            LOGGER.error(ex.getMessage());
+            copy(in, out);
+            success = true;
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
             close(in, out);
         }
+        return success;
+    }
+
+    static void copy(InputStream in, OutputStream out) throws IOException {
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+    }
+
+    /**
+     * <p>
+     * Copy a file to the specified directory, keep the original name.
+     * </p>
+     * 
+     * @param source That path to the source file, not <code>null</code>.
+     * @param destinationDirectory The path to the destination directory, not <code>null</code>. In case the directory
+     *            does not exist, it will be created.
+     * @return <code>true</code> in case copying worked, <code>false</code> otherwise.
+     */
+    public static boolean copyFileToDirectory(File source, File destinationDirectory) {
+        Validate.notNull(source, "source must not be null");
+        Validate.notNull(destinationDirectory, "destinationDirectory must not be null");
+        if (!source.isFile()) {
+            throw new IllegalArgumentException(source + " is not a file or cannot be accessed.");
+        }
+        if (!destinationDirectory.isDirectory() && !destinationDirectory.mkdirs()) {
+            throw new IllegalArgumentException("Directory " + destinationDirectory + " could not be created.");
+        }
+        File destinationFile = new File(destinationDirectory, source.getName());
+        return copyFile(source.getPath(), destinationFile.getPath());
     }
 
     /**
@@ -1049,13 +1078,7 @@ public final class FileHelper {
                     in = new FileInputStream(srcPath);
                     out = new FileOutputStream(dstPath);
 
-                    // Transfer bytes from in to out
-                    byte[] buf = new byte[1024];
-
-                    int len;
-                    while ((len = in.read(buf)) > 0) {
-                        out.write(buf, 0, len);
-                    }
+                    copy(in, out);
 
                     in.close();
                     out.close();

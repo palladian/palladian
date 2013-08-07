@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import static ws.palladian.extraction.location.PalladianLocationExtractor.LONG_ANNOTATION_SPLIT;
+
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +46,7 @@ public class FeatureBasedDisambiguationLearner {
 
     private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor();
 
-    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
     private final AnnotationFilter filter = new AnnotationFilter();
 
@@ -103,7 +105,7 @@ public class FeatureBasedDisambiguationLearner {
                 Location trainLocation = trainAnnotation.getLocation();
                 // XXX offsets are not considered here; necessary?
                 boolean samePlace = GeoUtils.getDistance(instance, trainLocation) < 50;
-                boolean sameName = LocationExtractorUtils.commonName(instance, trainLocation);
+                boolean sameName = instance.commonName(trainLocation);
                 boolean sameType = instance.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
                 if (samePlace && sameName && sameType) {
@@ -122,9 +124,11 @@ public class FeatureBasedDisambiguationLearner {
     public static void main(String[] args) {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
-        File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
-        // File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
+        // File dataset = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
+        File dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
         learner.learn(dataset);
+        // dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
+        // learner.learn(dataset);
     }
 
 }

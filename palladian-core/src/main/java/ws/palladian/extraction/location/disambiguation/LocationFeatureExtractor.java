@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -9,8 +10,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.extraction.location.AbstractLocation;
+import ws.palladian.extraction.location.EntityPreprocessingTagger;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
@@ -19,14 +23,24 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
+import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.retrieval.search.CachingSearcher;
+import ws.palladian.retrieval.search.ClueWebSearcher;
+import ws.palladian.retrieval.search.ClueWebSearcher.ClueWebResult;
+import ws.palladian.retrieval.search.Searcher;
+import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -40,14 +54,12 @@ class LocationFeatureExtractor {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationFeatureExtractor.class);
 
-//    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+    public static boolean debug = false;
 
-//    private final ContextClassifier contextClassifier = new ContextClassifier();
+    private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
 
-//    private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
-
-//    private final Set<String> locationMarkers = new HashSet<String>(
-//            FileHelper.readFileToArray(FeatureBasedDisambiguation.class.getResourceAsStream("/locationMarkers.txt")));
+    private final Set<String> locationMarkers = new HashSet<String>(
+            FileHelper.readFileToArray(FeatureBasedDisambiguation.class.getResourceAsStream("/locationMarkers.txt")));
     
 //    private static final Set<String> locationMarkers;
 //    
@@ -60,80 +72,37 @@ class LocationFeatureExtractor {
 //        locationMarkers.add("Muncipality");
 //    }
 
-    public static boolean debug = false;
-
-//    private final ContextClassifier2 contextClassifier2 = new ContextClassifier2();
-
-//    private Set<Annotated> getUnlikelyCandidates(String text, MultiMap<Annotated, Location> locations) {
-//
-//        // get *all* annotations
-//        List<Annotated> annotations = tagger.getAnnotations(text);
-//
-//        // the logic employed here is a bit weird,
-//        // wouldn't it be better to check the MultiMap, take those candidates which have zero locations assigned,
-//        // and take them as unlikely parts?
-//
-//        Set<String> unlikelyParts = CollectionHelper.newHashSet();
-//        for (Annotated annotation : annotations) {
-//            if (!locations.containsKey(annotation)) {
-//                LOGGER.trace("[unlikely] {}", annotation);
-//                String[] parts = annotation.getValue().split("\\s");
-//                for (String part : parts) {
-//                    unlikelyParts.add(part.toLowerCase());
-//                }
-//            }
-//        }
-//        LOGGER.trace("Unlikely parts: {}", unlikelyParts);
-//
-//        Set<Annotated> unlikelyCandidates = CollectionHelper.newHashSet();
-//        for (Annotated annotation : annotations) {
-//            String[] parts = annotation.getValue().split("\\s");
-//            for (String part : parts) {
-//                if (unlikelyParts.contains(part.toLowerCase())) {
-//                    unlikelyCandidates.add(annotation);
-//                }
-//            }
-//        }
-//        LOGGER.trace("{} Unlikely candidates: {}", unlikelyCandidates.size(), unlikelyCandidates);
-//        return unlikelyCandidates;
-//    }
-
-//    private final ClueWebSearcher clueWebSearcher = new ClueWebSearcher(new File("/Volumes/SAMSUNG/ClueWeb09"));
+    private final Searcher<ClueWebResult> clueWebIndex = new CachingSearcher<ClueWebResult>(1000, new ClueWebSearcher(
+            new File("/Volumes/SAMSUNG/ClueWeb09")));
 
     public Set<LocationInstance> makeInstances(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
-//        Set<Annotated> unlikelyCandidates = getUnlikelyCandidates(text, locations);
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
         Collection<Location> allLocations = locations.allValues();
-//        CountMap<String> counts = getCounts(locations.keySet());
-//        int annotationCount = locations.keySet().size();
-        Set<Location> uniqueLocations = getUniqueLocations(locations);
+        CountMap<String> counts = getCounts(locations.keySet());
+        int annotationCount = locations.keySet().size();
+        Set<Location> uniqLocations = getUniqueLocations(locations);
         Map<Location, Double> sentenceProximities = buildSentenceProximityMap(text, locations);
-//        Map<String, CategoryEntries> contextClassification = createContextClassification(text, locations.keySet());
-//        double largestDistance = LocationExtractorUtils.getLargestDistance(allLocations);
-
+        double largestDistance = LocationExtractorUtils.getLargestDistance(allLocations);
 
         for (ClassifiedAnnotation annotation : locations.keySet()) {
-//            double indexScore = getIndexScore(locations, annotation);
 
-//            String value = annotation.getValue();
-//            String normalizedValue = LocationExtractorUtils.normalizeName(value);
+            String value = annotation.getValue();
+            String normalizedValue = LocationExtractorUtils.normalizeName(value);
             Collection<Location> candidates = locations.get(annotation);
             Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
             long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
             boolean unique = isUnique(candidates);
-//            boolean uniqueAndLong = unique && annotation.getValue().split("\\s").length > 2;
-//            int maxDepth = getMaxDepth(candidates);
-//            boolean unlikelyCandidate = unlikelyCandidates.contains(annotation);
-//            CategoryEntries temp = contextClassification.get(normalizedValue);
-//            double locContextProbability = temp != null ? temp.getProbability("LOC") : 0;
-//            boolean stopword = stopTokenRemover.isStopword(value);
+            boolean uniqueAndLong = unique && annotation.getValue().split("\\s").length > 2;
+            int maxDepth = getMaxDepth(candidates);
+            boolean stopword = stopTokenRemover.isStopword(value);
 
-//            Map<String, CategoryEntries> contextClassification = contextClassifier2.classify(text, annotation);
-
-//            int firstOccurence = getFirstOccurence(annotation, locations.keySet());
-//            double firstOccurenceRelative = (double)firstOccurence / text.length();
-            boolean unlikelyCandidate = isUnlikelyCandidate(annotation, candidates);
+            int firstOccurence = getFirstOccurence(annotation, locations.keySet());
+            double firstOccurenceRelative = (double)firstOccurence / text.length();
+            boolean unlikelyCandidate = isUnlikelyCandidate(annotation);
+            boolean likelyCandidate = isLikelyCandidate(annotation);
+            double indexScore = getIndexScore(locations, annotation);
+            boolean partialAnnotation = annotation.getTag().equals(EntityPreprocessingTagger.SPLIT_ANNOTATION_TAG);
 
             for (Location location : candidates) {
 
@@ -145,78 +114,79 @@ class LocationFeatureExtractor {
 
                 // extract features and add them to the feature vector
                 FeatureVector fv = new FeatureVector();
-                fv.add(new NominalFeature("locationType", location.getType().toString()));
-                // fv.add(new BooleanFeature("country", location.getType() == LocationType.COUNTRY));
-                fv.add(new BooleanFeature("continent", location.getType() == LocationType.CONTINENT));
-                // fv.add(new BooleanFeature("city", location.getType() == LocationType.CITY));
-                // fv.add(new NumericFeature("population", population));
-                // fv.add(new NumericFeature("populationMagnitude", MathHelper.getOrderOfMagnitude(population)));
-                fv.add(new NumericFeature("populationNorm", (double)population / maxPopulation));
-                // fv.add(new NumericFeature("numTokens", value.split("\\s").length));
-                // fv.add(new NumericFeature("numCharacters", value.length()));
-                fv.add(new NumericFeature("ambiguity", 1. / candidates.size()));
+
+                // annotation features
+                fv.add(new NumericFeature("numCharacters", value.length()));
+                fv.add(new NumericFeature("numTokens", value.split("\\s").length));
                 fv.add(new BooleanFeature("acronym", isAcronym(annotation, locations)));
-                // fv.add(new NumericFeature("count", counts.getCount(value)));
-                // fv.add(new NumericFeature("frequency", (double)counts.getCount(value) / annotationCount));
-                // fv.add(new BooleanFeature("parentOccurs", parentOccurs(location, others)));
-                // fv.add(new NumericFeature("ancestorCount", ancestorCount(location, others)));
-                // fv.add(new BooleanFeature("ancestorOccurs", ancestorCount(location, others) > 0));
-                fv.add(new BooleanFeature("childOccurs", childCount(location, others) > 0));
-                fv.add(new NumericFeature("childCount", childCount(location, others)));
-                // fv.add(new BooleanFeature("descendantOccurs", descendantCount(location, others) > 0));
-                // fv.add(new NumericFeature("descendantCount", descendantCount(location, others)));
-                // fv.add(new NumericFeature("numLocIn10", countLocationsInDistance(location, others, 10)));
-                // fv.add(new NumericFeature("numLocIn50", countLocationsInDistance(location, others, 50)));
-                // fv.add(new NumericFeature("numLocIn100", countLocationsInDistance(location, others, 100)));
-                // fv.add(new NumericFeature("numLocIn250", countLocationsInDistance(location, others, 250)));
-                fv.add(new NumericFeature("distLoc1m", getDistanceToPopulation(location, others, 1000000)));
-                // fv.add(new NumericFeature("distLoc100k", getDistanceToPopulation(location, others, 100000)));
-                // fv.add(new NumericFeature("distLoc10k", getDistanceToPopulation(location, others, 10000)));
-                // fv.add(new NumericFeature("distLoc1k", getDistanceToPopulation(location, others, 1000)));
-                fv.add(new NumericFeature("popIn10", getPopulationInRadius(location, others, 10)));
-                // fv.add(new NumericFeature("popIn50", getPopulationInRadius(location, others, 50)));
-                // fv.add(new NumericFeature("popIn100", getPopulationInRadius(location, others, 100)));
-                // fv.add(new NumericFeature("popIn250", getPopulationInRadius(location, others, 250)));
-                // fv.add(new NumericFeature("siblingCount", siblingCount(location, others)));
-                // fv.add(new BooleanFeature("siblingOccurs", siblingCount(location, others) > 0));
-                // fv.add(new NumericFeature("hierarchyDepth", location.getAncestorIds().size()));
-                // fv.add(new NumericFeature("hierarchyDepthNorm", (double)location.getAncestorIds().size() / maxDepth));
-                fv.add(new BooleanFeature("unique", unique));
-                // fv.add(new BooleanFeature("uniqueAndLong", uniqueAndLong));
-                // fv.add(new BooleanFeature("unlikelyCandidate", unlikelyCandidate));
-                // fv.add(new BooleanFeature("uniqLocIn10", countLocationsInDistance(location, uniqueLocations, 10) > 0));
-                // fv.add(new BooleanFeature("uniqLocIn50", countLocationsInDistance(location, uniqueLocations, 50) > 0));
-                fv.add(new BooleanFeature("uniqLocIn100", countLocationsInDistance(location, uniqueLocations, 100) > 0));
-                // fv.add(new BooleanFeature("uniqLocIn250", countLocationsInDistance(location, uniqueLocations, 250) > 0));
-                // fv.add(new BooleanFeature("distLoc10Sentence", sentenceProximities.get(location) <= 10));
-                fv.add(new BooleanFeature("distLoc50Sentence", sentenceProximities.get(location) <= 50));
-                // fv.add(new BooleanFeature("distLoc100Sentence", sentenceProximities.get(location) <= 100));
-                // fv.add(new BooleanFeature("distLoc250Sentence", sentenceProximities.get(location) <= 250));
-                // fv.add(new NumericFeature("context", locContextProbability));
-                // fv.add(new BooleanFeature("stopword", stopword));
-                // fv.add(new NominalFeature("caseSignature", StringHelper.getCaseSignature(normalizedValue)));
+                fv.add(new BooleanFeature("stopword", stopword));
+                fv.add(new NominalFeature("caseSignature", StringHelper.getCaseSignature(normalizedValue)));
+                createMarkerFeatures(value, fv); // + AusDM all in one
+                fv.add(new BooleanFeature("partialAnnotation", partialAnnotation)); // + AusDM
+
+                // text features
+                fv.add(new NumericFeature("count", counts.getCount(value)));
+                fv.add(new NumericFeature("frequency", (double)counts.getCount(value) / annotationCount));
+                fv.add(new NumericFeature("firstOccurence", firstOccurence)); // + AusDM
+                fv.add(new NumericFeature("firstOccurenceRelative", firstOccurenceRelative)); // + AusDM
+
+                // corpus features
+                fv.add(new BooleanFeature("unlikelyCandidate", unlikelyCandidate));
+                fv.add(new BooleanFeature("likelyCandidate", likelyCandidate)); // + AusDM
+                fv.add(new NumericFeature("indexScore", indexScore)); // + AusDM
+
+                // gazetteer features
+                fv.add(new NominalFeature("locationType", location.getType().toString()));
+                fv.add(new BooleanFeature("country", location.getType() == LocationType.COUNTRY));
+                fv.add(new BooleanFeature("continent", location.getType() == LocationType.CONTINENT));
+                fv.add(new BooleanFeature("city", location.getType() == LocationType.CITY));
+                fv.add(new NumericFeature("population", population));
+                fv.add(new NumericFeature("populationMagnitude", MathHelper.getOrderOfMagnitude(population)));
+                fv.add(new NumericFeature("populationNorm", (double)population / maxPopulation));
+                fv.add(new NumericFeature("hierarchyDepth", location.getAncestorIds().size()));
+                fv.add(new NumericFeature("hierarchyDepthNorm", (double)location.getAncestorIds().size() / maxDepth));
+                fv.add(new NumericFeature("nameAmbiguity", 1. / candidates.size()));
                 fv.add(new BooleanFeature("leaf", isLeaf(location, candidates)));
                 fv.add(new NumericFeature("nameDiversity", getNameDiversity(location)));
-                // fv.add(new NumericFeature("geoDiversity", getGeoDiversity(candidates, largestDistance)));
-//                fv.add(new NumericFeature("leftContext1Loc", contextClassification.get("l1").getProbability("LOC")));
-//                fv.add(new NumericFeature("leftContext2Loc", contextClassification.get("l2").getProbability("LOC")));
-//                fv.add(new NumericFeature("rightContext1Loc", contextClassification.get("l1").getProbability("LOC")));
-//                fv.add(new NumericFeature("rightContext2Loc", contextClassification.get("l2").getProbability("LOC")));
-//                fv.add(new NumericFeature("leftContext1Per", contextClassification.get("l1").getProbability("PER")));
-//                fv.add(new NumericFeature("leftContext2Per", contextClassification.get("l2").getProbability("PER")));
-//                fv.add(new NumericFeature("rightContext1Per", contextClassification.get("l1").getProbability("PER")));
-//                fv.add(new NumericFeature("rightContext2Per", contextClassification.get("l2").getProbability("PER")));
-                // fv.add(new NumericFeature("firstOccurence", firstOccurence));
-                // fv.add(new NumericFeature("firstOccurenceRelative", firstOccurenceRelative));
-//                fv.add(new BooleanFeature("primaryName", annotation.getValue().equals(location.getPrimaryName())));
-//                fv.add(new NumericFeature("indexScore", indexScore));
-                fv.add(new BooleanFeature("unlikelyCandidate", unlikelyCandidate));
+                fv.add(new NumericFeature("geoDiversity", getGeoDiversity(candidates, largestDistance)));
+                fv.add(new BooleanFeature("unique", unique)); // + AusDM
+                fv.add(new BooleanFeature("uniqueAndLong", uniqueAndLong)); // + AusDM
+                fv.add(new BooleanFeature("altMention", isMentionedAlt(annotation, location, locations))); // + AusDM
 
-                // TODO type equivalence relations of "neightbours"; e.g. for phrases like "Germany, France and Italy".#
-                // TODO potential place is mentioned by two/more alternative names
+                // text and gazetteer features
+                fv.add(new BooleanFeature("contains(ancestor)", ancestorCount(location, others) > 0));
+                fv.add(new BooleanFeature("contains(child)", childCount(location, others) > 0));
+                fv.add(new BooleanFeature("contains(descendant)", descendantCount(location, others) > 0));
+                fv.add(new BooleanFeature("contains(parent)", parentOccurs(location, others)));
+                fv.add(new BooleanFeature("contains(sibling)", siblingCount(location, others) > 0));
+                fv.add(new NumericFeature("num(ancestor)", ancestorCount(location, others)));
+                fv.add(new NumericFeature("num(child)", childCount(location, others)));
+                fv.add(new NumericFeature("num(descendant)", descendantCount(location, others)));
+                fv.add(new NumericFeature("num(sibling)", siblingCount(location, others)));
+                fv.add(new NumericFeature("numLocIn(10)", countLocationsInDistance(location, others, 10)));
+                fv.add(new NumericFeature("numLocIn(50)", countLocationsInDistance(location, others, 50)));
+                fv.add(new NumericFeature("numLocIn(100)", countLocationsInDistance(location, others, 100)));
+                fv.add(new NumericFeature("numLocIn(250)", countLocationsInDistance(location, others, 250)));
+                fv.add(new NumericFeature("distLoc(1m)", getDistanceToPopulation(location, others, 1000000)));
+                fv.add(new NumericFeature("distLoc(100k)", getDistanceToPopulation(location, others, 100000)));
+                fv.add(new NumericFeature("distLoc(10k)", getDistanceToPopulation(location, others, 10000)));
+                fv.add(new NumericFeature("distLoc(1k)", getDistanceToPopulation(location, others, 1000)));
+                fv.add(new NumericFeature("popIn(10)", getPopulationInRadius(location, others, 10)));
+                fv.add(new NumericFeature("popIn(50)", getPopulationInRadius(location, others, 50)));
+                fv.add(new NumericFeature("popIn(100)", getPopulationInRadius(location, others, 100)));
+                fv.add(new NumericFeature("popIn(250)", getPopulationInRadius(location, others, 250)));
+                fv.add(new BooleanFeature("locSentence(10)", sentenceProximities.get(location) <= 10));
+                fv.add(new BooleanFeature("locSentence(50)", sentenceProximities.get(location) <= 50));
+                fv.add(new BooleanFeature("locSentence(100)", sentenceProximities.get(location) <= 100));
+                fv.add(new BooleanFeature("locSentence(250)", sentenceProximities.get(location) <= 250));
+                fv.add(new BooleanFeature("uniqueIn(10)", countLocationsInDistance(location, uniqLocations, 10) > 0));
+                fv.add(new BooleanFeature("uniqueIn(50)", countLocationsInDistance(location, uniqLocations, 50) > 0));
+                fv.add(new BooleanFeature("uniqueIn(100)", countLocationsInDistance(location, uniqLocations, 100) > 0));
+                fv.add(new BooleanFeature("uniqueIn(250)", countLocationsInDistance(location, uniqLocations, 250) > 0));
+                fv.add(new BooleanFeature("primaryName", value.equals(location.getPrimaryName()))); // + AusDM
+
+                // TODO type equivalence relations of "neighbors"; e.g. for phrases like "Germany, France and Italy".
                 // TODO distance from first location
-
-//                createMarkerFeatures(value, fv);
 
                 // just for debugging purposes
                 // fv.add(new NominalFeature("locationId", String.valueOf(location.getId())));
@@ -234,64 +204,67 @@ class LocationFeatureExtractor {
         return instances;
     }
 
-    private static boolean isUnlikelyCandidate(ClassifiedAnnotation annotation, Collection<Location> candidates) {
+    /**
+     * Check, whether a location is mentioned with at least two different names in the text; e.g.
+     * "Los Angeles is also called L.A."
+     */
+    private static boolean isMentionedAlt(Annotation annotation, Location location,
+            MultiMap<? extends Annotation, Location> locations) {
+        Set<String> altNames = location.collectAlternativeNames();
+        for (Annotation temp : locations.keySet()) {
+            String tempValue = temp.getValue();
+            if (!tempValue.equalsIgnoreCase(annotation.getValue()) && locations.get(temp).contains(location)) {
+                for (String altName : altNames) {
+                    if (altName.equalsIgnoreCase(tempValue)) {
+                        LOGGER.trace("Alternative mentioned of {} with {}", annotation.getValue(), tempValue);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private double getIndexScore(MultiMap<? extends Annotation, Location> locations, Annotation annotation) {
+        double indexScore;
+        try {
+            long population = LocationExtractorUtils.getHighestPopulation(locations.get(annotation));
+            long count = clueWebIndex.getTotalResultCount(String.format("\"%s\"", annotation.getValue()));
+            indexScore = (double)(population + 1000) / (count + 1);
+        } catch (SearcherException e) {
+            throw new IllegalStateException("Error while searching for " + annotation.getValue() + "\": "
+                    + e.getMessage(), e);
+        }
+        return indexScore;
+    }
+
+    private static boolean isUnlikelyCandidate(ClassifiedAnnotation annotation) {
         return annotation.getCategoryEntries().getProbability("PER") == 1;
     }
 
-//    private double getIndexScore(MultiMap<? extends Annotated, Location> locations, Annotated annotation) {
-//        double indexScore;
-//        try {
-//            long population = getMaxPopulation(locations.get(annotation));
-//            long count = getIndexCount(annotation.getValue());
-//            indexScore = (double)(population + 1000) / (count + 1);
-//        } catch (SearcherException e) {
-//            throw new IllegalStateException(e);
-//        }
-//        return indexScore;
-//    }
+    private static boolean isLikelyCandidate(ClassifiedAnnotation annotation) {
+        return annotation.getCategoryEntries().getProbability("LOC") == 1;
+    }
 
-//    private final Map<String, Long> indexCountCache = new MruMap<String, Long>(1000);
-//
-//    private long getIndexCount(String value) throws SearcherException {
-//        Long count = indexCountCache.get(value);
-//        if (count == null) {
-//            count = clueWebSearcher.getTotalResultCount(String.format("\"%s\"", value));
-//            indexCountCache.put(value, count);
-//        }
-//        return count;
-//    }
+    private int getFirstOccurence(Annotation annotation, Collection<? extends Annotation> all) {
+        int firstOccurence = annotation.getStartPosition();
+        for (Annotation other : all) {
+            if (other.getValue().equals(annotation.getValue())) {
+                firstOccurence = Math.min(other.getStartPosition(), firstOccurence);
+            }
+        }
+        return firstOccurence;
+    }
 
-//    private int getFirstOccurence(Annotated annotation, Collection<Annotated> all) {
-//        int firstOccurence = annotation.getStartPosition();
-//        for (Annotated other : all) {
-//            if (other.getValue().equals(annotation.getValue())) {
-//                firstOccurence = Math.min(other.getStartPosition(), firstOccurence);
-//            }
-//        }
-//        return firstOccurence;
-//    }
-
-//    private void createMarkerFeatures(String value, FeatureVector featureVector) {
-//        for (String marker : locationMarkers) {
-//            boolean containsWord = StringHelper.containsWord(marker, value);
-//            featureVector.add(new BooleanFeature("marker=" + marker.toLowerCase(), containsWord));
-//        }
-//    }
-
-//    private Map<String, CategoryEntries> createContextClassification(String text, Collection<Annotated> annotations) {
-//        Map<String, CategoryEntries> result = CollectionHelper.newHashMap();
-//        for (Annotated annotation : annotations) {
-//            CategoryEntries classification = contextClassifier.classify(text, annotation);
-//            String value = LocationExtractorUtils.normalizeName(annotation.getValue());
-//            CategoryEntries existing = result.get(value);
-//            if (existing == null) {
-//                result.put(value, classification);
-//            } else {
-//                result.put(value, CategoryEntriesMap.merge(classification, existing));
-//            }
-//        }
-//        return result;
-//    }
+    private void createMarkerFeatures(String value, FeatureVector featureVector) {
+        boolean containsAny = false;
+        for (String marker : locationMarkers) {
+            boolean containsWord = StringHelper.containsWord(marker, value);
+            featureVector.add(new BooleanFeature("containsMarker(" + marker.toLowerCase() + ")", containsWord));
+            containsAny |= containsWord;
+        }
+        featureVector.add(new BooleanFeature("containsMarker(*)", containsAny));
+    }
 
     private static Map<Location, Double> buildSentenceProximityMap(String text,
             MultiMap<? extends Annotation, Location> locations) {
@@ -345,17 +318,6 @@ class LocationFeatureExtractor {
         return result;
     }
 
-//    private static final long getMaxPopulation(Collection<Location> collection) {
-//        long maxPopulation = 0;
-//        for (Location location : collection) {
-//            Long population = location.getPopulation();
-//            if (population != null) {
-//                maxPopulation = Math.max(maxPopulation, population);
-//            }
-//        }
-//        return maxPopulation;
-//    }
-
     private static Set<Location> getUniqueLocations(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();
         for (Collection<Location> group : locations.values()) {
@@ -366,13 +328,13 @@ class LocationFeatureExtractor {
         return uniqueLocations;
     }
 
-//    private static int getMaxDepth(Collection<Location> locations) {
-//        int maxDepth = 1;
-//        for (Location location : locations) {
-//            maxDepth = Math.max(maxDepth, location.getAncestorIds().size());
-//        }
-//        return maxDepth;
-//    }
+    private static int getMaxDepth(Collection<Location> locations) {
+        int maxDepth = 1;
+        for (Location location : locations) {
+            maxDepth = Math.max(maxDepth, location.getAncestorIds().size());
+        }
+        return maxDepth;
+    }
 
     private static boolean isUnique(Collection<Location> locations) {
         Set<Location> group = LocationExtractorUtils.filterConditionally(locations, new CoordinateFilter());
@@ -412,63 +374,63 @@ class LocationFeatureExtractor {
     private static int childCount(Location location, Collection<Location> others) {
         int count = 0;
         for (Location other : others) {
-            if (LocationExtractorUtils.isChildOf(other, location)) {
+            if (other.childOf(location)) {
                 count++;
             }
         }
         return count;
     }
 
-//    private static int descendantCount(Location location, Collection<Location> others) {
-//        int count = 0;
-//        for (Location other : others) {
-//            if (LocationExtractorUtils.isDescendantOf(other, location)) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
+    private static int descendantCount(Location location, Collection<Location> others) {
+        int count = 0;
+        for (Location other : others) {
+            if (other.descendantOf(location)) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-//    private static int ancestorCount(Location location, Collection<Location> others) {
-//        int count = 0;
-//        for (Location other : others) {
-//            if (LocationExtractorUtils.isDescendantOf(location, other)) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
+    private static int ancestorCount(Location location, Collection<Location> others) {
+        int count = 0;
+        for (Location other : others) {
+            if (location.descendantOf(other)) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-//    private static boolean parentOccurs(Location location, Collection<Location> others) {
-//        for (Location other : others) {
-//            if (LocationExtractorUtils.isChildOf(location, other)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    private static boolean parentOccurs(Location location, Collection<Location> others) {
+        for (Location other : others) {
+            if (location.childOf(other)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-//    private static int siblingCount(Location location, Collection<Location> others) {
-//        int count = 0;
-//        for (Location other : others) {
-//            if (location.getAncestorIds().equals(other.getAncestorIds())) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
+    private static int siblingCount(Location location, Collection<Location> others) {
+        int count = 0;
+        for (Location other : others) {
+            if (location.getAncestorIds().equals(other.getAncestorIds())) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-//    private static CountMap<String> getCounts(Collection<Annotated> annotations) {
-//        CountMap<String> frequencies = CountMap.create();
-//        for (Annotated annotation : annotations) {
-//            frequencies.add(LocationExtractorUtils.normalizeName(annotation.getValue()));
-//        }
-//        return frequencies;
-//    }
+    private static CountMap<String> getCounts(Collection<? extends Annotation> annotations) {
+        CountMap<String> frequencies = CountMap.create();
+        for (Annotation annotation : annotations) {
+            frequencies.add(LocationExtractorUtils.normalizeName(annotation.getValue()));
+        }
+        return frequencies;
+    }
 
     private static boolean isAcronym(Annotation annotation, MultiMap<? extends Annotation, Location> locations) {
         for (Location location : locations.get(annotation)) {
-            Set<String> names = LocationExtractorUtils.collectNames(location);
+            Set<String> names = location.collectAlternativeNames();
             for (String name : names) {
                 if (name.equals(LocationExtractorUtils.normalizeName(annotation.getValue()))) {
                     if (name.matches("[A-Z]+|([A-Z]\\.)+")) {
@@ -483,7 +445,7 @@ class LocationFeatureExtractor {
 
     private static boolean isLeaf(Location location, Collection<Location> others) {
         for (Location other : others) {
-            if (LocationExtractorUtils.isDescendantOf(other, location)) {
+            if (other.descendantOf(location)) {
                 return false;
             }
         }
@@ -491,17 +453,17 @@ class LocationFeatureExtractor {
     }
 
     private static double getNameDiversity(Location location) {
-        return 1. / LocationExtractorUtils.collectNames(location).size();
+        return 1. / location.collectAlternativeNames().size();
     }
 
-//    private static double getGeoDiversity(Collection<Location> locations, double normalization) {
-//        if (normalization == 0) {
-//            return 0.;
-//        }
-//        return LocationExtractorUtils.getLargestDistance(locations) / normalization;
-//    }
+    private static double getGeoDiversity(Collection<Location> locations, double normalization) {
+        if (normalization == 0) {
+            return 0.;
+        }
+        return LocationExtractorUtils.getLargestDistance(locations) / normalization;
+    }
 
-    static final class LocationInstance implements Location, Classifiable {
+    static final class LocationInstance extends AbstractLocation implements Classifiable {
 
         private final Location location;
         private final FeatureVector featureVector;

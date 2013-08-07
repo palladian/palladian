@@ -39,6 +39,8 @@ public class EntityPreprocessingTagger implements Tagger {
     /** Length of the context. */
     private static final int CONTEXT_LENGTH = 5;
 
+    public static final String SPLIT_ANNOTATION_TAG = "PARTIAL_CANDIDATE";
+
     /** The base tagger, which delivers the annotations. */
     private final ContextTagger tagger;
 
@@ -185,15 +187,19 @@ public class EntityPreprocessingTagger implements Tagger {
                         cumulatedTokens.add(token);
                     } else if (cumulatedTokens.size() > 0) {
                         String value = StringUtils.join(cumulatedTokens, " ");
-                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
-                        splitAnnotations.add(new ImmutableAnnotation(startPosition, value, annotation.getTag()));
+                        if (value.length() > 1) {
+                            int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
+                            splitAnnotations.add(new ImmutableAnnotation(startPosition, value, SPLIT_ANNOTATION_TAG));
+                        }
                         cumulatedTokens.clear();
                     }
                 }
                 if (cumulatedTokens.size() > 0) {
                     String value = StringUtils.join(cumulatedTokens, " ");
-                    int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
-                    splitAnnotations.add(new ImmutableAnnotation(startPosition, value, annotation.getTag()));
+                    if (value.length() > 1) {
+                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
+                        splitAnnotations.add(new ImmutableAnnotation(startPosition, value, SPLIT_ANNOTATION_TAG));
+                    }
                 }
             }
         }

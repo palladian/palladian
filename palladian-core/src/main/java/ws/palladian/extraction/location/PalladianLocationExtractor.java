@@ -33,7 +33,7 @@ import ws.palladian.processing.features.Annotation;
 public class PalladianLocationExtractor extends LocationExtractor {
 
     /** Long annotations exceeding the specified token count, are split up and parts of them are treated as candidates. */
-    private final static int LONG_ANNOTATION_SPLIT = 3;
+    public final static int LONG_ANNOTATION_SPLIT = 3;
 
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
@@ -119,8 +119,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
         String rawText = FileHelper
-        // .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text74.txt");
-                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_40866507.txt");
+        // .readFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text91.txt");
+                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_44026163.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38765806.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38812825.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41521706.txt");

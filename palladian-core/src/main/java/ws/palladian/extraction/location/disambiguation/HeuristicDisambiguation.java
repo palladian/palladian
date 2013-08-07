@@ -145,8 +145,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                         LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
                         preselection.add(candidate);
                     } else if (anchorType == CITY || anchorType == UNIT || anchorType == COUNTRY) {
-                        if (LocationExtractorUtils.isDescendantOf(candidate, anchor)
-                                && candidate.getPopulation() > lowerPopulationThreshold) {
+                        if (candidate.descendantOf(anchor) && candidate.getPopulation() > lowerPopulationThreshold) {
                             LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
                             preselection.add(candidate);
                         }
@@ -194,9 +193,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             public int compare(Location l1, Location l2) {
 
                 // if locations are nested, take the "deepest" one
-                if (LocationExtractorUtils.isDescendantOf(l2, l1)) {
+                if (l2.descendantOf(l1)) {
                     return 1;
-                } else if (LocationExtractorUtils.isDescendantOf(l1, l2)) {
+                } else if (l1.descendantOf(l2)) {
                     return -1;
                 }
 
@@ -310,7 +309,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         Set<Location> parents = CollectionHelper.newHashSet();
         for (Location location : lassoLocations) {
             for (Location other : locations.allValues()) {
-                if (LocationExtractorUtils.isDescendantOf(location, other)) {
+                if (location.descendantOf(other)) {
                     if (parents.add(other)) {
                         LOGGER.debug("Added {} to lassos because it is parent of {}", other, location);
                     }
