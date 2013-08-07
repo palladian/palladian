@@ -179,6 +179,9 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
         final ProgressMonitor progressMonitor = new ProgressMonitor(iterations, 0);
         int featureIndex = 0;
+        
+        LOGGER.info("# of features in dataset: {}", allFeatures.size());
+        LOGGER.info("# of iterations: {}", iterations);
 
         try {
             // run with all features
@@ -219,6 +222,9 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 eliminatedFeatures.add(selectedFeature);
                 result.add(selectedFeature, featureIndex++);
             }
+            
+            executor.shutdown();
+            
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
         } catch (ExecutionException e) {
@@ -239,8 +245,8 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
     }
 
     public static void main(String[] args) {
-        List<Trainable> trainSet = ClassificationUtils.readCsv("data/temp/ld_features_training.csv", true);
-        List<Trainable> validationSet = ClassificationUtils.readCsv("data/temp/ld_features_validation.csv", true);
+        List<Trainable> trainSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationLab/location_disambiguation_1375654002988.csv", true);
+        List<Trainable> validationSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationLab/location_disambiguation_1375654945350.csv", true);
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
