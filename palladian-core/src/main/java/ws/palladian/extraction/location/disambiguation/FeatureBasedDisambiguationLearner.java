@@ -154,7 +154,7 @@ public class FeatureBasedDisambiguationLearner {
         learner.learn(datasetTud);
         learner.learn(datasetLgl);
         learner.learn(datasetClust);
-        learner.learn(datasetTud, datasetLgl, datasetClust);
+        // learner.learn(datasetTud, datasetLgl, datasetClust);
         // dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
         // learner.learn(dataset);
     }
