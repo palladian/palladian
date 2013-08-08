@@ -358,8 +358,7 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}. In
-     * contrast to {@link #filter(Iterable, Filter)}, this does not modify the supplied Iterable.
+     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}.
      * </p>
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
@@ -379,6 +378,34 @@ public final class CollectionHelper {
             }
         }
         return output;
+    }
+
+    /**
+     * <p>
+     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link List}.
+     * </p>
+     * 
+     * @param list The Iterable to filter, not <code>null</code>.
+     * @param filter The filter to apply, not <code>null</code>.
+     * @return A List with the items that passed the filter.
+     * @see #filter(Iterable, Filter, Collection)
+     */
+    public static <T> List<T> filterList(Iterable<T> iterable, Filter<? super T> filter) {
+        return filter(iterable, filter, CollectionHelper.<T> newArrayList());
+    }
+
+    /**
+     * <p>
+     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Set}.
+     * </p>
+     * 
+     * @param list The Iterable to filter, not <code>null</code>.
+     * @param filter The filter to apply, not <code>null</code>.
+     * @return A Set with the items that passed the filter.
+     * @see #filter(Iterable, Filter, Collection)
+     */
+    public static <T> Set<T> filterSet(Iterable<T> iterable, Filter<? super T> filter) {
+        return filter(iterable, filter, CollectionHelper.<T> newHashSet());
     }
 
     /**

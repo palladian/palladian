@@ -272,6 +272,13 @@ public final class LocationExtractorUtils {
         return !differentNames(locations);
     }
 
+    /**
+     * <p>
+     * Filter {@link Location}s by {@link LocationType}.
+     * </p>
+     * 
+     * @author Philipp Katz
+     */
     public static class LocationTypeFilter implements Filter<Location> {
 
         private final LocationType type;
