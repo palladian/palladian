@@ -60,6 +60,11 @@ public class EntityPreprocessingTaggerTest {
         assertEquals("Sandra Allen", splitAnnotations.get(6).getValue());
         assertEquals(242, splitAnnotations.get(6).getStartPosition());
         assertEquals(254, splitAnnotations.get(6).getEndPosition());
+
+        annotations = tagger.getAnnotations("New York City-based");
+        splitAnnotations = preprocessingTagger.getLongAnnotationSplit(annotations, 3);
+        assertEquals(2, splitAnnotations.size());
+        assertEquals("New York City", splitAnnotations.get(1).getValue());
     }
 
 }

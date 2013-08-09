@@ -17,6 +17,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
@@ -199,6 +200,17 @@ public class EntityPreprocessingTagger implements Tagger {
                     if (value.length() > 1) {
                         int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
                         splitAnnotations.add(new ImmutableAnnotation(startPosition, value, SPLIT_ANNOTATION_TAG));
+                    }
+                }
+            }
+            // add additional splits for annotations with hyphens
+            String temp = StringHelper.normalizeQuotes(annotation.getValue());
+            if (temp.contains("-")) {
+                String[] hyphenParts = temp.split("-");
+                for (String part : hyphenParts) {
+                    if (StringHelper.startsUppercase(part)) {
+                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(part);
+                        splitAnnotations.add(new ImmutableAnnotation(startPosition, part, SPLIT_ANNOTATION_TAG));
                     }
                 }
             }
