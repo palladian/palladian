@@ -201,7 +201,7 @@ public class ContextClassifier {
                 if (current == ' ' && i < start) {
                     wordCounter++;
                 }
-                if (wordCounter >= numWords || current == '\n' || current == '.') {
+                if (wordCounter >= numWords || current == '\n' || StringHelper.isPunctuation(current)) {
                     break;
                 }
                 builder.append(current);
@@ -228,7 +228,7 @@ public class ContextClassifier {
                 if (current == ' ' && i > start) {
                     wordCounter++;
                 }
-                if (wordCounter >= numWords || current == '\n' || current == '.') {
+                if (wordCounter >= numWords || current == '\n' || StringHelper.isPunctuation(current)) {
                     break;
                 }
                 builder.append(current);
