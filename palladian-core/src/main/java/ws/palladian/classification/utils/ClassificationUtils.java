@@ -263,7 +263,7 @@ public final class ClassificationUtils {
             result.set(n, result.get(k));
             result.set(k, tmp);
         }
-        return new ArrayList<T>(list.subList(0, count));
+        return new ArrayList<T>(result.subList(0, count));
     }
 
     /**
