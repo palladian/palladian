@@ -95,6 +95,28 @@ public final class LocationExtractionEvaluator {
         }
     }
 
+    /**
+     * <p>
+     * Run one evaluation circle consisting of a {@link LocationExtractor} and a dataset. The evaluation measures the
+     * NER performance for locations (MUC and exact match scheme, see {@link EvaluationResult} for more information),
+     * recognition-only performance (i.e. only checking if toponyms were marked, not taking the tags into
+     * consideration), and Geo/Disambiguation performance (i.e. were the correct spots on the map identified). The
+     * following files will be written:
+     * </p>
+     * 
+     * <ul>
+     * <li><code>timestamp_allErrors.csv</code>: A CSV file containing detailed NER evaluation results, useful for
+     * debugging (different error types for each annotation, and detailed NER evaluation measures).</li>
+     * <li><code>timestamp_distances.csv</code>: A CSV file containing detailed Geo evaluation results, useful for
+     * debugging (for each annotation the spatial distance between the gold standard and the performed annotation, and
+     * detailed summarized evaluation measures).</li>
+     * <li><code>_locationsSummary.csv</code>: A summary file which is appended for each run and contains overview
+     * evaluation measures, useful for creating the graphs.</li>
+     * </ul>
+     * 
+     * @param extractor The extractor, not <code>null</code>.
+     * @param datasetDirectory The directory with the dataset, not <code>null</code>.
+     */
     public static void run(LocationExtractor extractor, File datasetDirectory) {
         Validate.notNull(extractor, "extractor must not be null");
         Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
@@ -367,12 +389,12 @@ public final class LocationExtractionEvaluator {
     public static void main(String[] args) {
 
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
+        evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
         // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation");
         // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/2-validation");
 
         // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/3-test");
-        evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test");
+        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test");
         // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/3-test");
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
@@ -381,7 +403,7 @@ public final class LocationExtractionEvaluator {
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_tud_train_1375884663191.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_lgl_train_1375884760443.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_clust_train_1375885091622.model");
-        BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_all_train_1375885612531.model");
+        BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/location_disambiguation_1375988805941_tud_train.model");
         evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
 
         // perform threshold analysis ////////////////////////////////
