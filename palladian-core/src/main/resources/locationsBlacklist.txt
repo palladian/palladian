@@ -536,12 +536,10 @@ Liberian
 Liberians
 Libyan
 Libyans
-Liechtenstein
 Liechtensteiners
 Lithuanian
 Lithuanians
 Llanitos
-Luxembourg
 Luxembourgers
 Luxembourgish
 Macanese
@@ -695,7 +693,8 @@ Slovenians
 Solomon Islanders
 Somali
 Somalian
-Somalis; Somalians
+Somalis
+Somalians
 South African
 South Africans
 South Korean
