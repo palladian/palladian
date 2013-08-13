@@ -66,17 +66,6 @@ class LocationFeatureExtractor {
     private final Set<String> locationMarkers = new HashSet<String>(
             FileHelper.readFileToArray(FeatureBasedDisambiguation.class.getResourceAsStream("/locationMarkers.txt")));
     
-//    private static final Set<String> locationMarkers;
-//    
-//    static {
-//        locationMarkers = CollectionHelper.newHashSet();
-//        locationMarkers.add("Gmina");
-//        locationMarkers.add("Park");
-//        locationMarkers.add("Highway");
-//        locationMarkers.add("Peak");
-//        locationMarkers.add("Muncipality");
-//    }
-
     private final Searcher<ClueWebResult> clueWebIndex = new CachingSearcher<ClueWebResult>(10000, new ClueWebSearcher(
             new File("/Volumes/LaCie500/ClueWeb09")));
 
@@ -213,9 +202,36 @@ class LocationFeatureExtractor {
                 fv.add(new BooleanFeature("hasLoc(100k,250)", getDistanceToPopulation(location, others, 100000) < 250));// +
                 fv.add(new BooleanFeature("hasLoc(10k,250)", getDistanceToPopulation(location, others, 10000) < 250));// +
                 fv.add(new BooleanFeature("hasLoc(1k,250)", getDistanceToPopulation(location, others, 1000) < 250));// +
-                fv.add(new BooleanFeature("inContinent", containedInAny(location, continents))); // +
-                fv.add(new BooleanFeature("inCountry", containedInAny(location, countries)));// +
-                fv.add(new BooleanFeature("inUnit", containedInAny(location, units)));// +
+
+                fv.add(new BooleanFeature("hasLoc2(1m,10)", getDistanceToPopulation2(location, others, 1000000) < 10));// +
+                fv.add(new BooleanFeature("hasLoc2(100k,10)", getDistanceToPopulation2(location, others, 100000) < 10));// +
+                fv.add(new BooleanFeature("hasLoc2(10k,10)", getDistanceToPopulation2(location, others, 10000) < 10));// +
+                fv.add(new BooleanFeature("hasLoc2(1k,10)", getDistanceToPopulation2(location, others, 1000) < 10));// +
+                fv.add(new BooleanFeature("hasLoc2(1m,50)", getDistanceToPopulation2(location, others, 1000000) < 50));// +
+                fv.add(new BooleanFeature("hasLoc2(100k,50)", getDistanceToPopulation2(location, others, 100000) < 50));// +
+                fv.add(new BooleanFeature("hasLoc2(10k,50)", getDistanceToPopulation2(location, others, 10000) < 50));// +
+                fv.add(new BooleanFeature("hasLoc2(1k,50)", getDistanceToPopulation2(location, others, 1000) < 50));// +
+                fv.add(new BooleanFeature("hasLoc2(1m,100)", getDistanceToPopulation2(location, others, 1000000) < 100));// +
+                fv.add(new BooleanFeature("hasLoc2(100k,100)", getDistanceToPopulation2(location, others, 100000) < 100));// +
+                fv.add(new BooleanFeature("hasLoc2(10k,100)", getDistanceToPopulation2(location, others, 10000) < 100));// +
+                fv.add(new BooleanFeature("hasLoc2(1k,100)", getDistanceToPopulation2(location, others, 1000) < 100));// +
+                fv.add(new BooleanFeature("hasLoc2(1m,250)", getDistanceToPopulation2(location, others, 1000000) < 250));// +
+                fv.add(new BooleanFeature("hasLoc2(100k,250)", getDistanceToPopulation2(location, others, 100000) < 250));// +
+                fv.add(new BooleanFeature("hasLoc2(10k,250)", getDistanceToPopulation2(location, others, 10000) < 250));// +
+                fv.add(new BooleanFeature("hasLoc2(1k,250)", getDistanceToPopulation2(location, others, 1000) < 250));// +
+                fv.add(new NumericFeature("popIn2(10)", getPopulationInRadius(location, allLocations, 10)));// +
+                fv.add(new NumericFeature("popIn2(50)", getPopulationInRadius(location, allLocations, 50)));// +
+                fv.add(new NumericFeature("popIn2(100)", getPopulationInRadius(location, allLocations, 100)));// +
+                fv.add(new NumericFeature("popIn2(250)", getPopulationInRadius(location, allLocations, 250)));// +
+
+                boolean inContinent = containedInAny(location, continents);
+                boolean inCountry = containedInAny(location, countries);
+                boolean inUnit = containedInAny(location, units);
+                fv.add(new BooleanFeature("inContinent", inContinent)); // +
+                fv.add(new BooleanFeature("inCountry", inCountry)); // +
+                fv.add(new BooleanFeature("inUnit", inUnit)); // +
+                fv.add(new BooleanFeature("in(Country|Unit)", inCountry || inUnit)); // +
+                fv.add(new BooleanFeature("in(Continent|Country|Unit)", inContinent || inCountry || inUnit)); // +
 
                 // TODO type equivalence relations of "neighbors"; e.g. for phrases like "Germany, France and Italy".
                 // TODO distance from first location

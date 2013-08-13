@@ -72,7 +72,7 @@ public final class FileHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
     /** The encoding used by this class, instead of relying on the System's default encoding. */
-    private static final String DEFAULT_ENCODING = "UTF-8";
+    public static final String DEFAULT_ENCODING = "UTF-8";
 
     /** Constant for new line character. */
     public static final String NEWLINE_CHARACTER = "\n";

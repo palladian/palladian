@@ -1,6 +1,11 @@
 package ws.palladian.classification.utils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -147,33 +152,43 @@ public final class ClassificationUtils {
         Validate.notNull(trainData, "trainData must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
 
-        StringBuilder builder = new StringBuilder();
-        boolean writeHeader = true;
-        int count = 0;
-        int featureCount = 0;
-        for (Classifiable trainable : trainData) {
-            if (writeHeader) {
+        Writer writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),
+                    FileHelper.DEFAULT_ENCODING));
+
+            boolean writeHeader = true;
+            int count = 0;
+            int featureCount = 0;
+            for (Classifiable trainable : trainData) {
+                if (writeHeader) {
+                    for (Feature<?> feature : trainable.getFeatureVector()) {
+                        writer.write(feature.getName());
+                        writer.write(DEFAULT_SEPARATOR);
+                        featureCount++;
+                    }
+                    if (trainable instanceof Trainable) {
+                        writer.write("targetClass");
+                    }
+                    writer.write(FileHelper.NEWLINE_CHARACTER);
+                    writeHeader = false;
+                }
                 for (Feature<?> feature : trainable.getFeatureVector()) {
-                    builder.append(feature.getName()).append(DEFAULT_SEPARATOR);
-                    featureCount++;
+                    writer.write(feature.getValue().toString());
+                    writer.write(DEFAULT_SEPARATOR);
                 }
                 if (trainable instanceof Trainable) {
-                    builder.append("targetClass");
+                    writer.write(((Trainable)trainable).getTargetClass());
                 }
-                builder.append(FileHelper.NEWLINE_CHARACTER);
-                writeHeader = false;
+                writer.write(FileHelper.NEWLINE_CHARACTER);
+                count++;
             }
-            for (Feature<?> feature : trainable.getFeatureVector()) {
-                builder.append(feature.getValue()).append(DEFAULT_SEPARATOR);
-            }
-            if (trainable instanceof Trainable) {
-                builder.append(((Trainable)trainable).getTargetClass());
-            }
-            builder.append(FileHelper.NEWLINE_CHARACTER);
-            count++;
+            LOGGER.info("Wrote {} train instances with {} features.", count, featureCount);
+        } catch (IOException e) {
+            throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
+        } finally {
+            FileHelper.close(writer);
         }
-        LOGGER.info("Wrote {} train instances with {} features.", count, featureCount);
-        FileHelper.writeToFile(outputFile.getPath(), builder);
     }
 
     /**
