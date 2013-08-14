@@ -786,25 +786,27 @@ public final class MathHelper {
         return ret;
     }
 
-    /**
-     * <p>
-     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
-     * </p>
-     * 
-     * @param lat1 The latitude of the first place.
-     * @param lng1 The longitude of the first place.
-     * @param lat2 The latitude of the second place.
-     * @param lng2 The longitude of the second place.
-     * @return The distance between the points in kilometers.
-     */
-    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-        double earthRadius = 6371;
-        return 2
-                * earthRadius
-                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
-                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
-    }
+//    /**
+//     * <p>
+//     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
+//     * </p>
+//     * 
+//     * @param lat1 The latitude of the first place.
+//     * @param lng1 The longitude of the first place.
+//     * @param lat2 The latitude of the second place.
+//     * @param lng2 The longitude of the second place.
+//     * @return The distance between the points in kilometers.
+//     * @deprecated Use <code>GeoUtils#getDistance</code> in palladian-core package
+//     */
+//    @Deprecated
+//    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
+//        double earthRadius = 6371;
+//        return 2
+//                * earthRadius
+//                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
+//                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+//                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
+//    }
 
     // public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
     // double earthRadius = 6371;
