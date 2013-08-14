@@ -1,5 +1,6 @@
 package ws.palladian.classification.featureselection;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -240,9 +241,9 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         
         // take a sub sampling of TUD, LGL and Clust; make # of samples roughly equal for each data set
         
-        List<Trainable> tudTrain = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375988805941_tud_train.csv", true);
-        List<Trainable> lglTrain = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375990902647_lgl_train.csv", true);
-        List<Trainable> clustTrain = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375995779634_clust_train.csv", true);
+        List<Trainable> tudTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_train_1376394038036.csv", true);
+        List<Trainable> lglTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_train_1376399225449.csv", true);
+        List<Trainable> clustTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_train_1376413884470.csv", true);
         lglTrain = ClassificationUtils.drawRandomSubset(lglTrain, 30);
         clustTrain = ClassificationUtils.drawRandomSubset(clustTrain, 15);
         List<Trainable> trainSet = CollectionHelper.newArrayList();
@@ -250,15 +251,19 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         trainSet.addAll(lglTrain);
         trainSet.addAll(clustTrain);
         
-        List<Trainable> tudValidate = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376008960436_tud_valid.csv", true);
-        List<Trainable> lglValidate = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376009824646_lgl_valid.csv", true);
-        List<Trainable> clustValidate = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376011592129_clust_valid.csv", true);
+        List<Trainable> tudValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_validation_1376419927925.csv", true);
+        List<Trainable> lglValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_validation_1376420924580.csv", true);
+        List<Trainable> clustValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_validation_1376422975187.csv", true);
         lglValidate = ClassificationUtils.drawRandomSubset(lglValidate, 30);
         clustValidate = ClassificationUtils.drawRandomSubset(clustValidate, 15);
         List<Trainable> validationSet = CollectionHelper.newArrayList();
         validationSet.addAll(tudValidate);
         validationSet.addAll(lglValidate);
         validationSet.addAll(clustValidate);
+        
+        ClassificationUtils.writeCsv(trainSet, new File("/Users/pk/Desktop/fd_merged_train.csv"));
+        ClassificationUtils.writeCsv(validationSet, new File("/Users/pk/Desktop/fd_merged_validation.csv"));
+        System.exit(0);
         
         // skip those features: indexScore (expensive); containsMarker(...) except the consolidated containsMarker(*)
         trainSet = ClassificationUtils.filterFeatures(trainSet, InverseFilter.create(EqualsFilter.create("indexScore")));
