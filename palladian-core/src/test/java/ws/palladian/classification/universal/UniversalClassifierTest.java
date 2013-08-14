@@ -6,6 +6,7 @@ package ws.palladian.classification.universal;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class UniversalClassifierTest {
         List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/saheart.csv"), true, ",");
 
-        List<Trainable> trainingSet = ClassificationUtils.drawRandomSubset(instances, 60);
+        List<Trainable> trainingSet = new ArrayList<Trainable>(instances.subList(0, (int)(instances.size() * 0.6)));
         instances.removeAll(trainingSet);
 
         UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
