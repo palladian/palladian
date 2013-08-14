@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.io.FileHelper;
@@ -84,6 +85,7 @@ public final class ClassificationUtils {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
 
+        final StopWatch stopWatch = new StopWatch();
         final List<Trainable> instances = CollectionHelper.newArrayList();
 
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
@@ -133,9 +135,13 @@ public final class ClassificationUtils {
                 }
                 String targetClass = parts[parts.length - 1];
                 instances.add(new Instance(targetClass, featureVector));
+
+                if (lineNumber % 10000 == 0) {
+                    LOGGER.debug("Read {} lines", lineNumber);
+                }
             }
         });
-
+        LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
         return instances;
     }
 
