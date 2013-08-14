@@ -235,8 +235,48 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
     }
 
     public static void main(String[] args) {
-        List<Trainable> trainSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationLab/location_disambiguation_1375654002988.csv", true);
-        List<Trainable> validationSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationLab/location_disambiguation_1375654945350.csv", true);
+        // List<Trainable> trainSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376006525521_all_train.csv", true);
+        // List<Trainable> validationSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376012524940_all_valid.csv", true);
+        
+        // take a sub sampling of TUD, LGL and Clust; make # of samples roughly equal for each data set
+        
+        List<Trainable> tudTrain = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375988805941_tud_train.csv", true);
+        List<Trainable> lglTrain = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375990902647_lgl_train.csv", true);
+        List<Trainable> clustTrain = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375995779634_clust_train.csv", true);
+        lglTrain = ClassificationUtils.drawRandomSubset(lglTrain, 30);
+        clustTrain = ClassificationUtils.drawRandomSubset(clustTrain, 15);
+        List<Trainable> trainSet = CollectionHelper.newArrayList();
+        trainSet.addAll(tudTrain);
+        trainSet.addAll(lglTrain);
+        trainSet.addAll(clustTrain);
+        
+        List<Trainable> tudValidate = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376008960436_tud_valid.csv", true);
+        List<Trainable> lglValidate = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376009824646_lgl_valid.csv", true);
+        List<Trainable> clustValidate = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376011592129_clust_valid.csv", true);
+        lglValidate = ClassificationUtils.drawRandomSubset(lglValidate, 30);
+        clustValidate = ClassificationUtils.drawRandomSubset(clustValidate, 15);
+        List<Trainable> validationSet = CollectionHelper.newArrayList();
+        validationSet.addAll(tudValidate);
+        validationSet.addAll(lglValidate);
+        validationSet.addAll(clustValidate);
+        
+        // skip those features: indexScore (expensive); containsMarker(...) except the consolidated containsMarker(*)
+        trainSet = ClassificationUtils.filterFeatures(trainSet, InverseFilter.create(EqualsFilter.create("indexScore")));
+        validationSet = ClassificationUtils.filterFeatures(validationSet, InverseFilter.create(EqualsFilter.create("indexScore")));
+        Filter<String> markerFilter = new Filter<String>() {
+            @Override
+            public boolean accept(String item) {
+                if (item.startsWith("containsMarker")) {
+                    return item.equals("containsMarker(*)");
+                }
+                return true;
+            }
+        };
+        trainSet = ClassificationUtils.filterFeatures(trainSet, markerFilter);
+        validationSet = ClassificationUtils.filterFeatures(validationSet, markerFilter);
+        
+        // should be 106 features without indexScore
+        // should be 82 features without individual markers
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
