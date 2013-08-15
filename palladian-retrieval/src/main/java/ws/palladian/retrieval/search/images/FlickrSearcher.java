@@ -126,7 +126,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
                     String userId = photoJson.getString("owner");
                     String imageUrl = buildImageUrl(farmId, serverId, id, secret);
                     String pageUrl = buildPageUrl(id, userId);
-                    WebImageResult webImageResult = new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null, null);
+                    WebImageResult webImageResult = new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null);
                     webImageResult.setThumbImageUrl(imageUrl);
                     result.add(webImageResult);
                 }
