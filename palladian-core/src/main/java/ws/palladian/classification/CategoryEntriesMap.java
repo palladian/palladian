@@ -228,7 +228,6 @@ public final class CategoryEntriesMap implements CategoryEntries {
         return entryMap.isEmpty();
     }
 
-    @Override
     public void sort() {
         entryMap = CollectionHelper.sortByValue(entryMap, false);
     }
