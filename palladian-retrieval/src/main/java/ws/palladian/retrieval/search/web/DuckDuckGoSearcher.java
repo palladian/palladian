@@ -17,6 +17,7 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -35,6 +36,9 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
     /** The number of entries which are returned for each page. */
     private static final int ENTRIES_PER_PAGE = 10;
 
+    /** Prevent over penetrating the searcher. */
+    private static final RequestThrottle THROTTLE = new RequestThrottle(1000);
+
     @Override
     public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
 
@@ -48,6 +52,7 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
 
             HttpResult httpResult;
             try {
+                THROTTLE.hold();
                 httpResult = retriever.httpGet(requestUrl);
             } catch (HttpException e) {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
