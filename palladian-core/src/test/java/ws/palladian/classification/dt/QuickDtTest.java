@@ -6,13 +6,14 @@ import java.util.List;
 
 import org.junit.Test;
 
+import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
 
-public class DecisionTreeClassifierTest {
+public class QuickDtTest {
 
 //    @Test
 //    public void testDirectly() {
@@ -50,10 +51,11 @@ public class DecisionTreeClassifierTest {
         instances.add(new InstanceBuilder().set("height", 49.).set("weight", 144.).set("gender", "female").create("underweight"));
         instances.add(new InstanceBuilder().set("height", 83.).set("weight", 223.).set("gender", "male").create("healthy"));
 
-        DecisionTreeClassifier classifier = new DecisionTreeClassifier();
-        DecisionTreeModel model = classifier.train(instances);
+        QuickDtLearner learner = new QuickDtLearner(new TreeBuilder());
+        QuickDtModel model = learner.train(instances);
 
         FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
+        QuickDtClassifier classifier = new QuickDtClassifier();
         CategoryEntries prediction = classifier.classify(featureVector, model);
 
         assertEquals("healthy", prediction.getMostLikelyCategory());

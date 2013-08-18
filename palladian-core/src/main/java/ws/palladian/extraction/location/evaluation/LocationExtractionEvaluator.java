@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -376,7 +376,7 @@ public final class LocationExtractionEvaluator {
 
     @SuppressWarnings("unused")
     private static List<LocationExtractor> createForThresholdAnalysis(LocationDatabase database,
-            BaggedDecisionTreeModel model) {
+ QuickDtModel model) {
         List<LocationExtractor> extractors = CollectionHelper.newArrayList();
         for (int i = 0; i <= 10; i++) {
             double threshold = i / 10.;
@@ -403,7 +403,7 @@ public final class LocationExtractionEvaluator {
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_tud_train_1375884663191.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_lgl_train_1375884760443.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_clust_train_1375885091622.model");
-        BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/location_disambiguation_1375988805941_tud_train.model");
+        QuickDtModel model = FileHelper.deserialize("data/temp/location_disambiguation_1375988805941_tud_train.model");
         evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
 
         // perform threshold analysis ////////////////////////////////

@@ -58,6 +58,19 @@ public final class ClassificationUtils {
      * 
      * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
      *            path.
+     */
+    public static List<Trainable> readCsv(String filePath) {
+        return readCsv(filePath, true, DEFAULT_SEPARATOR);
+    }
+
+    /**
+     * <p>
+     * Create instances from a file. The instances must be given in a CSV file in the following format:
+     * <code>feature1;..;featureN;NominalClass</code>. Each line is one training instance.
+     * </p>
+     * 
+     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+     *            path.
      * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
      *            (column names are generated automatically).
      */

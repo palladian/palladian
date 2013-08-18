@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.dt.QuickDtClassifier;
+import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -37,17 +37,17 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
     private final double probabilityThreshold;
 
-    private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+    private final QuickDtClassifier classifier = new QuickDtClassifier();
 
     private final LocationFeatureExtractor featureExtractor = new LocationFeatureExtractor();
 
-    private final BaggedDecisionTreeModel model;
+    private final QuickDtModel model;
 
-    public FeatureBasedDisambiguation(BaggedDecisionTreeModel model) {
+    public FeatureBasedDisambiguation(QuickDtModel model) {
         this(model, PROBABILITY_THRESHOLD);
     }
 
-    public FeatureBasedDisambiguation(BaggedDecisionTreeModel model, double probabilityThreshold) {
+    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold) {
         Validate.notNull(model, "model must not be null");
         Validate.inclusiveBetween(0., 1., probabilityThreshold,
                 "probabilityThreshold must be between inclusive 0 and 1.");
