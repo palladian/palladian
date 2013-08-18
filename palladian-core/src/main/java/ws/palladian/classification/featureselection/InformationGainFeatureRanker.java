@@ -116,39 +116,67 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         double classProb = 0.0d;
         for (Entry<String, Double> classCount : classPriors.entrySet()) {
             double Prci = classCount.getValue();
-            classProb += Prci * Math.log(Prci);
+            classProb += Prci * ld(Prci);
         }
 
         // calculate information gain.
-        for (Entry<Feature<?>, Integer> absoluteOccurence : absoluteOccurences.entrySet()) {
-            double G = 0.0d;
-
-            double termClassCoocurrence = 0.0d;
-            double termClassNonCoocurrence = 0.0d;
-            for (Entry<String, Integer> absoluteConditionalOccurence : absoluteConditionalOccurences.get(
-                    absoluteOccurence.getKey()).entrySet()) {
-                // int classCount = classCounts.get(absoluteConditionalOccurence.getKey());
-                // Probability for class ci containing term t
-                double Prcit = laplaceSmooth(absoluteOccurences.keySet().size(),
-                        featuresInClass.get(absoluteConditionalOccurence.getKey()),
-                        absoluteConditionalOccurence.getValue());
-                termClassCoocurrence += Prcit * Math.log(Prcit);
-
-                // Probability for class ci not containing term t
-                double Prcint = laplaceSmooth(absoluteOccurences.keySet().size(), sumOfFeaturesInAllClasses
-                        - featuresInClass.get(absoluteConditionalOccurence.getKey()), dataset.size()
-                        - absoluteConditionalOccurence.getValue());
-                termClassNonCoocurrence += Prcint * Math.log(Prcint);
-            }
-            double termProb = absoluteOccurence.getValue().doubleValue() / dataset.size() * termClassCoocurrence;
-
-            double nonTermProb = (double)(dataset.size() - absoluteOccurence.getValue()) / dataset.size()
-                    * termClassNonCoocurrence;
-
-            G = -classProb + termProb + nonTermProb;
-            ret.put(absoluteOccurence.getKey(), G);
+        for (Entry<Feature<?>, Integer> absoluteOccurrence : absoluteOccurences.entrySet()) {
+            ret.put(absoluteOccurrence.getKey(),
+                    gain(classProb, absoluteOccurrence.getValue(),
+                            absoluteConditionalOccurences.get(absoluteOccurrence.getKey()), dataset, featuresInClass,
+                            sumOfFeaturesInAllClasses));
         }
         return ret;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param value
+     * @param map
+     * @return
+     */
+    private double gain(Double classProbability, Integer value, Map<String, Integer> map,
+            Collection<? extends Trainable> dataset, Map<String, Integer> featuresInClass, int sumOfFeaturesInAllClasses) {
+        double termClassCoocurrence = 0.0d;
+        double termClassNonCoocurrence = 0.0d;
+        for (Entry<String, Integer> absoluteConditionalOccurence : map.entrySet()) {
+            // Probability for class ci containing term t
+            double Prcit = laplaceSmooth(map.keySet().size(),
+                    featuresInClass.get(absoluteConditionalOccurence.getKey()), absoluteConditionalOccurence.getValue());
+            termClassCoocurrence += Prcit * ld(Prcit);
+
+            // Probability for class ci not containing term t
+            double Prcint = laplaceSmooth(map.keySet().size(),
+                    sumOfFeaturesInAllClasses - featuresInClass.get(absoluteConditionalOccurence.getKey()),
+                    dataset.size() - absoluteConditionalOccurence.getValue());
+            termClassNonCoocurrence += Prcint * ld(Prcint);
+        }
+        double termProb = value.doubleValue() / dataset.size() * termClassCoocurrence;
+
+        double nonTermProb = (double)(dataset.size() - value) / dataset.size() * termClassNonCoocurrence;
+
+        return -classProbability + termProb + nonTermProb;
+        // double gain = .0;
+        // for(Entry<String, Integer> entry:map.entrySet()) {
+        // int probability = entry.getValue()/value;
+        // gain = gain - probability * ld(probability);
+        // }
+        // return gain;
+    }
+
+    /**
+     * <p>
+     * Calculates the base 2 logarithm for the provided argument.
+     * </p>
+     * 
+     * @param arg The argument to calculate the logarithm for.
+     * @return The base 2 logarithm for the provided argument.
+     */
+    private double ld(double arg) {
+        return Math.log(arg) / Math.log(2);
     }
 
     /**
@@ -166,7 +194,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         for (Trainable instance : dataset) {
             // deduplicate // TODO is this necessary? Is it possible to include a duplicate feature in the feature
             // vector? is the same word at different positions the same feature?
-            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(),dataset);
+            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
 
             ret.add(new ImmutablePair<Set<Feature<?>>, String>(features, instance.getTargetClass()));
         }
@@ -211,24 +239,26 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
         FeatureRanking ranking = new FeatureRanking();
         Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(dataset);
-        
-        // Dense features will have one score per value. This must be averaged to calculate a complete score for the whole feature.
+        LOGGER.debug(informationGainValues.toString());
+
+        // Dense features will have one score per value. This must be averaged to calculate a complete score for the
+        // whole feature.
         Map<String, List<Double>> scores = CollectionHelper.newHashMap();
-        for(Entry<? extends Feature<?>, Double> entry:informationGainValues.entrySet()) {
+        for (Entry<? extends Feature<?>, Double> entry : informationGainValues.entrySet()) {
             String name = entry.getKey().getName();
             List<Double> featureScores = scores.get(name);
-            if(featureScores==null) {
+            if (featureScores == null) {
                 featureScores = CollectionHelper.newArrayList();
             }
             featureScores.add(entry.getValue());
-            scores.put(name,featureScores);
+            scores.put(name, featureScores);
         }
-        
+
         // average scores and add to ranking
-        for(Entry<String, List<Double>> featureScores:scores.entrySet()) {
+        for (Entry<String, List<Double>> featureScores : scores.entrySet()) {
             double summedScores = .0;
-            for(double score:featureScores.getValue()) {
-                summedScores +=score;
+            for (double score : featureScores.getValue()) {
+                summedScores += score;
             }
             double averageScore = summedScores / featureScores.getValue().size();
             ranking.add(featureScores.getKey(), averageScore);
