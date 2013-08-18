@@ -9,7 +9,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -208,62 +207,6 @@ public final class ClassificationUtils {
         } finally {
             FileHelper.close(writer);
         }
-    }
-
-    /**
-     * <p>
-     * Calculate Min-Max normalization information over the numeric values of the given features (i.e. calculate the
-     * minimum and maximum values for each feature). The {@link MinMaxNormalization} instance can then be used to
-     * normalize numeric instances to an interval of [0,1].
-     * </p>
-     * 
-     * @param instances The {@code List} of {@link Instance}s to normalize, not <code>null</code>.
-     * @return A {@link MinMaxNormalization} instance carrying information to normalize {@link Instance}s based on the
-     *         calculated normalization information.
-     */
-    public static MinMaxNormalization calculateMinMaxNormalization(List<? extends Classifiable> instances) {
-        Validate.notNull(instances, "instances must not be null");
-
-        // hold the min value of each feature <featureName, minValue>
-        Map<String, Double> minValues = CollectionHelper.newHashMap();
-
-        // hold the max value of each feature <featureIndex, maxValue>
-        Map<String, Double> maxValues = CollectionHelper.newHashMap();
-
-        // find the min and max values
-        for (Classifiable instance : instances) {
-
-            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-
-            for (Feature<Double> feature : numericFeatures) {
-
-                String featureName = feature.getName();
-                double featureValue = feature.getValue();
-
-                // check min value
-                if (minValues.get(featureName) != null) {
-                    double currentMin = minValues.get(featureName);
-                    if (currentMin > featureValue) {
-                        minValues.put(featureName, featureValue);
-                    }
-                } else {
-                    minValues.put(featureName, featureValue);
-                }
-
-                // check max value
-                if (maxValues.get(featureName) != null) {
-                    double currentMax = maxValues.get(featureName);
-                    if (currentMax < featureValue) {
-                        maxValues.put(featureName, featureValue);
-                    }
-                } else {
-                    maxValues.put(featureName, featureValue);
-                }
-
-            }
-        }
-
-        return new MinMaxNormalization(maxValues, minValues);
     }
 
     /**
