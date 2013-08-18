@@ -91,19 +91,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
                 wekaFeatureSet.putAll(handleFeature(feature, data, trainables));
             }
 
-            // for (String featurePath : normalFeaturePaths) {
-            // List<Feature<?>> featureList = FeatureUtils
-            // .getFeaturesAtPath(trainable.getFeatureVector(), featurePath);
-            // Validate.isTrue(featureList.size() == 1);
-            // wekaFeatureSet.putAll(handleFeature(featureList.get(0), data, trainables));
-            // }
-            //
-            // for (String sparseFeaturePath : sparseFeaturePaths) {
-            // List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(trainable.getFeatureVector(),
-            // sparseFeaturePath);
-            //
-            // wekaFeatureSet.putAll(handleFeature(sparseFeatures, data));
-            // }
             wekaFeatureSets.add(wekaFeatureSet);
             classes.add(trainable.getTargetClass());
             instanceClasses.add(trainable.getTargetClass());
@@ -139,7 +126,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
         }
 
         data.compactify();
-        // data.setClassIndex(classIndex - 1);
         Attribute palladianWekaTargetClass = data.attribute("palladianWekaTargetClass");
         data.setClassIndex(palladianWekaTargetClass.index());
         try {
@@ -293,10 +279,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
         SortedMap<Integer, Double> indices = new TreeMap<Integer, Double>();
         Map<String, Attribute> schema = model.getSchema();
         for (Feature<?> feature : classifiable.getFeatureVector()) {
-            // List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(), featurePath);
-            // Validate.isTrue(features.size() == 1);
-            // int indexOfFeature = model.getSchema().get(features.get(0).getName());
-            // Feature<?> feature = features.get(0);
             if (feature instanceof ListFeature) {
                 ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
                 for (Feature<?> sparseFeature : listFeature.getValue()) {
@@ -311,47 +293,19 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
                 }
             } else {
                 Attribute attribute = schema.get(feature.getName());
+                int attributeIndex = attribute.index();
+
                 if (!(feature instanceof NumericFeature)) {
-                    // Attribute attribute = (Attribute)model.getSchema().elementAt(indexOfFeature);
-                    // int indexOfValue = attribute.indexOfValue(features.get(0).getValue().toString());
-                    indices.put(attribute.index(),
-                            Integer.valueOf(attribute.indexOfValue(feature.getValue().toString())).doubleValue());
+                    double value = Integer.valueOf(attribute.indexOfValue(feature.getValue().toString())).doubleValue();
+                    // consider feature as missing if value was not in the training set.
+                    if(!(value<.0)) {
+                        indices.put(attributeIndex, value);
+                    }
                 } else {
-                    indices.put(attribute.index(), Double.valueOf(feature.getValue().toString()));
+                    indices.put(attributeIndex, Double.valueOf(feature.getValue().toString()));
                 }
             }
         }
-
-        // for (String sparseFeaturePath : sparseFeaturePaths) {
-        // List<Feature<?>> sparseFeatures = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(),
-        // sparseFeaturePath);
-        // for (Feature<?> sparseFeature : sparseFeatures) {
-        // String featureName = sparseFeature.getValue().toString();
-        // Attribute featureAttribute = schema.get(featureName);
-        // if (featureAttribute == null) {
-        // LOGGER.info("Ignoring sparse feature " + featureName + " since it was not in training set.");
-        // continue;
-        // }
-        // int indexOfSparseFeature = featureAttribute.index();
-        // indices.put(indexOfSparseFeature, 1.0);
-        // }
-        // }
-        //
-        // for (String featurePath : normalFeaturePaths) {
-        // List<Feature<?>> features = FeatureUtils.getFeaturesAtPath(classifiable.getFeatureVector(), featurePath);
-        // Validate.isTrue(features.size() == 1);
-        // // int indexOfFeature = model.getSchema().get(features.get(0).getName());
-        // Feature<?> feature = features.get(0);
-        // Attribute attribute = schema.get(feature.getName());
-        // if (!(feature instanceof NumericFeature)) {
-        // // Attribute attribute = (Attribute)model.getSchema().elementAt(indexOfFeature);
-        // // int indexOfValue = attribute.indexOfValue(features.get(0).getValue().toString());
-        // indices.put(attribute.index(), Integer.valueOf(attribute.indexOfValue(feature.getValue().toString()))
-        // .doubleValue());
-        // } else {
-        // indices.put(attribute.index(), Double.valueOf(feature.getValue().toString()));
-        // }
-        // }
 
         double[] valuesArray = new double[indices.size()];
         int[] indicesArray = new int[indices.size()];
@@ -364,8 +318,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
         SparseInstance instance = new SparseInstance(1.0, valuesArray, indicesArray, indices.size());
         instance.setDataset(model.getDataset());
 
-        // weka.core.Instance instance = makeWekaInstance(featureVector, vector, null);
-        // instance.setDataset(model.getSchema());
         try {
             double[] distribution = model.getClassifier().distributionForInstance(instance);
             for (int i = 0; i < distribution.length; i++) {
@@ -373,7 +325,7 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
                 ret.set(className, distribution[i]);
             }
         } catch (Exception e) {
-            throw new IllegalStateException("An exception occurred while predicting: " + e.getMessage(), e);
+            throw new IllegalStateException("An exception occurred during classification.", e);
         }
         return ret;
     }

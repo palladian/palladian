@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -68,6 +69,7 @@ public class ContentDateGetterTest {
     }
 
     @Test
+    @Ignore
     public void testGetContentDate2() throws Exception {
         File testPage = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit3.html");
         Document document = htmlParser.parse(testPage);
