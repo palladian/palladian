@@ -103,18 +103,6 @@
 			<artifactId>palladian-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency -->
-		<!-- dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency -->
-		<!-- dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency -->
 		<dependency>
 			<groupId>net.sourceforge</groupId>
 			<artifactId>jwbf</artifactId>
@@ -131,10 +119,6 @@
 			<groupId>uk.org.catnip</groupId>
 			<artifactId>eddie</artifactId>
 			<version>0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>nz.ac.waikato.cms.weka</groupId>
-			<artifactId>weka-stable</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.collections</groupId>

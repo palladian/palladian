@@ -14,6 +14,30 @@ import ws.palladian.processing.features.FeatureVector;
 
 public class DecisionTreeClassifierTest {
 
+//    @Test
+//    public void testDirectly() {
+//        final Set<quickdt.Instance> instances = CollectionHelper.newHashSet();
+//        // A male weighing 168lb that is 55 inches tall, they are overweight
+//        instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification(
+//                "overweight"));
+//        instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification(
+//                "healthy"));
+//        instances.add(HashMapAttributes.create("height", 74, "weight", 143, "gender", "male").classification(
+//                "underweight"));
+//        instances.add(HashMapAttributes.create("height", 49, "weight", 144, "gender", "female").classification(
+//                "underweight"));
+//        instances
+//                .add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
+//
+//        TreeBuilder treeBuilder = new TreeBuilder();
+//        Tree tree = treeBuilder.buildPredictiveModel(instances);
+//        Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+//        Serializable classification = tree.getClassificationByMaxProb(attributes);
+//        double probability = tree.getProbability(attributes, classification);
+//        System.out.println("classification: " + classification);
+//        System.out.println("probability " + probability);
+//    }
+
     @Test
     public void testDecisionTreeClassifier() {
 
@@ -29,12 +53,13 @@ public class DecisionTreeClassifierTest {
         DecisionTreeClassifier classifier = new DecisionTreeClassifier();
         DecisionTreeModel model = classifier.train(instances);
 
-
         FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
         CategoryEntries prediction = classifier.classify(featureVector, model);
 
-        assertEquals(1., prediction.getProbability(prediction.getMostLikelyCategory()), 0);
-        assertEquals("underweight", prediction.getMostLikelyCategory());
+        assertEquals("healthy", prediction.getMostLikelyCategory());
+        assertEquals(0.4, prediction.getProbability("healthy"), 0);
+        assertEquals(0.4, prediction.getProbability("underweight"), 0);
+        assertEquals(0.2, prediction.getProbability("overweight"), 0);
     }
 
 }
