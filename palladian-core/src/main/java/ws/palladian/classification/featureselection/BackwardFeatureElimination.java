@@ -18,11 +18,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.dt.QuickDtClassifier;
+import ws.palladian.classification.dt.QuickDtLearner;
+import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.ProgressMonitor;
@@ -285,12 +287,14 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
-        Factory<BaggedDecisionTreeClassifier> factory = new Factory<BaggedDecisionTreeClassifier>() {
+        Factory<QuickDtLearner> learnerFactory = new Factory<QuickDtLearner>() {
             @Override
-            public BaggedDecisionTreeClassifier create() {
-                return new BaggedDecisionTreeClassifier();
+            public QuickDtLearner create() {
+                return new QuickDtLearner(new RandomForestBuilder().numTrees(10));
             }
         };
+        // we can share this, because it has no state
+        Factory<QuickDtClassifier> predictorFactory = ConstantFactory.create(new QuickDtClassifier());
 
         // scoring function used for deciding which feature to eliminate; we use the F1 measure here, but in general all
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
@@ -301,8 +305,8 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             }
         };
 
-        BackwardFeatureElimination<BaggedDecisionTreeModel> elimination = new BackwardFeatureElimination<BaggedDecisionTreeModel>(
-                factory, factory, scorer, 4);
+        BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<QuickDtModel>(
+                learnerFactory, predictorFactory, scorer, 4);
         FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet);
         CollectionHelper.print(featureRanking.getAll());
     }

@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -68,6 +69,8 @@ public class ContentDateGetterTest {
     }
 
     @Test
+    @Ignore
+    // see issue #218 : https://bitbucket.org/palladian/palladian/issue/218/fix-contentdategettertest
     public void testGetContentDate2() throws Exception {
         File testPage = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit3.html");
         Document document = htmlParser.parse(testPage);

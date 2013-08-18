@@ -11,9 +11,10 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.dt.QuickDtLearner;
+import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.location.AnnotationFilter;
 import ws.palladian.extraction.location.ContextClassifier;
@@ -50,7 +51,7 @@ public class FeatureBasedDisambiguationLearner {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguationLearner.class);
 
-    private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+    private final QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
 
     private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor();
 
@@ -91,7 +92,7 @@ public class FeatureBasedDisambiguationLearner {
         Set<Trainable> trainingData = createTrainingData(trainDocuments);
         String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
         ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
-        BaggedDecisionTreeModel model = classifier.train(trainingData);
+        QuickDtModel model = learner.train(trainingData);
         String modelFileName = baseFileName + ".model";
         FileHelper.serialize(model, modelFileName);
     }
