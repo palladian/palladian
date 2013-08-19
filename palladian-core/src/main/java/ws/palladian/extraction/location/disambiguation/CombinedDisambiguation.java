@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.dt.QuickDtClassifier;
+import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -34,15 +34,15 @@ public class CombinedDisambiguation implements LocationDisambiguation {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CombinedDisambiguation.class);
 
-    private final BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+    private final QuickDtClassifier classifier = new QuickDtClassifier();
 
     private final LocationFeatureExtractor featureExtractor = new LocationFeatureExtractor();
 
-    private final BaggedDecisionTreeModel model;
+    private final QuickDtModel model;
 
     private final HeuristicDisambiguation heuristicDisambiguation = new HeuristicDisambiguation();
 
-    public CombinedDisambiguation(BaggedDecisionTreeModel model) {
+    public CombinedDisambiguation(QuickDtModel model) {
         Validate.notNull(model, "model must not be null");
         this.model = model;
     }
